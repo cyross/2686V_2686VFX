@@ -37,6 +37,9 @@ private:
     void createOpnaParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOpnParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOplParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
+    void createOpllParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
+    void createOpl3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
+    void createOpmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createSsgParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createWavetableParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createRhythmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
@@ -45,6 +48,9 @@ private:
     void processOpnaBlock(SynthParams &params);
     void processOpnBlock(SynthParams &params);
     void processOplBlock(SynthParams &params);
+    void processOpllBlock(SynthParams& params);
+    void processOpl3Block(SynthParams& params);
+    void processOpmBlock(SynthParams& params);
     void processSsgBlock(SynthParams &params);
     void processWavetableBlock(SynthParams &params);
     void processRhythmBlock(SynthParams &params);

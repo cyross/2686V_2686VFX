@@ -132,6 +132,107 @@ struct Fm2GuiSet
     std::array<std::unique_ptr<ComboBoxAttachment>, 2> wsAtt;
 };
 
+struct OpllGuiSet
+{
+    juce::Component page;
+
+    juce::GroupComponent globalGroup;             // Preset & Feedback
+    std::array<juce::GroupComponent, 2> opGroups; // OP1, OP2
+
+    // Feedback (User Patch)
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+
+    std::array<juce::Label, 2> opLabel;
+
+    // Sliders (User Patch)
+    std::array<juce::Slider, 2> mul, tl, ar, dr, sl, rr;
+    std::array<juce::Label, 2> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
+    std::array<juce::ComboBox, 2> ksl; // Key Scale Level
+    std::array<juce::Label, 2> kslLabel;
+    std::array<juce::ComboBox, 2> ws; // Wave Select
+    std::array<juce::Label, 2> wsLabel;
+    std::array<juce::ToggleButton, 2> am, vib, egType, ksr;
+    std::array<juce::Label, 2> amLabel, vibLabel, egTypeLabel, ksrLabel;
+
+    // Attachments
+    std::unique_ptr<ComboBoxAttachment> presetAtt;
+    std::unique_ptr<SliderAttachment> fbAtt;
+
+    std::array<std::unique_ptr<SliderAttachment>, 2> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, 2> wsAtt, kslAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, 2> amAtt, vibAtt, egTypeAtt, ksrAtt;
+};
+
+struct Opl3GuiSet
+{
+    juce::Component page;
+
+    juce::GroupComponent globalGroup;
+    std::array<juce::GroupComponent, 4> opGroups; // 4 Operators
+
+    juce::ComboBox algSelector; juce::Label algLabel;
+    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+
+    // Sliders
+    std::array<juce::Slider, 4> mul, tl, ar, dr, sl, rr;
+    std::array<juce::Label, 4> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
+    std::array<juce::ComboBox, 4> ws; // Wave Select (8 types)
+    std::array<juce::Label, 4> wsLabel;
+
+    // Attachments
+    std::unique_ptr<ComboBoxAttachment> algAtt;
+    std::unique_ptr<SliderAttachment> fbAtt;
+
+    std::array<std::unique_ptr<SliderAttachment>, 4> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, 4> wsAtt;
+};
+
+struct OpmGuiSet
+{
+    juce::Component page;
+
+    juce::GroupComponent globalGroup;
+    juce::GroupComponent lfoGroup; // LFOêÍópÇÃògê¸
+    std::array<juce::GroupComponent, 4> opGroups;
+
+    // Global
+    juce::ComboBox algSelector; juce::Label algLabel;
+    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+
+    // OPM LFO
+    juce::Slider lfoFreqSlider; juce::Label lfoFreqLabel;
+    juce::ComboBox lfoWaveSelector; juce::Label lfoWaveLabel;
+    juce::ComboBox pmsSelector; juce::Label pmsLabel;
+    juce::ComboBox amsSelector; juce::Label amsLabel;
+
+    // Operator Sliders
+    // dr => d1r, sl => d1l, sr => d2r
+    std::array<juce::Slider, 4> mul, dt1, dt2, tl, ar, dr, sl, sr, rr;
+    std::array<juce::Label, 4> mulLabel, dt1Label, dt2Label, tlLabel, arLabel, drLabel, slLabel, srLabel, rrLabel, ksLabel;
+    std::array<juce::ComboBox, 4> ks;
+
+    std::array<juce::ToggleButton, 4> fix;
+    std::array<juce::Slider, 4> freq;
+    std::array<juce::TextButton, 4> freqToZero;
+    std::array<juce::TextButton, 4> freqTo440;
+
+    std::array<juce::Label, 4> fixLabel;
+    std::array<juce::Label, 4> freqLabel;
+    std::array<juce::Label, 4> freqToZeroLabel;
+    std::array<juce::Label, 4> freqTo440Label;
+
+    // Attachments
+    std::array<std::unique_ptr<SliderAttachment>, 4> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, 4> fixAtt;
+    std::array<std::unique_ptr<SliderAttachment>, 4> freqAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, 4> ksAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, 4> seAtt;
+    std::unique_ptr<ComboBoxAttachment> algAtt, lfoWaveAtt, pmsAtt, amsAtt;
+    std::unique_ptr<SliderAttachment> fbAtt, lfoFreqAtt;
+
+};
+
 struct SsgGuiSet
 {
     // --- SSG Page ---
@@ -326,6 +427,8 @@ public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
     ~AudioPlugin2686VEditor() override;
 
+	static const int tabNumber = 9;
+
 	static const int TopGroupHeight = 80;
     static const int TopGroupPaddingWidth = 10;
     static const int TopGroupPaddingHeight = 10;
@@ -352,7 +455,10 @@ private:
     Fm4GuiSet opnaGui;  // OPNA
     Fm4GuiSet opnGui; // OPN
 	Fm2GuiSet oplGui; // OPL
-	SsgGuiSet ssgGui; // SSG
+	OpllGuiSet opllGui; // OPLL
+    Opl3GuiSet opl3Gui; // OPL3
+    OpmGuiSet opmGui; // OPM
+    SsgGuiSet ssgGui; // SSG
 	WtGuiSet wtGui; // Wavetable
 	RhythmGuiSet rhythmGui; // Rhythm
 	AdpcmGuiSet adpcmGui; // ADPCM
@@ -639,6 +745,9 @@ private:
     void setupOpnaGui(Fm4GuiSet& gui);
     void setupOpnGui(Fm4GuiSet& gui);
     void setupOplGui(Fm2GuiSet& gui);
+    void setupOpllGui(OpllGuiSet& gui);
+    void setupOpl3Gui(Opl3GuiSet& gui);
+    void setupOpmGui(OpmGuiSet& gui);
     void setupSsgGui(SsgGuiSet& gui);
     void setupWtGui(WtGuiSet& gui);
     void setupRhythmGui(RhythmGuiSet& gui);
@@ -647,6 +756,9 @@ private:
     void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
     void layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> content);
     void layoutWtPage(WtGuiSet& gui);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);

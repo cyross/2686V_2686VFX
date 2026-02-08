@@ -25,6 +25,9 @@ target_sources(2686V PRIVATE
     Source/OpnaCore.h
     Source/OpnCore.h
     Source/OplCore.h
+    Source/OpllCore.h
+    Source/Opl3Core.h
+    Source/OpmCore.h
     Source/SSGCore.h
     Source/RhythmCore.h
     Source/AdpcmCore.h

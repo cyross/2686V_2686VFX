@@ -26,6 +26,15 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	// OPL (YM3812) : 2op
     setupOplGui(oplGui);
 
+	// OPLL (YM2413) : 2op
+	setupOpllGui(opllGui);
+
+	// OPL3 (YM3833) : 2op
+	setupOpl3Gui(opl3Gui);
+
+	// OPM (YM2151) : 4op
+	setupOpmGui(opmGui);
+
     // ============================
     // SSG Page
     // ============================
@@ -62,22 +71,17 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 {
     if (source == &tabs.getTabbedButtonBar())
     {
-        // タブの並び順と OscMode の定義順が一致しているため、
-        // インデックスをそのままモードとして使用できます。
-        // 0:OPNA, 1:OPN, 2:OPL, 3:SSG, 4:WAVETABLE, 5:RHYTHM, 6:ADPCM
+        // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
 
-        // 念のため範囲チェック (0 ~ 6)
         if (targetMode < 0) targetMode = 0;
-        if (targetMode > 6) targetMode = 6;
+        if (targetMode > tabNumber) targetMode = tabNumber;
 
-        // パラメータ "MODE" を更新
         auto* param = audioProcessor.apvts.getParameter("MODE");
+
         if (param != nullptr)
         {
-            // AudioParameterInt (0-6) に通知するため、0.0～1.0 に正規化して値を設定
-            // 最大値が 6 なので、 6.0f で割ります。
-            float normalizedValue = (float)targetMode / 6.0f;
+            float normalizedValue = param->getNormalisableRange().convertTo0to1((float)targetMode);
 
             param->beginChangeGesture();
             param->setValueNotifyingHost(normalizedValue);
@@ -90,8 +94,8 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colour::fromFloatRGBA(0.15f, 0.15f, 0.15f, 1.0f));
     g.setColour(juce::Colours::white);
-    g.setFont(24.0f);
-    g.drawFittedText("2686V", getLocalBounds().removeFromTop(30), juce::Justification::centred, 1);
+    g.setFont(16.0f);
+    g.drawFittedText("2686V", getLocalBounds().removeFromTop(30), juce::Justification::right, 1);
 }
 
 void AudioPlugin2686VEditor::resized()
@@ -107,6 +111,9 @@ void AudioPlugin2686VEditor::resized()
     layoutOpnaPage(opnaGui, content);
     layoutOpnPage(opnGui, content);
     layoutOplPage(oplGui, content);
+	layoutOpllPage(opllGui, content);
+	layoutOpl3Page(opl3Gui, content);
+	layoutOpmPage(opmGui, content);
 	layoutSsgPage(ssgGui, content);
     layoutWtPage(wtGui);
 	layoutRhythmPage(rhythmGui, content);
@@ -130,13 +137,16 @@ std::vector<SelectItem> AudioPlugin2686VEditor::createAlgItems(int size)
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
-    tabs.addTab("OPNA", juce::Colours::darkblue, &opnaGui.page, true);
-    tabs.addTab("OPN", juce::Colours::darkcyan, &opnGui.page, true);
-    tabs.addTab("OPL", juce::Colours::maroon, &oplGui.page, true);
-    tabs.addTab("SSG", juce::Colours::darkgreen, &ssgGui.page, true);
-    tabs.addTab("WAVETABLE", juce::Colours::indigo, &wtGui.page, true);
-    tabs.addTab("RHYTHM", juce::Colours::darkred, &rhythmGui.page, true);
-    tabs.addTab("ADPCM", juce::Colours::purple, &adpcmGui.page, true);
+    tabs.addTab("OPNA", juce::Colours::transparentBlack, &opnaGui.page, true);
+    tabs.addTab("OPN", juce::Colours::transparentBlack, &opnGui.page, true);
+    tabs.addTab("OPL", juce::Colours::transparentBlack, &oplGui.page, true);
+	tabs.addTab("OPLL", juce::Colours::transparentBlack, &opllGui.page, true);
+    tabs.addTab("OPL3", juce::Colours::transparentBlack, &opl3Gui.page, true);
+    tabs.addTab("OPM", juce::Colours::transparentBlack, &opmGui.page, true);
+    tabs.addTab("SSG", juce::Colours::transparentBlack, &ssgGui.page, true);
+    tabs.addTab("WAVETABLE", juce::Colours::transparentBlack, &wtGui.page, true);
+    tabs.addTab("RHYTHM", juce::Colours::transparentBlack, &rhythmGui.page, true);
+    tabs.addTab("ADPCM", juce::Colours::transparentBlack, &adpcmGui.page, true);
 }
 
 void AudioPlugin2686VEditor::setupGroup(
@@ -649,7 +659,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     {
         juce::String paramPrefix = "OPNA_OP" + juce::String(i) + "_";
 
-        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MULTI", "MUL");
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
         setupOpSliderAndReset(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT");
         setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR");
@@ -684,7 +694,7 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
     {
         juce::String paramPrefix = "OPN_OP" + juce::String(i) + "_";
 
-        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MULTI", "MUL");
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
         setupOpSliderAndReset(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT");
         setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR");
@@ -716,13 +726,115 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
     {
         juce::String paramPrefix = "OPL_OP" + juce::String(i) + "_";
 
-        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MULTI", "MUL");
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
         setupOpSliderAndReset(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT");
         setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR");
         setupOpSliderAndReset(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL");
         setupOpSliderAndReset(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
         setupOpComboAndReset(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+    }
+}
+
+void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
+{
+    std::vector<SelectItem> wsItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, };
+    std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
+
+    setupGroup(gui.page, gui.globalGroup, "Preset / Global");
+
+    setupFbSliderAndReset(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPLL_FEEDBACK", "Feedback");
+
+    setupOpGroups(gui.page, gui.opGroups);
+    for (int i = 0; i < 2; ++i)
+    {
+        juce::String paramPrefix = "OPLL_OP" + juce::String(i) + "_";
+
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
+        setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
+        setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
+        setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR");
+        setupOpSliderAndReset(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL");
+        setupOpSliderAndReset(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
+		setupOpComboAndReset(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        setupOpComboAndReset(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+        setupOpButtonAndReset(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + "AM", "AM");
+        setupOpButtonAndReset(gui.page, gui.vib[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
+		setupOpButtonAndReset(gui.page, gui.egType[i], gui.egTypeAtt[i], paramPrefix + "EG_TYP", "EGTYP");
+        setupOpButtonAndReset(gui.page, gui.ksr[i], gui.ksrAtt[i], paramPrefix + "KSR", "KSR");
+    }
+}
+
+void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
+{
+    std::vector<SelectItem> algItems = createAlgItems(8);
+    std::vector<SelectItem> wsItems = {
+        {.name = "Sine", .value = 1},
+        {.name = "Half", .value = 2},
+        {.name = "Abs", .value = 3},
+        {.name = "Pulse", .value = 4},
+        {.name = "Sine(Alt)", .value = 5},
+        {.name = "Abs(Alt)", .value = 6},
+        {.name = "Square", .value = 7},
+        {.name = "Derived Sq", .value = 8},
+    };
+
+    setupGroup(gui.page, gui.globalGroup, "Algorithm / Feedback");
+    setupComboAndReset(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL3_ALGORITHM", "Algorithm", algItems);
+    setupFbSliderAndReset(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL3_FEEDBACK", "Feedback");
+
+    setupOpGroups(gui.page, gui.opGroups);
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String paramPrefix = "OPL3_OP" + juce::String(i) + "_";
+
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
+        setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
+        setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
+        setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR");
+        setupOpSliderAndReset(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL");
+        setupOpSliderAndReset(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
+        setupOpComboAndReset(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+    }
+}
+
+void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
+{
+    std::vector<SelectItem> pmsItems = createItems(8);
+    std::vector<SelectItem> amsItems = createItems(4);
+    std::vector<SelectItem> algItems = createAlgItems(8);
+    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+
+    setupGroup(gui.page, gui.globalGroup, "Algorithm / Feedback / LFO");
+    setupComboAndReset(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPM_ALGORITHM", "Algorithm", algItems);
+    setupFbSliderAndReset(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPM_FEEDBACK", "Feedback");
+    setupSliderAndReset(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPM_LFO_FREQ", "LFO FREQ");
+    setupComboAndReset(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, "OPM_LFO_PMS", "LFO PMS", pmsItems);
+    setupComboAndReset(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, "OPM_LFO_AMS", "LFO AMS", amsItems);
+
+    // Operators
+    setupOpGroups(gui.page, gui.opGroups);
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String paramPrefix = "OPM_OP" + juce::String(i) + "_";
+
+        setupOpSliderAndReset(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL");
+        setupOpSliderAndReset(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + "DT", "DT");
+        setupOpSliderAndReset(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2");
+        setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
+        setupOpSliderAndReset(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
+        setupOpSliderAndReset(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R");
+        setupOpSliderAndReset(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D2L");
+        setupOpSliderAndReset(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R");
+        setupOpSliderAndReset(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
+        setupOpButtonAndReset(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        setupOpSliderAndReset(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        setupOpTextButton(gui.page, gui.freqToZero[i], "Freq -> 0Hz");
+        gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
+        setupOpTextButton(gui.page, gui.freqTo440[i], "Freq -> 440Hz");
+        gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
+        setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
+        setupOpComboAndReset(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
     }
 }
 
@@ -1086,6 +1198,214 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         place(gui.rr[i], rightCol);
         place(gui.wsLabel[i], leftCol);
         place(gui.ws[i], rightCol);
+    }
+}
+
+void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin().reduced(5);
+
+    // --- Global & Preset Section ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
+    gui.globalGroup.setBounds(topArea);
+
+    auto globalRect = topArea.reduced(10);
+    globalRect.removeFromTop(15);
+
+    // Feedback Center
+    gui.feedbackSlider.setBounds(globalRect.withSizeKeepingCentre(100, 50));
+
+    pageArea.removeFromTop(10);
+
+    // --- Operators Section ---
+    int opWidth = pageArea.getWidth() / 2;
+
+    for (int i = 0; i < 2; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(opWidth);
+        gui.opGroups[i].setBounds(opArea.reduced(2));
+
+        auto innerRect = opArea.reduced(8);
+        innerRect.removeFromTop(20);
+
+        int colWidth = innerRect.getWidth() / 2;
+        auto leftCol = innerRect.removeFromLeft(colWidth);
+        auto rightCol = innerRect;
+
+        // 4行
+        int rowH = innerRect.getHeight() / 12;
+        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
+            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+        };
+
+        place(gui.mulLabel[i], leftCol);
+        place(gui.mul[i], rightCol);
+        place(gui.tlLabel[i], leftCol);
+        place(gui.tl[i], rightCol);
+        place(gui.arLabel[i], leftCol);
+        place(gui.ar[i], rightCol);
+        place(gui.drLabel[i], leftCol);
+        place(gui.dr[i], rightCol);
+        place(gui.slLabel[i], leftCol);
+        place(gui.sl[i], rightCol);
+        place(gui.rrLabel[i], leftCol);
+        place(gui.rr[i], rightCol);
+        place(gui.wsLabel[i], leftCol);
+        place(gui.ws[i], rightCol);
+        place(gui.kslLabel[i], leftCol);
+        place(gui.ksl[i], rightCol);
+        place(gui.ksrLabel[i], leftCol);
+        place(gui.ksr[i], rightCol);
+        place(gui.amLabel[i], leftCol);
+        place(gui.am[i], rightCol);
+        place(gui.vibLabel[i], leftCol);
+        place(gui.vib[i], rightCol);
+        place(gui.egTypeLabel[i], leftCol);
+        place(gui.egType[i], rightCol);
+    }
+}
+
+void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin().reduced(5);
+
+    // --- Global Section ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
+    gui.globalGroup.setBounds(topArea);
+
+    auto globalRect = topArea.reduced(10);
+    globalRect.removeFromTop(20);
+
+    int globalW = globalRect.getWidth() / 2;
+    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).withSizeKeepingCentre(200, 24));
+    gui.feedbackSlider.setBounds(globalRect.withSizeKeepingCentre(100, 110));
+
+    pageArea.removeFromTop(10);
+
+    // --- Operators Section ---
+    int opWidth = pageArea.getWidth() / 4;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(opWidth);
+        gui.opGroups[i].setBounds(opArea.reduced(2));
+
+        auto innerRect = opArea.reduced(8);
+        innerRect.removeFromTop(20);
+
+        int colWidth = innerRect.getWidth() / 2;
+        auto leftCol = innerRect.removeFromLeft(colWidth);
+        auto rightCol = innerRect;
+
+        int rowH = innerRect.getHeight() / 7;
+
+        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
+            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+        };
+
+        auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
+            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+        };
+
+		place(gui.mulLabel[i], leftCol);
+        place(gui.mul[i], rightCol);
+		place(gui.tlLabel[i], leftCol);
+        place(gui.tl[i], rightCol);
+		place(gui.arLabel[i], leftCol);
+        place(gui.ar[i], rightCol);
+		place(gui.drLabel[i], leftCol);
+        place(gui.dr[i], rightCol);
+		place(gui.slLabel[i], leftCol);
+        place(gui.sl[i], rightCol);
+		place(gui.rrLabel[i], leftCol);
+        place(gui.rr[i], rightCol);
+		place(gui.wsLabel[i], leftCol);
+        placeCombo(gui.ws[i], rightCol);
+    }
+}
+
+void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin().reduced(5);
+
+    // --- A. Global Section (Top) ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
+
+    gui.globalGroup.setBounds(topArea);
+    auto globalRect = topArea.reduced(10);
+    globalRect.removeFromTop(20); // タイトル回避
+
+    int globalW = globalRect.getWidth() / 5;
+    // Globalエリアも少し余裕を持たせて配置
+    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 5));
+    gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
+    gui.pmsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
+    gui.amsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
+
+    pageArea.removeFromTop(10); // Spacer
+
+    // --- B. Operators Section (Bottom) ---
+    // 残りのエリアを4等分
+    int opWidth = pageArea.getWidth() / 4;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(opWidth);
+
+        // 枠線
+        gui.opGroups[i].setBounds(opArea.reduced(2));
+
+        // 枠線の内側
+        auto innerRect = opArea.reduced(8);
+        innerRect.removeFromTop(20); // タイトル(Operator X)回避
+
+        int colWidth = innerRect.getWidth();
+        auto leftCol = innerRect.removeFromLeft(60);
+        auto rightCol = innerRect;
+
+        // 5行に分割 (高さ800pxなら1行あたり十分な高さが確保されます)
+        int rowH = innerRect.getHeight() / 14;
+
+        // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
+        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
+            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            };
+
+        // ★追加: コンボボックス配置ヘルパー (少し高さを小さく調整)
+        auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
+            // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
+            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+            };
+
+        place(gui.mulLabel[i], leftCol);
+        place(gui.mul[i], rightCol);
+        place(gui.dt1Label[i], leftCol);
+        place(gui.dt1[i], rightCol);
+        place(gui.dt2Label[i], leftCol);
+        place(gui.dt2[i], rightCol);
+        place(gui.arLabel[i], leftCol);
+        place(gui.ar[i], rightCol);
+        place(gui.drLabel[i], leftCol);
+        place(gui.dr[i], rightCol);
+        place(gui.srLabel[i], leftCol);
+        place(gui.sr[i], rightCol);
+        place(gui.slLabel[i], leftCol);
+        place(gui.sl[i], rightCol);
+        place(gui.rrLabel[i], leftCol);
+        place(gui.rr[i], rightCol);
+        place(gui.tlLabel[i], leftCol);
+        place(gui.tl[i], rightCol);
+        place(gui.ksLabel[i], leftCol);
+        placeCombo(gui.ks[i], rightCol);
+        place(gui.fixLabel[i], leftCol);
+        place(gui.fix[i], rightCol);
+        place(gui.freqLabel[i], leftCol);
+        place(gui.freq[i], rightCol);
+        place(gui.freqToZeroLabel[i], leftCol);
+        place(gui.freqToZero[i], rightCol);
+        place(gui.freqTo440Label[i], leftCol);
+        place(gui.freqTo440[i], rightCol);
     }
 }
 

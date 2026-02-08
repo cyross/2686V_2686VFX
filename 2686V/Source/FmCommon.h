@@ -17,12 +17,13 @@ public:
     // パラメータ適用
     // useSsgEg: OPNAのみtrue
     // useWaveSelect: OPLのみtrue
-    void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect)
+    void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false)
     {
         m_params = params;
         m_feedback = feedback;
         m_useSsgEg = useSsgEg;
         m_useWaveSelect = useWaveSelect;
+		m_useOpmEg = useOpmEg;
 
         // OPN/OPLの場合はSSG-EGパラメータを無視（念のため）
         if (!m_useSsgEg) m_params.ssgEg = 0;
@@ -43,8 +44,23 @@ public:
 
         // Multi & Detune
         float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-        float dtVal = (float)m_params.detune * 0.5f; // 簡易DT
-        float finalFreq = (baseFreq + dtVal) * mul;
+        float dtVal = (float)m_params.detune * 0.5f; // DT1
+
+        // DT2 (OPM Coarse Detune)
+        // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
+        // 0: x1.0
+        // 1: x1.41 (600 cent up)
+        // 2: x1.58 (780 cent up)
+        // 3: x1.78 (950 cent up)
+        float dt2Scale = 1.0f;
+        switch (m_params.detune2 & 3) {
+            case 0: dt2Scale = 1.0f; break;
+            case 1: dt2Scale = 1.414f; break;
+            case 2: dt2Scale = 1.581f; break;
+            case 3: dt2Scale = 1.781f; break;
+        }
+
+        float finalFreq = (baseFreq + dtVal) * mul * dt2Scale;
 
         m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
@@ -52,7 +68,21 @@ public:
         float tlGain = 1.0f - m_params.totalLevel;
         if (tlGain < 0.0f) tlGain = 0.0f;
 
-        m_targetLevel = velocity * tlGain;
+        float kslAttenuation = 1.0f;
+        if (m_params.keyScaleLevel > 0)
+        {
+            float octaveDiff = (float)(noteNumber - 48) / 12.0f;
+            if (octaveDiff < 0) octaveDiff = 0;
+            float dbPerOct = 0.0f;
+            switch (m_params.keyScaleLevel) {
+                case 1: dbPerOct = 1.5f; break;
+                case 2: dbPerOct = 3.0f; break;
+                case 3: dbPerOct = 6.0f; break;
+            }
+            float totalDb = dbPerOct * octaveDiff;
+            kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
+        }
+        m_targetLevel = velocity * tlGain * kslAttenuation;
         m_currentLevel = 0.0f;
         m_state = State::Attack;
 
@@ -102,7 +132,10 @@ public:
         }
 
         // LFO PM (OPNA Only)
-        float currentPhaseDelta = m_phaseDelta * lfoPitch;
+        float currentPhaseDelta = m_phaseDelta;
+        if (m_params.vibEnable) {
+            currentPhaseDelta *= lfoPitch;
+        }
 
         float modulatedPhase = m_phase + modulator + feedbackMod;
 
@@ -160,15 +193,31 @@ private:
             if (m_currentLevel >= m_targetLevel) { m_currentLevel = m_targetLevel; m_state = State::Decay; }
         }
         else if (m_state == State::Decay) {
-            float sustainLevel = m_targetLevel * m_params.sustain;
-            if (m_currentLevel > sustainLevel) {
-                m_currentLevel -= m_decayDec;
-                if (m_currentLevel <= sustainLevel) { m_currentLevel = sustainLevel; m_state = State::Sustain; }
-            } else { m_currentLevel = sustainLevel; m_state = State::Sustain; }
+            // Decay Phase (OPM: D1R, Others: DR)
+            // Target is Sustain Level (D1L)
+            float limitLevel = m_targetLevel * m_params.sustain; // D1L
+
+            if (m_currentLevel > limitLevel) {
+                m_currentLevel -= m_decayDec; // D1R
+                if (m_currentLevel <= limitLevel) {
+                    m_currentLevel = limitLevel;
+                    m_state = State::Sustain; // -> Sustain(D2R)
+                }
+            }
+            else {
+                m_currentLevel = limitLevel;
+                m_state = State::Sustain;
+            }
         }
         else if (m_state == State::Sustain) {
-            if (m_params.sustainRate > 0.0f) {
-                m_currentLevel -= m_sustainRateDec;
+            if (m_params.egType) {
+                if (m_params.sustainRate > 0.0f) {
+                    m_currentLevel -= m_sustainRateDec;
+                    if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
+                }
+            }
+            else {
+                m_currentLevel -= m_releaseDec;
                 if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
             }
         }
@@ -191,8 +240,17 @@ private:
         m_decayDec   = calcInc(m_params.decay);
         m_releaseDec = calcInc(m_params.release);
 
-        float srTime = std::max(0.001f, 5.0f - m_params.sustainRate * 0.5f);
-        m_sustainRateDec = 1.0f / (float)((srTime / rateScale) * m_sampleRate);
+        if (m_params.sustainRate <= 0.001f)
+        {
+            m_sustainRateDec = 0.0f;
+        }
+        else
+        {
+            // 値が大きいほど速く減衰する
+            // 簡易計算: 0.001(param) -> 5.0s, 1.0(param) -> 0.005s
+            float srTime = std::max(0.001f, 5.0f * (1.0f - m_params.sustainRate));
+            m_sustainRateDec = 1.0f / (float)((srTime / rateScale) * m_sampleRate);
+        }
     }
 
     enum class State { Idle, Attack, Decay, Sustain, Release };
@@ -206,6 +264,7 @@ private:
     float m_feedback = 0.0f;
     bool m_useSsgEg = false;
     bool m_useWaveSelect = false;
+    bool m_useOpmEg = false;
 
     float m_currentLevel = 0.0f; float m_targetLevel = 0.0f;
     float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f; float m_sustainRateDec = 0.0f;

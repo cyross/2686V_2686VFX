@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-// �����I�Ȋg���iOPM=4, OPN=4, OPL3=4, Custom=6,8...�j�ɔ����A
-// �\���ȍő吔���`���Ă����܂��B����� 8 �Ƃ��܂��B
 static constexpr int MaxFmOperators = 8;
 
 enum class OscMode
@@ -10,35 +8,41 @@ enum class OscMode
     OPNA = 0,   // YM2608
     OPN = 1,    // YM2203
     OPL = 2,    // YM3526 (2op + WaveSelect)
-    SSG = 3,
-    WAVETABLE = 4,
-    RHYTHM = 5,
-    ADPCM = 6,
+    OPLL = 3, // YM2413 (MSX-MUSIC)
+    OPL3 = 4, // YMF262
+    OPM = 5,   // YM2151 (X68000/Arcade)
+    SSG = 6,
+    WAVETABLE = 7,
+    RHYTHM = 8,
+    ADPCM = 9,
 };
 
-// �I�y���[�^���Ƃ̃p�����[�^ (YM2608�����Ɋg��)
 struct FmOpParams
 {
     // --- Envelope (ADSR) ---
     float attack = 0.01f;  // AR
     float decay = 0.0f;    // DR
-    float sustain = 1.0f;  // SL (Sustain Level) ��YM�ł�D1L�ƌĂт܂����֋X��Sustain�Ƃ��܂�
+    float sustain = 1.0f;  // SL (Sustain Level)
     float release = 0.2f;  // RR
 
     // --- YM2608 Specific ---
-    float sustainRate = 0.0f; // SR: Sustain Level���B��̌������x (0�Ȃ猸���Ȃ�)
+    float sustainRate = 0.0f; // SR: Sustain Rate
 
-    int multiple = 1;      // MULTI: 0~15 (���g���{��)
-    int detune = 0;        // DT: 0~7 (�f�`���[��)
+    int multiple = 1;      // MULTI: 0~15
+    int detune = 0;        // DT: 0~7
+	int detune2 = 0;       // DT2: OPL3/OPM Only
     float totalLevel = 0.0f;
     int keyScale = 0;
-    int ssgEg = 0;         // SE: 0~15 (SSG-EG�^�C�v)
+    int keyScaleLevel = 0; // KSL (Level Scaling: 0-3)
+    int ssgEg = 0;         // SE: 0~15 (SSG-EG)
 
     bool amEnable = false;
+    bool vibEnable = false; // VIB (LFO Pitch)
+    bool egType = false;    // EG-TYP (Sustain Mode)
 
-    // ���ʉ����[�h (CSM/Fix Mode) �p
-    bool fixedMode = false;   // true�Ȃ献�՘A�������Œ���g���Ŗ�
-    float fixedFreq = 440.0f; // �Œ莞�̎��g�� (Hz)
+    // CSM/Fix Mode
+    bool fixedMode = false;
+    float fixedFreq = 440.0f;
 
     // Wave Select (0:Sine, 1:Half, 2:Abs, 3:Quarter)
     int waveSelect = 0;
@@ -46,31 +50,32 @@ struct FmOpParams
 
 struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
 
-// �S�̃p�����[�^
 struct SynthParams
 {
-    OscMode mode = OscMode::OPNA; // �f�t�H���g�ύX
+    OscMode mode = OscMode::OPNA;
 
     // --- FM Parameters ---
+	int opllPreset = 0; // OPLL Preset Instrument Index
     int algorithm = 7;
     float feedback = 0.0f;
     // FM LFO (OPNA Global)
     float lfoFreq = 5.0f; // LFO Speed (approx 3Hz - 30Hz)
     int pms = 0;          // Pitch Modulation Sensitivity (0-7)
     int ams = 0;          // Amplitude Modulation Sensitivity (0-3)
+	int lfoWave = 2; // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     std::array<FmOpParams, MaxFmOperators> fmOp;
 
     // --- SSG Parameters ---
     float ssgLevel = 1.0f;
-    float ssgNoiseLevel = 0.0f; // Noise �̉���
+    float ssgNoiseLevel = 0.0f; // Noise
 	float ssgNoiseFreq = 12000.0f; // Noise Frequency (Hz)
-    float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise) �̘A���l�ɕύX
+    float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise)
     int ssgWaveform = 0; // 0: Pulse, 1: Triangle
 
-    // �n�[�h�E�F�A�G���x���[�v�p
-    bool ssgUseHwEnv = false;    // false:�Œ艹��(ADSR), true:HW�G���x���[�v
-    int ssgEnvShape = 0;         // 0~7 (Spec��� 0x08 ~ 0x0F �ɑΉ�)
-    float ssgEnvPeriod = 1.0f;   // ���� (Hz �܂��� ���x) Triangle�̎����Ƃ��Ă��g�p
+	// SSG Hardware Envelope Params
+    bool ssgUseHwEnv = false;
+    int ssgEnvShape = 0;
+    float ssgEnvPeriod = 1.0f;
 
     // Duty Cycle Params
     int ssgDutyMode = 0;      // 0: Preset, 1: Variable
@@ -79,7 +84,7 @@ struct SynthParams
     bool ssgDutyInvert = false; // Invert Switch
 
     // Triangle Params
-    bool ssgTriKeyTrack = true; // true�Ȃ�Note���g�����g�p
+    bool ssgTriKeyTrack = true;
     float ssgTriPeak = 0.5f; // 0.0=SawDown, 0.5=Tri, 1.0=SawUp
     float ssgTriFreq = 440.0f;
 
@@ -100,12 +105,11 @@ struct SynthParams
     float wtLevel = 1.0f;
 
     // --- Rhythm (PCM) ---
-    float rhythmLevel = 1.0f; // ���Y���S�̂̉���
+    float rhythmLevel = 1.0f;
 
     // --- ADPCM ---
     float adpcmLevel = 1.0f;
-    bool adpcmLoop = true; // ���[�v���邩�ǂ���
+    bool adpcmLoop = true;
 
-    // SSG/ADPCM/Wavetable�̓V���v����ADSR�̂܂܈ێ��iFmOpParams���g���Ă��ǂ�������͕����j
     SimpleAdsr ssgAdsr, adpcmAdsr, wtAdsr;
 };

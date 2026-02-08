@@ -4,6 +4,9 @@
 #include "OpnCore.h"
 #include "OpnaCore.h"
 #include "OplCore.h"
+#include "OpllCore.h"
+#include "Opl3Core.h"
+#include "OpmCore.h"
 #include "SSGCore.h"
 #include "WavetableCore.h"
 #include "RhythmCore.h"
@@ -35,6 +38,15 @@ public:
                 break;
             case OscMode::OPL:
                 m_oplCore.setParameters(params);
+                break;
+            case OscMode::OPLL:
+                m_opll.setParameters(params);
+                break;
+            case OscMode::OPL3:
+                m_opl3.setParameters(params);
+                break;
+            case OscMode::OPM:
+                m_opm.setParameters(params);
                 break;
             case OscMode::SSG:
                 m_ssgCore.setParameters(params);
@@ -73,6 +85,15 @@ public:
             case OscMode::OPL:
                 m_oplCore.noteOn(cyclesPerSecond, velocity);
                 break;
+            case OscMode::OPLL:
+                m_opll.noteOn(cyclesPerSecond, velocity);
+                break;
+            case OscMode::OPL3:
+                m_opl3.noteOn(cyclesPerSecond, velocity);
+                break;
+            case OscMode::OPM:
+                m_opm.noteOn(cyclesPerSecond, velocity);
+                break;
             case OscMode::SSG:
                 m_ssgCore.noteOn(cyclesPerSecond);
                 break;
@@ -95,6 +116,9 @@ public:
         m_opnaCore.noteOff();
         m_opnCore.noteOff();
         m_oplCore.noteOff();
+        m_opll.noteOff();
+        m_opl3.noteOff();
+        m_opm.noteOff();
         m_ssgCore.noteOff();
         m_wtCore.noteOff();
         m_rhythmCore.noteOff();
@@ -130,6 +154,21 @@ public:
             {
                 sample = m_oplCore.getSample();
                 isActive = m_oplCore.isPlaying();
+            }
+            else if (m_mode == OscMode::OPLL)
+            {
+                sample = m_opll.getSample();
+                isActive = m_opll.isPlaying();
+            }
+            else if (m_mode == OscMode::OPL3)
+            {
+                sample = m_opl3.getSample();
+                isActive = m_opl3.isPlaying();
+            }
+            else if (m_mode == OscMode::OPM)
+            {
+                sample = m_opm.getSample();
+                isActive = m_opm.isPlaying();
             }
             else if (m_mode == OscMode::SSG)
             {
@@ -168,6 +207,9 @@ public:
         m_opnaCore.prepare(newRate);
         m_opnCore.prepare(newRate);
         m_oplCore.prepare(newRate);
+        m_opll.prepare(newRate);
+        m_opl3.prepare(newRate);
+        m_opm.prepare(newRate);
         m_ssgCore.prepare(newRate);
         m_wtCore.prepare(newRate);
         m_rhythmCore.prepare(newRate);
@@ -182,6 +224,9 @@ private:
     OpnaCore m_opnaCore;
     OpnCore m_opnCore;
     OplCore m_oplCore;
+    OpllCore m_opll;
+    Opl3Core m_opl3;
+    OpmCore  m_opm;
     SsgCore m_ssgCore;
     WavetableCore m_wtCore;
     RhythmCore m_rhythmCore;
