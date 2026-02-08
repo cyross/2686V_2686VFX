@@ -117,7 +117,7 @@ std::vector<SelectItem> AudioPlugin2686VEditor::createItems(int size, const juce
 {
     std::vector<SelectItem> items;
 
-    for (int i = 0; i < size; ++i) items.push_back({ .name = prefix + juce::String(i), .id = i + 1 });
+    for (int i = 0; i < size; ++i) items.push_back({ .name = prefix + juce::String(i), .value = i + 1 });
 
     return items;
 }
@@ -217,7 +217,7 @@ void AudioPlugin2686VEditor::setupCombo(
 
 	for (SelectItem& item : items)
     {
-        combo.addItem(item.name, item.id);
+        combo.addItem(item.name, item.value);
     }
 
     if (isResize)
@@ -305,6 +305,53 @@ void AudioPlugin2686VEditor::setupButtonAndResetWithResize(
     setupButtonAndReset(parent, btn, attr, id, title, width, height, true);
 }
 
+void AudioPlugin2686VEditor::setupTextButton(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    const juce::String& title,
+    int width,
+    int height,
+    bool isResize
+)
+{
+    parent.addAndMakeVisible(btn);
+
+    btn.setButtonText(title);
+    btn.setSize(width, height);
+    if (isResize) {
+        btn.onClick = [this] { resized(); };
+    }
+}
+
+void AudioPlugin2686VEditor::setupTextButtonAndReset(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    std::unique_ptr<ButtonAttachment>& attr,
+    const juce::String& id,
+    const juce::String& title,
+    int width,
+    int height,
+    bool isResize
+)
+{
+    setupTextButton(parent, btn, title, width, height, isResize);
+
+    attr.reset(new ButtonAttachment(audioProcessor.apvts, id, btn));
+}
+
+void AudioPlugin2686VEditor::setupTextButtonAndResetWithResize(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    std::unique_ptr<ButtonAttachment>& attr,
+    const juce::String& id,
+    const juce::String& title,
+    int width,
+    int height
+)
+{
+    setupTextButtonAndReset(parent, btn, attr, id, title, width, height, true);
+}
+
 void AudioPlugin2686VEditor::setupFbSliderAndReset(
     juce::Component& page,
     juce::Slider& s,
@@ -343,7 +390,6 @@ void AudioPlugin2686VEditor::setupCustomWaveTable(
     }
 
 }
-
 
 template <size_t opCount>
 void AudioPlugin2686VEditor::setupOpGroups(
@@ -480,6 +526,46 @@ void AudioPlugin2686VEditor::setupOpButtonAndResetWithResize(
     setupOpButtonAndReset(parent, btn, attr, id, title, width, height, true);
 }
 
+void AudioPlugin2686VEditor::setupOpTextButton(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    const juce::String& title,
+    int width,
+    int height,
+    bool isResize
+)
+{
+    setupTextButton(parent, btn, title, width, height, isResize);
+}
+
+void AudioPlugin2686VEditor::setupOpTextButtonAndReset(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    std::unique_ptr<ButtonAttachment>& attr,
+    const juce::String& id,
+    const juce::String& title,
+    int width,
+    int height,
+    bool isResize
+)
+{
+    setupTextButtonAndReset(parent, btn, attr, id, title, width, height, isResize);
+}
+
+
+void AudioPlugin2686VEditor::setupOpTextButtonAndResetWithResize(
+    juce::Component& parent,
+    juce::TextButton& btn,
+    std::unique_ptr<ButtonAttachment>& attr,
+    const juce::String& id,
+    const juce::String& title,
+    int width,
+    int height
+)
+{
+    setupOpTextButtonAndReset(parent, btn, attr, id, title, width, height, true);
+}
+
 void AudioPlugin2686VEditor::setupOpSsgEnvComboAndReset(
     juce::Component& parent,
     juce::ComboBox& combo,
@@ -492,15 +578,15 @@ void AudioPlugin2686VEditor::setupOpSsgEnvComboAndReset(
 )
 {
     std::vector<SelectItem> items = {
-        {.name = "Normal (OFF)", .id = 1 },
-        {.name = "\\ \\ \\ \\ (Saw Dn)", .id = 9 },
-        {.name = "\\_ \\_ (Dn Hold)", .id = 10 },
-        {.name = "\\ / \\ / (Tri)", .id = 11 },
-        {.name = "\\- \\- (Dn Hold Alt)", .id = 12 },
-        {.name = "/ / / / (Saw Up)", .id = 13 },
-        {.name = "/~ /~ (Up Hold)", .id = 14 },
-        {.name = "/ \\ / \\ (Tri Inv)", .id = 15 },
-        {.name = "/_ /_ (Up Hold Alt)", .id = 16 },
+        {.name = "Normal (OFF)", .value = 1 },
+        {.name = "\\ \\ \\ \\ (Saw Dn)", .value = 2 },
+        {.name = "\\_ \\_ (Dn Hold)", .value = 3 },
+        {.name = "\\ / \\ / (Tri)", .value = 4 },
+        {.name = "\\- \\- (Dn Hold Alt)", .value = 5 },
+        {.name = "/ / / / (Saw Up)", .value = 6 },
+        {.name = "/~ /~ (Up Hold)", .value = 7 },
+        {.name = "/ \\ / \\ (Tri Inv)", .value = 8 },
+        {.name = "/_ /_ (Up Hold Alt)", .value = 9 },
     };
 
     setupOpComboAndReset(parent, combo, label, attr, id, title, items, labelWidth, labelHeigtht);
@@ -518,14 +604,14 @@ void AudioPlugin2686VEditor::setupSsgEnvComboAndReset(
 )
 {
     std::vector<SelectItem> items = {
-        {.name = "08: \\\\\\\\ (Decay)", .id = 1 },
-        {.name = "09: \\___ (Decay->0)", .id = 2 },
-        {.name = "0A: \\/\\/ (Tri)", .id = 3 },
-        {.name = "0B: \\``` (Decay->1)", .id = 4 },
-        {.name = "0C: //// (Attack)", .id = 5 },
-        {.name = "0D: /``` (Attack->1)", .id = 6 },
-        {.name = "0E: /\\/\\ (Inv Tri)", .id = 7 },
-        {.name = "0F: /___ (Attack->0)", .id = 8 },
+        {.name = "08: \\\\\\\\ (Decay)", .value = 1 },
+        {.name = "09: \\___ (Decay->0)", .value = 2 },
+        {.name = "0A: \\/\\/ (Tri)", .value = 3 },
+        {.name = "0B: \\``` (Decay->1)", .value = 4 },
+        {.name = "0C: //// (Attack)", .value = 5 },
+        {.name = "0D: /``` (Attack->1)", .value = 6 },
+        {.name = "0E: /\\/\\ (Inv Tri)", .value = 7 },
+        {.name = "0F: /___ (Attack->0)", .value = 8 },
     };
 
     setupComboAndReset(parent, combo, label, attr, id, title, items, labelWidth, labelHeigtht);
@@ -533,15 +619,13 @@ void AudioPlugin2686VEditor::setupSsgEnvComboAndReset(
 
 void AudioPlugin2686VEditor::setupSsgMixBtn(juce::TextButton& btn, const juce::String& text, double val)
 {
-    ssgGui.page.addAndMakeVisible(btn);
-    btn.setButtonText(text);
+    setupTextButton(ssgGui.page, btn, text);
     btn.onClick = [this, val] { ssgGui.mixSlider.setValue(val, juce::sendNotification); };
 };
 
 void AudioPlugin2686VEditor::setupSsgPeakBtn(juce::TextButton& btn, const juce::String& text, double val)
 {
-    ssgGui.page.addAndMakeVisible(btn);
-    btn.setButtonText(text);
+    setupTextButton(ssgGui.page, btn, text);
     btn.onClick = [this, val] { ssgGui.triPeakSlider.setValue(val, juce::sendNotification); };
 }
 
@@ -550,7 +634,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .id = 1}, {.name = "1 (Weak)", .id = 2}, {.name = "2 (Mid)", .id = 3}, {.name = "3 (Strong)", .id = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     setupGroup(gui.page, gui.globalGroup, "Algorithm / Feedback / LFO");
     setupComboAndReset(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPNA_ALGORITHM", "Algorithm", algItems);
@@ -575,6 +659,10 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 		setupOpSsgEnvComboAndReset(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE");
         setupOpButtonAndReset(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupOpSliderAndReset(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        setupOpTextButton(gui.page, gui.freqToZero[i], "Freq -> 0Hz");
+        gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
+        setupOpTextButton(gui.page, gui.freqTo440[i], "Freq -> 440Hz");
+        gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
         setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
         setupOpComboAndReset(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
         setupOpButtonAndReset(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + "AM", "AM");
@@ -584,7 +672,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 {
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .id = 1}, {.name = "1 (Weak)", .id = 2}, {.name = "2 (Mid)", .id = 3}, {.name = "3 (Strong)", .id = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     setupGroup(gui.page, gui.globalGroup, "Algorithm / Feedback");
     setupComboAndReset(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPN_ALGORITHM", "Algorithm", algItems);
@@ -605,6 +693,10 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         setupOpSliderAndReset(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
         setupOpButtonAndReset(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupOpSliderAndReset(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        setupOpTextButton(gui.page, gui.freqToZero[i], "Freq -> 0Hz");
+        gui.freqToZero[i].onClick = [this, index = i] { opnGui.freq[index].setValue(0, juce::sendNotification); };
+        setupOpTextButton(gui.page, gui.freqTo440[i], "Freq -> 440Hz");
+        gui.freqTo440[i].onClick = [this, index = i] { opnGui.freq[index].setValue(440, juce::sendNotification); };
         setupOpSliderAndReset(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
         setupOpComboAndReset(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
     }
@@ -612,8 +704,8 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 
 void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 {
-    std::vector<SelectItem> algItems = { {.name = "FM(Serial)", .id = 1}, {.name = "AM (Parallel)", .id = 2}, };
-    std::vector<SelectItem> wsItems = { {.name = "Sine", .id = 1}, {.name = "Half", .id = 2}, {.name = "Abs", .id = 3}, {.name = "Pulse", .id = 4}, };
+    std::vector<SelectItem> algItems = { {.name = "FM(Serial)", .value = 1}, {.name = "AM (Parallel)", .value = 2}, };
+    std::vector<SelectItem> wsItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, {.name = "Abs", .value = 3}, {.name = "Pulse", .value = 4}, };
 
     setupGroup(gui.page, gui.globalGroup, "Algorithm / Feedback");
     setupComboAndReset(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL_ALGORITHM", "Algorithm", algItems);
@@ -637,22 +729,22 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        { .name = "Pulse(Rect)", .id = 1 },
-        { .name = "Triangle / Saw", .id = 2 },
+        { .name = "Pulse(Rect)", .value = 1 },
+        { .name = "Triangle / Saw", .value = 2 },
     };
     std::vector<SelectItem> dmItems = {
-        {.name = "Preset Ratio", .id = 1 },
-        {.name = "Variable (Slider)", .id = 2 },
+        {.name = "Preset Ratio", .value = 1 },
+        {.name = "Variable (Slider)", .value = 2 },
     };
     std::vector<SelectItem> prItems = {
-        {.name = "1:1 (50%)", .id = 1 },
-        {.name = "3:5 (37.5%)", .id = 2 },
-        {.name = "5:11 (31.25%)", .id = 3 },
-        {.name = "1:3 (25%)", .id = 4 },
-        {.name = "1:4 (20%)", .id = 5 },
-        {.name = "3:13 (18.75%)", .id = 6 },
-        {.name = "1:7 (12.5%)", .id = 7 },
-        {.name = "1:15 (6.25%)", .id = 8 },
+        {.name = "1:1 (50%)", .value = 1 },
+        {.name = "3:5 (37.5%)", .value = 2 },
+        {.name = "5:11 (31.25%)", .value = 3 },
+        {.name = "1:3 (25%)", .value = 4 },
+        {.name = "1:4 (20%)", .value = 5 },
+        {.name = "3:13 (18.75%)", .value = 6 },
+        {.name = "1:7 (12.5%)", .value = 7 },
+        {.name = "1:15 (6.25%)", .value = 8 },
     };
 
     setupGroup(gui.page, gui.voiceGroup, "Voice");
@@ -714,25 +806,25 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        {.name = "Sine", .id = 1 },
-        {.name = "Triangle", .id = 2 },
-        {.name = "Saw Up", .id = 3 },
-        {.name = "Saw Down", .id = 4 },
-        {.name = "Square (50%)", .id = 5 },
-        {.name = "Pulse (25%)", .id = 6 },
-        {.name = "Pulse (12.5%)", .id = 7 },
-        {.name = "Digital Noise", .id = 8 },
-        {.name = "Custom (Draw)", .id = 9 },
+        {.name = "Sine", .value = 1 },
+        {.name = "Triangle", .value = 2 },
+        {.name = "Saw Up", .value = 3 },
+        {.name = "Saw Down", .value = 4 },
+        {.name = "Square (50%)", .value = 5 },
+        {.name = "Pulse (25%)", .value = 6 },
+        {.name = "Pulse (12.5%)", .value = 7 },
+        {.name = "Digital Noise", .value = 8 },
+        {.name = "Custom (Draw)", .value = 9 },
     };
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)", .id = 1 },
-        {.name = "5-bit (32 steps)", .id = 2 },
-        {.name = "6-bit (64 steps)", .id = 3 },
-        {.name = "8-bit (256 steps)", .id = 4 },
+        {.name = "4-bit (16 steps)", .value = 1 },
+        {.name = "5-bit (32 steps)", .value = 2 },
+        {.name = "6-bit (64 steps)", .value = 3 },
+        {.name = "8-bit (256 steps)", .value = 4 },
     };
     std::vector<SelectItem> tsItems = {
-        {.name = "32 Samples", .id = 1 },
-        {.name = "64 Samples", .id = 2 },
+        {.name = "32 Samples", .value = 1 },
+        {.name = "64 Samples", .value = 2 },
     };
 
     // --- Filter Group (Left) ---
@@ -816,7 +908,7 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         auto rightCol = innerRect;
 
         // 5行に分割 (高さ800pxなら1行あたり十分な高さが確保されます)
-        int rowH = innerRect.getHeight() / 13;
+        int rowH = innerRect.getHeight() / 15;
 
         // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
@@ -853,6 +945,10 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         place(gui.fix[i], rightCol);
         place(gui.freqLabel[i], leftCol);
         place(gui.freq[i], rightCol);
+        place(gui.freqToZeroLabel[i], leftCol);
+        place(gui.freqToZero[i], rightCol);
+        place(gui.freqTo440Label[i], leftCol);
+        place(gui.freqTo440[i], rightCol);
         place(gui.amLabel[i], leftCol);
         place(gui.am[i], rightCol); // Button    
     }
@@ -895,7 +991,7 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         auto leftCol = innerRect.removeFromLeft(60);
         auto rightCol = innerRect;
 
-        int rowH = innerRect.getHeight() / 11;
+        int rowH = innerRect.getHeight() / 13;
 
         // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
@@ -930,6 +1026,10 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         place(gui.fix[i], rightCol);
         place(gui.freqLabel[i], leftCol);
         place(gui.freq[i], rightCol);
+        place(gui.freqToZeroLabel[i], leftCol);
+        place(gui.freqToZero[i], rightCol);
+        place(gui.freqTo440Label[i], leftCol);
+        place(gui.freqTo440[i], rightCol);
     }
 }
 

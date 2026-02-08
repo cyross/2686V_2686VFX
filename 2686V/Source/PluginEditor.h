@@ -11,7 +11,7 @@ using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachmen
 struct SelectItem
 {
 	const juce::String name;
-    const int id;
+    const int value;
 };
 
 struct Fm4GuiSet
@@ -44,12 +44,14 @@ struct Fm4GuiSet
     std::array<juce::Slider, 4> sr;
     std::array<juce::Slider, 4> sl;
     std::array<juce::Slider, 4> rr;
+    std::array<juce::ToggleButton, 4> fix;
     std::array<juce::Slider, 4> freq;
+    std::array<juce::TextButton, 4> freqToZero;
+    std::array<juce::TextButton, 4> freqTo440;
     std::array<juce::Slider, 4> tl;  // Total Level
     std::array<juce::ComboBox, 4> ks; // Key Scale (0-3)
     std::array<juce::ToggleButton, 4> am; // AM Enable
     std::array<juce::ComboBox, 4> se; // SSG-EG Shape Selector
-    std::array<juce::ToggleButton, 4> fix;
 
     std::array<juce::Label, 4> mulLabel;
     std::array<juce::Label, 4> dtLabel;
@@ -58,12 +60,14 @@ struct Fm4GuiSet
     std::array<juce::Label, 4> srLabel;
     std::array<juce::Label, 4> slLabel;
     std::array<juce::Label, 4> rrLabel;
+    std::array<juce::Label, 4> fixLabel;
     std::array<juce::Label, 4> freqLabel;
+    std::array<juce::Label, 4> freqToZeroLabel;
+    std::array<juce::Label, 4> freqTo440Label;
     std::array<juce::Label, 4> tlLabel;  // Total Level
     std::array<juce::Label, 4> ksLabel; // Key Scale (0-3)
     std::array<juce::Label, 4> amLabel; // AM Enable
     std::array<juce::Label, 4> seLabel; // SSG-EG Shape Selector
-    std::array<juce::Label, 4> fixLabel;
 
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -448,6 +452,33 @@ private:
         int width = ButtonWidth,
         int height = ButtonHeight
     );
+    void setupTextButton(
+        juce::Component& parent,
+        juce::TextButton& btn,
+        const juce::String& title,
+        int width = ButtonWidth,
+        int height = ButtonHeight,
+        bool isResize = false
+    );
+    void setupTextButtonAndReset(
+        juce::Component& parent,
+        juce::TextButton& btn,
+        std::unique_ptr<ButtonAttachment>& attr,
+        const juce::String& id,
+        const juce::String& title,
+        int width = ButtonWidth,
+        int height = ButtonHeight,
+        bool isResize = false
+    );
+    void setupTextButtonAndResetWithResize(
+        juce::Component& parent,
+        juce::TextButton& btn,
+        std::unique_ptr<ButtonAttachment>& attr,
+        const juce::String& id,
+        const juce::String& title,
+        int width = ButtonWidth,
+        int height = ButtonHeight
+    );
     void setupFbSliderAndReset(
         juce::Component& page,
         juce::Slider& s,
@@ -550,6 +581,33 @@ private:
     void setupOpButtonAndResetWithResize(
         juce::Component& parent,
         juce::ToggleButton& btn,
+        std::unique_ptr<ButtonAttachment>& attr,
+        const juce::String& id,
+        const juce::String& title,
+        int width = OpButtonWidth,
+        int height = OpButtonHeight
+    );
+    void setupOpTextButton(
+        juce::Component& parent,
+        juce::TextButton& btn,
+        const juce::String& title,
+        int width = OpButtonWidth,
+        int height = OpButtonHeight,
+        bool isResize = false
+    );
+    void setupOpTextButtonAndReset(
+        juce::Component& parent,
+        juce::TextButton& btn,
+        std::unique_ptr<ButtonAttachment>& attr,
+        const juce::String& id,
+        const juce::String& title,
+        int width = OpButtonWidth,
+        int height = OpButtonHeight,
+        bool isResize = false
+    );
+    void setupOpTextButtonAndResetWithResize(
+        juce::Component& parent,
+        juce::TextButton& btn,
         std::unique_ptr<ButtonAttachment>& attr,
         const juce::String& id,
         const juce::String& title,

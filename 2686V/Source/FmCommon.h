@@ -81,7 +81,7 @@ public:
         float envVal = m_currentLevel;
 
         // SSG-EG (OPNA Only)
-        if (m_useSsgEg && m_params.ssgEg >= 8) {
+        if (m_useSsgEg && m_params.ssgEg > 0) {
             envVal *= getSsgEnvelopeLevel(m_ssgPhase);
             double phaseInc = m_phaseDelta / (2.0 * juce::MathConstants<float>::pi);
             m_ssgPhase += phaseInc;
@@ -141,13 +141,13 @@ private:
         double subPos = p - cycle;
         bool isEven = (cycle % 2 == 0);
         switch (m_params.ssgEg) {
-            case 8:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-            case 9:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f; 
-            case 10: return isEven ? (1.0f - (float)subPos) : (float)subPos;
-            case 11: return (cycle == 0) ? (1.0f - (float)subPos) : 1.0f;
-            case 12: return (cycle == 0) ? (float)subPos : 0.0f;
-            case 13: return (cycle == 0) ? (float)subPos : 1.0f;
-            case 14: return isEven ? (float)subPos : (1.0f - (float)subPos);
+            case 2:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+            case 4:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f; 
+            case 6: return isEven ? (1.0f - (float)subPos) : (float)subPos;
+            case 8: return (cycle == 0) ? (1.0f - (float)subPos) : 1.0f;
+            case 9: return (cycle == 0) ? (float)subPos : 0.0f;
+            case 11: return (cycle == 0) ? (float)subPos : 1.0f;
+            case 13: return isEven ? (float)subPos : (1.0f - (float)subPos);
             case 15: return (cycle == 0) ? (float)subPos : 0.0f;
             default: return 1.0f;
         }

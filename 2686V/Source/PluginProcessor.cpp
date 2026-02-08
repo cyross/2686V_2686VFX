@@ -163,7 +163,7 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_FEEDBACK", "OPNA Feedback", 0.0f, 7.0f, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_ALGORITHM", "OPNA Algorithm", 0, 7, 7));
 
-    for (int op = 0; op < MaxFmOperators; ++op)
+    for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = "OPNA_OP" + juce::String(op) + "_";
         juce::String namePrefix = "OPNA OP" + juce::String(op + 1) + " ";
@@ -180,7 +180,7 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + " AM", false)); // AM Enable (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "Fixed Mode", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "Fixed Freq", juce::NormalisableRange<float>(10.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "Fixed Freq", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
     }
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "LFO Freq", 0.1f, 50.0f, 5.0f));
@@ -196,7 +196,7 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPN_FEEDBACK", "OPN Feedback", 0.0f, 7.0f, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPN_ALGORITHM", "OPN Algorithm", 0, 7, 7));
 
-    for (int op = 0; op < MaxFmOperators; ++op)
+    for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = "OPN_OP" + juce::String(op) + "_";
         juce::String namePrefix = "OPN OP" + juce::String(op + 1) + " ";
@@ -212,7 +212,7 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "Fixed Mode", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "Fixed Freq", juce::NormalisableRange<float>(10.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "Fixed Freq", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
     }
 }
 
