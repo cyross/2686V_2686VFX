@@ -1,0 +1,111 @@
+﻿#pragma once
+#include <JuceHeader.h>
+
+// �����I�Ȋg���iOPM=4, OPN=4, OPL3=4, Custom=6,8...�j�ɔ����A
+// �\���ȍő吔���`���Ă����܂��B����� 8 �Ƃ��܂��B
+static constexpr int MaxFmOperators = 8;
+
+enum class OscMode
+{
+    OPNA = 0,   // YM2608
+    OPN = 1,    // YM2203
+    OPL = 2,    // YM3526 (2op + WaveSelect)
+    SSG = 3,
+    WAVETABLE = 4,
+    RHYTHM = 5,
+    ADPCM = 6,
+};
+
+// �I�y���[�^���Ƃ̃p�����[�^ (YM2608�����Ɋg��)
+struct FmOpParams
+{
+    // --- Envelope (ADSR) ---
+    float attack = 0.01f;  // AR
+    float decay = 0.0f;    // DR
+    float sustain = 1.0f;  // SL (Sustain Level) ��YM�ł�D1L�ƌĂт܂����֋X��Sustain�Ƃ��܂�
+    float release = 0.2f;  // RR
+
+    // --- YM2608 Specific ---
+    float sustainRate = 0.0f; // SR: Sustain Level���B��̌������x (0�Ȃ猸���Ȃ�)
+
+    int multiple = 1;      // MULTI: 0~15 (���g���{��)
+    int detune = 0;        // DT: 0~7 (�f�`���[��)
+    float totalLevel = 0.0f;
+    int keyScale = 0;
+    int ssgEg = 0;         // SE: 0~15 (SSG-EG�^�C�v)
+
+    bool amEnable = false;
+
+    // ���ʉ����[�h (CSM/Fix Mode) �p
+    bool fixedMode = false;   // true�Ȃ献�՘A�������Œ���g���Ŗ�
+    float fixedFreq = 440.0f; // �Œ莞�̎��g�� (Hz)
+
+    // Wave Select (0:Sine, 1:Half, 2:Abs, 3:Quarter)
+    int waveSelect = 0;
+};
+
+struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
+
+// �S�̃p�����[�^
+struct SynthParams
+{
+    OscMode mode = OscMode::OPNA; // �f�t�H���g�ύX
+
+    // --- FM Parameters ---
+    int algorithm = 7;
+    float feedback = 0.0f;
+    // FM LFO (OPNA Global)
+    float lfoFreq = 5.0f; // LFO Speed (approx 3Hz - 30Hz)
+    int pms = 0;          // Pitch Modulation Sensitivity (0-7)
+    int ams = 0;          // Amplitude Modulation Sensitivity (0-3)
+    std::array<FmOpParams, MaxFmOperators> fmOp;
+
+    // --- SSG Parameters ---
+    float ssgLevel = 1.0f;
+    float ssgNoiseLevel = 0.0f; // Noise �̉���
+	float ssgNoiseFreq = 12000.0f; // Noise Frequency (Hz)
+    float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise) �̘A���l�ɕύX
+    int ssgWaveform = 0; // 0: Pulse, 1: Triangle
+
+    // �n�[�h�E�F�A�G���x���[�v�p
+    bool ssgUseHwEnv = false;    // false:�Œ艹��(ADSR), true:HW�G���x���[�v
+    int ssgEnvShape = 0;         // 0~7 (Spec��� 0x08 ~ 0x0F �ɑΉ�)
+    float ssgEnvPeriod = 1.0f;   // ���� (Hz �܂��� ���x) Triangle�̎����Ƃ��Ă��g�p
+
+    // Duty Cycle Params
+    int ssgDutyMode = 0;      // 0: Preset, 1: Variable
+    int ssgDutyPreset = 0;    // Preset Index (0-8)
+    float ssgDutyVar = 0.5f;  // Variable Value (0.0-0.5)
+    bool ssgDutyInvert = false; // Invert Switch
+
+    // Triangle Params
+    bool ssgTriKeyTrack = true; // true�Ȃ�Note���g�����g�p
+    float ssgTriPeak = 0.5f; // 0.0=SawDown, 0.5=Tri, 1.0=SawUp
+    float ssgTriFreq = 440.0f;
+
+    // ADSR Bypass
+    bool ssgAdsrBypass = false;
+
+    // --- Wavetable ---
+    int wtBitDepth = 3;   // 0:4bit, 1:5bit, 2:6bit, 3:8bit
+    int wtTableSize = 0;  // 0:32, 1:64
+    int wtWaveform = 0; // Waveform Select 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
+    // Custom Waveform Data (32 steps)
+    std::array<float, 32> wtCustomWave32 = { 0.0f };
+    // Custom Waveform Data (64 steps)
+    std::array<float, 64> wtCustomWave64 = { 0.0f };
+    bool wtModEnable = false;
+    float wtModDepth = 0.0f;
+    float wtModSpeed = 1.0f; // Ratio or Hz
+    float wtLevel = 1.0f;
+
+    // --- Rhythm (PCM) ---
+    float rhythmLevel = 1.0f; // ���Y���S�̂̉���
+
+    // --- ADPCM ---
+    float adpcmLevel = 1.0f;
+    bool adpcmLoop = true; // ���[�v���邩�ǂ���
+
+    // SSG/ADPCM/Wavetable�̓V���v����ADSR�̂܂܈ێ��iFmOpParams���g���Ă��ǂ�������͕����j
+    SimpleAdsr ssgAdsr, adpcmAdsr, wtAdsr;
+};
