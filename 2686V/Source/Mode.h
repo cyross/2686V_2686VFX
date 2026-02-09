@@ -109,7 +109,10 @@ struct SynthParams
 
     // --- ADPCM ---
     float adpcmLevel = 1.0f;
-    bool adpcmLoop = true;
+    bool adpcmLoop = false; // Default false for drums
+    int adpcmRootNote = 60; // Root Key (Middle C)
+    int adpcmQualityMode = 0;
+    int adpcmRateIndex = 3;
 
     SimpleAdsr ssgAdsr, adpcmAdsr, wtAdsr;
 };

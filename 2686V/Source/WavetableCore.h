@@ -16,7 +16,7 @@ public:
 
     void prepare(double sampleRate)
     {
-        m_sampleRate = sampleRate;
+        if (sampleRate > 0.0) m_sampleRate = sampleRate;
         updateIncrements();
     }
 

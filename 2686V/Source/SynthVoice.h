@@ -65,6 +65,8 @@ public:
         }
     }
 
+    AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
+
     bool canPlaySound(juce::SynthesiserSound* sound) override
     {
         return dynamic_cast<SynthSound*>(sound) != nullptr;
@@ -204,16 +206,21 @@ public:
 
     void setCurrentPlaybackSampleRate(double newRate) override
     {
-        m_opnaCore.prepare(newRate);
-        m_opnCore.prepare(newRate);
-        m_oplCore.prepare(newRate);
-        m_opll.prepare(newRate);
-        m_opl3.prepare(newRate);
-        m_opm.prepare(newRate);
-        m_ssgCore.prepare(newRate);
-        m_wtCore.prepare(newRate);
-        m_rhythmCore.prepare(newRate);
-        m_adpcmCore.prepare(newRate);
+        juce::SynthesiserVoice::setCurrentPlaybackSampleRate(newRate);
+
+        if (newRate > 0.0)
+        {
+            m_opnaCore.prepare(newRate);
+            m_opnCore.prepare(newRate);
+            m_oplCore.prepare(newRate);
+            m_opll.prepare(newRate);
+            m_opl3.prepare(newRate);
+            m_opm.prepare(newRate);
+            m_ssgCore.prepare(newRate);
+            m_wtCore.prepare(newRate);
+            m_rhythmCore.prepare(newRate);
+            m_adpcmCore.prepare(newRate);
+        }
     }
 
     void pitchWheelMoved(int) override {}

@@ -15,6 +15,8 @@ AudioPlugin2686V::AudioPlugin2686V()
     {
         m_synth.addVoice(new SynthVoice());
     }
+
+    formatManager.registerBasicFormats();
 }
 
 // ============================================================================
@@ -132,6 +134,45 @@ juce::AudioProcessorEditor* AudioPlugin2686V::createEditor()
 {
     // Genericエディタではなく、自作のエディタを使うように変更
     return new AudioPlugin2686VEditor(*this);
+}
+
+void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
+{
+    auto* reader = formatManager.createReaderFor(file);
+    if (reader != nullptr)
+    {
+        std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+
+        // ファイル全体を読み込むバッファ
+        juce::AudioBuffer<float> fileBuffer;
+        fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
+
+        // 読み込み実行
+        audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
+
+        // モノラル化して std::vector<float> に変換
+        std::vector<float> sourceData;
+        sourceData.resize(fileBuffer.getNumSamples());
+
+        // Lチャンネルだけ、またはLRミックスで取得
+        auto* channelData = fileBuffer.getReadPointer(0);
+        for (int i = 0; i < fileBuffer.getNumSamples(); ++i)
+        {
+            sourceData[i] = channelData[i];
+            // ステレオの場合のミックス処理を入れるならここで
+        }
+
+        // --- 全ボイスのAdpcmCoreにデータをセット ---
+        // ここが重要：すべてのVoiceに対してデータを配る
+        for (int i = 0; i < m_synth.getNumVoices(); ++i)
+        {
+            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+            {
+                // AdpcmCoreに「リサンプリング＆4bit劣化」を行わせつつセット
+                voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
+            }
+        }
+    }
 }
 
 bool AudioPlugin2686V::hasEditor() const { return true; }
@@ -431,6 +472,10 @@ void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeS
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("ADPCM_LEVEL", "ADPCM Level", 0.0f, 1.0f, 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("ADPCM_LOOP", "ADPCM Loop", true));
+    // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
+    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_MODE", "Quality", 0, 6, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_RATE", "Sample Rate", 0, 4, 3)); // Default: 3 (16kHz)
+
     addEnvParameters(layout, "ADPCM");
 }
 
@@ -688,11 +733,11 @@ void AudioPlugin2686V::processAdpcmBlock(SynthParams &params)
 {
     // Bool値の取得
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
-    params.adpcmLoop = (*apvts.getRawParameterValue("ADPCM_LOOP") > 0.5f);
-
-    // --- ADPCM Parameters ---
     params.adpcmLevel = *apvts.getRawParameterValue("ADPCM_LEVEL");
     params.adpcmLoop = (*apvts.getRawParameterValue("ADPCM_LOOP") > 0.5f);
+    params.adpcmQualityMode = (int)*apvts.getRawParameterValue("ADPCM_MODE");
+    params.adpcmRateIndex = (int)*apvts.getRawParameterValue("ADPCM_RATE");
+
     params.adpcmAdsr.a = *apvts.getRawParameterValue("ADPCM_AR");
     params.adpcmAdsr.d = *apvts.getRawParameterValue("ADPCM_DR");
     params.adpcmAdsr.s = *apvts.getRawParameterValue("ADPCM_SL");

@@ -11,8 +11,9 @@ public:
     OpnaCore() {}
 
     void prepare(double sampleRate) {
-        m_sampleRate = sampleRate;
-        for (auto& op : m_operators) op.setSampleRate(sampleRate);
+        if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
+        for (auto& op : m_operators) op.setSampleRate(m_sampleRate);
         m_lfoPhase = 0.0;
     }
 

@@ -26,6 +26,10 @@ public:
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String& newName) override;
+    void loadAdpcmFile(const juce::File& file);
+
+    juce::AudioFormatManager formatManager;
+    juce::File lastAdpcmDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;

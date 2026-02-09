@@ -36,8 +36,8 @@ public:
 
     void prepare(double sampleRate)
     {
-        m_sampleRate = sampleRate;
-        generateDrumSounds(); // �g�`�f�[�^�𐶐�
+        if (sampleRate > 0.0) m_sampleRate = sampleRate;
+        generateDrumSounds();
     }
 
     void setParameters(const SynthParams& params)
@@ -45,15 +45,12 @@ public:
         m_masterLevel = params.rhythmLevel;
     }
 
-    // MIDI�m�[�g�ԍ����󂯎���āA�Ή�����h������炷
     void noteOn(int midiNote, float velocity)
     {
-        // GM�z�񏀋� (C3=60���犄�蓖�ĂĂ݂܂�)
         // 60(C3): Kick
         // 62(D3): Snare
         // 64(E3): HiHat
 
-        // ���f�o�b�O���₷���悤�ɒႢ�L�[�ɂ����蓖�Ă܂�
         // 36(C1): Kick
         // 38(D1): Snare
         // 42(F#1): HiHat
@@ -65,8 +62,6 @@ public:
 
     void noteOff()
     {
-        // �����V���b�g�Đ��Ȃ̂ŁA�m�[�g�I�t�ŉ����~�߂Ȃ��̂���ʓI
-        // (�V���o���̗]�C�Ȃǂ��c������)
     }
 
     bool isPlaying() const
@@ -76,7 +71,6 @@ public:
 
     float getSample()
     {
-        // �S�Ẵh�����̉��𑫂����킹��
         float mix = 0.0f;
         mix += m_kick.getNextSample();
         mix += m_snare.getNextSample();
@@ -86,22 +80,21 @@ public:
     }
 
 private:
-    // �[���I��PCM�f�[�^�𐶐�����֐�
     void generateDrumSounds()
     {
-        // 1. Kick (�ቹ�̃T�C���g�������Ƀs�b�`�_�E������)
-        int kickLen = (int)(0.3 * m_sampleRate); // 0.3�b
+        // 1. Kick
+        int kickLen = (int)(0.3 * m_sampleRate);
         m_kick.data.resize(kickLen);
         for (int i = 0; i < kickLen; ++i)
         {
             float progress = (float)i / kickLen;
-            float freq = 150.0f * std::pow(0.01f, progress); // 150Hz -> �ቹ��
-            float phase = freq * 2.0f * juce::MathConstants<float>::pi / m_sampleRate * i; // �ȈՌv�Z
-            float env = 1.0f - progress; // ����
-            m_kick.data[i] = std::sin(phase * i * 0.05f) * env * 0.8f; // �K���Ȑ�����Kick���ۂ�
+            float freq = 150.0f * std::pow(0.01f, progress);
+            float phase = freq * 2.0f * juce::MathConstants<float>::pi / m_sampleRate * i;
+            float env = 1.0f - progress;
+            m_kick.data[i] = std::sin(phase * i * 0.05f) * env * 0.8f;
         }
 
-        // 2. Snare (�m�C�Y + �Z���g�[��)
+        // 2. Snare
         int snareLen = (int)(0.2 * m_sampleRate);
         m_snare.data.resize(snareLen);
         for (int i = 0; i < snareLen; ++i)
@@ -112,16 +105,15 @@ private:
             m_snare.data[i] = noise * env * 0.6f;
         }
 
-        // 3. HiHat (����m�C�Y�A�Z���s��)
+        // 3. HiHat
         int hhLen = (int)(0.05 * m_sampleRate);
         m_hihat.data.resize(hhLen);
         for (int i = 0; i < hhLen; ++i)
         {
             float progress = (float)i / hhLen;
             float noise = (float(std::rand()) / RAND_MAX * 2.0f - 1.0f);
-            // �n�C�p�X�t�B���^�I�ȏ����̂����Ƀ����_�����Ԉ����ȂǊȈՉ�
             if (i % 2 == 0) noise *= -1.0f;
-            float env = std::pow(1.0f - progress, 4.0f); // �}���Ɍ���
+            float env = std::pow(1.0f - progress, 4.0f);
             m_hihat.data[i] = noise * env * 0.4f;
         }
     }

@@ -40,18 +40,20 @@ static const int ToggleButtonHeight = 20;
 static const int TextButtonWidth = 80;
 static const int TextButtonHeight = 20;
 
-static const int OpLabelWidth = 50;
-static const int OpLabelHeight = 20;
+static const int OpLabelWidth = 40;
+static const int OpLabelHeight = 15;
 static const int OpSliderWidth = 50;
-static const int OpSliderHeight = 20;
+static const int OpSliderHeight = 15;
 static const int OpSliderValueWidth = 50;
-static const int OpSliderValueHeight = 20;
-static const int OpComboBoxWidth = 50;
-static const int OpComboBoxHeight = 20;
+static const int OpSliderValueHeight = 15;
+static const int OpComboBoxWidth = 80;
+static const int OpComboBoxHeight = 15;
 static const int OpToggleButtonWidth = 80;
-static const int OpToggleButtonHeight = 20;
+static const int OpToggleButtonHeight = 15;
 static const int OpTextButtonWidth = 80;
-static const int OpTextButtonHeight = 20;
+static const int OpTextButtonHeight = 15;
+
+static const int FmOpRowH = 36;
 
 struct SelectItem
 {
@@ -87,6 +89,10 @@ static const Flags SliderFlags{ true, false };
 static const Flags ComboBoxFlags{ true, false };
 static const Flags ToggleButtonFlags{ true, false };
 static const Flags TextButtonFlags{ true, false };
+static const Flags OpSliderFlags{ true, false };
+static const Flags OpComboBoxFlags{ true, false };
+static const Flags OpToggleButtonFlags{ true, false };
+static const Flags OpTextButtonFlags{ true, false };
 
 struct Fm4GuiSet
 {
@@ -120,6 +126,7 @@ struct Fm4GuiSet
     std::array<juce::Slider, Fm4Ops> rr;
     std::array<juce::ToggleButton, Fm4Ops> fix;
     std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::GroupComponent, Fm4Ops> freqBtnGroup;
     std::array<juce::TextButton, Fm4Ops> freqToZero;
     std::array<juce::TextButton, Fm4Ops> freqTo440;
     std::array<juce::Slider, Fm4Ops> tl;  // Total Level
@@ -136,6 +143,7 @@ struct Fm4GuiSet
     std::array<juce::Label, Fm4Ops> rrLabel;
     std::array<juce::Label, Fm4Ops> fixLabel;
     std::array<juce::Label, Fm4Ops> freqLabel;
+    std::array<juce::Label, Fm4Ops> freqBtnGroupLabel;
     std::array<juce::Label, Fm4Ops> freqToZeroLabel;
     std::array<juce::Label, Fm4Ops> freqTo440Label;
     std::array<juce::Label, Fm4Ops> tlLabel;  // Total Level
@@ -484,6 +492,13 @@ struct AdpcmGuiSet
 {
     // --- ADPCM Page ---
     juce::Component page;
+
+    juce::ComboBox modeCombo;
+    juce::Label modeLabel;
+
+    juce::TextButton loadButton;
+    juce::Label fileNameLabel;
+
     juce::Slider levelSlider;
     juce::Label levelLabel;
 
@@ -492,21 +507,29 @@ struct AdpcmGuiSet
     juce::Label loopLabel;
 
     juce::Slider attackSlider;
-    juce::Slider decaySlider;
-    juce::Slider sustainSlider;
-    juce::Slider releaseSlider;
     juce::Label attackLabel;
+
+    juce::Slider decaySlider;
     juce::Label decayLabel;
+
+    juce::Slider sustainSlider;
     juce::Label sustainLabel;
+
+    juce::Slider releaseSlider;
     juce::Label releaseLabel;
 
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
+
     // ADPCM Attachments
+    std::unique_ptr<ComboBoxAttachment> modeAtt;
     std::unique_ptr<SliderAttachment> levelAtt;
     std::unique_ptr<ButtonAttachment> loopAtt;
     std::unique_ptr<SliderAttachment> attackAtt;
     std::unique_ptr<SliderAttachment> decayAtt;
     std::unique_ptr<SliderAttachment> sustainAtt;
     std::unique_ptr<SliderAttachment> releaseAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
 };
 
 struct SetupGroupParams
@@ -592,7 +615,7 @@ struct SetupSliderParams
         Size size = OpSliderSize,
         Size valueSize = OpSliderValueSize,
         Size labelSize = OpLabelSize,
-        Flags flags = SliderFlags
+        Flags flags = OpSliderFlags
     )
     {
         return SetupSliderParams(p, s, l, a, i, t, size.width, size.height, valueSize.width, valueSize.height, labelSize.width, labelSize.height, flags.isReset);
@@ -641,7 +664,7 @@ struct SetupComboParams
         std::vector<SelectItem>& items,
         Size size = OpComboBoxSize,
         Size labelSize = OpLabelSize,
-        Flags flags = ComboBoxFlags
+        Flags flags = OpComboBoxFlags
     )
     {
         return SetupComboParams(p, c, l, a, i, t, items, size.width, size.height, labelSize.width, labelSize.height, flags.isReset, flags.isResize);
@@ -683,7 +706,7 @@ struct SetupToggleButtonParams
         const juce::String i,
         const juce::String t,
         Size size = OpToggleButtonSize,
-        Flags flags = ToggleButtonFlags
+        Flags flags = OpToggleButtonFlags
     )
     {
         return SetupToggleButtonParams(p, b, l, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
@@ -722,7 +745,7 @@ struct SetupTextButtonParams
         const juce::String i,
         const juce::String t,
         Size size = OpTextButtonSize,
-        Flags flags = TextButtonFlags
+        Flags flags = OpTextButtonFlags
     )
     {
         return SetupTextButtonParams(p, b, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
@@ -745,9 +768,11 @@ struct SetupOpGroupsParams
     std::array<juce::GroupComponent, opCount>& groups;
 };
 
-class AudioPlugin2686VEditor : public juce::AudioProcessorEditor,
+class AudioPlugin2686VEditor :
+    public juce::AudioProcessorEditor,
     public juce::ChangeListener,
-    public juce::ComponentListener
+    public juce::ComponentListener,
+    public juce::Button::Listener
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -757,10 +782,12 @@ public:
     void resized() override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
+    void buttonClicked(juce::Button* button) override; 
 private:
     AudioPlugin2686V& audioProcessor;
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     Fm4GuiSet opnaGui;  // OPNA
     Fm4GuiSet opnGui; // OPN
@@ -778,6 +805,7 @@ private:
     void drawBg(juce::Graphics& g);
     std::vector<SelectItem> createItems(int size, const juce::String& prefix = "");
     std::vector<SelectItem> createAlgItems(int size);
+    void attatchLabelToComponent(juce::Label& label, juce::Component& component);
     void setupLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void setupGroup(SetupGroupParams& params);

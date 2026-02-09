@@ -67,6 +67,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
     tabs.getTabbedButtonBar().removeChangeListener(this);
     wtGui.page.removeComponentListener(this);
+    adpcmGui.loadButton.removeListener(this);
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -142,6 +143,12 @@ std::vector<SelectItem> AudioPlugin2686VEditor::createAlgItems(int size)
     return createItems(size, "Alg ");
 }
 
+void AudioPlugin2686VEditor::attatchLabelToComponent(juce::Label& label, juce::Component& component)
+{
+    label.attachToComponent(&component, false);
+    label.setJustificationType(juce::Justification::centred);
+}
+
 void AudioPlugin2686VEditor::setupLogo()
 {
     logoLabel.setText(VstName, juce::dontSendNotification);
@@ -190,8 +197,8 @@ void AudioPlugin2686VEditor::setupLabel(SetupLabelParams& params)
     params.page.addAndMakeVisible(params.label);
     params.label.setText(params.title, juce::dontSendNotification);
     params.label.setSize(params.width, params.height);
-    params.label.attachToComponent(&params.parent, false);
-    params.label.setJustificationType(juce::Justification::centred);
+//    params.label.attachToComponent(&params.pagent, false);
+//    params.label.setJustificationType(juce::Justification::centred);
 }
 
 void AudioPlugin2686VEditor::setupSlider(SetupSliderParams& params)
@@ -303,6 +310,7 @@ void AudioPlugin2686VEditor::setupOpGroups(SetupOpGroupsParams<opCount>& params)
         setupGroup(groupParams);
     }
 }
+
 void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 {
     std::vector<SelectItem> pmsItems = createItems(8);
@@ -325,14 +333,19 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     setupGroup(groupParams);
     SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPNA_ALGORITHM", "Algorithm", algItems);
     setupCombo(algParams);
-	SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPNA_FEEDBACK", "Feedback");
+	attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPNA_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
     SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPNA_LFO_FREQ", "LFO FREQ");
     setupSlider(fqParams);
+	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
     SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.lfoPmsSelector, gui.lfoPmsLabel, gui.lfoPmsAtt, "OPNA_LFO_PMS", "LFO PMS", pmsItems);
     setupCombo(pmsParams);
+	attatchLabelToComponent(gui.lfoPmsLabel, gui.lfoPmsSelector);
     SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.lfoAmsSelector, gui.lfoAmsLabel, gui.lfoAmsAtt, "OPNA_LFO_AMS", "LFO AMS", amsItems);
     setupCombo(amsParams);
+	attatchLabelToComponent(gui.lfoAmsLabel, gui.lfoAmsSelector);
 
     // Operators
 	SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
@@ -347,7 +360,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         setupSlider(dtParams);
         SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::create(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
         setupCombo(ksParams);
         SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupSlider(arParams);
@@ -359,16 +372,16 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         setupSlider(srParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
         setupSlider(rrParams);
-        SetupComboParams seParams = SetupComboParams::create(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
+        SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
         setupCombo(seParams);
         SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupToggleButton(fixParams);
         SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", OpTextButtonSize, {false, false});
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
@@ -385,8 +398,10 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
     setupGroup(groupParams);
     SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPN_ALGORITHM", "Algorithm", algItems);
     setupCombo(algParams);
+	attatchLabelToComponent(gui.algLabel, gui.algSelector);
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPN_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
 
     // Operators
     SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
@@ -401,7 +416,7 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         setupSlider(dtParams);
         SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::create(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
         setupCombo(ksParams);
         SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupSlider(arParams);
@@ -435,8 +450,10 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
     setupGroup(groupParams);
     SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL_ALGORITHM", "Algorithm", algItems);
     setupCombo(algParams);
+	attatchLabelToComponent(gui.algLabel, gui.algSelector);
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
 
     SetupOpGroupsParams<2> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
     setupOpGroups(opGroupsParams);
@@ -456,7 +473,7 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         setupSlider(slParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
         setupSlider(rrParams);
-        SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
         setupCombo(wsParams);
     }
 }
@@ -471,6 +488,7 @@ void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
 
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPLL_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
 
     SetupOpGroupsParams<2> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
     setupOpGroups(opGroupsParams);
@@ -492,7 +510,7 @@ void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
         setupSlider(rrParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
-        SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
         setupCombo(wsParams);
         SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
         setupToggleButton(vibParams);
@@ -521,8 +539,10 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     setupGroup(groupParams);
     SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL3_ALGORITHM", "Algorithm", algItems);
     setupCombo(algParams);
+	attatchLabelToComponent(gui.algLabel, gui.algSelector);
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL3_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
 
     SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
     setupOpGroups(opGroupsParams);
@@ -542,7 +562,7 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         setupSlider(slParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR");
         setupSlider(rrParams);
-        SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
         setupCombo(wsParams);
     }
 }
@@ -558,14 +578,19 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     setupGroup(groupParams);
     SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPM_ALGORITHM", "Algorithm", algItems);
     setupCombo(algParams);
+	attatchLabelToComponent(gui.algLabel, gui.algSelector);
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPM_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
+	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
     SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPM_LFO_FREQ", "LFO FREQ");
     setupSlider(fqParams);
+	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
     SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, "OPM_LFO_PMS", "LFO PMS", pmsItems);
     setupCombo(pmsParams);
+	attatchLabelToComponent(gui.pmsLabel, gui.pmsSelector);
     SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, "OPM_LFO_AMS", "LFO AMS", amsItems);
     setupCombo(amsParams);
+	attatchLabelToComponent(gui.amsLabel, gui.amsSelector);
 
     // Operators
     SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
@@ -582,7 +607,7 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         setupSlider(dt2Params);
         SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL");
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::create(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems);
         setupCombo(ksParams);
         SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR");
         setupSlider(arParams);
@@ -643,67 +668,90 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 
     SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, "SSG_WAVEFORM", "Wave Form", wsItems, ComboBoxSize, LabelSize, {true, true});
     setupCombo(wsParams);
+	attatchLabelToComponent(gui.waveLabel, gui.waveSelector);
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "SSG_LEVEL", "Tone");
     setupSlider(lvParams);
+	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
     SetupSliderParams nsParams = SetupSliderParams::create(gui.page, gui.noiseSlider, gui.noiseLabel, gui.noiseAtt, "SSG_NOISE", "Noise");
     setupSlider(nsParams);
+	attatchLabelToComponent(gui.noiseLabel, gui.noiseSlider);
     SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, "SSG_NOISE_FREQ", "Noise Freq");
     setupSlider(nfParams);
+	attatchLabelToComponent(gui.noiseFreqLabel, gui.noiseFreqSlider);
     SetupSliderParams mxParams = SetupSliderParams::create(gui.page, gui.mixSlider, gui.mixLabel, gui.mixAtt, "SSG_MIX", "Mix (T<-M->N)");
     setupSlider(mxParams);
+	attatchLabelToComponent(gui.mixLabel, gui.mixSlider);
 
-    SetupTextButtonParams mstParams = SetupTextButtonParams::create(gui.page, gui.mixSetTone, gui.mixSetAtt, "Tone", "Tone", TextButtonSize, { false, false });
+    SetupTextButtonParams mstParams = SetupTextButtonParams::create(gui.page, gui.mixSetTone, gui.mixSetAtt, "Tone", "Tone", { 40, 20 }, { false, false });
     setupTextButton(mstParams);
+	attatchLabelToComponent(gui.mixSetToneLabel, gui.mixSetTone);
     gui.mixSetTone.onClick = [this] { ssgGui.triPeakSlider.setValue(0.0, juce::sendNotification); };
-    SetupTextButtonParams msmParams = SetupTextButtonParams::create(gui.page, gui.mixSetMix, gui.mixSetAtt, "Mix", "Mix", TextButtonSize, { false, false });
+    SetupTextButtonParams msmParams = SetupTextButtonParams::create(gui.page, gui.mixSetMix, gui.mixSetAtt, "Mix", "Mix", { 40, 20 }, { false, false });
     setupTextButton(msmParams);
+	attatchLabelToComponent(gui.mixSetMixLabel, gui.mixSetMix);
     gui.mixSetMix.onClick = [this] { ssgGui.triPeakSlider.setValue(0.5, juce::sendNotification); };
-    SetupTextButtonParams msnParams = SetupTextButtonParams::create(gui.page, gui.mixSetNoise, gui.mixSetAtt, "Noise", "Noise", TextButtonSize, { false, false });
+    SetupTextButtonParams msnParams = SetupTextButtonParams::create(gui.page, gui.mixSetNoise, gui.mixSetAtt, "Noise", "Noise", { 40, 20 }, { false, false });
     setupTextButton(msnParams);
+	attatchLabelToComponent(gui.mixSetNoiseLabel, gui.mixSetNoise);
     gui.mixSetNoise.onClick = [this] { ssgGui.triPeakSlider.setValue(1.0, juce::sendNotification); };
 
     SetupGroupParams fGroupParams = { .page = gui.page, .group = gui.filterGroup, .title = "Filter (Envelope)" };
     setupGroup(fGroupParams);
     SetupToggleButtonParams bpParams = SetupToggleButtonParams::create(gui.page, gui.adsrBypassButton, gui.adsrBypassButtonLabel, gui.adsrBypassAtt, "SSG_ADSR_BYPASS", "Bypass ADSR (Gate)", ToggleButtonSize, {true, true});
     setupToggleButton(bpParams);
+	attatchLabelToComponent(gui.adsrBypassButtonLabel, gui.adsrBypassButton);
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "SSG_AR", "Attack");
     setupSlider(arParams);
+	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
     SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "SSG_DR", "Decay");
     setupSlider(drParams);
+	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
     SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "SSG_SL", "Sustain");
     setupSlider(slParams);
+	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "SSG_RR", "Release");
     setupSlider(rrParams);
+	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 
     // Duty Controls Setup
     SetupGroupParams dGroupParams = { .page = gui.page, .group = gui.dutyGroup, .title = "Pulse Width (Duty)" };
     setupGroup(dGroupParams);
     SetupComboParams dmParams = SetupComboParams::create(gui.page, gui.dutyModeSelector, gui.dutyModeLabel, gui.dutyModeAtt, "SSG_DUTY_MODE", "Duty Mode", dmItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(dmParams);
+	attatchLabelToComponent(gui.dutyModeLabel, gui.dutyModeSelector);
     SetupComboParams dpParams = SetupComboParams::create(gui.page, gui.dutyPresetSelector, gui.dutyPresetLabel, gui.dutyPresetAtt, "SSG_DUTY_PRESET", "Duty Preset", prItems);
     setupCombo(dpParams);
+	attatchLabelToComponent(gui.dutyPresetLabel, gui.dutyPresetSelector);
     SetupSliderParams dvParams = SetupSliderParams::create(gui.page, gui.dutyVarSlider, gui.dutyVarLabel, gui.dutyVarAtt, "SSG_DUTY_VAR", "Duty Ratio");
     setupSlider(dvParams);
+	attatchLabelToComponent(gui.dutyVarLabel, gui.dutyVarSlider);
     SetupToggleButtonParams dtiParams = SetupToggleButtonParams::create(gui.page, gui.dutyInvertButton, gui.dutyInvertLabel, gui.dutyInvertAtt, "SSG_DUTY_INV", "Invert Phase");
     setupToggleButton(dtiParams);
-
+	attatchLabelToComponent(gui.dutyInvertLabel, gui.dutyInvertButton);
     SetupGroupParams tpGroupParams = { .page = gui.page, .group = gui.triGroup, .title = "Triangle Property" };
     setupGroup(tpGroupParams);
+	attatchLabelToComponent(gui.triKeyTrackLabel, gui.triKeyTrackButton);
     SetupToggleButtonParams tktParams = SetupToggleButtonParams::create(gui.page, gui.triKeyTrackButton, gui.triKeyTrackLabel, gui.triKeyTrackAtt, "SSG_TRI_KEYTRK", "Key Track (Pitch)", ToggleButtonSize, { true, true });
     setupToggleButton(tktParams);
+	attatchLabelToComponent(gui.triFreqLabel, gui.triFreqSlider);
     SetupSliderParams tfParams = SetupSliderParams::create(gui.page, gui.triFreqSlider, gui.triFreqLabel, gui.triFreqAtt, "SSG_TRI_FREQ", "Manual Freq (Hz)");
     setupSlider(tfParams);
+	attatchLabelToComponent(gui.triPeakLabel, gui.triPeakSlider);
     SetupSliderParams tpParams = SetupSliderParams::create(gui.page, gui.triPeakSlider, gui.triPeakLabel, gui.triPeakAtt, "SSG_TRI_PEAK", "Peak Position");
     setupSlider(tpParams);
+	attatchLabelToComponent(gui.triPeakLabel, gui.triPeakSlider);
 
     SetupTextButtonParams tsdParams = SetupTextButtonParams::create(gui.page, gui.triSetSawDown, gui.triKeyTrackAtt, "0.0 (Down)", "0.0 (Down)", TextButtonSize, { false, false });
     setupTextButton(tsdParams);
+	attatchLabelToComponent(gui.triSetSawDownLabel, gui.triSetSawDown);
     gui.triSetSawDown.onClick = [this] { ssgGui.triPeakSlider.setValue(0.0, juce::sendNotification); };
     SetupTextButtonParams tstParams = SetupTextButtonParams::create(gui.page, gui.triSetTri, gui.triKeyTrackAtt, "0.5 (Tri)0", "0.5 (Tri)", TextButtonSize, { false, false });
     setupTextButton(tstParams);
+	attatchLabelToComponent(gui.triSetTriLabel, gui.triSetTri);
     gui.triSetTri.onClick = [this] { ssgGui.triPeakSlider.setValue(0.5, juce::sendNotification); };
     SetupTextButtonParams tsuParams = SetupTextButtonParams::create(gui.page, gui.triSetSawUp, gui.triKeyTrackAtt, "1.0 (Up)", "1.0 (Up)", TextButtonSize, { false, false });
     setupTextButton(tsuParams);
+	attatchLabelToComponent(gui.triSetSawUpLabel, gui.triSetSawUp);
     gui.triSetSawUp.onClick = [this] { ssgGui.triPeakSlider.setValue(1.0, juce::sendNotification); };
 
     // HW Env Group
@@ -711,10 +759,13 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     setupGroup(groupParams);
     SetupToggleButtonParams eeParams = SetupToggleButtonParams::create(gui.page, gui.envEnableButton, gui.envEnableLabel, gui.envEnableAtt, "SSG_ENV_ENABLE", "Enable HW Env", ToggleButtonSize, { true, true });
     setupToggleButton(eeParams);
+	attatchLabelToComponent(gui.envEnableLabel, gui.envEnableButton);
     SetupComboParams evParams = SetupComboParams::create(gui.page, gui.shapeSelector, gui.shapeLabel, gui.shapeAtt, "SSG_ENV_SHAPE", "Shape", envItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(evParams);
+	attatchLabelToComponent(gui.shapeLabel, gui.shapeSelector);
     SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, "SSG_ENV_PERIOD", "Env Speed (Hz)");
     setupSlider(epParams);
+	attatchLabelToComponent(gui.periodLabel, gui.periodSlider);
 }
 
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
@@ -746,14 +797,19 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     setupGroup(fGroupParams);
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "WT_LEVEL", "Level");
     setupSlider(lvParams);
+	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "WT_AR", "Attack");
     setupSlider(arParams);
+	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
     SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "WT_DR", "Decay");
     setupSlider(drParams);
+	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
     SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "WT_SL", "Sustain");
     setupSlider(slParams);
+	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "WT_RR", "Release");
     setupSlider(rrParams);
+	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 
     // --- Property Group (Right) ---
     SetupGroupParams wpGroupParams = { .page = gui.page, .group = gui.propGroup, .title = "Wavetable Properties" };
@@ -762,6 +818,7 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     // Waveform Selector Setup
     SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, "WT_WAVE", "Wave Form", wsItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(wsParams);
+	attatchLabelToComponent(gui.waveLabel, gui.waveSelector);
 
     // Custom Sliders Setup
     SetupGroupParams cwGroupParams = { .page = gui.page, .group = gui.customGroup, .title = "Custom Wave" };
@@ -772,36 +829,87 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     setupCustomWaveTable(cw64Params);
     SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "WT_BIT", "Bit Depth", bdItems);
     setupCombo(bParams);
+	attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
     SetupComboParams szParams = SetupComboParams::create(gui.page, gui.sizeSelector, gui.sizeLabel, gui.sizeAtt, "WT_SIZE", "Table Size", tsItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(szParams);
+	attatchLabelToComponent(gui.sizeLabel, gui.sizeSelector);
     SetupToggleButtonParams meParams = SetupToggleButtonParams::create(gui.page, gui.modEnableButton, gui.modEnableLabel, gui.modEnableAtt, "WT_MOD_ENABLE", "Modulation ON", ToggleButtonSize, { true, true });
     setupToggleButton(meParams);
+	attatchLabelToComponent(gui.modEnableLabel, gui.modEnableButton);
     SetupSliderParams mdParams = SetupSliderParams::create(gui.page, gui.modDepthSlider, gui.modDepthLabel, gui.modDepthAtt, "WT_MOD_DEPTH", "Mod Depth");
     setupSlider(mdParams);
+	attatchLabelToComponent(gui.modDepthLabel, gui.modDepthSlider);
     SetupSliderParams msParams = SetupSliderParams::create(gui.page, gui.modSpeedSlider, gui.modSpeedLabel, gui.modSpeedAtt, "WT_MOD_SPEED", "Mod Speed");
     setupSlider(msParams);
+	attatchLabelToComponent(gui.modSpeedLabel, gui.modSpeedSlider);
 }
 
 void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 {
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "RHYTHM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
+	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
 }
 
 void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 {
+    gui.page.addAndMakeVisible(gui.modeCombo);
+    gui.modeCombo.addItem("Raw (32bit)", 1);   // Param 0
+    gui.modeCombo.addItem("24-bit PCM", 2);    // Param 1 (New)
+    gui.modeCombo.addItem("16-bit PCM", 3);    // Param 2
+    gui.modeCombo.addItem("8-bit PCM", 4);     // Param 3
+    gui.modeCombo.addItem("5-bit PCM", 5);     // Param 4 (New)
+    gui.modeCombo.addItem("4-bit PCM", 6);    // Param 5 / Linear 4bit
+    gui.modeCombo.addItem("4-bit ADPCM", 7);  // Param6 6 / OPNA ADPCM
+
+    SetupLabelParams labelParams = SetupLabelParams::create(gui.page, gui.modeCombo, gui.modeLabel, "Quality", 60, 20);
+    setupLabel(labelParams);
+    attatchLabelToComponent(gui.modeLabel, gui.modeCombo);
+
+    gui.modeAtt.reset(new ComboBoxAttachment(audioProcessor.apvts, "ADPCM_MODE", gui.modeCombo));
+
+    gui.page.addAndMakeVisible(gui.rateCombo);
+
+    gui.rateCombo.addItem("55.5 kHz (Hi)", 1);
+    gui.rateCombo.addItem("44.1 kHz (CD)", 2);
+    gui.rateCombo.addItem("22.05 kHz", 3);
+    gui.rateCombo.addItem("16 kHz (PC-98)", 4); // Default
+    gui.rateCombo.addItem("8 kHz (Lo-Fi)", 5);
+
+    SetupLabelParams rateLblParams = SetupLabelParams::create(gui.page, gui.rateCombo, gui.rateLabel, "Rate", 60, 20);
+    setupLabel(rateLblParams);
+    attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
+
+    // ID: ADPCM_RATE に接続
+    gui.rateAtt.reset(new ComboBoxAttachment(audioProcessor.apvts, "ADPCM_RATE", gui.rateCombo));
+
+    gui.page.addAndMakeVisible(gui.loadButton);
+    gui.loadButton.setButtonText("Load File");
+    gui.loadButton.addListener(this);
+
+    gui.page.addAndMakeVisible(gui.fileNameLabel);
+    gui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+    gui.fileNameLabel.setJustificationType(juce::Justification::centredLeft);
+    gui.fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "ADPCM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
+	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
     SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "Loop Playback");
     setupToggleButton(lpParams);
+	attatchLabelToComponent(gui.loopLabel, gui.loopButton);
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "ADPCM_AR", "Attack");
     setupSlider(arParams);
+	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
     SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "ADPCM_DR", "Decay");
     setupSlider(drParams);
+	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
     SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "ADPCM_SL", "Sustain");
     setupSlider(slParams);
+	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "ADPCM_RR", "Release");
     setupSlider(rrParams);
+	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 }
 
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
@@ -833,29 +941,20 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
     {
         auto opArea = pageArea.removeFromLeft(opWidth);
 
-        // 枠線
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
-        // 枠線の内側
         auto innerRect = opArea.reduced(8);
-        innerRect.removeFromTop(20); // タイトル(Operator X)回避
+        innerRect.removeFromTop(20);
 
-        int colWidth = innerRect.getWidth();
         auto leftCol = innerRect.removeFromLeft(60);
         auto rightCol = innerRect;
 
-        // 5行に分割 (高さ800pxなら1行あたり十分な高さが確保されます)
-        int rowH = innerRect.getHeight() / 15;
-
-        // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
         };
 
-        // ★追加: コンボボックス配置ヘルパー (少し高さを小さく調整)
         auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
-            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
         place(gui.mulLabel[i], leftCol);
@@ -928,17 +1027,14 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         auto leftCol = innerRect.removeFromLeft(60);
         auto rightCol = innerRect;
 
-        int rowH = innerRect.getHeight() / 13;
-
         // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
         };
 
-        // ★追加: コンボボックス配置ヘルパー (少し高さを小さく調整)
         auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
             // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
-            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
         place(gui.mulLabel[i], leftCol);
@@ -1002,11 +1098,8 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         auto leftCol = innerRect.removeFromLeft(60);
         auto rightCol = innerRect;
 
-        // 4行
-        int rowH = innerRect.getHeight() / 7;
-
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
         };
 
         place(gui.mulLabel[i], leftCol);
@@ -1057,10 +1150,8 @@ void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int
         auto leftCol = innerRect.removeFromLeft(colWidth);
         auto rightCol = innerRect;
 
-        // 4行
-        int rowH = innerRect.getHeight() / 12;
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
         };
 
         place(gui.mulLabel[i], leftCol);
@@ -1122,14 +1213,12 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
         auto leftCol = innerRect.removeFromLeft(colWidth);
         auto rightCol = innerRect;
 
-        int rowH = innerRect.getHeight() / 7;
-
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
         };
 
         auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
 		place(gui.mulLabel[i], leftCol);
@@ -1189,18 +1278,15 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         auto leftCol = innerRect.removeFromLeft(60);
         auto rightCol = innerRect;
 
-        // 5行に分割 (高さ800pxなら1行あたり十分な高さが確保されます)
-        int rowH = innerRect.getHeight() / 14;
-
         // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(rowH).reduced(2, 5));
+            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
             };
 
         // ★追加: コンボボックス配置ヘルパー (少し高さを小さく調整)
         auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
             // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
-            c.setBounds(rect.removeFromTop(rowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
+            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
             };
 
         place(gui.mulLabel[i], leftCol);
@@ -1525,8 +1611,18 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
 
 void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content)
 {
-
     auto adpcm = content.withZeroOrigin();
+
+    auto fileArea = adpcm.removeFromTop(40);
+    gui.loadButton.setBounds(fileArea.removeFromLeft(100).reduced(5));
+    gui.fileNameLabel.setBounds(fileArea.reduced(5));
+
+    auto settingsRow = adpcm.removeFromTop(40);
+
+    int w = settingsRow.getWidth() / 2;
+    gui.modeCombo.setBounds(settingsRow.removeFromLeft(w).reduced(5));
+    gui.rateCombo.setBounds(settingsRow.reduced(5));
+
     auto adpcmTop = adpcm.removeFromTop(120);
     gui.levelSlider.setBounds(adpcmTop.removeFromLeft(adpcmTop.getWidth() / 2).withSizeKeepingCentre(100, 100));
     gui.loopButton.setBounds(adpcmTop.withSizeKeepingCentre(120, 30));
@@ -1549,4 +1645,29 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
 
     // もし gui.page も登録したなら
     // if (&component == &gui.page && wasResized) layoutgui.page(); // (関数化していれば)
+}
+
+void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
+{
+    if (button == &adpcmGui.loadButton)
+    {
+        auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
+
+        fileChooser = std::make_unique<juce::FileChooser>("Select an Audio file...", audioProcessor.lastAdpcmDirectory, fileFilter);
+
+        auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+        fileChooser->launchAsync(folderChooserFlags, [this](const juce::FileChooser& fc)
+            {
+                auto file = fc.getResult();
+                if (file.existsAsFile())
+                {
+                    audioProcessor.loadAdpcmFile(file);
+
+                    adpcmGui.fileNameLabel.setText(file.getFileName(), juce::dontSendNotification);
+
+                    audioProcessor.lastAdpcmDirectory = file.getParentDirectory();
+                }
+            });
+    }
 }

@@ -11,7 +11,10 @@ public:
         m_lfsr = 0x1FFFF;
     }
 
-    void prepare(double sampleRate) { m_sampleRate = sampleRate; updateIncrements(); }
+    void prepare(double sampleRate) {
+        if (sampleRate > 0.0) m_sampleRate = sampleRate;
+        updateIncrements();
+    }
     void setSampleRate(double sampleRate) { m_sampleRate = sampleRate; updateIncrements(); }
 
     void setParameters(const SynthParams& params)

@@ -11,7 +11,9 @@ public:
     OplCore() {}
 
     void prepare(double sampleRate) {
-        for (auto& op : m_operators) op.setSampleRate(sampleRate);
+        if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
+        for (auto& op : m_operators) op.setSampleRate(m_sampleRate);
     }
 
     void setParameters(const SynthParams& params) {
@@ -58,4 +60,5 @@ public:
 private:
     std::array<FmOperator, 2> m_operators;
     int m_algorithm = 0;
+    double m_sampleRate = 44100.0;
 };
