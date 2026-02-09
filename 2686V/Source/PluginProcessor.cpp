@@ -30,7 +30,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6:SSG, 7:WAVETABLE 8:RHYTHM, 9:ADPCM
-    layout.add(std::make_unique<juce::AudioParameterInt>("MODE", "Mode", 0, AudioPlugin2686VEditor::tabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("MODE", "Mode", 0, TabNumber, 0));
 
 	createOpnaParameterLayout(layout);
     createOpnParameterLayout(layout);
