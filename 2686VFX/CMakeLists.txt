@@ -1,5 +1,5 @@
 juce_add_plugin(2686VFX
-    COMPANY_NAME "YourName"
+    COMPANY_NAME "CYROSS"
     IS_SYNTH FALSE                  # エフェクトとして定義
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE

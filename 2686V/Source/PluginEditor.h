@@ -15,7 +15,7 @@ static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
 static const int WindowWidth = 1200;
-static const int WindowHeight = 800;
+static const int WindowHeight = 880;
 
 static const int TabNumber = 13;
 
@@ -1331,6 +1331,11 @@ public:
     void parameterChanged(const juce::String& parameterID, float newValue) override;
 private:
     AudioPlugin2686V& audioProcessor;
+
+    // マスターボリューム用のスライダーとアタッチメント
+    juce::Slider masterVolSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+    juce::Label masterVolLabel;
 
     CustomTabLookAndFeel customTabLF;
 

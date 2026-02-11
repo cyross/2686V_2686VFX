@@ -5,9 +5,12 @@
 // Constructor
 // ============================================================================
 AudioPlugin2686V::AudioPlugin2686V()
-    : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+#ifndef JucePlugin_PreferredChannelConfigurations
+    : AudioProcessor(BusesProperties()
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
     // Initialize APVTS (Parameters are created here)
-    apvts(*this, nullptr, "Parameters", createParameterLayout())
+    apvts(*this, nullptr, "Parameters", createParameterLayout()) // APVTSの初期化
+#endif
 {
     m_synth.addSound(new SynthSound());
 
@@ -17,6 +20,9 @@ AudioPlugin2686V::AudioPlugin2686V()
     }
 
     formatManager.registerBasicFormats();
+    loadStartupPreset();
+
+    
 }
 
 // ============================================================================
@@ -45,6 +51,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     createRhythmParameterLayout(layout);
     createAdpcmParameterLayout(layout);
     createFxParameterLayout(layout);
+
+    // ★マスターボリューム追加
+    // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
+    // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "MASTER_VOL",      // パラメータID
+        "Master Vol",      // 表示名
+        juce::NormalisableRange<float>(-60.0f, 6.0f, 0.1f, 1.0f), // 範囲とステップ
+        -6.0f              // デフォルト値
+    ));
 
     return layout;
 }
@@ -137,6 +153,16 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     processFxBlock(buffer, params);
+
+    float dbValue = *apvts.getRawParameterValue("MASTER_VOL");
+
+    // 2. dBをリニアな倍率(0.0 ～ 2.0くらい)に変換
+    // -60dBなら 0.001, 0dBなら 1.0, +6dBなら 2.0
+    float linearGain = juce::Decibels::decibelsToGain(dbValue);
+
+    // 3. バッファ全体に適用
+    // applyGainを使うと簡単です
+    buffer.applyGain(linearGain);
 }
 
 // ============================================================================
@@ -1089,6 +1115,50 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
             lastAdpcmDirectory = juce::File(defaultAdpcmDir);
         }
     }
+}
+
+void AudioPlugin2686V::loadStartupPreset()
+{
+    // 1. 読み込むディレクトリとファイル名を指定
+    // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset.xml"
+    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    auto presetFile = docDir.getChildFile("2686V").getChildFile("init_preset.xml");
+
+    // 2. ファイルが存在するかチェック
+    if (presetFile.existsAsFile())
+    {
+        // 3. XMLとして読み込む
+        std::unique_ptr<juce::XmlElement> xmlState(juce::XmlDocument::parse(presetFile));
+
+
+        // 4. 正しいXMLで、かつタグ名がパラメータ用か確認
+        if (xmlState != nullptr && xmlState->hasTagName("PREF_2686V"))
+        {
+            wallpaperPath = xmlState->getStringAttribute("wallpaperPath");
+            defaultAdpcmDir = xmlState->getStringAttribute("defaultAdpcmDir");
+            defaultPresetDir = xmlState->getStringAttribute("defaultPresetDir");
+            showTooltips = xmlState->getBoolAttribute("showTooltips", true);
+        }
+    }
+    else
+    {
+        DBG("Startup preset not found at: " + presetFile.getFullPathName());
+    }
+
+    // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
+    if (defaultPresetDir.isEmpty())
+    {
+        defaultPresetDir = docDir.getChildFile("2686V").getChildFile("Presets").getFullPathName();
+    }
+    if (defaultAdpcmDir.isEmpty())
+    {
+        defaultAdpcmDir = docDir.getFullPathName();
+    }
+}
+
+juce::String AudioPlugin2686V::getDefaultPresetDir()
+{
+    return defaultPresetDir;
 }
 
 // ============================================================================

@@ -61,6 +61,8 @@ public:
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 
 
+    juce::String getDefaultPresetDir();
+
     // --- Effect ---
     EffectChain effects;
 private:
@@ -91,6 +93,7 @@ private:
     void processFxBlock(juce::AudioBuffer<float>& buffer, SynthParams& params);
 
     juce::Synthesiser m_synth;
+    void loadStartupPreset(); // 自動読み込み用関数
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

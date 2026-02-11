@@ -48,8 +48,12 @@ public:
         m_rateAccumulator = 1.0;
     }
     void noteOff() { m_operators[0].noteOff(); m_operators[1].noteOff(); }
-    bool isPlaying() const { return m_operators[0].isPlaying(); }
-
+    bool isPlaying() const {
+        for (const auto& op : m_operators) {
+            if (op.isPlaying()) return true;
+        }
+        return false;
+    }
     // ピッチベンド (0 - 16383, Center=8192)
     void setPitchBend(int pitchWheelValue)
     {

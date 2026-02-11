@@ -84,7 +84,6 @@ public:
             kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
         }
         m_targetLevel = velocity * tlGain * kslAttenuation;
-        m_currentLevel = 0.0f;
         m_state = State::Attack;
 
         m_fb1 = 0.0f; m_fb2 = 0.0f;
@@ -111,6 +110,8 @@ public:
         updateEnvelopeState();
 
         // 2. Calculate Envelope Value
+        // ここではエンベロープの形状(0.0-1.0)のみを取得し、
+        // 最終的な音量は出力段で掛けます。
         float envVal = m_currentLevel;
 
         // SSG-EG (OPNA Only)
@@ -145,9 +146,12 @@ public:
         float modulatedPhase = m_phase + modulator + feedbackMod;
 
         // Wave Select (OPL Only / Standard Sine)
-        output = calculateWave(modulatedPhase) * envVal;
+        // ここで m_targetLevel (Velocity/TL) を適用します！
+        // これにより、Attackが1.0に張り付くスパイクノイズが解消されます。
+        output = calculateWave(modulatedPhase) * envVal * m_targetLevel;
 
         // Feedback Memory Update
+        // フィードバックはGain適用後の値を使うのが一般的ですが、FMの構成によっては適用前の場合もあります。今回は適用後でOKです。
         m_fb2 = m_fb1; m_fb1 = output;
 
         // Phase Advance
@@ -195,18 +199,18 @@ private:
     {
         if (m_state == State::Attack) {
             m_currentLevel += m_attackInc;
-            if (m_currentLevel >= m_targetLevel) { m_currentLevel = m_targetLevel; m_state = State::Decay; }
+            if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
         }
         else if (m_state == State::Decay) {
-            // Decay Phase (OPM: D1R, Others: DR)
-            // Target is Sustain Level (D1L)
-            float limitLevel = m_targetLevel * m_params.sustain; // D1L
-
+            // Decayのターゲット判定ロジックを変更
+            // 以前: float limitLevel = m_targetLevel * m_params.sustain;
+            // 修正: エンベロープは0-1で正規化されたので、sustain値(0-1)と比較するだけでOK
+            float limitLevel = m_params.sustain;
             if (m_currentLevel > limitLevel) {
-                m_currentLevel -= m_decayDec; // D1R
+                m_currentLevel -= m_decayDec;
                 if (m_currentLevel <= limitLevel) {
                     m_currentLevel = limitLevel;
-                    m_state = State::Sustain; // -> Sustain(D2R)
+                    m_state = State::Sustain;
                 }
             }
             else {
@@ -215,15 +219,19 @@ private:
             }
         }
         else if (m_state == State::Sustain) {
+            // サステインフェーズのロジック
+
+            // EG-TYP=1 (Hold): 減衰せずレベルを維持
             if (m_params.egType) {
-                if (m_params.sustainRate > 0.0f) {
+                // そのまま維持 (何もしない)
+            }
+            // EG-TYP=0 (Normal): SR (Sustain Rate) に従って0まで減衰
+            else {
+                // SR=0 なら減衰しない (無限サステイン)
+                if (m_sustainRateDec > 0.0f) {
                     m_currentLevel -= m_sustainRateDec;
                     if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
                 }
-            }
-            else {
-                m_currentLevel -= m_releaseDec;
-                if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
             }
         }
         else if (m_state == State::Release) {

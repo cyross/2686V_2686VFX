@@ -117,6 +117,24 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
 
+    // スライダーの設定
+    masterVolLabel.setText("Master Volume", juce::NotificationType::dontSendNotification);
+    masterVolLabel.setFont(juce::Font(24.0f));
+    masterVolLabel.setSize(100, 30);
+    masterVolLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    masterVolLabel.setColour(juce::Label::backgroundColourId, juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f));
+    addAndMakeVisible(masterVolLabel);
+
+    masterVolSlider.setSliderStyle(juce::Slider::LinearHorizontal); // または Rotary
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 30);
+    masterVolSlider.setTextValueSuffix(" dB"); // 単位表示
+    addAndMakeVisible(masterVolSlider);
+
+    // パラメータと接続 (IDは "MASTER_VOL")
+    // これを各タブのクラスで行えば、複数のスライダーが1つのパラメータを操作します
+    masterVolAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.apvts, "MASTER_VOL", masterVolSlider);
+
     setSize(WindowWidth, WindowHeight);
 }
 
@@ -178,21 +196,27 @@ void AudioPlugin2686VEditor::resized()
     auto content = tabs.getLocalBounds();
     content.removeFromTop(tabs.getTabBarDepth());
     content.reduce(GroupPaddingWidth, GroupPaddingHeight); // 全体の余白
+    auto inner = content.removeFromTop(content.getHeight() - 80);
 
-    layoutOpnaPage(opnaGui, content);
-    layoutOpnPage(opnGui, content);
-    layoutOplPage(oplGui, content);
-	layoutOpllPage(opllGui, content);
-	layoutOpl3Page(opl3Gui, content);
-	layoutOpmPage(opmGui, content);
-	layoutSsgPage(ssgGui, content);
-    layoutWtPage(wtGui, content);
-	layoutRhythmPage(rhythmGui, content);
-	layoutAdpcmPage(adpcmGui, content);
-    layoutFxPage(fxGui, content);
-    layoutPresetPage(presetGui, content);
-    layoutSettingsPage(settingsGui, content);
-    layoutAboutPage(aboutGui, content);
+    layoutOpnaPage(opnaGui, inner);
+    layoutOpnPage(opnGui, inner);
+    layoutOplPage(oplGui, inner);
+	layoutOpllPage(opllGui, inner);
+	layoutOpl3Page(opl3Gui, inner);
+	layoutOpmPage(opmGui, inner);
+	layoutSsgPage(ssgGui, inner);
+    layoutWtPage(wtGui, inner);
+	layoutRhythmPage(rhythmGui, inner);
+	layoutAdpcmPage(adpcmGui, inner);
+    layoutFxPage(fxGui, inner);
+    layoutPresetPage(presetGui, inner);
+    layoutSettingsPage(settingsGui, inner);
+    layoutAboutPage(aboutGui, inner);
+
+    // マスターボリュームは、タブの一番下に付ける
+    auto masterVolArea = content.reduced(100, 10);
+    masterVolLabel.setBounds(masterVolArea.removeFromLeft(200));
+    masterVolSlider.setBounds(masterVolArea.removeFromLeft(400));
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
@@ -1557,8 +1581,9 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     * 
     *********************/
 
-    juce::File docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    gui.currentFolder = docDir.getChildFile("2686V").getChildFile("Presets");
+    // defaultPresetDirから取ってくる
+    auto defaultPath = audioProcessor.getDefaultPresetDir();
+    gui.currentFolder = juce::File(defaultPath);
     if (!gui.currentFolder.exists()) {
         gui.currentFolder.createDirectory();
     }
