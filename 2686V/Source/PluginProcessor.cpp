@@ -2,11 +2,11 @@
 #include "PluginEditor.h"
 
 // ============================================================================
-// コンストラクタ
+// Constructor
 // ============================================================================
 AudioPlugin2686V::AudioPlugin2686V()
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-    // APVTSの初期化 (ここでパラメータを作ります)
+    // Initialize APVTS (Parameters are created here)
     apvts(*this, nullptr, "Parameters", createParameterLayout())
 {
     m_synth.addSound(new SynthSound());
@@ -20,12 +20,12 @@ AudioPlugin2686V::AudioPlugin2686V()
 }
 
 // ============================================================================
-// デストラクタ
+// Destructor
 // ============================================================================
 AudioPlugin2686V::~AudioPlugin2686V() {}
 
 // ============================================================================
-// パラメータレイアウトの定義 (ここにあるものがDAWやGUIから見えます)
+// Parameter Layout Definition (Visible to DAW and GUI)
 // ============================================================================
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createParameterLayout()
 {
@@ -49,11 +49,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 }
 
 // ============================================================================
-// Prepare To Play (再生準備)
+// Prepare To Play
 // ============================================================================
 void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    // Prepare RhythmCore for all voices
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->getRhythmCore()->prepare(sampleRate);
+        }
+    }
 }
 
 // ============================================================================
@@ -61,12 +68,12 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 // ============================================================================
 void AudioPlugin2686V::releaseResources()
 {
-    // メモリ解放などはJUCEのSynthesiserクラスが自動で行うため、
-    // 基本的にここは空で大丈夫です
+    // Memory release is handled automatically by JUCE Synthesiser class,
+    // so this can basically be empty.
 }
 
 // ============================================================================
-// Process Block (オーディオ処理のメインループ)
+// Process Block (Main Audio Processing Loop)
 // ============================================================================
 void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
@@ -115,7 +122,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         break;
     }
 
-    // 各ボイスへ適用
+    // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
     {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
@@ -128,11 +135,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 }
 
 // ============================================================================
-// Editor (GUI) 関連
+// Editor (GUI) Related
 // ============================================================================
 juce::AudioProcessorEditor* AudioPlugin2686V::createEditor()
 {
-    // Genericエディタではなく、自作のエディタを使うように変更
+    // Use custom editor instead of Generic editor
     return new AudioPlugin2686VEditor(*this);
 }
 
@@ -141,35 +148,67 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
     auto* reader = formatManager.createReaderFor(file);
     if (reader != nullptr)
     {
+        adpcmFilePath = file.getFullPathName();
+
         std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
 
-        // ファイル全体を読み込むバッファ
+        // Buffer to load the entire file
         juce::AudioBuffer<float> fileBuffer;
         fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
 
-        // 読み込み実行
+        // Execute load
         audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
 
-        // モノラル化して std::vector<float> に変換
+        // Convert to mono std::vector<float>
         std::vector<float> sourceData;
         sourceData.resize(fileBuffer.getNumSamples());
 
-        // Lチャンネルだけ、またはLRミックスで取得
+        // Get only L channel or mix LR
         auto* channelData = fileBuffer.getReadPointer(0);
         for (int i = 0; i < fileBuffer.getNumSamples(); ++i)
         {
             sourceData[i] = channelData[i];
-            // ステレオの場合のミックス処理を入れるならここで
+            // Add mixing logic here if stereo support is needed
         }
 
-        // --- 全ボイスのAdpcmCoreにデータをセット ---
-        // ここが重要：すべてのVoiceに対してデータを配る
+        // --- Set data to AdpcmCore for all voices ---
+        // Important: Distribute data to all Voices
         for (int i = 0; i < m_synth.getNumVoices(); ++i)
         {
             if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
             {
-                // AdpcmCoreに「リサンプリング＆4bit劣化」を行わせつつセット
+                // Set while letting AdpcmCore handle "Resampling & 4bit degradation"
                 voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
+            }
+        }
+    }
+}
+
+// Function to load Rhythm file
+void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
+{
+    auto* reader = formatManager.createReaderFor(file);
+    if (reader != nullptr)
+    {
+        if (padIndex >= 0 && padIndex < 8) {
+            rhythmFilePaths[padIndex] = file.getFullPathName();
+        }
+
+        std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
+        juce::AudioBuffer<float> fileBuffer;
+        fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
+        audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
+
+        std::vector<float> sourceData(fileBuffer.getNumSamples());
+        auto* channelData = fileBuffer.getReadPointer(0);
+        for (int i = 0; i < fileBuffer.getNumSamples(); ++i) {
+            sourceData[i] = channelData[i];
+        }
+
+        // Set data to the specified pad of RhythmCore for all voices
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+                voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
             }
         }
     }
@@ -177,7 +216,7 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
 
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
-// パラメータ・設定関連
+// Parameters / Settings Related
 const juce::String AudioPlugin2686V::getName() const { return "2686V"; }
 bool AudioPlugin2686V::acceptsMidi() const { return true; }
 bool AudioPlugin2686V::producesMidi() const { return false; }
@@ -190,14 +229,114 @@ const juce::String AudioPlugin2686V::getProgramName(int index) { return {}; }
 void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName) {}
 
 // ============================================================================
-// 状態保存 (State Information)
+// State Information
 // ============================================================================
 void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
-    // 将来的にプリセット保存処理をここに書きます
+    // APVTSの状態をXMLとして取得
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    // メタデータとパスを属性として追加
+    xml->setAttribute("presetName", presetName);
+    xml->setAttribute("presetAuthor", presetAuthor);
+    xml->setAttribute("presetVersion", presetVersion);
+
+    xml->setAttribute("adpcmPath", adpcmFilePath);
+    for (int i = 0; i < 8; ++i) {
+        xml->setAttribute("rhythmPath" + juce::String(i), rhythmFilePaths[i]);
+    }
+
+    copyXmlToBinary(*xml, destData);
 }
 
 void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
-    // 将来的にプリセット読み込み処理をここに書きます
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+    {
+        if (xmlState->hasTagName(apvts.state.getType()))
+        {
+            // パラメータ復帰
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+            // メタデータ復帰
+            presetName = xmlState->getStringAttribute("presetName", "Init Preset");
+            presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
+            presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
+
+            // サンプル復帰 (ADPCM)
+            adpcmFilePath = xmlState->getStringAttribute("adpcmPath");
+            juce::File adpcmFile(adpcmFilePath);
+            if (adpcmFile.existsAsFile()) {
+                loadAdpcmFile(adpcmFile);
+            }
+
+            // サンプル復帰 (Rhythm)
+            for (int i = 0; i < 8; ++i) {
+                rhythmFilePaths[i] = xmlState->getStringAttribute("rhythmPath" + juce::String(i));
+                juce::File rhyFile(rhythmFilePaths[i]);
+                if (rhyFile.existsAsFile()) {
+                    loadRhythmFile(rhyFile, i);
+                }
+            }
+        }
+    }
+}
+
+void AudioPlugin2686V::savePreset(const juce::File& file)
+{
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    xml->setAttribute("presetName", presetName);
+    xml->setAttribute("presetAuthor", presetAuthor);
+    xml->setAttribute("presetVersion", presetVersion);
+
+    int currentModeParams = (int)*apvts.getRawParameterValue("MODE");
+    xml->setAttribute("activeModeName", getModeName((OscMode)currentModeParams));
+
+    xml->setAttribute("adpcmPath", adpcmFilePath);
+    for (int i = 0; i < 8; ++i) xml->setAttribute("rhythmPath" + juce::String(i), rhythmFilePaths[i]);
+
+    xml->writeTo(file);
+}
+
+void AudioPlugin2686V::loadPreset(const juce::File& file)
+{
+    juce::XmlDocument xmlDoc(file);
+    std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
+
+    if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
+    {
+        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+        presetName = xmlState->getStringAttribute("presetName", "Init Preset");
+        presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
+        presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
+
+        juce::String modeStr = xmlState->getStringAttribute("activeModeName");
+        if (modeStr.isNotEmpty())
+        {
+            OscMode mode = getModeFromString(modeStr);
+            auto* param = apvts.getParameter("MODE");
+            if (param != nullptr)
+            {
+                // ホストとリスナー（GUI）に通知してタブを切り替える
+                float normalizedVal = param->getNormalisableRange().convertTo0to1((float)mode);
+                param->setValueNotifyingHost(normalizedVal);
+            }
+        }
+
+        adpcmFilePath = xmlState->getStringAttribute("adpcmPath");
+        juce::File adpcmFile(adpcmFilePath);
+        if (adpcmFile.existsAsFile()) loadAdpcmFile(adpcmFile);
+
+        for (int i = 0; i < 8; ++i) {
+            rhythmFilePaths[i] = xmlState->getStringAttribute("rhythmPath" + juce::String(i));
+            juce::File rhyFile(rhythmFilePaths[i]);
+            if (rhyFile.existsAsFile()) loadRhythmFile(rhyFile, i);
+        }
+    }
 }
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
@@ -213,8 +352,14 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
     // ==========================================
     // OPNA (YM2608) Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_FEEDBACK", "OPNA Feedback", 0.0f, 7.0f, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_ALGORITHM", "OPNA Algorithm", 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_FEEDBACK", "OPNA Feedback", 0.0f, 7.0f, 0.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_BIT", "OPNA Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_RATE", "OPNA Rate", 1, 7, 2)); // Default 6 (16kHz)
 
     for (int op = 0; op < 4; ++op)
     {
@@ -236,9 +381,9 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
     }
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "LFO Freq", 0.1f, 50.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_PMS", "LFO PMS", 0, 7, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_AMS", "LFO AMS", 0, 3, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "OPNA LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_PMS", "OPNA LFO PMS", 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_AMS", "OPNA LFO AMS", 0, 3, 0));
 }
 
 void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -246,8 +391,14 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
     // ==========================================
     // OPN (YM2203) Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPN_FEEDBACK", "OPN Feedback", 0.0f, 7.0f, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPN_ALGORITHM", "OPN Algorithm", 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPN_FEEDBACK", "OPN Feedback", 0.0f, 7.0f, 0.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPN_BIT", "OPN Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPN_RATE", "OPN Rate", 1, 7, 2)); // Default 6 (16kHz)
 
     for (int op = 0; op < 4; ++op)
     {
@@ -277,6 +428,12 @@ void AudioPlugin2686V::createOplParameterLayout(juce::AudioProcessorValueTreeSta
     layout.add(std::make_unique<juce::AudioParameterInt>("OPL_ALGORITHM", "OPL Algorithm", 0, 1, 0));
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPL_FEEDBACK", "OPL Feedback", 0.0f, 7.0f, 0.0f));
 
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPL_BIT", "OPL Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPL_RATE", "OPL Rate", 1, 7, 2)); // Default 6 (16kHz)
+
     for (int op = 0; op < 2; ++op)
     {
         juce::String prefix = "OPL_OP" + juce::String(op) + "_";
@@ -301,6 +458,12 @@ void AudioPlugin2686V::createOpllParameterLayout(juce::AudioProcessorValueTreeSt
     // OPLL (YM2413) Parameters
     // ==============================================================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPLL_FEEDBACK", "OPLL Feedback", 0.0f, 7.0f, 0.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPLL_BIT", "OPLL Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPLL_RATE", "OPLL Rate", 1, 7, 2)); // Default 6 (16kHz)
 
     for (int i = 0; i < 2; ++i)
     {
@@ -333,6 +496,12 @@ void AudioPlugin2686V::createOpl3ParameterLayout(juce::AudioProcessorValueTreeSt
     // Feedback (Global/Op1)
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPL3_FEEDBACK", "OPL3 Feedback", 0.0f, 7.0f, 0.0f));
 
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPL3_BIT", "OPL3 Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPL3_RATE", "OPL3 Rate", 1, 7, 2)); // Default 6 (16kHz)
+
     for (int i = 0; i < 4; ++i)
     {
         juce::String prefix = "OPL3_OP" + juce::String(i) + "_";
@@ -357,8 +526,14 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
     // ==========================================
     // OPM (YM2151) Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_FEEDBACK", "OPNA Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_ALGORITHM", "OPNA Algorithm", 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_ALGORITHM", "OPM Algorithm", 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_FEEDBACK", "OPM Feedback", 0.0f, 7.0f, 0.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_BIT", "OPM Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_RATE", "OPM Rate", 1, 7, 2)); // Default 6 (16kHz)
 
     for (int op = 0; op < 4; ++op)
     {
@@ -379,9 +554,9 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
     }
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "LFO Freq", 0.1f, 50.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_PMS", "LFO PMS", 0, 7, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_AMS", "LFO AMS", 0, 3, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "OPM LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_PMS", "OPM LFO PMS", 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_AMS", "OPM LFO AMS", 0, 3, 0));
 }
 
 void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -401,16 +576,22 @@ void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeSta
 
 	addEnvParameters(layout, "SSG");
 
-    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_DUTY_MODE", "Duty Mode", 0, 1, 0)); // Duty Mode: 0=Preset, 1=Variable
-    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_DUTY_PRESET", "Duty Preset", 0, 8, 0)); // Preset: 0~8
-    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_DUTY_VAR", "Duty Var", 0.0f, 0.5f, 0.5f)); // Variable: 0.0 ~ 0.5
-    layout.add(std::make_unique<juce::AudioParameterBool>("SSG_DUTY_INV", "Duty Invert", false)); // Invert
+    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_DUTY_MODE", "SSG Duty Mode", 0, 1, 0)); // Duty Mode: 0=Preset, 1=Variable
+    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_DUTY_PRESET", "SSG Duty Preset", 0, 8, 0)); // Preset: 0~8
+    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_DUTY_VAR", "SSG Duty Var", 0.0f, 0.5f, 0.5f)); // Variable: 0.0 ~ 0.5
+    layout.add(std::make_unique<juce::AudioParameterBool>("SSG_DUTY_INV", "SSG Duty Invert", false)); // Invert
 
-    layout.add(std::make_unique<juce::AudioParameterBool>("SSG_TRI_KEYTRK", "Triangle Key Track", true)); // Key Track Switch (Default ON)
-    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_TRI_PEAK", "Triangle Peak", 0.0f, 1.0f, 0.5f)); // Triangle Peak: 0.0 ~ 1.0
+    layout.add(std::make_unique<juce::AudioParameterBool>("SSG_TRI_KEYTRK", "SSG Triangle Key Track", true)); // Key Track Switch (Default ON)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_TRI_PEAK", "SSG Triangle Peak", 0.0f, 1.0f, 0.5f)); // Triangle Peak: 0.0 ~ 1.0
     // Triangle Manual Frequency
     // Range: 0.1Hz - 8000Hz, Skew: 0.3 (Log的挙動), Default: 440Hz
-    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_TRI_FREQ", "Tri Manual Freq", juce::NormalisableRange<float>(0.1f, 8000.0f, 0.1f, 0.3f), 440.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_TRI_FREQ", "SSG Tri Manual Freq", juce::NormalisableRange<float>(0.1f, 8000.0f, 0.1f, 0.3f), 440.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_BIT", "SSG Bit Depth", 0, 4, 3));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("SSG_RATE", "SSG Rate", 1, 7, 6)); // Default 6 (16kHz)
 
     // Hardware Envelope Parameters
     layout.add(std::make_unique<juce::AudioParameterBool>("SSG_ENV_ENABLE", "SSG HW Env Enable", false)); // HW Env Enable(Bool)
@@ -424,8 +605,11 @@ void AudioPlugin2686V::createWavetableParameterLayout(juce::AudioProcessorValueT
     // ==========================================
     // WAVETABLE Parameters
     // ==========================================
-    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit
-    layout.add(std::make_unique<juce::AudioParameterInt>("WT_BIT", "WT Bit Depth", 0, 3, 3));
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("WT_BIT", "WT Bit Depth", 0, 4, 3));
+    // Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("WT_RATE", "WT Rate", 1, 7, 6)); // Default 6 (16kHz)
     // Size: 0:32, 1:64
     layout.add(std::make_unique<juce::AudioParameterInt>("WT_SIZE", "WT Sample Size", 0, 1, 0));
     // Waveform Preset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
@@ -462,7 +646,29 @@ void AudioPlugin2686V::createRhythmParameterLayout(juce::AudioProcessorValueTree
     // ==========================================
     // Rhythm Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>("RHYTHM_LEVEL", "Rhythm Vol", 0.0f, 1.0f, 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("RHYTHM_LEVEL", "RHYTHM Vol", 0.0f, 1.0f, 1.0f));
+
+    // Create parameters for each of the 8 pads
+    for (int i = 0; i < 8; ++i) {
+        juce::String prefix = "RHYTHM_PAD" + juce::String(i);
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_VOL", "RHYTHM Pad" + juce::String(i + 1) + " Vol", 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_PAN", "RHYTHM Pad" + juce::String(i + 1) + " Pan", 0.0f, 1.0f, 0.5f));
+
+        // Note number
+        int defNote = 36;
+        if (i == 1) defNote = 38; else if (i == 2) defNote = 42; else if (i == 3) defNote = 46;
+        else if (i == 4) defNote = 41; else if (i == 5) defNote = 43; else if (i == 6) defNote = 49; else if (i == 7) defNote = 51;
+
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_NOTE", "RHYTHM Pad" + juce::String(i + 1) + " Note", 0, 127, defNote));
+
+        // 1: Raw 32bit 2: PCM 24bit 3: PCM 16bit 4: PCM 8bit 5: PCM 5bit 6: PCM 4bit 7: ADPCM 4bit
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_MODE", "RHYTHM Quality", 1, 7, 7));
+
+        // 1: 96kHz 2: 55.5kHz 3: 48kHz 4: 44.1kHz 5: 22.5kHz 6: 16k 7: 8k
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_RATE", "RHYTHM Rate", 1, 7, 6));
+
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "_ONESHOT", "RHYTHM One Shot", true));
+    }
 }
 
 void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -471,10 +677,11 @@ void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeS
     // ADPCM Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterFloat>("ADPCM_LEVEL", "ADPCM Level", 0.0f, 1.0f, 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("ADPCM_PAN", "ADPCM Pan", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>("ADPCM_LOOP", "ADPCM Loop", true));
     // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
-    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_MODE", "Quality", 0, 6, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_RATE", "Sample Rate", 0, 4, 3)); // Default: 3 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_MODE", "ADPCM Quality", 0, 6, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_RATE", "ADPCM Sample Rate", 0, 4, 3)); // Default: 3 (16kHz)
 
     addEnvParameters(layout, "ADPCM");
 }
@@ -483,6 +690,8 @@ void AudioPlugin2686V::processOpnaBlock(SynthParams &params)
 {
     params.feedback = *apvts.getRawParameterValue("OPNA_FEEDBACK");
     params.algorithm = (int)*apvts.getRawParameterValue("OPNA_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPNA_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPNA_RATE");
 
     for (int op = 0; op < 4; ++op)
     {
@@ -516,6 +725,8 @@ void AudioPlugin2686V::processOpnBlock(SynthParams &params)
 {
     params.feedback = *apvts.getRawParameterValue("OPN_FEEDBACK");
     params.algorithm = (int)*apvts.getRawParameterValue("OPN_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPN_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPN_RATE");
 
     for (int op = 0; op < 4; ++op)
     {
@@ -545,6 +756,8 @@ void AudioPlugin2686V::processOplBlock(SynthParams &params)
 {
     params.feedback = *apvts.getRawParameterValue("OPL_FEEDBACK");
     params.algorithm = (int)*apvts.getRawParameterValue("OPL_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPL_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPL_RATE");
 
     for (int op = 0; op < 2; ++op)
     {
@@ -572,7 +785,9 @@ void AudioPlugin2686V::processOplBlock(SynthParams &params)
 
 void AudioPlugin2686V::processOpllBlock(SynthParams& params)
 {
-    params.feedback = *apvts.getRawParameterValue("OPL_FEEDBACK");
+    params.feedback = *apvts.getRawParameterValue("OPLL_FEEDBACK");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPLL_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPLL_RATE");
 
     for (int op = 0; op < 2; ++op)
     {
@@ -604,6 +819,8 @@ void AudioPlugin2686V::processOpl3Block(SynthParams& params)
 {
     params.feedback = *apvts.getRawParameterValue("OPL3_FEEDBACK");
     params.algorithm = (int)*apvts.getRawParameterValue("OPL3_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPL3_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPL3_RATE");
 
     for (int op = 0; op < 4; ++op)
     {
@@ -632,6 +849,8 @@ void AudioPlugin2686V::processOpmBlock(SynthParams& params)
 {
     params.feedback = *apvts.getRawParameterValue("OPM_FEEDBACK");
     params.algorithm = (int)*apvts.getRawParameterValue("OPM_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPM_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPM_RATE");
 
     for (int op = 0; op < 4; ++op)
     {
@@ -670,6 +889,8 @@ void AudioPlugin2686V::processSsgBlock(SynthParams &params)
     params.ssgMix = *apvts.getRawParameterValue("SSG_MIX");
     params.ssgNoiseFreq = *apvts.getRawParameterValue("SSG_NOISE_FREQ");
     params.ssgWaveform = (int)*apvts.getRawParameterValue("SSG_WAVEFORM");
+    params.ssgBitDepth = (int)*apvts.getRawParameterValue("SSG_BIT");
+    params.ssgRateIndex = (int)*apvts.getRawParameterValue("SSG_RATE");
 
     params.ssgUseHwEnv = (*apvts.getRawParameterValue("SSG_ENV_ENABLE") > 0.5f);
     params.ssgEnvShape = (int)*apvts.getRawParameterValue("SSG_ENV_SHAPE");
@@ -694,6 +915,7 @@ void AudioPlugin2686V::processSsgBlock(SynthParams &params)
 void AudioPlugin2686V::processWavetableBlock(SynthParams &params)
 {
     params.wtBitDepth = (int)*apvts.getRawParameterValue("WT_BIT");
+    params.wtRateIndex = (int)*apvts.getRawParameterValue("WT_RATE");
     params.wtTableSize = (int)*apvts.getRawParameterValue("WT_SIZE");
     params.wtWaveform = (int)*apvts.getRawParameterValue("WT_WAVE");
 
@@ -727,13 +949,25 @@ void AudioPlugin2686V::processRhythmBlock(SynthParams &params)
 {
     // --- Rhythm Parameters ---
     params.rhythmLevel = *apvts.getRawParameterValue("RHYTHM_LEVEL");
+
+    for (int i = 0; i < 8; ++i) {
+        juce::String prefix = "RHYTHM_PAD" + juce::String(i);
+        auto& pad = params.rhythmPads[i];
+        pad.level = *apvts.getRawParameterValue(prefix + "_VOL");
+        pad.pan = *apvts.getRawParameterValue(prefix + "_PAN");
+        pad.noteNumber = (int)*apvts.getRawParameterValue(prefix + "_NOTE");
+        pad.qualityMode = (int)*apvts.getRawParameterValue(prefix + "_MODE");
+        pad.rateIndex = (int)*apvts.getRawParameterValue(prefix + "_RATE");
+        pad.isOneShot = (bool)*apvts.getRawParameterValue(prefix + "_ONESHOT");
+    }
 }
 
 void AudioPlugin2686V::processAdpcmBlock(SynthParams &params)
 {
-    // Bool値の取得
+    // get Bool value
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
     params.adpcmLevel = *apvts.getRawParameterValue("ADPCM_LEVEL");
+    params.adpcmPan = *apvts.getRawParameterValue("ADPCM_PAN");
     params.adpcmLoop = (*apvts.getRawParameterValue("ADPCM_LOOP") > 0.5f);
     params.adpcmQualityMode = (int)*apvts.getRawParameterValue("ADPCM_MODE");
     params.adpcmRateIndex = (int)*apvts.getRawParameterValue("ADPCM_RATE");
@@ -744,8 +978,41 @@ void AudioPlugin2686V::processAdpcmBlock(SynthParams &params)
     params.adpcmAdsr.r = *apvts.getRawParameterValue("ADPCM_RR");
 }
 
+// 環境設定を保存
+void AudioPlugin2686V::saveEnvironment(const juce::File& file)
+{
+    juce::XmlElement xml("PREF_2686V");
+
+    xml.setAttribute("wallpaperPath", wallpaperPath);
+    xml.setAttribute("defaultAdpcmDir", defaultAdpcmDir);
+    xml.setAttribute("defaultPresetDir", defaultPresetDir);
+    xml.setAttribute("showTooltips", showTooltips);
+
+    xml.writeTo(file);
+}
+
+// 環境設定を読み込み
+void AudioPlugin2686V::loadEnvironment(const juce::File& file)
+{
+    juce::XmlDocument xmlDoc(file);
+    std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
+
+    if (xml.get() != nullptr && xml->hasTagName("PREF_2686V"))
+    {
+        wallpaperPath = xml->getStringAttribute("wallpaperPath");
+        defaultAdpcmDir = xml->getStringAttribute("defaultAdpcmDir");
+        defaultPresetDir = xml->getStringAttribute("defaultPresetDir");
+        showTooltips = xml->getBoolAttribute("showTooltips", true);
+
+        // 内部変数の更新
+        if (juce::File(defaultAdpcmDir).isDirectory()) {
+            lastAdpcmDirectory = juce::File(defaultAdpcmDir);
+        }
+    }
+}
+
 // ============================================================================
-// エントリーポイント
+// Entry Point
 // ============================================================================
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

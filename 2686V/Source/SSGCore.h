@@ -13,7 +13,9 @@ public:
 
     void prepare(double sampleRate) {
         if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
         updateIncrements();
+        updatePhaseDelta();
     }
     void setSampleRate(double sampleRate) { m_sampleRate = sampleRate; updateIncrements(); }
 
@@ -42,18 +44,38 @@ public:
         m_triPeak = params.ssgTriPeak;
         m_triFreq = params.ssgTriFreq;
 
+        if (m_rateIndex != params.ssgRateIndex) {
+            m_rateIndex = params.ssgRateIndex;
+            updatePhaseDelta();
+        }
+
+        // Bit Depth
+        switch (params.ssgBitDepth) {
+        case 0: m_quantizeSteps = 15.0f; break; // 4bit (Real SSG Volume steps)
+        case 1: m_quantizeSteps = 31.0f; break; // 5bit
+        case 2: m_quantizeSteps = 63.0f; break; // 6bit
+        case 3: m_quantizeSteps = 255.0f; break; // 8bit
+        case 4: m_quantizeSteps = 0.0f; break;   // Raw
+        default: m_quantizeSteps = 255.0f; break;
+        }
+
         updateIncrements();
     }
 
     void noteOn(float frequency)
     {
-        m_phase = 0.0;
-        m_phaseDelta = (frequency * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
+        m_currentFrequency = frequency; // Save for recalculation
+        m_phase = 0.0f;
+
+        updatePhaseDelta();
 
         m_hwEnvPhase = 0.0f;
-
         m_currentLevel = 0.0f;
         m_state = State::Attack;
+
+        // Reset Rate Logic
+        m_rateAccumulator = 1.0f;
+        m_lastSample = 0.0f;
     }
 
     void noteOff()
@@ -67,7 +89,7 @@ public:
     {
         if (m_state == State::Idle) return 0.0f;
 
-        // --- ADSR / Gate Logic ---
+        // --- ADSR / Gate Logic (Host Rate for smooth envelope) ---
         if (m_adsrBypass)
         {
             if (m_state == State::Release) {
@@ -75,7 +97,6 @@ public:
                 m_state = State::Idle;
                 return 0.0f;
             }
-
             m_currentLevel = 1.0f;
         }
         else
@@ -92,9 +113,7 @@ public:
                 else { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
             }
             else if (m_state == State::Sustain) {
-                float diff = m_adsr.s - m_currentLevel;
-                if (std::abs(diff) > 0.0001f) m_currentLevel += diff * 0.05f;
-                else m_currentLevel = m_adsr.s;
+                m_currentLevel = m_adsr.s;
             }
             else if (m_state == State::Release) {
                 m_currentLevel -= m_releaseDec;
@@ -102,45 +121,54 @@ public:
             }
         }
 
-        // ==========================================
-        // 1. Hardware Envelope / Triangle Phase Update
-        // ==========================================
-        m_hwEnvPhase += (m_envFreq / m_sampleRate);
+        // --- Sample Rate Emulation ---
+        double targetRate = getTargetRate();
+        double step = targetRate / m_sampleRate;
+        m_rateAccumulator += step;
 
-        float hwEnvGain = 1.0f; // Default Unity Gain
-
-        if (m_useHwEnv)
+        // Update core logic only when virtual clock ticks
+        if (m_rateAccumulator >= 1.0)
         {
-            double p = m_hwEnvPhase;
-            bool isEvenCycle = ((int)p % 2 == 0);
-            float phaseNorm = (float)(p - std::floor(p));
+            m_rateAccumulator -= 1.0;
 
-            switch (m_envShape)
+            // ==========================================
+            // 1. Hardware Envelope Update (Target Rate)
+            // ==========================================
+            // HW Env Freq is typically low, so delta is small
+            float hwEnvDelta = m_envFreq / (float)targetRate;
+            m_hwEnvPhase += hwEnvDelta;
+
+            float hwEnvGain = 1.0f;
+
+            if (m_useHwEnv)
             {
-            case 0: hwEnvGain = 1.0f - phaseNorm; break;
-            case 1: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f; break;
-            case 2: hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm; break;
-            case 3: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 1.0f; break;
-            case 4: hwEnvGain = phaseNorm; break;
-            case 5: hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f; break;
-            case 6: hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm); break;
-            case 7: hwEnvGain = (p < 1.0) ? phaseNorm : 0.0f; break;
+                double p = m_hwEnvPhase;
+                bool isEvenCycle = ((int)p % 2 == 0);
+                float phaseNorm = (float)(p - std::floor(p));
+
+                switch (m_envShape)
+                {
+                case 0: hwEnvGain = 1.0f - phaseNorm; break; // \___
+                case 1: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f; break; // \___ (One shot)
+                case 2: hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm; break; // \/\/
+                case 3: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 1.0f; break; // \"""
+                case 4: hwEnvGain = phaseNorm; break; // /|/|
+                case 5: hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f; break; // /"""
+                case 6: hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm); break; // /\/\ (Triangle)
+                case 7: hwEnvGain = (p < 1.0) ? phaseNorm : 0.0f; break; // /___
+                }
             }
-        }
 
-        // ==========================================
-        // 2. Waveform Generation
-        // ==========================================
-        float toneSample = 0.0f;
+            // ==========================================
+            // 2. Waveform Generation (Target Rate)
+            // ==========================================
+            float toneSample = 0.0f;
 
-        if (m_waveform == 0) // Pulse (Standard)
-        {
-            // --- Duty Cycle Calculation ---
-            float currentDuty = 0.5f;
-            if (m_dutyMode == 0) {
-                // 1:1(50%), 7:9(43.75), 3:5(37.5), 5:11(31.25),
-                // 1:3(25%), 1:4(20%), 3:13(18.75), 1:7(12.5), 1:15(6.25)
-                switch(m_dutyPreset) {
+            if (m_waveform == 0) // Pulse
+            {
+                float currentDuty = 0.5f;
+                if (m_dutyMode == 0) { // Preset
+                    switch (m_dutyPreset) {
                     case 0: currentDuty = 0.5f; break;     // 1:1
                     case 1: currentDuty = 0.4375f; break;  // 7:9
                     case 2: currentDuty = 0.375f; break;   // 3:5
@@ -151,92 +179,91 @@ public:
                     case 7: currentDuty = 0.125f; break;   // 1:7
                     case 8: currentDuty = 0.0625f; break;  // 1:15
                     default: currentDuty = 0.5f; break;
+                    }
                 }
-            } else {
-                currentDuty = m_dutyVar;
-            }
-            if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                else {
+                    currentDuty = m_dutyVar;
+                }
+                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
 
-            // Pulse Generation (Uses Note Frequency m_phase)
-            toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
-            m_phase += m_phaseDelta;
-            if (m_phase >= 1.0f) m_phase -= 1.0f;
-        }
-        else // Triangle (Env Speed Driven)
-        {
+                toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+            }
+            else // Triangle
+            {
+                // Triangle Phase is driven either by note freq or fixed freq
+                // Already handled in Phase Update below, here just shape it
+                float phaseNorm = m_phase;
+                float k = m_triPeak;
+                if (k < 0.001f) k = 0.001f;
+                if (k > 0.999f) k = 0.999f;
+
+                if (phaseNorm < k) toneSample = -1.0f + 2.0f * (phaseNorm / k);
+                else               toneSample = 1.0f - 2.0f * ((phaseNorm - k) / (1.0f - k));
+            }
+
+            // Phase Update
             float phaseInc = 0.0f;
-
-            if (m_triKeyTrack)
-            {
-                phaseInc = m_phaseDelta; // Note Frequency
+            if (m_waveform == 1 && !m_triKeyTrack) {
+                phaseInc = m_triFreq / (float)targetRate;
             }
-            else
-            {
-                phaseInc = m_triFreq / m_sampleRate;
+            else {
+                phaseInc = m_phaseDelta; // Note Freq / TargetRate
             }
-
             m_phase += phaseInc;
             if (m_phase >= 1.0f) m_phase -= 1.0f;
 
-            float phaseNorm = m_phase;
-
-            // Peak Logic (Saw/Tri Transform)
-            float k = m_triPeak;
-            if (k < 0.001f) k = 0.001f;
-            if (k > 0.999f) k = 0.999f;
-
-            if (phaseNorm < k)
+            // ==========================================
+            // 3. Noise Generator (Target Rate)
+            // ==========================================
+            m_noisePhase += m_noiseDelta; // TargetNoiseFreq / TargetRate
+            if (m_noisePhase >= 1.0f)
             {
-                toneSample = -1.0f + 2.0f * (phaseNorm / k);
+                m_noisePhase -= 1.0f;
+                // LFSR Step
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+
+                m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
             }
-            else
-            {
-                toneSample = 1.0f - 2.0f * ((phaseNorm - k) / (1.0f - k));
+
+            // ==========================================
+            // 4. Mixing
+            // ==========================================
+            // Mix: 0.0=Tone, 1.0=Noise
+            // SSG mixer logic: Tone ON/OFF, Noise ON/OFF usually.
+            // Here using linear crossfade for flexibility.
+            float toneGain = 1.0f - m_mix;
+            float noiseGain = m_mix;
+
+            float rawMixed = (toneSample * m_level * toneGain) + (m_currentNoiseSample * m_noiseLevel * noiseGain);
+
+            // Apply HW Env
+            rawMixed *= hwEnvGain;
+
+            // ==========================================
+            // 5. Quantize (Bit Depth)
+            // ==========================================
+            if (m_quantizeSteps > 0.0f) {
+                // Normalize to 0..1 for stepping
+                // Range is roughly -1 to 1 (ignoring overshoots from mix)
+                // Clamp to be safe
+                if (rawMixed > 1.0f) rawMixed = 1.0f;
+                if (rawMixed < -1.0f) rawMixed = -1.0f;
+
+                float norm = (rawMixed + 1.0f) * 0.5f;
+                float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
+                m_lastSample = (quantized * 2.0f) - 1.0f;
+            }
+            else {
+                m_lastSample = rawMixed;
             }
         }
 
-        // ==========================================
-        // Noise Generator (LFSR 17-bit)
-        // ==========================================
-        // YM2149 / AY-3-8910 Algorithm:
-        // Input bit = Bit0 XOR Bit3
-        // Shift Right
-        // Bit16 = Input bit
-
-        m_noisePhase += m_noiseDelta;
-        if (m_noisePhase >= 1.0f)
-        {
-            m_noisePhase -= 1.0f;
-
-            // LFSR Step
-            unsigned int bit0 = m_lfsr & 1;
-            unsigned int bit3 = (m_lfsr >> 3) & 1;
-            unsigned int nextBit = bit0 ^ bit3;
-
-            m_lfsr >>= 1;
-
-            if (nextBit)
-            {
-                m_lfsr |= (1 << 16);
-            }
-
-            m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
-        }
-
-
-        // ==========================================
-        // 3. Mixing & Output
-        // ==========================================
-
-        // Mix = 0.0 -> Tone 100%, Noise 0%
-        // Mix = 0.5 -> Tone 50%, Noise 50%
-        // Mix = 1.0 -> Tone 0%, Noise 100%
-        float toneGain = 1.0f - m_mix;
-        float noiseGain = m_mix;
-
-        float mixedSignal = (toneSample * m_level * toneGain) + (m_currentNoiseSample * m_noiseLevel * noiseGain);
-
-        return mixedSignal * m_currentLevel * hwEnvGain * 0.5f;
+        // Output Sample (Sample & Hold) * ADSR Gain
+        return m_lastSample * m_currentLevel * 0.5f;
     }
 
 private:
@@ -246,6 +273,28 @@ private:
         m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.d) * m_sampleRate);
         m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
         m_noiseDelta = m_targetNoiseFreq / m_sampleRate;
+    }
+
+    // New Rate Logic
+    double getTargetRate() const {
+        switch (m_rateIndex) {
+        case 0: return 96000.0;
+        case 1: return 55500.0; // Typical OPNA
+        case 2: return 48000.0;
+        case 3: return 44100.0;
+        case 4: return 22050.0;
+        case 5: return 16000.0;
+        case 6: return 8000.0;
+        default: return 55500.0;
+        }
+    }
+
+    void updatePhaseDelta() {
+        double targetRate = getTargetRate();
+        if (targetRate > 0.0) {
+            m_phaseDelta = m_currentFrequency / targetRate;
+            m_noiseDelta = m_targetNoiseFreq / targetRate;
+        }
     }
 
     enum class State { Idle, Attack, Decay, Sustain, Release };
@@ -277,12 +326,19 @@ private:
     float m_triPeak = 0.5f; // Peak Position
     float m_triFreq = 440.0f;
 
-    // Noise LFSR Variables
+    // Noise LFSR Params
     unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)
     float m_noisePhase = 0.0f;
     float m_noiseDelta = 0.0f;
     float m_currentNoiseSample = 0.0f;
     float m_targetNoiseFreq = 12000.0f;
+
+    // Rate / Quality Params
+    int m_rateIndex = 1; // Default 55.5k
+    double m_rateAccumulator = 0.0;
+    float m_lastSample = 0.0f;
+    float m_quantizeSteps = 15.0f; // Default 4bit
+    float m_currentFrequency = 440.0f;
 
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;

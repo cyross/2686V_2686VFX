@@ -66,6 +66,7 @@ public:
     }
 
     AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
+    RhythmCore* getRhythmCore() { return &m_rhythmCore; }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
     {
@@ -146,55 +147,86 @@ public:
             {
                 sample = m_opnaCore.getSample();
                 isActive = m_opnaCore.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPN)
             {
                 sample = m_opnCore.getSample();
                 isActive = m_opnCore.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPL)
             {
                 sample = m_oplCore.getSample();
                 isActive = m_oplCore.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPLL)
             {
                 sample = m_opll.getSample();
                 isActive = m_opll.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPL3)
             {
                 sample = m_opl3.getSample();
                 isActive = m_opl3.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPM)
             {
                 sample = m_opm.getSample();
                 isActive = m_opm.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::SSG)
             {
                 sample = m_ssgCore.getSample();
                 isActive = m_ssgCore.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::WAVETABLE)
             {
                 sample = m_wtCore.getSample();
                 isActive = m_wtCore.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::RHYTHM)
             {
                 sample = m_rhythmCore.getSample();
                 isActive = m_rhythmCore.isPlaying();
+
+                // Apply per-pad Pan
+                float pan = m_rhythmCore.getCurrentPan();
+
+                outL[i] += sample * (1.0f - pan);
+                outR[i] += sample * pan;
             }
             else if (m_mode == OscMode::ADPCM)
             {
                 sample = m_adpcmCore.getSample();
                 isActive = m_adpcmCore.isPlaying();
-            }
 
-            outL[startSample + i] += sample;
-            outR[startSample + i] += sample;
+                float pan = m_adpcmCore.getCurrentPan();
+                outL[startSample + i] += sample * (1.0f - pan);
+                outR[startSample + i] += sample * pan;
+            }
 
             if (!isActive)
             {

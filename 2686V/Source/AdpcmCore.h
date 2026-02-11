@@ -96,13 +96,14 @@ public:
     {
         m_sampleRate = sampleRate;
         updateIncrements();
-        // 初期状態としてデモ波形を生成 (本来はファイルをロードする)
+        // Generate demo waveform if empty
         if (m_pcmBuffer.empty()) generateDemoWaveform();
     }
 
     void setParameters(const SynthParams& params)
     {
         m_level = params.adpcmLevel;
+        m_pan = params.adpcmPan;
         m_isLooping = params.adpcmLoop;
         m_adsr = params.adpcmAdsr;
         m_rootNote = params.adpcmRootNote;
@@ -125,7 +126,7 @@ public:
         updateIncrements();
     }
 
-    // 外部から音声データをセットする関数 (Processor側から呼ぶ)
+    // Set sample data from external source
     void setSampleData(const std::vector<float>& sourceData, double sourceRate)
     {
         // 1. Rawデータ (32bit float) をそのまま保持
@@ -193,9 +194,18 @@ public:
 
     bool isPlaying() const { return m_state != State::Idle; }
 
+    float getCurrentPan() const { return m_pan; }
+
     float getSample()
     {
         if (m_state == State::Idle || m_rawBuffer.empty()) return 0.0f;
+
+        // Safety check for empty buffers
+        if ((m_qualityMode == 7 && m_adpcmBuffer.empty()) ||
+            (m_qualityMode != 7 && m_rawBuffer.empty())) {
+            return 0.0f;
+        }
+
         if (m_hasFinished) return 0.0f;
 
         processAdsr();
@@ -203,9 +213,9 @@ public:
         float sample = 0.0f;
 
         // --- Mode Switching ---
-        if (m_qualityMode == 6) // 4-bit ADPCM (OPNA Style)
+        if (m_qualityMode == 7) // 4-bit ADPCM (OPNA Style)
         {
-            // ADPCMバッファを使用 (Nearest Neighbor)
+            // use ADPCM Buffer (Nearest Neighbor)
             if (m_position >= m_adpcmBuffer.size()) {
                 if (m_isLooping) m_position = std::fmod(m_position, (double)m_adpcmBuffer.size());
                 else { m_hasFinished = true; return 0.0f; }
@@ -218,13 +228,13 @@ public:
         }
         else // PCM Modes (Bit Crushing)
         {
-            // Rawバッファを使用
+            // use Raw Buffer
             if (m_position >= m_rawBuffer.size()) {
                 if (m_isLooping) m_position = std::fmod(m_position, (double)m_rawBuffer.size());
                 else { m_hasFinished = true; return 0.0f; }
             }
 
-            // 線形補間 (Linear Interpolation)
+            // Linear Interpolation
             int idx0 = (int)m_position;
             int idx1 = idx0 + 1;
             if (idx1 >= m_rawBuffer.size()) idx1 = m_isLooping ? 0 : idx0;
@@ -234,48 +244,19 @@ public:
             float s1 = m_rawBuffer[idx1];
             sample = s0 * (1.0f - frac) + s1 * frac;
 
-            // ★修正: ビット深度シミュレーション
+            float maxVal = 0.0f;
             switch (m_qualityMode)
             {
-                case 0: // Raw (32-bit Float) - 何もしない
-                    break;
+                case 1: maxVal = 0.0f; break;       // ADD: Raw 32-bit (No crush)
+                case 2: maxVal = 8388607.0f; break; // 24bit
+                case 3: maxVal = 32767.0f; break;   // 16bit
+                case 4: maxVal = 127.0f; break;     // 8bit
+                case 5: maxVal = 15.0f; break;      // 5bit
+                case 6: maxVal = 7.0f; break;       // 4bit Linear
+            }
 
-                case 1: // 24-bit PCM
-                {
-                    // 2^23 - 1 = 8388607
-                    // 24bitは精度が高すぎるため聴感上の差はほぼありませんが、理論値として実装します
-                    const float maxVal = 8388607.0f;
-                    sample = std::floor(sample * maxVal) / maxVal;
-                    break;
-                }
-                case 2: // 16-bit PCM (CD Quality)
-                {
-                    const float maxVal = 32767.0f;
-                    sample = std::floor(sample * maxVal) / maxVal;
-                    break;
-                }
-                case 3: // 8-bit PCM (Retro PC / Sampler)
-                {
-                    const float maxVal = 127.0f;
-                    sample = std::floor(sample * maxVal) / maxVal;
-                    break;
-                }
-                case 4: // 5-bit PCM (PC Engine Wavetable style)
-                {
-                    // 2^4 - 1 = 15 (Signed 5-bit: -16 to +15 range approximation)
-                    // かなり階段状になり、独特の「ジー」という倍音が乗ります
-                    const float maxVal = 15.0f;
-                    sample = std::floor(sample * maxVal) / maxVal;
-                    break;
-                }
-                case 5: // 4-bit Linear PCM
-                {
-                    // 2^3 - 1 = 7 (Signed 4-bit: -8 to +7 range)
-                    // ADPCMではない、純粋なビット落としです。激しいノイズが乗ります。
-                    const float maxVal = 7.0f;
-                    sample = std::floor(sample * maxVal) / maxVal;
-                    break;
-                }
+            if (maxVal > 0.0f) {
+                sample = std::floor(sample * maxVal) / maxVal;
             }
         }
 
@@ -285,6 +266,50 @@ public:
     }
 
 private:
+    void refreshAdpcmBuffer()
+    {
+        if (m_rawBuffer.empty()) return;
+
+        double targetRate = 16000.0;
+        switch (m_rateIndex) {
+        case 1: targetRate = 96000.0; break;
+        case 2: targetRate = 55500.0; break; // OPNA Limit
+        case 3: targetRate = 48000.0; break;
+        case 4: targetRate = 44100.0; break; // CD
+        case 5: targetRate = 22050.0; break; // Half
+        case 6: targetRate = 16000.0; break; // PC-98 Standard
+        case 7: targetRate = 8000.0;  break; // Telephone
+        default: targetRate = 16000.0; break;
+        }
+
+        // Do not upsample beyond source rate for the ADPCM buffer gen
+        if (targetRate > m_sourceRate) targetRate = m_sourceRate;
+
+        m_bufferSampleRate = targetRate;
+
+        // Resample & Encode
+        double step = m_sourceRate / targetRate;
+        if (step <= 0.0) step = 1.0;
+
+        Ym2608AdpcmCodec codec;
+        codec.reset();
+
+        m_adpcmBuffer.clear();
+        m_adpcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
+
+        double pos = 0;
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
+            if (index >= m_rawBuffer.size()) break;
+
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+
+            m_adpcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
+    }
+
     void processAdsr()
     {
         if (m_state == State::Attack) {
@@ -328,56 +353,6 @@ private:
         setSampleData(tempSource, 16000.0);
     }
 
-    void refreshAdpcmBuffer()
-    {
-        if (m_rawBuffer.empty()) return;
-
-        // レートの決定
-        double targetRate = 16000.0;
-        switch (m_rateIndex) {
-            case 0: targetRate = 55500.0; break; // OPNA Limit
-            case 1: targetRate = 44100.0; break; // CD
-            case 2: targetRate = 22050.0; break; // Half
-            case 3: targetRate = 16000.0; break; // PC-98 Standard
-            case 4: targetRate = 8000.0;  break; // Telephone
-            default: targetRate = 16000.0; break;
-        }
-
-        // 元データよりも高いレートを指定された場合は、元データのレートを上限とする（アップサンプリングは無意味なので）
-        if (targetRate > m_sourceRate) targetRate = m_sourceRate;
-
-        // 再生用変数の更新
-        m_bufferSampleRate = targetRate;
-
-        // リサンプリング & エンコード開始
-        double step = m_sourceRate / targetRate;
-
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-
-        m_adpcmBuffer.clear();
-        // 予想サイズ確保
-        m_adpcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
-
-        double pos = 0;
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-            if (index >= m_rawBuffer.size()) break;
-
-            // Rawバッファから取得
-            float rawSample = m_rawBuffer[index];
-            int16_t input = (int16_t)(rawSample * 32767.0f);
-
-            // Encode -> Decode (ADPCM劣化)
-            uint8_t encoded = codec.encode(input);
-            int16_t decoded = codec.decode(encoded);
-
-            m_adpcmBuffer.push_back(decoded);
-
-            pos += step;
-        }
-    }
-
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
@@ -388,7 +363,7 @@ private:
     std::vector<int16_t> m_pcmBuffer;
     std::vector<float> m_rawBuffer;       // Raw Data (32bit)
     std::vector<int16_t> m_adpcmBuffer;   // Processed Data (4bit ADPCM)
-    int m_qualityMode = 0;
+    int m_qualityMode = 6;
     int m_rateIndex = 3;
 
     double m_position = 0.0;
@@ -397,6 +372,7 @@ private:
 
     // Params
     float m_level = 1.0f;
+    float m_pan = 0.5f;
     SimpleAdsr m_adsr;
     float m_currentLevel = 0.0f;
     float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f;

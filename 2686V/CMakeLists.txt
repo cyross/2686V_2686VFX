@@ -1,4 +1,4 @@
-# プラグインの定義
+﻿# プラグインの定義
 juce_add_plugin(2686V
     COMPANY_NAME "YourName"         # あなたの名前に変更してください
     IS_SYNTH TRUE                   # シンセサイザーとして定義
@@ -32,6 +32,8 @@ target_sources(2686V PRIVATE
     Source/RhythmCore.h
     Source/AdpcmCore.h
     Source/WavetableCore.h
+    Source/RegisterConverter.h
+    Source/SimpleEffect.h
 )
 
 # ライブラリのリンク

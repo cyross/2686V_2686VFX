@@ -18,6 +18,7 @@ public:
     {
         if (sampleRate > 0.0) m_sampleRate = sampleRate;
         updateIncrements();
+        updatePhaseDelta();
     }
 
     void setParameters(const SynthParams& params)
@@ -31,8 +32,10 @@ public:
         case 1: m_quantizeSteps = 31.0f; break;
         case 2: m_quantizeSteps = 63.0f; break;
         case 3: m_quantizeSteps = 255.0f; break;
+        case 4: m_quantizeSteps = 0.0f; break; // Raw (No Quantize) - 追加の可能性を考慮
         default: m_quantizeSteps = 255.0f; break;
         }
+        m_rateIndex = params.wtRateIndex;
         m_tableSize = (params.wtTableSize == 0) ? 32 : 64;
 
         // 波形変更検知
@@ -60,12 +63,15 @@ public:
 
     void noteOn(float frequency)
     {
+        juce::Logger::getCurrentLogger()->writeToLog("Rate:" + juce::String(m_rateIndex));
         m_phase = 0.0f;
         m_modPhase = 0.0f;
         m_phaseDelta = frequency / m_sampleRate;
 
         m_currentLevel = 0.0f;
         m_state = State::Attack;
+        m_rateAccumulator = 1.0f; // Force update on first sample
+        m_lastSample = 0.0f;
     }
 
     void noteOff()
@@ -93,53 +99,57 @@ public:
             if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
         }
 
+        // --- Sample Rate Emulation ---
+        double targetRate = getTargetRate();
+        double step = targetRate / m_sampleRate;
+        m_rateAccumulator += step;
+
         // --- Wavetable Synthesis ---
-
-        // 1. Modulation (FDS-like LFO/FM)
-        float modOffset = 0.0f;
-        if (m_modEnable)
+        if (m_rateAccumulator >= 1.0)
         {
-            // Modulator: Simple Sine for now (Fixed relative speed or Hz)
-            // FDSは周波数変調ですが、ここでは実装しやすい位相変調でシミュレート
-            modOffset = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi) * m_modDepth;
+            m_rateAccumulator -= 1.0;
 
-            // Modulator Phase Update (Relative to carrier or fixed Hz)
-            // ここでは簡易的に CarrierFreq * ModSpeed(Ratio) とします
-            m_modPhase += (m_phaseDelta * m_modSpeed);
-            if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
+            // --- Synthesis at Target Rate ---
+
+            // 1. Modulation
+            float modOffset = 0.0f;
+            if (m_modEnable)
+            {
+                modOffset = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi) * m_modDepth;
+                m_modPhase += (m_phaseDelta * m_modSpeed);
+                if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
+            }
+
+            // 2. Phase
+            float effectivePhase = m_phase + modOffset;
+            effectivePhase -= std::floor(effectivePhase);
+
+            // 3. Table Lookup
+            float readIndex = effectivePhase * (float)m_tableSize;
+            int idx = (int)readIndex;
+            if (idx >= m_tableSize) idx = m_tableSize - 1;
+
+            int sourceIdx = (m_tableSize == 32) ? (idx * 2) : idx;
+            if (sourceIdx >= 64) sourceIdx = 63;
+
+            float rawSample = m_sourceWave[sourceIdx];
+
+            // 4. Quantize
+            if (m_quantizeSteps > 0.0f) {
+                float norm = (rawSample + 1.0f) * 0.5f;
+                float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
+                m_lastSample = (quantized * 2.0f) - 1.0f;
+            }
+            else {
+                m_lastSample = rawSample;
+            }
+
+            m_phase += m_phaseDelta;
+            if (m_phase >= 1.0f) m_phase -= 1.0f;
         }
 
-        // 2. Phase Calculation
-        float effectivePhase = m_phase + modOffset;
-        // Wrap phase
-        effectivePhase -= std::floor(effectivePhase);
-
-        // 3. Table Lookup & Quantization
-        // SourceWave(64)から、現在のTableSizeに合わせて読み出す
-        // 32サンプルの場合は2つ飛ばしで読むイメージ
-        float readIndex = effectivePhase * (float)m_tableSize;
-        int idx = (int)readIndex;
-        if (idx >= m_tableSize) idx = m_tableSize - 1;
-
-        // ソースが常に64なので、32モードの時はインデックスを2倍してマッピング
-        int sourceIdx = (m_tableSize == 32) ? (idx * 2) : idx;
-        if (sourceIdx >= 64) sourceIdx = 63;
-
-        float rawSample = m_sourceWave[sourceIdx];
-
-        // 4. Quantize (Bit Depth)
-        // -1.0 ~ 1.0 -> 0.0 ~ 1.0 -> Step化 -> -1.0 ~ 1.0
-        float norm = (rawSample + 1.0f) * 0.5f; // 0-1
-        float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-        float output = (quantized * 2.0f) - 1.0f;
-
-        // Phase Update
-        m_phase += m_phaseDelta;
-        if (m_phase >= 1.0f) m_phase -= 1.0f;
-
-        return output * m_currentLevel * m_level * 0.5f;
+        return m_lastSample * m_currentLevel * m_level * 0.5f;
     }
-
 private:
     // 波形データ生成
     void generateWaveform(int type)
@@ -206,6 +216,27 @@ private:
         m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
     }
 
+    double getTargetRate() const {
+        // Internal Index (1-7)
+        switch (m_rateIndex) {
+            case 1: return 96000.0;
+            case 2: return 55500.0;
+            case 3: return 48000.0;
+            case 4: return 44100.0;
+            case 5: return 22050.0;
+            case 6: return 16000.0;
+            case 7: return 8000.0;
+            default: return 16000.0;
+        }
+    }
+
+    void updatePhaseDelta() {
+        double targetRate = getTargetRate();
+        if (targetRate > 0.0) {
+            m_phaseDelta = m_currentFrequency / targetRate;
+        }
+    }
+
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
     double m_sampleRate = 44100.0;
@@ -217,9 +248,15 @@ private:
     std::vector<float> m_sourceWave; // Internal High-Res (Length 64)
     int m_tableSize = 32;            // Playback Size (32 or 64)
     float m_quantizeSteps = 15.0f;   // 4bit=15
-    int m_waveform = -1; // 初期化用
-    std::array<float, 32> m_customWaveCache32; // データを保持用
-    std::array<float, 64> m_customWaveCache64; // データを保持用
+    int m_waveform = -1; // for initialize
+    std::array<float, 32> m_customWaveCache32; // for data storage
+    std::array<float, 64> m_customWaveCache64; // for data storage
+
+    // Rate / Lo-Fi
+    int m_rateIndex = 5; // Default ID 6 (16kHz) -> Index 5
+    double m_rateAccumulator = 0.0;
+    float m_lastSample = 0.0f;
+    float m_currentFrequency = 440.0f;
 
     // Modulation
     bool m_modEnable = false;
@@ -230,5 +267,7 @@ private:
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
     float m_currentLevel = 0.0f;
-    float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f;
+    float m_attackInc = 0.0f;
+    float m_decayDec = 0.0f;
+    float m_releaseDec = 0.0f;
 };

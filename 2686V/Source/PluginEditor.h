@@ -8,15 +8,15 @@ using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
-// 構造体で使うので、グローバルに定義
+// Defined globally as it's used in structs
 static const juce::String VstName = "2686V";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
-static const int WindowWidth = 1000;
+static const int WindowWidth = 1600;
 static const int WindowHeight = 800;
 
-static const int TabNumber = 9;
+static const int TabNumber = 12;
 
 static const int Fm4Ops = 4;
 static const int Fm2Ops = 2;
@@ -24,9 +24,12 @@ static const int Fm2Ops = 2;
 static const int WtSamples32 = 32;
 static const int WtSamples64 = 64;
 
+static const int GlobalPaddingWidth = 20;
+static const int GlobalPaddingHeight = 20;
+static const int GroupPaddingWidth = 10;
+static const int GroupPaddingHeight = 10;
 static const int TopGroupHeight = 80;
-static const int TopGroupPaddingWidth = 10;
-static const int TopGroupPaddingHeight = 10;
+static const int QualityGroupHeight = 80;
 static const int LabelWidth = 40;
 static const int LabelHeight = 20;
 static const int SliderWidth = 50;
@@ -54,6 +57,24 @@ static const int OpTextButtonWidth = 80;
 static const int OpTextButtonHeight = 15;
 
 static const int FmOpRowH = 36;
+static const int FmOpWidth = 240;
+
+static const int WtLeftWidth = 240;
+static const int WtRightWidth = 800;
+static const int WtHeight = 640;
+static const int WtCustomSliderWidth = 22;
+
+enum class RegisterType
+{
+    None,
+    FmRate, // AR, DR, SR, RR (0-31)
+    FmSl,   // SL (0-15)
+    FmTl,   // TL (0-127)
+    FmMul,  // MUL (0-15)
+    FmDt,   // DT (0-7)
+    SsgVol, // Level (0-15)
+    SsgEnv  // Env Period (0-65535)
+};
 
 struct SelectItem
 {
@@ -94,18 +115,174 @@ static const Flags OpComboBoxFlags{ true, false };
 static const Flags OpToggleButtonFlags{ true, false };
 static const Flags OpTextButtonFlags{ true, false };
 
+class CustomTabLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    // アイコンのパスを生成するヘルパー関数
+    juce::Path getIconPath(const juce::String& name, juce::Rectangle<float> area)
+    {
+        juce::Path p;
+        auto center = area.getCentre();
+        float s = std::min(area.getWidth(), area.getHeight()) * 0.5f; // アイコンサイズ
+
+        if (name == "PRESET") // プリセットブラウザタブはフォルダーアイコン
+        {
+            // --- Folder / List Icon ---
+            // フォルダーの形
+            float w = s * 1.2f;
+            float h = s * 0.9f;
+            juce::Rectangle<float> folderRect(center.x - w / 2, center.y - h / 2 + s * 0.1f, w, h);
+            p.addRoundedRectangle(folderRect, 2.0f);
+            // タブ部分
+            p.addRectangle(center.x - w / 2, center.y - h / 2 - s * 0.2f, w * 0.4f, s * 0.3f);
+
+            // 中身の線 (リストっぽく)
+            p.startNewSubPath(center.x - w * 0.3f, center.y);
+            p.lineTo(center.x + w * 0.3f, center.y);
+            p.startNewSubPath(center.x - w * 0.3f, center.y + h * 0.3f);
+            p.lineTo(center.x + w * 0.3f, center.y + h * 0.3f);
+        }
+        else if (name == "SETTINGS") // 設定タブは歯車アイコン
+        {
+            // --- Gear Icon ---
+            // 歯車
+            float rOut = s * 0.6f;
+            float rIn = s * 0.45f;
+            float rHole = s * 0.2f;
+
+            p.addCentredArc(center.x, center.y, rIn, rIn, 0, 0, juce::MathConstants<float>::twoPi, true);
+
+            // 歯を描く (8個)
+            for (int i = 0; i < 8; ++i)
+            {
+                float angle = i * juce::MathConstants<float>::twoPi / 8.0f;
+                juce::Path tooth;
+                tooth.addRectangle(center.x - s * 0.12f, center.y - rOut, s * 0.24f, rOut - rIn + 2.0f);
+                tooth.applyTransform(juce::AffineTransform::rotation(angle, center.x, center.y));
+                p.addPath(tooth);
+            }
+            // 真ん中の穴
+            p.addEllipse(center.x - rHole, center.y - rHole, rHole * 2, rHole * 2);
+            p.setUsingNonZeroWinding(false); // 穴を抜く設定
+        }
+        else if (name == "ABOUT") // Aboutタブは丸囲みiアイコン
+        {
+            // --- Info Icon (i) ---
+            // 丸
+            float r = s * 0.6f;
+            p.addEllipse(center.x - r, center.y - r, r * 2, r * 2);
+
+            // i の点
+            float dotSize = s * 0.15f;
+            juce::Path dot;
+            dot.addEllipse(center.x - dotSize / 2, center.y - r * 0.5f, dotSize, dotSize);
+            p.addPath(dot);
+
+            // i の棒
+            juce::Path bar;
+            bar.addRectangle(center.x - dotSize / 2, center.y - r * 0.1f, dotSize, r * 0.8f);
+            p.addPath(bar);
+
+            p.setUsingNonZeroWinding(false); // 穴を抜く設定
+        }
+        return p;
+    }
+
+    void drawTabButton(juce::TabBarButton & button, juce::Graphics & g, bool isMouseOver, bool isMouseDown) override
+    {
+        auto area = button.getActiveArea().toFloat();
+        juce::String name = button.getButtonText();
+
+        // 1. タブ背景の描画
+        // 選択中タブの背景色
+        auto selectedBg = juce::Colour::fromFloatRGBA(0.4f, 0.4f, 0.4f, 1.0f);
+        // 非選択タブの背景色
+        auto unselectedBg = juce::Colour::fromFloatRGBA(0.15f, 0.15f, 0.15f, 1.0f);
+
+        if (button.isFrontTab()) {
+            g.setColour(selectedBg);
+        }
+        else {
+            g.setColour(unselectedBg);
+            // マウスオーバーで背景も少し明るく
+            if (isMouseOver) g.setColour(unselectedBg.brighter(0.1f));
+        }
+        g.fillRect(area);
+
+        // 2. コンテンツ（テキストまたはアイコン）の色決定
+        juce::Colour contentColour;
+        if (button.isFrontTab()) {
+            // 選択時は完全な白（強調）
+            contentColour = juce::Colours::white;
+        }
+        else {
+            // 非選択時はグレー
+            contentColour = juce::Colours::grey;
+            // マウスオーバー時は少し明るくして反応させる
+            if (isMouseOver) contentColour = contentColour.brighter(0.3f);
+        }
+
+        // 3. 描画
+        g.setColour(contentColour); // 色を確定
+
+        if (name == "PRESET" || name == "SETTINGS" || name == "ABOUT")
+        {
+            // アイコン描画
+            juce::Path icon = getIconPath(name, area);
+            g.fillPath(icon);
+        }
+        else
+        {
+            // テキスト描画
+            g.setFont(juce::Font(16.0f).withStyle(button.isFrontTab() ? juce::Font::bold : juce::Font::plain));
+            g.drawText(name, area, juce::Justification::centred, true);
+        }
+    }
+};
+
+class ColoredGroupComponent : public juce::GroupComponent
+{
+public:
+    void setBackgroundColor(juce::Colour c)
+    {
+        backgroundColor = c;
+        repaint();
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        // 背景色があれば描画 (角丸で少し柔らかく)
+        if (!backgroundColor.isTransparent())
+        {
+            g.setColour(backgroundColor);
+            g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
+        }
+
+        // 親クラス（枠線とテキスト）の描画処理を呼ぶ
+        juce::GroupComponent::paint(g);
+    }
+
+private:
+    juce::Colour backgroundColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f);
+};
+
 struct Fm4GuiSet
 {
     juce::Component page;
 
-    juce::GroupComponent globalGroup;
-    std::array<juce::GroupComponent, Fm4Ops> opGroups;
-    juce::GroupComponent lfoGroup;
+    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups;
+    ColoredGroupComponent lfoGroup;
 
     juce::ComboBox algSelector;
     juce::Label algLabel;
     juce::Slider feedbackSlider;
     juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     juce::Slider lfoFreqSlider;
     juce::Label lfoFreqLabel;
@@ -126,13 +303,15 @@ struct Fm4GuiSet
     std::array<juce::Slider, Fm4Ops> rr;
     std::array<juce::ToggleButton, Fm4Ops> fix;
     std::array<juce::Slider, Fm4Ops> freq;
-    std::array<juce::GroupComponent, Fm4Ops> freqBtnGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> freqBtnGroup;
     std::array<juce::TextButton, Fm4Ops> freqToZero;
     std::array<juce::TextButton, Fm4Ops> freqTo440;
     std::array<juce::Slider, Fm4Ops> tl;  // Total Level
     std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
     std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
     std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
     std::array<juce::Label, Fm4Ops> mulLabel;
     std::array<juce::Label, Fm4Ops> dtLabel;
@@ -154,6 +333,8 @@ struct Fm4GuiSet
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
     std::unique_ptr<SliderAttachment> lfoFreqAtt;
     std::unique_ptr<ComboBoxAttachment> lfoPmsAtt;
     std::unique_ptr<ComboBoxAttachment> lfoAmsAtt;
@@ -179,11 +360,16 @@ struct Fm2GuiSet
 {
     juce::Component page;
 
-    juce::GroupComponent globalGroup;
-    std::array<juce::GroupComponent, Fm2Ops> opGroups;
+    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm2Ops> opGroups;
 
     juce::ComboBox algSelector; juce::Label algLabel;
     juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     std::array<juce::Label, Fm2Ops> opLabels;
 
@@ -196,6 +382,8 @@ struct Fm2GuiSet
     std::array<juce::Slider, Fm2Ops> rr;
     std::array<juce::ComboBox, Fm2Ops> ws;
 
+    std::array<juce::TextButton, Fm2Ops> mmlBtn;
+
     std::array<juce::Label, Fm2Ops> mulLabel;
     std::array<juce::Label, Fm2Ops> dtLabel;
     std::array<juce::Label, Fm2Ops> arLabel;
@@ -206,6 +394,8 @@ struct Fm2GuiSet
 
     std::unique_ptr<ComboBoxAttachment> algAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
 
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> mulAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> dtAtt;
@@ -220,12 +410,17 @@ struct OpllGuiSet
 {
     juce::Component page;
 
-    juce::GroupComponent globalGroup;             // Preset & Feedback
-    std::array<juce::GroupComponent, Fm2Ops> opGroups; // OP1, OP2
+    ColoredGroupComponent globalGroup;             // Preset & Feedback
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm2Ops> opGroups; // OP1, OP2
 
     // Feedback (User Patch)
     juce::Slider feedbackSlider;
     juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     std::array<juce::Label, Fm2Ops> opLabel;
 
@@ -239,9 +434,13 @@ struct OpllGuiSet
     std::array<juce::ToggleButton, Fm2Ops> am, vib, egType, ksr;
     std::array<juce::Label, Fm2Ops> amLabel, vibLabel, egTypeLabel, ksrLabel;
 
+    std::array<juce::TextButton, Fm2Ops> mmlBtn;
+
     // Attachments
     std::unique_ptr<ComboBoxAttachment> presetAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
 
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> wsAtt, kslAtt;
@@ -252,11 +451,16 @@ struct Opl3GuiSet
 {
     juce::Component page;
 
-    juce::GroupComponent globalGroup;
-    std::array<juce::GroupComponent, Fm4Ops> opGroups; // 4 Operators
+    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups; // 4 Operators
 
     juce::ComboBox algSelector; juce::Label algLabel;
     juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     // Sliders
     std::array<juce::Slider, Fm4Ops> mul, tl, ar, dr, sl, rr;
@@ -264,9 +468,13 @@ struct Opl3GuiSet
     std::array<juce::ComboBox, Fm4Ops> ws; // Wave Select (8 types)
     std::array<juce::Label, Fm4Ops> wsLabel;
 
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
 
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> wsAtt;
@@ -276,13 +484,18 @@ struct OpmGuiSet
 {
     juce::Component page;
 
-    juce::GroupComponent globalGroup;
-    juce::GroupComponent lfoGroup; // LFO��p�̘g��
-    std::array<juce::GroupComponent, Fm4Ops> opGroups;
+    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent lfoGroup;
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups;
 
     // Global
     juce::ComboBox algSelector; juce::Label algLabel;
     juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     // OPM LFO
     juce::Slider lfoFreqSlider; juce::Label lfoFreqLabel;
@@ -306,6 +519,8 @@ struct OpmGuiSet
     std::array<juce::Label, Fm4Ops> freqToZeroLabel;
     std::array<juce::Label, Fm4Ops> freqTo440Label;
 
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
     // Attachments
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
@@ -314,6 +529,8 @@ struct OpmGuiSet
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
     std::unique_ptr<ComboBoxAttachment> algAtt, lfoWaveAtt, pmsAtt, amsAtt;
     std::unique_ptr<SliderAttachment> fbAtt, lfoFreqAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqToZeroAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqTo440Att;
 
@@ -325,11 +542,12 @@ struct SsgGuiSet
     juce::Component page;
 
     // Pane Groups
-    juce::GroupComponent voiceGroup;
-    juce::GroupComponent filterGroup;
-    juce::GroupComponent dutyGroup;
-    juce::GroupComponent triGroup;
-    juce::GroupComponent envGroup;
+    ColoredGroupComponent voiceGroup;
+    ColoredGroupComponent filterGroup;
+    ColoredGroupComponent qualityGroup;
+    ColoredGroupComponent dutyGroup;
+    ColoredGroupComponent triGroup;
+    ColoredGroupComponent envGroup;
 
     juce::Slider levelSlider;
     juce::Label levelLabel;
@@ -347,6 +565,10 @@ struct SsgGuiSet
     juce::Label mixSetNoiseLabel;
     juce::ComboBox waveSelector;
     juce::Label waveLabel; // Waveform Selector
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
 
     // SSG ADSR
     juce::ToggleButton adsrBypassButton; // ADSR Bypass Switch
@@ -401,6 +623,8 @@ struct SsgGuiSet
     std::unique_ptr<SliderAttachment> mixAtt;
     std::unique_ptr<ButtonAttachment> mixSetAtt;
     std::unique_ptr<ComboBoxAttachment> waveAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
     std::unique_ptr<ButtonAttachment> adsrBypassAtt;
     std::unique_ptr<SliderAttachment> attackAtt;
     std::unique_ptr<SliderAttachment> decayAtt;
@@ -425,11 +649,11 @@ struct WtGuiSet
     juce::Component page;
 
     // Groups
-    juce::GroupComponent filterGroup;
-    juce::GroupComponent propGroup; // Wavetable Property
+    ColoredGroupComponent filterGroup;
+    ColoredGroupComponent propGroup; // Wavetable Property
 
     // Custom Waveform Editors
-    juce::GroupComponent customGroup;
+    ColoredGroupComponent customGroup;
     std::array<juce::Slider, 32> customSliders32;
     std::array<juce::Slider, 64> customSliders64;
 
@@ -448,6 +672,8 @@ struct WtGuiSet
     // Properties
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
     juce::ComboBox sizeSelector;
     juce::Label sizeLabel;
     juce::ComboBox waveSelector;
@@ -464,6 +690,7 @@ struct WtGuiSet
     // Wavetable Attachments
     std::unique_ptr<SliderAttachment> levelAtt;
     std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
     std::unique_ptr<ComboBoxAttachment> sizeAtt;
     std::unique_ptr<ComboBoxAttachment> waveAtt;
     std::array<std::unique_ptr<SliderAttachment>, 32> customAtts32;
@@ -477,21 +704,49 @@ struct WtGuiSet
     std::unique_ptr<SliderAttachment> modSpeedAtt;
 };
 
+struct RhythmPadGui
+{
+    ColoredGroupComponent group;
+
+    juce::Label fileNameLabel;
+    juce::Label noteLabel, modeLabel, rateLabel, panLabel, volLabel, oneShotLabel;
+
+    juce::TextButton loadButton;
+    juce::Slider noteSlider;
+    juce::ComboBox modeCombo;
+    juce::ComboBox rateCombo;
+    juce::Slider panSlider;
+    juce::TextButton btnPanL, btnPanC, btnPanR;
+    juce::Slider volSlider;
+    juce::ToggleButton oneShotButton;
+
+    std::unique_ptr<SliderAttachment> noteAtt;
+    std::unique_ptr<ComboBoxAttachment> modeAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
+    std::unique_ptr<SliderAttachment> panAtt;
+    std::unique_ptr<SliderAttachment> volAtt;
+    std::unique_ptr<ButtonAttachment> oneShotAtt;
+};
+
 struct RhythmGuiSet
 {
     // --- Rhythm Page ---
     juce::Component page;
+
+    // Master Level
     juce::Slider levelSlider;
     juce::Label levelLabel;
-
-    // Rhythm Attachments
     std::unique_ptr<SliderAttachment> levelAtt;
+
+    // 8 Pads
+    std::array<RhythmPadGui, 8> pads;
 };
 
 struct AdpcmGuiSet
 {
     // --- ADPCM Page ---
     juce::Component page;
+    ColoredGroupComponent group;
 
     juce::ComboBox modeCombo;
     juce::Label modeLabel;
@@ -501,6 +756,10 @@ struct AdpcmGuiSet
 
     juce::Slider levelSlider;
     juce::Label levelLabel;
+
+    juce::Slider panSlider;
+    juce::Label panLabel;
+    juce::TextButton btnPanL, btnPanC, btnPanR;
 
     // Loop Button
     juce::ToggleButton loopButton;
@@ -524,6 +783,7 @@ struct AdpcmGuiSet
     // ADPCM Attachments
     std::unique_ptr<ComboBoxAttachment> modeAtt;
     std::unique_ptr<SliderAttachment> levelAtt;
+    std::unique_ptr<SliderAttachment> panAtt;
     std::unique_ptr<ButtonAttachment> loopAtt;
     std::unique_ptr<SliderAttachment> attackAtt;
     std::unique_ptr<SliderAttachment> decayAtt;
@@ -532,11 +792,163 @@ struct AdpcmGuiSet
     std::unique_ptr<ComboBoxAttachment> rateAtt;
 };
 
+// プリセット1つ分の情報を保持する構造体
+struct PresetItem
+{
+    juce::File file;
+    juce::String fileName;
+    juce::String name;
+    juce::String author;
+    juce::String version;
+    juce::String modeName;
+};
+
+// PresetGuiSetをTableListBoxModel継承に変更
+struct PresetGuiSet : public juce::TableListBoxModel
+{
+    juce::Component page;
+
+    // UI Components
+    juce::Label pathLabel; // パス表示用
+    juce::TableListBox table; // メタデータ付きリスト
+
+    // Metadata Editors
+    ColoredGroupComponent metaGroup;
+    juce::Label nameLabel, authorLabel, versionLabel;
+    juce::TextEditor nameEditor, authorEditor, versionEditor;
+
+    // Buttons
+    juce::TextButton saveButton;
+    juce::TextButton loadButton;
+    juce::TextButton deleteButton;
+    juce::TextButton refreshButton;
+    juce::TextButton reflectButton; // Reflect Info
+    juce::TextButton copyButton;    // Copy Info to Clipboard
+
+    // Data
+    juce::File currentFolder;
+    std::vector<PresetItem> items; // 読み込んだプリセット一覧
+
+    // Callback for Editor
+    std::function<void(const juce::File&)> onDoubleClicked;
+
+    PresetGuiSet()
+    {
+        // テーブルのモデルを自分自身に設定
+        table.setModel(this);
+    }
+
+    // --- TableListBoxModel Overrides ---
+    int getNumRows() override { return (int)items.size(); }
+
+    void paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override
+    {
+        if (rowIsSelected) g.fillAll(juce::Colours::lightblue.withAlpha(0.3f));
+        else if (rowNumber % 2) g.fillAll(juce::Colours::white.withAlpha(0.05f)); // Stripe
+    }
+
+    void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override
+    {
+        if (rowNumber >= items.size()) return;
+
+        juce::String text;
+        const auto& item = items[rowNumber];
+
+        switch (columnId) {
+            case 1: text = item.fileName; break;
+            case 2: text = item.name; break;
+            case 3: text = item.author; break;
+            case 4: text = item.version; break;
+            case 5: text = item.modeName; break;
+        }
+
+        g.setColour(juce::Colours::black);
+        g.drawText(text, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
+    }
+
+    void cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent&) override
+    {
+        if (rowNumber < items.size() && onDoubleClicked) {
+            onDoubleClicked(items[rowNumber].file);
+        }
+    }
+
+    // 選択されたファイルを取得するヘルパー
+    juce::File getSelectedFile() const
+    {
+        int row = table.getSelectedRow();
+        if (row >= 0 && row < items.size()) {
+            return items[row].file;
+        }
+        return {};
+    }
+
+    // 選択行が変更されたときに呼ばれる
+    void selectedRowsChanged(int lastRowSelected) override
+    {
+        // 選択されている行が1つ以上あるかチェック
+        bool hasSelection = table.getNumSelectedRows() > 0;
+
+        // ボタンの有効/無効を切り替え
+        deleteButton.setEnabled(hasSelection);
+        reflectButton.setEnabled(hasSelection);
+        copyButton.setEnabled(hasSelection);
+        loadButton.setEnabled(hasSelection);
+    }
+};
+
+struct SettingsGuiSet
+{
+    juce::Component page;
+    ColoredGroupComponent group;
+
+    // Wallpaper
+    juce::Label wallpaperLabel;
+    juce::Label wallpaperPathLabel;
+    juce::TextButton wallpaperBrowseBtn;
+    juce::TextButton wallpaperClearBtn;
+
+    // Directories
+    juce::Label adpcmDirLabel;
+    juce::Label adpcmDirPathLabel;
+    juce::TextButton adpcmDirBrowseBtn;
+
+    juce::Label presetDirLabel;
+    juce::Label presetDirPathLabel;
+    juce::TextButton presetDirBrowseBtn;
+
+    // Global Settings I/O
+    juce::TextButton saveSettingsBtn;
+    juce::TextButton loadSettingsBtn;
+
+    // Tooltip Visible Switch
+    juce::Label tooltipLabel;
+    juce::ToggleButton tooltipToggle;
+};
+
+struct AboutGuiSet
+{
+    juce::Component page;
+
+    // Labels
+    juce::Label pluginNameLabel;
+    juce::Label versionLabel;
+    juce::Label copyrightLabel;
+
+    // Logos
+    juce::ImageComponent juceLogo;
+    juce::ImageComponent vst3Logo;
+
+    // Optional: Website Link
+    juce::HyperlinkButton webLink;
+};
+
 struct SetupGroupParams
 {
     juce::Component& page;
-    juce::GroupComponent& group;
+    ColoredGroupComponent& group; // <--- 変更
     const juce::String title;
+    juce::Colour color = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f);
 };
 
 struct SetupLabelParams
@@ -589,6 +1001,8 @@ struct SetupSliderParams
     int labelHeight;
     bool isReset;
 
+    RegisterType regType = RegisterType::None;
+
     static SetupSliderParams create(
         juce::Component& p,
         juce::Slider& s,
@@ -599,10 +1013,15 @@ struct SetupSliderParams
         Size size = SliderSize,
         Size valueSize = SliderValueSize,
         Size labelSize = LabelSize,
-        Flags flags = SliderFlags
+        Flags flags = SliderFlags,
+        RegisterType r = RegisterType::None
     )
     {
-        return SetupSliderParams(p, s, l, a, i, t, size.width, size.height, valueSize.width, valueSize.height, labelSize.width, labelSize.height, flags.isReset);
+        SetupSliderParams prm = SetupSliderParams(p, s, l, a, i, t, size.width, size.height, valueSize.width, valueSize.height, labelSize.width, labelSize.height, flags.isReset);
+
+        prm.regType = r;
+
+        return prm;
     }
 
     static SetupSliderParams createOp(
@@ -615,10 +1034,15 @@ struct SetupSliderParams
         Size size = OpSliderSize,
         Size valueSize = OpSliderValueSize,
         Size labelSize = OpLabelSize,
-        Flags flags = OpSliderFlags
+        Flags flags = OpSliderFlags,
+        RegisterType r = RegisterType::None
     )
     {
-        return SetupSliderParams(p, s, l, a, i, t, size.width, size.height, valueSize.width, valueSize.height, labelSize.width, labelSize.height, flags.isReset);
+        SetupSliderParams prm = SetupSliderParams(p, s, l, a, i, t, size.width, size.height, valueSize.width, valueSize.height, labelSize.width, labelSize.height, flags.isReset);
+
+        prm.regType = r;
+
+        return prm;
     }
 };
 
@@ -765,14 +1189,15 @@ template <size_t opCount>
 struct SetupOpGroupsParams
 {
     juce::Component& page;
-    std::array<juce::GroupComponent, opCount>& groups;
+    std::array<ColoredGroupComponent, opCount>& groups;
 };
 
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,
     public juce::ComponentListener,
-    public juce::Button::Listener
+    public juce::Button::Listener,
+    public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -782,12 +1207,22 @@ public:
     void resized() override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
-    void buttonClicked(juce::Button* button) override; 
+    void buttonClicked(juce::Button* button) override;
+    void mouseDown(const juce::MouseEvent& event) override;
+    void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
+    template <typename T>
+    void applyMmlString(const juce::String& mml, T& gui, int opIndex);
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
 private:
     AudioPlugin2686V& audioProcessor;
+
+    CustomTabLookAndFeel customTabLF;
+
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
     std::unique_ptr<juce::FileChooser> fileChooser;
+    std::map<juce::Component*, RegisterType> sliderRegMap;
+    std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
     Fm4GuiSet opnaGui;  // OPNA
     Fm4GuiSet opnGui; // OPN
@@ -799,9 +1234,14 @@ private:
 	WtGuiSet wtGui; // Wavetable
 	RhythmGuiSet rhythmGui; // Rhythm
 	AdpcmGuiSet adpcmGui; // ADPCM
+    PresetGuiSet presetGui;
+    SettingsGuiSet settingsGui;
+    AboutGuiSet aboutGui;
+
+    juce::Image backgroundImage; // Cache for wallpaper
 
     // Helper
-    // 背景描画
+    // Draw background
     void drawBg(juce::Graphics& g);
     std::vector<SelectItem> createItems(int size, const juce::String& prefix = "");
     std::vector<SelectItem> createAlgItems(int size);
@@ -819,6 +1259,7 @@ private:
 	void setupCustomWaveTable(SetupCustomWaveTableParams<tableSize>& params);
     template <size_t opCount>
     void setupOpGroups(SetupOpGroupsParams<opCount>& params);
+
     void setupOpnaGui(Fm4GuiSet& gui);
     void setupOpnGui(Fm4GuiSet& gui);
     void setupOplGui(Fm2GuiSet& gui);
@@ -829,6 +1270,9 @@ private:
     void setupWtGui(WtGuiSet& gui);
     void setupRhythmGui(RhythmGuiSet& gui);
     void setupAdpcmGui(AdpcmGuiSet& gui);
+    void setupPresetGui(PresetGuiSet& gui);
+    void setupSettingsGui(SettingsGuiSet& gui);
+    void setupAboutGui(AboutGuiSet& gui);
 
     void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
@@ -840,6 +1284,16 @@ private:
     void layoutWtPage(WtGuiSet& gui);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);
     void layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content);
+    void layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content);
+    void layoutSettingsPage(SettingsGuiSet& gui, juce::Rectangle<int> content);
+    void layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content);
+
+    void loadPresetFile(const juce::File& file);
+    void saveCurrentPreset();
+    void scanPresets();
+    void loadWallpaperImage();
+    void setTooltipState(bool enabled);
+    void assignTooltipsRecursive(juce::Component* parentComponent);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };

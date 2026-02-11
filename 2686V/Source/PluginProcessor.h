@@ -26,7 +26,10 @@ public:
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String& newName) override;
+    // Function to load ADPCM file (Global/Voice)
     void loadAdpcmFile(const juce::File& file);
+    // Function to load Rhythm sample file (Specific Pad)
+    void loadRhythmFile(const juce::File& file, int padIndex);
 
     juce::AudioFormatManager formatManager;
     juce::File lastAdpcmDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
@@ -35,6 +38,27 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState apvts;
 
+    // Metadata
+    juce::String presetName = "Init Preset";
+    juce::String presetAuthor = "User";
+    juce::String presetVersion = "1.0";
+
+    // File Paths (To restore samples)
+    juce::String adpcmFilePath;
+    std::array<juce::String, 8> rhythmFilePaths;
+
+    // Preset I/O
+    void savePreset(const juce::File& file);
+    void loadPreset(const juce::File& file);
+
+    // --- Settings Data ---
+    juce::String wallpaperPath;
+    juce::String defaultAdpcmDir;  // For ADPCM & Rhythm
+    juce::String defaultPresetDir; // For Presets
+    bool showTooltips = true; // For show Parameter Range Tooltop
+
+    void saveEnvironment(const juce::File& file);
+    void loadEnvironment(const juce::File& file); 
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);

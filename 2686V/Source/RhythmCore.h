@@ -3,17 +3,16 @@
 #include <vector>
 #include <cmath>
 #include "Mode.h"
+#include "AdpcmCore.h" // To reuse Ym2608AdpcmCodec
 
-// 1�̃h�������F��\���N���X
 struct DrumSample
 {
-    std::vector<float> data; // PCM�f�[�^
-    int position = -1;       // ���݂̍Đ��ʒu (-1�͒�~��)
+    std::vector<float> data;
+    int position = -1;
     bool isPlaying = false;
 
     void start() { position = 0; isPlaying = true; }
 
-    // �T���v����1���o��
     float getNextSample()
     {
         if (!isPlaying || position < 0 || position >= data.size()) return 0.0f;
@@ -29,99 +28,247 @@ struct DrumSample
     }
 };
 
-class RhythmCore
+// Class representing a single drum pad
+class RhythmPad
 {
 public:
-    RhythmCore() {}
+    // Holds raw data and converted data
+    std::vector<float> m_rawBuffer;
+    std::vector<int16_t> m_adpcmBuffer;
 
-    void prepare(double sampleRate)
+    // Playback state
+    double m_position = 0.0;
+    bool m_isPlaying = false;
+    double m_bufferSampleRate = 16000.0;
+    double m_sourceRate = 44100.0;
+
+    // Parameters
+    int m_noteNumber = 0;
+    float m_level = 1.0f;
+    float m_pan = 0.5f;
+    int m_qualityMode = 6; // ADPCM
+    int m_rateIndex = 5;   // 16kHz
+    bool m_isOneShot = true;
+
+    // Set data (Same logic as AdpcmCore)
+    void setSampleData(const std::vector<float>& sourceData, double sourceRate)
     {
-        if (sampleRate > 0.0) m_sampleRate = sampleRate;
-        generateDrumSounds();
+        m_rawBuffer = sourceData;
+        m_sourceRate = sourceRate;
+        refreshAdpcmBuffer();
     }
 
-    void setParameters(const SynthParams& params)
+    // Update parameters and check for buffer regeneration
+    void setParameters(const RhythmPadParams& params)
     {
-        m_masterLevel = params.rhythmLevel;
+        m_noteNumber = params.noteNumber;
+        m_level = params.level;
+        m_pan = params.pan;
+        m_isOneShot = params.isOneShot;
+
+        bool needRefresh = false;
+        if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
+        if (m_rateIndex != params.rateIndex) {
+            m_rateIndex = params.rateIndex;
+            needRefresh = true;
+        }
+
+        if (needRefresh) refreshAdpcmBuffer();
     }
 
-    void noteOn(int midiNote, float velocity)
+    void start()
     {
-        // 60(C3): Kick
-        // 62(D3): Snare
-        // 64(E3): HiHat
-
-        // 36(C1): Kick
-        // 38(D1): Snare
-        // 42(F#1): HiHat
-
-        if (midiNote == 36 || midiNote == 60) m_kick.start();
-        else if (midiNote == 38 || midiNote == 62) m_snare.start();
-        else if (midiNote == 42 || midiNote == 64) m_hihat.start();
+        m_position = 0.0;
+        m_isPlaying = true;
     }
 
-    void noteOff()
+    void stop()
     {
+        m_isPlaying = false;
     }
 
-    bool isPlaying() const
+    // Get sample (Simplified version of AdpcmCore)
+    // Since this is for rhythm, pitch change (m_pitchRatio) is omitted for now; constant speed playback.
+    // Note: Add ratio calculation with host rate if necessary.
+    float getSample(double hostSampleRate)
     {
-        return m_kick.isPlaying || m_snare.isPlaying || m_hihat.isPlaying;
-    }
+        if (!m_isPlaying) return 0.0f;
 
-    float getSample()
-    {
-        float mix = 0.0f;
-        mix += m_kick.getNextSample();
-        mix += m_snare.getNextSample();
-        mix += m_hihat.getNextSample();
+        // Playback speed calculation (Host rate support)
+        double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
+        double increment = currentBufferRate / hostSampleRate;
 
-        return mix * m_masterLevel;
+        // Buffer selection
+        float output = 0.0f;
+        size_t bufferSize = 0;
+
+        if (m_qualityMode == 7) // ADPCM
+        {
+            bufferSize = m_adpcmBuffer.size();
+
+            if (m_adpcmBuffer.empty()) return 0.0f;
+
+            // loop & finish check
+            if (m_position >= bufferSize) {
+                if (m_isOneShot) {
+                    m_isPlaying = false; return 0.0f;
+                }
+                else {
+                    // loop play (OneShot = false)
+                    m_position = std::fmod(m_position, (double)bufferSize);
+                }
+            }
+
+            int idx = (int)m_position;
+
+            if (idx >= bufferSize) idx = 0;
+
+            output = m_adpcmBuffer[idx] / 32768.0f;
+        }
+        else // Raw / PCM
+        {
+            bufferSize = m_rawBuffer.size();
+            if (m_rawBuffer.empty()) return 0.0f;
+
+            // loop & finish check
+            if (m_position >= bufferSize) {
+                if (m_isOneShot) {
+                    m_isPlaying = false; return 0.0f;
+                }
+                else {
+                    // loop play
+                    m_position = std::fmod(m_position, (double)bufferSize);
+                }
+            }
+
+            // linear
+            int idx0 = (int)m_position;
+            int idx1 = idx0 + 1;
+            if (idx1 >= bufferSize) idx1 = 0;
+
+            float frac = (float)(m_position - idx0);
+            output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
+
+            // Bitcrush (Same as AdpcmCore)
+            float maxVal = 0.0f;
+            switch (m_qualityMode) {
+                case 1: maxVal = 0.0f; break;       // ADD: 32bit Float (No crush)
+                case 2: maxVal = 8388607.0f; break; // 24bit
+                case 3: maxVal = 32767.0f; break;   // 16bit
+                case 4: maxVal = 127.0f; break;     // 8bit
+                case 5: maxVal = 15.0f; break;      // 5bit
+                case 6: maxVal = 7.0f; break;       // 4bit Linear
+            }
+            if (maxVal > 0.0f) output = std::floor(output * maxVal) / maxVal;
+        }
+
+        m_position += increment;
+        return output * m_level; // Pan is handled in the subsequent stage
     }
 
 private:
-    void generateDrumSounds()
+    void refreshAdpcmBuffer()
     {
-        // 1. Kick
-        int kickLen = (int)(0.3 * m_sampleRate);
-        m_kick.data.resize(kickLen);
-        for (int i = 0; i < kickLen; ++i)
-        {
-            float progress = (float)i / kickLen;
-            float freq = 150.0f * std::pow(0.01f, progress);
-            float phase = freq * 2.0f * juce::MathConstants<float>::pi / m_sampleRate * i;
-            float env = 1.0f - progress;
-            m_kick.data[i] = std::sin(phase * i * 0.05f) * env * 0.8f;
-        }
+        // Copy the same resampling & encoding logic as AdpcmCore here
+        // (To avoid code duplication, it's best to extract Codec to a separate header, but omitted here)
+        if (m_rawBuffer.empty()) return;
 
-        // 2. Snare
-        int snareLen = (int)(0.2 * m_sampleRate);
-        m_snare.data.resize(snareLen);
-        for (int i = 0; i < snareLen; ++i)
-        {
-            float progress = (float)i / snareLen;
-            float noise = (float(std::rand()) / RAND_MAX * 2.0f - 1.0f);
-            float env = std::pow(1.0f - progress, 2.0f);
-            m_snare.data[i] = noise * env * 0.6f;
+        double targetRate = 16000.0;
+        switch (m_rateIndex) {
+            case 1: targetRate = 96000.0; break;
+            case 2: targetRate = 55500.0; break;
+            case 3: targetRate = 48000.0; break;
+            case 4: targetRate = 44100.0; break;
+            case 5: targetRate = 22050.0; break;
+            case 6: targetRate = 16000.0; break;
+            case 7: targetRate = 8000.0; break;
+            default: targetRate = 16000.0; break;
         }
+        if (targetRate > m_sourceRate) targetRate = m_sourceRate;
+        m_bufferSampleRate = targetRate;
 
-        // 3. HiHat
-        int hhLen = (int)(0.05 * m_sampleRate);
-        m_hihat.data.resize(hhLen);
-        for (int i = 0; i < hhLen; ++i)
-        {
-            float progress = (float)i / hhLen;
-            float noise = (float(std::rand()) / RAND_MAX * 2.0f - 1.0f);
-            if (i % 2 == 0) noise *= -1.0f;
-            float env = std::pow(1.0f - progress, 4.0f);
-            m_hihat.data[i] = noise * env * 0.4f;
+        double step = m_sourceRate / targetRate;
+        Ym2608AdpcmCodec codec;
+        codec.reset();
+        m_adpcmBuffer.clear();
+        m_adpcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
+
+        double pos = 0;
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
+
+            if (index >= m_rawBuffer.size()) break;
+
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+
+            m_adpcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
+    }
+};
+
+class RhythmCore
+{
+public:
+    std::array<RhythmPad, MaxRhythmPads> pads;
+    double m_sampleRate = 44100.0;
+
+    // Pointer to the currently playing pad (Assuming one note per Voice)
+    RhythmPad* activePad = nullptr;
+
+    void prepare(double sampleRate) {
+        m_sampleRate = sampleRate;
+    }
+
+    void setParameters(const SynthParams& params) {
+        for (int i = 0; i < MaxRhythmPads; ++i) {
+            pads[i].setParameters(params.rhythmPads[i]);
         }
     }
 
-    double m_sampleRate = 44100.0;
-    float m_masterLevel = 1.0f;
+    // Load sample from external source (Specify Pad index)
+    void setSampleData(int padIndex, const std::vector<float>& data, double rate) {
+        if (padIndex >= 0 && padIndex < MaxRhythmPads) {
+            pads[padIndex].setSampleData(data, rate);
+        }
+    }
 
-    DrumSample m_kick;
-    DrumSample m_snare;
-    DrumSample m_hihat;
+    void noteOn(int midiNote, float velocity) {
+        activePad = nullptr;
+        // Find and trigger the pad matching the note number
+        for (auto& pad : pads) {
+            if (pad.m_noteNumber == midiNote) {
+                pad.start();
+                activePad = &pad;
+                // Since Voice handles a single note, stop after finding one
+                // (If Kick and Snare are pressed simultaneously, another Voice handles the Snare)
+                break;
+            }
+        }
+    }
+
+    void noteOff() {
+        if (activePad && !activePad->m_isOneShot) {
+            activePad->stop();
+        }
+    }
+
+    bool isPlaying() const {
+        return activePad && activePad->m_isPlaying;
+    }
+
+    float getSample() {
+        if (!activePad || !activePad->m_isPlaying) return 0.0f;
+
+        // If stereo output support is needed, change to return std::pair<float, float> after Pan calculation here, etc.
+        // For now, return mono as a simple implementation to handle Pan on the SynthVoice side.
+        // Note: However, the Pan parameter needs to be reflected on the SynthVoice side.
+        return activePad->getSample(m_sampleRate);
+    }
+
+    // For passing Pan information to SynthVoice
+    float getCurrentPan() const {
+        return activePad ? activePad->m_pan : 0.5f;
+    }
 };

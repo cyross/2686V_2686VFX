@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
+static constexpr int MaxRhythmPads = 8;
+
 static constexpr int MaxFmOperators = 8;
 
 enum class OscMode
@@ -16,6 +18,36 @@ enum class OscMode
     RHYTHM = 8,
     ADPCM = 9,
 };
+
+static juce::String getModeName(OscMode mode) {
+    switch (mode) {
+    case OscMode::OPNA: return "OPNA";
+    case OscMode::OPN:  return "OPN";
+    case OscMode::OPL:  return "OPL";
+    case OscMode::OPLL: return "OPLL";
+    case OscMode::OPL3: return "OPL3";
+    case OscMode::OPM:  return "OPM";
+    case OscMode::SSG:  return "SSG";
+    case OscMode::WAVETABLE: return "WAVETABLE";
+    case OscMode::RHYTHM: return "RHYTHM";
+    case OscMode::ADPCM:  return "ADPCM";
+    default: return "Unknown";
+    }
+}
+
+static OscMode getModeFromString(const juce::String& name) {
+    if (name == "OPNA") return OscMode::OPNA;
+    if (name == "OPN")  return OscMode::OPN;
+    if (name == "OPL")  return OscMode::OPL;
+    if (name == "OPLL") return OscMode::OPLL;
+    if (name == "OPL3") return OscMode::OPL3;
+    if (name == "OPM")  return OscMode::OPM;
+    if (name == "SSG")  return OscMode::SSG;
+    if (name == "WAVETABLE") return OscMode::WAVETABLE;
+    if (name == "RHYTHM") return OscMode::RHYTHM;
+    if (name == "ADPCM")  return OscMode::ADPCM;
+    return OscMode::OPNA; // Default
+}
 
 struct FmOpParams
 {
@@ -48,6 +80,20 @@ struct FmOpParams
     int waveSelect = 0;
 };
 
+struct RhythmPadParams
+{
+    float level = 1.0f;
+    float pan = 0.5f;     // 0.0(L) - 1.0(R)
+    int noteNumber = 36;  // MIDI Note Number (e.g., 36=C1)
+
+    // ADPCM quality settings (it's more interesting to be able to set these individually)
+    int qualityMode = 6;  // Default: ADPCM
+    int rateIndex = 3;    // Default: 16kHz
+
+    // Whether to play as a "One Shot" or stop the sound on Note Off
+    bool isOneShot = true;
+};
+
 struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
 
 struct SynthParams
@@ -65,6 +111,12 @@ struct SynthParams
 	int lfoWave = 2; // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     std::array<FmOpParams, MaxFmOperators> fmOp;
 
+    // ADD: FM Quality & Rate (Shared across all FM modes)
+    // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    int fmBitDepth = 4; // Default: Raw (32bit float) or 3 (8bit) depending on preference
+    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
+    int fmRateIndex = 1; // Default: 55.5kHz (Typical FM Chip Rate)
+
     // --- SSG Parameters ---
     float ssgLevel = 1.0f;
     float ssgNoiseLevel = 0.0f; // Noise
@@ -72,7 +124,13 @@ struct SynthParams
     float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise)
     int ssgWaveform = 0; // 0: Pulse, 1: Triangle
 
-	// SSG Hardware Envelope Params
+    // ADD: SSG Quality & Rate
+    // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    int ssgBitDepth = 3; // Default 8bit (or 4bit to be like real hardware volume steps?)
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    int ssgRateIndex = 1; // Default 55.5kHz (Standard SSG/OPNA rate)
+
+    // SSG Hardware Envelope Params
     bool ssgUseHwEnv = false;
     int ssgEnvShape = 0;
     float ssgEnvPeriod = 1.0f;
@@ -95,6 +153,7 @@ struct SynthParams
     int wtBitDepth = 3;   // 0:4bit, 1:5bit, 2:6bit, 3:8bit
     int wtTableSize = 0;  // 0:32, 1:64
     int wtWaveform = 0; // Waveform Select 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
+    int wtRateIndex = 6;  // Default: 16kHz
     // Custom Waveform Data (32 steps)
     std::array<float, 32> wtCustomWave32 = { 0.0f };
     // Custom Waveform Data (64 steps)
@@ -106,13 +165,18 @@ struct SynthParams
 
     // --- Rhythm (PCM) ---
     float rhythmLevel = 1.0f;
+    // Global master volume
+    float rhythmMasterLevel = 1.0f;
+    // Parameters for each individual pad
+    std::array<RhythmPadParams, MaxRhythmPads> rhythmPads;
 
     // --- ADPCM ---
     float adpcmLevel = 1.0f;
+    float adpcmPan = 0.5f; // ADDED: Pan
     bool adpcmLoop = false; // Default false for drums
     int adpcmRootNote = 60; // Root Key (Middle C)
-    int adpcmQualityMode = 0;
-    int adpcmRateIndex = 3;
+    int adpcmQualityMode = 6; // Default: ADPCM
+    int adpcmRateIndex = 3;   // Default: 16kHz
 
     SimpleAdsr ssgAdsr, adpcmAdsr, wtAdsr;
 };
