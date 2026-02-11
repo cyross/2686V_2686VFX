@@ -54,6 +54,30 @@ public:
     void noteOff() { for(auto& op : m_operators) op.noteOff(); }
     bool isPlaying() const { return m_operators[0].isPlaying(); }
 
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        // 全オペレーターに適用
+        for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
+
     float getSample() {
         double targetRate = getTargetRate();
         m_rateAccumulator += targetRate / m_hostSampleRate;
@@ -72,9 +96,9 @@ public:
             case 0: lfoVal = (float)(1.0 - m_lfoPhase * 2.0); break; // Saw Down
             case 1: lfoVal = (m_lfoPhase < 0.5) ? 1.0f : -1.0f; break; // Square
             case 2: // Triangle
-                if (m_lfoPhase < 0.25) lfoVal = m_lfoPhase * 4.0f;
-                else if (m_lfoPhase < 0.75) lfoVal = 1.0f - (m_lfoPhase - 0.25f) * 4.0f;
-                else lfoVal = -1.0f + (m_lfoPhase - 0.75f) * 4.0f;
+                if (m_lfoPhase < 0.25) lfoVal = (float)(m_lfoPhase * 4.0);
+                else if (m_lfoPhase < 0.75) lfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
+                else lfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
                 break;
             case 3: // Noise LFO
                 m_noisePhase += m_noiseDelta;
@@ -91,19 +115,31 @@ public:
                 break;
             }
 
+            // AMS (Amplitude Modulation Sensitivity)
             float lfoAmpMod = 1.0f;
             if (m_ams > 0) {
                 float depths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
                 lfoAmpMod = 1.0f - (std::abs(lfoVal) * depths[m_ams & 3]);
             }
 
-            float lfoPitchMod = 1.0f;
+            // PMS (Pitch Modulation Sensitivity) + Mod Wheel
+            // ★修正: PMS設定値とホイール値を合算します
+            float pmDepth = 0.0f;
             if (m_pms > 0) {
                 float depths[] = { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
-                lfoPitchMod = 1.0f + (lfoVal * depths[m_pms & 7]);
+                pmDepth = depths[m_pms & 7];
             }
 
+            // ホイールによる追加深度 (0.05 = +/- 50cents)
+            float wheelDepth = m_modWheel * 0.05f;
+
+            // 最終的なピッチ変調率
+            float lfoPitchMod = 1.0f + (lfoVal * (pmDepth + wheelDepth));
+
+
             float out1, out2, out3, out4;
+
+            // 各オペレーターに渡す
             m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
 
             float finalOut = 0.0f;
@@ -115,8 +151,7 @@ public:
             case 4: m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); finalOut = out2 + out3 + out4; break;
             case 5: m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod); m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod); finalOut = out2 + out3 + out4; break;
             case 6: m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); finalOut = out2 + out3 + out4; break;
-            default:
-                m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); finalOut = out1 + out2 + out3 + out4; break;
+            default: m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); finalOut = out1 + out2 + out3 + out4; break;
             }
 
             if (m_quantizeSteps > 0.0f) {
@@ -170,4 +205,6 @@ private:
     float m_noiseDelta = 0.0f;
     float m_currentNoiseSample = 0.0f;
     float m_targetNoiseFreq = 12000.0f;
+
+    float m_modWheel = 0.0f;
 };

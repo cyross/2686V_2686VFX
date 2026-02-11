@@ -29,8 +29,11 @@ static const int GlobalPaddingWidth = 20;
 static const int GlobalPaddingHeight = 20;
 static const int GroupPaddingWidth = 10;
 static const int GroupPaddingHeight = 10;
+static const int TitlePaddingTop = 20;
 static const int TopGroupHeight = 80;
-static const int QualityGroupHeight = 80;
+static const int TopParamWidth = 160;
+static const int QualityGroupHeight = 60;
+static const int QualityParamWidth = 160;
 static const int LabelWidth = 40;
 static const int LabelHeight = 20;
 static const int SliderWidth = 50;
@@ -56,10 +59,15 @@ static const int OpToggleButtonWidth = 80;
 static const int OpToggleButtonHeight = 15;
 static const int OpTextButtonWidth = 80;
 static const int OpTextButtonHeight = 15;
+static const int OpGroupPaddingWidth = 12;
+static const int OpGroupPaddingHeight = 8;
 
 static const int FmOpRowH = 36;
 static const int FmOpWidth = 240;
 
+static const int SsgLeftWidth = 240;
+static const int SsgRightWidth = 800;
+static const int SsgHeight = 640;
 static const int WtLeftWidth = 240;
 static const int WtRightWidth = 800;
 static const int WtHeight = 640;
@@ -345,6 +353,7 @@ struct Fm4GuiSet
     std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
     std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
     std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
+    std::array<juce::Slider, Fm4Ops> seFreq;
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
@@ -364,6 +373,9 @@ struct Fm4GuiSet
     std::array<juce::Label, Fm4Ops> ksLabel; // Key Scale (0-3)
     std::array<juce::Label, Fm4Ops> amLabel; // AM Enable
     std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
+    std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
+
+    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -388,6 +400,7 @@ struct Fm4GuiSet
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> amAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> seFreqAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
 };
 
@@ -426,6 +439,8 @@ struct Fm2GuiSet
     std::array<juce::Label, Fm2Ops> slLabel;
     std::array<juce::Label, Fm2Ops> rrLabel;
     std::array<juce::Label, Fm2Ops> wsLabel;
+
+    std::array<juce::Label, Fm2Ops> mmlBtnLabel;
 
     std::unique_ptr<ComboBoxAttachment> algAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
@@ -471,6 +486,8 @@ struct OpllGuiSet
 
     std::array<juce::TextButton, Fm2Ops> mmlBtn;
 
+    std::array<juce::Label, Fm2Ops> mmlBtnLabel;
+
     // Attachments
     std::unique_ptr<ComboBoxAttachment> presetAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
@@ -504,6 +521,8 @@ struct Opl3GuiSet
     std::array<juce::Label, Fm4Ops> wsLabel;
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
+    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -555,6 +574,8 @@ struct OpmGuiSet
     std::array<juce::Label, Fm4Ops> freqTo440Label;
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
+    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
@@ -768,6 +789,8 @@ struct RhythmGuiSet
     // --- Rhythm Page ---
     juce::Component page;
 
+    ColoredGroupComponent group;
+
     // Master Level
     juce::Slider levelSlider;
     juce::Label levelLabel;
@@ -923,8 +946,8 @@ struct PresetGuiSet : public juce::TableListBoxModel
 
     void paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override
     {
-        if (rowIsSelected) g.fillAll(juce::Colours::lightblue.withAlpha(0.3f));
-        else if (rowNumber % 2) g.fillAll(juce::Colours::white.withAlpha(0.05f)); // Stripe
+        if (rowIsSelected) g.fillAll(juce::Colours::lightblue.withAlpha(0.5f));
+        else if (rowNumber % 2) g.fillAll(juce::Colours::white.withAlpha(0.1f)); // Stripe
     }
 
     void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override
@@ -942,7 +965,18 @@ struct PresetGuiSet : public juce::TableListBoxModel
             case 5: text = item.modeName; break;
         }
 
-        g.setColour(juce::Colours::black);
+        if (rowIsSelected)
+        {
+            // 選択時は背景が青なので、文字は白
+            g.setColour(juce::Colours::white);
+        }
+        else
+        {
+            // 通常時は黒 (または背景に合わせて適宜変更)
+            g.setColour(juce::Colours::lightgrey);
+            // もしダークモードなら juce::Colours::white または lightgrey にしてください
+        }
+
         g.drawText(text, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
     }
 
@@ -1365,7 +1399,7 @@ private:
     void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
     void layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> content);
-    void layoutWtPage(WtGuiSet& gui);
+    void layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> content);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);
     void layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content);
     void layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content);

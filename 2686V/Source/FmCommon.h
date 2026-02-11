@@ -17,15 +17,16 @@ public:
     // パラメータ適用
     // useSsgEg: OPNAのみtrue
     // useWaveSelect: OPLのみtrue
-    void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false)
+    void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false, float ssgEgFreq = 1.0f)
     {
         m_params = params;
         m_feedback = feedback;
         m_useSsgEg = useSsgEg;
+        m_ssgEgFreq = ssgEgFreq;
         m_useWaveSelect = useWaveSelect;
 		m_useOpmEg = useOpmEg;
 
-        // OPN/OPLの場合はSSG-EGパラメータを無視（念のため）
+        // OPNA以外の場合はSSG-EGパラメータを無視
         if (!m_useSsgEg) m_params.ssgEg = 0;
 
         // OPNA/OPNの場合はWaveSelectを無視(Sine固定)
@@ -95,6 +96,8 @@ public:
     bool isPlaying() const { return m_state != State::Idle; }
     float getCurrentEnvelope() const { return m_currentLevel; }
 
+    void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
+
     // --- Processing ---
     // output: 結果書き込み先
     // modulator: FM変調入力
@@ -113,7 +116,10 @@ public:
         // SSG-EG (OPNA Only)
         if (m_useSsgEg && m_params.ssgEg > 0) {
             envVal *= getSsgEnvelopeLevel(m_ssgPhase);
-            double phaseInc = m_phaseDelta / (2.0 * juce::MathConstants<float>::pi);
+
+            // 音程(m_phaseDelta)ではなく、設定した周波数(m_ssgEgFreq)で進める
+            // これにより、音程に関わらず一定の速度でシュワシュワします
+            double phaseInc = (double)m_ssgEgFreq / m_sampleRate;
             m_ssgPhase += phaseInc;
         }
 
@@ -132,10 +138,9 @@ public:
         }
 
         // LFO PM (OPNA Only)
-        float currentPhaseDelta = m_phaseDelta;
-        if (m_params.vibEnable) {
-            currentPhaseDelta *= lfoPitch;
-        }
+        float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio;
+
+        currentPhaseDelta *= lfoPitch;
 
         float modulatedPhase = m_phase + modulator + feedbackMod;
 
@@ -258,6 +263,7 @@ private:
     double m_sampleRate = 44100.0;
     float m_phase = 0.0f; float m_phaseDelta = 0.0f;
     double m_ssgPhase = 0.0;
+    float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;
 
     FmOpParams m_params;
@@ -269,4 +275,6 @@ private:
     float m_currentLevel = 0.0f; float m_targetLevel = 0.0f;
     float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f; float m_sustainRateDec = 0.0f;
     float m_fb1 = 0.0f; float m_fb2 = 0.0f;
+
+    float m_pitchBendRatio = 1.0f;
 };

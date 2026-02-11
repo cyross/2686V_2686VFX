@@ -379,6 +379,7 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SEFREQ", namePrefix + "SEFREQ", 0.1f, 20.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + " AM", false)); // AM Enable (Switch)
@@ -747,6 +748,7 @@ void AudioPlugin2686V::processOpnaBlock(SynthParams &params)
         params.fmOp[op].totalLevel = *apvts.getRawParameterValue(p + "TL");
         params.fmOp[op].sustainRate = *apvts.getRawParameterValue(p + "SR");
         params.fmOp[op].ssgEg = (int)*apvts.getRawParameterValue(p + "SE");
+        params.fmOp[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + "SEFREQ");
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + "FIX") > 0.5f);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + "FREQ");
         params.fmOp[op].waveSelect = 0; // Sine

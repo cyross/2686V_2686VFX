@@ -67,6 +67,9 @@ struct FmOpParams
     int keyScale = 0;
     int keyScaleLevel = 0; // KSL (Level Scaling: 0-3)
     int ssgEg = 0;         // SE: 0~15 (SSG-EG)
+    // FM SSG-EG Frequency (SSG-EGの周期速度)
+    // 0.1Hz(ゆっくり) ～ 50Hz(高速) 程度を想定
+    float fmSsgEgFreq = 1.0f;
 
     bool amEnable = false;
     bool vibEnable = false; // VIB (LFO Pitch)

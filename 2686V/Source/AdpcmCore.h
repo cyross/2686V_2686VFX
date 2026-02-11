@@ -7,8 +7,9 @@
 
 // --- YM2608 ADPCM Algorithm Implementation ---
 namespace OpnaAdpcm {
-    const int StepAdjustTable[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
-    const int StepSizeTable[49] = {
+    // ヘッダインクルード時の重複定義を防ぐため inline を付与
+    inline const int StepAdjustTable[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
+    inline const int StepSizeTable[49] = {
         16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66,
         73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253,
         279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876,
@@ -96,15 +97,21 @@ public:
     {
         m_sampleRate = sampleRate;
         updateIncrements();
-        // Generate demo waveform if empty
-        if (m_pcmBuffer.empty()) generateDemoWaveform();
+
+        m_lfoPhase = 0.0;
     }
 
     void setParameters(const SynthParams& params)
     {
         m_level = params.adpcmLevel;
         m_pan = params.adpcmPan;
-        m_isLooping = params.adpcmLoop;
+
+        bool newLoopState = params.adpcmLoop;
+        if (m_isLooping != newLoopState) {
+            m_isLooping = newLoopState;
+            if (m_isLooping) m_hasFinished = false;
+        }
+
         m_adsr = params.adpcmAdsr;
         m_rootNote = params.adpcmRootNote;
 
@@ -194,15 +201,40 @@ public:
 
     bool isPlaying() const { return m_state != State::Idle; }
 
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
+
     float getCurrentPan() const { return m_pan; }
+
+    void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
 
     float getSample()
     {
-        if (m_state == State::Idle || m_rawBuffer.empty()) return 0.0f;
+        if (m_state == State::Idle) return 0.0f;
 
         // Safety check for empty buffers
-        if ((m_qualityMode == 7 && m_adpcmBuffer.empty()) ||
-            (m_qualityMode != 7 && m_rawBuffer.empty())) {
+        if ((m_qualityMode == 6 && m_adpcmBuffer.empty()) ||
+            (m_qualityMode != 6 && m_rawBuffer.empty())) {
             return 0.0f;
         }
 
@@ -210,28 +242,60 @@ public:
 
         processAdsr();
 
+        // --- Pitch Modulation (Vibrato) ---
+        // Simple 5Hz LFO
+        double lfoInc = 5.0 / m_sampleRate;
+        m_lfoPhase += lfoInc;
+        if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+
+        float lfoVal = std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
+
+        // Mod Wheel Depth (Max +/- 10% speed change -> approx +/- 2 semitones)
+        float modDepth = m_modWheel * 0.1f;
+        float lfoPitchMod = 1.0f + (lfoVal * modDepth);
+
+        // Calculate Total Playback Speed Increment
+        // Base Speed * Pitch Bend * Vibrato
+        double currentIncrement = m_pitchRatio * m_pitchBendRatio * lfoPitchMod;
+
+
         float sample = 0.0f;
 
         // --- Mode Switching ---
-        if (m_qualityMode == 7) // 4-bit ADPCM (OPNA Style)
+        if (m_qualityMode == 6) // 4-bit ADPCM (OPNA Style)
         {
-            // use ADPCM Buffer (Nearest Neighbor)
-            if (m_position >= m_adpcmBuffer.size()) {
-                if (m_isLooping) m_position = std::fmod(m_position, (double)m_adpcmBuffer.size());
-                else { m_hasFinished = true; return 0.0f; }
+            size_t bufSize = m_adpcmBuffer.size();
+
+            // ループ・終了判定
+            if (m_position >= bufSize) {
+                if (m_isLooping) {
+                    m_position = std::fmod(m_position, (double)bufSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
 
             int index = (int)m_position;
+            // Boundary check
             if (index < m_adpcmBuffer.size()) {
                 sample = m_adpcmBuffer[index] / 32768.0f;
             }
         }
         else // PCM Modes (Bit Crushing)
         {
-            // use Raw Buffer
-            if (m_position >= m_rawBuffer.size()) {
-                if (m_isLooping) m_position = std::fmod(m_position, (double)m_rawBuffer.size());
-                else { m_hasFinished = true; return 0.0f; }
+            size_t bufSize = m_rawBuffer.size();
+
+            // ループ・終了判定
+            if (m_position >= bufSize) {
+                if (m_isLooping) {
+                    m_position = std::fmod(m_position, (double)bufSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
 
             // Linear Interpolation
@@ -240,19 +304,27 @@ public:
             if (idx1 >= m_rawBuffer.size()) idx1 = m_isLooping ? 0 : idx0;
 
             float frac = (float)(m_position - idx0);
+
+            if (idx0 < bufSize && idx1 < bufSize) {
+                float s0 = m_rawBuffer[idx0];
+                float s1 = m_rawBuffer[idx1];
+                sample = s0 * (1.0f - frac) + s1 * frac;
+            }
+
             float s0 = m_rawBuffer[idx0];
             float s1 = m_rawBuffer[idx1];
             sample = s0 * (1.0f - frac) + s1 * frac;
 
+            // Bit Reduction
             float maxVal = 0.0f;
             switch (m_qualityMode)
             {
-                case 1: maxVal = 0.0f; break;       // ADD: Raw 32-bit (No crush)
-                case 2: maxVal = 8388607.0f; break; // 24bit
-                case 3: maxVal = 32767.0f; break;   // 16bit
-                case 4: maxVal = 127.0f; break;     // 8bit
-                case 5: maxVal = 15.0f; break;      // 5bit
-                case 6: maxVal = 7.0f; break;       // 4bit Linear
+            case 1: maxVal = 0.0f; break;       // Raw 32-bit (No crush)
+            case 2: maxVal = 8388607.0f; break; // 24bit
+            case 3: maxVal = 32767.0f; break;   // 16bit
+            case 4: maxVal = 127.0f; break;     // 8bit
+            case 5: maxVal = 15.0f; break;      // 5bit
+                // case 6 is ADPCM handled above
             }
 
             if (maxVal > 0.0f) {
@@ -260,7 +332,8 @@ public:
             }
         }
 
-        m_position += m_pitchRatio;
+        // Advance position
+        m_position += currentIncrement;
 
         return sample * m_level * m_currentLevel;
     }
@@ -339,20 +412,6 @@ private:
         m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
     }
 
-    // デモ用：ノコギリ波を生成してADPCM変換しておく
-    void generateDemoWaveform()
-    {
-        std::vector<float> tempSource;
-        int length = 16000; // 1秒分 (16kHz想定)
-        for (int i = 0; i < length; ++i) {
-            float t = (float)i / length;
-            // 減衰するノコギリ波 (ドラムっぽい音)
-            float raw = (1.0f - (2.0f * (float)(i % 100) / 100.0f)) * (1.0f - t);
-            tempSource.push_back(raw);
-        }
-        setSampleData(tempSource, 16000.0);
-    }
-
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
@@ -360,7 +419,6 @@ private:
     double m_bufferSampleRate = 16000.0; // Internal Data Sample Rate
 
     // Processed ADPCM Data (stored as int16 for playback)
-    std::vector<int16_t> m_pcmBuffer;
     std::vector<float> m_rawBuffer;       // Raw Data (32bit)
     std::vector<int16_t> m_adpcmBuffer;   // Processed Data (4bit ADPCM)
     int m_qualityMode = 6;
@@ -379,4 +437,10 @@ private:
 
     bool m_isLooping = false;
     bool m_hasFinished = false;
+
+    float m_pitchBendRatio = 1.0f;
+    float m_modWheel = 0.0f;
+
+    // LFO
+    double m_lfoPhase = 0.0;
 };

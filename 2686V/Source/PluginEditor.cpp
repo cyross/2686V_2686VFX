@@ -186,7 +186,7 @@ void AudioPlugin2686VEditor::resized()
 	layoutOpl3Page(opl3Gui, content);
 	layoutOpmPage(opmGui, content);
 	layoutSsgPage(ssgGui, content);
-    layoutWtPage(wtGui);
+    layoutWtPage(wtGui, content);
 	layoutRhythmPage(rhythmGui, content);
 	layoutAdpcmPage(adpcmGui, content);
     layoutFxPage(fxGui, content);
@@ -525,6 +525,8 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         setupSlider(rrParams);
         SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
         setupCombo(seParams);
+        SetupSliderParams seFreqParams = SetupSliderParams::createOp(gui.page, gui.seFreq[i], gui.seFreqLabel[i], gui.seFreqAtt[i], paramPrefix + "SEFREQ", "SSG Env Freq");
+        setupSlider(seFreqParams);
         SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupToggleButton(fixParams);
         SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
@@ -1003,7 +1005,7 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         setupSlider(srParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
         setupSlider(rrParams);
-        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2");
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
         SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupToggleButton(fixParams);
@@ -1076,8 +1078,10 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "SSG_LEVEL", "Tone", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(lvParams);
+    attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
     SetupSliderParams nsParams = SetupSliderParams::create(gui.page, gui.noiseSlider, gui.noiseLabel, gui.noiseAtt, "SSG_NOISE", "Noise", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(nsParams);
+    attatchLabelToComponent(gui.noiseLabel, gui.noiseSlider);
     SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, "SSG_NOISE_FREQ", "Noise Freq");
     setupSlider(nfParams);
 	attatchLabelToComponent(gui.noiseFreqLabel, gui.noiseFreqSlider);
@@ -1177,6 +1181,7 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 	attatchLabelToComponent(gui.shapeLabel, gui.shapeSelector);
     SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, "SSG_ENV_PERIOD", "Env Speed (Hz)", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgEnv);
     setupSlider(epParams);
+    attatchLabelToComponent(gui.periodLabel, gui.periodSlider);
 }
 
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
@@ -1296,6 +1301,9 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 
     // Pad Definitions
     const char* padNames[] = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
+
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.group, .title = "Global" };
+    setupGroup(groupParams);
 
     // Master Level
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "RHYTHM_LEVEL", "Master Vol");
@@ -1904,37 +1912,28 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
 
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- A. Global Section (Top) ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
-
     gui.globalGroup.setBounds(topArea);
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(20); // タイトル回避
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
 
-    int globalW = globalRect.getWidth() / 5;
     // Globalエリアも少し余裕を持たせて配置
-    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 5));
-	gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.lfoPmsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.lfoAmsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-
-    pageArea.removeFromTop(10); // Spacer
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+	gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.lfoPmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.lfoAmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
-
     gui.qualityGroup.setBounds(qualityArea);
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
-
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -1943,14 +1942,9 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
 
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
-        auto innerRect = opArea.reduced(8);
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
 
-        // Header Area (Title)
-        auto header = innerRect.removeFromTop(20);
-        // Place MML button in the header area (Right aligned)
-        gui.mmlBtn[i].setBounds(header.removeFromRight(40).reduced(0, 2));
-
-        innerRect.removeFromTop(20);
+        innerRect.removeFromTop(TitlePaddingTop);
 
         layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
         layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
@@ -1962,51 +1956,45 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
         layoutComponents(innerRect, 15, 5, &gui.ksLabel[i], &gui.ks[i]);
         layoutComponents(innerRect, 15, 5, &gui.seLabel[i], &gui.se[i]);
+        layoutComponents(innerRect, 15, 0, &gui.seFreqLabel[i], &gui.seFreq[i]);
         layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
         layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
-        auto btnRow = innerRect.removeFromTop(15);
+        auto btnRow = innerRect.removeFromTop(20);
         int btnW = btnRow.getWidth() / 2;
 
         gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
         gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
 
-        innerRect.removeFromTop(5);
-
         layoutComponents(innerRect, 15, 5, &gui.amLabel[i], &gui.am[i]);
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
 void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- A. Global Section (Top) ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
 
     gui.globalGroup.setBounds(topArea);
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(20); // タイトル回避
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
 
-    int globalW = globalRect.getWidth() / 2;
     // Globalエリアも少し余裕を持たせて配置
-    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.feedbackSlider.setBounds(globalRect.reduced(20, 5));
-
-    pageArea.removeFromTop(10); // Spacer
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -2017,81 +2005,56 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
         // 枠線の内側
-        auto innerRect = opArea.reduced(8);
-        innerRect.removeFromTop(20); // タイトル(Operator X)回避
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
+        innerRect.removeFromTop(TitlePaddingTop); // タイトル(Operator X)回避
 
-        int colWidth = innerRect.getWidth();
-        auto leftCol = innerRect.removeFromLeft(60);
-        auto rightCol = innerRect;
+        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
+        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponents(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
-        // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
-        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
-        };
+        auto btnRow = innerRect.removeFromTop(20);
+        int btnW = btnRow.getWidth() / 2;
 
-        auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
-            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
-        };
+        gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
+        gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
 
-        place(gui.mulLabel[i], leftCol);
-        place(gui.mul[i], rightCol);
-        place(gui.dtLabel[i], leftCol);
-        place(gui.dt[i], rightCol);
-        place(gui.arLabel[i], leftCol);
-        place(gui.ar[i], rightCol);
-        place(gui.drLabel[i], leftCol);
-        place(gui.dr[i], rightCol);
-        place(gui.srLabel[i], leftCol);
-        place(gui.sr[i], rightCol);
-        place(gui.slLabel[i], leftCol);
-        place(gui.sl[i], rightCol);
-        place(gui.rrLabel[i], leftCol);
-        place(gui.rr[i], rightCol);
-        place(gui.tlLabel[i], leftCol);
-        place(gui.tl[i], rightCol);
-        place(gui.ksLabel[i], leftCol);
-        placeCombo(gui.ks[i], rightCol);
-        place(gui.fixLabel[i], leftCol);
-        place(gui.fix[i], rightCol);
-        place(gui.freqLabel[i], leftCol);
-        place(gui.freq[i], rightCol);
-        place(gui.freqToZeroLabel[i], leftCol);
-        place(gui.freqToZero[i], rightCol);
-        place(gui.freqTo440Label[i], leftCol);
-        place(gui.freqTo440[i], rightCol);
+        innerRect.removeFromTop(8);
+
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
 void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- A. Global Section ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
     gui.globalGroup.setBounds(topArea);
 
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(20);
+    globalRect.removeFromTop(TitlePaddingTop);
 
-    int globalW = globalRect.getWidth() / 2;
-    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.feedbackSlider.setBounds(globalRect.reduced(20, 5));
-
-    pageArea.removeFromTop(10);
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     // --- B. Operators Section ---
     for (int i = 0; i < 2; ++i)
@@ -2099,135 +2062,91 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         auto opArea = pageArea.removeFromLeft(FmOpWidth);
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
-        auto innerRect = opArea.reduced(8);
-        innerRect.removeFromTop(20);
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
+        innerRect.removeFromTop(TitlePaddingTop);
 
-        int colWidth = innerRect.getWidth();
-        auto leftCol = innerRect.removeFromLeft(60);
-        auto rightCol = innerRect;
-
-        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
-        };
-
-        place(gui.mulLabel[i], leftCol);
-        place(gui.mul[i], rightCol);
-        place(gui.dtLabel[i], leftCol);
-        place(gui.dt[i], rightCol);
-        place(gui.arLabel[i], leftCol);
-        place(gui.ar[i], rightCol);
-        place(gui.drLabel[i], leftCol);
-        place(gui.dr[i], rightCol);
-        place(gui.slLabel[i], leftCol);
-        place(gui.sl[i], rightCol);
-        place(gui.rrLabel[i], leftCol);
-        place(gui.rr[i], rightCol);
-        place(gui.wsLabel[i], leftCol);
-        place(gui.ws[i], rightCol);
+        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
+        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponents(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
 void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- Global & Preset Section ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
     gui.globalGroup.setBounds(topArea);
 
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(15);
+    globalRect.removeFromTop(TitlePaddingTop);
 
     // Feedback Center
-    gui.feedbackSlider.setBounds(globalRect.withSizeKeepingCentre(100, 50));
-
-    pageArea.removeFromTop(10);
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     for (int i = 0; i < 2; ++i)
     {
         auto opArea = pageArea.removeFromLeft(FmOpWidth);
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
-        auto innerRect = opArea.reduced(8);
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20);
 
-        int colWidth = innerRect.getWidth() / 2;
-        auto leftCol = innerRect.removeFromLeft(colWidth);
-        auto rightCol = innerRect;
-
-        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
-        };
-
-        place(gui.mulLabel[i], leftCol);
-        place(gui.mul[i], rightCol);
-        place(gui.tlLabel[i], leftCol);
-        place(gui.tl[i], rightCol);
-        place(gui.arLabel[i], leftCol);
-        place(gui.ar[i], rightCol);
-        place(gui.drLabel[i], leftCol);
-        place(gui.dr[i], rightCol);
-        place(gui.slLabel[i], leftCol);
-        place(gui.sl[i], rightCol);
-        place(gui.rrLabel[i], leftCol);
-        place(gui.rr[i], rightCol);
-        place(gui.wsLabel[i], leftCol);
-        place(gui.ws[i], rightCol);
-        place(gui.kslLabel[i], leftCol);
-        place(gui.ksl[i], rightCol);
-        place(gui.ksrLabel[i], leftCol);
-        place(gui.ksr[i], rightCol);
-        place(gui.amLabel[i], leftCol);
-        place(gui.am[i], rightCol);
-        place(gui.vibLabel[i], leftCol);
-        place(gui.vib[i], rightCol);
-        place(gui.egTypeLabel[i], leftCol);
-        place(gui.egType[i], rightCol);
+        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponents(innerRect, 15, 0, &gui.kslLabel[i], &gui.ksl[i]);
+        layoutComponents(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
+        layoutComponents(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
+        layoutComponents(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
+        layoutComponents(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
 void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- Global Section ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
     gui.globalGroup.setBounds(topArea);
 
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(20);
+    globalRect.removeFromTop(TitlePaddingTop);
 
     int globalW = globalRect.getWidth() / 2;
-    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).withSizeKeepingCentre(200, 24));
-    gui.feedbackSlider.setBounds(globalRect.withSizeKeepingCentre(100, 110));
-
-    pageArea.removeFromTop(10);
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     // --- Operators Section ---
     for (int i = 0; i < 4; ++i)
@@ -2235,12 +2154,8 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
         auto opArea = pageArea.removeFromLeft(FmOpWidth);
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
-        auto innerRect = opArea.reduced(8);
-        innerRect.removeFromTop(20);
-
-        int colWidth = innerRect.getWidth() / 2;
-        auto leftCol = innerRect.removeFromLeft(colWidth);
-        auto rightCol = innerRect;
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
+        innerRect.removeFromTop(TitlePaddingTop);
 
         auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
             c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
@@ -2250,54 +2165,44 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
             c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
-		place(gui.mulLabel[i], leftCol);
-        place(gui.mul[i], rightCol);
-		place(gui.tlLabel[i], leftCol);
-        place(gui.tl[i], rightCol);
-		place(gui.arLabel[i], leftCol);
-        place(gui.ar[i], rightCol);
-		place(gui.drLabel[i], leftCol);
-        place(gui.dr[i], rightCol);
-		place(gui.slLabel[i], leftCol);
-        place(gui.sl[i], rightCol);
-		place(gui.rrLabel[i], leftCol);
-        place(gui.rr[i], rightCol);
-		place(gui.wsLabel[i], leftCol);
-        placeCombo(gui.ws[i], rightCol);
+        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponents(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
 void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content)
 {
-    auto pageArea = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto pageArea = content.withZeroOrigin();
 
     // --- A. Global Section (Top) ---
     auto topArea = pageArea.removeFromTop(TopGroupHeight);
 
     gui.globalGroup.setBounds(topArea);
     auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(20); // タイトル回避
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
 
-    int globalW = globalRect.getWidth() / 5;
     // Globalエリアも少し余裕を持たせて配置
-    gui.algSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 5));
-    gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.pmsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
-    gui.amsSelector.setBounds(globalRect.removeFromLeft(globalW).reduced(20, 10));
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.pmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.amsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
-    auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    int qRowWidth = 160;
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    qRect.removeFromTop(20);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
 
     pageArea.removeFromTop(10); // Spacer
 
@@ -2310,52 +2215,31 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         gui.opGroups[i].setBounds(opArea.reduced(2));
 
         // 枠線の内側
-        auto innerRect = opArea.reduced(8);
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20); // タイトル(Operator X)回避
 
-        int colWidth = innerRect.getWidth();
-        auto leftCol = innerRect.removeFromLeft(60);
-        auto rightCol = innerRect;
+        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponents(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
+        layoutComponents(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
+        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponents(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
-        // 配置ヘルパー (上下に少し余白 reduced(0, 5) を入れて数値を見やすくする)
-        auto place = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            c.setBounds(rect.removeFromTop(FmOpRowH).reduced(2, 5));
-            };
+        auto btnRow = innerRect.removeFromTop(20);
+        int btnW = btnRow.getWidth() / 2;
 
-        // ★追加: コンボボックス配置ヘルパー (少し高さを小さく調整)
-        auto placeCombo = [&](juce::Component& c, juce::Rectangle<int>& rect) {
-            // コンボボックスは縦幅がありすぎると間延びするので、中央寄せで配置
-            c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
-            };
+        gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
+        gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
 
-        place(gui.mulLabel[i], leftCol);
-        place(gui.mul[i], rightCol);
-        place(gui.dt1Label[i], leftCol);
-        place(gui.dt1[i], rightCol);
-        place(gui.dt2Label[i], leftCol);
-        place(gui.dt2[i], rightCol);
-        place(gui.arLabel[i], leftCol);
-        place(gui.ar[i], rightCol);
-        place(gui.drLabel[i], leftCol);
-        place(gui.dr[i], rightCol);
-        place(gui.srLabel[i], leftCol);
-        place(gui.sr[i], rightCol);
-        place(gui.slLabel[i], leftCol);
-        place(gui.sl[i], rightCol);
-        place(gui.rrLabel[i], leftCol);
-        place(gui.rr[i], rightCol);
-        place(gui.tlLabel[i], leftCol);
-        place(gui.tl[i], rightCol);
-        place(gui.ksLabel[i], leftCol);
-        placeCombo(gui.ks[i], rightCol);
-        place(gui.fixLabel[i], leftCol);
-        place(gui.fix[i], rightCol);
-        place(gui.freqLabel[i], leftCol);
-        place(gui.freq[i], rightCol);
-        place(gui.freqToZeroLabel[i], leftCol);
-        place(gui.freqToZero[i], rightCol);
-        place(gui.freqTo440Label[i], leftCol);
-        place(gui.freqTo440[i], rightCol);
+        innerRect.removeFromTop(5);
+
+        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2365,26 +2249,23 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     // Layout for SSG Page (自動伸縮対応)
     // ==================================
     // 画面高さが伸びた分、各エリアも縦に伸びます
-    auto ssg = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
-    auto left = ssg.removeFromLeft(600);
-    auto right = ssg;
+    auto pageArea = content.withZeroOrigin();
+    auto leftArea = pageArea.removeFromLeft(480);
+    auto rightArea = pageArea.removeFromLeft(480);
 
-    int leftHeight = left.getHeight();
-    auto voiceArea = left.removeFromTop(leftHeight / 2 - 20);
-    left.removeFromTop(10);
-    auto filterArea = left;
+    auto voiceArea = leftArea.removeFromTop(320);
 
     // --- Voice Group ---
     gui.voiceGroup.setBounds(voiceArea.reduced(5));
     auto vRect = gui.voiceGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    vRect.removeFromTop(10);
+    vRect.removeFromTop(20);
 
     gui.waveSelector.setBounds(vRect.removeFromTop(24).withSizeKeepingCentre(160, 24));
 
     vRect.removeFromTop(20);
 
-    auto pRect = vRect.removeFromTop(80);
+    auto pRect = vRect.removeFromTop(160);
 
     // Knobs Layout
     int knobW = pRect.getWidth() / 4;
@@ -2407,16 +2288,18 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.mixSetMix.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
     gui.mixSetNoise.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
 
+    auto filterArea = leftArea.removeFromTop(320);
+
     // --- Filter Group ---
     gui.filterGroup.setBounds(filterArea.reduced(5));
     auto fRect = gui.filterGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    fRect.removeFromTop(10);
+    fRect.removeFromTop(20);
 
     gui.adsrBypassButton.setBounds(fRect.removeFromTop(30).withSizeKeepingCentre(160, 30));
     fRect.removeFromTop(20);
 
-    auto evRect = fRect.removeFromTop(60);
+    auto evRect = fRect.removeFromTop(160);
 
     // ADSR Sliders
     int adsrW = evRect.getWidth() / 4;
@@ -2427,22 +2310,19 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.releaseSlider.setBounds(evRect.removeFromLeft(adsrW).reduced(5));
 
     // --- SSG Right Pane ---
-    auto rightArea = right.reduced(5);
 
     // --- Quality Group ---
-    auto qualityArea = rightArea.removeFromTop(100);
+    auto qualityArea = rightArea.removeFromTop(QualityGroupHeight);
 
     gui.qualityGroup.setBounds(qualityArea);
 
     auto qRect = gui.qualityGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
     int qRowWidth = 160;
  
-    qRect.removeFromTop(10);
+    qRect.removeFromTop(20);
 
     gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
     gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
-
-    rightArea.removeFromTop(10);
 
     float waveParam = *audioProcessor.apvts.getRawParameterValue("SSG_WAVEFORM");
     int waveMode = (waveParam > 0.5f) ? 1 : 0;
@@ -2465,12 +2345,13 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
         gui.triSetSawUp.setVisible(false);
 
         gui.dutyModeSelector.setVisible(true);
+        gui.dutyVarSlider.setValue(true);
         gui.dutyInvertButton.setVisible(true);
 
         gui.dutyGroup.setBounds(waveArea);
         auto dRect = gui.dutyGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-        dRect.removeFromTop(10);
+        dRect.removeFromTop(20);
 
         gui.dutyModeSelector.setBounds(dRect.removeFromTop(30).reduced(5));
 
@@ -2516,7 +2397,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
         gui.triGroup.setBounds(waveArea);
         auto tRect = gui.triGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-        tRect.removeFromTop(10);
+        tRect.removeFromTop(20);
 
         gui.triKeyTrackButton.setBounds(tRect.removeFromTop(30).reduced(5));
 
@@ -2551,14 +2432,12 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
         gui.triSetSawUp.setBounds(bRect.removeFromLeft(btnW3).reduced(2, 0));
     }
 
-    rightArea.removeFromTop(10);
-
     // HW Env Group
     auto envArea = rightArea.removeFromTop(240);
     gui.envGroup.setBounds(envArea);
     auto eRect = gui.envGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    eRect.removeFromTop(10);
+    eRect.removeFromTop(20);
 
     gui.envEnableButton.setBounds(eRect.removeFromTop(60).reduced(5));
     eRect.removeFromTop(10);
@@ -2567,15 +2446,10 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.periodSlider.setBounds(eRect.removeFromTop(60).reduced(5));
 }
 
-void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui)
+void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> content)
 {
-    auto content = tabs.getLocalBounds();
-    content.removeFromTop(tabs.getTabBarDepth());
-    content.reduce(10, 10); // 全体の余白
-    auto area = content.withZeroOrigin();
-
-    // Left: Filter
-    auto leftArea = area.removeFromLeft(WtLeftWidth);
+    auto pageArea = content.withZeroOrigin();
+    auto leftArea = pageArea.removeFromLeft(WtLeftWidth);
 
     gui.filterGroup.setBounds(leftArea.reduced(5));
     auto fRect = gui.filterGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -2592,9 +2466,11 @@ void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui)
     layoutComponents(fRect, 20, 5, &gui.releaseLabel, &gui.releaseSlider);
 
     // Right: Properties
-    auto rightArea = area.removeFromLeft(WtRightWidth);
+    auto rightArea = pageArea.removeFromLeft(WtRightWidth);
     gui.propGroup.setBounds(rightArea.reduced(5));
     auto pRect = gui.propGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    pRect.removeFromTop(20);
 
     // Waveform Selector (Top)
     gui.waveSelector.setBounds(pRect.removeFromTop(30).withSizeKeepingCentre(200, 24));
@@ -2690,6 +2566,8 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
                 // Indent inside the group
                 auto area = padArea.reduced(5, 15);
 
+                area.removeFromTop(10);
+
                 // --- Layout Components Top to Bottom ---
 
                 // 1. Load Button
@@ -2729,16 +2607,19 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
         };
 
     // Top section for Master Volume
-    auto area = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
-    auto topArea = area.removeFromTop(40);
+    auto pageArea = content.withZeroOrigin();
 
-    gui.levelSlider.setBounds(topArea.removeFromLeft(160));
+    // --- A. Global Section (Top) ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
 
-    // space
-    content.removeFromTop(10);
+    gui.group.setBounds(topArea);
+    auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
 
-    auto topPadsArea = content.removeFromTop(320);
-    auto bottomPadsArea = content.removeFromTop(320);
+    gui.levelSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+
+    auto topPadsArea = pageArea.removeFromTop(320);
+    auto bottomPadsArea = pageArea.removeFromTop(320);
 
     // Remaining area for 8 pads
     int topPadWidth = topPadsArea.getWidth() / 4;
@@ -2749,10 +2630,12 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
 
 void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content)
 {
-    auto area = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+    auto area = content.withZeroOrigin();
     gui.group.setBounds(area);
 
     auto inner = area.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    inner.removeFromTop(20);
 
     auto fileRow = inner.removeFromTop(30);
     gui.loadButton.setBounds(fileRow.removeFromLeft(100));
@@ -3139,7 +3022,11 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
     // wtPage のサイズが変わったときだけレイアウトを実行
     if (&component == &wtGui.page && wasResized)
     {
-        layoutWtPage(wtGui);
+        auto content = tabs.getLocalBounds();
+        content.removeFromTop(tabs.getTabBarDepth());
+        content.reduce(GroupPaddingWidth, GroupPaddingHeight); // 全体の余白
+
+        layoutWtPage(wtGui, content);
     }
 
     // もし gui.page も登録したなら
@@ -3217,6 +3104,7 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
         // Event source should bubble up or be the slider if clicked on background.
 
         auto* slider = dynamic_cast<juce::Slider*>(event.eventComponent);
+
         if (slider && sliderRegMap.count(slider))
         {
             RegisterType type = sliderRegMap[slider];
@@ -3229,12 +3117,13 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
                 case RegisterType::FmTl:   newVal = RegisterConverter::convertFmTl(regValue); break;
                 case RegisterType::FmMul:  newVal = (float)RegisterConverter::convertFmMul(regValue); break;
                 case RegisterType::FmDt:   newVal = (float)RegisterConverter::convertFmDt(regValue); break;
+                case RegisterType::FmDt2:  newVal = RegisterConverter::convertFmDt2(regValue); break;
                 case RegisterType::SsgVol: newVal = RegisterConverter::convertSsgVol(regValue); break;
                 case RegisterType::SsgEnv: newVal = RegisterConverter::convertSsgEnvPeriod(regValue); break;
                 default: return;
                 }
                 slider->setValue(newVal, juce::sendNotification);
-                });
+            });
         }
     }
 }
@@ -3380,10 +3269,13 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     val = getValue("MUL", 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
 
-    // DT / DT1
+    // DT / DT1 / DT2
     if constexpr (std::is_same<T, OpmGuiSet>::value) {
         val = getValue("DT1", 7); // OPM uses DT1
         if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
+
+        val = getValue("DT2", 7); // OPM uses DT2
+        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
     else if constexpr (std::is_same<T, Fm4GuiSet>::value) {
         val = getValue("DT", 7);

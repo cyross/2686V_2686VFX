@@ -50,6 +50,30 @@ public:
     void noteOff() { m_operators[0].noteOff(); m_operators[1].noteOff(); }
     bool isPlaying() const { return m_operators[0].isPlaying(); }
 
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        // 全オペレーターに適用
+        for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
+
     float getSample() {
         // --- OPLL LFO Generation ---
         // AM: ~3.7 Hz, VIB: ~6.4 Hz
@@ -70,7 +94,13 @@ public:
             float vibVal = (m_vibPhase < 0.5) ? (float)m_vibPhase * 2.0f : (float)(1.0 - m_vibPhase) * 2.0f;
 
             float lfoAmp = 1.0f - (amVal * 0.5f);
-            float lfoPitch = 1.0f + ((vibVal - 0.5f) * 0.01f);
+
+            // モジュレーションホイールの値を加算
+            // vibValは0～1なので、(vibVal - 0.5)は -0.5～0.5
+            // 元の揺れ幅(0.01)に加え、ホイール最大時に 0.1 を足すことで、
+            // (-0.5 ~ 0.5) * 0.1 = +/- 0.05 (約半音) の揺れを追加
+            float depth = 0.01f + (m_modWheel * 0.1f);
+            float lfoPitch = 1.0f + ((vibVal - 0.5f) * depth);
 
             float out1, out2;
             m_operators[0].getSample(out1, 0.0f, lfoAmp, lfoPitch);
@@ -115,4 +145,6 @@ private:
 
     double m_amPhase = 0.0;
     double m_vibPhase = 0.0;
+
+    float m_modWheel = 0.0f;
 };

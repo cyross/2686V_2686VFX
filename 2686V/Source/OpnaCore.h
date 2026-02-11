@@ -45,7 +45,9 @@ public:
         for (int i = 0; i < 4; ++i) {
             float fb = (i == 0) ? params.feedback : 0.0f;
             // OPNA: SSG-EG=True, WaveSelect=False
-            m_operators[i].setParameters(params.fmOp[i], fb, true, false);
+            // params.fmSsgEgFreq を渡す (第6引数)
+            // 第5引数(useOpmEg)は false
+            m_operators[i].setParameters(params.fmOp[i], fb, true, false, false, params.fmOp[i].fmSsgEgFreq);
         }
     }
 
@@ -59,6 +61,30 @@ public:
 
     void noteOff() { for (auto& op : m_operators) op.noteOff(); }
     bool isPlaying() const { return m_operators[0].isPlaying(); }
+
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        // 全オペレーターに適用
+        for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
 
     float getSample() {
         // --- Rate Emulation ---
@@ -87,12 +113,20 @@ public:
                 lfoAmpMod = 1.0f - (std::abs(lfoValue) * depths[m_ams & 3]);
             }
 
-            // PMS
-            float lfoPitchMod = 1.0f;
+            // PMS (Pitch Modulation Sensitivity)
+            // ★修正: モジュレーションホイールの効果を加算
+            // PMSが設定されていればその深さ、ホイールがあればさらに深く、
+            // PMSが0でもホイールを上げればビブラートがかかるようにする(0.05f = 約半音の半分程度の揺れ)
+            float pmDepth = 0.0f;
             if (m_pms > 0) {
                 float depths[] = { 0.0f, 0.001f, 0.002f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f };
-                lfoPitchMod = 1.0f + (lfoValue * depths[m_pms & 7]);
+                pmDepth = depths[m_pms & 7];
             }
+
+            // ホイールによる追加深度 (最大 0.03 程度 = 30セント強)
+            float wheelDepth = m_modWheel * 0.03f;
+
+            float lfoPitchMod = 1.0f + (lfoValue * (pmDepth + wheelDepth));
 
             // Routing
             float out1, out2, out3, out4;
@@ -157,4 +191,6 @@ private:
     float m_lfoFreq = 5.0f;
     int m_pms = 0;
     int m_ams = 0;
+
+    float m_modWheel = 0.0f;
 };

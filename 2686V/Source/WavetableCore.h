@@ -81,6 +81,30 @@ public:
 
     bool isPlaying() const { return m_state != State::Idle; }
 
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
+    void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
+
     float getSample()
     {
         if (m_state == State::Idle) return 0.0f;
@@ -89,12 +113,15 @@ public:
         if (m_state == State::Attack) {
             m_currentLevel += m_attackInc;
             if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
-        } else if (m_state == State::Decay) {
+        }
+        else if (m_state == State::Decay) {
             if (m_currentLevel > m_adsr.s) {
                 m_currentLevel -= m_decayDec;
                 if (m_currentLevel <= m_adsr.s) { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
-            } else { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
-        } else if (m_state == State::Release) {
+            }
+            else { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
+        }
+        else if (m_state == State::Release) {
             m_currentLevel -= m_releaseDec;
             if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
         }
@@ -111,18 +138,35 @@ public:
 
             // --- Synthesis at Target Rate ---
 
-            // 1. Modulation
+            // 1. Modulation (Vibrato / Table Scan)
+            // LFO for modulation
+            float modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
+
+            // Base Depth + Wheel Depth
+            // Default mod depth from params, add wheel influence (max +0.1)
+            float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
+
             float modOffset = 0.0f;
-            if (m_modEnable)
+            if (m_modEnable || m_modWheel > 0.0f) // Apply if enable OR wheel is up
             {
-                modOffset = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi) * m_modDepth;
+                modOffset = modLfoVal * totalModDepth;
+
+                // Advance Mod LFO
+                // Speed depends on note frequency (Ratio) or Fixed? 
+                // Using m_modSpeed as ratio to Note Freq
                 m_modPhase += (m_phaseDelta * m_modSpeed);
                 if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
             }
 
             // 2. Phase
+            // Apply Pitch Bend to Phase Delta
+            float currentDelta = m_phaseDelta * m_pitchBendRatio;
+
+            // Apply Modulation to Phase (Vibrato effect) or Read Index?
+            // Here we apply to Phase for Vibrato-like effect on table lookup
             float effectivePhase = m_phase + modOffset;
             effectivePhase -= std::floor(effectivePhase);
+            if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 
             // 3. Table Lookup
             float readIndex = effectivePhase * (float)m_tableSize;
@@ -144,7 +188,8 @@ public:
                 m_lastSample = rawSample;
             }
 
-            m_phase += m_phaseDelta;
+            // Advance Main Phase
+            m_phase += currentDelta;
             if (m_phase >= 1.0f) m_phase -= 1.0f;
         }
 
@@ -270,4 +315,7 @@ private:
     float m_attackInc = 0.0f;
     float m_decayDec = 0.0f;
     float m_releaseDec = 0.0f;
+
+    float m_pitchBendRatio = 1.0f;
+    float m_modWheel = 0.0f;
 };

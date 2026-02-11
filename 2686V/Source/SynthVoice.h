@@ -40,13 +40,13 @@ public:
                 m_oplCore.setParameters(params);
                 break;
             case OscMode::OPLL:
-                m_opll.setParameters(params);
+                m_opllCore.setParameters(params);
                 break;
             case OscMode::OPL3:
-                m_opl3.setParameters(params);
+                m_opl3Core.setParameters(params);
                 break;
             case OscMode::OPM:
-                m_opm.setParameters(params);
+                m_opmCore.setParameters(params);
                 break;
             case OscMode::SSG:
                 m_ssgCore.setParameters(params);
@@ -89,13 +89,13 @@ public:
                 m_oplCore.noteOn(cyclesPerSecond, velocity);
                 break;
             case OscMode::OPLL:
-                m_opll.noteOn(cyclesPerSecond, velocity);
+                m_opllCore.noteOn(cyclesPerSecond, velocity);
                 break;
             case OscMode::OPL3:
-                m_opl3.noteOn(cyclesPerSecond, velocity);
+                m_opl3Core.noteOn(cyclesPerSecond, velocity);
                 break;
             case OscMode::OPM:
-                m_opm.noteOn(cyclesPerSecond, velocity);
+                m_opmCore.noteOn(cyclesPerSecond, velocity);
                 break;
             case OscMode::SSG:
                 m_ssgCore.noteOn(cyclesPerSecond);
@@ -119,9 +119,9 @@ public:
         m_opnaCore.noteOff();
         m_opnCore.noteOff();
         m_oplCore.noteOff();
-        m_opll.noteOff();
-        m_opl3.noteOff();
-        m_opm.noteOff();
+        m_opllCore.noteOff();
+        m_opl3Core.noteOff();
+        m_opmCore.noteOff();
         m_ssgCore.noteOff();
         m_wtCore.noteOff();
         m_rhythmCore.noteOff();
@@ -169,24 +169,24 @@ public:
             }
             else if (m_mode == OscMode::OPLL)
             {
-                sample = m_opll.getSample();
-                isActive = m_opll.isPlaying();
+                sample = m_opllCore.getSample();
+                isActive = m_opllCore.isPlaying();
 
                 outL[startSample + i] += sample;
                 outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPL3)
             {
-                sample = m_opl3.getSample();
-                isActive = m_opl3.isPlaying();
+                sample = m_opl3Core.getSample();
+                isActive = m_opl3Core.isPlaying();
 
                 outL[startSample + i] += sample;
                 outR[startSample + i] += sample;
             }
             else if (m_mode == OscMode::OPM)
             {
-                sample = m_opm.getSample();
-                isActive = m_opm.isPlaying();
+                sample = m_opmCore.getSample();
+                isActive = m_opmCore.isPlaying();
 
                 outL[startSample + i] += sample;
                 outR[startSample + i] += sample;
@@ -245,9 +245,9 @@ public:
             m_opnaCore.prepare(newRate);
             m_opnCore.prepare(newRate);
             m_oplCore.prepare(newRate);
-            m_opll.prepare(newRate);
-            m_opl3.prepare(newRate);
-            m_opm.prepare(newRate);
+            m_opllCore.prepare(newRate);
+            m_opl3Core.prepare(newRate);
+            m_opmCore.prepare(newRate);
             m_ssgCore.prepare(newRate);
             m_wtCore.prepare(newRate);
             m_rhythmCore.prepare(newRate);
@@ -255,17 +255,93 @@ public:
         }
     }
 
-    void pitchWheelMoved(int) override {}
-    void controllerMoved(int, int) override {}
+    // ピッチベンド
+    void pitchWheelMoved(int newPitchWheelValue) override
+    {
+        // 各モードのCoreに伝達
+        switch (m_mode) {
+        case OscMode::OPNA:
+            m_opnaCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPN:
+            m_opnCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPL:
+            m_oplCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPLL:
+            m_opllCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPL3:
+            m_opl3Core.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPM:
+            m_opmCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::SSG:
+            m_ssgCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::WAVETABLE:
+            m_wtCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::RHYTHM:
+            m_rhythmCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::ADPCM:
+            m_adpcmCore.setPitchBend(newPitchWheelValue);
+            break;
+        }
+    }
 
+    // コントローラー (CC)
+    void controllerMoved(int controllerNumber, int newControllerValue) override
+    {
+        // CC #1 = Modulation Wheel
+        if (controllerNumber == 1)
+        {
+            // 各モードのCoreに伝達
+            switch (m_mode) {
+            case OscMode::OPNA:
+                m_opnaCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::OPN:
+                m_opnCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::OPL:
+                m_oplCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::OPLL:
+                m_opllCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::OPL3:
+                m_opl3Core.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::OPM:
+                m_opmCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::SSG:
+                m_ssgCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::WAVETABLE:
+                m_wtCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::RHYTHM:
+                m_rhythmCore.setModulationWheel(newControllerValue);
+                break;
+            case OscMode::ADPCM:
+                m_adpcmCore.setModulationWheel(newControllerValue);
+                break;
+            }
+        }
+    }
 private:
     OscMode m_mode = OscMode::OPNA;
     OpnaCore m_opnaCore;
     OpnCore m_opnCore;
     OplCore m_oplCore;
-    OpllCore m_opll;
-    Opl3Core m_opl3;
-    OpmCore  m_opm;
+    OpllCore m_opllCore;
+    Opl3Core m_opl3Core;
+    OpmCore  m_opmCore;
     SsgCore m_ssgCore;
     WavetableCore m_wtCore;
     RhythmCore m_rhythmCore;

@@ -87,61 +87,43 @@ public:
         m_isPlaying = false;
     }
 
-    // Get sample (Simplified version of AdpcmCore)
-    // Since this is for rhythm, pitch change (m_pitchRatio) is omitted for now; constant speed playback.
-    // Note: Add ratio calculation with host rate if necessary.
-    float getSample(double hostSampleRate)
+    float getSample(double hostSampleRate, float pitchRatio)
     {
         if (!m_isPlaying) return 0.0f;
 
-        // Playback speed calculation (Host rate support)
         double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
-        double increment = currentBufferRate / hostSampleRate;
 
-        // Buffer selection
+        // ★修正: 再生速度にピッチ比率を掛ける
+        double increment = (currentBufferRate / hostSampleRate) * pitchRatio;
+
         float output = 0.0f;
         size_t bufferSize = 0;
 
-        if (m_qualityMode == 7) // ADPCM
+        if (m_qualityMode == 7) // ADPCM Playback
         {
             bufferSize = m_adpcmBuffer.size();
-
             if (m_adpcmBuffer.empty()) return 0.0f;
 
-            // loop & finish check
             if (m_position >= bufferSize) {
-                if (m_isOneShot) {
-                    m_isPlaying = false; return 0.0f;
-                }
-                else {
-                    // loop play (OneShot = false)
-                    m_position = std::fmod(m_position, (double)bufferSize);
-                }
+                if (m_isOneShot) { m_isPlaying = false; return 0.0f; }
+                else { m_position = std::fmod(m_position, (double)bufferSize); }
             }
 
             int idx = (int)m_position;
-
             if (idx >= bufferSize) idx = 0;
-
             output = m_adpcmBuffer[idx] / 32768.0f;
         }
-        else // Raw / PCM
+        else // Raw / PCM Playback
         {
             bufferSize = m_rawBuffer.size();
             if (m_rawBuffer.empty()) return 0.0f;
 
-            // loop & finish check
             if (m_position >= bufferSize) {
-                if (m_isOneShot) {
-                    m_isPlaying = false; return 0.0f;
-                }
-                else {
-                    // loop play
-                    m_position = std::fmod(m_position, (double)bufferSize);
-                }
+                if (m_isOneShot) { m_isPlaying = false; return 0.0f; }
+                else { m_position = std::fmod(m_position, (double)bufferSize); }
             }
 
-            // linear
+            // Linear Interpolation
             int idx0 = (int)m_position;
             int idx1 = idx0 + 1;
             if (idx1 >= bufferSize) idx1 = 0;
@@ -149,23 +131,22 @@ public:
             float frac = (float)(m_position - idx0);
             output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
 
-            // Bitcrush (Same as AdpcmCore)
+            // Bitcrush Logic
             float maxVal = 0.0f;
             switch (m_qualityMode) {
-                case 1: maxVal = 0.0f; break;       // ADD: 32bit Float (No crush)
-                case 2: maxVal = 8388607.0f; break; // 24bit
-                case 3: maxVal = 32767.0f; break;   // 16bit
-                case 4: maxVal = 127.0f; break;     // 8bit
-                case 5: maxVal = 15.0f; break;      // 5bit
-                case 6: maxVal = 7.0f; break;       // 4bit Linear
+            case 1: maxVal = 0.0f; break;       // 32bit Float
+            case 2: maxVal = 8388607.0f; break; // 24bit
+            case 3: maxVal = 32767.0f; break;   // 16bit
+            case 4: maxVal = 127.0f; break;     // 8bit
+            case 5: maxVal = 15.0f; break;      // 5bit
+            case 6: maxVal = 7.0f; break;       // 4bit Linear
             }
             if (maxVal > 0.0f) output = std::floor(output * maxVal) / maxVal;
         }
 
         m_position += increment;
-        return output * m_level; // Pan is handled in the subsequent stage
+        return output * m_level;
     }
-
 private:
     void refreshAdpcmBuffer()
     {
@@ -258,17 +239,61 @@ public:
         return activePad && activePad->m_isPlaying;
     }
 
+    // ピッチベンド (0 - 16383, Center=8192)
+    void setPitchBend(int pitchWheelValue)
+    {
+        // 範囲を -1.0 ～ 1.0 に正規化
+        float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
+
+        // 半音単位のレンジ (例: +/- 2半音)
+        float semitones = 2.0f;
+
+        // 比率計算: 2^(semitones / 12)
+        // norm * semitones で変化量を決定
+        float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
+
+        setPitchBendRatio(ratio);
+    }
+
+    // モジュレーションホイール (0 - 127)
+    void setModulationWheel(int wheelValue)
+    {
+        // 0.0 ～ 1.0 に正規化
+        m_modWheel = (float)wheelValue / 127.0f;
+    }
+
+    void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
+
     float getSample() {
         if (!activePad || !activePad->m_isPlaying) return 0.0f;
 
-        // If stereo output support is needed, change to return std::pair<float, float> after Pan calculation here, etc.
-        // For now, return mono as a simple implementation to handle Pan on the SynthVoice side.
-        // Note: However, the Pan parameter needs to be reflected on the SynthVoice side.
-        return activePad->getSample(m_sampleRate);
+        // --- Modulation Calculation ---
+        // Simple Vibrato LFO
+        double lfoInc = 5.0 / m_sampleRate; // Fixed 5Hz LFO
+        m_lfoPhase += lfoInc;
+        if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+
+        float lfoVal = std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
+
+        // Mod Depth (Max +/- 10% speed change)
+        float modDepth = m_modWheel * 0.1f;
+        float lfoPitchMod = 1.0f + (lfoVal * modDepth);
+
+        // Combine Pitch Bend and Mod Wheel
+        float totalPitchRatio = m_pitchBendRatio * lfoPitchMod;
+
+        // Pass ratio to pad
+        return activePad->getSample(m_sampleRate, totalPitchRatio);
     }
 
     // For passing Pan information to SynthVoice
     float getCurrentPan() const {
         return activePad ? activePad->m_pan : 0.5f;
     }
+
+    float m_pitchBendRatio = 1.0f;
+    float m_modWheel = 0.0f;
+
+    // LFO State
+    double m_lfoPhase = 0.0;
 };
