@@ -11,11 +11,18 @@ juce_add_plugin(2686VFX
     PRODUCT_NAME "2686VFX"
 )
 
+# ドキュメントの定義
+set(DOCUMENT_FILES
+    ../readme.md
+    ../document/2686VFX仕様.md
+)
+
 target_sources(2686VFX PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    ${DOCUMENT_FILES}
 )
 
 target_link_libraries(2686VFX PRIVATE
@@ -28,3 +35,5 @@ target_compile_definitions(2686VFX PRIVATE
 )
 
 juce_generate_juce_header(2686VFX)
+
+source_group("Documentation" FILES ../readme.md ../document/2686VFX仕様.md)

@@ -13,6 +13,12 @@ juce_add_plugin(2686V
     PRODUCT_NAME "2686V"
 )
 
+# ドキュメントの定義
+set(DOCUMENT_FILES
+    ../readme.md
+    ../document/2686V仕様.md
+)
+
 # ソースファイルの指定
 target_sources(2686V PRIVATE
     Source/PluginProcessor.cpp
@@ -33,7 +39,8 @@ target_sources(2686V PRIVATE
     Source/AdpcmCore.h
     Source/WavetableCore.h
     Source/RegisterConverter.h
-    Source/SimpleEffect.h
+    Source/SimpleEffects.h
+    ${DOCUMENT_FILES}
 )
 
 # ライブラリのリンク
@@ -48,3 +55,5 @@ target_compile_definitions(2686V PRIVATE
 )
 
 juce_generate_juce_header(2686V)
+
+source_group("Documentation" FILES ../readme.md ../document/2686V仕様.md)
