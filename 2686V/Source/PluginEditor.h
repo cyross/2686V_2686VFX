@@ -14,10 +14,10 @@ static const juce::String VstName = "2686V";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
-static const int WindowWidth = 1600;
+static const int WindowWidth = 1200;
 static const int WindowHeight = 800;
 
-static const int TabNumber = 12;
+static const int TabNumber = 13;
 
 static const int Fm4Ops = 4;
 static const int Fm2Ops = 2;
@@ -65,6 +65,15 @@ static const int WtRightWidth = 800;
 static const int WtHeight = 640;
 static const int WtCustomSliderWidth = 22;
 
+static const int FxWidth = 1000;
+static const int FxHeight = 720;
+static const int FxBypassHeight = 120;
+static const int FxGroupHeight = 200;
+static const int FxKnobAreaWidth = 200;
+static const int FxKnobWidth = 120;
+static const int FxKnobHeight = 120;
+static const int FxMixButtonWidth = 40;
+
 enum class RegisterType
 {
     None,
@@ -73,6 +82,7 @@ enum class RegisterType
     FmTl,   // TL (0-127)
     FmMul,  // MUL (0-15)
     FmDt,   // DT (0-7)
+    FmDt2,  // DT2 (0-3)
     SsgVol, // Level (0-15)
     SsgEnv  // Env Period (0-65535)
 };
@@ -126,7 +136,31 @@ public:
         auto center = area.getCentre();
         float s = std::min(area.getWidth(), area.getHeight()) * 0.5f; // アイコンサイズ
 
-        if (name == "PRESET") // プリセットブラウザタブはフォルダーアイコン
+        if (name == "FX") // エフェクトを示すアイコン
+        {
+            // [FX] Icon
+            // F
+            juce::Path fPath;
+            fPath.addRectangle(center.x - s * 0.8f, center.y - s * 0.6f, s * 0.2f, s * 1.2f); // 縦棒
+            fPath.addRectangle(center.x - s * 0.6f, center.y - s * 0.6f, s * 0.5f, s * 0.2f); // 横棒上
+            fPath.addRectangle(center.x - s * 0.6f, center.y - s * 0.1f, s * 0.3f, s * 0.2f); // 横棒中
+            p.addPath(fPath);
+
+            // X
+            juce::Path xPath;
+            float xw = s * 0.2f;
+            float xh = s * 1.2f;
+            // Xのクロスを長方形の回転で表現
+            juce::Path bar1; bar1.addRectangle(center.x + s * 0.1f, center.y - s * 0.6f, xw, xh);
+            bar1.applyTransform(juce::AffineTransform::rotation(juce::MathConstants<float>::pi * 0.15f, center.x + s * 0.4f, center.y));
+
+            juce::Path bar2; bar2.addRectangle(center.x + s * 0.7f, center.y - s * 0.6f, xw, xh);
+            bar2.applyTransform(juce::AffineTransform::rotation(-juce::MathConstants<float>::pi * 0.15f, center.x + s * 0.4f, center.y));
+
+            p.addPath(bar1);
+            p.addPath(bar2);
+        }
+        else if (name == "PRESET") // プリセットブラウザタブはフォルダーアイコン
         {
             // --- Folder / List Icon ---
             // フォルダーの形
@@ -226,7 +260,7 @@ public:
         // 3. 描画
         g.setColour(contentColour); // 色を確定
 
-        if (name == "PRESET" || name == "SETTINGS" || name == "ABOUT")
+        if (name == "FX" || name == "PRESET" || name == "SETTINGS" || name == "ABOUT")
         {
             // アイコン描画
             juce::Path icon = getIconPath(name, area);
@@ -793,6 +827,51 @@ struct AdpcmGuiSet
     std::unique_ptr<ComboBoxAttachment> rateAtt;
 };
 
+struct FxGuiSet
+{
+    juce::Component page;
+    ColoredGroupComponent tremGroup;
+    ColoredGroupComponent vibGroup;
+    ColoredGroupComponent crushGroup;
+    ColoredGroupComponent delayGroup;
+    ColoredGroupComponent reverbGroup;
+
+    juce::ToggleButton bypassToggle;
+
+    // Tremolo Sliders
+    juce::Label tRateLabel, tDepthLabel, tMixLabel;
+    juce::Slider tRateSlider, tDepthSlider, tMixSlider;
+    juce::TextButton tDryBtn, tHalfBtn, tWetBtn;
+
+    // Vibrato Sliders
+    juce::Label vRateLabel, vDepthLabel, vMixLabel;
+    juce::Slider vRateSlider, vDepthSlider, vMixSlider;
+    juce::TextButton vDryBtn, vHalfBtn, vWetBtn;
+
+    // Crush Sliders
+    juce::Label cRateLabel, cBitsLabel, cMixLabel;
+    juce::Slider cRateSlider, cBitsSlider, cMixSlider;
+    juce::TextButton cDryBtn, cHalfBtn, cWetBtn;
+
+    // Delay Sliders
+    juce::Label dTimeLabel, dFbLabel, dMixLabel;
+    juce::Slider dTimeSlider, dFbSlider, dMixSlider;
+    juce::TextButton dDryBtn, dHalfBtn, dWetBtn;
+
+    // Reverb Sliders
+    juce::Label rSizeLabel, rDampLabel, rMixLabel;
+    juce::Slider rSizeSlider, rDampSlider, rMixSlider;
+    juce::TextButton rDryBtn, rHalfBtn, rWetBtn;
+
+    // Attachments
+    std::unique_ptr<ButtonAttachment> fxBypassAtt;
+    std::unique_ptr<SliderAttachment> tRateAtt, tDepthAtt, tMixAtt;
+    std::unique_ptr<SliderAttachment> vRateAtt, vDepthAtt, vMixAtt;
+    std::unique_ptr<SliderAttachment> cRateAtt, cBitsAtt, cMixAtt;
+    std::unique_ptr<SliderAttachment> dTimeAtt, dFbAtt, dMixAtt;
+    std::unique_ptr<SliderAttachment> rSizeAtt, rDampAtt, rMixAtt;
+};
+
 // プリセット1つ分の情報を保持する構造体
 struct PresetItem
 {
@@ -949,7 +1028,7 @@ struct AboutGuiSet
 struct SetupGroupParams
 {
     juce::Component& page;
-    ColoredGroupComponent& group; // <--- 変更
+    ColoredGroupComponent& group;
     const juce::String title;
     juce::Colour color = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f);
 };
@@ -1237,6 +1316,7 @@ private:
 	WtGuiSet wtGui; // Wavetable
 	RhythmGuiSet rhythmGui; // Rhythm
 	AdpcmGuiSet adpcmGui; // ADPCM
+    FxGuiSet fxGui; // ★追加
     PresetGuiSet presetGui;
     SettingsGuiSet settingsGui;
     AboutGuiSet aboutGui;
@@ -1273,6 +1353,7 @@ private:
     void setupWtGui(WtGuiSet& gui);
     void setupRhythmGui(RhythmGuiSet& gui);
     void setupAdpcmGui(AdpcmGuiSet& gui);
+    void setupFxGui(FxGuiSet& gui);
     void setupPresetGui(PresetGuiSet& gui);
     void setupSettingsGui(SettingsGuiSet& gui);
     void setupAboutGui(AboutGuiSet& gui);
@@ -1287,6 +1368,7 @@ private:
     void layoutWtPage(WtGuiSet& gui);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);
     void layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content);
+    void layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content);
     void layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content);
     void layoutSettingsPage(SettingsGuiSet& gui, juce::Rectangle<int> content);
     void layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content);

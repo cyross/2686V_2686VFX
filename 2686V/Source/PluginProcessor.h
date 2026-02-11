@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 #include "SynthVoice.h"
+#include "SimpleEffects.h"
 
 class AudioPlugin2686V : public juce::AudioProcessor
 {
@@ -38,16 +39,16 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState apvts;
 
-    // Metadata
+    // --- Metadata ---
     juce::String presetName = "Init Preset";
     juce::String presetAuthor = "User";
     juce::String presetVersion = "1.0";
 
-    // File Paths (To restore samples)
+    // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
     std::array<juce::String, 8> rhythmFilePaths;
 
-    // Preset I/O
+    // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
 
@@ -59,6 +60,9 @@ public:
 
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 
+
+    // --- Effect ---
+    EffectChain effects;
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
@@ -72,6 +76,7 @@ private:
     void createWavetableParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createRhythmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createAdpcmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
+    void createFxParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
 
     void processOpnaBlock(SynthParams &params);
     void processOpnBlock(SynthParams &params);
@@ -83,6 +88,7 @@ private:
     void processWavetableBlock(SynthParams &params);
     void processRhythmBlock(SynthParams &params);
     void processAdpcmBlock(SynthParams &params);
+    void processFxBlock(juce::AudioBuffer<float>& buffer, SynthParams& params);
 
     juce::Synthesiser m_synth;
 

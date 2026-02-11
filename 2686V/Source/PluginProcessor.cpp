@@ -44,6 +44,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     createWavetableParameterLayout(layout);
     createRhythmParameterLayout(layout);
     createAdpcmParameterLayout(layout);
+    createFxParameterLayout(layout);
 
     return layout;
 }
@@ -61,6 +62,8 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
             voice->getRhythmCore()->prepare(sampleRate);
         }
     }
+
+    effects.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -132,6 +135,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     }
 
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    processFxBlock(buffer, params);
 }
 
 // ============================================================================
@@ -686,6 +691,40 @@ void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeS
     addEnvParameters(layout, "ADPCM");
 }
 
+void AudioPlugin2686V::createFxParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
+{
+    // ==========================================
+    // FX Parameters
+    // ==========================================
+    // Bypass
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_BYPASS", "Master FX Bypass", false));
+
+    // --- Tremolo ---
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_RATE", "Tremolo Rate", 0.1f, 20.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_DEPTH", "Tremolo Depth", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_MIX", "Tremolo Mix", 0.0f, 1.0f, 0.0f));
+
+    // --- Vibrato / Detune ---
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_RATE", "Vibrato Rate", 0.1f, 10.0f, 2.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_DEPTH", "Vibrato Depth", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_MIX", "Vibrato Mix", 0.0f, 1.0f, 0.0f));
+
+    // Crush
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_RATE", "Crush Rate", 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_DEPTH", "Bit Depth", 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_MIX", "Crush Mix", 0.0f, 1.0f, 0.0f));
+
+    // Delay
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_TIME", "Delay Time", 10.0f, 1000.0f, 375.0f)); // ms
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_FB", "Delay Feedback", 0.0f, 0.95f, 0.4f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_MIX", "Delay Mix", 0.0f, 1.0f, 0.0f));
+
+    // Reverb
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_SIZE", "Reverb Size", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_DAMP", "Reverb Damp", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_MIX", "Reverb Mix", 0.0f, 1.0f, 0.0f));
+}
+
 void AudioPlugin2686V::processOpnaBlock(SynthParams &params)
 {
     params.feedback = *apvts.getRawParameterValue("OPNA_FEEDBACK");
@@ -976,6 +1015,45 @@ void AudioPlugin2686V::processAdpcmBlock(SynthParams &params)
     params.adpcmAdsr.d = *apvts.getRawParameterValue("ADPCM_DR");
     params.adpcmAdsr.s = *apvts.getRawParameterValue("ADPCM_SL");
     params.adpcmAdsr.r = *apvts.getRawParameterValue("ADPCM_RR");
+}
+
+void AudioPlugin2686V::processFxBlock(juce::AudioBuffer<float>& buffer, SynthParams& params)
+{
+    if (*apvts.getRawParameterValue("FX_BYPASS") > 0.5f)
+    {
+        return;
+    }
+
+    // Vibrato
+    float vRate = *apvts.getRawParameterValue("FX_VIB_RATE");
+    float vDepth = *apvts.getRawParameterValue("FX_VIB_DEPTH");
+    float vMix = *apvts.getRawParameterValue("FX_VIB_MIX");
+    effects.setVibratoParams(vRate, vDepth, vMix);
+
+    // Tremolo
+    float tRate = *apvts.getRawParameterValue("FX_TRM_RATE");
+    float tDepth = *apvts.getRawParameterValue("FX_TRM_DEPTH");
+    float tMix = *apvts.getRawParameterValue("FX_TRM_MIX");
+    effects.setTremoloParams(tRate, tDepth, tMix);
+
+    float cRate = *apvts.getRawParameterValue("FX_BIT_RATE");
+    float cBits = *apvts.getRawParameterValue("FX_BIT_DEPTH");
+    float cMix = *apvts.getRawParameterValue("FX_BIT_MIX");
+    effects.setDecimatorParams(cRate, cBits, cMix);
+
+    float dTime = *apvts.getRawParameterValue("FX_DLY_TIME");
+    float dFb = *apvts.getRawParameterValue("FX_DLY_FB");
+    float dMix = *apvts.getRawParameterValue("FX_DLY_MIX");
+    effects.setDelayParams(dTime, dFb, dMix);
+
+    float rSize = *apvts.getRawParameterValue("FX_RVB_SIZE");
+    float rDamp = *apvts.getRawParameterValue("FX_RVB_DAMP");
+    float rMix = *apvts.getRawParameterValue("FX_RVB_MIX");
+
+    effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
+
+    // エフェクト処理実行
+    effects.process(buffer);
 }
 
 // 環境設定を保存

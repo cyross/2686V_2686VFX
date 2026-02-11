@@ -75,6 +75,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	setupAdpcmGui(adpcmGui);
 
     // ============================
+    // FX Page
+    // ============================
+    setupFxGui(fxGui);
+
+    // ============================
     // Preset Page
     // ============================
     setupPresetGui(presetGui);
@@ -184,6 +189,7 @@ void AudioPlugin2686VEditor::resized()
     layoutWtPage(wtGui);
 	layoutRhythmPage(rhythmGui, content);
 	layoutAdpcmPage(adpcmGui, content);
+    layoutFxPage(fxGui, content);
     layoutPresetPage(presetGui, content);
     layoutSettingsPage(settingsGui, content);
     layoutAboutPage(aboutGui, content);
@@ -233,10 +239,10 @@ void AudioPlugin2686VEditor::setupLogo()
 {
     logoLabel.setText(VstName, juce::dontSendNotification);
 
-    // ★フォント変更: Bold + Italic, サイズ 128.0f
+    // フォント変更: Bold + Italic, サイズ 128.0f
     logoLabel.setFont(juce::Font(FontFamily, LogoFontSize, juce::Font::bold | juce::Font::italic));
 
-    // ★右下寄せ
+    // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
 
     // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
@@ -261,6 +267,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab("WAVETABLE", juce::Colours::transparentBlack, &wtGui.page, true);
     tabs.addTab("RHYTHM", juce::Colours::transparentBlack, &rhythmGui.page, true);
     tabs.addTab("ADPCM", juce::Colours::transparentBlack, &adpcmGui.page, true);
+    tabs.addTab("FX", juce::Colours::transparentBlack, &fxGui.page, true);
     tabs.addTab("PRESET", juce::Colours::transparentBlack, &presetGui.page, true);
     tabs.addTab("SETTINGS", juce::Colours::transparentBlack, &settingsGui.page, true);
     tabs.addTab("ABOUT", juce::Colours::transparentBlack, &aboutGui.page, true);
@@ -1433,6 +1440,107 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 }
 
+void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
+{
+    auto setupS = [&](juce::Slider& s, juce::Label& l, juce::String name) {
+        gui.page.addAndMakeVisible(s);
+
+        s.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+
+        gui.page.addAndMakeVisible(l);
+
+        l.setText(name, juce::dontSendNotification);
+        l.setJustificationType(juce::Justification::centred);
+    };
+
+    auto setupMixBtns = [&](juce::TextButton& bDry, juce::TextButton& bHalf, juce::TextButton& bWet, juce::Slider& targetSlider)
+    {
+        gui.page.addAndMakeVisible(bDry);
+        gui.page.addAndMakeVisible(bHalf);
+        gui.page.addAndMakeVisible(bWet);
+
+        bDry.setButtonText("Dry");
+        bHalf.setButtonText("50%");
+        bWet.setButtonText("Wet");
+
+        // ボタンを小さくするので文字サイズも調整
+        juce::Font f(10.0f);
+        for (auto* b : { &bDry, &bHalf, &bWet }) {
+            b->setConnectedEdges(juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight); // 連結した見た目に
+        }
+
+        // クリック時の動作 (スライダーを動かせば連動してパラメータも変わります)
+        bDry.onClick = [&] { targetSlider.setValue(0.0f); };
+        bHalf.onClick = [&] { targetSlider.setValue(0.5f); };
+        bWet.onClick = [&] { targetSlider.setValue(1.0f); };
+    };
+
+    SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    setupGroup(tGp);
+
+    setupS(gui.tRateSlider, gui.tRateLabel, "Rate");
+    setupS(gui.tDepthSlider, gui.tDepthLabel, "Depth");
+    setupS(gui.tMixSlider, gui.tMixLabel, "Mix");
+    setupMixBtns(gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn, gui.tMixSlider);
+
+    SetupGroupParams vGp = { .page = gui.page, .group = gui.vibGroup, .title = "Vibrato", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    setupGroup(vGp);
+
+    setupS(gui.vRateSlider, gui.vRateLabel, "Rate");
+    setupS(gui.vDepthSlider, gui.vDepthLabel, "Depth");
+    setupS(gui.vMixSlider, gui.vMixLabel, "Mix");
+    setupMixBtns(gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn, gui.vMixSlider);
+
+    SetupGroupParams cGp = { .page = gui.page, .group = gui.crushGroup, .title = "Bit Crusher", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    setupGroup(cGp);
+
+    setupS(gui.cRateSlider, gui.cRateLabel, "Downsample");
+    setupS(gui.cBitsSlider, gui.cBitsLabel, "Bit Depth");
+    setupS(gui.cMixSlider, gui.cMixLabel, "Mix");
+    setupMixBtns(gui.cDryBtn, gui.cHalfBtn, gui.cWetBtn, gui.cMixSlider);
+
+    // Delay Group
+    SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    setupGroup(dGp);
+
+    gui.page.addAndMakeVisible(gui.bypassToggle);
+    gui.bypassToggle.setButtonText("Master Bypass");
+    gui.bypassToggle.setColour(juce::ToggleButton::textColourId, juce::Colours::orange);
+
+    setupS(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
+    setupS(gui.dFbSlider, gui.dFbLabel, "Feedback");
+    setupS(gui.dMixSlider, gui.dMixLabel, "Mix");
+    setupMixBtns(gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn, gui.dMixSlider);
+
+    // Reverb Group
+    SetupGroupParams rGp = { .page = gui.page, .group = gui.reverbGroup, .title = "Reverb", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    setupGroup(rGp);
+
+    setupS(gui.rSizeSlider, gui.rSizeLabel, "Size");
+    setupS(gui.rDampSlider, gui.rDampLabel, "Damp");
+    setupS(gui.rMixSlider, gui.rMixLabel, "Mix");
+    setupMixBtns(gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn, gui.rMixSlider);
+
+    // Attachments
+    gui.fxBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_BYPASS", gui.bypassToggle);
+    gui.tRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_RATE", gui.tRateSlider);
+    gui.tDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_DEPTH", gui.tDepthSlider);
+    gui.tMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_MIX", gui.tMixSlider);
+    gui.vRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_RATE", gui.vRateSlider);
+    gui.vDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_DEPTH", gui.vDepthSlider);
+    gui.vMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_MIX", gui.vMixSlider);
+    gui.cRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_RATE", gui.cRateSlider);
+    gui.cBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_DEPTH", gui.cBitsSlider);
+    gui.cMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_MIX", gui.cMixSlider);
+    gui.dTimeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_TIME", gui.dTimeSlider);
+    gui.dFbAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_FB", gui.dFbSlider);
+    gui.dMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_MIX", gui.dMixSlider);
+    gui.rSizeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_SIZE", gui.rSizeSlider);
+    gui.rDampAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_DAMP", gui.rDampSlider);
+    gui.rMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_MIX", gui.rMixSlider);
+}
+
 void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
 {
     /********************
@@ -2570,64 +2678,73 @@ void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui)
 
 void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content)
 {
+    auto applyPads = [&](juce::Rectangle<int>& area, int width, int start, int length)
+        {
+            for (int i = start; i < start + length; ++i)
+            {
+                auto& pad = gui.pads[i];
+                auto padArea = area.removeFromLeft(width).reduced(2);
+
+                pad.group.setBounds(padArea);
+
+                // Indent inside the group
+                auto area = padArea.reduced(5, 15);
+
+                // --- Layout Components Top to Bottom ---
+
+                // 1. Load Button
+                layoutComponents(area, 20, 2, &pad.loadButton);
+
+                // 2. File Name Label
+                layoutComponents(area, 15, 5, &pad.fileNameLabel);
+
+                // 3. One Shot Toggle
+                layoutComponents(area, 20, 5, &pad.oneShotButton);
+
+                // 4. Note
+                layoutComponents(area, 15, 5, &pad.noteLabel, &pad.noteSlider);
+
+                // 5. Mode
+                layoutComponents(area, 15, 5, &pad.modeLabel, &pad.modeCombo);
+
+                // 6. Rate
+                layoutComponents(area, 15, 5, &pad.rateLabel, &pad.rateCombo);
+
+                // 7. Pan
+                layoutComponents(area, 15, 2, &pad.panLabel, &pad.panSlider);
+
+                // 8. Pan Buttons
+                auto btnRow = area.removeFromTop(15);
+                int btnW = btnRow.getWidth() / 3;
+                pad.btnPanL.setBounds(btnRow.removeFromLeft(btnW));
+                pad.btnPanC.setBounds(btnRow.removeFromLeft(btnW));
+                pad.btnPanR.setBounds(btnRow);
+
+                area.removeFromTop(5);
+
+                // 9. Vol
+                layoutComponents(area, 15, 5, &pad.volLabel, &pad.volSlider);
+            }
+
+        };
+
     // Top section for Master Volume
     auto area = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
     auto topArea = area.removeFromTop(40);
+
     gui.levelSlider.setBounds(topArea.removeFromLeft(160));
 
     // space
     content.removeFromTop(10);
 
-    auto padsArea = content.removeFromTop(320);
+    auto topPadsArea = content.removeFromTop(320);
+    auto bottomPadsArea = content.removeFromTop(320);
 
     // Remaining area for 8 pads
-    int padWidth = content.getWidth() / 8;
+    int topPadWidth = topPadsArea.getWidth() / 4;
 
-    for (int i = 0; i < 8; ++i)
-    {
-        auto& pad = gui.pads[i];
-        auto padArea = padsArea.removeFromLeft(padWidth).reduced(2);
-
-        pad.group.setBounds(padArea);
-
-        // Indent inside the group
-        auto area = padArea.reduced(5, 15);
-
-        // --- Layout Components Top to Bottom ---
-
-        // 1. Load Button
-        layoutComponents(area, 20, 2, &pad.loadButton);
-
-        // 2. File Name Label
-        layoutComponents(area, 15, 5, &pad.fileNameLabel);
-
-        // 3. One Shot Toggle
-        layoutComponents(area, 20, 5, &pad.oneShotButton);
-
-        // 4. Note
-        layoutComponents(area, 15, 5, &pad.noteLabel, &pad.noteSlider);
-
-        // 5. Mode
-        layoutComponents(area, 15, 5, &pad.modeLabel, &pad.modeCombo);
-
-        // 6. Rate
-        layoutComponents(area, 15, 5, &pad.rateLabel, &pad.rateCombo);
-
-        // 7. Pan
-        layoutComponents(area, 15, 2, &pad.panLabel, &pad.panSlider);
-
-        // 8. Pan Buttons
-        auto btnRow = area.removeFromTop(15);
-        int btnW = btnRow.getWidth() / 3;
-        pad.btnPanL.setBounds(btnRow.removeFromLeft(btnW));
-        pad.btnPanC.setBounds(btnRow.removeFromLeft(btnW));
-        pad.btnPanR.setBounds(btnRow);
-
-        area.removeFromTop(5);
-
-        // 9. Vol
-        layoutComponents(area, 15, 5, &pad.volLabel, &pad.volSlider);
-    }
+    applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);
+    applyPads(bottomPadsArea, bottomPadsArea.getWidth() / 4, 4, 4);
 }
 
 void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content)
@@ -2693,6 +2810,105 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
     gui.decaySlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
     gui.sustainSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
     gui.releaseSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
+}
+
+void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content)
+{
+    auto layoutKnob = [&](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l) {
+        auto labelArea = r.removeFromTop(20);
+        l.setBounds(labelArea);
+
+        auto knobArea = r.removeFromTop(FxKnobHeight);
+        s.setBounds(knobArea.withSizeKeepingCentre(FxKnobWidth, knobArea.getHeight()).reduced(0, 5));
+
+        // Mixボタンの空白を開けるため
+        r.removeFromTop(5);
+        r.removeFromTop(20);
+    };
+
+    auto layoutMixSection = [&](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l,
+        juce::TextButton& b1, juce::TextButton& b2, juce::TextButton& b3)
+    {
+        // 上部: ラベル
+        auto labelArea = r.removeFromTop(20);
+        l.setBounds(labelArea);
+
+        // 中間: スライダー
+        auto knobArea = r.removeFromTop(FxKnobHeight);
+        s.setBounds(knobArea.withSizeKeepingCentre(FxKnobWidth, knobArea.getHeight()).reduced(0, 5));
+
+        r.removeFromTop(5);
+
+        // 下部: ボタンエリア (高さ20px)
+        auto btnArea = r.removeFromTop(20).reduced(5, 0); // 左右少し余白
+
+        b1.setBounds(btnArea.removeFromLeft(FxMixButtonWidth + 40).withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 左側
+        b3.setBounds(btnArea.removeFromRight(FxMixButtonWidth + 40).withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 右側
+        b2.setBounds(btnArea.withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 中央
+    };
+
+    auto area = content.withZeroOrigin().withSizeKeepingCentre(FxWidth, FxHeight);
+
+    // 上部にバイパスボタンを配置
+    auto headerArea = area.removeFromTop(30);
+    gui.bypassToggle.setBounds(headerArea.removeFromRight(FxBypassHeight));
+
+    area.removeFromTop(10);
+
+    auto leftCol = area.removeFromLeft(area.getWidth() / 2 - 5);
+    auto rightCol = area.removeFromRight(leftCol.getWidth()); // 残りの右側
+
+    // Left
+
+    // 1. Tremolo
+    auto tremoloArea = leftCol.removeFromTop(FxGroupHeight);
+    gui.tremGroup.setBounds(tremoloArea);
+    tremoloArea.removeFromTop(20);
+
+    layoutKnob(tremoloArea.removeFromLeft(FxKnobWidth + 20), gui.tRateSlider, gui.tRateLabel);
+    layoutMixSection(tremoloArea.removeFromRight(FxKnobAreaWidth + 20), gui.tMixSlider, gui.tMixLabel, gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn);
+    layoutKnob(tremoloArea.withSizeKeepingCentre(FxKnobWidth, tremoloArea.getHeight()), gui.tDepthSlider, gui.tDepthLabel);
+
+    // 2. Vibrato
+    auto vibratoArea = leftCol.removeFromTop(FxGroupHeight);
+    gui.vibGroup.setBounds(vibratoArea);
+    vibratoArea.removeFromTop(20);
+
+    layoutKnob(vibratoArea.removeFromLeft(FxKnobWidth + 20), gui.vRateSlider, gui.vRateLabel);
+    layoutMixSection(vibratoArea.removeFromRight(FxKnobAreaWidth + 20), gui.vMixSlider, gui.vMixLabel, gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn);
+    layoutKnob(vibratoArea.withSizeKeepingCentre(FxKnobWidth, vibratoArea.getHeight()), gui.vDepthSlider, gui.vDepthLabel);
+
+    // Crusher
+    auto crushArea = leftCol.removeFromTop(FxGroupHeight);
+    gui.crushGroup.setBounds(crushArea);
+    crushArea.removeFromTop(20);
+
+    // ... (layoutKnobで3つ配置) ...
+    layoutKnob(crushArea.removeFromLeft(FxKnobWidth + 20), gui.cRateSlider, gui.cRateLabel);
+    layoutMixSection(crushArea.removeFromRight(FxKnobAreaWidth + 20), gui.cMixSlider, gui.cMixLabel, gui.cDryBtn, gui.cHalfBtn, gui.cWetBtn);
+    layoutKnob(crushArea.withSizeKeepingCentre(FxKnobWidth, crushArea.getHeight()), gui.cBitsSlider, gui.cBitsLabel);
+
+    // Right
+
+    // Delay
+    auto delayArea = rightCol.removeFromTop(FxGroupHeight);
+    gui.delayGroup.setBounds(delayArea);
+    delayArea.removeFromTop(20);
+
+    layoutKnob(delayArea.removeFromLeft(FxKnobWidth + 20), gui.dTimeSlider, gui.dTimeLabel);
+    layoutMixSection(delayArea.removeFromRight(FxKnobAreaWidth + 20), gui.dMixSlider, gui.dMixLabel, gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn);
+    layoutKnob(delayArea.withSizeKeepingCentre(FxKnobWidth, delayArea.getHeight()), gui.dFbSlider, gui.dFbLabel);
+
+    area.removeFromTop(10);
+
+    // Lower: Reverb
+    auto reverbArea = rightCol.removeFromTop(FxGroupHeight);
+    gui.reverbGroup.setBounds(reverbArea);
+    reverbArea.removeFromTop(20);
+
+    layoutKnob(reverbArea.removeFromLeft(FxKnobWidth + 20), gui.rSizeSlider, gui.rSizeLabel);
+    layoutMixSection(reverbArea.removeFromRight(FxKnobAreaWidth + 20), gui.rMixSlider, gui.rMixLabel, gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn);
+    layoutKnob(reverbArea.withSizeKeepingCentre(FxKnobWidth, reverbArea.getHeight()), gui.rDampSlider, gui.rDampLabel);
 }
 
 void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content)
@@ -3059,7 +3275,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     }
 }
 
-// ★追加: 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
+// 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
     for (auto* child : parentComponent->getChildren())

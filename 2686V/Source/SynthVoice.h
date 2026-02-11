@@ -215,8 +215,8 @@ public:
                 // Apply per-pad Pan
                 float pan = m_rhythmCore.getCurrentPan();
 
-                outL[i] += sample * (1.0f - pan);
-                outR[i] += sample * pan;
+                outL[startSample + i] += sample * (1.0f - pan);
+                outR[startSample + i] += sample * pan;
             }
             else if (m_mode == OscMode::ADPCM)
             {

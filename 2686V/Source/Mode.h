@@ -21,17 +21,17 @@ enum class OscMode
 
 static juce::String getModeName(OscMode mode) {
     switch (mode) {
-    case OscMode::OPNA: return "OPNA";
-    case OscMode::OPN:  return "OPN";
-    case OscMode::OPL:  return "OPL";
-    case OscMode::OPLL: return "OPLL";
-    case OscMode::OPL3: return "OPL3";
-    case OscMode::OPM:  return "OPM";
-    case OscMode::SSG:  return "SSG";
-    case OscMode::WAVETABLE: return "WAVETABLE";
-    case OscMode::RHYTHM: return "RHYTHM";
-    case OscMode::ADPCM:  return "ADPCM";
-    default: return "Unknown";
+        case OscMode::OPNA: return "OPNA";
+        case OscMode::OPN:  return "OPN";
+        case OscMode::OPL:  return "OPL";
+        case OscMode::OPLL: return "OPLL";
+        case OscMode::OPL3: return "OPL3";
+        case OscMode::OPM:  return "OPM";
+        case OscMode::SSG:  return "SSG";
+        case OscMode::WAVETABLE: return "WAVETABLE";
+        case OscMode::RHYTHM: return "RHYTHM";
+        case OscMode::ADPCM:  return "ADPCM";
+        default: return "Unknown";
     }
 }
 
