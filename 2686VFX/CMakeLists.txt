@@ -11,6 +11,14 @@ juce_add_plugin(2686VFX
     PRODUCT_NAME "2686VFX"
 )
 
+# VSTロゴの登録
+juce_add_binary_data(VstLogoForFXAbout
+    HEADER_NAME "VstLogoForFXAbout.h"
+    NAMESPACE VstLogoForFXAboutData
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/Resources/vst3_logo.png"
+)
+
 # ドキュメントの定義
 set(DOCUMENT_FILES
     ../readme.md
@@ -26,6 +34,9 @@ target_sources(2686VFX PRIVATE
 )
 
 target_link_libraries(2686VFX PRIVATE
+    # VSTロゴ
+    VstLogoForFXAbout
+    # JUCEモジュール
     juce::juce_audio_utils
     juce::juce_recommended_config_flags
 )

@@ -1767,38 +1767,31 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     gui.copyrightLabel.setText("Copyright (C) 2026 CYROSS", juce::dontSendNotification);
     gui.copyrightLabel.setJustificationType(juce::Justification::centred);
 
-    // 4. Load Logos from Documents/2686V/Assets/ (Simulated path)
-    // 実際のリリース時は BinaryData に埋め込むのが一般的ですが、
-    // ここでは簡易的に設定ファイルと同じフォルダを見に行きます。
-    juce::File docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    juce::File assetDir = docDir.getChildFile("2686V");
-
-    auto loadLogo = [&](juce::ImageComponent& comp, juce::String filename) {
-        juce::File imgFile = assetDir.getChildFile(filename);
-        if (imgFile.existsAsFile()) {
-            comp.setImage(juce::ImageFileFormat::loadFrom(imgFile));
-        }
-        else {
-            // Placeholder text if image missing
-            juce::Image placeholder(juce::Image::ARGB, 200, 100, true);
-            juce::Graphics g(placeholder);
-            g.setColour(juce::Colours::white.withAlpha(0.2f));
-            g.drawRect(placeholder.getBounds(), 2);
-            g.drawText(filename, placeholder.getBounds(), juce::Justification::centred, true);
-            comp.setImage(placeholder);
-        }
-        };
-
-    gui.page.addAndMakeVisible(gui.juceLogo);
-    loadLogo(gui.juceLogo, "juce_logo.png"); // ユーザーが配置するファイル名
-
+    // 4. Logo (BinaryDataから読み込み)
     gui.page.addAndMakeVisible(gui.vst3Logo);
-    loadLogo(gui.vst3Logo, "vst3_logo.png");
 
-    // 5. Link
+    // ★修正ポイント: ファイルパスではなく、メモリ(バイナリ)から読み込む
+    // 名前空間: VstLogoForAboutData (CMakeで指定したもの)
+    // 変数名: ファイル名のドットがアンダースコアになったもの (vst3_logo_png)
+    auto logoImg = juce::ImageCache::getFromMemory(
+        VstLogoForAboutData::vst3_logo_png,
+        VstLogoForAboutData::vst3_logo_pngSize
+    );
+    gui.vst3Logo.setImage(logoImg);
+
+    // 5. VST Trademark Notice (必須表記)
+    gui.page.addAndMakeVisible(gui.vstGuidelineLabel);
+    gui.vstGuidelineLabel.setText("VST is a registered trademark of Steinberg Media Technologies GmbH.", juce::dontSendNotification);
+    gui.vstGuidelineLabel.setFont(juce::Font(12.0f)); // 小さめでOK
+    gui.vstGuidelineLabel.setJustificationType(juce::Justification::centred);
+    gui.vstGuidelineLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey); // 目立ちすぎない色に
+
+    // 6. Link
+    /*
     gui.page.addAndMakeVisible(gui.webLink);
     gui.webLink.setButtonText("Visit Website");
     gui.webLink.setURL(juce::URL("https://juce.com")); // 仮URL
+    */
 }
 
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
@@ -2817,21 +2810,18 @@ void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<i
     // Name & Ver
     gui.pluginNameLabel.setBounds(area.removeFromTop(80));
     gui.versionLabel.setBounds(area.removeFromTop(40));
+    gui.copyrightLabel.setBounds(area.removeFromTop(30));
 
     area.removeFromTop(20);
+    // Logo Row
+        // ロゴの元サイズ比率を維持して中央配置
+    auto logoArea = area.removeFromTop(80);
+    gui.vst3Logo.setBounds(logoArea.withSizeKeepingCentre(150, 60)); // 枠内で最大150x60に収める等の調整
 
-    // Logos Row
-    auto logoRow = area.removeFromTop(100);
-    int w = logoRow.getWidth() / 2;
-    // Scale to fit while maintaining aspect ratio is default for ImageComponent
-    //gui.juceLogo.setBounds(logoRow.removeFromLeft(w).reduced(20, 0));
-    gui.vst3Logo.setBounds(logoRow.reduced(20, 0));
+    area.removeFromTop(10);
 
-    area.removeFromTop(40);
-
-    // Copyright & Link
-    gui.copyrightLabel.setBounds(area.removeFromTop(30));
-    gui.webLink.setBounds(area.removeFromTop(30).withSizeKeepingCentre(150, 30));
+    // Guideline Text
+    gui.vstGuidelineLabel.setBounds(area.removeFromTop(20));
 }
 
 // ヘルパー: プリセットロード処理 (共通化)

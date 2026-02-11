@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include "PluginProcessor.h"
+#include "VstLogoForAbout.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -935,8 +936,10 @@ struct AboutGuiSet
     juce::Label versionLabel;
     juce::Label copyrightLabel;
 
+    // VST Guideline
+    juce::Label vstGuidelineLabel;
+
     // Logos
-    juce::ImageComponent juceLogo;
     juce::ImageComponent vst3Logo;
 
     // Optional: Website Link
