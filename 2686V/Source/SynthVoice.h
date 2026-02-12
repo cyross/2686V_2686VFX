@@ -209,14 +209,15 @@ public:
             }
             else if (m_mode == OscMode::RHYTHM)
             {
-                sample = m_rhythmCore.getSample();
+                float padOutL = 0.0f;
+                float padOutR = 0.0f;
+
+                // RhythmCore 内部で Pan 適用済みのステレオミックスを受け取る
+                m_rhythmCore.getSampleStereo(padOutL, padOutR);
                 isActive = m_rhythmCore.isPlaying();
 
-                // Apply per-pad Pan
-                float pan = m_rhythmCore.getCurrentPan();
-
-                outL[startSample + i] += sample * (1.0f - pan);
-                outR[startSample + i] += sample * pan;
+                outL[startSample + i] += padOutL;
+                outR[startSample + i] += padOutR;
             }
             else if (m_mode == OscMode::ADPCM)
             {

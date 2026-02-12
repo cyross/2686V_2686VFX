@@ -3,6 +3,8 @@
 #include "RegisterConverter.h"
 #include <cstdio>
 #include <vector>
+#include <initializer_list>
+#include <utility>
 
 // Helper function to get Note Name (Cubase Standard: C3 = 60)
 juce::String getNoteName(int noteNumber)
@@ -13,8 +15,26 @@ juce::String getNoteName(int noteNumber)
     return juce::String(noteNames[noteIndex]) + juce::String(octave);
 }
 
+void layoutComponentsLtoR(juce::Rectangle<int>& rect,
+    int height,
+    int space,
+    std::initializer_list<std::pair<juce::Component*, int>> components)
+{
+    auto area = rect.removeFromTop(height);
+
+    for (const auto& comp : components)
+    {
+        if (comp.first != nullptr) // 安全のためのチェック
+        {
+            comp.first->setBounds(area.removeFromLeft(comp.second));
+        }
+    }
+
+    rect.removeFromTop(space);
+}
+
 template<typename... Components>
-void layoutComponents(juce::Rectangle<int>& rect, int height, int space, Components*... components) {
+void layoutComponentsTtoB(juce::Rectangle<int>& rect, int height, int space, Components*... components) {
     (components->setBounds(rect.removeFromTop(height)), ...);
 
     rect.removeFromTop(space);
@@ -1356,6 +1376,18 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
         pad.fileNameLabel.setJustificationType(juce::Justification::centred);
 
+        pad.clearButton.setButtonText("X"); // スペース節約のため "X" や "Clr"
+        pad.group.addAndMakeVisible(pad.clearButton);
+
+        pad.clearButton.onClick = [this, i, &pad]
+            {
+                // 1. 特定のパッドをアンロード
+                audioProcessor.unloadRhythmFile(i);
+
+                // 2. ファイル名表示を更新
+                pad.fileNameLabel.setText("No File", juce::dontSendNotification);
+            };
+
         // ADD: OneShot Button
         // Note: We use setupToggleButton helper but customized for small size
         SetupToggleButtonParams shotP = SetupToggleButtonParams::createOp(gui.page, pad.oneShotButton, pad.oneShotLabel, pad.oneShotAtt, padPrefix + "_ONESHOT", "One Shot");
@@ -1398,6 +1430,21 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         // Vol
         SetupSliderParams volP = SetupSliderParams::createOp(gui.page, pad.volSlider, pad.volLabel, pad.volAtt, padPrefix + "_VOL", "Vol");
         setupSlider(volP);
+
+        // ★追加: RR Slider
+                // 小さな横スライダー、またはロータリー
+        pad.rrSlider.setSliderStyle(juce::Slider::LinearBar); // 数値の上にバーが出るタイプ（省スペース）
+        // または RotaryHorizontalVerticalDrag
+        pad.rrSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        pad.rrSlider.setTooltip("Release Time");
+        pad.group.addAndMakeVisible(pad.rrSlider);
+
+        pad.rrLabel.setText("RR", juce::dontSendNotification);
+        pad.rrLabel.setFont(10.0f);
+        pad.group.addAndMakeVisible(pad.rrLabel);
+
+        // Attachment
+        pad.rrAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, padPrefix + "_RR", pad.rrSlider);
     }
 }
 
@@ -1444,6 +1491,18 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     gui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
     gui.fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     gui.fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+
+    gui.clearButton.setButtonText("Clear");
+    gui.group.addAndMakeVisible(gui.clearButton);
+
+    gui.clearButton.onClick = [this, &gui]
+        {
+            // 1. プロセッサーのアンロード関数を呼ぶ
+            audioProcessor.unloadAdpcmFile();
+
+            // 2. ラベル表示をクリア
+            gui.fileNameLabel.setText("No File", juce::dontSendNotification);
+        };
 
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "ADPCM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
@@ -1841,7 +1900,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
 
     // --- Save Preference Button ---
     gui.page.addAndMakeVisible(gui.saveSettingsBtn);
-    gui.saveSettingsBtn.setButtonText("Save Preference");
+    gui.saveSettingsBtn.setButtonText("Save Settings");
     gui.saveSettingsBtn.onClick = [this] {
         fileChooser = std::make_unique<juce::FileChooser>("Save Environment Settings",
             juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("2686V_Config.xml"), "*.xml");
@@ -1858,7 +1917,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
 
     // --- Load Preference Button ---
     gui.page.addAndMakeVisible(gui.loadSettingsBtn);
-    gui.loadSettingsBtn.setButtonText("Load Preference");
+    gui.loadSettingsBtn.setButtonText("Load Settings");
     gui.loadSettingsBtn.onClick = [this] {
         fileChooser = std::make_unique<juce::FileChooser>("Load Environment Settings",
             juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
@@ -1887,6 +1946,64 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
             }
         );
     };
+
+    gui.saveStartupSettingsBtn.setButtonText("Save Current Settings as Default");
+    gui.group.addAndMakeVisible(gui.saveStartupSettingsBtn);
+
+    gui.saveStartupSettingsBtn.onClick = [this]
+        {
+            fileChooser = std::make_unique<juce::FileChooser>("Save Environment Settings as Default",
+                juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("init_preset.xml"), "*.xml");
+
+            fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+                [this](const juce::FileChooser& fc) {
+                    auto file = fc.getResult();
+                    if (file != juce::File()) {
+                        audioProcessor.saveEnvironment(file);
+                    }
+                }
+            );
+
+            // 1. 保存先ファイルのパスを作成 (Documents/2686V/init_preset.xml)
+            auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+            auto pluginDir = docDir.getChildFile("2686V");
+
+            // フォルダがなければ作る
+            if (!pluginDir.exists()) pluginDir.createDirectory();
+
+            auto file = pluginDir.getChildFile("init_preset.xml");
+
+            juce::XmlElement xml("PREF_2686V");
+
+            xml.setAttribute("wallpaperPath", audioProcessor.wallpaperPath);
+            xml.setAttribute("defaultAdpcmDir", audioProcessor.defaultAdpcmDir);
+            xml.setAttribute("defaultPresetDir", audioProcessor.defaultPresetDir);
+            xml.setAttribute("showTooltips", audioProcessor.showTooltips);
+
+            xml.writeTo(file);
+
+            // 3. 書き出し実行
+            if (xml.writeTo(file))
+            {
+                // 成功メッセージ (ネイティブのアラートウィンドウを表示)
+                juce::NativeMessageBox::showMessageBoxAsync(
+                    juce::AlertWindow::InfoIcon,
+                    "Success",
+                    "Current parameters saved as default startup sound.\n" + file.getFullPathName(),
+                    this
+                );
+            }
+            else
+            {
+                // 失敗メッセージ
+                juce::NativeMessageBox::showMessageBoxAsync(
+                    juce::AlertWindow::WarningIcon,
+                    "Error",
+                    "Failed to save preset file.",
+                    this
+                );
+            }
+        };
 }
 
 void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
@@ -1971,19 +2088,19 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
 
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.ksLabel[i], &gui.ks[i]);
-        layoutComponents(innerRect, 15, 5, &gui.seLabel[i], &gui.se[i]);
-        layoutComponents(innerRect, 15, 0, &gui.seFreqLabel[i], &gui.seFreq[i]);
-        layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
-        layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.seLabel[i], &gui.se[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.seFreqLabel[i], &gui.seFreq[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
         auto btnRow = innerRect.removeFromTop(20);
         int btnW = btnRow.getWidth() / 2;
@@ -1991,8 +2108,8 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
         gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
 
-        layoutComponents(innerRect, 15, 5, &gui.amLabel[i], &gui.am[i]);
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.amLabel[i], &gui.am[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2033,17 +2150,17 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop); // タイトル(Operator X)回避
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponents(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
-        layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
-        layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
         auto btnRow = innerRect.removeFromTop(20);
         int btnW = btnRow.getWidth() / 2;
@@ -2053,7 +2170,7 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
 
         innerRect.removeFromTop(8);
 
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2090,14 +2207,14 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2133,18 +2250,18 @@ void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20);
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponents(innerRect, 15, 0, &gui.kslLabel[i], &gui.ksl[i]);
-        layoutComponents(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
-        layoutComponents(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
-        layoutComponents(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
-        layoutComponents(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.kslLabel[i], &gui.ksl[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2190,14 +2307,14 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
             c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponents(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 8, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2243,18 +2360,18 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20); // タイトル(Operator X)回避
 
-        layoutComponents(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
-        layoutComponents(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
-        layoutComponents(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
-        layoutComponents(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponents(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponents(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponents(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponents(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
-        layoutComponents(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
-        layoutComponents(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
         auto btnRow = innerRect.removeFromTop(20);
         int btnW = btnRow.getWidth() / 2;
@@ -2264,7 +2381,7 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
 
         innerRect.removeFromTop(5);
 
-        layoutComponents(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2482,13 +2599,13 @@ void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> co
     fRect.removeFromTop(10);
 
     // Level
-    layoutComponents(fRect, 20, 10, &gui.levelLabel, &gui.levelSlider);
+    layoutComponentsTtoB(fRect, 20, 10, &gui.levelLabel, &gui.levelSlider);
 
     // ADSR
-    layoutComponents(fRect, 20, 5, &gui.attackLabel, &gui.attackSlider);
-    layoutComponents(fRect, 20, 5, &gui.decayLabel, &gui.decaySlider);
-    layoutComponents(fRect, 20, 5, &gui.sustainLabel, &gui.sustainSlider);
-    layoutComponents(fRect, 20, 5, &gui.releaseLabel, &gui.releaseSlider);
+    layoutComponentsTtoB(fRect, 20, 5, &gui.attackLabel, &gui.attackSlider);
+    layoutComponentsTtoB(fRect, 20, 5, &gui.decayLabel, &gui.decaySlider);
+    layoutComponentsTtoB(fRect, 20, 5, &gui.sustainLabel, &gui.sustainSlider);
+    layoutComponentsTtoB(fRect, 20, 5, &gui.releaseLabel, &gui.releaseSlider);
 
     // Right: Properties
     auto rightArea = pageArea.removeFromLeft(WtRightWidth);
@@ -2596,27 +2713,30 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
                 // --- Layout Components Top to Bottom ---
 
                 // 1. Load Button
-                layoutComponents(area, 20, 2, &pad.loadButton);
+                layoutComponentsTtoB(area, 20, 2, &pad.loadButton);
 
                 // 2. File Name Label
-                layoutComponents(area, 15, 5, &pad.fileNameLabel);
+                layoutComponentsTtoB(area, 15, 5, &pad.fileNameLabel);
 
-                // 3. One Shot Toggle
-                layoutComponents(area, 20, 5, &pad.oneShotButton);
+                // 3. Clear Button
+                layoutComponentsTtoB(area, 20, 5, &pad.clearButton);
 
-                // 4. Note
-                layoutComponents(area, 15, 5, &pad.noteLabel, &pad.noteSlider);
+                // 4. One Shot Toggle
+                layoutComponentsTtoB(area, 20, 5, &pad.oneShotButton);
 
-                // 5. Mode
-                layoutComponents(area, 15, 5, &pad.modeLabel, &pad.modeCombo);
+                // 5. Note
+                layoutComponentsTtoB(area, 15, 5, &pad.noteLabel, &pad.noteSlider);
 
-                // 6. Rate
-                layoutComponents(area, 15, 5, &pad.rateLabel, &pad.rateCombo);
+                // 6. Mode
+                layoutComponentsTtoB(area, 15, 5, &pad.modeLabel, &pad.modeCombo);
 
-                // 7. Pan
-                layoutComponents(area, 15, 2, &pad.panLabel, &pad.panSlider);
+                // 7. Rate
+                layoutComponentsTtoB(area, 15, 5, &pad.rateLabel, &pad.rateCombo);
 
-                // 8. Pan Buttons
+                // 8. Pan
+                layoutComponentsTtoB(area, 15, 2, &pad.panLabel, &pad.panSlider);
+
+                // 9. Pan Buttons
                 auto btnRow = area.removeFromTop(15);
                 int btnW = btnRow.getWidth() / 3;
                 pad.btnPanL.setBounds(btnRow.removeFromLeft(btnW));
@@ -2626,7 +2746,10 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
                 area.removeFromTop(5);
 
                 // 9. Vol
-                layoutComponents(area, 15, 5, &pad.volLabel, &pad.volSlider);
+                layoutComponentsTtoB(area, 15, 5, &pad.volLabel, &pad.volSlider);
+
+                // 10. RR
+                layoutComponentsTtoB(area, 15, 5, &pad.rrLabel, &pad.rrSlider);
             }
 
         };
@@ -2666,6 +2789,9 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
     gui.loadButton.setBounds(fileRow.removeFromLeft(100));
     fileRow.removeFromLeft(10);
     gui.fileNameLabel.setBounds(fileRow);
+    auto loadBounds = gui.loadButton.getBounds();
+    gui.clearButton.setBounds(loadBounds.getRight() + 10, loadBounds.getY(), 50, 20);
+
     inner.removeFromTop(10);
 
     auto settingsRow = inner.removeFromTop(45);
@@ -2921,10 +3047,12 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
     auto row4 = inner.removeFromTop(40);
     int btnW = 120;
     // Center two buttons
-    auto btnArea = row4.withSizeKeepingCentre(btnW * 2 + 20, 30);
+    auto btnArea = row4.withSizeKeepingCentre(btnW * 3 + 40, 30);
     gui.loadSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
     btnArea.removeFromLeft(20);
     gui.saveSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
+    btnArea.removeFromLeft(20);
+    gui.saveStartupSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
 }
 
 void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content)

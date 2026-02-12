@@ -700,6 +700,10 @@ void AudioPlugin2686V::createRhythmParameterLayout(juce::AudioProcessorValueTree
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_RATE", "RHYTHM Rate", 1, 7, 6));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "_ONESHOT", "RHYTHM One Shot", true));
+
+        // Release Parameter
+        // 範囲: 0.0秒 ～ 5.0秒, 初期値: 0.1秒
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_RR", "RHYTHM Pad" + juce::String(i + 1) + " Release", 0.0f, 5.0f, 0.1f));
     }
 }
 
@@ -1026,6 +1030,7 @@ void AudioPlugin2686V::processRhythmBlock(SynthParams &params)
         pad.qualityMode = (int)*apvts.getRawParameterValue(prefix + "_MODE");
         pad.rateIndex = (int)*apvts.getRawParameterValue(prefix + "_RATE");
         pad.isOneShot = (bool)*apvts.getRawParameterValue(prefix + "_ONESHOT");
+        pad.release = *apvts.getRawParameterValue(prefix + "_RR");
     }
 }
 
@@ -1159,6 +1164,46 @@ void AudioPlugin2686V::loadStartupPreset()
 juce::String AudioPlugin2686V::getDefaultPresetDir()
 {
     return defaultPresetDir;
+}
+
+void AudioPlugin2686V::unloadAdpcmFile()
+{
+    // パス情報を削除
+    adpcmFilePath.clear();
+
+    // 空のデータを作成
+    std::vector<float> emptyData;
+
+    // 全ボイスの ADPCM Core に空データをセット（＝クリア）
+    for (int i = 0; i < m_synth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+        {
+            // レートはなんでも良いので適当な値(44100)を渡す
+            voice->getAdpcmCore()->setSampleData(emptyData, 44100.0);
+        }
+    }
+}
+
+void AudioPlugin2686V::unloadRhythmFile(int padIndex)
+{
+    // インデックスチェック
+    if (padIndex < 0 || padIndex >= 8) return;
+
+    // パス情報を削除
+    rhythmFilePaths[padIndex].clear();
+
+    // 空のデータを作成
+    std::vector<float> emptyData;
+
+    // 全ボイスの Rhythm Core の該当パッドに空データをセット
+    for (int i = 0; i < m_synth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+        {
+            voice->getRhythmCore()->setSampleData(padIndex, emptyData, 44100.0);
+        }
+    }
 }
 
 // ============================================================================

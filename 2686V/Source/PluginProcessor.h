@@ -29,8 +29,10 @@ public:
     void changeProgramName(int index, const juce::String& newName) override;
     // Function to load ADPCM file (Global/Voice)
     void loadAdpcmFile(const juce::File& file);
+    void unloadAdpcmFile();
     // Function to load Rhythm sample file (Specific Pad)
     void loadRhythmFile(const juce::File& file, int padIndex);
+    void unloadRhythmFile(int padIndex);
 
     juce::AudioFormatManager formatManager;
     juce::File lastAdpcmDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };

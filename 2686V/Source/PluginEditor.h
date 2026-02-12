@@ -158,12 +158,16 @@ public:
             juce::Path xPath;
             float xw = s * 0.2f;
             float xh = s * 1.2f;
-            // Xのクロスを長方形の回転で表現
-            juce::Path bar1; bar1.addRectangle(center.x + s * 0.1f, center.y - s * 0.6f, xw, xh);
-            bar1.applyTransform(juce::AffineTransform::rotation(juce::MathConstants<float>::pi * 0.15f, center.x + s * 0.4f, center.y));
+            float xPivot = center.x + s * 0.4f; // Xの交差点（中心）
 
-            juce::Path bar2; bar2.addRectangle(center.x + s * 0.7f, center.y - s * 0.6f, xw, xh);
-            bar2.applyTransform(juce::AffineTransform::rotation(-juce::MathConstants<float>::pi * 0.15f, center.x + s * 0.4f, center.y));
+            // Xのクロスを、同じ中心位置にある長方形を左右に傾けて表現する
+            juce::Path bar1;
+            bar1.addRectangle(xPivot - xw * 0.5f, center.y - xh * 0.5f, xw, xh);
+            bar1.applyTransform(juce::AffineTransform::rotation(juce::MathConstants<float>::pi * 0.15f, xPivot, center.y));
+
+            juce::Path bar2;
+            bar2.addRectangle(xPivot - xw * 0.5f, center.y - xh * 0.5f, xw, xh);
+            bar2.applyTransform(juce::AffineTransform::rotation(-juce::MathConstants<float>::pi * 0.15f, xPivot, center.y));
 
             p.addPath(bar1);
             p.addPath(bar2);
@@ -768,6 +772,7 @@ struct RhythmPadGui
     juce::Label noteLabel, modeLabel, rateLabel, panLabel, volLabel, oneShotLabel;
 
     juce::TextButton loadButton;
+    juce::TextButton clearButton;
     juce::Slider noteSlider;
     juce::ComboBox modeCombo;
     juce::ComboBox rateCombo;
@@ -775,6 +780,8 @@ struct RhythmPadGui
     juce::TextButton btnPanL, btnPanC, btnPanR;
     juce::Slider volSlider;
     juce::ToggleButton oneShotButton;
+    juce::Slider rrSlider;
+    juce::Label rrLabel;
 
     std::unique_ptr<SliderAttachment> noteAtt;
     std::unique_ptr<ComboBoxAttachment> modeAtt;
@@ -782,6 +789,7 @@ struct RhythmPadGui
     std::unique_ptr<SliderAttachment> panAtt;
     std::unique_ptr<SliderAttachment> volAtt;
     std::unique_ptr<ButtonAttachment> oneShotAtt;
+    std::unique_ptr<SliderAttachment> rrAtt;
 };
 
 struct RhythmGuiSet
@@ -810,6 +818,7 @@ struct AdpcmGuiSet
     juce::Label modeLabel;
 
     juce::TextButton loadButton;
+    juce::TextButton clearButton;
     juce::Label fileNameLabel;
 
     juce::Slider levelSlider;
@@ -1034,6 +1043,7 @@ struct SettingsGuiSet
     // Global Settings I/O
     juce::TextButton saveSettingsBtn;
     juce::TextButton loadSettingsBtn;
+    juce::TextButton saveStartupSettingsBtn;
 
     // Tooltip Visible Switch
     juce::Label tooltipLabel;

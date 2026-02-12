@@ -5,29 +5,6 @@
 #include "Mode.h"
 #include "AdpcmCore.h" // To reuse Ym2608AdpcmCodec
 
-struct DrumSample
-{
-    std::vector<float> data;
-    int position = -1;
-    bool isPlaying = false;
-
-    void start() { position = 0; isPlaying = true; }
-
-    float getNextSample()
-    {
-        if (!isPlaying || position < 0 || position >= data.size()) return 0.0f;
-
-        float out = data[position];
-        position++;
-
-        if (position >= data.size()) {
-            isPlaying = false;
-            position = -1;
-        }
-        return out;
-    }
-};
-
 // Class representing a single drum pad
 class RhythmPad
 {
@@ -36,9 +13,11 @@ public:
     std::vector<float> m_rawBuffer;
     std::vector<int16_t> m_adpcmBuffer;
 
-    // Playback state
+    // 状態管理をenumにする
+    enum class State { Idle, Playing, Release };
+    State m_state = State::Idle;
+
     double m_position = 0.0;
-    bool m_isPlaying = false;
     double m_bufferSampleRate = 16000.0;
     double m_sourceRate = 44100.0;
 
@@ -49,6 +28,10 @@ public:
     int m_qualityMode = 6; // ADPCM
     int m_rateIndex = 5;   // 16kHz
     bool m_isOneShot = true;
+
+    float m_releaseParam = 0.1f; // パラメータ設定値
+    float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
+    float m_releaseDec = 0.0f;   // 1サンプルあたりの減衰量
 
     // Set data (Same logic as AdpcmCore)
     void setSampleData(const std::vector<float>& sourceData, double sourceRate)
@@ -65,6 +48,7 @@ public:
         m_level = params.level;
         m_pan = params.pan;
         m_isOneShot = params.isOneShot;
+        m_releaseParam = params.release;
 
         bool needRefresh = false;
         if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
@@ -76,24 +60,54 @@ public:
         if (needRefresh) refreshAdpcmBuffer();
     }
 
+    void triggerRelease(double hostSampleRate)
+    {
+        if (m_state == State::Playing)
+        {
+            m_state = State::Release;
+
+            // 減衰量を計算 (現在のサンプルレートに基づく)
+            // 0.001秒未満にならないようガード
+            float releaseTime = std::max(0.001f, m_releaseParam);
+            m_releaseDec = 1.0f / (float)(releaseTime * hostSampleRate);
+        }
+    }
+
     void start()
     {
         m_position = 0.0;
-        m_isPlaying = true;
+        m_state = State::Playing; // 再生状態へ
+        m_currentEnv = 1.0f;      // 音量は最大から
     }
 
     void stop()
     {
-        m_isPlaying = false;
+        m_state = State::Idle;
+        m_currentEnv = 0.0f;
     }
+
+    bool isPlaying() const { return m_state != State::Idle; }
 
     float getSample(double hostSampleRate, float pitchRatio)
     {
-        if (!m_isPlaying) return 0.0f;
+        if (m_state == State::Idle) return 0.0f;
+
+        // --- リリース処理 ---
+        if (m_state == State::Release)
+        {
+            m_currentEnv -= m_releaseDec;
+            if (m_currentEnv <= 0.0f)
+            {
+                m_currentEnv = 0.0f;
+                m_state = State::Idle;
+                return 0.0f;
+            }
+        }
+        // ---------------------------
 
         double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
 
-        // ★修正: 再生速度にピッチ比率を掛ける
+        // 再生速度にピッチ比率を掛ける
         double increment = (currentBufferRate / hostSampleRate) * pitchRatio;
 
         float output = 0.0f;
@@ -105,7 +119,10 @@ public:
             if (m_adpcmBuffer.empty()) return 0.0f;
 
             if (m_position >= bufferSize) {
-                if (m_isOneShot) { m_isPlaying = false; return 0.0f; }
+                if (m_isOneShot) {
+                    m_state = State::Idle; // Stop
+                    return 0.0f;
+                }
                 else { m_position = std::fmod(m_position, (double)bufferSize); }
             }
 
@@ -118,8 +135,12 @@ public:
             bufferSize = m_rawBuffer.size();
             if (m_rawBuffer.empty()) return 0.0f;
 
+
             if (m_position >= bufferSize) {
-                if (m_isOneShot) { m_isPlaying = false; return 0.0f; }
+                if (m_isOneShot) {
+                    m_state = State::Idle; // Stop
+                    return 0.0f;
+                }
                 else { m_position = std::fmod(m_position, (double)bufferSize); }
             }
 
@@ -145,7 +166,8 @@ public:
         }
 
         m_position += increment;
-        return output * m_level;
+
+        return output * m_level * m_currentEnv;
     }
 private:
     void refreshAdpcmBuffer()
@@ -195,9 +217,6 @@ public:
     std::array<RhythmPad, MaxRhythmPads> pads;
     double m_sampleRate = 44100.0;
 
-    // Pointer to the currently playing pad (Assuming one note per Voice)
-    RhythmPad* activePad = nullptr;
-
     void prepare(double sampleRate) {
         m_sampleRate = sampleRate;
     }
@@ -216,27 +235,26 @@ public:
     }
 
     void noteOn(int midiNote, float velocity) {
-        activePad = nullptr;
-        // Find and trigger the pad matching the note number
         for (auto& pad : pads) {
             if (pad.m_noteNumber == midiNote) {
                 pad.start();
-                activePad = &pad;
-                // Since Voice handles a single note, stop after finding one
-                // (If Kick and Snare are pressed simultaneously, another Voice handles the Snare)
-                break;
             }
         }
     }
 
     void noteOff() {
-        if (activePad && !activePad->m_isOneShot) {
-            activePad->stop();
+        for (auto& pad : pads) {
+            if (pad.isPlaying() && !pad.m_isOneShot) {
+                pad.triggerRelease(m_sampleRate);
+            }
         }
     }
 
     bool isPlaying() const {
-        return activePad && activePad->m_isPlaying;
+        for (const auto& pad : pads) {
+            if (pad.isPlaying()) return true;
+        }
+        return false;
     }
 
     // ピッチベンド (0 - 16383, Center=8192)
@@ -264,31 +282,30 @@ public:
 
     void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
 
-    float getSample() {
-        if (!activePad || !activePad->m_isPlaying) return 0.0f;
+    void getSampleStereo(float& outL, float& outR) {
+        outL = 0.0f;
+        outR = 0.0f;
+
+        if (!isPlaying()) return;
 
         // --- Modulation Calculation ---
-        // Simple Vibrato LFO
-        double lfoInc = 5.0 / m_sampleRate; // Fixed 5Hz LFO
+        double lfoInc = 5.0 / m_sampleRate;
         m_lfoPhase += lfoInc;
         if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
         float lfoVal = std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
-
-        // Mod Depth (Max +/- 10% speed change)
         float modDepth = m_modWheel * 0.1f;
         float lfoPitchMod = 1.0f + (lfoVal * modDepth);
-
-        // Combine Pitch Bend and Mod Wheel
         float totalPitchRatio = m_pitchBendRatio * lfoPitchMod;
 
-        // Pass ratio to pad
-        return activePad->getSample(m_sampleRate, totalPitchRatio);
-    }
-
-    // For passing Pan information to SynthVoice
-    float getCurrentPan() const {
-        return activePad ? activePad->m_pan : 0.5f;
+        // ★すべてのパッドの音を計算し、それぞれの Pan 設定に従って左右に振り分けてミックス
+        for (auto& pad : pads) {
+            if (pad.isPlaying()) {
+                float sample = pad.getSample(m_sampleRate, totalPitchRatio);
+                outL += sample * (1.0f - pad.m_pan);
+                outR += sample * pad.m_pan;
+            }
+        }
     }
 
     float m_pitchBendRatio = 1.0f;
