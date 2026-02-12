@@ -2044,12 +2044,18 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     gui.vstGuidelineLabel.setJustificationType(juce::Justification::centred);
     gui.vstGuidelineLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey); // 目立ちすぎない色に
 
-    // 6. Link
-    /*
-    gui.page.addAndMakeVisible(gui.webLink);
-    gui.webLink.setButtonText("Visit Website");
-    gui.webLink.setURL(juce::URL("https://juce.com")); // 仮URL
-    */
+    // --- GPLv3ライセンス表示 ---
+    // 1. 通知テキスト
+    gui.gplNoticeLabel.setText("This software is released under the GNU General Public License v3.0 (GPLv3).", juce::dontSendNotification);
+    gui.gplNoticeLabel.setFont(juce::Font(14.0f));
+    gui.gplNoticeLabel.setJustificationType(juce::Justification::centred);
+    gui.page.addAndMakeVisible(gui.gplNoticeLabel);
+
+    // 2. リンクボタン
+    gui.gplLinkButton.setButtonText("View Full License (GNU.org)");
+    gui.gplLinkButton.setURL(juce::URL("https://www.gnu.org/licenses/gpl-3.0.en.html"));
+    gui.gplLinkButton.setColour(juce::HyperlinkButton::textColourId, juce::Colours::lightblue); // 色設定（リンクっぽく青色にする例）
+    gui.page.addAndMakeVisible(gui.gplLinkButton);
 }
 
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
@@ -3057,6 +3063,17 @@ void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<i
     gui.pluginNameLabel.setBounds(area.removeFromTop(80));
     gui.versionLabel.setBounds(area.removeFromTop(40));
     gui.copyrightLabel.setBounds(area.removeFromTop(30));
+
+    // 現在のY座標を取得（適宜調整してください）
+    int y = content.getHeight() / 2 + 100; // 画面中央より少し下あたり
+
+    // GPL通知テキスト
+    gui.gplNoticeLabel.setBounds(content.getX(), y, content.getWidth(), 24);
+
+    y += 24;
+
+    // ライセンスリンクボタン
+    gui.gplLinkButton.setBounds(content.getX(), y, content.getWidth(), 24);
 
     area.removeFromTop(20);
     // Logo Row

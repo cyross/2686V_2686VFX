@@ -1065,8 +1065,9 @@ struct AboutGuiSet
     // Logos
     juce::ImageComponent vst3Logo;
 
-    // Optional: Website Link
-    juce::HyperlinkButton webLink;
+    // GPL Licese View
+    juce::Label gplNoticeLabel;
+    juce::HyperlinkButton gplLinkButton;
 };
 
 struct SetupGroupParams
