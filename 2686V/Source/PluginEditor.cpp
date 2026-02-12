@@ -18,7 +18,7 @@ juce::String getNoteName(int noteNumber)
 void layoutComponentsLtoR(juce::Rectangle<int>& rect,
     int height,
     int space,
-    std::initializer_list<std::pair<juce::Component*, int>> components)
+    std::initializer_list<std::pair<juce::Component*, std::pair<int, int>>> components)
 {
     auto area = rect.removeFromTop(height);
 
@@ -26,7 +26,8 @@ void layoutComponentsLtoR(juce::Rectangle<int>& rect,
     {
         if (comp.first != nullptr) // 安全のためのチェック
         {
-            comp.first->setBounds(area.removeFromLeft(comp.second));
+            comp.first->setBounds(area.removeFromLeft(comp.second.first));
+            area.removeFromLeft(comp.second.second);
         }
     }
 
@@ -1376,9 +1377,8 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
         pad.fileNameLabel.setJustificationType(juce::Justification::centred);
 
+        gui.page.addAndMakeVisible(pad.clearButton);
         pad.clearButton.setButtonText("X"); // スペース節約のため "X" や "Clr"
-        pad.group.addAndMakeVisible(pad.clearButton);
-
         pad.clearButton.onClick = [this, i, &pad]
             {
                 // 1. 特定のパッドをアンロード
@@ -1567,7 +1567,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         bWet.onClick = [&] { targetSlider.setValue(1.0f); };
     };
 
-    SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
     setupS(gui.tRateSlider, gui.tRateLabel, "Rate");
@@ -1575,7 +1575,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     setupS(gui.tMixSlider, gui.tMixLabel, "Mix");
     setupMixBtns(gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn, gui.tMixSlider);
 
-    SetupGroupParams vGp = { .page = gui.page, .group = gui.vibGroup, .title = "Vibrato", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    SetupGroupParams vGp = { .page = gui.page, .group = gui.vibGroup, .title = "Vibrato" };
     setupGroup(vGp);
 
     setupS(gui.vRateSlider, gui.vRateLabel, "Rate");
@@ -1583,7 +1583,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     setupS(gui.vMixSlider, gui.vMixLabel, "Mix");
     setupMixBtns(gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn, gui.vMixSlider);
 
-    SetupGroupParams cGp = { .page = gui.page, .group = gui.crushGroup, .title = "Bit Crusher", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    SetupGroupParams cGp = { .page = gui.page, .group = gui.crushGroup, .title = "Bit Crusher" };
     setupGroup(cGp);
 
     setupS(gui.cRateSlider, gui.cRateLabel, "Downsample");
@@ -1592,7 +1592,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     setupMixBtns(gui.cDryBtn, gui.cHalfBtn, gui.cWetBtn, gui.cMixSlider);
 
     // Delay Group
-    SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay" };
     setupGroup(dGp);
 
     gui.page.addAndMakeVisible(gui.bypassToggle);
@@ -1605,7 +1605,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     setupMixBtns(gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn, gui.dMixSlider);
 
     // Reverb Group
-    SetupGroupParams rGp = { .page = gui.page, .group = gui.reverbGroup, .title = "Reverb", .color = juce::Colour::fromFloatRGBA(0.5f, 0.5f, 0.5f, 0.3f) };
+    SetupGroupParams rGp = { .page = gui.page, .group = gui.reverbGroup, .title = "Reverb" };
     setupGroup(rGp);
 
     setupS(gui.rSizeSlider, gui.rSizeLabel, "Size");
@@ -2712,14 +2712,8 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
 
                 // --- Layout Components Top to Bottom ---
 
-                // 1. Load Button
-                layoutComponentsTtoB(area, 20, 2, &pad.loadButton);
-
-                // 2. File Name Label
-                layoutComponentsTtoB(area, 15, 5, &pad.fileNameLabel);
-
-                // 3. Clear Button
-                layoutComponentsTtoB(area, 20, 5, &pad.clearButton);
+                // 1. Load Button, File Name Label, Clear Button
+                layoutComponentsLtoR(area, 20, 5, { { &pad.loadButton, {50, 4}}, { &pad.fileNameLabel, {180, 4}},{ &pad.clearButton, {30, 0}}, });
 
                 // 4. One Shot Toggle
                 layoutComponentsTtoB(area, 20, 5, &pad.oneShotButton);
