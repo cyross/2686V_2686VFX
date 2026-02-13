@@ -7,7 +7,15 @@
 AudioPlugin2686V::AudioPlugin2686V()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-        .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+#if defined(BUILD_AS_FX_PLUGIN)
+        // FXモード: ステレオ入力あり、ステレオ出力あり
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#else
+        // シンセモード: 入力なし、ステレオ出力あり
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ),
     // Initialize APVTS (Parameters are created here)
     apvts(*this, nullptr, "Parameters", createParameterLayout()) // APVTSの初期化
 #endif
@@ -99,9 +107,22 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    buffer.clear();
+
+    // 不要なチャンネルのクリア
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
 
     SynthParams params;
+
+    // FXモードかどうかで分岐
+#if defined(BUILD_AS_FX_PLUGIN)
+    // 【FXモード】
+    // 入力音(bufferに入っている音)をそのまま使うので、buffer.clear() はしない！
+    // シンセの発音処理(m_synth.renderNextBlock)もしない！
+#else
+    // 【シンセモード】
+    // 入力バッファはノイズの原因になるのでクリアする
+    buffer.clear();
 
     // --- Global ---
     int m = (int)*apvts.getRawParameterValue("MODE");
@@ -118,15 +139,15 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     case OscMode::OPL:
         processOplBlock(params);
         break;
-	case OscMode::OPLL:
-		processOpllBlock(params);
-		break;
-	case OscMode::OPL3:
-		processOpl3Block(params);
-		break;
-	case OscMode::OPM:
-		processOpmBlock(params);
-		break;
+    case OscMode::OPLL:
+        processOpllBlock(params);
+        break;
+    case OscMode::OPL3:
+        processOpl3Block(params);
+        break;
+    case OscMode::OPM:
+        processOpmBlock(params);
+        break;
     case OscMode::SSG:
         processSsgBlock(params);
         break;
@@ -150,7 +171,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
+    // シンセの発音 (FXモードではスキップ)
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+#endif
 
     processFxBlock(buffer, params);
 

@@ -302,6 +302,8 @@ void AudioPlugin2686VEditor::setupLogo()
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
+    // FXモードならシンセ系タブを追加しない
+#if !defined(BUILD_AS_FX_PLUGIN)
     tabs.addTab("OPNA", juce::Colours::transparentBlack, &opnaGui.page, true);
     tabs.addTab("OPN", juce::Colours::transparentBlack, &opnGui.page, true);
     tabs.addTab("OPL", juce::Colours::transparentBlack, &oplGui.page, true);
@@ -312,8 +314,12 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab("WAVETABLE", juce::Colours::transparentBlack, &wtGui.page, true);
     tabs.addTab("RHYTHM", juce::Colours::transparentBlack, &rhythmGui.page, true);
     tabs.addTab("ADPCM", juce::Colours::transparentBlack, &adpcmGui.page, true);
+#endif
     tabs.addTab("FX", juce::Colours::transparentBlack, &fxGui.page, true);
+    // FXモードならプリセットを使わない
+#if !defined(BUILD_AS_FX_PLUGIN)
     tabs.addTab("PRESET", juce::Colours::transparentBlack, &presetGui.page, true);
+#endif
     tabs.addTab("SETTINGS", juce::Colours::transparentBlack, &settingsGui.page, true);
     tabs.addTab("ABOUT", juce::Colours::transparentBlack, &aboutGui.page, true);
 }
