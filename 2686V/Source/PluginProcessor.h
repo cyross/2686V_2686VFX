@@ -35,7 +35,7 @@ public:
     void unloadRhythmFile(int padIndex);
 
     juce::AudioFormatManager formatManager;
-    juce::File lastAdpcmDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
+    juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
@@ -56,12 +56,15 @@ public:
 
     // --- Settings Data ---
     juce::String wallpaperPath;
-    juce::String defaultAdpcmDir;  // For ADPCM & Rhythm
+    juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
     bool showTooltips = true; // For show Parameter Range Tooltop
 
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 
+
+    juce::String makePathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
 
     juce::String getDefaultPresetDir();
 
@@ -95,7 +98,9 @@ private:
     void processFxBlock(juce::AudioBuffer<float>& buffer, SynthParams& params);
 
     juce::Synthesiser m_synth;
-    void loadStartupPreset(); // 自動読み込み用関数
+    void loadStartupSettings(); // 設定の自動読み込み用関数
+    void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
+    void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

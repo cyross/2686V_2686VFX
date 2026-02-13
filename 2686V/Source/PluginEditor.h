@@ -1061,9 +1061,9 @@ struct SettingsGuiSet
     juce::TextButton wallpaperClearBtn;
 
     // Directories
-    juce::Label adpcmDirLabel;
-    juce::Label adpcmDirPathLabel;
-    juce::TextButton adpcmDirBrowseBtn;
+    juce::Label sampleDirLabel;
+    juce::Label sampleDirPathLabel;
+    juce::TextButton sampleDirBrowseBtn;
 
     juce::Label presetDirLabel;
     juce::Label presetDirPathLabel;
@@ -1369,6 +1369,7 @@ public:
     template <typename T>
     void applyMmlString(const juce::String& mml, T& gui, int opIndex);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
+    void updateRhythmFileNames();
 private:
     AudioPlugin2686V& audioProcessor;
 

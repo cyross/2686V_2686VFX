@@ -1,5 +1,6 @@
 ﻿#include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <filesystem>
 
 // ============================================================================
 // Constructor
@@ -28,9 +29,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     }
 
     formatManager.registerBasicFormats();
-    loadStartupPreset();
-
-    
+    loadStartupSettings();
 }
 
 // ============================================================================
@@ -282,6 +281,49 @@ void AudioPlugin2686V::setCurrentProgram(int index) {}
 const juce::String AudioPlugin2686V::getProgramName(int index) { return {}; }
 void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName) {}
 
+void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
+{
+    // メタデータとパスを属性として追加
+    xml->setAttribute("presetName", presetName);
+    xml->setAttribute("presetAuthor", presetAuthor);
+    xml->setAttribute("presetVersion", presetVersion);
+
+    xml->setAttribute("adpcmPath", makePathRelative(juce::File(adpcmFilePath)));
+    for (int i = 0; i < 8; ++i) {
+        xml->setAttribute("rhythmPath" + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
+    }
+};
+
+void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
+{
+    if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
+    {
+        // パラメータ復帰
+        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+        // メタデータ復帰
+        presetName = xmlState->getStringAttribute("presetName", "Init Preset");
+        presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
+        presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
+
+        // サンプル復帰 (ADPCM)
+        juce::String storedAdpcm = xmlState->getStringAttribute("adpcmPath");
+        juce::File adpcmFile = resolvePath(storedAdpcm);
+        if (adpcmFile.existsAsFile()) {
+            loadAdpcmFile(adpcmFile);
+        }
+
+        // サンプル復帰 (Rhythm)
+        for (int i = 0; i < 8; ++i) {
+            juce::String storedRhy = xmlState->getStringAttribute("rhythmPath" + juce::String(i));
+            juce::File rhyFile = resolvePath(storedRhy);
+            if (rhyFile.existsAsFile()) {
+                loadRhythmFile(rhyFile, i);
+            }
+        }
+    }
+};
+
 // ============================================================================
 // State Information
 // ============================================================================
@@ -290,15 +332,7 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
-    // メタデータとパスを属性として追加
-    xml->setAttribute("presetName", presetName);
-    xml->setAttribute("presetAuthor", presetAuthor);
-    xml->setAttribute("presetVersion", presetVersion);
-
-    xml->setAttribute("adpcmPath", adpcmFilePath);
-    for (int i = 0; i < 8; ++i) {
-        xml->setAttribute("rhythmPath" + juce::String(i), rhythmFilePaths[i]);
-    }
+    setPresetToXml(xml);
 
     copyXmlToBinary(*xml, destData);
 }
@@ -306,35 +340,7 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
 void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
-    if (xmlState.get() != nullptr)
-    {
-        if (xmlState->hasTagName(apvts.state.getType()))
-        {
-            // パラメータ復帰
-            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
-
-            // メタデータ復帰
-            presetName = xmlState->getStringAttribute("presetName", "Init Preset");
-            presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
-            presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
-
-            // サンプル復帰 (ADPCM)
-            adpcmFilePath = xmlState->getStringAttribute("adpcmPath");
-            juce::File adpcmFile(adpcmFilePath);
-            if (adpcmFile.existsAsFile()) {
-                loadAdpcmFile(adpcmFile);
-            }
-
-            // サンプル復帰 (Rhythm)
-            for (int i = 0; i < 8; ++i) {
-                rhythmFilePaths[i] = xmlState->getStringAttribute("rhythmPath" + juce::String(i));
-                juce::File rhyFile(rhythmFilePaths[i]);
-                if (rhyFile.existsAsFile()) {
-                    loadRhythmFile(rhyFile, i);
-                }
-            }
-        }
-    }
+    getPresetFromXml(xmlState);
 }
 
 void AudioPlugin2686V::savePreset(const juce::File& file)
@@ -342,15 +348,7 @@ void AudioPlugin2686V::savePreset(const juce::File& file)
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
 
-    xml->setAttribute("presetName", presetName);
-    xml->setAttribute("presetAuthor", presetAuthor);
-    xml->setAttribute("presetVersion", presetVersion);
-
-    int currentModeParams = (int)*apvts.getRawParameterValue("MODE");
-    xml->setAttribute("activeModeName", getModeName((OscMode)currentModeParams));
-
-    xml->setAttribute("adpcmPath", adpcmFilePath);
-    for (int i = 0; i < 8; ++i) xml->setAttribute("rhythmPath" + juce::String(i), rhythmFilePaths[i]);
+    setPresetToXml(xml);
 
     xml->writeTo(file);
 }
@@ -360,37 +358,7 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xmlState = xmlDoc.getDocumentElement();
 
-    if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
-    {
-        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
-
-        presetName = xmlState->getStringAttribute("presetName", "Init Preset");
-        presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
-        presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
-
-        juce::String modeStr = xmlState->getStringAttribute("activeModeName");
-        if (modeStr.isNotEmpty())
-        {
-            OscMode mode = getModeFromString(modeStr);
-            auto* param = apvts.getParameter("MODE");
-            if (param != nullptr)
-            {
-                // ホストとリスナー（GUI）に通知してタブを切り替える
-                float normalizedVal = param->getNormalisableRange().convertTo0to1((float)mode);
-                param->setValueNotifyingHost(normalizedVal);
-            }
-        }
-
-        adpcmFilePath = xmlState->getStringAttribute("adpcmPath");
-        juce::File adpcmFile(adpcmFilePath);
-        if (adpcmFile.existsAsFile()) loadAdpcmFile(adpcmFile);
-
-        for (int i = 0; i < 8; ++i) {
-            rhythmFilePaths[i] = xmlState->getStringAttribute("rhythmPath" + juce::String(i));
-            juce::File rhyFile(rhythmFilePaths[i]);
-            if (rhyFile.existsAsFile()) loadRhythmFile(rhyFile, i);
-        }
-    }
+    getPresetFromXml(xmlState);
 }
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
@@ -1159,7 +1127,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     juce::XmlElement xml("PREF_2686V");
 
     xml.setAttribute("wallpaperPath", wallpaperPath);
-    xml.setAttribute("defaultAdpcmDir", defaultAdpcmDir);
+    xml.setAttribute("defaultSampleDir", defaultSampleDir);
     xml.setAttribute("defaultPresetDir", defaultPresetDir);
     xml.setAttribute("showTooltips", showTooltips);
 
@@ -1175,39 +1143,28 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
     if (xml.get() != nullptr && xml->hasTagName("PREF_2686V"))
     {
         wallpaperPath = xml->getStringAttribute("wallpaperPath");
-        defaultAdpcmDir = xml->getStringAttribute("defaultAdpcmDir");
+        defaultSampleDir = xml->getStringAttribute("defaultSampleDir");
         defaultPresetDir = xml->getStringAttribute("defaultPresetDir");
         showTooltips = xml->getBoolAttribute("showTooltips", true);
 
         // 内部変数の更新
-        if (juce::File(defaultAdpcmDir).isDirectory()) {
-            lastAdpcmDirectory = juce::File(defaultAdpcmDir);
+        if (juce::File(defaultSampleDir).isDirectory()) {
+            lastSampleDirectory = juce::File(defaultSampleDir);
         }
     }
 }
 
-void AudioPlugin2686V::loadStartupPreset()
+void AudioPlugin2686V::loadStartupSettings()
 {
     // 1. 読み込むディレクトリとファイル名を指定
     // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    auto presetFile = docDir.getChildFile("2686V").getChildFile("init_preset.xml");
+    auto presetFile = docDir.getChildFile("2686V").getChildFile("init_settings.xml");
 
     // 2. ファイルが存在するかチェック
     if (presetFile.existsAsFile())
     {
-        // 3. XMLとして読み込む
-        std::unique_ptr<juce::XmlElement> xmlState(juce::XmlDocument::parse(presetFile));
-
-
-        // 4. 正しいXMLで、かつタグ名がパラメータ用か確認
-        if (xmlState != nullptr && xmlState->hasTagName("PREF_2686V"))
-        {
-            wallpaperPath = xmlState->getStringAttribute("wallpaperPath");
-            defaultAdpcmDir = xmlState->getStringAttribute("defaultAdpcmDir");
-            defaultPresetDir = xmlState->getStringAttribute("defaultPresetDir");
-            showTooltips = xmlState->getBoolAttribute("showTooltips", true);
-        }
+        loadEnvironment(presetFile);
     }
     else
     {
@@ -1226,16 +1183,17 @@ void AudioPlugin2686V::loadStartupPreset()
 
         defaultPresetDir = newPresetDir.getFullPathName();
     }
-    if (defaultAdpcmDir.isEmpty())
+
+    if (defaultSampleDir.isEmpty())
     {
-        auto newAdpcmDir = docDir.getChildFile("2686V").getChildFile("Samples");
+        auto newSampleDir = docDir.getChildFile("2686V").getChildFile("Samples");
 
         // 存在していなければ作成
-        if (!newAdpcmDir.exists()) {
-            newAdpcmDir.createDirectory();
+        if (!newSampleDir.exists()) {
+            newSampleDir.createDirectory();
         }
 
-        defaultAdpcmDir = newAdpcmDir.getFullPathName();
+        defaultSampleDir = newSampleDir.getFullPathName();
     }
 
 
@@ -1252,7 +1210,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
     adpcmFilePath.clear();
 
     // 空のデータを作成
-    std::vector<float> emptyData;
+    std::vector<float> emptyData(1, 0.0f);
 
     // 全ボイスの ADPCM Core に空データをセット（＝クリア）
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
@@ -1274,7 +1232,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     rhythmFilePaths[padIndex].clear();
 
     // 空のデータを作成
-    std::vector<float> emptyData;
+    std::vector<float> emptyData(1, 0.0f);
 
     // 全ボイスの Rhythm Core の該当パッドに空データをセット
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
@@ -1284,6 +1242,50 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
             voice->getRhythmCore()->setSampleData(padIndex, emptyData, 44100.0);
         }
     }
+}
+
+// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
+juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
+{
+    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
+    if (targetFile == juce::File() || defaultSampleDir.isEmpty())
+        return targetFile.getFullPathName();
+
+    std::filesystem::path fpath = std::filesystem::path(targetFile.getFullPathName().toStdString());
+
+    return juce::String(fpath.lexically_relative(defaultSampleDir.toStdString()).generic_string());
+}
+
+// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
+juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
+{
+    if (pathStr.isEmpty()) return juce::File();
+
+    std::string fpathStr = pathStr.toStdString();
+
+    std::filesystem::path fPath = fpathStr;
+
+    // すでに絶対パスであれば、そのまま使う (互換性維持のため)
+    if (fPath.is_absolute())
+    {
+        juce::File file(pathStr);
+
+        return file;
+    }
+
+    // 相対パスの場合は defaultSampleDir と結合する
+    if (defaultSampleDir.isNotEmpty())
+    {
+        std::filesystem::path baseDir = defaultSampleDir.toStdString();
+        juce::String fullPath = juce::String(baseDir.append(fpathStr).generic_string());
+
+        return juce::File(fullPath);
+    }
+
+    // ベースディレクトリがない場合は解決不能だが、一応そのまま返す
+    juce::File file(pathStr);
+
+    return file;
 }
 
 // ============================================================================

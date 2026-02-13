@@ -1403,7 +1403,7 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
                 audioProcessor.unloadRhythmFile(i);
 
                 // 2. ファイル名表示を更新
-                pad.fileNameLabel.setText("No File", juce::dontSendNotification);
+                pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
             };
 
         // ADD: OneShot Button
@@ -1453,6 +1453,9 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + "_RR", "RR");
         setupSlider(rrP);
     }
+
+    // ファイル名エリアに反映
+    updateRhythmFileNames();
 }
 
 void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
@@ -1919,19 +1922,19 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
     };
 
     // --- ADPCM Dir ---
-    setupRow(gui.adpcmDirLabel, "Sample Dir:", gui.adpcmDirPathLabel, gui.adpcmDirBrowseBtn);
-    gui.adpcmDirPathLabel.setText(audioProcessor.defaultAdpcmDir, juce::dontSendNotification);
+    setupRow(gui.sampleDirLabel, "Sample Dir:", gui.sampleDirPathLabel, gui.sampleDirBrowseBtn);
+    gui.sampleDirPathLabel.setText(audioProcessor.defaultSampleDir, juce::dontSendNotification);
 
-    gui.adpcmDirBrowseBtn.onClick = [this] {
+    gui.sampleDirBrowseBtn.onClick = [this] {
         fileChooser = std::make_unique<juce::FileChooser>("Select Default Sample Directory",
-            audioProcessor.defaultAdpcmDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(audioProcessor.defaultAdpcmDir));
+            audioProcessor.defaultSampleDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userHomeDirectory) : juce::File(audioProcessor.defaultSampleDir));
         fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
-                    audioProcessor.defaultAdpcmDir = file.getFullPathName();
-                    audioProcessor.lastAdpcmDirectory = file;
-                    settingsGui.adpcmDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                    audioProcessor.defaultSampleDir = file.getFullPathName();
+                    audioProcessor.lastSampleDirectory = file;
+                    settingsGui.sampleDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -2005,7 +2008,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
 
                     // UI反映
                     settingsGui.wallpaperPathLabel.setText(audioProcessor.wallpaperPath.isEmpty() ? "(None)" : juce::File(audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
-                    settingsGui.adpcmDirPathLabel.setText(audioProcessor.defaultAdpcmDir, juce::dontSendNotification);
+                    settingsGui.sampleDirPathLabel.setText(audioProcessor.defaultSampleDir, juce::dontSendNotification);
                     settingsGui.presetDirPathLabel.setText(audioProcessor.defaultPresetDir, juce::dontSendNotification);
 
                     // 壁紙再描画
@@ -2051,7 +2054,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
             juce::XmlElement xml("PREF_2686V");
 
             xml.setAttribute("wallpaperPath", audioProcessor.wallpaperPath);
-            xml.setAttribute("defaultAdpcmDir", audioProcessor.defaultAdpcmDir);
+            xml.setAttribute("defaultSampleDir", audioProcessor.defaultSampleDir);
             xml.setAttribute("defaultPresetDir", audioProcessor.defaultPresetDir);
             xml.setAttribute("showTooltips", audioProcessor.showTooltips);
 
@@ -3139,9 +3142,9 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
 
     // 2. ADPCM Dir
     auto row2 = inner.removeFromTop(rowH);
-    gui.adpcmDirLabel.setBounds(row2.removeFromLeft(80));
-    gui.adpcmDirBrowseBtn.setBounds(row2.removeFromRight(80).reduced(2));
-    gui.adpcmDirPathLabel.setBounds(row2.reduced(5, 0));
+    gui.sampleDirLabel.setBounds(row2.removeFromLeft(80));
+    gui.sampleDirBrowseBtn.setBounds(row2.removeFromRight(80).reduced(2));
+    gui.sampleDirPathLabel.setBounds(row2.reduced(5, 0));
 
     inner.removeFromTop(gap);
 
@@ -3213,6 +3216,17 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     presetGui.nameEditor.setText(audioProcessor.presetName);
     presetGui.authorEditor.setText(audioProcessor.presetAuthor);
     presetGui.versionEditor.setText(audioProcessor.presetVersion);
+
+    // リズム音源ファイル名エリアに反映
+    updateRhythmFileNames();
+
+    // ADPCMファイル名エリアに反映
+    if (audioProcessor.adpcmFilePath.isNotEmpty()) {
+        adpcmGui.fileNameLabel.setText(juce::File(audioProcessor.adpcmFilePath).getFileName(), juce::dontSendNotification);
+    }
+    else {
+        adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+    }
 }
 
 // ヘルパー: プリセット保存処理
@@ -3322,7 +3336,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     {
         // ... (Existing ADPCM load logic) ...
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        fileChooser = std::make_unique<juce::FileChooser>("Select an Audio file...", audioProcessor.lastAdpcmDirectory, fileFilter);
+        fileChooser = std::make_unique<juce::FileChooser>("Select an Audio file...", audioProcessor.lastSampleDirectory, fileFilter);
         auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
 
         fileChooser->launchAsync(folderChooserFlags, [this](const juce::FileChooser& fc)
@@ -3332,7 +3346,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                 {
                     audioProcessor.loadAdpcmFile(file);
                     adpcmGui.fileNameLabel.setText(file.getFileName(), juce::dontSendNotification);
-                    audioProcessor.lastAdpcmDirectory = file.getParentDirectory();
+                    audioProcessor.lastSampleDirectory = file.getParentDirectory();
                 }
             });
     }
@@ -3350,7 +3364,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
             if (button == &pad.loadButton)
             {
                 auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-                fileChooser = std::make_unique<juce::FileChooser>("Load Sample for Pad " + juce::String(i + 1), audioProcessor.lastAdpcmDirectory, fileFilter);
+                fileChooser = std::make_unique<juce::FileChooser>("Load Sample for Pad " + juce::String(i + 1), audioProcessor.lastSampleDirectory, fileFilter);
                 auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
 
                 // Capture index 'i' by value
@@ -3365,7 +3379,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                             // Update label
                             rhythmGui.pads[i].fileNameLabel.setText(file.getFileName(), juce::dontSendNotification);
 
-                            audioProcessor.lastAdpcmDirectory = file.getParentDirectory();
+                            audioProcessor.lastSampleDirectory = file.getParentDirectory();
                         }
                 });
 
@@ -3499,6 +3513,25 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
     {
         // ウィンドウを削除することで無効化
         tooltipWindow = nullptr;
+    }
+}
+
+void AudioPlugin2686VEditor::updateRhythmFileNames()
+{
+    for (int i = 0; i < 8; ++i)
+    {
+        juce::String path = audioProcessor.rhythmFilePaths[i];
+        juce::String text = "(Empty)";
+
+        if (path.isNotEmpty())
+        {
+            // パスが存在すればファイル名を取得
+            // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
+            juce::File f = audioProcessor.resolvePath(path);
+            text = f.getFileName();
+        }
+
+        rhythmGui.pads[i].fileNameLabel.setText(text, juce::dontSendNotification);
     }
 }
 
