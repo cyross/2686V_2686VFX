@@ -1217,12 +1217,28 @@ void AudioPlugin2686V::loadStartupPreset()
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
     if (defaultPresetDir.isEmpty())
     {
-        defaultPresetDir = docDir.getChildFile("2686V").getChildFile("Presets").getFullPathName();
+        auto newPresetDir = docDir.getChildFile("2686V").getChildFile("Presets");
+
+        // 存在していなければ作成
+        if (!newPresetDir.exists()) {
+            newPresetDir.createDirectory();
+        }
+
+        defaultPresetDir = newPresetDir.getFullPathName();
     }
     if (defaultAdpcmDir.isEmpty())
     {
-        defaultAdpcmDir = docDir.getFullPathName();
+        auto newAdpcmDir = docDir.getChildFile("2686V").getChildFile("Samples");
+
+        // 存在していなければ作成
+        if (!newAdpcmDir.exists()) {
+            newAdpcmDir.createDirectory();
+        }
+
+        defaultAdpcmDir = newAdpcmDir.getFullPathName();
     }
+
+
 }
 
 juce::String AudioPlugin2686V::getDefaultPresetDir()
