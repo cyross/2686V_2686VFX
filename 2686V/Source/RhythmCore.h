@@ -244,7 +244,7 @@ public:
 
     void noteOff() {
         for (auto& pad : pads) {
-            if (pad.isPlaying() && !pad.m_isOneShot) {
+            if (pad.isPlaying()) {
                 pad.triggerRelease(m_sampleRate);
             }
         }
