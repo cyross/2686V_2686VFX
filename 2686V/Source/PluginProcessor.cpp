@@ -754,31 +754,37 @@ void AudioPlugin2686V::createFxParameterLayout(juce::AudioProcessorValueTreeStat
     layout.add(std::make_unique<juce::AudioParameterBool>("FX_BYPASS", "Master FX Bypass", false));
 
     // --- Tremolo ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_TRM_BYPASS", "Tremolo Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_RATE", "Tremolo Rate", 0.1f, 20.0f, 5.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_DEPTH", "Tremolo Depth", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_TRM_MIX", "Tremolo Mix", 0.0f, 1.0f, 0.0f));
 
     // --- Vibrato / Detune ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_VIB_BYPASS", "Vibrato Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_RATE", "Vibrato Rate", 0.1f, 10.0f, 2.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_DEPTH", "Vibrato Depth", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_MIX", "Vibrato Mix", 0.0f, 1.0f, 0.0f));
 
     // --- Modern Bit Crusher ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_MBC_BYPASS", "Modern BC Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_RATE", "Modern BC Rate", 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_BITS", "Modern BC Quality", 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_MIX", "Modern BX Mix", 0.0f, 1.0f, 0.0f));
 
     // --- Delay ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_DLY_BYPASS", "Delay Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_TIME", "Delay Time", 10.0f, 1000.0f, 375.0f)); // ms
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_FB", "Delay Feedback", 0.0f, 0.95f, 0.4f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_MIX", "Delay Mix", 0.0f, 1.0f, 0.0f));
 
     // --- Reverb ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_RVB_BYPASS", "Reverb Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_SIZE", "Reverb Size", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_DAMP", "Reverb Damp", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_MIX", "Reverb Mix", 0.0f, 1.0f, 0.0f));
 
     // --- Retro Bit Crusher ---
+    layout.add(std::make_unique<juce::AudioParameterBool>("FX_RBC_BYPASS", "Retro BC Bypass", false));
     layout.add(std::make_unique<juce::AudioParameterInt>("FX_RBC_RATE", "Retro BC Rate", 1, 7, 6));    // Default: 16kHz
     layout.add(std::make_unique<juce::AudioParameterInt>("FX_RBC_BITS", "Retro BC Quality", 1, 7, 7)); // Default: ADPCM
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RBC_MIX", "Retro BC Mix", 0.0f, 1.0f, 0.0f));
@@ -1086,41 +1092,50 @@ void AudioPlugin2686V::processFxBlock(juce::AudioBuffer<float>& buffer, SynthPar
     }
 
     // Vibrato
+    bool vB = *apvts.getRawParameterValue("FX_VIB_BYPASS") > 0.5f;
     float vRate = *apvts.getRawParameterValue("FX_VIB_RATE");
     float vDepth = *apvts.getRawParameterValue("FX_VIB_DEPTH");
     float vMix = *apvts.getRawParameterValue("FX_VIB_MIX");
     effects.setVibratoParams(vRate, vDepth, vMix);
 
     // Tremolo
+    bool tB = *apvts.getRawParameterValue("FX_TRM_BYPASS") > 0.5f;
     float tRate = *apvts.getRawParameterValue("FX_TRM_RATE");
     float tDepth = *apvts.getRawParameterValue("FX_TRM_DEPTH");
     float tMix = *apvts.getRawParameterValue("FX_TRM_MIX");
     effects.setTremoloParams(tRate, tDepth, tMix);
 
     // Modern Bit Crusher
+    bool mcB = *apvts.getRawParameterValue("FX_MBC_BYPASS") > 0.5f;
     float mbcRate = *apvts.getRawParameterValue("FX_MBC_RATE");
     float mbcBits = *apvts.getRawParameterValue("FX_MBC_BITS");
     float mbcMix = *apvts.getRawParameterValue("FX_MBC_MIX");
     effects.setModernBitCrusherParams(mbcRate, mbcBits, mbcMix);
 
     // Delay
+    bool dB = *apvts.getRawParameterValue("FX_DLY_BYPASS") > 0.5f;
     float dTime = *apvts.getRawParameterValue("FX_DLY_TIME");
     float dFb = *apvts.getRawParameterValue("FX_DLY_FB");
     float dMix = *apvts.getRawParameterValue("FX_DLY_MIX");
     effects.setDelayParams(dTime, dFb, dMix);
 
     // Reverb
+    bool rB = *apvts.getRawParameterValue("FX_RVB_BYPASS") > 0.5f;
     float rSize = *apvts.getRawParameterValue("FX_RVB_SIZE");
     float rDamp = *apvts.getRawParameterValue("FX_RVB_DAMP");
     float rMix = *apvts.getRawParameterValue("FX_RVB_MIX");
 
     // Retro Bit Crusher
+    bool rcB = *apvts.getRawParameterValue("FX_RBC_BYPASS") > 0.5f;
     int rbcRate = (int)*apvts.getRawParameterValue("FX_RBC_RATE");
     int rbcBits = (int)*apvts.getRawParameterValue("FX_RBC_BITS");
     float rbcMix = *apvts.getRawParameterValue("FX_RBC_MIX");
     effects.setRetroBitCrusherParams(rbcRate, rbcBits, rbcMix);
 
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
+
+    // バイパス設定
+    effects.setBypasses(tB, vB, mcB, rcB, dB, rB);
 
     // エフェクト処理実行
     effects.process(buffer);

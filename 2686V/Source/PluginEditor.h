@@ -76,8 +76,9 @@ static const int RhythmPadsAreaHeight = 320;
 
 static const int FxWidth = 1000;
 static const int FxHeight = 720;
-static const int FxBypassHeight = 120;
-static const int FxGroupHeight = 140;
+static const int FxGlobalBypassHeight = 120;
+static const int FxBypassWidth = 120;
+static const int FxGroupHeight = 200;
 static const int FxKnobAreaWidth = 200;
 static const int FxKnobWidth = 120;
 static const int FxKnobHeight = 60;
@@ -872,32 +873,38 @@ struct FxGuiSet
 
     juce::ToggleButton bypassToggle;
 
-    // Tremolo Sliders
+    // Tremolo
+    juce::ToggleButton tBypassBtn;
     juce::Label tRateLabel, tDepthLabel, tMixLabel;
     juce::Slider tRateSlider, tDepthSlider, tMixSlider;
     juce::TextButton tDryBtn, tHalfBtn, tWetBtn;
 
-    // Vibrato Sliders
+    // Vibrato
+    juce::ToggleButton vBypassBtn;
     juce::Label vRateLabel, vDepthLabel, vMixLabel;
     juce::Slider vRateSlider, vDepthSlider, vMixSlider;
     juce::TextButton vDryBtn, vHalfBtn, vWetBtn;
 
-    // Modern Bit Crusher Sliders
+    // Modern Bit Crusher
+    juce::ToggleButton mbcBypassBtn;
     juce::Label mbcRateLabel, mbcBitsLabel, mbcMixLabel;
     juce::Slider mbcRateSlider, mbcBitsSlider, mbcMixSlider;
     juce::TextButton mbcDryBtn, mbcHalfBtn, mbcWetBtn;
 
-    // Delay Sliders
+    // Delay
+    juce::ToggleButton dBypassBtn;
     juce::Label dTimeLabel, dFbLabel, dMixLabel;
     juce::Slider dTimeSlider, dFbSlider, dMixSlider;
     juce::TextButton dDryBtn, dHalfBtn, dWetBtn;
 
-    // Reverb Sliders
+    // Reverb
+    juce::ToggleButton rBypassBtn;
     juce::Label rSizeLabel, rDampLabel, rMixLabel;
     juce::Slider rSizeSlider, rDampSlider, rMixSlider;
     juce::TextButton rDryBtn, rHalfBtn, rWetBtn;
 
-    // Retro Bit Crusher Sliders
+    // Retro Bit Crusher
+    juce::ToggleButton rbcBypassBtn;
     juce::Label rbcRateLabel, rbcBitsLabel, rbcMixLabel;
     juce::ComboBox rbcRateCombo, rbcBitsCombo;
     juce::Slider rbcMixSlider;
@@ -912,6 +919,7 @@ struct FxGuiSet
     std::unique_ptr<SliderAttachment> rSizeAtt, rDampAtt, rMixAtt;
     std::unique_ptr<ComboBoxAttachment> rbcRateAtt, rbcBitsAtt;
     std::unique_ptr<SliderAttachment> rbcMixAtt;
+    std::unique_ptr<ButtonAttachment> tBypassAtt, vBypassAtt, mbcBypassAtt, dBypassAtt, rBypassAtt, rbcBypassAtt;
 };
 
 // プリセット1つ分の情報を保持する構造体

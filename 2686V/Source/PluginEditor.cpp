@@ -1562,6 +1562,16 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         bWet.onClick = [&] { targetSlider.setValue(1.0f); };
     };
 
+    // バイパスボタンのセットアップ用ヘルパー
+    auto setupBypass = [&](juce::ToggleButton& btn)
+    {
+        gui.page.addAndMakeVisible(btn);
+        btn.setButtonText("Bypass");
+        // バイパス時は文字色を変えるなど視認性を上げても良いです
+        btn.setColour(juce::ToggleButton::tickColourId, juce::Colours::red);
+        btn.setColour(juce::ToggleButton::tickDisabledColourId, juce::Colours::grey);
+    };
+
     std::vector<SelectItem> qualityItems = {
         {.name = "Raw (32bit)", .value = 1 },
         {.name = "24-bit PCM",  .value = 2 },
@@ -1586,6 +1596,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
+    setupBypass(gui.tBypassBtn);
     setupB(gui.tRateSlider, gui.tRateLabel, "Rate");
     setupB(gui.tDepthSlider, gui.tDepthLabel, "Depth");
     setupB(gui.tMixSlider, gui.tMixLabel, "Mix");
@@ -1595,6 +1606,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     SetupGroupParams vGp = { .page = gui.page, .group = gui.vibGroup, .title = "Vibrato" };
     setupGroup(vGp);
 
+    setupBypass(gui.vBypassBtn);
     setupB(gui.vRateSlider, gui.vRateLabel, "Rate");
     setupB(gui.vDepthSlider, gui.vDepthLabel, "Depth");
     setupB(gui.vMixSlider, gui.vMixLabel, "Mix");
@@ -1604,6 +1616,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     SetupGroupParams mbcGp = { .page = gui.page, .group = gui.mbcGroup, .title = "Modern Bit Crusher" };
     setupGroup(mbcGp);
 
+    setupBypass(gui.mbcBypassBtn);
     setupB(gui.mbcRateSlider, gui.mbcRateLabel, "Rate");
     setupB(gui.mbcBitsSlider, gui.mbcBitsLabel, "Quality");
     setupB(gui.mbcMixSlider, gui.mbcMixLabel, "Mix");
@@ -1617,6 +1630,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.bypassToggle.setButtonText("Master Bypass");
     gui.bypassToggle.setColour(juce::ToggleButton::textColourId, juce::Colours::orange);
 
+    setupBypass(gui.dBypassBtn);
     setupB(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
     setupB(gui.dFbSlider, gui.dFbLabel, "Feedback");
     setupB(gui.dMixSlider, gui.dMixLabel, "Mix");
@@ -1626,6 +1640,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     SetupGroupParams rGp = { .page = gui.page, .group = gui.reverbGroup, .title = "Reverb" };
     setupGroup(rGp);
 
+    setupBypass(gui.rBypassBtn);
     setupB(gui.rSizeSlider, gui.rSizeLabel, "Size");
     setupB(gui.rDampSlider, gui.rDampLabel, "Damp");
     setupB(gui.rMixSlider, gui.rMixLabel, "Mix");
@@ -1635,31 +1650,48 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     SetupGroupParams rbcGp = { .page = gui.page, .group = gui.rbcGroup, .title = "Retro Bit Crusher" };
     setupGroup(rbcGp);
 
+    setupBypass(gui.rbcBypassBtn);
+
     SetupComboParams rbcRateP = SetupComboParams::create(gui.page, gui.rbcRateCombo, gui.rbcRateLabel, gui.rbcRateAtt, "FX_RBC_RATE", "Rate", rateItems);
     setupCombo(rbcRateP);
+    gui.rbcRateLabel.setJustificationType(juce::Justification::centred);
+
     SetupComboParams rbcModeP = SetupComboParams::create(gui.page, gui.rbcBitsCombo, gui.rbcBitsLabel, gui.rbcBitsAtt, "FX_RBC_BITS", "Quality", qualityItems);
     setupCombo(rbcModeP);
+    gui.rbcBitsLabel.setJustificationType(juce::Justification::centred);
 
     setupB(gui.rbcMixSlider, gui.rbcMixLabel, "Mix");
     setupMixBtns(gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn, gui.rbcMixSlider);
 
     // Attachments
     gui.fxBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_BYPASS", gui.bypassToggle);
+
+    gui.tBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_TRM_BYPASS", gui.tBypassBtn);
     gui.tRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_RATE", gui.tRateSlider);
     gui.tDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_DEPTH", gui.tDepthSlider);
     gui.tMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_MIX", gui.tMixSlider);
+
+    gui.vBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_VIB_BYPASS", gui.vBypassBtn);
     gui.vRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_RATE", gui.vRateSlider);
     gui.vDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_DEPTH", gui.vDepthSlider);
     gui.vMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_MIX", gui.vMixSlider);
+
+    gui.mbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_MBC_BYPASS", gui.mbcBypassBtn);
     gui.mbcRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_RATE", gui.mbcRateSlider);
     gui.mbcBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_BITS", gui.mbcBitsSlider);
     gui.mbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_MIX", gui.mbcMixSlider);
+
+    gui.dBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_DLY_BYPASS", gui.dBypassBtn);
     gui.dTimeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_TIME", gui.dTimeSlider);
     gui.dFbAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_FB", gui.dFbSlider);
     gui.dMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_MIX", gui.dMixSlider);
+
+    gui.rBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_RVB_BYPASS", gui.rBypassBtn);
     gui.rSizeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_SIZE", gui.rSizeSlider);
     gui.rDampAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_DAMP", gui.rDampSlider);
     gui.rMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_MIX", gui.rMixSlider);
+
+    gui.rbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_RBC_BYPASS", gui.rbcBypassBtn);
     gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RBC_MIX", gui.rbcMixSlider);
 }
 
@@ -2877,6 +2909,13 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
 
 void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content)
 {
+    auto layoutFooterArea = [&](juce::Rectangle<int>& area, juce::ToggleButton& bypassBtn)
+    {
+        auto header = area.removeFromTop(TitlePaddingTop);
+
+        bypassBtn.setBounds(header.reduced(5, 0));
+    };
+
     auto layoutKnob = [&](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l) {
         auto labelArea = r.removeFromTop(20);
         l.setBounds(labelArea);
@@ -2924,8 +2963,8 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     auto area = content.withZeroOrigin().withSizeKeepingCentre(FxWidth, FxHeight);
 
     // 上部にバイパスボタンを配置
-    auto headerArea = area.removeFromTop(30);
-    gui.bypassToggle.setBounds(headerArea.removeFromRight(FxBypassHeight));
+    auto headerArea = area.removeFromTop(40);
+    gui.bypassToggle.setBounds(headerArea.removeFromRight(FxGlobalBypassHeight));
 
     area.removeFromTop(10);
 
@@ -2941,7 +2980,9 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
 
     layoutKnob(tremoloArea.removeFromLeft(FxKnobWidth + 20), gui.tRateSlider, gui.tRateLabel);
     layoutMixSection(tremoloArea.removeFromRight(FxKnobAreaWidth + 20), gui.tMixSlider, gui.tMixLabel, gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn);
+    auto tremoloFooterArea = tremoloArea.removeFromBottom(30);
     layoutKnob(tremoloArea.withSizeKeepingCentre(FxKnobWidth, tremoloArea.getHeight()), gui.tDepthSlider, gui.tDepthLabel);
+    layoutFooterArea(tremoloFooterArea, gui.tBypassBtn);
 
     // 2. Vibrato
     auto vibratoArea = leftCol.removeFromTop(FxGroupHeight);
@@ -2951,16 +2992,19 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutKnob(vibratoArea.removeFromLeft(FxKnobWidth + 20), gui.vRateSlider, gui.vRateLabel);
     layoutMixSection(vibratoArea.removeFromRight(FxKnobAreaWidth + 20), gui.vMixSlider, gui.vMixLabel, gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn);
     layoutKnob(vibratoArea.withSizeKeepingCentre(FxKnobWidth, vibratoArea.getHeight()), gui.vDepthSlider, gui.vDepthLabel);
+    auto vibratoFooterArea = vibratoArea.removeFromBottom(30);
+    layoutFooterArea(vibratoFooterArea, gui.vBypassBtn);
 
     // 3. Modern Bit Crusher
     auto mbcArea = leftCol.removeFromTop(FxGroupHeight);
     gui.mbcGroup.setBounds(mbcArea);
     mbcArea.removeFromTop(20);
 
-    // ... (layoutKnobで3つ配置) ...
     layoutKnob(mbcArea.removeFromLeft(FxKnobWidth + 20), gui.mbcRateSlider, gui.mbcRateLabel);
     layoutMixSection(mbcArea.removeFromRight(FxKnobAreaWidth + 20), gui.mbcMixSlider, gui.mbcMixLabel, gui.mbcDryBtn, gui.mbcHalfBtn, gui.mbcWetBtn);
     layoutKnob(mbcArea.withSizeKeepingCentre(FxKnobWidth, mbcArea.getHeight()), gui.mbcBitsSlider, gui.mbcBitsLabel);
+    auto mbcFooterArea = mbcArea.removeFromBottom(30);
+    layoutFooterArea(mbcFooterArea, gui.mbcBypassBtn);
 
     // Right
 
@@ -2969,9 +3013,12 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     gui.delayGroup.setBounds(delayArea);
     delayArea.removeFromTop(20);
 
+
     layoutKnob(delayArea.removeFromLeft(FxKnobWidth + 20), gui.dTimeSlider, gui.dTimeLabel);
     layoutMixSection(delayArea.removeFromRight(FxKnobAreaWidth + 20), gui.dMixSlider, gui.dMixLabel, gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn);
     layoutKnob(delayArea.withSizeKeepingCentre(FxKnobWidth, delayArea.getHeight()), gui.dFbSlider, gui.dFbLabel);
+    auto delayFooterArea = delayArea.removeFromBottom(30);
+    layoutFooterArea(delayFooterArea, gui.dBypassBtn);
 
     area.removeFromTop(10);
 
@@ -2982,7 +3029,9 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
 
     layoutKnob(reverbArea.removeFromLeft(FxKnobWidth + 20), gui.rSizeSlider, gui.rSizeLabel);
     layoutMixSection(reverbArea.removeFromRight(FxKnobAreaWidth + 20), gui.rMixSlider, gui.rMixLabel, gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn);
-    layoutKnob(reverbArea.withSizeKeepingCentre(FxKnobWidth, reverbArea.getHeight()), gui.rDampSlider, gui.rDampLabel);
+    layoutKnob(reverbArea.withSizeKeepingCentre(FxKnobWidth, reverbArea.getHeight() - 30), gui.rDampSlider, gui.rDampLabel);
+    auto reverbFooterArea = reverbArea.removeFromBottom(30);
+    layoutFooterArea(reverbFooterArea, gui.rBypassBtn);
 
     // 6. Retro Bit Crusher
     auto rbcArea = rightCol.removeFromTop(FxGroupHeight);
@@ -2992,6 +3041,8 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutCombo(rbcArea.removeFromLeft(FxKnobWidth + 20), gui.rbcBitsCombo, gui.rbcBitsLabel);
     layoutMixSection(rbcArea.removeFromRight(FxKnobAreaWidth + 20), gui.rbcMixSlider, gui.rbcMixLabel, gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn);
     layoutCombo(rbcArea.withSizeKeepingCentre(FxKnobWidth, rbcArea.getHeight()), gui.rbcRateCombo, gui.rbcRateLabel);
+    auto rbcFooterArea = rbcArea.removeFromBottom(30);
+    layoutFooterArea(rbcFooterArea, gui.rbcBypassBtn);
 }
 
 void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content)

@@ -2,20 +2,60 @@
 #pragma once
 #include <JuceHeader.h>
 #include "AdpcmCore.h"
+#include <array>
+#include <algorithm>
 
+// ======================================================
+// エフェクトの種類を定義 (マジックナンバー撲滅の鍵)
+// ======================================================
+enum class FxType
+{
+    Tremolo = 0,
+    Vibrato,
+    ModernBitCrusher,
+    RetroBitCrusher,
+    Delay,
+    Reverb,
+    Count // Total Count
+};
+
+// 型変換の手間を省くための定数
+static constexpr int NumEffects = static_cast<int>(FxType::Count);
+
+class SimpleFx
+{
+public:
+    virtual void prepare(double sampleRate){}
+
+    virtual void setParameters(float mode, float rate, float mix){}
+
+    virtual void process(juce::AudioBuffer<float>& buffer) {}
+
+    virtual void setOrder(int newOrder){ order = newOrder; }
+
+    virtual int getOrder(){ return order; }
+
+    virtual void setBypass(bool bp) { bypass = bp; }
+
+    virtual bool isBypass() { return bypass; }
+protected:
+    bool bypass = false; // バイパス管理
+    float wetLevel = 0.0f;
+    int order = 1; // エフェクト実行順
+};
 
 // ======================================================
 // 1. Simple Tremolo (Amplitude Modulation)
 // ======================================================
-class SimpleTremolo
+class SimpleTremolo : public SimpleFx
 {
 public:
-    void prepare(double sampleRate) {
+    void prepare(double sampleRate) override {
         fs = sampleRate;
         phase = 0.0;
     }
 
-    void setParameters(float rate, float depth, float mix) {
+    void setParameters(float rate, float depth, float mix) override {
         // rate: 0.1Hz - 20Hz
         freq = rate;
         // depth: 0.0 - 1.0
@@ -23,7 +63,7 @@ public:
         wetLevel = mix;
     }
 
-    void process(juce::AudioBuffer<float>& buffer) {
+    void process(juce::AudioBuffer<float>& buffer) override {
         if (wetLevel < 0.01f) return;
 
         const int numSamples = buffer.getNumSamples();
@@ -60,16 +100,15 @@ private:
     double phase = 0.0;
     float freq = 1.0f;
     float dep = 0.0f;
-    float wetLevel = 0.0f;
 };
 
 // ======================================================
 // 2. Simple Vibrato (Pitch Modulation)
 // ======================================================
-class SimpleVibrato
+class SimpleVibrato : public SimpleFx
 {
 public:
-    void prepare(double sampleRate) {
+    void prepare(double sampleRate) override {
         fs = sampleRate;
         // 20ms buffer is enough for vibrato
         int bufferSize = (int)(sampleRate * 0.02) + 1;
@@ -79,13 +118,13 @@ public:
         phase = 0.0;
     }
 
-    void setParameters(float rate, float depth, float mix) {
+    void setParameters(float rate, float depth, float mix) override {
         freq = rate;
         dep = depth; // 0.0 - 1.0
         wetLevel = mix;
     }
 
-    void process(juce::AudioBuffer<float>& buffer) {
+    void process(juce::AudioBuffer<float>& buffer) override {
         // Vibrato always runs to update write pointer, even if Mix=0
         // (to avoid click when mix increases), but we can optimize output mix.
 
@@ -164,16 +203,15 @@ private:
     double phase = 0.0;
     float freq = 5.0f;
     float dep = 0.0f;
-    float wetLevel = 0.0f;
 };
 
 // ======================================================
 // 3. Simple Modern Bit Crusher (Modern Decimator)
 // ======================================================
-class SimpleModernBitCrusher
+class SimpleModernBitCrusher : public SimpleFx
 {
 public:
-    void prepare(double sampleRate)
+    void prepare(double sampleRate) override
     {
         // 状態のリセット
         for (int i = 0; i < 2; ++i) {
@@ -182,7 +220,7 @@ public:
         }
     }
 
-    void setParameters(float rateReduction, float bitDepth, float mix)
+    void setParameters(float rateReduction, float bitDepth, float mix) override
     {
         // rateReduction: 1.0 = 原音, 20.0 = 1/20のレート
         stepSize = (int)juce::jmax(1.0f, rateReduction);
@@ -194,7 +232,7 @@ public:
         wetLevel = mix;
     }
 
-    void process(juce::AudioBuffer<float>& buffer)
+    void process(juce::AudioBuffer<float>& buffer) override
     {
         if (wetLevel < 0.01f && stepSize == 1) return;
 
@@ -241,7 +279,6 @@ public:
 private:
     int stepSize = 1;
     float quantizeStep = 65536.0f;
-    float wetLevel = 0.0f;
 
     // ステレオ用の状態保持
     int counter[2] = { 0, 0 };
@@ -251,10 +288,10 @@ private:
 // ======================================================
 // 4. Simple Stereo Delay
 // ======================================================
-class SimpleDelay
+class SimpleDelay : public SimpleFx
 {
 public:
-    void prepare(double sampleRate, int maxDelayMs = 2000)
+    void prepare(double sampleRate) override
     {
         fs = sampleRate;
         int maxSamples = (int)(fs * maxDelayMs / 1000.0);
@@ -263,7 +300,7 @@ public:
         writePos = 0;
     }
 
-    void setParameters(float timeMs, float feedback, float mix)
+    void setParameters(float timeMs, float feedback, float mix) override
     {
         // Smooth parameter changes could be added here
         delayTimeSamples = (int)(fs * timeMs / 1000.0);
@@ -271,7 +308,7 @@ public:
         wetLevel = juce::jlimit(0.0f, 1.0f, mix);
     }
 
-    void process(juce::AudioBuffer<float>& buffer)
+    void process(juce::AudioBuffer<float>& buffer) override
     {
         if (wetLevel < 0.01f) return; // Skip if mix is 0
 
@@ -331,18 +368,19 @@ private:
     int writePos = 0;
     int delayTimeSamples = 0;
     float fb = 0.0f;
-    float wetLevel = 0.0f;
+    int maxDelayMs = 2000;
 };
 
 // ======================================================
 // 6. Simple Retro Bit Crusher (ADPCM / PCM Decimator)
 // ======================================================
-class SimpleRetroBitCrusher
+class SimpleRetroBitCrusher : public SimpleFx
 {
 public:
-    void prepare(double sampleRate)
+    void prepare(double sampleRate) override
     {
         fs = sampleRate;
+
         for (int i = 0; i < 2; ++i) {
             counter[i] = 0;
             heldSample[i] = 0.0f;
@@ -357,14 +395,14 @@ public:
 
         double targetRate = 16000.0;
         switch (rateIdx) {
-        case 1: targetRate = 96000.0; break;
-        case 2: targetRate = 55500.0; break;
-        case 3: targetRate = 48000.0; break;
-        case 4: targetRate = 44100.0; break;
-        case 5: targetRate = 22050.0; break;
-        case 6: targetRate = 16000.0; break;
-        case 7: targetRate = 8000.0;  break;
-        default: targetRate = 16000.0; break;
+            case 1: targetRate = 96000.0; break;
+            case 2: targetRate = 55500.0; break;
+            case 3: targetRate = 48000.0; break;
+            case 4: targetRate = 44100.0; break;
+            case 5: targetRate = 22050.0; break;
+            case 6: targetRate = 16000.0; break;
+            case 7: targetRate = 8000.0;  break;
+            default: targetRate = 16000.0; break;
         }
 
         if (targetRate >= fs) {
@@ -375,18 +413,18 @@ public:
         }
 
         switch (bitsMode) {
-        case 1: maxVal = 0.0f; break;        // 32bit Float
-        case 2: maxVal = 8388607.0f; break;  // 24bit
-        case 3: maxVal = 32767.0f; break;    // 16bit
-        case 4: maxVal = 127.0f; break;      // 8bit
-        case 5: maxVal = 15.0f; break;       // 5bit
-        case 6: maxVal = 7.0f; break;        // 4bit Linear
-        case 7: maxVal = 0.0f; break;        // 4bit ADPCM
-        default: maxVal = 0.0f; break;
+            case 1: maxVal = 0.0f; break;        // 32bit Float
+            case 2: maxVal = 8388607.0f; break;  // 24bit
+            case 3: maxVal = 32767.0f; break;    // 16bit
+            case 4: maxVal = 127.0f; break;      // 8bit
+            case 5: maxVal = 15.0f; break;       // 5bit
+            case 6: maxVal = 7.0f; break;        // 4bit Linear
+            case 7: maxVal = 0.0f; break;        // 4bit ADPCM
+            default: maxVal = 0.0f; break;
         }
     }
 
-    void process(juce::AudioBuffer<float>& buffer)
+    void process(juce::AudioBuffer<float>& buffer) override
     {
         if (wetLevel < 0.01f && stepSize == 1) return;
 
@@ -436,47 +474,24 @@ private:
     int bitsMode = 6;
     int stepSize = 1;
     float maxVal = 0.0f;
-    float wetLevel = 0.0f;
 
     int counter[2] = { 0, 0 };
     float heldSample[2] = { 0.0f, 0.0f };
     Ym2608AdpcmCodec codec[2];
 };
 
-
-// --- Effect Manager ---
-class EffectChain
+// ======================================================
+// 6. Simple Reverb
+// ======================================================
+class SimpleReverb : public SimpleFx
 {
 public:
-    void prepare(double sampleRate)
+    void prepare(double sampleRate) override
     {
-        tremolo.prepare(sampleRate);
-        vibrato.prepare(sampleRate);
-        modernBitCrusher.prepare(sampleRate);
-        retroBitCrusher.prepare(sampleRate);
-        delay.prepare(sampleRate);
         reverb.setSampleRate(sampleRate);
     }
 
-    void setTremoloParams(float rate, float depth, float mix) { tremolo.setParameters(rate, depth, mix); }
-    void setVibratoParams(float rate, float depth, float mix) { vibrato.setParameters(rate, depth, mix); }
-
-    void setModernBitCrusherParams(float rate, float bits, float mix)
-    {
-        modernBitCrusher.setParameters(rate, bits, mix);
-    }
-
-    void setRetroBitCrusherParams(int mode, int rate, float mix)
-    {
-        retroBitCrusher.setParameters(mode, rate, mix);
-    }
-
-    // Parameters
-    // Delay: Time(ms), Feedback(0-1), Mix(0-1)
-    // Reverb: Size(0-1), Damping(0-1), Mix(0-1)
-    void setDelayParams(float time, float fb, float mix) { delay.setParameters(time, fb, mix); }
-
-    void setReverbParams(float size, float damp, float width, float mix)
+    void setParameters(float size, float damp, float width, float mix)
     {
         juce::Reverb::Parameters p;
         p.roomSize = size;
@@ -490,24 +505,59 @@ public:
 
     void process(juce::AudioBuffer<float>& buffer)
     {
-        // 1. Vibrato (Pitch) - Detune/Chorus
-        vibrato.process(buffer);
-
-        // 2. Tremolo (Amp)
-        tremolo.process(buffer);
-
-        // 3. Modern Bitcrusher
-        modernBitCrusher.process(buffer);
-
-        // 4. Retro Bitcrushere
-        retroBitCrusher.process(buffer);
-
-        // 4. Delay (Echo)
-        delay.process(buffer);
-
-        // 5. Reverb (Space)
         if (buffer.getNumChannels() == 2) reverb.processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), buffer.getNumSamples());
         else reverb.processMono(buffer.getWritePointer(0), buffer.getNumSamples());
+    }
+
+    void reset()
+    {
+        reverb.reset();
+    }
+private:
+    juce::Reverb reverb;
+};
+
+// --- Effect Manager ---
+class EffectChain
+{
+public:
+    EffectChain()
+    {
+        fxMap[static_cast<int>(FxType::Tremolo)] = &tremolo;
+        fxMap[static_cast<int>(FxType::Vibrato)] = &vibrato;
+        fxMap[static_cast<int>(FxType::ModernBitCrusher)] = &modernBitCrusher;
+        fxMap[static_cast<int>(FxType::RetroBitCrusher)] = &retroBitCrusher;
+        fxMap[static_cast<int>(FxType::Delay)] = &delay;
+        fxMap[static_cast<int>(FxType::Reverb)] = &reverb;
+
+        // 2. 処理順序配列の初期化 (デフォルトは定義順)
+        processChain = fxMap;
+    }
+
+    void prepare(double sampleRate)
+    {
+        for (auto* fx : fxMap) fx->prepare(sampleRate);
+    }
+
+    // Parameters
+    // Delay: Time(ms), Feedback(0-1), Mix(0-1)
+    // Reverb: Size(0-1), Damping(0-1), Mix(0-1)
+    void setTremoloParams(float rate, float depth, float mix) { tremolo.setParameters(rate, depth, mix); }
+    void setVibratoParams(float rate, float depth, float mix) { vibrato.setParameters(rate, depth, mix); }
+    void setModernBitCrusherParams(float rate, float bits, float mix){ modernBitCrusher.setParameters(rate, bits, mix); }
+    void setRetroBitCrusherParams(int mode, int rate, float mix){ retroBitCrusher.setParameters(mode, rate, mix); }
+    void setDelayParams(float time, float fb, float mix) { delay.setParameters(time, fb, mix); }
+    void setReverbParams(float size, float damp, float width, float mix){ reverb.setParameters(size, damp, width, mix); }
+
+    void process(juce::AudioBuffer<float>& buffer)
+    {
+        for (auto* fx : processChain)
+        {
+            if (!fx->isBypass())
+            {
+                fx->process(buffer);
+            }
+        }
     }
 
     void reset()
@@ -518,11 +568,42 @@ public:
         reverb.reset();
     }
 
+    // バイパス状態のセット
+    void setBypasses(bool t, bool v, bool mc, bool rc, bool d, bool r)
+    {
+        tremolo.setBypass(t);
+        vibrato.setBypass(v);
+        modernBitCrusher.setBypass(mc);
+        retroBitCrusher.setBypass(rc);
+        delay.setBypass(d);
+        reverb.setBypass(r);
+    }
+
+    // 順番更新
+    void updateOrder(const std::array<int, NumEffects>& newOrders)
+    {
+        for (int i = 0; i < NumEffects; ++i)
+        {
+            if (newOrders[i] >= 0 && newOrders[i] < NumEffects)
+            {
+                processChain[i] = fxMap[newOrders[i]];
+            }
+        }
+    }
 private:
+    // 各エフェクトオブジェクト
     SimpleTremolo tremolo;
     SimpleVibrato vibrato;
     SimpleModernBitCrusher modernBitCrusher;
     SimpleDelay delay;
-    juce::Reverb reverb;
+    SimpleReverb reverb;
     SimpleRetroBitCrusher retroBitCrusher;
+
+    // エフェクトの適応順
+    int fxSize = 6;
+    std::array<int, 6> orderIndex{ { 0, 1, 2, 3, 4, 5 } };
+    std::vector<SimpleFx*> fxs{ &tremolo, &vibrato, &modernBitCrusher, &retroBitCrusher, &delay, &reverb };
+
+    std::array<SimpleFx*, NumEffects> fxMap;
+    std::array<SimpleFx*, NumEffects> processChain;
 };
