@@ -429,11 +429,12 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SEFREQ", namePrefix + "SEFREQ", 0.1f, 20.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + " AM", false)); // AM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + "AM", false)); // AM Enable (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "OPNA LFO Freq", 0.1f, 50.0f, 5.0f));
@@ -468,10 +469,11 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 }
 
@@ -501,9 +503,10 @@ void AudioPlugin2686V::createOplParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "Wave", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + " AM", false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "AM", namePrefix + "AM", false));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 }
 
@@ -537,6 +540,7 @@ void AudioPlugin2686V::createOpllParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 1.0f, 0.1f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "WS", 1, 2, 1));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 }
 
@@ -573,6 +577,7 @@ void AudioPlugin2686V::createOpl3ParameterLayout(juce::AudioProcessorValueTreeSt
         // Wave Select (0-7) for OPL3
         // 0:Sine, 1:Half, 2:Abs, 3:Pulse, 4:Sine-Alt, 5:Abs-Alt, 6:Square, 7:Derived-Square
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "WS", 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 }
 
@@ -603,10 +608,11 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "D1L", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "D2R", 0.0f, 1.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "OPM LFO Freq", 0.1f, 50.0f, 5.0f));
@@ -816,9 +822,10 @@ void AudioPlugin2686V::processOpnaBlock(SynthParams &params)
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + "FIX") > 0.5f);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + "FREQ");
         params.fmOp[op].waveSelect = 0; // Sine
-        params.fmOp[op].amEnable = (bool)*apvts.getRawParameterValue(p + "AM");
+        params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + "AM") > 0.5f);
         params.fmOp[op].vibEnable = true;
         params.fmOp[op].egType = true;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 
     params.lfoFreq = *apvts.getRawParameterValue("OPNA_LFO_FREQ");
@@ -854,6 +861,7 @@ void AudioPlugin2686V::processOpnBlock(SynthParams &params)
         params.fmOp[op].amEnable = false; // OPNにはAMは無い
         params.fmOp[op].vibEnable = false;
         params.fmOp[op].egType = true;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 }
 
@@ -885,6 +893,7 @@ void AudioPlugin2686V::processOplBlock(SynthParams &params)
         params.fmOp[op].amEnable = false; // OPLにはAMは無い
         params.fmOp[op].vibEnable = false;
         params.fmOp[op].egType = true;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 }
 
@@ -917,6 +926,7 @@ void AudioPlugin2686V::processOpllBlock(SynthParams& params)
         params.fmOp[op].fixedFreq = 0.0f;
         params.fmOp[op].amEnable = false; // OPLにはAMは無い
         params.fmOp[op].vibEnable = false;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 }
 
@@ -947,6 +957,7 @@ void AudioPlugin2686V::processOpl3Block(SynthParams& params)
         params.fmOp[op].vibEnable = false;
         params.fmOp[op].egType = true;
         params.fmOp[op].keyScaleLevel = 0;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 }
 
@@ -979,6 +990,7 @@ void AudioPlugin2686V::processOpmBlock(SynthParams& params)
         params.fmOp[op].amEnable = false;
         params.fmOp[op].vibEnable = true;
         params.fmOp[op].egType = true;
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
     }
 
     params.lfoFreq = *apvts.getRawParameterValue("OPM_LFO_FREQ");

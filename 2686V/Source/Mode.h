@@ -51,6 +51,9 @@ static OscMode getModeFromString(const juce::String& name) {
 
 struct FmOpParams
 {
+    // --- Mask ---
+    bool mask = false;
+
     // --- Envelope (ADSR) ---
     float attack = 0.01f;  // AR
     float decay = 0.0f;    // DR

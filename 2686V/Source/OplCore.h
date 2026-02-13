@@ -39,6 +39,8 @@ public:
         // OPL: SSG-EG=False, WaveSelect=True
         m_operators[0].setParameters(params.fmOp[0], params.feedback, false, true);
         m_operators[1].setParameters(params.fmOp[1], 0.0f,            false, true);
+        m_opMask[0] = params.fmOp[0].mask;
+        m_opMask[1] = params.fmOp[1].mask;
     }
 
     void noteOn(float freq, float velocity) {
@@ -111,18 +113,26 @@ public:
             // -------------------------------
 
             float out1, out2;
+            float finalOut = 0.0f;
 
             // getSample に LFO 値を渡す
             m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
 
-            float finalOut = 0.0f;
+            if (m_opMask[0]) out1 = 0.0f; // Mask
+
             if (m_algorithm == 0) { // Serial (FM)
                 // OP1 -> OP2
                 m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+
+                if (m_opMask[1]) out2 = 0.0f; // Mask
+
                 finalOut = out2;
             }
             else { // Parallel (AM)
                 m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+
+                if (m_opMask[1]) out2 = 0.0f; // Mask
+
                 finalOut = (out1 + out2) * 0.5f;
             }
 
@@ -153,6 +163,8 @@ private:
     }
 
     std::array<FmOperator, 2> m_operators;
+    std::array<bool, 2> m_opMask{ false, false };
+
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;
     int m_rateIndex = 1;

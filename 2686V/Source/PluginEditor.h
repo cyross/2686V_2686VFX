@@ -360,7 +360,8 @@ struct Fm4GuiSet
     std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
     std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
     std::array<juce::Slider, Fm4Ops> seFreq;
-
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+    
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
     std::array<juce::Label, Fm4Ops> mulLabel;
@@ -380,6 +381,7 @@ struct Fm4GuiSet
     std::array<juce::Label, Fm4Ops> amLabel; // AM Enable
     std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
     std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
+    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
 
     std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
@@ -408,6 +410,7 @@ struct Fm4GuiSet
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> seFreqAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
 };
 
 struct Fm2GuiSet
@@ -435,7 +438,7 @@ struct Fm2GuiSet
     std::array<juce::Slider, Fm2Ops> sl;
     std::array<juce::Slider, Fm2Ops> rr;
     std::array<juce::ComboBox, Fm2Ops> ws;
-
+    std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
     std::array<juce::TextButton, Fm2Ops> mmlBtn;
 
     std::array<juce::Label, Fm2Ops> mulLabel;
@@ -445,7 +448,7 @@ struct Fm2GuiSet
     std::array<juce::Label, Fm2Ops> slLabel;
     std::array<juce::Label, Fm2Ops> rrLabel;
     std::array<juce::Label, Fm2Ops> wsLabel;
-
+    std::array<juce::Label, Fm2Ops> maskLabel; // Mask
     std::array<juce::Label, Fm2Ops> mmlBtnLabel;
 
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -460,6 +463,7 @@ struct Fm2GuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> slAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> rrAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> wsAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> maskAtt; // Mask
 };
 
 struct OpllGuiSet
@@ -489,9 +493,10 @@ struct OpllGuiSet
     std::array<juce::Label, Fm2Ops> wsLabel;
     std::array<juce::ToggleButton, Fm2Ops> am, vib, egType, ksr;
     std::array<juce::Label, Fm2Ops> amLabel, vibLabel, egTypeLabel, ksrLabel;
+    std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
+    std::array<juce::Label, Fm2Ops> maskLabel; // Mask
 
     std::array<juce::TextButton, Fm2Ops> mmlBtn;
-
     std::array<juce::Label, Fm2Ops> mmlBtnLabel;
 
     // Attachments
@@ -503,6 +508,7 @@ struct OpllGuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> wsAtt, kslAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> amAtt, vibAtt, egTypeAtt, ksrAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> maskAtt; // Mask
 };
 
 struct Opl3GuiSet
@@ -522,12 +528,14 @@ struct Opl3GuiSet
 
     // Sliders
     std::array<juce::Slider, Fm4Ops> mul, tl, ar, dr, sl, rr;
-    std::array<juce::Label, Fm4Ops> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
     std::array<juce::ComboBox, Fm4Ops> ws; // Wave Select (8 types)
-    std::array<juce::Label, Fm4Ops> wsLabel;
-
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
+    // Labels
+    std::array<juce::Label, Fm4Ops> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
+    std::array<juce::Label, Fm4Ops> wsLabel;
+    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
     std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
@@ -538,6 +546,7 @@ struct Opl3GuiSet
 
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> wsAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
 };
 
 struct OpmGuiSet
@@ -568,6 +577,7 @@ struct OpmGuiSet
     std::array<juce::Slider, Fm4Ops> mul, dt1, dt2, tl, ar, dr, sl, sr, rr;
     std::array<juce::Label, Fm4Ops> mulLabel, dt1Label, dt2Label, tlLabel, arLabel, drLabel, slLabel, srLabel, rrLabel, ksLabel;
     std::array<juce::ComboBox, Fm4Ops> ks;
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
 
     std::array<juce::ToggleButton, Fm4Ops> fix;
     std::array<juce::Slider, Fm4Ops> freq;
@@ -578,9 +588,9 @@ struct OpmGuiSet
     std::array<juce::Label, Fm4Ops> freqLabel;
     std::array<juce::Label, Fm4Ops> freqToZeroLabel;
     std::array<juce::Label, Fm4Ops> freqTo440Label;
+    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
-
     std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
@@ -589,6 +599,7 @@ struct OpmGuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
     std::unique_ptr<ComboBoxAttachment> algAtt, lfoWaveAtt, pmsAtt, amsAtt;
     std::unique_ptr<SliderAttachment> fbAtt, lfoFreqAtt;
     std::unique_ptr<ComboBoxAttachment> bitAtt;

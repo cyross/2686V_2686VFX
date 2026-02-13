@@ -38,6 +38,7 @@ public:
             p.keyScale = (params.fmOp[i].keyScale > 0) ? 3 : 0;
             float fb = (i == 0) ? params.feedback : 0.0f;
             m_operators[i].setParameters(p, fb, false, true);
+            m_opMask[i] = params.fmOp[i].mask;
         }
     }
 
@@ -108,7 +109,12 @@ public:
 
             float out1, out2;
             m_operators[0].getSample(out1, 0.0f, lfoAmp, lfoPitch);
+
+            if (m_opMask[0]) out1 = 0.0f; // Mask
+
             m_operators[1].getSample(out2, out1, lfoAmp, lfoPitch);
+
+            if (m_opMask[1]) out2 = 0.0f; // Mask
 
             float finalOut = out2;
 
@@ -140,6 +146,8 @@ private:
     }
 
     std::array<FmOperator, 2> m_operators;
+    std::array<bool, 2> m_opMask{ false, false };
+
     double m_hostSampleRate = 44100.0;
     // Rate & Quality
     int m_rateIndex = 1;
