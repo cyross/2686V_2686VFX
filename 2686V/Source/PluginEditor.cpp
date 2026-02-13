@@ -1437,20 +1437,9 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         SetupSliderParams volP = SetupSliderParams::createOp(gui.page, pad.volSlider, pad.volLabel, pad.volAtt, padPrefix + "_VOL", "Vol");
         setupSlider(volP);
 
-        // ★追加: RR Slider
-                // 小さな横スライダー、またはロータリー
-        pad.rrSlider.setSliderStyle(juce::Slider::LinearBar); // 数値の上にバーが出るタイプ（省スペース）
-        // または RotaryHorizontalVerticalDrag
-        pad.rrSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        pad.rrSlider.setTooltip("Release Time");
-        pad.group.addAndMakeVisible(pad.rrSlider);
-
-        pad.rrLabel.setText("RR", juce::dontSendNotification);
-        pad.rrLabel.setFont(10.0f);
-        pad.group.addAndMakeVisible(pad.rrLabel);
-
-        // Attachment
-        pad.rrAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, padPrefix + "_RR", pad.rrSlider);
+        // RR
+        SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + "_RR", "RR");
+        setupSlider(rrP);
     }
 }
 
@@ -1539,10 +1528,10 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 
 void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
 {
-    auto setupS = [&](juce::Slider& s, juce::Label& l, juce::String name) {
+    auto setupB = [&](juce::Slider& s, juce::Label& l, juce::String name) {
         gui.page.addAndMakeVisible(s);
 
-        s.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        s.setSliderStyle(juce::Slider::LinearHorizontal);
         s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
 
         gui.page.addAndMakeVisible(l);
@@ -1573,29 +1562,52 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         bWet.onClick = [&] { targetSlider.setValue(1.0f); };
     };
 
+    std::vector<SelectItem> qualityItems = {
+        {.name = "Raw (32bit)", .value = 1 },
+        {.name = "24-bit PCM",  .value = 2 },
+        {.name = "16-bit PCM",  .value = 3 },
+        {.name = "8-bit PCM",   .value = 4 },
+        {.name = "5-bit PCM",   .value = 5 },
+        {.name = "4-bit PCM",   .value = 6 },
+        {.name = "4-bit ADPCM", .value = 7 },
+    };
+
+    std::vector<SelectItem> rateItems = {
+        {.name = "96kHz",    .value = 1 },
+        {.name = "55.5kHz",  .value = 2 },
+        {.name = "48kHz",    .value = 3 },
+        {.name = "44.1kHz",  .value = 4 },
+        {.name = "22.05kHz", .value = 5 },
+        {.name = "16kHz",    .value = 6 },
+        {.name = "8kHz",     .value = 7 },
+    };
+
+    // Tremolo Group
     SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
-    setupS(gui.tRateSlider, gui.tRateLabel, "Rate");
-    setupS(gui.tDepthSlider, gui.tDepthLabel, "Depth");
-    setupS(gui.tMixSlider, gui.tMixLabel, "Mix");
+    setupB(gui.tRateSlider, gui.tRateLabel, "Rate");
+    setupB(gui.tDepthSlider, gui.tDepthLabel, "Depth");
+    setupB(gui.tMixSlider, gui.tMixLabel, "Mix");
     setupMixBtns(gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn, gui.tMixSlider);
 
+    // Vibrato Group
     SetupGroupParams vGp = { .page = gui.page, .group = gui.vibGroup, .title = "Vibrato" };
     setupGroup(vGp);
 
-    setupS(gui.vRateSlider, gui.vRateLabel, "Rate");
-    setupS(gui.vDepthSlider, gui.vDepthLabel, "Depth");
-    setupS(gui.vMixSlider, gui.vMixLabel, "Mix");
+    setupB(gui.vRateSlider, gui.vRateLabel, "Rate");
+    setupB(gui.vDepthSlider, gui.vDepthLabel, "Depth");
+    setupB(gui.vMixSlider, gui.vMixLabel, "Mix");
     setupMixBtns(gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn, gui.vMixSlider);
 
-    SetupGroupParams cGp = { .page = gui.page, .group = gui.crushGroup, .title = "Bit Crusher" };
-    setupGroup(cGp);
+    // Modern Bit Crusher Group
+    SetupGroupParams mbcGp = { .page = gui.page, .group = gui.mbcGroup, .title = "Modern Bit Crusher" };
+    setupGroup(mbcGp);
 
-    setupS(gui.cRateSlider, gui.cRateLabel, "Downsample");
-    setupS(gui.cBitsSlider, gui.cBitsLabel, "Bit Depth");
-    setupS(gui.cMixSlider, gui.cMixLabel, "Mix");
-    setupMixBtns(gui.cDryBtn, gui.cHalfBtn, gui.cWetBtn, gui.cMixSlider);
+    setupB(gui.mbcRateSlider, gui.mbcRateLabel, "Rate");
+    setupB(gui.mbcBitsSlider, gui.mbcBitsLabel, "Quality");
+    setupB(gui.mbcMixSlider, gui.mbcMixLabel, "Mix");
+    setupMixBtns(gui.mbcDryBtn, gui.mbcHalfBtn, gui.mbcWetBtn, gui.mbcMixSlider);
 
     // Delay Group
     SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay" };
@@ -1605,19 +1617,31 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.bypassToggle.setButtonText("Master Bypass");
     gui.bypassToggle.setColour(juce::ToggleButton::textColourId, juce::Colours::orange);
 
-    setupS(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
-    setupS(gui.dFbSlider, gui.dFbLabel, "Feedback");
-    setupS(gui.dMixSlider, gui.dMixLabel, "Mix");
+    setupB(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
+    setupB(gui.dFbSlider, gui.dFbLabel, "Feedback");
+    setupB(gui.dMixSlider, gui.dMixLabel, "Mix");
     setupMixBtns(gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn, gui.dMixSlider);
 
     // Reverb Group
     SetupGroupParams rGp = { .page = gui.page, .group = gui.reverbGroup, .title = "Reverb" };
     setupGroup(rGp);
 
-    setupS(gui.rSizeSlider, gui.rSizeLabel, "Size");
-    setupS(gui.rDampSlider, gui.rDampLabel, "Damp");
-    setupS(gui.rMixSlider, gui.rMixLabel, "Mix");
+    setupB(gui.rSizeSlider, gui.rSizeLabel, "Size");
+    setupB(gui.rDampSlider, gui.rDampLabel, "Damp");
+    setupB(gui.rMixSlider, gui.rMixLabel, "Mix");
     setupMixBtns(gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn, gui.rMixSlider);
+
+    // Retro Bit Crusher Group
+    SetupGroupParams rbcGp = { .page = gui.page, .group = gui.rbcGroup, .title = "Retro Bit Crusher" };
+    setupGroup(rbcGp);
+
+    SetupComboParams rbcRateP = SetupComboParams::create(gui.page, gui.rbcRateCombo, gui.rbcRateLabel, gui.rbcRateAtt, "FX_RBC_RATE", "Rate", rateItems);
+    setupCombo(rbcRateP);
+    SetupComboParams rbcModeP = SetupComboParams::create(gui.page, gui.rbcBitsCombo, gui.rbcBitsLabel, gui.rbcBitsAtt, "FX_RBC_BITS", "Quality", qualityItems);
+    setupCombo(rbcModeP);
+
+    setupB(gui.rbcMixSlider, gui.rbcMixLabel, "Mix");
+    setupMixBtns(gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn, gui.rbcMixSlider);
 
     // Attachments
     gui.fxBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_BYPASS", gui.bypassToggle);
@@ -1627,15 +1651,16 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.vRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_RATE", gui.vRateSlider);
     gui.vDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_DEPTH", gui.vDepthSlider);
     gui.vMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_MIX", gui.vMixSlider);
-    gui.cRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_RATE", gui.cRateSlider);
-    gui.cBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_DEPTH", gui.cBitsSlider);
-    gui.cMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_BIT_MIX", gui.cMixSlider);
+    gui.mbcRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_RATE", gui.mbcRateSlider);
+    gui.mbcBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_BITS", gui.mbcBitsSlider);
+    gui.mbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_MIX", gui.mbcMixSlider);
     gui.dTimeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_TIME", gui.dTimeSlider);
     gui.dFbAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_FB", gui.dFbSlider);
     gui.dMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_MIX", gui.dMixSlider);
     gui.rSizeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_SIZE", gui.rSizeSlider);
     gui.rDampAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_DAMP", gui.rDampSlider);
     gui.rMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_MIX", gui.rMixSlider);
+    gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RBC_MIX", gui.rbcMixSlider);
 }
 
 void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
@@ -2725,19 +2750,19 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
                 // --- Layout Components Top to Bottom ---
 
                 // 1. Load Button, File Name Label, Clear Button
-                layoutComponentsLtoR(area, 20, 5, { { &pad.loadButton, {50, 4}}, { &pad.fileNameLabel, {180, 4}},{ &pad.clearButton, {30, 0}}, });
+                layoutComponentsLtoR(area, 20, 4, { { &pad.loadButton, {50, 4}}, { &pad.fileNameLabel, {180, 4}},{ &pad.clearButton, {30, 0}}, });
 
                 // 4. One Shot Toggle
-                layoutComponentsTtoB(area, 20, 5, &pad.oneShotButton);
+                layoutComponentsTtoB(area, 20, 4, &pad.oneShotButton);
 
                 // 5. Note
-                layoutComponentsTtoB(area, 15, 5, &pad.noteLabel, &pad.noteSlider);
+                layoutComponentsTtoB(area, 15, 4, &pad.noteLabel, &pad.noteSlider);
 
                 // 6. Mode
-                layoutComponentsTtoB(area, 15, 5, &pad.modeLabel, &pad.modeCombo);
+                layoutComponentsTtoB(area, 15, 4, &pad.modeLabel, &pad.modeCombo);
 
                 // 7. Rate
-                layoutComponentsTtoB(area, 15, 5, &pad.rateLabel, &pad.rateCombo);
+                layoutComponentsTtoB(area, 15, 4, &pad.rateLabel, &pad.rateCombo);
 
                 // 8. Pan
                 layoutComponentsTtoB(area, 15, 2, &pad.panLabel, &pad.panSlider);
@@ -2749,13 +2774,13 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
                 pad.btnPanC.setBounds(btnRow.removeFromLeft(btnW));
                 pad.btnPanR.setBounds(btnRow);
 
-                area.removeFromTop(5);
+                area.removeFromTop(4);
 
                 // 9. Vol
-                layoutComponentsTtoB(area, 15, 5, &pad.volLabel, &pad.volSlider);
+                layoutComponentsTtoB(area, 15, 4, &pad.volLabel, &pad.volSlider);
 
                 // 10. RR
-                layoutComponentsTtoB(area, 15, 5, &pad.rrLabel, &pad.rrSlider);
+                layoutComponentsTtoB(area, 15, 0, &pad.rrLabel, &pad.rrSlider);
             }
 
         };
@@ -2772,12 +2797,10 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
 
     gui.levelSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
-    auto topPadsArea = pageArea.removeFromTop(320);
-    auto bottomPadsArea = pageArea.removeFromTop(320);
+    auto topPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
+    auto bottomPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
 
     // Remaining area for 8 pads
-    int topPadWidth = topPadsArea.getWidth() / 4;
-
     applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);
     applyPads(bottomPadsArea, bottomPadsArea.getWidth() / 4, 4, 4);
 }
@@ -2887,6 +2910,17 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
         b2.setBounds(btnArea.withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 中央
     };
 
+    auto layoutCombo = [&](juce::Rectangle<int> r, juce::ComboBox& c, juce::Label& l) {
+        auto labelArea = r.removeFromTop(20);
+        l.setBounds(labelArea);
+
+        auto comboArea = r.removeFromTop(FxKnobHeight);
+        c.setBounds(comboArea.withSizeKeepingCentre(100, 24).translated(0, (FxKnobHeight - 24) / 2));
+
+        r.removeFromTop(5);
+        r.removeFromTop(20);
+    };
+
     auto area = content.withZeroOrigin().withSizeKeepingCentre(FxWidth, FxHeight);
 
     // 上部にバイパスボタンを配置
@@ -2918,19 +2952,19 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutMixSection(vibratoArea.removeFromRight(FxKnobAreaWidth + 20), gui.vMixSlider, gui.vMixLabel, gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn);
     layoutKnob(vibratoArea.withSizeKeepingCentre(FxKnobWidth, vibratoArea.getHeight()), gui.vDepthSlider, gui.vDepthLabel);
 
-    // Crusher
-    auto crushArea = leftCol.removeFromTop(FxGroupHeight);
-    gui.crushGroup.setBounds(crushArea);
-    crushArea.removeFromTop(20);
+    // 3. Modern Bit Crusher
+    auto mbcArea = leftCol.removeFromTop(FxGroupHeight);
+    gui.mbcGroup.setBounds(mbcArea);
+    mbcArea.removeFromTop(20);
 
     // ... (layoutKnobで3つ配置) ...
-    layoutKnob(crushArea.removeFromLeft(FxKnobWidth + 20), gui.cRateSlider, gui.cRateLabel);
-    layoutMixSection(crushArea.removeFromRight(FxKnobAreaWidth + 20), gui.cMixSlider, gui.cMixLabel, gui.cDryBtn, gui.cHalfBtn, gui.cWetBtn);
-    layoutKnob(crushArea.withSizeKeepingCentre(FxKnobWidth, crushArea.getHeight()), gui.cBitsSlider, gui.cBitsLabel);
+    layoutKnob(mbcArea.removeFromLeft(FxKnobWidth + 20), gui.mbcRateSlider, gui.mbcRateLabel);
+    layoutMixSection(mbcArea.removeFromRight(FxKnobAreaWidth + 20), gui.mbcMixSlider, gui.mbcMixLabel, gui.mbcDryBtn, gui.mbcHalfBtn, gui.mbcWetBtn);
+    layoutKnob(mbcArea.withSizeKeepingCentre(FxKnobWidth, mbcArea.getHeight()), gui.mbcBitsSlider, gui.mbcBitsLabel);
 
     // Right
 
-    // Delay
+    // 4. Delay
     auto delayArea = rightCol.removeFromTop(FxGroupHeight);
     gui.delayGroup.setBounds(delayArea);
     delayArea.removeFromTop(20);
@@ -2941,7 +2975,7 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
 
     area.removeFromTop(10);
 
-    // Lower: Reverb
+    // 5. Reverb
     auto reverbArea = rightCol.removeFromTop(FxGroupHeight);
     gui.reverbGroup.setBounds(reverbArea);
     reverbArea.removeFromTop(20);
@@ -2949,6 +2983,15 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutKnob(reverbArea.removeFromLeft(FxKnobWidth + 20), gui.rSizeSlider, gui.rSizeLabel);
     layoutMixSection(reverbArea.removeFromRight(FxKnobAreaWidth + 20), gui.rMixSlider, gui.rMixLabel, gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn);
     layoutKnob(reverbArea.withSizeKeepingCentre(FxKnobWidth, reverbArea.getHeight()), gui.rDampSlider, gui.rDampLabel);
+
+    // 6. Retro Bit Crusher
+    auto rbcArea = rightCol.removeFromTop(FxGroupHeight);
+    gui.rbcGroup.setBounds(rbcArea);
+    rbcArea.removeFromTop(20);
+
+    layoutCombo(rbcArea.removeFromLeft(FxKnobWidth + 20), gui.rbcBitsCombo, gui.rbcBitsLabel);
+    layoutMixSection(rbcArea.removeFromRight(FxKnobAreaWidth + 20), gui.rbcMixSlider, gui.rbcMixLabel, gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn);
+    layoutCombo(rbcArea.withSizeKeepingCentre(FxKnobWidth, rbcArea.getHeight()), gui.rbcRateCombo, gui.rbcRateLabel);
 }
 
 void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content)

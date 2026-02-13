@@ -763,20 +763,25 @@ void AudioPlugin2686V::createFxParameterLayout(juce::AudioProcessorValueTreeStat
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_DEPTH", "Vibrato Depth", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_VIB_MIX", "Vibrato Mix", 0.0f, 1.0f, 0.0f));
 
-    // Crush
-    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_RATE", "Crush Rate", 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
-    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_DEPTH", "Bit Depth", 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
-    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_BIT_MIX", "Crush Mix", 0.0f, 1.0f, 0.0f));
+    // --- Modern Bit Crusher ---
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_RATE", "Modern BC Rate", 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_BITS", "Modern BC Quality", 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_MBC_MIX", "Modern BX Mix", 0.0f, 1.0f, 0.0f));
 
-    // Delay
+    // --- Delay ---
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_TIME", "Delay Time", 10.0f, 1000.0f, 375.0f)); // ms
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_FB", "Delay Feedback", 0.0f, 0.95f, 0.4f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_DLY_MIX", "Delay Mix", 0.0f, 1.0f, 0.0f));
 
-    // Reverb
+    // --- Reverb ---
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_SIZE", "Reverb Size", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_DAMP", "Reverb Damp", 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RVB_MIX", "Reverb Mix", 0.0f, 1.0f, 0.0f));
+
+    // --- Retro Bit Crusher ---
+    layout.add(std::make_unique<juce::AudioParameterInt>("FX_RBC_RATE", "Retro BC Rate", 1, 7, 6));    // Default: 16kHz
+    layout.add(std::make_unique<juce::AudioParameterInt>("FX_RBC_BITS", "Retro BC Quality", 1, 7, 7)); // Default: ADPCM
+    layout.add(std::make_unique<juce::AudioParameterFloat>("FX_RBC_MIX", "Retro BC Mix", 0.0f, 1.0f, 0.0f));
 }
 
 void AudioPlugin2686V::processOpnaBlock(SynthParams &params)
@@ -1092,19 +1097,28 @@ void AudioPlugin2686V::processFxBlock(juce::AudioBuffer<float>& buffer, SynthPar
     float tMix = *apvts.getRawParameterValue("FX_TRM_MIX");
     effects.setTremoloParams(tRate, tDepth, tMix);
 
-    float cRate = *apvts.getRawParameterValue("FX_BIT_RATE");
-    float cBits = *apvts.getRawParameterValue("FX_BIT_DEPTH");
-    float cMix = *apvts.getRawParameterValue("FX_BIT_MIX");
-    effects.setDecimatorParams(cRate, cBits, cMix);
+    // Modern Bit Crusher
+    float mbcRate = *apvts.getRawParameterValue("FX_MBC_RATE");
+    float mbcBits = *apvts.getRawParameterValue("FX_MBC_BITS");
+    float mbcMix = *apvts.getRawParameterValue("FX_MBC_MIX");
+    effects.setModernBitCrusherParams(mbcRate, mbcBits, mbcMix);
 
+    // Delay
     float dTime = *apvts.getRawParameterValue("FX_DLY_TIME");
     float dFb = *apvts.getRawParameterValue("FX_DLY_FB");
     float dMix = *apvts.getRawParameterValue("FX_DLY_MIX");
     effects.setDelayParams(dTime, dFb, dMix);
 
+    // Reverb
     float rSize = *apvts.getRawParameterValue("FX_RVB_SIZE");
     float rDamp = *apvts.getRawParameterValue("FX_RVB_DAMP");
     float rMix = *apvts.getRawParameterValue("FX_RVB_MIX");
+
+    // Retro Bit Crusher
+    int rbcRate = (int)*apvts.getRawParameterValue("FX_RBC_RATE");
+    int rbcBits = (int)*apvts.getRawParameterValue("FX_RBC_BITS");
+    float rbcMix = *apvts.getRawParameterValue("FX_RBC_MIX");
+    effects.setRetroBitCrusherParams(rbcRate, rbcBits, rbcMix);
 
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
