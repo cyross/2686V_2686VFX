@@ -128,7 +128,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     int m = (int)*apvts.getRawParameterValue("MODE");
     params.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
-    juce::Logger::getCurrentLogger()->writeToLog("MODE: " + juce::String(int(params.mode)));
     switch (params.mode)
     {
     case OscMode::OPNA:

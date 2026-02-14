@@ -63,7 +63,6 @@ public:
 
     void noteOn(float frequency)
     {
-        juce::Logger::getCurrentLogger()->writeToLog("Rate:" + juce::String(m_rateIndex));
         m_phase = 0.0f;
         m_modPhase = 0.0f;
         m_phaseDelta = frequency / m_sampleRate;
