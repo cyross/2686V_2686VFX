@@ -141,12 +141,15 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
 
-    // スライダーの設定
+    // フッターの設定
+    addAndMakeVisible(footerGroup);
+    footerGroup.setText("Footer");
+    footerGroup.setTextLabelPosition(juce::Justification::centredLeft);
+    footerGroup.toBack();
+
+    // マスターボリュームの設定
     masterVolLabel.setText("Master Volume", juce::NotificationType::dontSendNotification);
-    masterVolLabel.setFont(juce::Font(24.0f));
-    masterVolLabel.setSize(100, 30);
     masterVolLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    masterVolLabel.setColour(juce::Label::backgroundColourId, juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f));
     addAndMakeVisible(masterVolLabel);
 
     masterVolSlider.setSliderStyle(juce::Slider::LinearHorizontal); // または Rotary
@@ -220,28 +223,32 @@ void AudioPlugin2686VEditor::resized()
     auto content = tabs.getLocalBounds();
     content.removeFromTop(tabs.getTabBarDepth());
     content.reduce(GroupPaddingWidth, GroupPaddingHeight); // 全体の余白
-    auto inner = content.removeFromTop(content.getHeight() - 80);
-
-    layoutOpnaPage(opnaGui, inner);
-    layoutOpnPage(opnGui, inner);
-    layoutOplPage(oplGui, inner);
-	layoutOpllPage(opllGui, inner);
-	layoutOpl3Page(opl3Gui, inner);
-	layoutOpmPage(opmGui, inner);
-    layoutOpzx3Page(opzx3Gui, inner);
-	layoutSsgPage(ssgGui, inner);
-    layoutWtPage(wtGui, inner);
-	layoutRhythmPage(rhythmGui, inner);
-	layoutAdpcmPage(adpcmGui, inner);
-    layoutFxPage(fxGui, inner);
-    layoutPresetPage(presetGui, inner);
-    layoutSettingsPage(settingsGui, inner);
-    layoutAboutPage(aboutGui, inner);
 
     // マスターボリュームは、タブの一番下に付ける
-    auto masterVolArea = content.reduced(100, 10);
-    masterVolLabel.setBounds(masterVolArea.removeFromLeft(200));
-    masterVolSlider.setBounds(masterVolArea.removeFromLeft(400));
+    auto footerArea = content.removeFromBottom(80);
+    footerGroup.setBounds(footerArea);
+    auto footerRect = footerArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    footerRect.removeFromTop(TitlePaddingTop); // タイトル回避
+
+    auto masterVolumeArea = footerRect.reduced(100, 0);
+    masterVolLabel.setBounds(masterVolumeArea.removeFromLeft(200));
+    masterVolSlider.setBounds(masterVolumeArea.removeFromLeft(400));
+
+    layoutOpnaPage(opnaGui, content);
+    layoutOpnPage(opnGui, content);
+    layoutOplPage(oplGui, content);
+	layoutOpllPage(opllGui, content);
+	layoutOpl3Page(opl3Gui, content);
+	layoutOpmPage(opmGui, content);
+    layoutOpzx3Page(opzx3Gui, content);
+	layoutSsgPage(ssgGui, content);
+    layoutWtPage(wtGui, content);
+	layoutRhythmPage(rhythmGui, content);
+	layoutAdpcmPage(adpcmGui, content);
+    layoutFxPage(fxGui, content);
+    layoutPresetPage(presetGui, content);
+    layoutSettingsPage(settingsGui, content);
+    layoutAboutPage(aboutGui, content);
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)

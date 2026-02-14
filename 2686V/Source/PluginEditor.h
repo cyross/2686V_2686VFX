@@ -1436,6 +1436,8 @@ public:
 private:
     AudioPlugin2686V& audioProcessor;
 
+    // グローバルフッター
+    ColoredGroupComponent footerGroup;
     // マスターボリューム用のスライダーとアタッチメント
     juce::Slider masterVolSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
