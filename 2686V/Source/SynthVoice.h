@@ -7,6 +7,7 @@
 #include "OpllCore.h"
 #include "Opl3Core.h"
 #include "OpmCore.h"
+#include "Opzx3Core.h"
 #include "SSGCore.h"
 #include "WavetableCore.h"
 #include "RhythmCore.h"
@@ -47,6 +48,9 @@ public:
                 break;
             case OscMode::OPM:
                 m_opmCore.setParameters(params);
+                break;
+            case OscMode::OPZX3:
+                m_opzx3Core.setParameters(params);
                 break;
             case OscMode::SSG:
                 m_ssgCore.setParameters(params);
@@ -97,6 +101,9 @@ public:
             case OscMode::OPM:
                 m_opmCore.noteOn(cyclesPerSecond, velocity);
                 break;
+            case OscMode::OPZX3:
+                m_opzx3Core.noteOn(cyclesPerSecond, velocity);
+                break;
             case OscMode::SSG:
                 m_ssgCore.noteOn(cyclesPerSecond);
                 break;
@@ -122,6 +129,7 @@ public:
         m_opllCore.noteOff();
         m_opl3Core.noteOff();
         m_opmCore.noteOff();
+        m_opzx3Core.noteOff();
         m_ssgCore.noteOff();
         m_wtCore.noteOff();
         m_rhythmCore.noteOff();
@@ -191,6 +199,14 @@ public:
                 outL[startSample + i] += sample;
                 outR[startSample + i] += sample;
             }
+            else if (m_mode == OscMode::OPZX3)
+            {
+                sample = m_opzx3Core.getSample();
+                isActive = m_opzx3Core.isPlaying();
+
+                outL[startSample + i] += sample;
+                outR[startSample + i] += sample;
+            }
             else if (m_mode == OscMode::SSG)
             {
                 sample = m_ssgCore.getSample();
@@ -249,6 +265,7 @@ public:
             m_opllCore.prepare(newRate);
             m_opl3Core.prepare(newRate);
             m_opmCore.prepare(newRate);
+            m_opzx3Core.prepare(newRate);
             m_ssgCore.prepare(newRate);
             m_wtCore.prepare(newRate);
             m_rhythmCore.prepare(newRate);
@@ -278,6 +295,9 @@ public:
             break;
         case OscMode::OPM:
             m_opmCore.setPitchBend(newPitchWheelValue);
+            break;
+        case OscMode::OPZX3:
+            m_opzx3Core.setPitchBend(newPitchWheelValue);
             break;
         case OscMode::SSG:
             m_ssgCore.setPitchBend(newPitchWheelValue);
@@ -320,6 +340,9 @@ public:
             case OscMode::OPM:
                 m_opmCore.setModulationWheel(newControllerValue);
                 break;
+            case OscMode::OPZX3:
+                m_opzx3Core.setModulationWheel(newControllerValue);
+                break;
             case OscMode::SSG:
                 m_ssgCore.setModulationWheel(newControllerValue);
                 break;
@@ -343,6 +366,7 @@ private:
     OpllCore m_opllCore;
     Opl3Core m_opl3Core;
     OpmCore  m_opmCore;
+    Opzx3Core m_opzx3Core;
     SsgCore m_ssgCore;
     WavetableCore m_wtCore;
     RhythmCore m_rhythmCore;

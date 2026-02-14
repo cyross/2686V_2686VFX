@@ -3,7 +3,12 @@
 #include <cmath>
 #include <vector>
 #include <array>
+#include <algorithm>
 #include "Mode.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 // ==========================================================
 // Shared FM Operator Class
@@ -30,7 +35,13 @@ public:
         if (!m_useSsgEg) m_params.ssgEg = 0;
 
         // OPNA/OPNの場合はWaveSelectを無視(Sine固定)
-        if (!m_useWaveSelect) m_params.waveSelect = 0;
+        if (m_useWaveSelect) {
+            m_params.waveSelect = params.waveSelect;
+        }
+        else
+        {
+            m_params.waveSelect = 0;
+        }
     }
 
     void noteOn(float frequency, float velocity, int noteNumber)
@@ -145,10 +156,12 @@ public:
 
         float modulatedPhase = m_phase + modulator + feedbackMod;
 
+        float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
+
         // Wave Select (OPL Only / Standard Sine)
         // ここで m_targetLevel (Velocity/TL) を適用します！
         // これにより、Attackが1.0に張り付くスパイクノイズが解消されます。
-        output = calculateWave(modulatedPhase) * envVal * m_targetLevel;
+        output = rawWave * envVal * m_targetLevel;
 
         // Feedback Memory Update
         // フィードバックはGain適用後の値を使うのが一般的ですが、FMの構成によっては適用前の場合もあります。今回は適用後でOKです。
@@ -158,9 +171,11 @@ public:
         m_phase += currentPhaseDelta;
         if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
     }
-
 private:
-    float calculateWave(float phase)
+    // 29種類の波形生成ロジック
+    // phase: 0.0 ～ 1.0 (正規化された位相)
+    // wave: 0 ～ 28 (波形番号)
+    float calcWaveform(double phase, int wave)
     {
         float p = std::fmod(phase, 2.0f * juce::MathConstants<float>::pi);
         if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
@@ -168,12 +183,81 @@ private:
 
         if (!m_useWaveSelect) return s; // Default Sine
 
-        switch (m_params.waveSelect) {
-            case 0: return s;
-            case 1: return (s > 0.0f) ? s : 0.0f; // Half
-            case 2: return std::abs(s); // Abs
-            case 3: return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-            default: return s;
+        switch (wave) {
+            // 0-7: OPZ / OPL3 Compatible Set
+        case 0:  return (float)s; // Sine
+        case 1:  return (float)(phase < 0.5 ? s : 0.0); // Half Sine
+        case 2:  return (float)(std::abs(s)); // Abs Sine
+        case 3:
+            if (m_useSsgEg)
+            {
+                return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
+            }
+            else
+            {
+                return (float)(phase < 0.25 ? s : 0.0); // Quarter Sine (Pulse Sine)
+            }
+            // case 4:  return (float)(phase < 0.5 ? s : -s); // Alternating Sine (Period*2 like) -> actually OPL3 "Camel" is different
+        case 4:
+            return (float)(std::sin(p * 2.0) * (phase < 0.5 ? 1.0 : -1.0)); // SD-1 spec for 4: "Alternating Half Sine" (Phase x 2)
+        case 5:  return (float)(std::abs(std::sin(p * 2.0))); // Alt Abs (Camel)
+        case 6:  return (float)(phase < 0.5 ? 1.0 : -1.0); // Square
+        case 7:  return (float)(s > 0.0 ? s : 0.0) * (phase < 0.5 ? 1.0 : -1.0); // Derived Square (Saturated Sine)
+            // Or simple Saw approximation using Sine segments?
+            // SD-1 7 is "Exponentiated Sine" or "Derived Square".
+            // Let's use "Square-ish Sine" for now.
+            // 8-12: Saw / Tri Variations
+        case 8:  return (float)(1.0 - phase * 2.0); // Saw Down
+        case 9:  return (float)(phase * 2.0 - 1.0); // Saw Up
+        case 10: // Triangle
+            return (float)(phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
+        case 11: // Saw + Sine combined (Hybrid)
+            return (float)((1.0 - phase * 2.0) * 0.5 + s * 0.5);
+        case 12: // Log Saw (Buzzy)
+        {
+            double saw = 1.0 - phase * 2.0;
+            return (float)(saw * saw * saw); // Cubic curve
+        }
+        // 13-18: Pulse / Square Variations (Duty Cycles)
+        case 13: return (float)(phase < 0.25 ? 1.0 : -1.0); // Pulse 25%
+        case 14: return (float)(phase < 0.125 ? 1.0 : -1.0); // Pulse 12.5%
+        case 15: return (float)(phase < 0.0625 ? 1.0 : -1.0); // Pulse 6.25%
+        case 16: // Rounded Square (Soft Square)
+            return (float)(std::tanh(s * 5.0));
+        case 17: // Impulse train (approx)
+            return (float)(std::exp(-100.0 * std::pow(phase - 0.5, 2.0)) * 2.0 - 1.0);
+        case 18: // Comb / Multi-pulse
+            return (float)(std::sin(p * 1.0) + std::sin(p * 3.0) * 0.5 + std::sin(p * 5.0) * 0.25);
+            // 19-28: Resonant / Complex Waves (MA-5 Special)
+        case 19: // Resonant Saw (Low)
+            return (float)((1.0 - phase * 2.0) * std::sin(p * 4.0));
+        case 20: // Resonant Saw (High)
+            return (float)((1.0 - phase * 2.0) * std::sin(p * 8.0));
+        case 21: // Resonant Triangle
+        {
+            double tri = (phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
+            return (float)(tri * std::sin(p * 3.0));
+        }
+        case 22: // Bulb Sine (Narrow Sine)
+        {
+            double x = std::sin(p);
+            return (float)(x * x * x);
+        }
+        case 23: // Double Hump
+            return (float)(std::sin(p) * std::sin(p * 2.0));
+        case 24: // Pseudo Voice Formant 1
+            return (float)(s + 0.5 * std::sin(p * 2.0) + 0.25 * std::sin(p * 4.0));
+        case 25: // Pseudo Voice Formant 2
+            return (float)(s * std::cos(p * 2.5));
+        case 26: // Metallic 1
+            return (float)(std::sin(p) * std::sin(p * 1.414)); // FM Ring Mod simulation
+        case 27: // Metallic 2
+            return (float)(std::sin(p) * std::cos(p * 0.5));
+        case 28: // Noise-like (LFO Noiseとは別、周期的なノイズ波形)
+            // Pseudo-random but phase locked
+            return (float)(std::sin(p * 13.0) * std::cos(p * 7.0) * std::sin(p * 2.0));
+        default:
+            return (float)s; // Default Sine
         }
     }
 

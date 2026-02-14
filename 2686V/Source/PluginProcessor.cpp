@@ -44,7 +44,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6:SSG, 7:WAVETABLE 8:RHYTHM, 9:ADPCM
+    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX3 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM
     layout.add(std::make_unique<juce::AudioParameterInt>("MODE", "Mode", 0, TabNumber, 0));
 
 	createOpnaParameterLayout(layout);
@@ -53,6 +53,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	createOpllParameterLayout(layout);
 	createOpl3ParameterLayout(layout);
 	createOpmParameterLayout(layout);
+    createOpzx3ParameterLayout(layout);
     createSsgParameterLayout(layout);
     createWavetableParameterLayout(layout);
     createRhythmParameterLayout(layout);
@@ -127,6 +128,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     int m = (int)*apvts.getRawParameterValue("MODE");
     params.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
+    juce::Logger::getCurrentLogger()->writeToLog("MODE: " + juce::String(int(params.mode)));
     switch (params.mode)
     {
     case OscMode::OPNA:
@@ -146,6 +148,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         break;
     case OscMode::OPM:
         processOpmBlock(params);
+        break;
+    case OscMode::OPZX3:
+        processOpzx3Block(params);
         break;
     case OscMode::SSG:
         processSsgBlock(params);
@@ -287,6 +292,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute("presetName", presetName);
     xml->setAttribute("presetAuthor", presetAuthor);
     xml->setAttribute("presetVersion", presetVersion);
+    xml->setAttribute("activeModeName", getModeName((OscMode)(int)*apvts.getRawParameterValue("MODE")));
 
     xml->setAttribute("adpcmPath", makePathRelative(juce::File(adpcmFilePath)));
     for (int i = 0; i < 8; ++i) {
@@ -586,6 +592,46 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
     layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "OPM LFO Freq", 0.1f, 50.0f, 5.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_PMS", "OPM LFO PMS", 0, 7, 0));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_AMS", "OPM LFO AMS", 0, 3, 0));
+}
+
+void AudioPlugin2686V::createOpzx3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
+{
+    // ==========================================
+    // OPZ + OPX + MA-3(SD-1) Parameters
+    // ==========================================
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_ALGORITHM", "OPZX3 Algorithm", 0, 27, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPZX3_FEEDBACK", "OPZX3 Feedback", 0.0f, 7.0f, 0.0f));
+
+    // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_BIT", "OPZX3 Bit Depth", 0, 4, 4));
+    // ADD: Sample Rate Index
+    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_RATE", "OPZX3 Rate", 1, 7, 2)); // Default 6 (16kHz)
+
+    for (int op = 0; op < 4; ++op)
+    {
+        juce::String prefix = "OPZX3_OP" + juce::String(op) + "_";
+        juce::String namePrefix = "OPZX3 OP" + juce::String(op + 1) + " ";
+
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT2", namePrefix + "DT2", 0, 3, 0)); // Coarse Detune (OPM Only)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "D1R", 0.0f, 1.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "D1L", 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "D2R", 0.0f, 1.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "FREQ", namePrefix + "FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "WS", 0, 28, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
+    }
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPZX3_LFO_FREQ", "OPZX3 LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_LFO_PMS", "OPZX3 LFO PMS", 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_LFO_AMS", "OPZX3 LFO AMS", 0, 3, 0));
 }
 
 void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -964,6 +1010,44 @@ void AudioPlugin2686V::processOpmBlock(SynthParams& params)
     params.lfoFreq = *apvts.getRawParameterValue("OPM_LFO_FREQ");
     params.pms = (int)*apvts.getRawParameterValue("OPM_LFO_PMS");
     params.ams = (int)*apvts.getRawParameterValue("OPM_LFO_AMS");
+}
+
+void AudioPlugin2686V::processOpzx3Block(SynthParams& params)
+{
+    params.feedback = *apvts.getRawParameterValue("OPZX3_FEEDBACK");
+    params.algorithm = (int)*apvts.getRawParameterValue("OPZX3_ALGORITHM");
+    params.fmBitDepth = (int)*apvts.getRawParameterValue("OPZX3_BIT");
+    params.fmRateIndex = (int)*apvts.getRawParameterValue("OPZX3_RATE");
+
+    for (int op = 0; op < 4; ++op)
+    {
+        juce::String p = "OPZX3_OP" + juce::String(op) + "_";
+
+        params.fmOp[op].multiple = (int)*apvts.getRawParameterValue(p + "MUL");
+        params.fmOp[op].detune = (int)*apvts.getRawParameterValue(p + "DT");
+        params.fmOp[op].detune2 = (int)*apvts.getRawParameterValue(p + "DT2");
+        params.fmOp[op].totalLevel = *apvts.getRawParameterValue(p + "TL");
+        params.fmOp[op].attack = *apvts.getRawParameterValue(p + "AR");
+        params.fmOp[op].decay = *apvts.getRawParameterValue(p + "DR");
+        params.fmOp[op].sustain = *apvts.getRawParameterValue(p + "SL");
+        params.fmOp[op].sustainRate = *apvts.getRawParameterValue(p + "SR");
+        params.fmOp[op].release = *apvts.getRawParameterValue(p + "RR");
+        params.fmOp[op].keyScale = (int)*apvts.getRawParameterValue(p + "KS");
+        params.fmOp[op].keyScaleLevel = 0;
+        params.fmOp[op].ssgEg = 0;
+        params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + "FIX") > 0.5f);
+        params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + "FREQ");
+        params.fmOp[op].waveSelect = 0;
+        params.fmOp[op].amEnable = false;
+        params.fmOp[op].vibEnable = true;
+        params.fmOp[op].egType = true;
+        params.fmOp[op].waveSelect = (int)*apvts.getRawParameterValue(p + "WS");
+        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + "MASK") > 0.5f);
+    }
+
+    params.lfoFreq = *apvts.getRawParameterValue("OPZX3_LFO_FREQ");
+    params.pms = (int)*apvts.getRawParameterValue("OPZX3_LFO_PMS");
+    params.ams = (int)*apvts.getRawParameterValue("OPZX3_LFO_AMS");
 }
 
 void AudioPlugin2686V::processSsgBlock(SynthParams &params)

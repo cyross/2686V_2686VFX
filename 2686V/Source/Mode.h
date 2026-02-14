@@ -13,10 +13,11 @@ enum class OscMode
     OPLL = 3, // YM2413 (MSX-MUSIC)
     OPL3 = 4, // YMF262
     OPM = 5,   // YM2151 (X68000/Arcade)
-    SSG = 6,
-    WAVETABLE = 7,
-    RHYTHM = 8,
-    ADPCM = 9,
+    OPZX3 = 6,
+    SSG = 7,
+    WAVETABLE = 8,
+    RHYTHM = 9,
+    ADPCM = 10,
 };
 
 static juce::String getModeName(OscMode mode) {
@@ -27,6 +28,7 @@ static juce::String getModeName(OscMode mode) {
         case OscMode::OPLL: return "OPLL";
         case OscMode::OPL3: return "OPL3";
         case OscMode::OPM:  return "OPM";
+        case OscMode::OPZX3:  return "OPZX3";
         case OscMode::SSG:  return "SSG";
         case OscMode::WAVETABLE: return "WAVETABLE";
         case OscMode::RHYTHM: return "RHYTHM";
@@ -42,6 +44,7 @@ static OscMode getModeFromString(const juce::String& name) {
     if (name == "OPLL") return OscMode::OPLL;
     if (name == "OPL3") return OscMode::OPL3;
     if (name == "OPM")  return OscMode::OPM;
+    if (name == "OPZX3")  return OscMode::OPZX3;
     if (name == "SSG")  return OscMode::SSG;
     if (name == "WAVETABLE") return OscMode::WAVETABLE;
     if (name == "RHYTHM") return OscMode::RHYTHM;

@@ -75,6 +75,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	// OPM (YM2151) : 4op
 	setupOpmGui(opmGui);
 
+    // OPZX3 (CYROSS Original): 4op
+    setupOpzx3Gui(opzx3Gui);
+
     // ============================
     // SSG Page
     // ============================
@@ -181,7 +184,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
 
-        if (targetMode >= 0 && targetMode <= (int)OscMode::ADPCM) // ADPCM is 9
+        if (targetMode >= 0 && targetMode <= (int)OscMode::ADPCM) // ADPCM is 10
         {
             auto* param = audioProcessor.apvts.getParameter("MODE");
             if (param != nullptr)
@@ -225,6 +228,7 @@ void AudioPlugin2686VEditor::resized()
 	layoutOpllPage(opllGui, inner);
 	layoutOpl3Page(opl3Gui, inner);
 	layoutOpmPage(opmGui, inner);
+    layoutOpzx3Page(opzx3Gui, inner);
 	layoutSsgPage(ssgGui, inner);
     layoutWtPage(wtGui, inner);
 	layoutRhythmPage(rhythmGui, inner);
@@ -310,6 +314,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 	tabs.addTab("OPLL", juce::Colours::transparentBlack, &opllGui.page, true);
     tabs.addTab("OPL3", juce::Colours::transparentBlack, &opl3Gui.page, true);
     tabs.addTab("OPM", juce::Colours::transparentBlack, &opmGui.page, true);
+    tabs.addTab("OPZX3", juce::Colours::transparentBlack, &opzx3Gui.page, true);
     tabs.addTab("SSG", juce::Colours::transparentBlack, &ssgGui.page, true);
     tabs.addTab("WAVETABLE", juce::Colours::transparentBlack, &wtGui.page, true);
     tabs.addTab("RHYTHM", juce::Colours::transparentBlack, &rhythmGui.page, true);
@@ -471,15 +476,15 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> seItems = {
-        {.name = "Normal (OFF)", .value = 1 },
-        {.name = "\\ \\ \\ \\ (Saw Dn)", .value = 2 },
-        {.name = "\\_ \\_ (Dn Hold)", .value = 3 },
-        {.name = "\\ / \\ / (Tri)", .value = 4 },
-        {.name = "\\- \\- (Dn Hold Alt)", .value = 5 },
-        {.name = "/ / / / (Saw Up)", .value = 6 },
-        {.name = "/~ /~ (Up Hold)", .value = 7 },
-        {.name = "/ \\ / \\ (Tri Inv)", .value = 8 },
-        {.name = "/_ /_ (Up Hold Alt)", .value = 9 },
+        {.name = "Normal", .value = 1 },
+        {.name = "Saw Down", .value = 2 },
+        {.name = "Saw Down & Hold", .value = 3 },
+        {.name = "Triangle", .value = 4 },
+        {.name = "Alternative Saw Down & Hold", .value = 5 },
+        {.name = "Saw Up", .value = 6 },
+        {.name = "Saw Up & Hold", .value = 7 },
+        {.name = "Triangle Invert", .value = 8 },
+        {.name = "Alternative Saw Up & Hold", .value = 9 },
     };
     std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
@@ -879,13 +884,13 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> wsItems = {
         {.name = "Sine", .value = 1},
-        {.name = "Half", .value = 2},
-        {.name = "Abs", .value = 3},
+        {.name = "Half Sine", .value = 2},
+        {.name = "Abs Sine", .value = 3},
         {.name = "Pulse", .value = 4},
-        {.name = "Sine(Alt)", .value = 5},
-        {.name = "Abs(Alt)", .value = 6},
+        {.name = "Alternative Sine", .value = 5},
+        {.name = "Alternative Abs Sine", .value = 6},
         {.name = "Square", .value = 7},
-        {.name = "Derived Sq", .value = 8},
+        {.name = "Derived Square", .value = 8},
     };
 
     std::vector<SelectItem> bdItems = {
@@ -1083,6 +1088,151 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     }
 }
 
+void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
+{
+    std::vector<SelectItem> pmsItems = createItems(8);
+    std::vector<SelectItem> amsItems = createItems(4);
+    std::vector<SelectItem> algItems = createAlgItems(27);
+    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> bdItems = {
+        {.name = "4-bit (16 steps)",  .value = 1 },
+        {.name = "5-bit (32 steps)",  .value = 2 },
+        {.name = "6-bit (64 steps)",  .value = 3 },
+        {.name = "8-bit (256 steps)", .value = 4 },
+        {.name = "Raw",               .value = 5 },
+    };
+    std::vector<SelectItem> rateItems = {
+        {.name = "96kHz",    .value = 1 },
+        {.name = "55.5kHz",  .value = 2 },
+        {.name = "48kHz",    .value = 3 },
+        {.name = "44.1kHz",  .value = 4 },
+        {.name = "22.05kHz", .value = 5 },
+        {.name = "16kHz",    .value = 6 },
+        {.name = "8kHz",     .value = 7 },
+    };
+    std::vector<SelectItem> wsItems = {
+        {.name = "Sine", .value = 1},
+        {.name = "Half Sine", .value = 2},
+        {.name = "Abs Sine", .value = 3},
+        {.name = "Alternating Half Sine", .value = 4},
+        {.name = "Alternating Sine", .value = 5},
+        {.name = "Alternating Abs Sine", .value = 6},
+        {.name = "Square", .value = 7},
+        {.name = "Derived Square", .value = 8},
+        {.name = "Saw Down", .value = 9},
+        {.name = "Saw Up", .value = 10},
+        {.name = "Triangle", .value = 11},
+        {.name = "Saw + Sine", .value = 12},
+        {.name = "Log Saw", .value = 13},
+        {.name = "Pulse 25%", .value = 14},
+        {.name = "Pulse 12.5%", .value = 15},
+        {.name = "Pulse 6.25%", .value = 16},
+        {.name = "Round Square", .value = 17},
+        {.name = "Impulse Train", .value = 18},
+        {.name = "Comb / Multi-pulse", .value = 19},
+        {.name = "Resonant Saw (Low)", .value = 20},
+        {.name = "Resonant Saw (High)", .value = 21},
+        {.name = "Resonant Triangle", .value = 22},
+        {.name = "Bulb Sine", .value = 23},
+        {.name = "Double Hump", .value = 24},
+        {.name = "Pseudo Voice Formant 1", .value = 25},
+        {.name = "Pseudo Voice Formant 2", .value = 26},
+        {.name = "Metallic 1", .value = 27},
+        {.name = "Metallic 2", .value = 28},
+        {.name = "Noise-Like", .value = 29},
+    };
+
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    setupGroup(groupParams);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPZX3_ALGORITHM", "Algorithm", algItems);
+    setupCombo(algParams);
+    attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPZX3_FEEDBACK", "Feedback");
+    setupFbSlider(fbParams);
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPZX3_LFO_FREQ", "LFO FREQ");
+    setupSlider(fqParams);
+    attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
+    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, "OPZX3_LFO_PMS", "LFO PMS", pmsItems);
+    setupCombo(pmsParams);
+    attatchLabelToComponent(gui.pmsLabel, gui.pmsSelector);
+    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, "OPZX3_LFO_AMS", "LFO AMS", amsItems);
+    setupCombo(amsParams);
+    attatchLabelToComponent(gui.amsLabel, gui.amsSelector);
+
+    SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
+    setupGroup(qGroupParams);
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPZX3_BIT", "Bit Depth", bdItems, { 40, 15 });
+    setupCombo(bParams);
+    attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPZX3_RATE", "Rate", rateItems, { 40, 15 });
+    setupCombo(rtParams);
+    attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
+
+    // Operators
+    SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
+    setupOpGroups(opGroupsParams);
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String paramPrefix = "OPZX3_OP" + juce::String(i) + "_";
+
+        gui.page.addAndMakeVisible(gui.mmlBtn[i]);
+        gui.mmlBtn[i].setButtonText("MML");
+        gui.mmlBtn[i].onClick = [this, &gui, i] {
+            auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
+                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                juce::AlertWindow::QuestionIcon);
+
+            w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
+            w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+            w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+            w->enterModalState(true, juce::ModalCallbackFunction::create([this, w, &gui, i](int result) {
+                if (result == 1) {
+                    // 入力文字列を取得して適用
+                    juce::String mml = w->getTextEditorContents("mmlInput");
+                    applyMmlString(mml, gui, i);
+                }
+                }), true);
+            };
+
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        setupSlider(mulParams);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + "DT", "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        setupSlider(dtParams);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        setupSlider(tlParams);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        setupCombo(ksParams);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        setupSlider(arParams);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        setupSlider(drParams);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        setupSlider(slParams);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        setupSlider(srParams);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        setupSlider(rrParams);
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
+        setupSlider(dt2Params);
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        setupToggleButton(fixParams);
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        setupSlider(freqParams);
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", OpTextButtonSize, { false, false });
+        setupTextButton(fto0Params);
+        gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", OpTextButtonSize, { false, false });
+        setupTextButton(fto440Params);
+        gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
+        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
+        setupCombo(wsParams);
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        setupToggleButton(maskParams);
+    }
+}
+
 void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
@@ -1104,16 +1254,15 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
         {.name = "1:15 (6.25%)", .value = 8 },
     };
     std::vector<SelectItem> envItems = {
-        {.name = "08: \\\\\\\\ (Decay)", .value = 1 },
-        {.name = "09: \\___ (Decay->0)", .value = 2 },
-        {.name = "0A: \\/\\/ (Tri)", .value = 3 },
-        {.name = "0B: \\``` (Decay->1)", .value = 4 },
-        {.name = "0C: //// (Attack)", .value = 5 },
-        {.name = "0D: /``` (Attack->1)", .value = 6 },
-        {.name = "0E: /\\/\\ (Inv Tri)", .value = 7 },
-        {.name = "0F: /___ (Attack->0)", .value = 8 },
+        {.name = "Saw Down", .value = 1 },
+        {.name = "Saw Down & Hold", .value = 2 },
+        {.name = "Triangle", .value = 3 },
+        {.name = "Alternative Saw Down & Hold", .value = 4 },
+        {.name = "Saw Up", .value = 5 },
+        {.name = "Saw Up & Hold", .value = 6 },
+        {.name = "Triangle Invert", .value = 7 },
+        {.name = "Alternative Saw Up & Hold", .value = 8 },
     };
-
     std::vector<SelectItem> bdItems = {
         {.name = "4-bit (16 steps)",  .value = 1 },
         {.name = "5-bit (32 steps)",  .value = 2 },
@@ -2470,6 +2619,75 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
 
         innerRect.removeFromTop(5);
 
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.maskLabel[i], &gui.mask[i]);
+        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+    }
+}
+
+void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin();
+
+    // --- A. Global Section (Top) ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
+
+    gui.globalGroup.setBounds(topArea);
+    auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
+
+    // Globalエリアも少し余裕を持たせて配置
+    gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.pmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.amsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+
+    // --- Quality Group ---
+    auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
+
+    gui.qualityGroup.setBounds(qualityArea);
+
+    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
+
+    pageArea.removeFromTop(10); // Spacer
+
+    // --- B. Operators Section (Bottom) ---
+    for (int i = 0; i < 4; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(FmOpWidth);
+
+        // 枠線
+        gui.opGroups[i].setBounds(opArea.reduced(2));
+
+        // 枠線の内側
+        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
+        innerRect.removeFromTop(20); // タイトル(Operator X)回避
+
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.srLabel[i], &gui.sr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
+        layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
+
+        auto btnRow = innerRect.removeFromTop(20);
+        int btnW = btnRow.getWidth() / 2;
+
+        gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
+        gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
+
+        innerRect.removeFromTop(5);
+
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.wsLabel[i], &gui.ws[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }

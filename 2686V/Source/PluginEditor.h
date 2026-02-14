@@ -17,7 +17,7 @@ static const float LogoFontSize = 128.0f;
 static const int WindowWidth = 1200;
 static const int WindowHeight = 880;
 
-static const int TabNumber = 13;
+static const int TabNumber = 14;
 
 static const int Fm4Ops = 4;
 static const int Fm2Ops = 2;
@@ -599,6 +599,69 @@ struct OpmGuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
+    std::unique_ptr<ComboBoxAttachment> algAtt, lfoWaveAtt, pmsAtt, amsAtt;
+    std::unique_ptr<SliderAttachment> fbAtt, lfoFreqAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqToZeroAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqTo440Att;
+
+};
+
+struct Opzx3GuiSet
+{
+    juce::Component page;
+
+    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent lfoGroup;
+    ColoredGroupComponent qualityGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups;
+
+    // Global
+    juce::ComboBox algSelector; juce::Label algLabel;
+    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
+
+    // OPM LFO
+    juce::Slider lfoFreqSlider; juce::Label lfoFreqLabel;
+    juce::ComboBox lfoWaveSelector; juce::Label lfoWaveLabel;
+    juce::ComboBox pmsSelector; juce::Label pmsLabel;
+    juce::ComboBox amsSelector; juce::Label amsLabel;
+
+    // Operator Sliders
+    // dr => d1r, sl => d1l, sr => d2r
+    std::array<juce::Slider, Fm4Ops> mul, dt1, dt2, tl, ar, dr, sl, sr, rr;
+    std::array<juce::Label, Fm4Ops> mulLabel, dt1Label, dt2Label, tlLabel, arLabel, drLabel, slLabel, srLabel, rrLabel, ksLabel;
+    std::array<juce::ComboBox, Fm4Ops> ks;
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+
+    std::array<juce::ToggleButton, Fm4Ops> fix;
+    std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::TextButton, Fm4Ops> freqToZero;
+    std::array<juce::TextButton, Fm4Ops> freqTo440;
+    std::array<juce::ComboBox, Fm4Ops> ws;
+
+    std::array<juce::Label, Fm4Ops> fixLabel;
+    std::array<juce::Label, Fm4Ops> freqLabel;
+    std::array<juce::Label, Fm4Ops> freqToZeroLabel;
+    std::array<juce::Label, Fm4Ops> freqTo440Label;
+    std::array<juce::Label, Fm4Ops> wsLabel;
+    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
+
+    // Attachments
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> wsAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
     std::unique_ptr<ComboBoxAttachment> algAtt, lfoWaveAtt, pmsAtt, amsAtt;
     std::unique_ptr<SliderAttachment> fbAtt, lfoFreqAtt;
@@ -1392,11 +1455,12 @@ private:
 	OpllGuiSet opllGui; // OPLL
     Opl3GuiSet opl3Gui; // OPL3
     OpmGuiSet opmGui; // OPM
+    Opzx3GuiSet opzx3Gui; // OPZX3
     SsgGuiSet ssgGui; // SSG
 	WtGuiSet wtGui; // Wavetable
 	RhythmGuiSet rhythmGui; // Rhythm
 	AdpcmGuiSet adpcmGui; // ADPCM
-    FxGuiSet fxGui; // ★追加
+    FxGuiSet fxGui; // FX
     PresetGuiSet presetGui;
     SettingsGuiSet settingsGui;
     AboutGuiSet aboutGui;
@@ -1429,6 +1493,7 @@ private:
     void setupOpllGui(OpllGuiSet& gui);
     void setupOpl3Gui(Opl3GuiSet& gui);
     void setupOpmGui(OpmGuiSet& gui);
+    void setupOpzx3Gui(Opzx3GuiSet& gui);
     void setupSsgGui(SsgGuiSet& gui);
     void setupWtGui(WtGuiSet& gui);
     void setupRhythmGui(RhythmGuiSet& gui);
@@ -1444,6 +1509,7 @@ private:
     void layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<int> content);
     void layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> content);
     void layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> content);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);
