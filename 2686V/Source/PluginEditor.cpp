@@ -520,7 +520,10 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 	attatchLabelToComponent(gui.algLabel, gui.algSelector);
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPNA_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPNA_FEEDBACK2", "Feedback2");
+    setupFbSlider(fb2Params);
+    attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
     SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPNA_LFO_FREQ", "LFO FREQ");
     setupSlider(fqParams);
 	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
@@ -638,6 +641,9 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPN_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
 	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPN_FEEDBACK2", "Feedback2");
+    setupFbSlider(fb2Params);
+    attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
@@ -926,6 +932,9 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL3_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
 	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPL3_FEEDBACK2", "Feedback2");
+    setupFbSlider(fb2Params);
+    attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
@@ -1014,6 +1023,9 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPM_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
 	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPM_FEEDBACK2", "Feedback2");
+    setupFbSlider(fb2Params);
+    attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
     SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPM_LFO_FREQ", "LFO FREQ");
     setupSlider(fqParams);
 	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
@@ -1157,6 +1169,9 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
     SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPZX3_FEEDBACK", "Feedback");
     setupFbSlider(fbParams);
     attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPZX3_FEEDBACK2", "Feedback2");
+    setupFbSlider(fb2Params);
+    attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
     SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPZX3_LFO_FREQ", "LFO FREQ");
     setupSlider(fqParams);
     attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
@@ -2310,7 +2325,8 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
     // Globalエリアも少し余裕を持たせて配置
     gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
-	gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedback2Slider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.lfoPmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.lfoAmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
@@ -2373,6 +2389,7 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
     // Globalエリアも少し余裕を持たせて配置
     gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedback2Slider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
@@ -2528,6 +2545,7 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
     int globalW = globalRect.getWidth() / 2;
     gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedback2Slider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
 
     // --- Quality Group ---
     auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
@@ -2582,6 +2600,7 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
     // Globalエリアも少し余裕を持たせて配置
     gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedback2Slider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.pmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.amsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
@@ -2650,6 +2669,7 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
     // Globalエリアも少し余裕を持たせて配置
     gui.algSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
+    gui.feedback2Slider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.lfoFreqSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.pmsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
     gui.amsSelector.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));

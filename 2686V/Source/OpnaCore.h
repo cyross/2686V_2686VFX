@@ -43,7 +43,17 @@ public:
         }
 
         for (int i = 0; i < 4; ++i) {
-            float fb = (i == 0) ? params.feedback : 0.0f;
+            float fb = 0.0f;
+
+            if (i == 0) // OP0
+            {
+                fb = params.feedback;
+            }
+            else if (i == 2) // OP2
+            {
+                fb = params.feedback2;
+            }
+
             // OPNA: SSG-EG=True, WaveSelect=False
             // params.fmSsgEgFreq を渡す (第6引数)
             // 第5引数(useOpmEg)は false

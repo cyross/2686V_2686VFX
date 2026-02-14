@@ -48,7 +48,17 @@ public:
         }
 
         for (int i = 0; i < 4; ++i) {
-            float fb = (i == 0) ? params.feedback : 0.0f;
+            float fb = 0.0f;
+
+            if (i == 0) // OP0
+            {
+                fb = params.feedback;
+            }
+            else if (i == 2) // OP2
+            {
+                fb = params.feedback2;
+            }
+
             // WaveSelect=True, SSG-EG=False, OpmEg=True
             m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);
             m_opMask[i] = params.fmOp[i].mask;
