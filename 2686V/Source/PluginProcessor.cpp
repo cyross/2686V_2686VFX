@@ -427,7 +427,7 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "OPNA LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPNA_LFO_FREQ", "OPNA LFO Freq", 0.1f, 200.0f, 5.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_PMS", "OPNA LFO PMS", 0, 7, 0));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPNA_LFO_AMS", "OPNA LFO AMS", 0, 3, 0));
 }
@@ -607,7 +607,7 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "OPM LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPM_LFO_FREQ", "OPM LFO Freq", 0.1f, 200.0f, 5.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_PMS", "OPM LFO PMS", 0, 7, 0));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPM_LFO_AMS", "OPM LFO AMS", 0, 3, 0));
 }
@@ -648,7 +648,7 @@ void AudioPlugin2686V::createOpzx3ParameterLayout(juce::AudioProcessorValueTreeS
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("OPZX3_LFO_FREQ", "OPZX3 LFO Freq", 0.1f, 50.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("OPZX3_LFO_FREQ", "OPZX3 LFO Freq", 0.1f, 200.0f, 5.0f));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_LFO_PMS", "OPZX3 LFO PMS", 0, 7, 0));
     layout.add(std::make_unique<juce::AudioParameterInt>("OPZX3_LFO_AMS", "OPZX3 LFO AMS", 0, 3, 0));
 }
