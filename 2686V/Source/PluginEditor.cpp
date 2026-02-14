@@ -3085,12 +3085,15 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
 
     inner.removeFromTop(20);
 
-    auto fileRow = inner.removeFromTop(30);
+    auto fileRow = inner.removeFromTop(30).reduced(5, 0);
+    // 左にロードボタン
     gui.loadButton.setBounds(fileRow.removeFromLeft(100));
     fileRow.removeFromLeft(10);
+    // 右にクリアボタン
+    gui.clearButton.setBounds(fileRow.removeFromRight(60));
+    fileRow.removeFromRight(10);
+    // 中間にファイル名ラベル
     gui.fileNameLabel.setBounds(fileRow);
-    auto loadBounds = gui.loadButton.getBounds();
-    gui.clearButton.setBounds(loadBounds.getRight() + 10, loadBounds.getY(), 50, 20);
 
     inner.removeFromTop(10);
 
