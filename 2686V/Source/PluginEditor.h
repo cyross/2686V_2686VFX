@@ -328,6 +328,8 @@ struct Fm4GuiSet
     juce::Label algLabel;
     juce::Slider feedbackSlider;
     juce::Label feedbackLabel;
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
     juce::ComboBox rateCombo;
@@ -519,8 +521,12 @@ struct Opl3GuiSet
     ColoredGroupComponent qualityGroup;
     std::array<ColoredGroupComponent, Fm4Ops> opGroups; // 4 Operators
 
-    juce::ComboBox algSelector; juce::Label algLabel;
-    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
     juce::ComboBox rateCombo;
@@ -559,18 +565,26 @@ struct OpmGuiSet
     std::array<ColoredGroupComponent, Fm4Ops> opGroups;
 
     // Global
-    juce::ComboBox algSelector; juce::Label algLabel;
-    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
     // OPM LFO
-    juce::Slider lfoFreqSlider; juce::Label lfoFreqLabel;
-    juce::ComboBox lfoWaveSelector; juce::Label lfoWaveLabel;
-    juce::ComboBox pmsSelector; juce::Label pmsLabel;
-    juce::ComboBox amsSelector; juce::Label amsLabel;
+    juce::Slider lfoFreqSlider;
+    juce::Label lfoFreqLabel;
+    juce::ComboBox lfoWaveSelector;
+    juce::Label lfoWaveLabel;
+    juce::ComboBox pmsSelector;
+    juce::Label pmsLabel;
+    juce::ComboBox amsSelector;
+    juce::Label amsLabel;
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
@@ -619,18 +633,26 @@ struct Opzx3GuiSet
     std::array<ColoredGroupComponent, Fm4Ops> opGroups;
 
     // Global
-    juce::ComboBox algSelector; juce::Label algLabel;
-    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
     // OPM LFO
-    juce::Slider lfoFreqSlider; juce::Label lfoFreqLabel;
-    juce::ComboBox lfoWaveSelector; juce::Label lfoWaveLabel;
-    juce::ComboBox pmsSelector; juce::Label pmsLabel;
-    juce::ComboBox amsSelector; juce::Label amsLabel;
+    juce::Slider lfoFreqSlider;
+    juce::Label lfoFreqLabel;
+    juce::ComboBox lfoWaveSelector;
+    juce::Label lfoWaveLabel;
+    juce::ComboBox pmsSelector;
+    juce::Label pmsLabel;
+    juce::ComboBox amsSelector;
+    juce::Label amsLabel;
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r

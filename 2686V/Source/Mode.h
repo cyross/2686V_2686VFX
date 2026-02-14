@@ -115,6 +115,7 @@ struct SynthParams
 	int opllPreset = 0; // OPLL Preset Instrument Index
     int algorithm = 7;
     float feedback = 0.0f;
+    float feedback2 = 0.0f;
     // FM LFO (OPNA Global)
     float lfoFreq = 5.0f; // LFO Speed (approx 3Hz - 30Hz)
     int pms = 0;          // Pitch Modulation Sensitivity (0-7)

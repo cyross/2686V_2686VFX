@@ -48,7 +48,17 @@ public:
         }
 
         for (int i = 0; i < 4; ++i) {
-            float fb = (i == 0) ? params.feedback : 0.0f;
+            float fb = 0.0f;
+
+            if (i == 0) // OP0
+            {
+                fb = params.feedback;
+            }
+            else if (i == 2) // OP2
+            {
+                fb = params.feedback2;
+            }
+
             // WaveSelect=True, SSG-EG=False, OpmEg=True
             m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);
             m_opMask[i] = params.fmOp[i].mask;
@@ -128,7 +138,19 @@ public:
 
             float pmDepth = 0.0f;
             if (m_pms > 0) {
-                float depths[] = { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
+                // 実機(YM2151/2608)の仕様に合わせた深度テーブル
+                // 0: 0
+                // 1: +/- 5 cents   (~0.003)
+                // 2: +/- 10 cents  (~0.006)
+                // 3: +/- 20 cents  (~0.012)
+                // 4: +/- 50 cents  (~0.03)
+                // 5: +/- 100 cents (~0.06)  -> 半音
+                // 6: +/- 400 cents (~0.26)  -> 長3度
+                // 7: +/- 700 cents (~0.50)  -> 完全5度 (かなり激しい)
+
+                float depths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
+
+                // 旧コード（参考）: { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
                 pmDepth = depths[m_pms & 7];
             }
             float wheelDepth = m_modWheel * 0.05f;

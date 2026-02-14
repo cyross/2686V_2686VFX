@@ -218,3 +218,13 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 - [ニコニコ動画](https://www.nicovideo.jp/user/3223933)
 - [Piapro](https://piapro.jp/cyross_p)
 - [Booth](https://cyross.booth.pm/)
+
+## 参考文献
+
+- 「マシン語サウンドプログラミング」
+  - 青山学／日高徹 著
+  - アスキー出版局
+  - 1994年
+
+- [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
+- [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
