@@ -10,33 +10,6 @@ public:
     // FM Parameters (OPNA/OPN Standard)
     // ==============================================================================
 
-    // --- Envelope Generator Reverse Rate (AR) ---
-    // Register: 31 (Slowest) - 0 (Fastest/Instant)
-    // VST Param: Time in Seconds (0.03s - 5.0s)
-    static float convertFmRARRate(int regValue)
-    {
-        if (regValue == 0) return 0.03f; // Instant
-        if (regValue >= 31) return 5.0f; // Slowest
-
-        // Clamp 0-31
-        float r = 1.0f - (float)std::clamp(regValue, 0, 31);
-
-        // 31 -> 5.0s (Slow)
-        // 0 -> 0.0s (Instant)
-        // カーブは指数的にするのが理想ですが、簡易的に反転線形＋補正で近似します
-        // Rateが高いほど時間は急激に短くなる
-
-        if (regValue >= 31) return 0.03f; // Instant
-
-        // 簡易変換: (31 - reg) をベースに係数を掛ける
-        // 例: Reg=0 -> 5.0s, Reg=20 -> 短い, Reg=31 -> 0s
-        float inv = 31.0f - r;
-
-        // 指数カーブ近似: pow(inv) で急峻に変化させる
-        // regが小さい(invが大きい)ほど時間が大幅に増える
-        return 0.005f * std::pow(inv, 2.0f);
-    }
-
     // --- Envelope Generator Rate (AR, RR) ---
     // Register: 0 (Slowest) - 31 (Fastest/Instant)
     // VST Param: Time in Seconds (0.03s - 5.0s)

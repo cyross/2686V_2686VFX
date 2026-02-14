@@ -3797,10 +3797,12 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     int val;
     // AR(Reverse)
     val = getValue("RAR", 31);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRARRate(val), juce::sendNotification);
-    // AR
-    val = getValue("AR", 31);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
+    else {
+        // AR
+        val = getValue("AR", 31);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
+    }
     // DR
     val = getValue("DR", 31);
     if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
