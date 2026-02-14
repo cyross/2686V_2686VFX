@@ -1763,11 +1763,16 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         {.name = "8kHz",     .value = 7 },
     };
 
+    // GlobalGroup
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    setupGroup(groupParams);
+
+    setupBypass(gui.tBypassBtn);
+
     // Tremolo Group
     SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
-    setupBypass(gui.tBypassBtn);
     setupB(gui.tRateSlider, gui.tRateLabel, "Rate");
     setupB(gui.tDepthSlider, gui.tDepthLabel, "Depth");
     setupB(gui.tMixSlider, gui.tMixLabel, "Mix");
@@ -2328,7 +2333,7 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
 
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
@@ -2336,8 +2341,8 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 20, 5, &gui.ksLabel[i], &gui.ks[i]);
-        layoutComponentsTtoB(innerRect, 20, 5, &gui.seLabel[i], &gui.se[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.ksLabel[i], { 50, 5} }, { &gui.ks[i], {190, 0} } });
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.seLabel[i], { 50, 5} }, { &gui.se[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 0, &gui.seFreqLabel[i], &gui.seFreq[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
         layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
@@ -2348,9 +2353,9 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         gui.freqToZero[i].setBounds(btnRow.removeFromLeft(btnW));
         gui.freqTo440[i].setBounds(btnRow.removeFromLeft(btnW));
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.amLabel[i], &gui.am[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.maskLabel[i], &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
+        layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
+        layoutComponentsTtoB(innerRect, 20, 0, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
 
@@ -2391,7 +2396,7 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop); // タイトル(Operator X)回避
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
@@ -2399,7 +2404,7 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 20, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.ksLabel[i], { 50, 5} }, { &gui.ks[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
         layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
@@ -2449,13 +2454,13 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dtLabel[i], &gui.dt[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.wsLabel[i], { 50, 5} }, { &gui.ws[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
@@ -2493,13 +2498,13 @@ void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20);
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 15, 0, &gui.kslLabel[i], &gui.ksl[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.kslLabel[i], { 50, 5} }, { &gui.ksl[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
@@ -2551,13 +2556,13 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
             c.setBounds(rect.removeFromTop(FmOpRowH).withSizeKeepingCentre(rect.getWidth() - 4, 24));
         };
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 20, 5, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.wsLabel[i], { 50, 5} }, { &gui.ws[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
@@ -2605,7 +2610,7 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20); // タイトル(Operator X)回避
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
@@ -2614,7 +2619,7 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.ksLabel[i], { 50, 5} }, { &gui.ks[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
         layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
@@ -2673,7 +2678,7 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(20); // タイトル(Operator X)回避
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.mulLabel[i], &gui.mul[i]);
+        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dt1Label[i], &gui.dt1[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.dt2Label[i], &gui.dt2[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
@@ -2682,7 +2687,7 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksLabel[i], &gui.ks[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.ksLabel[i], { 50, 5} }, { &gui.ks[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.fixLabel[i], &gui.fix[i]);
         layoutComponentsTtoB(innerRect, 15, 2, &gui.freqLabel[i], &gui.freq[i]);
 
@@ -2694,7 +2699,7 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
 
         innerRect.removeFromTop(5);
 
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.wsLabel[i], &gui.ws[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.wsLabel[i], { 50, 5} }, { &gui.ws[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 5, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
@@ -3209,16 +3214,25 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
         r.removeFromTop(20);
     };
 
-    auto area = content.withZeroOrigin().withSizeKeepingCentre(FxWidth, FxHeight);
+    auto pageArea = content.withZeroOrigin();
+       
+    // --- A. Global Section (Top) ---
+    auto topArea = pageArea.removeFromTop(TopGroupHeight);
 
-    // 上部にバイパスボタンを配置
-    auto headerArea = area.removeFromTop(40);
-    gui.bypassToggle.setBounds(headerArea.removeFromRight(FxGlobalBypassHeight));
+    gui.globalGroup.setBounds(topArea);
+    auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    globalRect.removeFromTop(TitlePaddingTop); // タイトル回避
 
-    area.removeFromTop(10);
+    gui.bypassToggle.setBounds(globalRect.removeFromLeft(120));
 
-    auto leftCol = area.removeFromLeft(area.getWidth() / 2 - 5);
-    auto rightCol = area.removeFromRight(leftCol.getWidth()); // 残りの右側
+    pageArea.removeFromTop(40);
+
+    auto fxArea = pageArea.withSizeKeepingCentre(FxWidth, FxHeight);
+
+    fxArea.removeFromTop(10);
+
+    auto leftCol = fxArea.removeFromLeft(fxArea.getWidth() / 2 - 5);
+    auto rightCol = fxArea.removeFromRight(leftCol.getWidth()); // 残りの右側
 
     // Left
 
@@ -3262,14 +3276,11 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     gui.delayGroup.setBounds(delayArea);
     delayArea.removeFromTop(20);
 
-
     layoutKnob(delayArea.removeFromLeft(FxKnobWidth + 20), gui.dTimeSlider, gui.dTimeLabel);
     layoutMixSection(delayArea.removeFromRight(FxKnobAreaWidth + 20), gui.dMixSlider, gui.dMixLabel, gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn);
     layoutKnob(delayArea.withSizeKeepingCentre(FxKnobWidth, delayArea.getHeight()), gui.dFbSlider, gui.dFbLabel);
     auto delayFooterArea = delayArea.removeFromBottom(30);
     layoutFooterArea(delayFooterArea, gui.dBypassBtn);
-
-    area.removeFromTop(10);
 
     // 5. Reverb
     auto reverbArea = rightCol.removeFromTop(FxGroupHeight);
@@ -3784,9 +3795,12 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
         };
 
     int val;
+    // AR(Reverse)
+    val = getValue("RAR", 31);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRARRate(val), juce::sendNotification);
     // AR
     val = getValue("AR", 31);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
     // DR
     val = getValue("DR", 31);
     if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
@@ -3799,7 +3813,7 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
     // RR
     val = getValue("RR", 15);
-    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
     // SL
     val = getValue("SL", 15);
     if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);

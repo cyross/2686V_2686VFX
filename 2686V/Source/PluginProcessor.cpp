@@ -187,8 +187,24 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     float linearGain = juce::Decibels::decibelsToGain(dbValue);
 
     // 3. バッファ全体に適用
-    // applyGainを使うと簡単です
-    buffer.applyGain(linearGain);
+    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    {
+        auto* data = buffer.getWritePointer(ch);
+        int numSamples = buffer.getNumSamples();
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            // 1. マスターボリューム適用
+            float sample = data[i] * linearGain;
+
+            // 2. ソフトクリップ処理 (Satuation)
+            // どんなに大きな音が来ても -1.0 ～ +1.0 の範囲に滑らかに収める
+            // これにより「バリバリ」という割れが「太い歪み」に変わります
+            sample = std::tanh(sample);
+
+            data[i] = sample;
+        }
+    }
 }
 
 // ============================================================================
@@ -368,10 +384,10 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_AR", prefix + " Env", 0.0f, 5.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_AR", prefix + " Env", 0.03f, 5.0f, 0.03f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_DR", prefix + " Env", 0.0f, 5.0f, 0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_SL", prefix + " Env", 0.0f, 1.0f, 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_RR", prefix + " Env", 0.0f, 5.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_RR", prefix + " Env", 0.03f, 5.0f, 0.03f));
 }
 
 void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -395,11 +411,11 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
 
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "DR", 0.0f, 5.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "SR", 0.0f, 10.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SEFREQ", namePrefix + "SEFREQ", 0.1f, 20.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
@@ -436,11 +452,11 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
 
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "DR", 0.0f, 5.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "SR", 0.0f, 10.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0)); // KS (0 to 3)
@@ -471,10 +487,10 @@ void AudioPlugin2686V::createOplParameterLayout(juce::AudioProcessorValueTreeSta
 
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "DR", 0.0f, 5.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "Wave", 0, 3, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0));
@@ -508,10 +524,10 @@ void AudioPlugin2686V::createOpllParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "EG_TYP", "EG Type", true)); // 1=Sustain, 0=Decay
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "KSR", "KSR", false)); // 0=Low, 1=High
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KSL", "KSL", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 1.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 1.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "DR", 0.0f, 1.0f, 0.1f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 1.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 1.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "WS", namePrefix + "WS", 1, 2, 1));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "MASK", namePrefix + "MASK", false)); // OP Mask (Switch)
     }
@@ -542,10 +558,10 @@ void AudioPlugin2686V::createOpl3ParameterLayout(juce::AudioProcessorValueTreeSt
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f));
 
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 1.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 1.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "DR", 0.0f, 1.0f, 0.1f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 1.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 1.0f, 0.03f));
 
         // Wave Select (0-7) for OPL3
         // 0:Sine, 1:Half, 2:Abs, 3:Pulse, 4:Sine-Alt, 5:Abs-Alt, 6:Square, 7:Derived-Square
@@ -576,11 +592,11 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT2", namePrefix + "DT2", 0, 3, 0)); // Coarse Detune (OPM Only)
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "D1R", 0.0f, 1.0f, 0.1f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "D1L", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "D2R", 0.0f, 1.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
@@ -615,11 +631,11 @@ void AudioPlugin2686V::createOpzx3ParameterLayout(juce::AudioProcessorValueTreeS
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "MUL", namePrefix + "MUL", 0, 15, 1));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT", namePrefix + "DT", 0, 7, 0));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "DT2", namePrefix + "DT2", 0, 3, 0)); // Coarse Detune (OPM Only)
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.0f, 5.0f, 0.01f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "AR", namePrefix + "AR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "DR", namePrefix + "D1R", 0.0f, 1.0f, 0.1f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "D1L", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "D2R", 0.0f, 1.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.0f, 5.0f, 0.2f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));

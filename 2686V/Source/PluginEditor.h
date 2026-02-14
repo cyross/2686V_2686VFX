@@ -938,6 +938,7 @@ struct AdpcmGuiSet
 struct FxGuiSet
 {
     juce::Component page;
+    ColoredGroupComponent globalGroup;
     ColoredGroupComponent tremGroup;
     ColoredGroupComponent vibGroup;
     ColoredGroupComponent mbcGroup;

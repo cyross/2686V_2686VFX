@@ -123,19 +123,24 @@ public:
 
     void stopNote(float, bool allowTailOff) override
     {
-        m_opnaCore.noteOff();
-        m_opnCore.noteOff();
-        m_oplCore.noteOff();
-        m_opllCore.noteOff();
-        m_opl3Core.noteOff();
-        m_opmCore.noteOff();
-        m_opzx3Core.noteOff();
-        m_ssgCore.noteOff();
-        m_wtCore.noteOff();
-        m_rhythmCore.noteOff();
-        m_adpcmCore.noteOff();
-
-        if (!allowTailOff) clearCurrentNote();
+        if (allowTailOff)
+        {
+            m_opnaCore.noteOff();
+            m_opnCore.noteOff();
+            m_oplCore.noteOff();
+            m_opllCore.noteOff();
+            m_opl3Core.noteOff();
+            m_opmCore.noteOff();
+            m_opzx3Core.noteOff();
+            m_ssgCore.noteOff();
+            m_wtCore.noteOff();
+            m_rhythmCore.noteOff();
+            m_adpcmCore.noteOff();
+        }
+        else
+        {
+            clearCurrentNote();
+        }
     }
 
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override

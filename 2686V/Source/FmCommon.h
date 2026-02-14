@@ -6,10 +6,6 @@
 #include <algorithm>
 #include "Mode.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 // ==========================================================
 // Shared FM Operator Class
 // ==========================================================
@@ -49,6 +45,7 @@ public:
         m_phase = 0.0;
         m_ssgPhase = 0.0;
         m_noteNumber = noteNumber;
+        m_currentLevel = 0.0f;
 
         // Fixed Mode
         float baseFreq = frequency;
