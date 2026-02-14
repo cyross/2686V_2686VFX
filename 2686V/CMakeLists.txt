@@ -53,7 +53,6 @@ juce_add_binary_data(VstLogoForAbout
 # ドキュメントの定義
 set(DOCUMENT_FILES
     ../readme.md
-    ../document/2686V仕様.md
 )
 
 # ソースファイルの指定
