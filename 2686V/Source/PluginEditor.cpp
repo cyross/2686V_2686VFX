@@ -551,7 +551,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 DR:0 SL:0 SR:0 RR:15 TL:0 MUL:1 DT:0",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -659,7 +659,7 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 DR:0 SR:0 SL:0 RR:15 TL:0 MUL:1 DT:0",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -759,7 +759,7 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 DR:0 SL:0 RR:15 MUL:1 DT:0",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -843,7 +843,7 @@ void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 DR:0 SL:0 RR:15 TL:0 MUL:1 DT:0",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -946,7 +946,7 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 DR:0 SL:0 RR:15 TL:0 MUL:1",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -1044,7 +1044,7 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT:10 DT:20",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -1187,7 +1187,7 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
         gui.mmlBtn[i].setButtonText("MML");
         gui.mmlBtn[i].onClick = [this, &gui, i] {
             auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR31 DR0 SR0 RR15 SL0 TL0 MUL1 DT0",
+                "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT1:0 DT2:0",
                 juce::AlertWindow::QuestionIcon);
 
             w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
@@ -3796,15 +3796,15 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
     int val;
     // AR(Reverse)
-    val = getValue("RAR", 31);
+    val = getValue("RAR:", 31);
     if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
     else {
         // AR
-        val = getValue("AR", 31);
+        val = getValue("AR:", 31);
         if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
     }
     // DR
-    val = getValue("DR", 31);
+    val = getValue("DR:", 31);
     if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
     // SR (Check if struct has SR - OPL/OPLL/OPL3 usually don't, OPNA/OPN/OPM do)
     // using constexpr if or SFINAE is better, but here we assume T is compatible or we specialize.
@@ -3814,36 +3814,52 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     // For 2-op, we can ignore SR.
 
     // RR
-    val = getValue("RR", 15);
+    val = getValue("RR:", 15);
     if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
+
+    // D1L
+    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
+        val = getValue("D1L:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    }
     // SL
-    val = getValue("SL", 15);
-    if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
-    // TL
-    if constexpr (!std::is_same<T, Fm2GuiSet>::value) {
-        val = getValue("TL", 127);
-        if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
-    }
-    // MUL
-    val = getValue("MUL", 15);
-    if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
-
-    // DT / DT1 / DT2
-    if constexpr (std::is_same<T, OpmGuiSet>::value) {
-        val = getValue("DT1", 7); // OPM uses DT1
-        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
-
-        val = getValue("DT2", 7); // OPM uses DT2
-        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
-    }
-    else if constexpr (std::is_same<T, Fm4GuiSet>::value) {
-        val = getValue("DT", 7);
-        if (val >= 0) gui.dt[opIndex].setValue((double)RegisterConverter::convertFmDt(val), juce::sendNotification);
+    else if constexpr (std::is_same<T, Fm4GuiSet>::value)
+    {
+        val = getValue("SL:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
     }
 
     // SR (Only for 4-op types usually, logic specific)
-    if constexpr (std::is_same<T, Fm4GuiSet>::value || std::is_same<T, OpmGuiSet>::value) {
-        val = getValue("SR", 31);
+    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
+        val = getValue("SR:", 31);
         if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+    }
+    else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
+        val = getValue("D1R:", 31);
+        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+    }
+
+    // TL
+    if constexpr (!std::is_same<T, Fm2GuiSet>::value) {
+        val = getValue("TL:", 127);
+        if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
+    }
+
+    // MUL
+    val = getValue("MUL:", 15);
+    if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
+
+    // DT1 / DT2
+    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
+        val = getValue("DT1:", 7); // OPM uses DT1
+        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
+
+        val = getValue("DT2:", 7); // OPM uses DT2
+        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
+    }
+    // DT
+    else if constexpr (std::is_same<T, Fm4GuiSet>::value) {
+        val = getValue("DT:", 7);
+        if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
     }
 }
