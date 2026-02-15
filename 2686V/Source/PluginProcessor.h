@@ -53,6 +53,7 @@ public:
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
+    void initPreset();
 
     // --- Settings Data ---
     juce::String wallpaperPath;

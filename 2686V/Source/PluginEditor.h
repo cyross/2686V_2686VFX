@@ -1030,6 +1030,7 @@ struct PresetGuiSet : public juce::TableListBoxModel
     juce::TextEditor nameEditor, authorEditor, versionEditor;
 
     // Buttons
+    juce::TextButton initButton;
     juce::TextButton saveButton;
     juce::TextButton loadButton;
     juce::TextButton deleteButton;

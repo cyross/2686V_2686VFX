@@ -1896,6 +1896,38 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     *
     *********************/
 
+    // --- Init Preset Button ---
+    gui.page.addAndMakeVisible(gui.initButton);
+    gui.initButton.setButtonText("Init Preset");
+    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+
+    gui.initButton.onClick = [this] {
+        // 確認ダイアログを表示
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("Initialize Preset")
+            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
+            .withButton("Initialize")
+            .withButton("Cancel"),
+            [this](int result) {
+                if (result == 1) { // Initializeボタンが押された
+                    // 1. プロセッサ側の初期化実行
+                    audioProcessor.initPreset();
+
+                    // 2. エディタの表示更新
+                    // テキストエディタへの反映
+                    presetGui.nameEditor.setText(audioProcessor.presetName);
+                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
+                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
+
+                    // ファイル名表示のクリア
+                    updateRhythmFileNames();
+                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
     // --- Load Preset Info Button ---
     gui.page.addAndMakeVisible(gui.loadButton);
     gui.loadButton.setButtonText("Load Preset");
@@ -1914,6 +1946,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     // --- Delete Preset Button ---
     gui.page.addAndMakeVisible(gui.deleteButton);
     gui.deleteButton.setButtonText("Delete Preset");
+    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
     gui.deleteButton.setEnabled(false);
     gui.deleteButton.onClick = [this] {
         auto file = presetGui.getSelectedFile();
@@ -3255,6 +3288,8 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     rightArea.removeFromTop(20);
 
     // Buttons
+    gui.initButton.setBounds(rightArea.removeFromTop(40));
+    rightArea.removeFromTop(10);
     gui.loadButton.setBounds(rightArea.removeFromTop(40));
     rightArea.removeFromTop(10);
     gui.saveButton.setBounds(rightArea.removeFromTop(40));

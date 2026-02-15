@@ -1340,3 +1340,31 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AudioPlugin2686V();
 }
+
+void AudioPlugin2686V::initPreset()
+{
+    // 1. 全パラメータをデフォルト値(Normalized 0.0-1.0)にリセット
+    auto& params = getParameters();
+    for (auto* param : params)
+    {
+        if (auto* p = dynamic_cast<juce::AudioProcessorParameterWithID*>(param))
+        {
+            // getDefaultValue() は正規化された値を返すのでそのままセット
+            p->setValueNotifyingHost(p->getDefaultValue());
+        }
+    }
+
+    // 2. メタデータのリセット
+    presetName = "Init Preset";
+    presetAuthor = "User";
+    presetVersion = "1.0";
+
+    // 3. サンプルのアンロードとパスクリア
+    unloadAdpcmFile();
+    // unloadAdpcmFile内で adpcmFilePath.clear() されています
+
+    for (int i = 0; i < 8; ++i) {
+        unloadRhythmFile(i);
+        // unloadRhythmFile内で rhythmFilePaths[i].clear() されています
+    }
+}
