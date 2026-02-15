@@ -226,5 +226,10 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
   - アスキー出版局
   - 1994年
 
+- 「PC-9801-86サウンドボード ユーザーズマニュアル」
+  - 日本電気編
+  - 日本電気
+  - 1993年
+
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
