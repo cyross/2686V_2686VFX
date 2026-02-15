@@ -2213,13 +2213,13 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
 
     // 2. Version
     gui.page.addAndMakeVisible(gui.versionLabel);
-    gui.versionLabel.setText("Version 0.0.1", juce::dontSendNotification);
+    gui.versionLabel.setText(VstVersion, juce::dontSendNotification);
     gui.versionLabel.setFont(juce::Font(24.0f));
     gui.versionLabel.setJustificationType(juce::Justification::centred);
 
     // 3. Copyright
     gui.page.addAndMakeVisible(gui.copyrightLabel);
-    gui.copyrightLabel.setText("Copyright (C) 2026 CYROSS", juce::dontSendNotification);
+    gui.copyrightLabel.setText(VstAuthor, juce::dontSendNotification);
     gui.copyrightLabel.setJustificationType(juce::Justification::centred);
 
     // 4. Logo (BinaryDataから読み込み)

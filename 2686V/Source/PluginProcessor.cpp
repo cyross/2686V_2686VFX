@@ -286,7 +286,11 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
 // Parameters / Settings Related
+#if defined(BUILD_AS_FX_PLUGIN)
+const juce::String AudioPlugin2686V::getName() const { return "2686VFX"; }
+#else
 const juce::String AudioPlugin2686V::getName() const { return "2686V"; }
+#endif
 bool AudioPlugin2686V::acceptsMidi() const { return true; }
 bool AudioPlugin2686V::producesMidi() const { return false; }
 bool AudioPlugin2686V::isMidiEffect() const { return false; }

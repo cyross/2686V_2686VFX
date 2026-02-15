@@ -10,7 +10,13 @@ using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
 // Defined globally as it's used in structs
+#if defined(BUILD_AS_FX_PLUGIN)
+static const juce::String VstName = "2686VFX";
+#else
 static const juce::String VstName = "2686V";
+#endif
+static const juce::String VstVersion = "Version 0.0.1";
+static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
