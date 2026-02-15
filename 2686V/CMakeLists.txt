@@ -67,7 +67,6 @@ target_sources(${CY_PLUGIN_NAME} PRIVATE
     Source/OpnaCore.h
     Source/OpnCore.h
     Source/OplCore.h
-    Source/OpllCore.h
     Source/Opl3Core.h
     Source/OpmCore.h
     Source/Opzx3Core.h

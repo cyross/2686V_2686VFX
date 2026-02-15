@@ -51,9 +51,52 @@ public:
         float baseFreq = frequency;
         if (m_params.fixedMode) baseFreq = m_params.fixedFreq;
 
+        // Detune
+        // Range: -3 to +3 (Derived from params.detune 0-7)
+        // 0-3: Positive (0, +1, +2, +3)
+        // 4-7: Negative (0, -1, -2, -3)
+        int dtReg = m_params.detune & 7;
+        float dtSign = 0.0f;
+
+        // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
+        // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
+        // 値は実機の数値を参考に調整した近似値です。
+        // 0: 0
+        // 1: +/- 0.1% (approx)
+        // 2: +/- 0.25%
+        // 3: +/- 0.45%
+        switch (dtReg)
+        {
+        case 0: // 0
+            // dtSign = 0.0f
+            break;
+        case 1: // -3
+            dtSign = -0.0045f;
+            break;
+        case 2: // -2
+            dtSign = -0.0025f;
+            break;
+        case 3: // -1
+            dtSign = -0.001f;
+            break;
+        case 4: // 0
+            // dtSign = 0.0f
+            break;
+        case 5: // 1
+            dtSign = 0.001f;
+            break;
+        case 6: // 2
+            dtSign = 0.0025f;
+            break;
+        case 7: // 3
+            dtSign = 0.0045f;
+        }
+
+        // 基本周波数にデチューン成分を加算
+        float detunedBaseFreq = baseFreq + baseFreq * dtSign;
+
         // Multi & Detune
         float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-        float dtVal = (float)m_params.detune * 0.5f; // DT1
 
         // DT2 (OPM Coarse Detune)
         // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
@@ -69,7 +112,8 @@ public:
             case 3: dt2Scale = 1.781f; break;
         }
 
-        float finalFreq = (baseFreq + dtVal) * mul * dt2Scale;
+        // Final Frequency = (Base + DT1) * MUL * DT2
+        float finalFreq = detunedBaseFreq * mul * dt2Scale;
 
         m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
@@ -302,13 +346,16 @@ private:
         else if (m_state == State::Sustain) {
             // サステインフェーズのロジック
 
-            // EG-TYP=1 (Hold): 減衰せずレベルを維持
-            if (m_params.egType) {
-                // そのまま維持 (何もしない)
+            // 1. OPL/OPL3のパーカッシブモード (EG TYPE = OFF)
+            // egType == false の場合、RR (Release Rate) を使って即座に減衰する
+            if (!m_params.egType) {
+                m_currentLevel -= m_releaseDec;
+                if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
             }
-            // EG-TYP=0 (Normal): SR (Sustain Rate) に従って0まで減衰
+            // 2. OPN/OPM/OPZX3の持続・減衰モード、または OPL/OPLLの持続モード (EG TYPE = ON)
             else {
-                // SR=0 なら減衰しない (無限サステイン)
+                // SR (Sustain Rate) が設定されていれば、それに従って減衰する
+                // (OPL/OPLL等で SR=0 に固定されている場合は減衰せず維持される)
                 if (m_sustainRateDec > 0.0f) {
                     m_currentLevel -= m_sustainRateDec;
                     if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }

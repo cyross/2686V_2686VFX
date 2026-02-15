@@ -35,12 +35,13 @@ public:
         default: m_quantizeSteps = 0.0f; break;
         }
 
-        // OP1: Feedbackあり, OP2: なし
-        // OPL: SSG-EG=False, WaveSelect=True
-        m_operators[0].setParameters(params.fmOp[0], params.feedback, false, true);
-        m_operators[1].setParameters(params.fmOp[1], 0.0f,            false, true);
-        m_opMask[0] = params.fmOp[0].mask;
-        m_opMask[1] = params.fmOp[1].mask;
+        for (int i = 0; i < 2; ++i) {
+            float fb = (i == 0) ? params.feedback : 0.0f; // OP1のみFeedback
+
+            m_operators[i].setParameters(params.fmOp[i], fb, false, true);
+
+            m_opMask[i] = params.fmOp[i].mask;
+        }
     }
 
     void noteOn(float freq, float velocity) {
@@ -94,45 +95,69 @@ public:
         if (m_rateAccumulator >= 1.0) {
             m_rateAccumulator -= 1.0;
 
-            // --- Software LFO for Vibrato ---
-            double lfoInc = m_lfoFreq / targetRate;
-            m_lfoPhase += lfoInc;
-            if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+            // LFO Logic (Run at Target Rate)
+            m_amPhase += (3.7 / targetRate);
+            if (m_amPhase >= 1.0) m_amPhase -= 1.0;
 
-            // Triangle LFO (-1.0 ~ 1.0)
-            float lfoValue = 0.0f;
-            if (m_lfoPhase < 0.25)      lfoValue = (float)(m_lfoPhase * 4.0);
-            else if (m_lfoPhase < 0.75) lfoValue = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-            else                        lfoValue = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
+            float amVal = 0.0f;
 
-            // Pitch Mod Depth
-            float wheelDepth = m_modWheel * 0.05f;
-            float lfoPitchMod = 1.0f + (lfoValue * wheelDepth);
-            float lfoAmpMod = 1.0f;
+            if (m_amPhase < 0.25) {
+                amVal = (float)(m_amPhase * 4.0);
+            }
+            else if (m_amPhase < 0.75)
+            {
+                amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
+            }
+            else
+            {
+                amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
+            }
+
+            float lfoAmpVal = 1.0f - (0.5f * (amVal + 1.0f));
+
+            m_vibPhase += (6.4 / targetRate);
+            if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
+
+            float vibVal = 0.0f;
+
+            if (m_vibPhase < 0.25) {
+                vibVal = (float)(m_vibPhase * 4.0);
+            }
+            else if (m_vibPhase < 0.75)
+            {
+                vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
+            }
+            else
+            {
+                vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
+            }
+
+            float pmDepth = 0.03f * m_modWheel; // +/- 3% (approx 50cents)
+            float lfoPitchVal = 1.0f + (vibVal * pmDepth);
 
             // -------------------------------
 
             float out1, out2;
             float finalOut = 0.0f;
 
-            // getSample に LFO 値を渡す
-            m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
+            // FmOperator::getSample は内部で amEnable/vibEnable をチェックしません
+            // (前回確認したFmCommon.hの実装に依存しますが、汎用性を高めるならここで制御すべきです)
+            // もしFmOperator側でチェック済みならそのまま渡してOKですが、
+            // ここでは念のため「FmOperatorがフラグを見て判断する」前提で値を渡します。
 
-            if (m_opMask[0]) out1 = 0.0f; // Mask
+            m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
+
+            if (m_opMask[0]) out1 = 0.0f;
 
             if (m_algorithm == 0) { // Serial (FM)
                 // OP1 -> OP2
-                m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
-                if (m_opMask[1]) out2 = 0.0f; // Mask
-
+                m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
+                if (m_opMask[1]) out2 = 0.0f;
                 finalOut = out2;
             }
             else { // Parallel (AM)
-                m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
-
-                if (m_opMask[1]) out2 = 0.0f; // Mask
-
+                m_operators[1].getSample(out2, 0.0f, lfoAmpVal, lfoPitchVal);
+                if (m_opMask[1]) out2 = 0.0f;
                 finalOut = (out1 + out2) * 0.5f;
             }
 
@@ -171,6 +196,8 @@ private:
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_quantizeSteps = 0.0f;
+    double m_amPhase = 0.0;
+    double m_vibPhase = 0.0;
 
     float m_modWheel = 0.0f;
     double m_lfoPhase = 0.0;

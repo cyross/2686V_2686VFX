@@ -95,102 +95,126 @@ public:
         if (m_rateAccumulator >= 1.0) {
             m_rateAccumulator -= 1.0;
 
-            // --- Software LFO for Vibrato ---
-            double lfoInc = m_lfoFreq / targetRate;
-            m_lfoPhase += lfoInc;
-            if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+            // LFO Logic (Run at Target Rate)
+            m_amPhase += (3.7 / targetRate);
+            if (m_amPhase >= 1.0) m_amPhase -= 1.0;
 
-            // Triangle LFO
-            float lfoValue = 0.0f;
-            if (m_lfoPhase < 0.25)      lfoValue = (float)(m_lfoPhase * 4.0);
-            else if (m_lfoPhase < 0.75) lfoValue = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-            else                        lfoValue = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
+            float amVal = 0.0f;
 
-            // Pitch Mod Depth (Max ~50 cents)
-            float wheelDepth = m_modWheel * 0.05f;
-            float lfoPitchMod = 1.0f + (lfoValue * wheelDepth);
-            float lfoAmpMod = 1.0f;
+            if (m_amPhase < 0.25) {
+                amVal = (float)(m_amPhase * 4.0);
+            }
+            else if (m_amPhase < 0.75)
+            {
+                amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
+            }
+            else
+            {
+                amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
+            }
 
-            // --------------------------------
+            float lfoAmpVal = 1.0f - (0.5f * (amVal + 1.0f));
+
+            m_vibPhase += (6.4 / targetRate);
+            if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
+
+            float vibVal = 0.0f;
+
+            if (m_vibPhase < 0.25) {
+                vibVal = (float)(m_vibPhase * 4.0);
+            }
+            else if (m_vibPhase < 0.75)
+            {
+                vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
+            }
+            else
+            {
+                vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
+            }
+
+            float pmDepth = 0.03f * m_modWheel; // +/- 3% (approx 50cents)
+            float lfoPitchVal = 1.0f + (vibVal * pmDepth);
+
+            // -------------------------------
 
             float out1, out2, out3, out4;
+            float finalOut = 0.0f;
 
             // getSample に lfoPitchMod を渡す
-            m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
+            m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
 
             if (m_opMask[0]) out1 = 0.0f; // Mask
 
-            float finalOut = 0.0f;
             switch (m_algorithm) {
                 case 0:
-                    m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out4;
                     break;
                 case 1:
-                    m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, out1 + out2, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out4;
                     break;
                 case 2:
-                    m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, out3 + out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out4;
                     break;
                 case 3:
-                    m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out2 + out4;
                     break;
                 case 4:
-                    m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out2 + out3 + out4;
                     break;
                 case 5:
-                    m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out2 + out3 + out4;
                     break;
                 case 6:
-                    m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out2 + out3 + out4;
                     break;
                 default:
-                    m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[1]) out2 = 0.0f; // Mask
-                    m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[2]) out3 = 0.0f; // Mask
-                    m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+                    m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
                     if (m_opMask[3]) out4 = 0.0f; // Mask
                     finalOut = out1 + out2 + out3 + out4;
                     break;
@@ -231,6 +255,8 @@ private:
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_quantizeSteps = 0.0f;
+    double m_amPhase = 0.0;
+    double m_vibPhase = 0.0;
 
     float m_modWheel = 0.0f;
     double m_lfoPhase = 0.0;

@@ -21,7 +21,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 ## 特徴
 
 - 多数のFM音源オペレーター(風音源)に対応
-  - OPL/OPLL/OPL3/OPM/OPN/OPNA
+  - OPL/OPL3/OPM/OPN/OPNA
   - 幅広いパラメータ値対応
     - 浮動小数点対応
   - MMLによるパラメータ値反映対応
@@ -225,6 +225,11 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
   - 青山学／日高徹 著
   - アスキー出版局
   - 1994年
+
+- 「PC-9801-86サウンドボード ユーザーズマニュアル」
+  - 日本電気編
+  - 日本電気
+  - 1993年
 
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)

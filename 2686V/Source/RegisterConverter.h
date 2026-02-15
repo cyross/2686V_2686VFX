@@ -10,13 +10,13 @@ public:
     // FM Parameters (OPNA/OPN Standard)
     // ==============================================================================
 
-    // --- Envelope Generator Rate (AR, RR) ---
-    // Register: 0 (Slowest) - 31 (Fastest/Instant)
+    // --- Envelope Generator Rate (AR) ---
+    // Register: 0 (Slowest) - 31 (Fastest)
     // VST Param: Time in Seconds (0.03s - 5.0s)
     static float convertFmARRate(int regValue)
     {
         if (regValue == 0) return 5.0f; // Slowest
-        if (regValue >= 31) return 0.03f; // Instant
+        if (regValue >= 31) return 0.03f; // Fastest
 
         // Clamp 0-31
         float r = (float)std::clamp(regValue, 0, 31);
@@ -32,23 +32,48 @@ public:
 
         // 指数カーブ近似: pow(inv) で急峻に変化させる
         // regが小さい(invが大きい)ほど時間が大幅に増える
-        return 0.005f * std::pow(inv, 2.0f);
+        return 0.03f + (0.0052f * std::pow(inv, 2.0f));
+    }
+
+    // --- Envelope Generator Rate (RR) ---
+    // Register: 0 (Slowest) - 15 (Fastest)
+    // VST Param: Time in Seconds (0.03s - 5.0s)
+    static float convertFmRRRate(int regValue)
+    {
+        if (regValue == 0) return 5.0f; // Slowest
+        if (regValue >= 15) return 0.03f; // Fastest
+
+        // Clamp 0-15
+        float r = (float)std::clamp(regValue, 0, 15);
+
+        // 15 -> 0.03s (Instant)
+        // 0  -> 5.0s (Slow)
+        // カーブは指数的にするのが理想ですが、簡易的に反転線形＋補正で近似します
+        // Rateが高いほど時間は急激に短くなる
+
+        // 簡易変換: (15 - reg) をベースに係数を掛ける
+        // 例: Reg=0 -> 5.0s, Reg=10 -> 短い, Reg=15 -> 0s
+        float inv = 15.0f - r;
+
+        // 指数カーブ近似: pow(inv) で急峻に変化させる
+        // regが小さい(invが大きい)ほど時間が大幅に増える
+        return 0.03f + (0.022f * std::pow(inv, 2.0f));
     }
 
     // --- Envelope Generator Rate (DR, SR) ---
-    // Register: 0 (Slowest) - 31 (Fastest/Instant)
+    // Register: 0 (Slowest) - 31 (Fastest)
     // VST Param: Time in Seconds (0.0s - 5.0s)
     static float convertFmRate(int regValue)
     {
         // Clamp 0-31
         float r = (float)std::clamp(regValue, 0, 31);
 
-        // 31 -> 0.0s (Instant)
+        // 31 -> 0.0s (Fast)
         // 0  -> 5.0s (Slow)
         // カーブは指数的にするのが理想ですが、簡易的に反転線形＋補正で近似します
         // Rateが高いほど時間は急激に短くなる
 
-        if (regValue >= 31) return 0.0f; // Instant
+        if (regValue >= 31) return 0.0f; // Fastest
 
         // 簡易変換: (31 - reg) をベースに係数を掛ける
         // 例: Reg=0 -> 5.0s, Reg=20 -> 短い, Reg=31 -> 0s

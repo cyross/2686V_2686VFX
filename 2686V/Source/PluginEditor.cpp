@@ -66,9 +66,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	// OPL (YM3812) : 2op
     setupOplGui(oplGui);
 
-	// OPLL (YM2413) : 2op
-	setupOpllGui(opllGui);
-
 	// OPL3 (YM3833) : 2op
 	setupOpl3Gui(opl3Gui);
 
@@ -237,7 +234,6 @@ void AudioPlugin2686VEditor::resized()
     layoutOpnaPage(opnaGui, content);
     layoutOpnPage(opnGui, content);
     layoutOplPage(oplGui, content);
-	layoutOpllPage(opllGui, content);
 	layoutOpl3Page(opl3Gui, content);
 	layoutOpmPage(opmGui, content);
     layoutOpzx3Page(opzx3Gui, content);
@@ -318,7 +314,6 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab("OPNA", juce::Colours::transparentBlack, &opnaGui.page, true);
     tabs.addTab("OPN", juce::Colours::transparentBlack, &opnGui.page, true);
     tabs.addTab("OPL", juce::Colours::transparentBlack, &oplGui.page, true);
-	tabs.addTab("OPLL", juce::Colours::transparentBlack, &opllGui.page, true);
     tabs.addTab("OPL3", juce::Colours::transparentBlack, &opl3Gui.page, true);
     tabs.addTab("OPM", juce::Colours::transparentBlack, &opmGui.page, true);
     tabs.addTab("OPZX3", juce::Colours::transparentBlack, &opzx3Gui.page, true);
@@ -717,7 +712,8 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 {
     std::vector<SelectItem> algItems = { {.name = "FM(Serial)", .value = 1}, {.name = "AM (Parallel)", .value = 2}, };
-    std::vector<SelectItem> wsItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, {.name = "Abs", .value = 3}, {.name = "Pulse", .value = 4}, };
+    std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
+    std::vector<SelectItem> egItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, {.name = "Abs", .value = 3}, {.name = "Pulse", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
         {.name = "4-bit (16 steps)",  .value = 1 },
@@ -793,100 +789,18 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         setupSlider(slParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
         setupSlider(rrParams);
-        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
-        setupCombo(wsParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
-        setupToggleButton(maskParams);
-    }
-}
-
-void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
-{
-    std::vector<SelectItem> wsItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, };
-    std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
-
-    std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
-    };
-
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Global" };
-    setupGroup(groupParams);
-
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPLL_FEEDBACK", "Feedback");
-    setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-
-    SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
-    setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPLL_BIT", "Bit Depth", bdItems, { 40, 15 });
-    setupCombo(bParams);
-    attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPLL_RATE", "Rate", rateItems, { 40, 15 });
-    setupCombo(rtParams);
-    attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
-
-    SetupOpGroupsParams<2> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
-    setupOpGroups(opGroupsParams);
-    for (int i = 0; i < 2; ++i)
-    {
-        juce::String paramPrefix = "OPLL_OP" + juce::String(i) + "_";
-
-        gui.page.addAndMakeVisible(gui.mmlBtn[i]);
-        gui.mmlBtn[i].setButtonText("MML");
-        gui.mmlBtn[i].onClick = [this, &gui, i] {
-            auto* w = new juce::AlertWindow("MML Input (Op " + juce::String(i + 1) + ")",
-                "e.g. AR:31/RAR:0 DR:0 SL:0 RR:15 TL:0 MUL:1 DT:0",
-                juce::AlertWindow::QuestionIcon);
-
-            w->addTextEditor("mmlInput", "", ""); // ID, 初期値, プレースホルダー
-            w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-            w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
-
-            w->enterModalState(true, juce::ModalCallbackFunction::create([this, w, &gui, i](int result) {
-                if (result == 1) {
-                    // 入力文字列を取得して適用
-                    juce::String mml = w->getTextEditorContents("mmlInput");
-                    applyMmlString(mml, gui, i);
-                }
-            }), true);
-        };
-
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
-        setupSlider(mulParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
-        setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
-        setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
-        setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
-        setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
-        setupSlider(rrParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
-        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
-        setupCombo(wsParams);
         SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
         setupToggleButton(vibParams);
         SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + "EG_TYP", "EGTYPE");
         setupToggleButton(egtParams);
         SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + "KSR", "KSR");
         setupToggleButton(ksrParams);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        setupCombo(kslParams);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + "EG", "EG", egItems);
+        setupCombo(egParams);
         SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
         setupToggleButton(maskParams);
     }
@@ -895,7 +809,8 @@ void AudioPlugin2686VEditor::setupOpllGui(OpllGuiSet& gui)
 void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
 {
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> wsItems = {
+    std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
+    std::vector<SelectItem> egItems = {
         {.name = "Sine", .value = 1},
         {.name = "Half Sine", .value = 2},
         {.name = "Abs Sine", .value = 3},
@@ -983,8 +898,18 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         setupSlider(slParams);
         SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
         setupSlider(rrParams);
-        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
-        setupCombo(wsParams);
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
+        setupToggleButton(amParams);
+        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
+        setupToggleButton(vibParams);
+        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + "EG_TYP", "EGTYPE");
+        setupToggleButton(egtParams);
+        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + "KSR", "KSR");
+        setupToggleButton(ksrParams);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        setupCombo(kslParams);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + "EG", "EG", egItems);
+        setupCombo(egParams);
         SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
         setupToggleButton(maskParams);
     }
@@ -1695,7 +1620,7 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     gui.page.addAndMakeVisible(gui.btnPanL); gui.btnPanL.setButtonText("L"); gui.btnPanL.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanC); gui.btnPanC.setButtonText("C"); gui.btnPanC.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanR); gui.btnPanR.setButtonText("R"); gui.btnPanR.addListener(this);
-    SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "One Shot");
+    SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "Loop");
     setupToggleButton(lpParams);
 	attatchLabelToComponent(gui.loopLabel, gui.loopButton);
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "ADPCM_AR", "Attack");
@@ -1971,6 +1896,38 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     *
     *********************/
 
+    // --- Init Preset Button ---
+    gui.page.addAndMakeVisible(gui.initButton);
+    gui.initButton.setButtonText("Init Preset");
+    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+
+    gui.initButton.onClick = [this] {
+        // 確認ダイアログを表示
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("Initialize Preset")
+            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
+            .withButton("Initialize")
+            .withButton("Cancel"),
+            [this](int result) {
+                if (result == 1) { // Initializeボタンが押された
+                    // 1. プロセッサ側の初期化実行
+                    audioProcessor.initPreset();
+
+                    // 2. エディタの表示更新
+                    // テキストエディタへの反映
+                    presetGui.nameEditor.setText(audioProcessor.presetName);
+                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
+                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
+
+                    // ファイル名表示のクリア
+                    updateRhythmFileNames();
+                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
     // --- Load Preset Info Button ---
     gui.page.addAndMakeVisible(gui.loadButton);
     gui.loadButton.setButtonText("Load Preset");
@@ -1989,6 +1946,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     // --- Delete Preset Button ---
     gui.page.addAndMakeVisible(gui.deleteButton);
     gui.deleteButton.setButtonText("Delete Preset");
+    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
     gui.deleteButton.setEnabled(false);
     gui.deleteButton.onClick = [this] {
         auto file = presetGui.getSelectedFile();
@@ -2201,32 +2159,19 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
         );
     };
 
-    gui.saveStartupSettingsBtn.setButtonText("Save Current Settings as Default");
     gui.group.addAndMakeVisible(gui.saveStartupSettingsBtn);
-
+    gui.saveStartupSettingsBtn.setButtonText("Save Current Settings as Default");
     gui.saveStartupSettingsBtn.onClick = [this]
         {
-            fileChooser = std::make_unique<juce::FileChooser>("Save Environment Settings as Default",
-                juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("init_preset.xml"), "*.xml");
-
-            fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-                [this](const juce::FileChooser& fc) {
-                    auto file = fc.getResult();
-                    if (file != juce::File()) {
-                        audioProcessor.saveEnvironment(file);
-                    }
-                }
-            );
-
-            // 1. 保存先ファイルのパスを作成 (Documents/2686V/init_preset.xml)
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
             auto pluginDir = docDir.getChildFile("2686V");
 
             // フォルダがなければ作る
             if (!pluginDir.exists()) pluginDir.createDirectory();
 
-            auto file = pluginDir.getChildFile("init_preset.xml");
+            auto file = pluginDir.getChildFile("init_settings.xml");
 
+            // 2. XMLデータの作成
             juce::XmlElement xml("PREF_2686V");
 
             xml.setAttribute("wallpaperPath", audioProcessor.wallpaperPath);
@@ -2234,16 +2179,14 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
             xml.setAttribute("defaultPresetDir", audioProcessor.defaultPresetDir);
             xml.setAttribute("showTooltips", audioProcessor.showTooltips);
 
-            xml.writeTo(file);
-
             // 3. 書き出し実行
             if (xml.writeTo(file))
             {
-                // 成功メッセージ (ネイティブのアラートウィンドウを表示)
+                // 成功メッセージ
                 juce::NativeMessageBox::showMessageBoxAsync(
                     juce::AlertWindow::InfoIcon,
                     "Success",
-                    "Current parameters saved as default startup sound.\n" + file.getFullPathName(),
+                    "Current settings have been saved as the default startup configuration.\n\nFile: " + file.getFullPathName(),
                     this
                 );
             }
@@ -2253,7 +2196,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
                 juce::NativeMessageBox::showMessageBoxAsync(
                     juce::AlertWindow::WarningIcon,
                     "Error",
-                    "Failed to save preset file.",
+                    "Failed to save startup settings file.",
                     this
                 );
             }
@@ -2282,7 +2225,7 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     // 4. Logo (BinaryDataから読み込み)
     gui.page.addAndMakeVisible(gui.vst3Logo);
 
-    // ★修正ポイント: ファイルパスではなく、メモリ(バイナリ)から読み込む
+    // ファイルパスではなく、メモリ(バイナリ)から読み込む
     // 名前空間: VstLogoForAboutData (CMakeで指定したもの)
     // 変数名: ファイル名のドットがアンダースコアになったもの (vst3_logo_png)
     auto logoImg = juce::ImageCache::getFromMemory(
@@ -2477,56 +2420,13 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.wsLabel[i], { 50, 5} }, { &gui.ws[i], {190, 0} } });
-        layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
-    }
-}
-
-void AudioPlugin2686VEditor::layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content)
-{
-    auto pageArea = content.withZeroOrigin();
-
-    // --- Global & Preset Section ---
-    auto topArea = pageArea.removeFromTop(TopGroupHeight);
-    gui.globalGroup.setBounds(topArea);
-
-    auto globalRect = topArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    globalRect.removeFromTop(TitlePaddingTop);
-
-    // Feedback Center
-    gui.feedbackSlider.setBounds(globalRect.removeFromLeft(TopParamWidth).reduced(20, 10));
-
-    // --- Quality Group ---
-    auto qualityArea = pageArea.removeFromTop(QualityGroupHeight);
-
-    gui.qualityGroup.setBounds(qualityArea);
-
-    auto qRect = gui.qualityGroup.getBounds().withTrimmedTop(TitlePaddingTop).reduced(GroupPaddingWidth, GroupPaddingHeight);
-
-    gui.bitSelector.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
-    gui.rateCombo.setBounds(qRect.removeFromLeft(QualityParamWidth).reduced(5, 0));
-
-    for (int i = 0; i < 2; ++i)
-    {
-        auto opArea = pageArea.removeFromLeft(FmOpWidth);
-        gui.opGroups[i].setBounds(opArea.reduced(2));
-
-        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
-        innerRect.removeFromTop(20);
-
-        layoutComponentsLtoR(innerRect, 15, 5, { { &gui.mulLabel[i], { 50, 5} }, { &gui.mul[i], {190, 0} } });
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.arLabel[i], &gui.ar[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.kslLabel[i], { 50, 5} }, { &gui.ksl[i], {190, 0} } });
-        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
-        layoutComponentsTtoB(innerRect, 15, 5, &gui.maskLabel[i], &gui.mask[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.kslLabel[i], { 50, 5} }, { &gui.ksl[i], {190, 0} } });
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.egLabel[i], { 50, 5} }, { &gui.eg[i], {190, 0} } });
+        layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
 }
@@ -2580,7 +2480,12 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
-        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.wsLabel[i], { 50, 5} }, { &gui.ws[i], {190, 0} } });
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
+        layoutComponentsTtoB(innerRect, 15, 0, &gui.ksrLabel[i], &gui.ksr[i]);
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.kslLabel[i], { 50, 5} }, { &gui.ksl[i], {190, 0} } });
+        layoutComponentsLtoR(innerRect, 20, 5, { { &gui.egLabel[i], { 50, 5} }, { &gui.eg[i], {190, 0} } });
         layoutComponentsTtoB(innerRect, 15, 8, &gui.maskLabel[i], &gui.mask[i]);
         layoutComponentsTtoB(innerRect, 20, 5, &gui.mmlBtnLabel[i], &gui.mmlBtn[i]);
     }
@@ -2735,7 +2640,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     auto leftArea = pageArea.removeFromLeft(480);
     auto rightArea = pageArea.removeFromLeft(480);
 
-    auto voiceArea = leftArea.removeFromTop(320);
+    auto voiceArea = leftArea.removeFromTop(240);
 
     // --- Voice Group ---
     gui.voiceGroup.setBounds(voiceArea.reduced(5));
@@ -2747,7 +2652,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
     vRect.removeFromTop(20);
 
-    auto pRect = vRect.removeFromTop(160);
+    auto pRect = vRect.removeFromTop(80);
 
     // Knobs Layout
     int knobW = pRect.getWidth() / 4;
@@ -2770,7 +2675,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.mixSetMix.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
     gui.mixSetNoise.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
 
-    auto filterArea = leftArea.removeFromTop(320);
+    auto filterArea = leftArea.removeFromTop(240);
 
     // --- Filter Group ---
     gui.filterGroup.setBounds(filterArea.reduced(5));
@@ -2781,7 +2686,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.adsrBypassButton.setBounds(fRect.removeFromTop(30).withSizeKeepingCentre(160, 30));
     fRect.removeFromTop(20);
 
-    auto evRect = fRect.removeFromTop(160);
+    auto evRect = fRect.removeFromTop(80);
 
     // ADSR Sliders
     int adsrW = evRect.getWidth() / 4;
@@ -3368,6 +3273,8 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     rightArea.removeFromTop(20);
 
     // Buttons
+    gui.initButton.setBounds(rightArea.removeFromTop(40));
+    rightArea.removeFromTop(10);
     gui.loadButton.setBounds(rightArea.removeFromTop(40));
     rightArea.removeFromTop(10);
     gui.saveButton.setBounds(rightArea.removeFromTop(40));
@@ -3413,26 +3320,38 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
     gui.presetDirBrowseBtn.setBounds(row3.removeFromRight(80).reduced(2));
     gui.presetDirPathLabel.setBounds(row3.reduced(5, 0));
 
-
-    inner.removeFromTop(40); // Gap for Tooltip Button
+    inner.removeFromTop(gap);
 
     // 4. Tooltip Visible Row
     auto rowTooltip = inner.removeFromTop(rowH);
     gui.tooltipLabel.setBounds(rowTooltip.removeFromLeft(140));
     gui.tooltipToggle.setBounds(rowTooltip.removeFromLeft(60));
 
-    inner.removeFromTop(40); // Gap for IO Buttons
+    inner.removeFromTop(gap);
 
-    // 5. Config IO Buttons
+    // 5. Config IO Buttons (Fixed Layout)
     auto row4 = inner.removeFromTop(40);
-    int btnW = 120;
-    // Center two buttons
-    auto btnArea = row4.withSizeKeepingCentre(btnW * 3 + 40, 30);
+
+    int btnW = 120;     // Load / Save 幅
+    int defBtnW = 240;  // Default Save 幅
+    int btnGap = 20;    // ボタン間の隙間
+
+    int totalBtnWidth = 480;
+
+    // 行の中央に配置するためのエリアを作成 (高さ30pxで統一)
+    auto btnArea = row4.withSizeKeepingCentre(totalBtnWidth, row4.getHeight());
+
+    // 左から順に切り取って配置
     gui.loadSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
-    btnArea.removeFromLeft(20);
-    gui.saveSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
-    btnArea.removeFromLeft(20);
-    gui.saveStartupSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
+    btnArea.removeFromLeft(btnGap);
+    gui.saveSettingsBtn.setBounds(btnArea.removeFromRight(btnW));
+
+    auto row5 = inner.removeFromTop(40);
+    auto btn2Area = row5.withSizeKeepingCentre(totalBtnWidth, row5.getHeight());
+
+    btn2Area.removeFromLeft((totalBtnWidth - defBtnW) / 2);
+
+    gui.saveStartupSettingsBtn.setBounds(btn2Area.removeFromLeft(defBtnW));
 }
 
 void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content)
@@ -3815,48 +3734,78 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
         };
 
     int val;
+
     // AR(Reverse)
     val = getValue("RAR:", 31);
     if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
+    // AR
     else {
-        // AR
         val = getValue("AR:", 31);
         if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
     }
+
     // DR
     val = getValue("DR:", 31);
     if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
-    // SR (Check if struct has SR - OPL/OPLL/OPL3 usually don't, OPNA/OPN/OPM do)
-    // using constexpr if or SFINAE is better, but here we assume T is compatible or we specialize.
-    // Hack: Check if class has 'sr'. Fm4GuiSet(OPNA/OPN/OPM) has SR. Fm2GuiSet(OPL) doesn't (it has RR only? No, OPL has AR,DR,SL,RR).
-    // OPL doesn't have SR. So we need specialization or runtime check?
-    // Let's assume this template is for 4-Op (OPNA/OPN/OPM) mainly.
-    // For 2-op, we can ignore SR.
 
+    // RR(Reverse)
+    val = getValue("RRR:", 15);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRRRate(15 - val), juce::sendNotification);
     // RR
-    val = getValue("RR:", 15);
-    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
-
-    // D1L
-    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("D1L:", 15);
-        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    else {
+        val = getValue("RR:", 15);
+        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRRRate(val), juce::sendNotification);
     }
-    // SL
-    else if constexpr (std::is_same<T, Fm4GuiSet>::value)
-    {
+
+    // Only for OPNA / OPN
+    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
         val = getValue("SL:", 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
-    }
 
-    // SR (Only for 4-op types usually, logic specific)
-    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
-        val = getValue("SR:", 31);
-        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        // SR(Reverse)
+        val = getValue("RSR:", 31);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        // SR
+        else {
+            val = getValue("SR:", 31);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // DT
+        val = getValue("DT:", 7);
+        if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
     }
+    // Only for OPM / OPZX3
     else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("D1R:", 31);
-        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        // D1R(Reverse)
+        val = getValue("RD1R:", 31);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        // D1R
+        else {
+            val = getValue("D1R:", 31);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // D1L
+        val = getValue("D1L:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+
+        // D2R(Reverse)
+        val = getValue("RD2R:", 15);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(15 - val), juce::sendNotification);
+        // D2R
+        else {
+            val = getValue("D2R:", 15);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // DT1
+        val = getValue("DT1:", 7);
+        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
+
+        // DT2
+        val = getValue("DT2:", 7);
+        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
 
     // TL
@@ -3868,18 +3817,4 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     // MUL
     val = getValue("MUL:", 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
-
-    // DT1 / DT2
-    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("DT1:", 7); // OPM uses DT1
-        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
-
-        val = getValue("DT2:", 7); // OPM uses DT2
-        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
-    }
-    // DT
-    else if constexpr (std::is_same<T, Fm4GuiSet>::value) {
-        val = getValue("DT:", 7);
-        if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
-    }
 }
