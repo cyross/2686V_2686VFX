@@ -2640,7 +2640,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     auto leftArea = pageArea.removeFromLeft(480);
     auto rightArea = pageArea.removeFromLeft(480);
 
-    auto voiceArea = leftArea.removeFromTop(320);
+    auto voiceArea = leftArea.removeFromTop(240);
 
     // --- Voice Group ---
     gui.voiceGroup.setBounds(voiceArea.reduced(5));
@@ -2652,7 +2652,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
     vRect.removeFromTop(20);
 
-    auto pRect = vRect.removeFromTop(160);
+    auto pRect = vRect.removeFromTop(80);
 
     // Knobs Layout
     int knobW = pRect.getWidth() / 4;
@@ -2675,7 +2675,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.mixSetMix.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
     gui.mixSetNoise.setBounds(btnRect.removeFromLeft(btnW).reduced(2, 0));
 
-    auto filterArea = leftArea.removeFromTop(320);
+    auto filterArea = leftArea.removeFromTop(240);
 
     // --- Filter Group ---
     gui.filterGroup.setBounds(filterArea.reduced(5));
@@ -2686,7 +2686,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.adsrBypassButton.setBounds(fRect.removeFromTop(30).withSizeKeepingCentre(160, 30));
     fRect.removeFromTop(20);
 
-    auto evRect = fRect.removeFromTop(160);
+    auto evRect = fRect.removeFromTop(80);
 
     // ADSR Sliders
     int adsrW = evRect.getWidth() / 4;
