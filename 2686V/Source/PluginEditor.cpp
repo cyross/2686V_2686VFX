@@ -2159,32 +2159,19 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
         );
     };
 
-    gui.saveStartupSettingsBtn.setButtonText("Save Current Settings as Default");
     gui.group.addAndMakeVisible(gui.saveStartupSettingsBtn);
-
+    gui.saveStartupSettingsBtn.setButtonText("Save Current Settings as Default");
     gui.saveStartupSettingsBtn.onClick = [this]
         {
-            fileChooser = std::make_unique<juce::FileChooser>("Save Environment Settings as Default",
-                juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("init_preset.xml"), "*.xml");
-
-            fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-                [this](const juce::FileChooser& fc) {
-                    auto file = fc.getResult();
-                    if (file != juce::File()) {
-                        audioProcessor.saveEnvironment(file);
-                    }
-                }
-            );
-
-            // 1. 保存先ファイルのパスを作成 (Documents/2686V/init_preset.xml)
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
             auto pluginDir = docDir.getChildFile("2686V");
 
             // フォルダがなければ作る
             if (!pluginDir.exists()) pluginDir.createDirectory();
 
-            auto file = pluginDir.getChildFile("init_preset.xml");
+            auto file = pluginDir.getChildFile("init_settings.xml");
 
+            // 2. XMLデータの作成
             juce::XmlElement xml("PREF_2686V");
 
             xml.setAttribute("wallpaperPath", audioProcessor.wallpaperPath);
@@ -2192,16 +2179,14 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
             xml.setAttribute("defaultPresetDir", audioProcessor.defaultPresetDir);
             xml.setAttribute("showTooltips", audioProcessor.showTooltips);
 
-            xml.writeTo(file);
-
             // 3. 書き出し実行
             if (xml.writeTo(file))
             {
-                // 成功メッセージ (ネイティブのアラートウィンドウを表示)
+                // 成功メッセージ
                 juce::NativeMessageBox::showMessageBoxAsync(
                     juce::AlertWindow::InfoIcon,
                     "Success",
-                    "Current parameters saved as default startup sound.\n" + file.getFullPathName(),
+                    "Current settings have been saved as the default startup configuration.\n\nFile: " + file.getFullPathName(),
                     this
                 );
             }
@@ -2211,7 +2196,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
                 juce::NativeMessageBox::showMessageBoxAsync(
                     juce::AlertWindow::WarningIcon,
                     "Error",
-                    "Failed to save preset file.",
+                    "Failed to save startup settings file.",
                     this
                 );
             }
@@ -2240,7 +2225,7 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     // 4. Logo (BinaryDataから読み込み)
     gui.page.addAndMakeVisible(gui.vst3Logo);
 
-    // ★修正ポイント: ファイルパスではなく、メモリ(バイナリ)から読み込む
+    // ファイルパスではなく、メモリ(バイナリ)から読み込む
     // 名前空間: VstLogoForAboutData (CMakeで指定したもの)
     // 変数名: ファイル名のドットがアンダースコアになったもの (vst3_logo_png)
     auto logoImg = juce::ImageCache::getFromMemory(
@@ -3335,26 +3320,38 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
     gui.presetDirBrowseBtn.setBounds(row3.removeFromRight(80).reduced(2));
     gui.presetDirPathLabel.setBounds(row3.reduced(5, 0));
 
-
-    inner.removeFromTop(40); // Gap for Tooltip Button
+    inner.removeFromTop(gap);
 
     // 4. Tooltip Visible Row
     auto rowTooltip = inner.removeFromTop(rowH);
     gui.tooltipLabel.setBounds(rowTooltip.removeFromLeft(140));
     gui.tooltipToggle.setBounds(rowTooltip.removeFromLeft(60));
 
-    inner.removeFromTop(40); // Gap for IO Buttons
+    inner.removeFromTop(gap);
 
-    // 5. Config IO Buttons
+    // 5. Config IO Buttons (Fixed Layout)
     auto row4 = inner.removeFromTop(40);
-    int btnW = 120;
-    // Center two buttons
-    auto btnArea = row4.withSizeKeepingCentre(btnW * 3 + 40, 30);
+
+    int btnW = 120;     // Load / Save 幅
+    int defBtnW = 240;  // Default Save 幅
+    int btnGap = 20;    // ボタン間の隙間
+
+    int totalBtnWidth = 480;
+
+    // 行の中央に配置するためのエリアを作成 (高さ30pxで統一)
+    auto btnArea = row4.withSizeKeepingCentre(totalBtnWidth, row4.getHeight());
+
+    // 左から順に切り取って配置
     gui.loadSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
-    btnArea.removeFromLeft(20);
-    gui.saveSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
-    btnArea.removeFromLeft(20);
-    gui.saveStartupSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
+    btnArea.removeFromLeft(btnGap);
+    gui.saveSettingsBtn.setBounds(btnArea.removeFromRight(btnW));
+
+    auto row5 = inner.removeFromTop(40);
+    auto btn2Area = row5.withSizeKeepingCentre(totalBtnWidth, row5.getHeight());
+
+    btn2Area.removeFromLeft((totalBtnWidth - defBtnW) / 2);
+
+    gui.saveStartupSettingsBtn.setBounds(btn2Area.removeFromLeft(defBtnW));
 }
 
 void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content)
