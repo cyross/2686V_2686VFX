@@ -51,9 +51,52 @@ public:
         float baseFreq = frequency;
         if (m_params.fixedMode) baseFreq = m_params.fixedFreq;
 
+        // Detune
+        // Range: -3 to +3 (Derived from params.detune 0-7)
+        // 0-3: Positive (0, +1, +2, +3)
+        // 4-7: Negative (0, -1, -2, -3)
+        int dtReg = m_params.detune & 7;
+        float dtSign = 0.0f;
+
+        // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
+        // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
+        // 値は実機の数値を参考に調整した近似値です。
+        // 0: 0
+        // 1: +/- 0.1% (approx)
+        // 2: +/- 0.25%
+        // 3: +/- 0.45%
+        switch (dtReg)
+        {
+        case 0: // 0
+            // dtSign = 0.0f
+            break;
+        case 1: // -3
+            dtSign = -0.0045f;
+            break;
+        case 2: // -2
+            dtSign = -0.0025f;
+            break;
+        case 3: // -1
+            dtSign = -0.001f;
+            break;
+        case 4: // 0
+            // dtSign = 0.0f
+            break;
+        case 5: // 1
+            dtSign = 0.001f;
+            break;
+        case 6: // 2
+            dtSign = 0.0025f;
+            break;
+        case 7: // 3
+            dtSign = 0.0045f;
+        }
+
+        // 基本周波数にデチューン成分を加算
+        float detunedBaseFreq = baseFreq + baseFreq * dtSign;
+
         // Multi & Detune
         float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-        float dtVal = (float)m_params.detune * 0.5f; // DT1
 
         // DT2 (OPM Coarse Detune)
         // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
@@ -69,7 +112,8 @@ public:
             case 3: dt2Scale = 1.781f; break;
         }
 
-        float finalFreq = (baseFreq + dtVal) * mul * dt2Scale;
+        // Final Frequency = (Base + DT1) * MUL * DT2
+        float finalFreq = detunedBaseFreq * mul * dt2Scale;
 
         m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
