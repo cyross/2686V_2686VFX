@@ -458,7 +458,6 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SR", namePrefix + "SR", 0.0f, 10.0f, 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "SL", namePrefix + "SL", 0.0f, 1.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "RR", namePrefix + "RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "SE", namePrefix + "SE", 0, 15, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "TL", namePrefix + "TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "KS", namePrefix + "KS", 0, 3, 0)); // KS (0 to 3)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "FIX", namePrefix + "FIX", false));
