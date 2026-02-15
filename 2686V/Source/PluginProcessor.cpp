@@ -656,7 +656,7 @@ void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeSta
     layout.add(std::make_unique<juce::AudioParameterBool>("SSG_ENV_ENABLE", "SSG HW Env Enable", false)); // HW Env Enable(Bool)
     layout.add(std::make_unique<juce::AudioParameterInt>("SSG_ENV_SHAPE", "SSG Env Shape", 0, 7, 0)); // Shape: 0-7
     // 実機のPeriodは値が大きいほど遅いですが、スライダーは右に行くほど速い方が直感的なためHzにします
-    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_ENV_PERIOD", "SSG Env Speed", 0.1f, 50.0f, 1.0f)); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 50Hz)
+    layout.add(std::make_unique<juce::AudioParameterFloat>("SSG_ENV_PERIOD", "SSG Env Speed", 0.1f, 200.0f, 1.0f)); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
 }
 
 void AudioPlugin2686V::createWavetableParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -710,27 +710,26 @@ void AudioPlugin2686V::createRhythmParameterLayout(juce::AudioProcessorValueTree
     // Create parameters for each of the 8 pads
     for (int i = 0; i < 8; ++i) {
         juce::String prefix = "RHYTHM_PAD" + juce::String(i);
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_VOL", "RHYTHM Pad" + juce::String(i + 1) + " Vol", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_PAN", "RHYTHM Pad" + juce::String(i + 1) + " Pan", 0.0f, 1.0f, 0.5f));
+        juce::String namePrefix = "RHYTHM Pad" + juce::String(i + 1);
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_VOL", namePrefix + " Vol", 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_PAN", namePrefix + " Pan", 0.0f, 1.0f, 0.5f));
 
         // Note number
-        int defNote = 36;
-        if (i == 1) defNote = 38; else if (i == 2) defNote = 42; else if (i == 3) defNote = 46;
-        else if (i == 4) defNote = 41; else if (i == 5) defNote = 43; else if (i == 6) defNote = 49; else if (i == 7) defNote = 51;
+        int defNote = 60 + i;
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_NOTE", "RHYTHM Pad" + juce::String(i + 1) + " Note", 0, 127, defNote));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_NOTE", namePrefix + " Note", 0, 127, defNote));
 
         // 1: Raw 32bit 2: PCM 24bit 3: PCM 16bit 4: PCM 8bit 5: PCM 5bit 6: PCM 4bit 7: ADPCM 4bit
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_MODE", "RHYTHM Quality", 1, 7, 7));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_MODE", namePrefix + " Quality", 1, 7, 7));
 
         // 1: 96kHz 2: 55.5kHz 3: 48kHz 4: 44.1kHz 5: 22.5kHz 6: 16k 7: 8k
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_RATE", "RHYTHM Rate", 1, 7, 6));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + "_RATE", namePrefix + " Rate", 1, 7, 6));
 
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "_ONESHOT", "RHYTHM One Shot", true));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + "_ONESHOT", namePrefix + " One Shot", true));
 
         // Release Parameter
-        // 範囲: 0.0秒 ～ 5.0秒, 初期値: 0.1秒
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_RR", "RHYTHM Pad" + juce::String(i + 1) + " Release", 0.0f, 5.0f, 0.1f));
+        // 範囲: 0.03秒 ～ 5.0秒, 初期値: 0.1秒
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + "_RR", namePrefix + " Release", 0.03f, 5.0f, 0.1f));
     }
 }
 
@@ -744,7 +743,8 @@ void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeS
     layout.add(std::make_unique<juce::AudioParameterBool>("ADPCM_LOOP", "ADPCM Loop", true));
     // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
     layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_MODE", "ADPCM Quality", 0, 6, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_RATE", "ADPCM Sample Rate", 0, 4, 3)); // Default: 3 (16kHz)
+    // 0: 96kHz 1: 55.5kHz 2: 48kHz 3: 44.1kHz 4: 22.5kHz 5: 16k 6: 8k
+    layout.add(std::make_unique<juce::AudioParameterInt>("ADPCM_RATE", "ADPCM Rate", 0, 6, 3)); // Default: 3 (44.1kHz)
 
     addEnvParameters(layout, "ADPCM");
 }
