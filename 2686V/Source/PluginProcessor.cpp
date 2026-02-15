@@ -172,6 +172,12 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     // シンセの発音 (FXモードではスキップ)
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    // ヘッドルーム適応
+    if (useHeadroom)
+    {
+        buffer.applyGain(headroomGain);
+    }
 #endif
 
     processFxBlock(buffer, params);
@@ -286,7 +292,11 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
 // Parameters / Settings Related
+#if defined(BUILD_AS_FX_PLUGIN)
+const juce::String AudioPlugin2686V::getName() const { return "2686VFX"; }
+#else
 const juce::String AudioPlugin2686V::getName() const { return "2686V"; }
+#endif
 bool AudioPlugin2686V::acceptsMidi() const { return true; }
 bool AudioPlugin2686V::producesMidi() const { return false; }
 bool AudioPlugin2686V::isMidiEffect() const { return false; }
@@ -1175,6 +1185,8 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute("defaultSampleDir", defaultSampleDir);
     xml.setAttribute("defaultPresetDir", defaultPresetDir);
     xml.setAttribute("showTooltips", showTooltips);
+    xml.setAttribute("useHeadRoom", useHeadroom);
+    xml.setAttribute("headRoomGain", headroomGain);
 
     xml.writeTo(file);
 }
@@ -1191,6 +1203,8 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultSampleDir = xml->getStringAttribute("defaultSampleDir");
         defaultPresetDir = xml->getStringAttribute("defaultPresetDir");
         showTooltips = xml->getBoolAttribute("showTooltips", true);
+        useHeadroom = xml->getBoolAttribute("useHeadRoom", true);
+        headroomGain = xml->getDoubleAttribute("headRoomGain", 0.25f);
 
         // 内部変数の更新
         if (juce::File(defaultSampleDir).isDirectory()) {
