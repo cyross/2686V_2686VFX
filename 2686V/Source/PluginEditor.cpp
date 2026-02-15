@@ -3815,48 +3815,78 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
         };
 
     int val;
+
     // AR(Reverse)
     val = getValue("RAR:", 31);
     if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
+    // AR
     else {
-        // AR
         val = getValue("AR:", 31);
         if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
     }
+
     // DR
     val = getValue("DR:", 31);
     if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
-    // SR (Check if struct has SR - OPL/OPLL/OPL3 usually don't, OPNA/OPN/OPM do)
-    // using constexpr if or SFINAE is better, but here we assume T is compatible or we specialize.
-    // Hack: Check if class has 'sr'. Fm4GuiSet(OPNA/OPN/OPM) has SR. Fm2GuiSet(OPL) doesn't (it has RR only? No, OPL has AR,DR,SL,RR).
-    // OPL doesn't have SR. So we need specialization or runtime check?
-    // Let's assume this template is for 4-Op (OPNA/OPN/OPM) mainly.
-    // For 2-op, we can ignore SR.
 
+    // RR(Reverse)
+    val = getValue("RRR:", 15);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRRRate(15 - val), juce::sendNotification);
     // RR
-    val = getValue("RR:", 15);
-    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
-
-    // D1L
-    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("D1L:", 15);
-        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    else {
+        val = getValue("RR:", 15);
+        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRRRate(val), juce::sendNotification);
     }
-    // SL
-    else if constexpr (std::is_same<T, Fm4GuiSet>::value)
-    {
+
+    // Only for OPNA / OPN
+    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
         val = getValue("SL:", 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
-    }
 
-    // SR (Only for 4-op types usually, logic specific)
-    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
-        val = getValue("SR:", 31);
-        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        // SR(Reverse)
+        val = getValue("RSR:", 31);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        // SR
+        else {
+            val = getValue("SR:", 31);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // DT
+        val = getValue("DT:", 7);
+        if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
     }
+    // Only for OPM / OPZX3
     else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("D1R:", 31);
-        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        // D1R(Reverse)
+        val = getValue("RD1R:", 31);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        // D1R
+        else {
+            val = getValue("D1R:", 31);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // D1L
+        val = getValue("D1L:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+
+        // D2R(Reverse)
+        val = getValue("RD2R:", 15);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(15 - val), juce::sendNotification);
+        // D2R
+        else {
+            val = getValue("D2R:", 15);
+            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+        }
+
+        // DT1
+        val = getValue("DT1:", 7);
+        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
+
+        // DT2
+        val = getValue("DT2:", 7);
+        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
 
     // TL
@@ -3868,18 +3898,4 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     // MUL
     val = getValue("MUL:", 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
-
-    // DT1 / DT2
-    if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
-        val = getValue("DT1:", 7); // OPM uses DT1
-        if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
-
-        val = getValue("DT2:", 7); // OPM uses DT2
-        if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
-    }
-    // DT
-    else if constexpr (std::is_same<T, Fm4GuiSet>::value) {
-        val = getValue("DT:", 7);
-        if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
-    }
 }
