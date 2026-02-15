@@ -4,7 +4,6 @@
 #include "OpnCore.h"
 #include "OpnaCore.h"
 #include "OplCore.h"
-#include "OpllCore.h"
 #include "Opl3Core.h"
 #include "OpmCore.h"
 #include "Opzx3Core.h"
@@ -39,9 +38,6 @@ public:
                 break;
             case OscMode::OPL:
                 m_oplCore.setParameters(params);
-                break;
-            case OscMode::OPLL:
-                m_opllCore.setParameters(params);
                 break;
             case OscMode::OPL3:
                 m_opl3Core.setParameters(params);
@@ -92,9 +88,6 @@ public:
             case OscMode::OPL:
                 m_oplCore.noteOn(cyclesPerSecond, velocity);
                 break;
-            case OscMode::OPLL:
-                m_opllCore.noteOn(cyclesPerSecond, velocity);
-                break;
             case OscMode::OPL3:
                 m_opl3Core.noteOn(cyclesPerSecond, velocity);
                 break;
@@ -128,7 +121,6 @@ public:
             m_opnaCore.noteOff();
             m_opnCore.noteOff();
             m_oplCore.noteOff();
-            m_opllCore.noteOff();
             m_opl3Core.noteOff();
             m_opmCore.noteOff();
             m_opzx3Core.noteOff();
@@ -176,14 +168,6 @@ public:
             {
                 sample = m_oplCore.getSample();
                 isActive = m_oplCore.isPlaying();
-
-                outL[startSample + i] += sample;
-                outR[startSample + i] += sample;
-            }
-            else if (m_mode == OscMode::OPLL)
-            {
-                sample = m_opllCore.getSample();
-                isActive = m_opllCore.isPlaying();
 
                 outL[startSample + i] += sample;
                 outR[startSample + i] += sample;
@@ -267,7 +251,6 @@ public:
             m_opnaCore.prepare(newRate);
             m_opnCore.prepare(newRate);
             m_oplCore.prepare(newRate);
-            m_opllCore.prepare(newRate);
             m_opl3Core.prepare(newRate);
             m_opmCore.prepare(newRate);
             m_opzx3Core.prepare(newRate);
@@ -291,9 +274,6 @@ public:
             break;
         case OscMode::OPL:
             m_oplCore.setPitchBend(newPitchWheelValue);
-            break;
-        case OscMode::OPLL:
-            m_opllCore.setPitchBend(newPitchWheelValue);
             break;
         case OscMode::OPL3:
             m_opl3Core.setPitchBend(newPitchWheelValue);
@@ -336,9 +316,6 @@ public:
             case OscMode::OPL:
                 m_oplCore.setModulationWheel(newControllerValue);
                 break;
-            case OscMode::OPLL:
-                m_opllCore.setModulationWheel(newControllerValue);
-                break;
             case OscMode::OPL3:
                 m_opl3Core.setModulationWheel(newControllerValue);
                 break;
@@ -368,7 +345,6 @@ private:
     OpnaCore m_opnaCore;
     OpnCore m_opnCore;
     OplCore m_oplCore;
-    OpllCore m_opllCore;
     Opl3Core m_opl3Core;
     OpmCore  m_opmCore;
     Opzx3Core m_opzx3Core;

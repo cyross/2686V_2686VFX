@@ -76,7 +76,6 @@ private:
     void createOpnaParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOpnParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOplParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOpllParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOpl3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOpmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void createOpzx3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
@@ -89,7 +88,6 @@ private:
     void processOpnaBlock(SynthParams &params);
     void processOpnBlock(SynthParams &params);
     void processOplBlock(SynthParams &params);
-    void processOpllBlock(SynthParams& params);
     void processOpl3Block(SynthParams& params);
     void processOpmBlock(SynthParams& params);
     void processOpzx3Block(SynthParams& params);

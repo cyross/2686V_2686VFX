@@ -346,13 +346,16 @@ private:
         else if (m_state == State::Sustain) {
             // サステインフェーズのロジック
 
-            // EG-TYP=1 (Hold): 減衰せずレベルを維持
-            if (m_params.egType) {
-                // そのまま維持 (何もしない)
+            // 1. OPL/OPL3のパーカッシブモード (EG TYPE = OFF)
+            // egType == false の場合、RR (Release Rate) を使って即座に減衰する
+            if (!m_params.egType) {
+                m_currentLevel -= m_releaseDec;
+                if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
             }
-            // EG-TYP=0 (Normal): SR (Sustain Rate) に従って0まで減衰
+            // 2. OPN/OPM/OPZX3の持続・減衰モード、または OPL/OPLLの持続モード (EG TYPE = ON)
             else {
-                // SR=0 なら減衰しない (無限サステイン)
+                // SR (Sustain Rate) が設定されていれば、それに従って減衰する
+                // (OPL/OPLL等で SR=0 に固定されている場合は減衰せず維持される)
                 if (m_sustainRateDec > 0.0f) {
                     m_currentLevel -= m_sustainRateDec;
                     if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }

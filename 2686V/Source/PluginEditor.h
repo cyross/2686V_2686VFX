@@ -17,7 +17,7 @@ static const float LogoFontSize = 128.0f;
 static const int WindowWidth = 1200;
 static const int WindowHeight = 880;
 
-static const int TabNumber = 14;
+static const int TabNumber = 13;
 
 static const int Fm4Ops = 4;
 static const int Fm2Ops = 2;
@@ -439,7 +439,12 @@ struct Fm2GuiSet
     std::array<juce::Slider, Fm2Ops> dr;
     std::array<juce::Slider, Fm2Ops> sl;
     std::array<juce::Slider, Fm2Ops> rr;
-    std::array<juce::ComboBox, Fm2Ops> ws;
+    std::array<juce::ToggleButton, Fm2Ops> am;
+    std::array<juce::ToggleButton, Fm2Ops> vib;
+    std::array<juce::ToggleButton, Fm2Ops> egType;
+    std::array<juce::ToggleButton, Fm2Ops> ksr;
+    std::array<juce::ComboBox, Fm2Ops> ksl; // Key Scale Level
+    std::array<juce::ComboBox, Fm2Ops> eg; // Envlope Generator
     std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
     std::array<juce::TextButton, Fm2Ops> mmlBtn;
 
@@ -449,7 +454,12 @@ struct Fm2GuiSet
     std::array<juce::Label, Fm2Ops> drLabel;
     std::array<juce::Label, Fm2Ops> slLabel;
     std::array<juce::Label, Fm2Ops> rrLabel;
-    std::array<juce::Label, Fm2Ops> wsLabel;
+    std::array<juce::Label, Fm2Ops> amLabel;
+    std::array<juce::Label, Fm2Ops> vibLabel;
+    std::array<juce::Label, Fm2Ops> egTypeLabel;
+    std::array<juce::Label, Fm2Ops> ksrLabel;
+    std::array<juce::Label, Fm2Ops> kslLabel;
+    std::array<juce::Label, Fm2Ops> egLabel;
     std::array<juce::Label, Fm2Ops> maskLabel; // Mask
     std::array<juce::Label, Fm2Ops> mmlBtnLabel;
 
@@ -464,52 +474,12 @@ struct Fm2GuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> drAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> slAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> rrAtt;
-    std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> wsAtt;
-    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> maskAtt; // Mask
-};
-
-struct OpllGuiSet
-{
-    juce::Component page;
-
-    ColoredGroupComponent globalGroup;             // Preset & Feedback
-    ColoredGroupComponent qualityGroup;
-    std::array<ColoredGroupComponent, Fm2Ops> opGroups; // OP1, OP2
-
-    // Feedback (User Patch)
-    juce::Slider feedbackSlider;
-    juce::Label feedbackLabel;
-    juce::ComboBox bitSelector;
-    juce::Label bitLabel;
-    juce::ComboBox rateCombo;
-    juce::Label rateLabel;
-
-    std::array<juce::Label, Fm2Ops> opLabel;
-
-    // Sliders (User Patch)
-    std::array<juce::Slider, Fm2Ops> mul, tl, ar, dr, sl, rr;
-    std::array<juce::Label, Fm2Ops> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
-    std::array<juce::ComboBox, Fm2Ops> ksl; // Key Scale Level
-    std::array<juce::Label, Fm2Ops> kslLabel;
-    std::array<juce::ComboBox, Fm2Ops> ws; // Wave Select
-    std::array<juce::Label, Fm2Ops> wsLabel;
-    std::array<juce::ToggleButton, Fm2Ops> am, vib, egType, ksr;
-    std::array<juce::Label, Fm2Ops> amLabel, vibLabel, egTypeLabel, ksrLabel;
-    std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
-    std::array<juce::Label, Fm2Ops> maskLabel; // Mask
-
-    std::array<juce::TextButton, Fm2Ops> mmlBtn;
-    std::array<juce::Label, Fm2Ops> mmlBtnLabel;
-
-    // Attachments
-    std::unique_ptr<ComboBoxAttachment> presetAtt;
-    std::unique_ptr<SliderAttachment> fbAtt;
-    std::unique_ptr<ComboBoxAttachment> bitAtt;
-    std::unique_ptr<ComboBoxAttachment> rateAtt;
-
-    std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
-    std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> wsAtt, kslAtt;
-    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> amAtt, vibAtt, egTypeAtt, ksrAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> amAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> vibAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> egTypeAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> ksrAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> kslAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm2Ops> egAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> maskAtt; // Mask
 };
 
@@ -534,13 +504,23 @@ struct Opl3GuiSet
 
     // Sliders
     std::array<juce::Slider, Fm4Ops> mul, tl, ar, dr, sl, rr;
-    std::array<juce::ComboBox, Fm4Ops> ws; // Wave Select (8 types)
+    std::array<juce::ToggleButton, Fm4Ops> am;
+    std::array<juce::ToggleButton, Fm4Ops> vib;
+    std::array<juce::ToggleButton, Fm4Ops> egType;
+    std::array<juce::ToggleButton, Fm4Ops> ksr;
+    std::array<juce::ComboBox, Fm4Ops> ksl; // Key Scale Level
+    std::array<juce::ComboBox, Fm4Ops> eg; // Envlope Generator
     std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
     // Labels
     std::array<juce::Label, Fm4Ops> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
-    std::array<juce::Label, Fm4Ops> wsLabel;
+    std::array<juce::Label, Fm4Ops> amLabel;
+    std::array<juce::Label, Fm4Ops> vibLabel;
+    std::array<juce::Label, Fm4Ops> egTypeLabel;
+    std::array<juce::Label, Fm4Ops> ksrLabel;
+    std::array<juce::Label, Fm4Ops> kslLabel;
+    std::array<juce::Label, Fm4Ops> egLabel;
     std::array<juce::Label, Fm4Ops> maskLabel; // Mask
     std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
@@ -551,7 +531,12 @@ struct Opl3GuiSet
     std::unique_ptr<ComboBoxAttachment> rateAtt;
 
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
-    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> wsAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> amAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> vibAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> egTypeAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> ksrAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> kslAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> egAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
 };
 
@@ -1477,7 +1462,6 @@ private:
     Fm4GuiSet opnaGui;  // OPNA
     Fm4GuiSet opnGui; // OPN
 	Fm2GuiSet oplGui; // OPL
-	OpllGuiSet opllGui; // OPLL
     Opl3GuiSet opl3Gui; // OPL3
     OpmGuiSet opmGui; // OPM
     Opzx3GuiSet opzx3Gui; // OPZX3
@@ -1515,7 +1499,6 @@ private:
     void setupOpnaGui(Fm4GuiSet& gui);
     void setupOpnGui(Fm4GuiSet& gui);
     void setupOplGui(Fm2GuiSet& gui);
-    void setupOpllGui(OpllGuiSet& gui);
     void setupOpl3Gui(Opl3GuiSet& gui);
     void setupOpmGui(OpmGuiSet& gui);
     void setupOpzx3Gui(Opzx3GuiSet& gui);
@@ -1531,7 +1514,6 @@ private:
     void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content);
-    void layoutOpllPage(OpllGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<int> content);
