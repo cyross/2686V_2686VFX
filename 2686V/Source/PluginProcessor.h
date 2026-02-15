@@ -60,6 +60,8 @@ public:
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
     bool showTooltips = true; // For show Parameter Range Tooltop
+    bool useHeadroom = true; // ヘッドルーム適応
+    float headroomGain = 0.25; // ヘッドルーム圧縮値
 
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 

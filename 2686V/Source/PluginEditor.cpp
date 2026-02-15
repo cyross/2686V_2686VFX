@@ -2110,6 +2110,32 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
         setTooltipState(newState); // 即座に反映
     };
 
+    // --- Use Headroom Toggle ---
+    gui.page.addAndMakeVisible(gui.useHeadroomLabel);
+    gui.useHeadroomLabel.setText("Internal Headroom:", juce::dontSendNotification);
+
+    gui.page.addAndMakeVisible(gui.useHeadroomToggle);
+    gui.useHeadroomToggle.setButtonText("Enable Headroom");
+    gui.useHeadroomToggle.setToggleState(audioProcessor.useHeadroom, juce::dontSendNotification);
+    gui.useHeadroomToggle.onClick = [this, &gui] {
+        bool state = gui.useHeadroomToggle.getToggleState();
+        audioProcessor.useHeadroom = state;
+        gui.headroomGainSlider.setEnabled(state); // OFFならスライダーも無効化
+        };
+
+    // --- Headroom Gain Slider---
+    gui.page.addAndMakeVisible(gui.headroomGainSlider);
+    gui.headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    gui.headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    gui.headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
+    // プロセッサの値で初期化
+    gui.headroomGainSlider.setValue(audioProcessor.headroomGain, juce::dontSendNotification);
+    gui.headroomGainSlider.setEnabled(audioProcessor.useHeadroom);
+
+    gui.headroomGainSlider.onValueChange = [this, &gui] {
+        audioProcessor.headroomGain = (float)gui.headroomGainSlider.getValue();
+        };
+
     // --- Save Preference Button ---
     gui.page.addAndMakeVisible(gui.saveSettingsBtn);
     gui.saveSettingsBtn.setButtonText("Save Settings");
@@ -3326,6 +3352,15 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
     auto rowTooltip = inner.removeFromTop(rowH);
     gui.tooltipLabel.setBounds(rowTooltip.removeFromLeft(140));
     gui.tooltipToggle.setBounds(rowTooltip.removeFromLeft(60));
+
+    inner.removeFromTop(gap);
+
+    // Headroom Row
+    auto rowHeadroom = inner.removeFromTop(30);
+    gui.useHeadroomLabel.setBounds(rowHeadroom.removeFromLeft(140));
+    gui.useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(80)); // Enableスイッチ
+    // スライダー
+    gui.headroomGainSlider.setBounds(rowHeadroom.removeFromLeft(200));
 
     inner.removeFromTop(gap);
 
