@@ -5,6 +5,14 @@
 #endif
 #include "SimpleEffects.h"
 
+#if defined(BUILD_AS_FX_PLUGIN)
+static const juce::String VstName = "2686VFX";
+#else
+static const juce::String VstName = "2686V";
+#endif
+static const juce::String VstVersion = "Version 0.0.3";
+static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
+
 class AudioPlugin2686V : public juce::AudioProcessor
 {
 public:
@@ -51,6 +59,7 @@ public:
     juce::String presetAuthor = "User";
     juce::String presetVersion = "1.0";
     juce::String presetComment = "";
+    juce::String presetPluginVersion = VstVersion;
 
     static const int presetNameLength = 512;
     static const int presetAuthorLength = 128;

@@ -10,13 +10,6 @@ using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
 // Defined globally as it's used in structs
-#if defined(BUILD_AS_FX_PLUGIN)
-static const juce::String VstName = "2686VFX";
-#else
-static const juce::String VstName = "2686V";
-#endif
-static const juce::String VstVersion = "Version 0.0.3";
-static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
@@ -101,7 +94,10 @@ static const int FxMixButtonWidth = 40;
 enum class RegisterType
 {
     None,
-    FmRate, // AR, DR, SR, RR (0-31)
+    FmAr,   // AR (0-31)
+    FmDr,   // DR (0-31)
+    FmSr,   // SR (0-31)
+    FmRr,   // RR (0-15)
     FmSl,   // SL (0-15)
     FmTl,   // TL (0-127)
     FmMul,  // MUL (0-15)
@@ -459,6 +455,7 @@ struct Fm2GuiSet
     std::array<juce::Slider, Fm2Ops> dr;
     std::array<juce::Slider, Fm2Ops> sl;
     std::array<juce::Slider, Fm2Ops> rr;
+    std::array<juce::Slider, Fm2Ops> tl;
     std::array<juce::ToggleButton, Fm2Ops> am;
     std::array<juce::ToggleButton, Fm2Ops> vib;
     std::array<juce::ToggleButton, Fm2Ops> egType;
@@ -474,6 +471,7 @@ struct Fm2GuiSet
     std::array<juce::Label, Fm2Ops> drLabel;
     std::array<juce::Label, Fm2Ops> slLabel;
     std::array<juce::Label, Fm2Ops> rrLabel;
+    std::array<juce::Label, Fm2Ops> tlLabel;
     std::array<juce::Label, Fm2Ops> amLabel;
     std::array<juce::Label, Fm2Ops> vibLabel;
     std::array<juce::Label, Fm2Ops> egTypeLabel;
@@ -494,6 +492,7 @@ struct Fm2GuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> drAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> slAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> tlAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> amAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> vibAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> egTypeAtt;

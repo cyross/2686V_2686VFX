@@ -495,34 +495,34 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> seItems = {
-        {.name = "Normal", .value = 1 },
-        {.name = "Saw Down", .value = 2 },
-        {.name = "Saw Down & Hold", .value = 3 },
-        {.name = "Triangle", .value = 4 },
-        {.name = "Alternative Saw Down & Hold", .value = 5 },
-        {.name = "Saw Up", .value = 6 },
-        {.name = "Saw Up & Hold", .value = 7 },
-        {.name = "Triangle Invert", .value = 8 },
-        {.name = "Alternative Saw Up & Hold", .value = 9 },
+        {.name = "0: Normal", .value = 1 },
+        {.name = "1: Saw Down", .value = 2 },
+        {.name = "2: Saw Down & Hold", .value = 3 },
+        {.name = "3: Triangle", .value = 4 },
+        {.name = "4: Alternative Saw Down & Hold", .value = 5 },
+        {.name = "5: Saw Up", .value = 6 },
+        {.name = "6: Saw Up & Hold", .value = 7 },
+        {.name = "7: Triangle Invert", .value = 8 },
+        {.name = "8: Alternative Saw Up & Hold", .value = 9 },
     };
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
 	SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -591,15 +591,15 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
         setupCombo(seParams);
@@ -625,24 +625,24 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 {
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -701,15 +701,15 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupToggleButton(fixParams);
@@ -728,26 +728,26 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 
 void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 {
-    std::vector<SelectItem> algItems = { {.name = "FM(Serial)", .value = 1}, {.name = "AM (Parallel)", .value = 2}, };
+    std::vector<SelectItem> algItems = { {.name = "0: FM(Serial)", .value = 1}, {.name = "1: AM (Parallel)", .value = 2}, };
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
-    std::vector<SelectItem> egItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, {.name = "Abs", .value = 3}, {.name = "Pulse", .value = 4}, };
+    std::vector<SelectItem> egItems = { {.name = "0: Sine", .value = 1}, {.name = "1: Half", .value = 2}, {.name = "2: Abs", .value = 3}, {.name = "3: Pulse", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -798,14 +798,16 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         setupSlider(mulParams);
         SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        setupSlider(tlParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
         SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
@@ -828,32 +830,32 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = {
-        {.name = "Sine", .value = 1},
-        {.name = "Half Sine", .value = 2},
-        {.name = "Abs Sine", .value = 3},
-        {.name = "Pulse", .value = 4},
-        {.name = "Alternative Sine", .value = 5},
-        {.name = "Alternative Abs Sine", .value = 6},
-        {.name = "Square", .value = 7},
-        {.name = "Derived Square", .value = 8},
+        {.name = "0: Sine", .value = 1},
+        {.name = "1: Half Sine", .value = 2},
+        {.name = "2: Abs Sine", .value = 3},
+        {.name = "3: Pulse", .value = 4},
+        {.name = "4: Alternative Sine", .value = 5},
+        {.name = "5: Alternative Abs Sine", .value = 6},
+        {.name = "6: Square", .value = 7},
+        {.name = "7: Derived Square", .value = 8},
     };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -907,13 +909,13 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         setupSlider(mulParams);
         SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
@@ -937,24 +939,24 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -1022,15 +1024,15 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
@@ -1054,53 +1056,54 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(27);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
+
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
     std::vector<SelectItem> wsItems = {
-        {.name = "Sine", .value = 1},
-        {.name = "Half Sine", .value = 2},
-        {.name = "Abs Sine", .value = 3},
-        {.name = "Alternating Half Sine", .value = 4},
-        {.name = "Alternating Sine", .value = 5},
-        {.name = "Alternating Abs Sine", .value = 6},
-        {.name = "Square", .value = 7},
-        {.name = "Derived Square", .value = 8},
-        {.name = "Saw Down", .value = 9},
-        {.name = "Saw Up", .value = 10},
-        {.name = "Triangle", .value = 11},
-        {.name = "Saw + Sine", .value = 12},
-        {.name = "Log Saw", .value = 13},
-        {.name = "Pulse 25%", .value = 14},
-        {.name = "Pulse 12.5%", .value = 15},
-        {.name = "Pulse 6.25%", .value = 16},
-        {.name = "Round Square", .value = 17},
-        {.name = "Impulse Train", .value = 18},
-        {.name = "Comb / Multi-pulse", .value = 19},
-        {.name = "Resonant Saw (Low)", .value = 20},
-        {.name = "Resonant Saw (High)", .value = 21},
-        {.name = "Resonant Triangle", .value = 22},
-        {.name = "Bulb Sine", .value = 23},
-        {.name = "Double Hump", .value = 24},
-        {.name = "Pseudo Voice Formant 1", .value = 25},
-        {.name = "Pseudo Voice Formant 2", .value = 26},
-        {.name = "Metallic 1", .value = 27},
-        {.name = "Metallic 2", .value = 28},
-        {.name = "Noise-Like", .value = 29},
+        {.name = "00: Sine", .value = 1},
+        {.name = "01: Half Sine", .value = 2},
+        {.name = "02: Abs Sine", .value = 3},
+        {.name = "03: Alternating Half Sine", .value = 4},
+        {.name = "04: Alternating Sine", .value = 5},
+        {.name = "05: Alternating Abs Sine", .value = 6},
+        {.name = "06: Square", .value = 7},
+        {.name = "07: Derived Square", .value = 8},
+        {.name = "08: Saw Down", .value = 9},
+        {.name = "09: Saw Up", .value = 10},
+        {.name = "10: Triangle", .value = 11},
+        {.name = "11: Saw + Sine", .value = 12},
+        {.name = "12: Log Saw", .value = 13},
+        {.name = "13: Pulse 25%", .value = 14},
+        {.name = "14: Pulse 12.5%", .value = 15},
+        {.name = "15: Pulse 6.25%", .value = 16},
+        {.name = "16: Round Square", .value = 17},
+        {.name = "17: Impulse Train", .value = 18},
+        {.name = "18: Comb / Multi-pulse", .value = 19},
+        {.name = "19: Resonant Saw (Low)", .value = 20},
+        {.name = "20: Resonant Saw (High)", .value = 21},
+        {.name = "21: Resonant Triangle", .value = 22},
+        {.name = "22: Bulb Sine", .value = 23},
+        {.name = "23: Double Hump", .value = 24},
+        {.name = "24: Pseudo Voice Formant 1", .value = 25},
+        {.name = "25: Pseudo Voice Formant 2", .value = 26},
+        {.name = "26: Metallic 1", .value = 27},
+        {.name = "27: Metallic 2", .value = 28},
+        {.name = "28: Noise-Like", .value = 29},
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -1168,15 +1171,15 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
@@ -1200,49 +1203,53 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
 void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        { .name = "Pulse(Rect)", .value = 1 },
-        { .name = "Triangle / Saw", .value = 2 },
+        { .name = "0: Pulse(Rect)", .value = 1 },
+        { .name = "1: Triangle / Saw", .value = 2 },
     };
+
     std::vector<SelectItem> dmItems = {
-        {.name = "Preset Ratio", .value = 1 },
-        {.name = "Variable (Slider)", .value = 2 },
+        {.name = "0: Preset Ratio", .value = 1 },
+        {.name = "1: Variable (Slider)", .value = 2 },
     };
+
     std::vector<SelectItem> prItems = {
-        {.name = "1:1 (50%)", .value = 1 },
-        {.name = "3:5 (37.5%)", .value = 2 },
-        {.name = "5:11 (31.25%)", .value = 3 },
-        {.name = "1:3 (25%)", .value = 4 },
-        {.name = "1:4 (20%)", .value = 5 },
-        {.name = "3:13 (18.75%)", .value = 6 },
-        {.name = "1:7 (12.5%)", .value = 7 },
-        {.name = "1:15 (6.25%)", .value = 8 },
+        {.name = "0: 1:1 (50%)", .value = 1 },
+        {.name = "1: 3:5 (37.5%)", .value = 2 },
+        {.name = "2: 5:11 (31.25%)", .value = 3 },
+        {.name = "3: 1:3 (25%)", .value = 4 },
+        {.name = "4: 1:4 (20%)", .value = 5 },
+        {.name = "5: 3:13 (18.75%)", .value = 6 },
+        {.name = "6: 1:7 (12.5%)", .value = 7 },
+        {.name = "7: 1:15 (6.25%)", .value = 8 },
     };
+
     std::vector<SelectItem> envItems = {
-        {.name = "Saw Down", .value = 1 },
-        {.name = "Saw Down & Hold", .value = 2 },
-        {.name = "Triangle", .value = 3 },
-        {.name = "Alternative Saw Down & Hold", .value = 4 },
-        {.name = "Saw Up", .value = 5 },
-        {.name = "Saw Up & Hold", .value = 6 },
-        {.name = "Triangle Invert", .value = 7 },
-        {.name = "Alternative Saw Up & Hold", .value = 8 },
+        {.name = "0: Saw Down", .value = 1 },
+        {.name = "1: Saw Down & Hold", .value = 2 },
+        {.name = "2: Triangle", .value = 3 },
+        {.name = "3: Alternative Saw Down & Hold", .value = 4 },
+        {.name = "4: Saw Up", .value = 5 },
+        {.name = "5: Saw Up & Hold", .value = 6 },
+        {.name = "6: Triangle Invert", .value = 7 },
+        {.name = "7: Alternative Saw Up & Hold", .value = 8 },
     };
+
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        { .name = "96kHz",    .value = 1 },
-        { .name = "55.5kHz",  .value = 2 },
-        { .name = "48kHz",    .value = 3 },
-        { .name = "44.1kHz",  .value = 4 },
-        { .name = "22.05kHz", .value = 5 },
-        { .name = "16kHz",    .value = 6 },
-        { .name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams vGroupParams = { .page = gui.page, .group = gui.voiceGroup, .title = "Voice" };
@@ -1363,38 +1370,38 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        {.name = "Sine",          .value = 1 },
-        {.name = "Triangle",      .value = 2 },
-        {.name = "Saw Up",        .value = 3 },
-        {.name = "Saw Down",      .value = 4 },
-        {.name = "Square (50%)",  .value = 5 },
-        {.name = "Pulse (25%)",   .value = 6 },
-        {.name = "Pulse (12.5%)", .value = 7 },
-        {.name = "Digital Noise", .value = 8 },
-        {.name = "Custom(Draw)",  .value = 9 },
+        {.name = "0: Sine",          .value = 1 },
+        {.name = "1: Triangle",      .value = 2 },
+        {.name = "2: Saw Up",        .value = 3 },
+        {.name = "3: Saw Down",      .value = 4 },
+        {.name = "4: Square (50%)",  .value = 5 },
+        {.name = "5: Pulse (25%)",   .value = 6 },
+        {.name = "6: Pulse (12.5%)", .value = 7 },
+        {.name = "7: Digital Noise", .value = 8 },
+        {.name = "8: Custom(Draw)",  .value = 9 },
     };
 
     std::vector<SelectItem> tsItems = {
-        {.name = "32 Samples",  .value = 1 },
-        {.name = "64 Samples",  .value = 2 },
+        {.name = "0: 32 Samples",  .value = 1 },
+        {.name = "1: 64 Samples",  .value = 2 },
     };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // --- Filter Group (Left) ---
@@ -1456,23 +1463,23 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 {
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // パッド名定義
@@ -1576,23 +1583,23 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 {
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // メイングループ
@@ -1935,23 +1942,23 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     };
 
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // GlobalGroup
@@ -2498,6 +2505,7 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
@@ -3688,7 +3696,10 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
             showRegisterInput(slider, [slider, type](int regValue) {
                 float newVal = 0.0f;
                 switch (type) {
-                case RegisterType::FmRate: newVal = RegisterConverter::convertFmRate(regValue); break;
+                case RegisterType::FmAr: newVal = RegisterConverter::convertFmAr(regValue); break;
+                case RegisterType::FmDr: newVal = RegisterConverter::convertFmDr(regValue); break;
+                case RegisterType::FmSr: newVal = RegisterConverter::convertFmSr(regValue); break;
+                case RegisterType::FmRr: newVal = RegisterConverter::convertFmRr(regValue); break;
                 case RegisterType::FmSl:   newVal = RegisterConverter::convertFmSl(regValue); break;
                 case RegisterType::FmTl:   newVal = RegisterConverter::convertFmTl(regValue); break;
                 case RegisterType::FmMul:  newVal = (float)RegisterConverter::convertFmMul(regValue); break;
@@ -3843,38 +3854,44 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
     // AR(Reverse)
     val = getValue("RAR:", 31);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(31 - val), juce::sendNotification);
     // AR
     else {
         val = getValue("AR:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
     }
-
-    // DR
-    val = getValue("DR:", 31);
-    if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
 
     // RR(Reverse)
     val = getValue("RRR:", 15);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRRRate(15 - val), juce::sendNotification);
+    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(15 - val), juce::sendNotification);
     // RR
     else {
         val = getValue("RR:", 15);
-        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRRRate(val), juce::sendNotification);
+        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
 
     // Only for OPNA / OPN
     if constexpr (std::is_same<T, Fm4GuiSet>::value) {
+        // DR
+        val = getValue("RDR:", 31);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
+        // DR
+        else
+        {
+            val = getValue("DR:", 31);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
+        }
+
         val = getValue("SL:", 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
 
         // SR(Reverse)
         val = getValue("RSR:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(31 - val), juce::sendNotification);
         // SR
         else {
             val = getValue("SR:", 31);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT
@@ -3885,11 +3902,11 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
         // D1R(Reverse)
         val = getValue("RD1R:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
         // D1R
         else {
             val = getValue("D1R:", 31);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
         }
 
         // D1L
@@ -3898,11 +3915,11 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
         // D2R(Reverse)
         val = getValue("RD2R:", 15);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(15 - val), juce::sendNotification);
+        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(15 - val), juce::sendNotification);
         // D2R
         else {
             val = getValue("D2R:", 15);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT1
@@ -3913,12 +3930,24 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
         val = getValue("DT2:", 7);
         if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
+    else {
+        // DR
+        val = getValue("RDR:", 31);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
+        // DR
+        else
+        {
+            val = getValue("DR:", 31);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
+        }
+
+        val = getValue("SL:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    }
 
     // TL
-    if constexpr (!std::is_same<T, Fm2GuiSet>::value) {
-        val = getValue("TL:", 127);
-        if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
-    }
+    val = getValue("TL:", 127);
+    if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
 
     // MUL
     val = getValue("MUL:", 15);
