@@ -1458,13 +1458,13 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         {.name = "8kHz",     .value = 7 },
     };
 
-    // Pad Definitions
+    // パッド名定義
     const char* padNames[] = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.group, .title = "Global" };
     setupGroup(groupParams);
 
-    // Master Level
+    // 総合出力レベル
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "RHYTHM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
     attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
@@ -1472,27 +1472,29 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
     {
+        // パッドタイトル・オートメーションキー
         auto& pad = gui.pads[i];
         juce::String padPrefix = "RHYTHM_PAD" + juce::String(i);
-
-        // Construct Title: "Pad 1 (BD) [C1]"
         juce::String padTitle = "Pad " + juce::String(i + 1) + " (" + padNames[i] + ")";
 
-        // Group
+        // メイングループ
         SetupGroupParams groupParams = { .page = gui.page, .group = pad.group, .title = padTitle };
         setupGroup(groupParams);
 
-        // Load Button
+        // 音声ファイルロードボタン
         gui.page.addAndMakeVisible(pad.loadButton);
         pad.loadButton.setButtonText("Load");
         pad.loadButton.addListener(this);
 
+        // ロードしている音声ファイル名
         gui.page.addAndMakeVisible(pad.fileNameLabel);
         pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
         pad.fileNameLabel.setJustificationType(juce::Justification::centred);
 
+        // パッド音声アンロード
         gui.page.addAndMakeVisible(pad.clearButton);
-        pad.clearButton.setButtonText("X"); // スペース節約のため "X" や "Clr"
+        pad.clearButton.setButtonText("X");
+        pad.clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
         pad.clearButton.onClick = [this, i, &pad]
             {
                 // 1. 特定のパッドをアンロード
@@ -1502,12 +1504,11 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
                 pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
             };
 
-        // ADD: OneShot Button
-        // Note: We use setupToggleButton helper but customized for small size
+        // ワンショット機能トグル
         SetupToggleButtonParams shotP = SetupToggleButtonParams::createOp(gui.page, pad.oneShotButton, pad.oneShotLabel, pad.oneShotAtt, padPrefix + "_ONESHOT", "One Shot");
         setupToggleButton(shotP);
 
-        // Note
+        // 割り当てキーノート番号
         SetupSliderParams noteP = SetupSliderParams::createOp(gui.page, pad.noteSlider, pad.noteLabel, pad.noteAtt, padPrefix + "_NOTE", "Note");
         setupSlider(noteP);
         pad.noteSlider.setRange(0, 127, 1);
@@ -1516,15 +1517,15 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         };
         pad.noteSlider.updateText();
 
-        // Quality
+        // 内部ビット深度
         SetupComboParams qualP = SetupComboParams::createOp(gui.page, pad.modeCombo, pad.modeLabel, pad.modeAtt, padPrefix + "_MODE", "Mode", qualityItems);
         setupCombo(qualP);
 
-        // Rate
+        // 内部サンプリングレート
         SetupComboParams rateP = SetupComboParams::createOp(gui.page, pad.rateCombo, pad.rateLabel, pad.rateAtt, padPrefix + "_RATE", "Rate", rateItems);
         setupCombo(rateP);
 
-        // Pan
+        // パンポット
         SetupSliderParams panP = SetupSliderParams::createOp(gui.page, pad.panSlider, pad.panLabel, pad.panAtt, padPrefix + "_PAN", "Pan");
         setupSlider(panP);
         pad.panSlider.setRange(0.0f, 1.0f);
@@ -1577,30 +1578,33 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
         {.name = "8kHz",     .value = 7 },
     };
 
-    // Setup Main Group
+    // メイングループ
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.group, .title = "ADPCM Sampler" };
     setupGroup(groupParams);
 
-    // Mode Combo
+    // 内部ビット深度
     SetupComboParams modeParams = SetupComboParams::create(gui.page, gui.modeCombo, gui.modeLabel, gui.modeAtt, "ADPCM_MODE", "Quality", qualityItems);
     setupCombo(modeParams);
 
-    // Rate Combo
+    // 内部サンプリングレート
     SetupComboParams rateParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "ADPCM_RATE", "Rate", rateItems);
     setupCombo(rateParams);
 
+    // 音声ファイル読み込みボタン
     gui.page.addAndMakeVisible(gui.loadButton);
     gui.loadButton.setButtonText("Load File");
     gui.loadButton.addListener(this);
 
+    // ロードしているファイル名
     gui.page.addAndMakeVisible(gui.fileNameLabel);
     gui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
     gui.fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     gui.fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
-    gui.clearButton.setButtonText("Clear");
+    // 音声ファイルのアンロード
     gui.group.addAndMakeVisible(gui.clearButton);
-
+    gui.clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    gui.clearButton.setButtonText("Clear");
     gui.clearButton.onClick = [this, &gui]
         {
             // 1. プロセッサーのアンロード関数を呼ぶ
@@ -1610,9 +1614,12 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
             gui.fileNameLabel.setText("No File", juce::dontSendNotification);
         };
 
+    // 出力レベル
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "ADPCM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
 	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
+
+    // パンポット設定
     SetupSliderParams panParams = SetupSliderParams::create(gui.page, gui.panSlider, gui.panLabel, gui.panAtt, "ADPCM_PAN", "Pan");
     setupSlider(panParams);
     gui.panSlider.setRange(0.0f, 1.0f);
@@ -1620,18 +1627,28 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     gui.page.addAndMakeVisible(gui.btnPanL); gui.btnPanL.setButtonText("L"); gui.btnPanL.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanC); gui.btnPanC.setButtonText("C"); gui.btnPanC.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanR); gui.btnPanR.setButtonText("R"); gui.btnPanR.addListener(this);
+
+    // ループトグルボタン
     SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "Loop");
     setupToggleButton(lpParams);
 	attatchLabelToComponent(gui.loopLabel, gui.loopButton);
+
+    // フィルターAR
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "ADPCM_AR", "Attack");
     setupSlider(arParams);
 	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
+
+    // フィルターDR
     SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "ADPCM_DR", "Decay");
     setupSlider(drParams);
 	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
+
+    // フィルターSL
     SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "ADPCM_SL", "Sustain");
     setupSlider(slParams);
 	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
+
+    // フィルターRR
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "ADPCM_RR", "Release");
     setupSlider(rrParams);
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
@@ -1678,9 +1695,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     {
         gui.page.addAndMakeVisible(btn);
         btn.setButtonText("Bypass");
-        // バイパス時は文字色を変えるなど視認性を上げても良いです
-        btn.setColour(juce::ToggleButton::tickColourId, juce::Colours::red);
-        btn.setColour(juce::ToggleButton::tickDisabledColourId, juce::Colours::grey);
     };
 
     std::vector<SelectItem> qualityItems = {
@@ -1704,15 +1718,17 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     };
 
     // GlobalGroup
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Global" };
     setupGroup(groupParams);
 
-    setupBypass(gui.tBypassBtn);
+    gui.page.addAndMakeVisible(gui.bypassToggle);
+    gui.bypassToggle.setButtonText("Master Bypass");
 
     // Tremolo Group
     SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
+    setupBypass(gui.tBypassBtn);
     setupB(gui.tRateSlider, gui.tRateLabel, "Rate");
     setupB(gui.tDepthSlider, gui.tDepthLabel, "Depth");
     setupB(gui.tMixSlider, gui.tMixLabel, "Mix");
@@ -1741,10 +1757,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     // Delay Group
     SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay" };
     setupGroup(dGp);
-
-    gui.page.addAndMakeVisible(gui.bypassToggle);
-    gui.bypassToggle.setButtonText("Master Bypass");
-    gui.bypassToggle.setColour(juce::ToggleButton::textColourId, juce::Colours::orange);
 
     setupBypass(gui.dBypassBtn);
     setupB(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
@@ -1890,6 +1902,19 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     gui.versionEditor.setText(audioProcessor.presetVersion);
     gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
 
+    // Comment
+    gui.page.addAndMakeVisible(gui.commentLabel);
+    gui.commentLabel.setText("Comment:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.commentEditor);
+    gui.commentEditor.setMultiLine(true); // 複数行OK
+    gui.commentEditor.setReturnKeyStartsNewLine(true); // Enterで改行
+    gui.commentEditor.setText(audioProcessor.presetComment);
+    gui.commentEditor.onTextChange = [this] {
+        // 入力時にもサニタイズ（文字数制限など）をかけるとより安全ですが
+        // ここでは保存時にかける方針で、そのまま代入します
+        audioProcessor.presetComment = presetGui.commentEditor.getText();
+        };
+
     /********************
     *
     * 5. Buttons
@@ -1899,7 +1924,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     // --- Init Preset Button ---
     gui.page.addAndMakeVisible(gui.initButton);
     gui.initButton.setButtonText("Init Preset");
-    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue.withAlpha(0.7f));
 
     gui.initButton.onClick = [this] {
         // 確認ダイアログを表示
@@ -1919,6 +1944,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
                     presetGui.nameEditor.setText(audioProcessor.presetName);
                     presetGui.authorEditor.setText(audioProcessor.presetAuthor);
                     presetGui.versionEditor.setText(audioProcessor.presetVersion);
+                    presetGui.commentEditor.setText(audioProcessor.presetComment);
 
                     // ファイル名表示のクリア
                     updateRhythmFileNames();
@@ -1989,6 +2015,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
             presetGui.nameEditor.setText(item.name);
             presetGui.authorEditor.setText(item.author);
             presetGui.versionEditor.setText(item.version);
+            presetGui.commentEditor.setText(item.comment);
         }
     };
 
@@ -2006,6 +2033,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
             juce::String info = "Preset Name: " + item.name + "\n" +
                 "Author: " + item.author + "\n" +
                 "Version: " + item.version + "\n" +
+                "Comment: " + item.comment + "\n" +
                 "Mode: " + item.modeName;
 
             juce::SystemClipboard::copyTextToClipboard(info);
@@ -3274,7 +3302,7 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     auto rightArea = area;
 
     // Metadata Group
-    gui.metaGroup.setBounds(rightArea.removeFromTop(200));
+    gui.metaGroup.setBounds(rightArea.removeFromTop(320));
     auto metaRect = gui.metaGroup.getBounds().reduced(15, 25);
 
     int rowH = 30;
@@ -3295,6 +3323,11 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     auto row3 = metaRect.removeFromTop(rowH);
     gui.versionLabel.setBounds(row3.removeFromLeft(50));
     gui.versionEditor.setBounds(row3);
+
+    // Comment
+    auto row4 = metaRect.removeFromTop(rowH);
+    gui.commentLabel.setBounds(row4);
+    gui.commentEditor.setBounds(metaRect);
 
     rightArea.removeFromTop(20);
 
@@ -3490,9 +3523,10 @@ void AudioPlugin2686VEditor::scanPresets()
         auto xml = xmlDoc.getDocumentElement();
         if (xml != nullptr)
         {
-            item.name = xml->getStringAttribute("presetName", "(No Name)");
-            item.author = xml->getStringAttribute("presetAuthor", "");
-            item.version = xml->getStringAttribute("presetVersion", "");
+            item.name = xml->getStringAttribute("presetName", audioProcessor.presetName);
+            item.author = xml->getStringAttribute("presetAuthor", audioProcessor.presetAuthor);
+            item.version = xml->getStringAttribute("presetVersion", audioProcessor.presetVersion);
+            item.comment = xml->getStringAttribute("presetComment", audioProcessor.presetComment);
             item.modeName = xml->getStringAttribute("activeModeName", "-");
         }
         else

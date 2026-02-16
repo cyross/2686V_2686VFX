@@ -45,6 +45,12 @@ public:
     juce::String presetName = "Init Preset";
     juce::String presetAuthor = "User";
     juce::String presetVersion = "1.0";
+    juce::String presetComment = "";
+
+    static const int presetNameLength = 512;
+    static const int presetAuthorLength = 128;
+    static const int presetVersionLength = 64;
+    static const int commentLength = 2048; // コメント欄の長さ(2048文字まで)
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
@@ -70,6 +76,7 @@ public:
     juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
 
     juce::String getDefaultPresetDir();
+    static juce::String sanitizeString(const juce::String& input, int length);
 
     // --- Effect ---
     EffectChain effects;

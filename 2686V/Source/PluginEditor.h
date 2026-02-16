@@ -15,7 +15,7 @@ static const juce::String VstName = "2686VFX";
 #else
 static const juce::String VstName = "2686V";
 #endif
-static const juce::String VstVersion = "Version 0.0.2";
+static const juce::String VstVersion = "Version 0.0.3";
 static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
@@ -1018,6 +1018,7 @@ struct PresetItem
     juce::String name;
     juce::String author;
     juce::String version;
+    juce::String comment;
     juce::String modeName;
 };
 
@@ -1034,6 +1035,8 @@ struct PresetGuiSet : public juce::TableListBoxModel
     ColoredGroupComponent metaGroup;
     juce::Label nameLabel, authorLabel, versionLabel;
     juce::TextEditor nameEditor, authorEditor, versionEditor;
+    juce::Label commentLabel;
+    juce::TextEditor commentEditor;
 
     // Buttons
     juce::TextButton initButton;

@@ -310,9 +310,10 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // メタデータとパスを属性として追加
-    xml->setAttribute("presetName", presetName);
-    xml->setAttribute("presetAuthor", presetAuthor);
-    xml->setAttribute("presetVersion", presetVersion);
+    xml->setAttribute("presetName", sanitizeString(presetName, presetNameLength));
+    xml->setAttribute("presetAuthor", sanitizeString(presetAuthor, presetAuthorLength));
+    xml->setAttribute("presetVersion", sanitizeString(presetVersion, presetVersionLength));
+    xml->setAttribute("presetComment", sanitizeString(presetComment, commentLength));
     xml->setAttribute("activeModeName", getModeName((OscMode)(int)*apvts.getRawParameterValue("MODE")));
 
     xml->setAttribute("adpcmPath", makePathRelative(juce::File(adpcmFilePath)));
@@ -330,8 +331,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
         // メタデータ復帰
         presetName = xmlState->getStringAttribute("presetName", "Init Preset");
-        presetAuthor = xmlState->getStringAttribute("presetAuthor", "User");
-        presetVersion = xmlState->getStringAttribute("presetVersion", "1.0");
+        presetAuthor = xmlState->getStringAttribute("presetAuthor", "Anonymous User");
+        presetVersion = xmlState->getStringAttribute("presetVersion", "1.0.0");
+        presetComment = xmlState->getStringAttribute("presetComment", "");
 
         // サンプル復帰 (ADPCM)
         juce::String storedAdpcm = xmlState->getStringAttribute("adpcmPath");
@@ -1347,6 +1349,37 @@ juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
     return file;
 }
 
+// コメントなどのサニタイズ (static)
+juce::String AudioPlugin2686V::sanitizeString(const juce::String& input, int length = 1024)
+{
+    // 1. 文字列のトリム（前後の空白除去）
+    juce::String clean = input.trim();
+
+    // 2. 文字数制限 (例: length文字まで)
+    // バッファオーバーフロー対策の基本です
+    if (clean.length() > length)
+    {
+        clean = clean.substring(0, length);
+    }
+
+    // 3. 制御文字の除去 (セキュリティ対策)
+    // XMLパーサーを混乱させる可能性のある文字や、バイナリゴミを除去します
+    // ただし、改行(\n, \r)とタブ(\t)はコメント用に許可します
+    juce::String allowedControlChars = "\r\n\t";
+
+    juce::String sanitized = "";
+    for (auto t : clean)
+    {
+        // 印字可能文字、または許可された制御文字なら採用
+        if (juce::CharacterFunctions::isPrintable(t) || allowedControlChars.containsChar(t))
+        {
+            sanitized += t;
+        }
+    }
+
+    return sanitized;
+}
+
 // ============================================================================
 // Entry Point
 // ============================================================================
@@ -1372,6 +1405,7 @@ void AudioPlugin2686V::initPreset()
     presetName = "Init Preset";
     presetAuthor = "User";
     presetVersion = "1.0";
+    presetComment = "";
 
     // 3. サンプルのアンロードとパスクリア
     unloadAdpcmFile();

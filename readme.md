@@ -233,3 +233,20 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
+
+## 更新履歴
+
+### 2026.02.16
+
+- v0.0.3
+- <2686V>プリセットにコメント欄を追加
+- <2686V>スタンドアロン版同梱
+
+- v0.0.2
+- <2686V>ヘッドルーム設定追加
+
+### 2026.02.15
+
+- v0.0.1
+- <2686V>初版
+- <2686VFX>初版
