@@ -48,12 +48,15 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     wtGui.page.addComponentListener(this);
+#endif
     tabs.getTabbedButtonBar().addChangeListener(this);
     audioProcessor.apvts.addParameterListener("MODE", this);
 
     setupLogo();
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // ============================
     // FM Pages
     // ============================
@@ -96,14 +99,14 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	setupAdpcmGui(adpcmGui);
 
     // ============================
-    // FX Page
-    // ============================
-    setupFxGui(fxGui);
-
-    // ============================
     // Preset Page
     // ============================
     setupPresetGui(presetGui);
+#endif
+    // ============================
+    // FX Page
+    // ============================
+    setupFxGui(fxGui);
 
     // ============================
     // Settings Page
@@ -125,6 +128,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue("MODE");
     tabs.setCurrentTabIndex(currentMode);
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
     {
@@ -137,6 +141,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
+#endif
 
     // フッターの設定
     addAndMakeVisible(footerGroup);
@@ -167,18 +172,22 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.setLookAndFeel(nullptr);
 
     tabs.getTabbedButtonBar().removeChangeListener(this);
+#if !defined(BUILD_AS_FX_PLUGIN)
     wtGui.page.removeComponentListener(this);
     adpcmGui.loadButton.removeListener(this);
-    audioProcessor.apvts.removeParameterListener("MODE", this);
 
     // Remove listeners for rhythm buttons
     for (auto& pad : rhythmGui.pads) {
         pad.loadButton.removeListener(this);
     }
+#endif
+    audioProcessor.apvts.removeParameterListener("MODE", this);
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
+// 2686FXでは不要
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (source == &tabs.getTabbedButtonBar())
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
@@ -201,6 +210,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             }
         }
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::paint(juce::Graphics& g)
@@ -231,6 +241,7 @@ void AudioPlugin2686VEditor::resized()
     masterVolLabel.setBounds(masterVolumeArea.removeFromLeft(200));
     masterVolSlider.setBounds(masterVolumeArea.removeFromLeft(400));
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     layoutOpnaPage(opnaGui, content);
     layoutOpnPage(opnGui, content);
     layoutOplPage(oplGui, content);
@@ -241,8 +252,11 @@ void AudioPlugin2686VEditor::resized()
     layoutWtPage(wtGui, content);
 	layoutRhythmPage(rhythmGui, content);
 	layoutAdpcmPage(adpcmGui, content);
+#endif
     layoutFxPage(fxGui, content);
+#if !defined(BUILD_AS_FX_PLUGIN)
     layoutPresetPage(presetGui, content);
+#endif
     layoutSettingsPage(settingsGui, content);
     layoutAboutPage(aboutGui, content);
 }
@@ -369,11 +383,13 @@ void AudioPlugin2686VEditor::setupSlider(SetupSliderParams& params)
         params.attr.reset(new SliderAttachment(audioProcessor.apvts, params.id, params.slider));
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (params.regType != RegisterType::None)
     {
         sliderRegMap[&params.slider] = params.regType;
         params.slider.addMouseListener(this, false);
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::setupCombo(SetupComboParams& params)
@@ -440,6 +456,7 @@ void AudioPlugin2686VEditor::setupFbSlider(SetupSliderParams& params)
     params.slider.setRange(0.0, 7.0, 1.0);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 template <size_t tableSize>
 void AudioPlugin2686VEditor::setupCustomWaveTable(SetupCustomWaveTableParams<tableSize>& params)
 {
@@ -1654,6 +1671,226 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 }
 
+
+void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
+{
+    /********************
+    *
+    * 1. Folder
+    *
+    *********************/
+
+    // defaultPresetDirから取ってくる
+    auto defaultPath = audioProcessor.getDefaultPresetDir();
+    gui.currentFolder = juce::File(defaultPath);
+    if (!gui.currentFolder.exists()) {
+        gui.currentFolder.createDirectory();
+    }
+
+    /********************
+    *
+    * 2. Path Label
+    *
+    *********************/
+
+    gui.page.addAndMakeVisible(gui.pathLabel);
+    gui.pathLabel.setText(gui.currentFolder.getFullPathName(), juce::dontSendNotification);
+    gui.pathLabel.setColour(juce::Label::outlineColourId, juce::Colours::grey);
+    gui.pathLabel.setJustificationType(juce::Justification::centredLeft);
+
+    /********************
+    *
+    * 3. Preset Table
+    *
+    *********************/
+
+    gui.table.getHeader().addColumn("File Name", 1, 150);
+    gui.table.getHeader().addColumn("Mode", 5, 80);
+    gui.table.getHeader().addColumn("Preset Name", 2, 150);
+    gui.table.getHeader().addColumn("Author", 3, 100);
+    gui.table.getHeader().addColumn("Ver", 4, 50);
+    gui.table.setMultipleSelectionEnabled(false);
+
+    gui.page.addAndMakeVisible(gui.table);
+
+    // ダブルクリック時の動作
+    gui.onDoubleClicked = [this](const juce::File& file) {
+        loadPresetFile(file); // ロード処理を分離
+        };
+
+    // 初期スキャン
+    scanPresets();
+
+    /********************
+    *
+    * 4. Metadata Group
+    *
+    *********************/
+
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.metaGroup, .title = "Preset Info" };
+    setupGroup(groupParams);
+
+    // Name
+    gui.page.addAndMakeVisible(gui.nameLabel);
+    gui.nameLabel.setText("Name:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.nameEditor);
+    gui.nameEditor.setText(audioProcessor.presetName);
+    gui.nameEditor.onTextChange = [this] { audioProcessor.presetName = presetGui.nameEditor.getText(); };
+
+    // Author
+    gui.page.addAndMakeVisible(gui.authorLabel);
+    gui.authorLabel.setText("Author:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.authorEditor);
+    gui.authorEditor.setText(audioProcessor.presetAuthor);
+    gui.authorEditor.onTextChange = [this] { audioProcessor.presetAuthor = presetGui.authorEditor.getText(); };
+
+    // Version
+    gui.page.addAndMakeVisible(gui.versionLabel);
+    gui.versionLabel.setText("Ver:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.versionEditor);
+    gui.versionEditor.setText(audioProcessor.presetVersion);
+    gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
+
+    // Comment
+    gui.page.addAndMakeVisible(gui.commentLabel);
+    gui.commentLabel.setText("Comment:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.commentEditor);
+    gui.commentEditor.setMultiLine(true); // 複数行OK
+    gui.commentEditor.setReturnKeyStartsNewLine(true); // Enterで改行
+    gui.commentEditor.setText(audioProcessor.presetComment);
+    gui.commentEditor.onTextChange = [this] {
+        // 入力時にもサニタイズ（文字数制限など）をかけるとより安全ですが
+        // ここでは保存時にかける方針で、そのまま代入します
+        audioProcessor.presetComment = presetGui.commentEditor.getText();
+        };
+
+    /********************
+    *
+    * 5. Buttons
+    *
+    *********************/
+
+    // --- Init Preset Button ---
+    gui.page.addAndMakeVisible(gui.initButton);
+    gui.initButton.setButtonText("Init Preset");
+    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue.withAlpha(0.7f));
+
+    gui.initButton.onClick = [this] {
+        // 確認ダイアログを表示
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("Initialize Preset")
+            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
+            .withButton("Initialize")
+            .withButton("Cancel"),
+            [this](int result) {
+                if (result == 1) { // Initializeボタンが押された
+                    // 1. プロセッサ側の初期化実行
+                    audioProcessor.initPreset();
+
+                    // 2. エディタの表示更新
+                    // テキストエディタへの反映
+                    presetGui.nameEditor.setText(audioProcessor.presetName);
+                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
+                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
+                    presetGui.commentEditor.setText(audioProcessor.presetComment);
+
+                    // ファイル名表示のクリア
+                    updateRhythmFileNames();
+                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Load Preset Info Button ---
+    gui.page.addAndMakeVisible(gui.loadButton);
+    gui.loadButton.setButtonText("Load Preset");
+    gui.loadButton.setEnabled(false);
+    gui.loadButton.onClick = [this] {
+        auto file = presetGui.getSelectedFile();
+
+        if (file.existsAsFile()) loadPresetFile(file);
+        };
+
+    // --- Save Preset Button ---
+    gui.page.addAndMakeVisible(gui.saveButton);
+    gui.saveButton.setButtonText("Save Preset");
+    gui.saveButton.onClick = [this] { saveCurrentPreset(); };
+
+    // --- Delete Preset Button ---
+    gui.page.addAndMakeVisible(gui.deleteButton);
+    gui.deleteButton.setButtonText("Delete Preset");
+    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    gui.deleteButton.setEnabled(false);
+    gui.deleteButton.onClick = [this] {
+        auto file = presetGui.getSelectedFile();
+
+        if (file.existsAsFile()) {
+            // 確認ダイアログ
+            juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+                .withIconType(juce::MessageBoxIconType::WarningIcon)
+                .withTitle("Delete Preset")
+                .withMessage("Are you sure you want to delete " + file.getFileName() + "?")
+                .withButton("Delete")
+                .withButton("Cancel"),
+                [this, file](int result) {
+                    if (result == 1) { // Delete
+                        file.deleteFile();
+                        scanPresets(); // リスト更新
+                    }
+                }
+            );
+        }
+        };
+
+    // --- Reflesh Preset List Button ---
+    gui.page.addAndMakeVisible(gui.refreshButton);
+    gui.refreshButton.setButtonText("Refresh Preset List");
+    gui.refreshButton.onClick = [this] { scanPresets(); };
+
+    // --- Reflect Preset Info Button ---
+    gui.page.addAndMakeVisible(gui.reflectButton);
+    gui.reflectButton.setButtonText("Reflect Preset Info");
+    gui.reflectButton.setEnabled(false);
+    gui.reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
+    gui.reflectButton.onClick = [this] {
+        int row = presetGui.table.getSelectedRow();
+
+        if (row >= 0 && row < presetGui.items.size()) {
+            const auto& item = presetGui.items[row];
+
+            // TextEditorにセットすると onTextChange が発火し、AudioProcessorの変数も更新されます
+            presetGui.nameEditor.setText(item.name);
+            presetGui.authorEditor.setText(item.author);
+            presetGui.versionEditor.setText(item.version);
+            presetGui.commentEditor.setText(item.comment);
+        }
+        };
+
+    // --- Copy Preset Info to Clipboard Button ---
+    gui.page.addAndMakeVisible(gui.copyButton);
+    gui.copyButton.setButtonText("Copy Preset Info to Clipboard");
+    gui.copyButton.setEnabled(false);
+    gui.copyButton.onClick = [this] {
+        int row = presetGui.table.getSelectedRow();
+
+        if (row >= 0 && row < presetGui.items.size()) {
+            const auto& item = presetGui.items[row];
+
+            // フォーマットはお好みで調整してください
+            juce::String info = "Preset Name: " + item.name + "\n" +
+                "Author: " + item.author + "\n" +
+                "Version: " + item.version + "\n" +
+                "Comment: " + item.comment + "\n" +
+                "Mode: " + item.modeName;
+
+            juce::SystemClipboard::copyTextToClipboard(info);
+        }
+        };
+}
+#endif
+
 void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
 {
     auto setupB = [&](juce::Slider& s, juce::Label& l, juce::String name) {
@@ -1823,224 +2060,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RBC_MIX", gui.rbcMixSlider);
 }
 
-void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
-{
-    /********************
-    *
-    * 1. Folder
-    * 
-    *********************/
-
-    // defaultPresetDirから取ってくる
-    auto defaultPath = audioProcessor.getDefaultPresetDir();
-    gui.currentFolder = juce::File(defaultPath);
-    if (!gui.currentFolder.exists()) {
-        gui.currentFolder.createDirectory();
-    }
-
-    /********************
-    *
-    * 2. Path Label
-    *
-    *********************/
-
-    gui.page.addAndMakeVisible(gui.pathLabel);
-    gui.pathLabel.setText(gui.currentFolder.getFullPathName(), juce::dontSendNotification);
-    gui.pathLabel.setColour(juce::Label::outlineColourId, juce::Colours::grey);
-    gui.pathLabel.setJustificationType(juce::Justification::centredLeft);
-
-    /********************
-    *
-    * 3. Preset Table
-    *
-    *********************/
-
-    gui.table.getHeader().addColumn("File Name", 1, 150);
-    gui.table.getHeader().addColumn("Mode", 5, 80);
-    gui.table.getHeader().addColumn("Preset Name", 2, 150);
-    gui.table.getHeader().addColumn("Author", 3, 100);
-    gui.table.getHeader().addColumn("Ver", 4, 50);
-    gui.table.setMultipleSelectionEnabled(false);
-
-    gui.page.addAndMakeVisible(gui.table);
-
-    // ダブルクリック時の動作
-    gui.onDoubleClicked = [this](const juce::File& file) {
-        loadPresetFile(file); // ロード処理を分離
-    };
-
-    // 初期スキャン
-    scanPresets();
-
-    /********************
-    *
-    * 4. Metadata Group
-    *
-    *********************/
-
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.metaGroup, .title = "Preset Info" };
-    setupGroup(groupParams);
-
-    // Name
-    gui.page.addAndMakeVisible(gui.nameLabel);
-    gui.nameLabel.setText("Name:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.nameEditor);
-    gui.nameEditor.setText(audioProcessor.presetName);
-    gui.nameEditor.onTextChange = [this] { audioProcessor.presetName = presetGui.nameEditor.getText(); };
-
-    // Author
-    gui.page.addAndMakeVisible(gui.authorLabel);
-    gui.authorLabel.setText("Author:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.authorEditor);
-    gui.authorEditor.setText(audioProcessor.presetAuthor);
-    gui.authorEditor.onTextChange = [this] { audioProcessor.presetAuthor = presetGui.authorEditor.getText(); };
-
-    // Version
-    gui.page.addAndMakeVisible(gui.versionLabel);
-    gui.versionLabel.setText("Ver:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.versionEditor);
-    gui.versionEditor.setText(audioProcessor.presetVersion);
-    gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
-
-    // Comment
-    gui.page.addAndMakeVisible(gui.commentLabel);
-    gui.commentLabel.setText("Comment:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.commentEditor);
-    gui.commentEditor.setMultiLine(true); // 複数行OK
-    gui.commentEditor.setReturnKeyStartsNewLine(true); // Enterで改行
-    gui.commentEditor.setText(audioProcessor.presetComment);
-    gui.commentEditor.onTextChange = [this] {
-        // 入力時にもサニタイズ（文字数制限など）をかけるとより安全ですが
-        // ここでは保存時にかける方針で、そのまま代入します
-        audioProcessor.presetComment = presetGui.commentEditor.getText();
-        };
-
-    /********************
-    *
-    * 5. Buttons
-    *
-    *********************/
-
-    // --- Init Preset Button ---
-    gui.page.addAndMakeVisible(gui.initButton);
-    gui.initButton.setButtonText("Init Preset");
-    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue.withAlpha(0.7f));
-
-    gui.initButton.onClick = [this] {
-        // 確認ダイアログを表示
-        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
-            .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle("Initialize Preset")
-            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
-            .withButton("Initialize")
-            .withButton("Cancel"),
-            [this](int result) {
-                if (result == 1) { // Initializeボタンが押された
-                    // 1. プロセッサ側の初期化実行
-                    audioProcessor.initPreset();
-
-                    // 2. エディタの表示更新
-                    // テキストエディタへの反映
-                    presetGui.nameEditor.setText(audioProcessor.presetName);
-                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
-                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
-                    presetGui.commentEditor.setText(audioProcessor.presetComment);
-
-                    // ファイル名表示のクリア
-                    updateRhythmFileNames();
-                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
-                }
-            }
-        );
-        };
-
-    // --- Load Preset Info Button ---
-    gui.page.addAndMakeVisible(gui.loadButton);
-    gui.loadButton.setButtonText("Load Preset");
-    gui.loadButton.setEnabled(false);
-    gui.loadButton.onClick = [this] {
-        auto file = presetGui.getSelectedFile();
-
-        if (file.existsAsFile()) loadPresetFile(file);
-    };
-
-    // --- Save Preset Button ---
-    gui.page.addAndMakeVisible(gui.saveButton);
-    gui.saveButton.setButtonText("Save Preset");
-    gui.saveButton.onClick = [this] { saveCurrentPreset(); };
-
-    // --- Delete Preset Button ---
-    gui.page.addAndMakeVisible(gui.deleteButton);
-    gui.deleteButton.setButtonText("Delete Preset");
-    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
-    gui.deleteButton.setEnabled(false);
-    gui.deleteButton.onClick = [this] {
-        auto file = presetGui.getSelectedFile();
-
-        if (file.existsAsFile()) {
-            // 確認ダイアログ
-            juce::AlertWindow::showAsync(juce::MessageBoxOptions()
-                .withIconType(juce::MessageBoxIconType::WarningIcon)
-                .withTitle("Delete Preset")
-                .withMessage("Are you sure you want to delete " + file.getFileName() + "?")
-                .withButton("Delete")
-                .withButton("Cancel"),
-                [this, file](int result) {
-                    if (result == 1) { // Delete
-                        file.deleteFile();
-                        scanPresets(); // リスト更新
-                    }
-                }
-            );
-        }
-    };
-
-    // --- Reflesh Preset List Button ---
-    gui.page.addAndMakeVisible(gui.refreshButton);
-    gui.refreshButton.setButtonText("Refresh Preset List");
-    gui.refreshButton.onClick = [this] { scanPresets(); };
-
-    // --- Reflect Preset Info Button ---
-    gui.page.addAndMakeVisible(gui.reflectButton);
-    gui.reflectButton.setButtonText("Reflect Preset Info");
-    gui.reflectButton.setEnabled(false);
-    gui.reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
-    gui.reflectButton.onClick = [this] {
-        int row = presetGui.table.getSelectedRow();
-
-        if (row >= 0 && row < presetGui.items.size()) {
-            const auto& item = presetGui.items[row];
-
-            // TextEditorにセットすると onTextChange が発火し、AudioProcessorの変数も更新されます
-            presetGui.nameEditor.setText(item.name);
-            presetGui.authorEditor.setText(item.author);
-            presetGui.versionEditor.setText(item.version);
-            presetGui.commentEditor.setText(item.comment);
-        }
-    };
-
-    // --- Copy Preset Info to Clipboard Button ---
-    gui.page.addAndMakeVisible(gui.copyButton);
-    gui.copyButton.setButtonText("Copy Preset Info to Clipboard");
-    gui.copyButton.setEnabled(false);
-    gui.copyButton.onClick = [this] {
-        int row = presetGui.table.getSelectedRow();
-
-        if (row >= 0 && row < presetGui.items.size()) {
-            const auto& item = presetGui.items[row];
-
-            // フォーマットはお好みで調整してください
-            juce::String info = "Preset Name: " + item.name + "\n" +
-                "Author: " + item.author + "\n" +
-                "Version: " + item.version + "\n" +
-                "Comment: " + item.comment + "\n" +
-                "Mode: " + item.modeName;
-
-            juce::SystemClipboard::copyTextToClipboard(info);
-        }
-    };
-}
-
 void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
 {
     SetupGroupParams gp = { gui.page, gui.group, "Environment Settings" };
@@ -2083,6 +2102,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
         loadWallpaperImage();
     };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // --- ADPCM Dir ---
     setupRow(gui.sampleDirLabel, "Sample Dir:", gui.sampleDirPathLabel, gui.sampleDirBrowseBtn);
     gui.sampleDirPathLabel.setText(audioProcessor.defaultSampleDir, juce::dontSendNotification);
@@ -2163,6 +2183,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
     gui.headroomGainSlider.onValueChange = [this, &gui] {
         audioProcessor.headroomGain = (float)gui.headroomGainSlider.getValue();
         };
+#endif
 
     // --- Save Preference Button ---
     gui.page.addAndMakeVisible(gui.saveSettingsBtn);
@@ -2202,12 +2223,14 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
                     // 壁紙再描画
                     loadWallpaperImage();
 
+#if !defined(BUILD_AS_FX_PLUGIN)
                     // プリセットリスト更新
                     if (juce::File(audioProcessor.defaultPresetDir).isDirectory()) {
                         presetGui.currentFolder = juce::File(audioProcessor.defaultPresetDir);
                         presetGui.pathLabel.setText(presetGui.currentFolder.getFullPathName(), juce::dontSendNotification);
                         scanPresets(); // リスト更新関数を呼ぶ
                     }
+#endif
                 }
             }
         );
@@ -2309,6 +2332,7 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     gui.page.addAndMakeVisible(gui.gplLinkButton);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
@@ -3139,6 +3163,7 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
     gui.sustainSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
     gui.releaseSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
 }
+#endif
 
 void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content)
 {
@@ -3284,6 +3309,7 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutFooterArea(rbcFooterArea, gui.rbcBypassBtn);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content)
 {
     auto area = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
@@ -3346,6 +3372,7 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     rightArea.removeFromTop(10);
     gui.copyButton.setBounds(rightArea.removeFromTop(40));
 }
+#endif
 
 void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Rectangle<int> content)
 {
@@ -3454,6 +3481,7 @@ void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<i
     gui.vstGuidelineLabel.setBounds(area.removeFromTop(20));
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 // ヘルパー: プリセットロード処理 (共通化)
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 {
@@ -3541,6 +3569,7 @@ void AudioPlugin2686VEditor::scanPresets()
     presetGui.table.updateContent();
     presetGui.table.repaint();
 }
+#endif
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
 {
@@ -3562,6 +3591,7 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
 
 void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     // wtPage のサイズが変わったときだけレイアウトを実行
     if (&component == &wtGui.page && wasResized)
     {
@@ -3571,13 +3601,14 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
 
         layoutWtPage(wtGui, content);
     }
-
     // もし gui.page も登録したなら
     // if (&component == &gui.page && wasResized) layoutgui.page(); // (関数化していれば)
+#endif
 }
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     // ADPCM Load Buttons
     if (button == &adpcmGui.loadButton)
     {
@@ -3634,10 +3665,12 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
             }
         }
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (event.mods.isRightButtonDown())
     {
         juce::Component* target = event.originalComponent;
@@ -3669,8 +3702,10 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
             });
         }
     }
+#endif
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
 {
     // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
@@ -3692,6 +3727,7 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
         }
         }), true);
 }
+#endif
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
@@ -3707,6 +3743,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     }
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
@@ -3887,3 +3924,4 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     val = getValue("MUL:", 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
 }
+#endif

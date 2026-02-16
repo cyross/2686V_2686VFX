@@ -94,4 +94,4 @@ target_compile_definitions(${CY_PLUGIN_NAME} PRIVATE
 
 juce_generate_juce_header(${CY_PLUGIN_NAME})
 
-source_group("Documentation" FILES ../readme.md ../document/2686V仕様.md)
+source_group("Documentation" FILES ../readme.md)

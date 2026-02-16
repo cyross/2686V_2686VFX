@@ -62,6 +62,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - 設定画面にON/OFF切り替え可能
 - 和音演奏可能
   - 最大同時32ボイス対応
+  - ヘッドルーム確保ゲインの変更可能
 - もちろん、オートメーション可能
 - MIDIキーボードのピッチベント・モジュレーション機能対応
 - プリセットの保存・読み込み可能
@@ -146,33 +147,33 @@ git submodule update --init --recursive
 
 - 開いているターミナルで以下のコマンドを入力する
 
-```bash
-cd /path/of/root/2686V_2686VFX/
-md build
-cd build
-cmake .. -G "Visual Studio 18 2026"
-```
-
-### CMakeLists.txt の編集したい時の手順
-
-- VS2026上で更新すると挙動が変になることがあったので、無用なトラブルを避けることもあって、以下のように行っている
-
-- VS2026 を終了する
-- VSCode でプロジェクトディレクトリ(もしくはワークスペース)を開く
-- `CMakeFile.txt` を編集(このとき、CMakeが動くときがあるが気にしない)
-- CMake のビルドエラーが無いことを確認してVSCodeを終了
-- `Developer PowerShell` か `Developer Command Prompt` を開く
-- 開いたターミナルで以下のコマンドを入力する
+### 2686V
 
 ```bash
 cd /path/of/root/2686V_2686VFX/
-rmdir -Force build
-md build
-cd build
-cmake .. -G "Visual Studio 18 2026"
+./gen_2686V_solution.bat
 ```
 
-- エラー無く終了したのを確認して、VS2026 を開き、ソリューションファイルを選択
+### 2686VFX
+
+```bash
+cd /path/of/root/2686V_2686VFX/
+./gen_2686VFX_solution.bat
+```
+
+## VS2026 で編集・ビルド
+
+- `2686V` のソリューションファイルは以下にあります。
+
+```bash
+/path/of/root/2686V_2686VFX/build/2686_Project.sln
+```
+
+- `2686VFX` のソリューションファイルは以下にあります。
+
+```bash
+/path/of/root/2686V_2686VFX/buildFx/2686_Project.sln
+```
 
 ## 今後の課題
 
@@ -240,7 +241,11 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 
 - v0.0.3
 - <2686V>プリセットにコメント欄を追加
+- <2686V>プリセットのメタデータのサニタイズ対応
+- <2686V>プリセットのメタデータに長さ制限対応
 - <2686V>スタンドアロン版同梱
+- <2686VFX>サイズの軽量化
+- サンプルプリセット追加
 
 - v0.0.2
 - <2686V>ヘッドルーム設定追加
