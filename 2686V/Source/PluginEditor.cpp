@@ -48,12 +48,15 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     wtGui.page.addComponentListener(this);
+#endif
     tabs.getTabbedButtonBar().addChangeListener(this);
     audioProcessor.apvts.addParameterListener("MODE", this);
 
     setupLogo();
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // ============================
     // FM Pages
     // ============================
@@ -96,14 +99,14 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	setupAdpcmGui(adpcmGui);
 
     // ============================
-    // FX Page
-    // ============================
-    setupFxGui(fxGui);
-
-    // ============================
     // Preset Page
     // ============================
     setupPresetGui(presetGui);
+#endif
+    // ============================
+    // FX Page
+    // ============================
+    setupFxGui(fxGui);
 
     // ============================
     // Settings Page
@@ -125,6 +128,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue("MODE");
     tabs.setCurrentTabIndex(currentMode);
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
     {
@@ -137,6 +141,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
+#endif
 
     // フッターの設定
     addAndMakeVisible(footerGroup);
@@ -167,18 +172,22 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.setLookAndFeel(nullptr);
 
     tabs.getTabbedButtonBar().removeChangeListener(this);
+#if !defined(BUILD_AS_FX_PLUGIN)
     wtGui.page.removeComponentListener(this);
     adpcmGui.loadButton.removeListener(this);
-    audioProcessor.apvts.removeParameterListener("MODE", this);
 
     // Remove listeners for rhythm buttons
     for (auto& pad : rhythmGui.pads) {
         pad.loadButton.removeListener(this);
     }
+#endif
+    audioProcessor.apvts.removeParameterListener("MODE", this);
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
+// 2686FXでは不要
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (source == &tabs.getTabbedButtonBar())
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
@@ -201,6 +210,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             }
         }
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::paint(juce::Graphics& g)
@@ -231,6 +241,7 @@ void AudioPlugin2686VEditor::resized()
     masterVolLabel.setBounds(masterVolumeArea.removeFromLeft(200));
     masterVolSlider.setBounds(masterVolumeArea.removeFromLeft(400));
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     layoutOpnaPage(opnaGui, content);
     layoutOpnPage(opnGui, content);
     layoutOplPage(oplGui, content);
@@ -241,8 +252,11 @@ void AudioPlugin2686VEditor::resized()
     layoutWtPage(wtGui, content);
 	layoutRhythmPage(rhythmGui, content);
 	layoutAdpcmPage(adpcmGui, content);
+#endif
     layoutFxPage(fxGui, content);
+#if !defined(BUILD_AS_FX_PLUGIN)
     layoutPresetPage(presetGui, content);
+#endif
     layoutSettingsPage(settingsGui, content);
     layoutAboutPage(aboutGui, content);
 }
@@ -369,11 +383,13 @@ void AudioPlugin2686VEditor::setupSlider(SetupSliderParams& params)
         params.attr.reset(new SliderAttachment(audioProcessor.apvts, params.id, params.slider));
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (params.regType != RegisterType::None)
     {
         sliderRegMap[&params.slider] = params.regType;
         params.slider.addMouseListener(this, false);
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::setupCombo(SetupComboParams& params)
@@ -440,6 +456,7 @@ void AudioPlugin2686VEditor::setupFbSlider(SetupSliderParams& params)
     params.slider.setRange(0.0, 7.0, 1.0);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 template <size_t tableSize>
 void AudioPlugin2686VEditor::setupCustomWaveTable(SetupCustomWaveTableParams<tableSize>& params)
 {
@@ -478,34 +495,34 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> seItems = {
-        {.name = "Normal", .value = 1 },
-        {.name = "Saw Down", .value = 2 },
-        {.name = "Saw Down & Hold", .value = 3 },
-        {.name = "Triangle", .value = 4 },
-        {.name = "Alternative Saw Down & Hold", .value = 5 },
-        {.name = "Saw Up", .value = 6 },
-        {.name = "Saw Up & Hold", .value = 7 },
-        {.name = "Triangle Invert", .value = 8 },
-        {.name = "Alternative Saw Up & Hold", .value = 9 },
+        {.name = "0: Normal", .value = 1 },
+        {.name = "1: Saw Down", .value = 2 },
+        {.name = "2: Saw Down & Hold", .value = 3 },
+        {.name = "3: Triangle", .value = 4 },
+        {.name = "4: Alternative Saw Down & Hold", .value = 5 },
+        {.name = "5: Saw Up", .value = 6 },
+        {.name = "6: Saw Up & Hold", .value = 7 },
+        {.name = "7: Triangle Invert", .value = 8 },
+        {.name = "8: Alternative Saw Up & Hold", .value = 9 },
     };
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
 	SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -574,15 +591,15 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
         setupCombo(seParams);
@@ -608,24 +625,24 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 {
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -684,15 +701,15 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
         setupToggleButton(fixParams);
@@ -711,26 +728,26 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 
 void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 {
-    std::vector<SelectItem> algItems = { {.name = "FM(Serial)", .value = 1}, {.name = "AM (Parallel)", .value = 2}, };
+    std::vector<SelectItem> algItems = { {.name = "0: FM(Serial)", .value = 1}, {.name = "1: AM (Parallel)", .value = 2}, };
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
-    std::vector<SelectItem> egItems = { {.name = "Sine", .value = 1}, {.name = "Half", .value = 2}, {.name = "Abs", .value = 3}, {.name = "Pulse", .value = 4}, };
+    std::vector<SelectItem> egItems = { {.name = "0: Sine", .value = 1}, {.name = "1: Half", .value = 2}, {.name = "2: Abs", .value = 3}, {.name = "3: Pulse", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -781,14 +798,16 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         setupSlider(mulParams);
         SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        setupSlider(tlParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
         SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
@@ -811,32 +830,32 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = {
-        {.name = "Sine", .value = 1},
-        {.name = "Half Sine", .value = 2},
-        {.name = "Abs Sine", .value = 3},
-        {.name = "Pulse", .value = 4},
-        {.name = "Alternative Sine", .value = 5},
-        {.name = "Alternative Abs Sine", .value = 6},
-        {.name = "Square", .value = 7},
-        {.name = "Derived Square", .value = 8},
+        {.name = "0: Sine", .value = 1},
+        {.name = "1: Half Sine", .value = 2},
+        {.name = "2: Abs Sine", .value = 3},
+        {.name = "3: Pulse", .value = 4},
+        {.name = "4: Alternative Sine", .value = 5},
+        {.name = "5: Alternative Abs Sine", .value = 6},
+        {.name = "6: Square", .value = 7},
+        {.name = "7: Derived Square", .value = 8},
     };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
@@ -890,13 +909,13 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         setupSlider(mulParams);
         SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
         SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
         setupToggleButton(amParams);
@@ -920,24 +939,24 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -1005,15 +1024,15 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
@@ -1037,53 +1056,54 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(27);
-    std::vector<SelectItem> ksItems = { {.name = "OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
+    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
+
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
     std::vector<SelectItem> wsItems = {
-        {.name = "Sine", .value = 1},
-        {.name = "Half Sine", .value = 2},
-        {.name = "Abs Sine", .value = 3},
-        {.name = "Alternating Half Sine", .value = 4},
-        {.name = "Alternating Sine", .value = 5},
-        {.name = "Alternating Abs Sine", .value = 6},
-        {.name = "Square", .value = 7},
-        {.name = "Derived Square", .value = 8},
-        {.name = "Saw Down", .value = 9},
-        {.name = "Saw Up", .value = 10},
-        {.name = "Triangle", .value = 11},
-        {.name = "Saw + Sine", .value = 12},
-        {.name = "Log Saw", .value = 13},
-        {.name = "Pulse 25%", .value = 14},
-        {.name = "Pulse 12.5%", .value = 15},
-        {.name = "Pulse 6.25%", .value = 16},
-        {.name = "Round Square", .value = 17},
-        {.name = "Impulse Train", .value = 18},
-        {.name = "Comb / Multi-pulse", .value = 19},
-        {.name = "Resonant Saw (Low)", .value = 20},
-        {.name = "Resonant Saw (High)", .value = 21},
-        {.name = "Resonant Triangle", .value = 22},
-        {.name = "Bulb Sine", .value = 23},
-        {.name = "Double Hump", .value = 24},
-        {.name = "Pseudo Voice Formant 1", .value = 25},
-        {.name = "Pseudo Voice Formant 2", .value = 26},
-        {.name = "Metallic 1", .value = 27},
-        {.name = "Metallic 2", .value = 28},
-        {.name = "Noise-Like", .value = 29},
+        {.name = "00: Sine", .value = 1},
+        {.name = "01: Half Sine", .value = 2},
+        {.name = "02: Abs Sine", .value = 3},
+        {.name = "03: Alternating Half Sine", .value = 4},
+        {.name = "04: Alternating Sine", .value = 5},
+        {.name = "05: Alternating Abs Sine", .value = 6},
+        {.name = "06: Square", .value = 7},
+        {.name = "07: Derived Square", .value = 8},
+        {.name = "08: Saw Down", .value = 9},
+        {.name = "09: Saw Up", .value = 10},
+        {.name = "10: Triangle", .value = 11},
+        {.name = "11: Saw + Sine", .value = 12},
+        {.name = "12: Log Saw", .value = 13},
+        {.name = "13: Pulse 25%", .value = 14},
+        {.name = "14: Pulse 12.5%", .value = 15},
+        {.name = "15: Pulse 6.25%", .value = 16},
+        {.name = "16: Round Square", .value = 17},
+        {.name = "17: Impulse Train", .value = 18},
+        {.name = "18: Comb / Multi-pulse", .value = 19},
+        {.name = "19: Resonant Saw (Low)", .value = 20},
+        {.name = "20: Resonant Saw (High)", .value = 21},
+        {.name = "21: Resonant Triangle", .value = 22},
+        {.name = "22: Bulb Sine", .value = 23},
+        {.name = "23: Double Hump", .value = 24},
+        {.name = "24: Pseudo Voice Formant 1", .value = 25},
+        {.name = "25: Pseudo Voice Formant 2", .value = 26},
+        {.name = "26: Metallic 1", .value = 27},
+        {.name = "27: Metallic 2", .value = 28},
+        {.name = "28: Noise-Like", .value = 29},
     };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
@@ -1151,15 +1171,15 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
         setupSlider(tlParams);
         SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRate);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
         SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
@@ -1183,49 +1203,53 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
 void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        { .name = "Pulse(Rect)", .value = 1 },
-        { .name = "Triangle / Saw", .value = 2 },
+        { .name = "0: Pulse(Rect)", .value = 1 },
+        { .name = "1: Triangle / Saw", .value = 2 },
     };
+
     std::vector<SelectItem> dmItems = {
-        {.name = "Preset Ratio", .value = 1 },
-        {.name = "Variable (Slider)", .value = 2 },
+        {.name = "0: Preset Ratio", .value = 1 },
+        {.name = "1: Variable (Slider)", .value = 2 },
     };
+
     std::vector<SelectItem> prItems = {
-        {.name = "1:1 (50%)", .value = 1 },
-        {.name = "3:5 (37.5%)", .value = 2 },
-        {.name = "5:11 (31.25%)", .value = 3 },
-        {.name = "1:3 (25%)", .value = 4 },
-        {.name = "1:4 (20%)", .value = 5 },
-        {.name = "3:13 (18.75%)", .value = 6 },
-        {.name = "1:7 (12.5%)", .value = 7 },
-        {.name = "1:15 (6.25%)", .value = 8 },
+        {.name = "0: 1:1 (50%)", .value = 1 },
+        {.name = "1: 3:5 (37.5%)", .value = 2 },
+        {.name = "2: 5:11 (31.25%)", .value = 3 },
+        {.name = "3: 1:3 (25%)", .value = 4 },
+        {.name = "4: 1:4 (20%)", .value = 5 },
+        {.name = "5: 3:13 (18.75%)", .value = 6 },
+        {.name = "6: 1:7 (12.5%)", .value = 7 },
+        {.name = "7: 1:15 (6.25%)", .value = 8 },
     };
+
     std::vector<SelectItem> envItems = {
-        {.name = "Saw Down", .value = 1 },
-        {.name = "Saw Down & Hold", .value = 2 },
-        {.name = "Triangle", .value = 3 },
-        {.name = "Alternative Saw Down & Hold", .value = 4 },
-        {.name = "Saw Up", .value = 5 },
-        {.name = "Saw Up & Hold", .value = 6 },
-        {.name = "Triangle Invert", .value = 7 },
-        {.name = "Alternative Saw Up & Hold", .value = 8 },
+        {.name = "0: Saw Down", .value = 1 },
+        {.name = "1: Saw Down & Hold", .value = 2 },
+        {.name = "2: Triangle", .value = 3 },
+        {.name = "3: Alternative Saw Down & Hold", .value = 4 },
+        {.name = "4: Saw Up", .value = 5 },
+        {.name = "5: Saw Up & Hold", .value = 6 },
+        {.name = "6: Triangle Invert", .value = 7 },
+        {.name = "7: Alternative Saw Up & Hold", .value = 8 },
     };
+
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        { .name = "96kHz",    .value = 1 },
-        { .name = "55.5kHz",  .value = 2 },
-        { .name = "48kHz",    .value = 3 },
-        { .name = "44.1kHz",  .value = 4 },
-        { .name = "22.05kHz", .value = 5 },
-        { .name = "16kHz",    .value = 6 },
-        { .name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     SetupGroupParams vGroupParams = { .page = gui.page, .group = gui.voiceGroup, .title = "Voice" };
@@ -1346,38 +1370,38 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
 {
     std::vector<SelectItem> wsItems = {
-        {.name = "Sine",          .value = 1 },
-        {.name = "Triangle",      .value = 2 },
-        {.name = "Saw Up",        .value = 3 },
-        {.name = "Saw Down",      .value = 4 },
-        {.name = "Square (50%)",  .value = 5 },
-        {.name = "Pulse (25%)",   .value = 6 },
-        {.name = "Pulse (12.5%)", .value = 7 },
-        {.name = "Digital Noise", .value = 8 },
-        {.name = "Custom(Draw)",  .value = 9 },
+        {.name = "0: Sine",          .value = 1 },
+        {.name = "1: Triangle",      .value = 2 },
+        {.name = "2: Saw Up",        .value = 3 },
+        {.name = "3: Saw Down",      .value = 4 },
+        {.name = "4: Square (50%)",  .value = 5 },
+        {.name = "5: Pulse (25%)",   .value = 6 },
+        {.name = "6: Pulse (12.5%)", .value = 7 },
+        {.name = "7: Digital Noise", .value = 8 },
+        {.name = "8: Custom(Draw)",  .value = 9 },
     };
 
     std::vector<SelectItem> tsItems = {
-        {.name = "32 Samples",  .value = 1 },
-        {.name = "64 Samples",  .value = 2 },
+        {.name = "0: 32 Samples",  .value = 1 },
+        {.name = "1: 64 Samples",  .value = 2 },
     };
 
     std::vector<SelectItem> bdItems = {
-        {.name = "4-bit (16 steps)",  .value = 1 },
-        {.name = "5-bit (32 steps)",  .value = 2 },
-        {.name = "6-bit (64 steps)",  .value = 3 },
-        {.name = "8-bit (256 steps)", .value = 4 },
-        {.name = "Raw",               .value = 5 },
+        {.name = "0: 4-bit (16 steps)",  .value = 1 },
+        {.name = "1: 5-bit (32 steps)",  .value = 2 },
+        {.name = "2: 6-bit (64 steps)",  .value = 3 },
+        {.name = "3: 8-bit (256 steps)", .value = 4 },
+        {.name = "4: Raw",               .value = 5 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // --- Filter Group (Left) ---
@@ -1439,32 +1463,32 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 {
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
-    // Pad Definitions
+    // パッド名定義
     const char* padNames[] = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
 
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.group, .title = "Global" };
     setupGroup(groupParams);
 
-    // Master Level
+    // 総合出力レベル
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "RHYTHM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
     attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
@@ -1472,27 +1496,29 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
     {
+        // パッドタイトル・オートメーションキー
         auto& pad = gui.pads[i];
         juce::String padPrefix = "RHYTHM_PAD" + juce::String(i);
-
-        // Construct Title: "Pad 1 (BD) [C1]"
         juce::String padTitle = "Pad " + juce::String(i + 1) + " (" + padNames[i] + ")";
 
-        // Group
+        // メイングループ
         SetupGroupParams groupParams = { .page = gui.page, .group = pad.group, .title = padTitle };
         setupGroup(groupParams);
 
-        // Load Button
+        // 音声ファイルロードボタン
         gui.page.addAndMakeVisible(pad.loadButton);
         pad.loadButton.setButtonText("Load");
         pad.loadButton.addListener(this);
 
+        // ロードしている音声ファイル名
         gui.page.addAndMakeVisible(pad.fileNameLabel);
         pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
         pad.fileNameLabel.setJustificationType(juce::Justification::centred);
 
+        // パッド音声アンロード
         gui.page.addAndMakeVisible(pad.clearButton);
-        pad.clearButton.setButtonText("X"); // スペース節約のため "X" や "Clr"
+        pad.clearButton.setButtonText("X");
+        pad.clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
         pad.clearButton.onClick = [this, i, &pad]
             {
                 // 1. 特定のパッドをアンロード
@@ -1502,12 +1528,11 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
                 pad.fileNameLabel.setText("(Empty)", juce::dontSendNotification);
             };
 
-        // ADD: OneShot Button
-        // Note: We use setupToggleButton helper but customized for small size
+        // ワンショット機能トグル
         SetupToggleButtonParams shotP = SetupToggleButtonParams::createOp(gui.page, pad.oneShotButton, pad.oneShotLabel, pad.oneShotAtt, padPrefix + "_ONESHOT", "One Shot");
         setupToggleButton(shotP);
 
-        // Note
+        // 割り当てキーノート番号
         SetupSliderParams noteP = SetupSliderParams::createOp(gui.page, pad.noteSlider, pad.noteLabel, pad.noteAtt, padPrefix + "_NOTE", "Note");
         setupSlider(noteP);
         pad.noteSlider.setRange(0, 127, 1);
@@ -1516,15 +1541,15 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         };
         pad.noteSlider.updateText();
 
-        // Quality
+        // 内部ビット深度
         SetupComboParams qualP = SetupComboParams::createOp(gui.page, pad.modeCombo, pad.modeLabel, pad.modeAtt, padPrefix + "_MODE", "Mode", qualityItems);
         setupCombo(qualP);
 
-        // Rate
+        // 内部サンプリングレート
         SetupComboParams rateP = SetupComboParams::createOp(gui.page, pad.rateCombo, pad.rateLabel, pad.rateAtt, padPrefix + "_RATE", "Rate", rateItems);
         setupCombo(rateP);
 
-        // Pan
+        // パンポット
         SetupSliderParams panP = SetupSliderParams::createOp(gui.page, pad.panSlider, pad.panLabel, pad.panAtt, padPrefix + "_PAN", "Pan");
         setupSlider(panP);
         pad.panSlider.setRange(0.0f, 1.0f);
@@ -1558,49 +1583,52 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 {
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
-    // Setup Main Group
+    // メイングループ
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.group, .title = "ADPCM Sampler" };
     setupGroup(groupParams);
 
-    // Mode Combo
+    // 内部ビット深度
     SetupComboParams modeParams = SetupComboParams::create(gui.page, gui.modeCombo, gui.modeLabel, gui.modeAtt, "ADPCM_MODE", "Quality", qualityItems);
     setupCombo(modeParams);
 
-    // Rate Combo
+    // 内部サンプリングレート
     SetupComboParams rateParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "ADPCM_RATE", "Rate", rateItems);
     setupCombo(rateParams);
 
+    // 音声ファイル読み込みボタン
     gui.page.addAndMakeVisible(gui.loadButton);
     gui.loadButton.setButtonText("Load File");
     gui.loadButton.addListener(this);
 
+    // ロードしているファイル名
     gui.page.addAndMakeVisible(gui.fileNameLabel);
     gui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
     gui.fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     gui.fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
-    gui.clearButton.setButtonText("Clear");
+    // 音声ファイルのアンロード
     gui.group.addAndMakeVisible(gui.clearButton);
-
+    gui.clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    gui.clearButton.setButtonText("Clear");
     gui.clearButton.onClick = [this, &gui]
         {
             // 1. プロセッサーのアンロード関数を呼ぶ
@@ -1610,9 +1638,12 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
             gui.fileNameLabel.setText("No File", juce::dontSendNotification);
         };
 
+    // 出力レベル
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "ADPCM_LEVEL", "Master Vol");
     setupFbSlider(lvParams);
 	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
+
+    // パンポット設定
     SetupSliderParams panParams = SetupSliderParams::create(gui.page, gui.panSlider, gui.panLabel, gui.panAtt, "ADPCM_PAN", "Pan");
     setupSlider(panParams);
     gui.panSlider.setRange(0.0f, 1.0f);
@@ -1620,22 +1651,252 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     gui.page.addAndMakeVisible(gui.btnPanL); gui.btnPanL.setButtonText("L"); gui.btnPanL.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanC); gui.btnPanC.setButtonText("C"); gui.btnPanC.addListener(this);
     gui.page.addAndMakeVisible(gui.btnPanR); gui.btnPanR.setButtonText("R"); gui.btnPanR.addListener(this);
+
+    // ループトグルボタン
     SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "Loop");
     setupToggleButton(lpParams);
 	attatchLabelToComponent(gui.loopLabel, gui.loopButton);
+
+    // フィルターAR
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "ADPCM_AR", "Attack");
     setupSlider(arParams);
 	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
+
+    // フィルターDR
     SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "ADPCM_DR", "Decay");
     setupSlider(drParams);
 	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
+
+    // フィルターSL
     SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "ADPCM_SL", "Sustain");
     setupSlider(slParams);
 	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
+
+    // フィルターRR
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "ADPCM_RR", "Release");
     setupSlider(rrParams);
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 }
+
+
+void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
+{
+    /********************
+    *
+    * 1. Folder
+    *
+    *********************/
+
+    // defaultPresetDirから取ってくる
+    auto defaultPath = audioProcessor.getDefaultPresetDir();
+    gui.currentFolder = juce::File(defaultPath);
+    if (!gui.currentFolder.exists()) {
+        gui.currentFolder.createDirectory();
+    }
+
+    /********************
+    *
+    * 2. Path Label
+    *
+    *********************/
+
+    gui.page.addAndMakeVisible(gui.pathLabel);
+    gui.pathLabel.setText(gui.currentFolder.getFullPathName(), juce::dontSendNotification);
+    gui.pathLabel.setColour(juce::Label::outlineColourId, juce::Colours::grey);
+    gui.pathLabel.setJustificationType(juce::Justification::centredLeft);
+
+    /********************
+    *
+    * 3. Preset Table
+    *
+    *********************/
+
+    gui.table.getHeader().addColumn("File Name", 1, 150);
+    gui.table.getHeader().addColumn("Mode", 5, 80);
+    gui.table.getHeader().addColumn("Preset Name", 2, 150);
+    gui.table.getHeader().addColumn("Author", 3, 100);
+    gui.table.getHeader().addColumn("Ver", 4, 50);
+    gui.table.setMultipleSelectionEnabled(false);
+
+    gui.page.addAndMakeVisible(gui.table);
+
+    // ダブルクリック時の動作
+    gui.onDoubleClicked = [this](const juce::File& file) {
+        loadPresetFile(file); // ロード処理を分離
+        };
+
+    // 初期スキャン
+    scanPresets();
+
+    /********************
+    *
+    * 4. Metadata Group
+    *
+    *********************/
+
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.metaGroup, .title = "Preset Info" };
+    setupGroup(groupParams);
+
+    // Name
+    gui.page.addAndMakeVisible(gui.nameLabel);
+    gui.nameLabel.setText("Name:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.nameEditor);
+    gui.nameEditor.setText(audioProcessor.presetName);
+    gui.nameEditor.onTextChange = [this] { audioProcessor.presetName = presetGui.nameEditor.getText(); };
+
+    // Author
+    gui.page.addAndMakeVisible(gui.authorLabel);
+    gui.authorLabel.setText("Author:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.authorEditor);
+    gui.authorEditor.setText(audioProcessor.presetAuthor);
+    gui.authorEditor.onTextChange = [this] { audioProcessor.presetAuthor = presetGui.authorEditor.getText(); };
+
+    // Version
+    gui.page.addAndMakeVisible(gui.versionLabel);
+    gui.versionLabel.setText("Ver:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.versionEditor);
+    gui.versionEditor.setText(audioProcessor.presetVersion);
+    gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
+
+    // Comment
+    gui.page.addAndMakeVisible(gui.commentLabel);
+    gui.commentLabel.setText("Comment:", juce::dontSendNotification);
+    gui.page.addAndMakeVisible(gui.commentEditor);
+    gui.commentEditor.setMultiLine(true); // 複数行OK
+    gui.commentEditor.setReturnKeyStartsNewLine(true); // Enterで改行
+    gui.commentEditor.setText(audioProcessor.presetComment);
+    gui.commentEditor.onTextChange = [this] {
+        // 入力時にもサニタイズ（文字数制限など）をかけるとより安全ですが
+        // ここでは保存時にかける方針で、そのまま代入します
+        audioProcessor.presetComment = presetGui.commentEditor.getText();
+        };
+
+    /********************
+    *
+    * 5. Buttons
+    *
+    *********************/
+
+    // --- Init Preset Button ---
+    gui.page.addAndMakeVisible(gui.initButton);
+    gui.initButton.setButtonText("Init Preset");
+    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue.withAlpha(0.7f));
+
+    gui.initButton.onClick = [this] {
+        // 確認ダイアログを表示
+        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+            .withIconType(juce::MessageBoxIconType::WarningIcon)
+            .withTitle("Initialize Preset")
+            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
+            .withButton("Initialize")
+            .withButton("Cancel"),
+            [this](int result) {
+                if (result == 1) { // Initializeボタンが押された
+                    // 1. プロセッサ側の初期化実行
+                    audioProcessor.initPreset();
+
+                    // 2. エディタの表示更新
+                    // テキストエディタへの反映
+                    presetGui.nameEditor.setText(audioProcessor.presetName);
+                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
+                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
+                    presetGui.commentEditor.setText(audioProcessor.presetComment);
+
+                    // ファイル名表示のクリア
+                    updateRhythmFileNames();
+                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Load Preset Info Button ---
+    gui.page.addAndMakeVisible(gui.loadButton);
+    gui.loadButton.setButtonText("Load Preset");
+    gui.loadButton.setEnabled(false);
+    gui.loadButton.onClick = [this] {
+        auto file = presetGui.getSelectedFile();
+
+        if (file.existsAsFile()) loadPresetFile(file);
+        };
+
+    // --- Save Preset Button ---
+    gui.page.addAndMakeVisible(gui.saveButton);
+    gui.saveButton.setButtonText("Save Preset");
+    gui.saveButton.onClick = [this] { saveCurrentPreset(); };
+
+    // --- Delete Preset Button ---
+    gui.page.addAndMakeVisible(gui.deleteButton);
+    gui.deleteButton.setButtonText("Delete Preset");
+    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    gui.deleteButton.setEnabled(false);
+    gui.deleteButton.onClick = [this] {
+        auto file = presetGui.getSelectedFile();
+
+        if (file.existsAsFile()) {
+            // 確認ダイアログ
+            juce::AlertWindow::showAsync(juce::MessageBoxOptions()
+                .withIconType(juce::MessageBoxIconType::WarningIcon)
+                .withTitle("Delete Preset")
+                .withMessage("Are you sure you want to delete " + file.getFileName() + "?")
+                .withButton("Delete")
+                .withButton("Cancel"),
+                [this, file](int result) {
+                    if (result == 1) { // Delete
+                        file.deleteFile();
+                        scanPresets(); // リスト更新
+                    }
+                }
+            );
+        }
+        };
+
+    // --- Reflesh Preset List Button ---
+    gui.page.addAndMakeVisible(gui.refreshButton);
+    gui.refreshButton.setButtonText("Refresh Preset List");
+    gui.refreshButton.onClick = [this] { scanPresets(); };
+
+    // --- Reflect Preset Info Button ---
+    gui.page.addAndMakeVisible(gui.reflectButton);
+    gui.reflectButton.setButtonText("Reflect Preset Info");
+    gui.reflectButton.setEnabled(false);
+    gui.reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
+    gui.reflectButton.onClick = [this] {
+        int row = presetGui.table.getSelectedRow();
+
+        if (row >= 0 && row < presetGui.items.size()) {
+            const auto& item = presetGui.items[row];
+
+            // TextEditorにセットすると onTextChange が発火し、AudioProcessorの変数も更新されます
+            presetGui.nameEditor.setText(item.name);
+            presetGui.authorEditor.setText(item.author);
+            presetGui.versionEditor.setText(item.version);
+            presetGui.commentEditor.setText(item.comment);
+        }
+        };
+
+    // --- Copy Preset Info to Clipboard Button ---
+    gui.page.addAndMakeVisible(gui.copyButton);
+    gui.copyButton.setButtonText("Copy Preset Info to Clipboard");
+    gui.copyButton.setEnabled(false);
+    gui.copyButton.onClick = [this] {
+        int row = presetGui.table.getSelectedRow();
+
+        if (row >= 0 && row < presetGui.items.size()) {
+            const auto& item = presetGui.items[row];
+
+            // フォーマットはお好みで調整してください
+            juce::String info = "Preset Name: " + item.name + "\n" +
+                "Author: " + item.author + "\n" +
+                "Version: " + item.version + "\n" +
+                "Comment: " + item.comment + "\n" +
+                "Mode: " + item.modeName;
+
+            juce::SystemClipboard::copyTextToClipboard(info);
+        }
+        };
+}
+#endif
 
 void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
 {
@@ -1678,41 +1939,40 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     {
         gui.page.addAndMakeVisible(btn);
         btn.setButtonText("Bypass");
-        // バイパス時は文字色を変えるなど視認性を上げても良いです
-        btn.setColour(juce::ToggleButton::tickColourId, juce::Colours::red);
-        btn.setColour(juce::ToggleButton::tickDisabledColourId, juce::Colours::grey);
     };
 
     std::vector<SelectItem> qualityItems = {
-        {.name = "Raw (32bit)", .value = 1 },
-        {.name = "24-bit PCM",  .value = 2 },
-        {.name = "16-bit PCM",  .value = 3 },
-        {.name = "8-bit PCM",   .value = 4 },
-        {.name = "5-bit PCM",   .value = 5 },
-        {.name = "4-bit PCM",   .value = 6 },
-        {.name = "4-bit ADPCM", .value = 7 },
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
     };
 
     std::vector<SelectItem> rateItems = {
-        {.name = "96kHz",    .value = 1 },
-        {.name = "55.5kHz",  .value = 2 },
-        {.name = "48kHz",    .value = 3 },
-        {.name = "44.1kHz",  .value = 4 },
-        {.name = "22.05kHz", .value = 5 },
-        {.name = "16kHz",    .value = 6 },
-        {.name = "8kHz",     .value = 7 },
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
     };
 
     // GlobalGroup
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Global" };
     setupGroup(groupParams);
 
-    setupBypass(gui.tBypassBtn);
+    gui.page.addAndMakeVisible(gui.bypassToggle);
+    gui.bypassToggle.setButtonText("Master Bypass");
 
     // Tremolo Group
     SetupGroupParams tGp = { .page = gui.page, .group = gui.tremGroup, .title = "Tremolo" };
     setupGroup(tGp);
 
+    setupBypass(gui.tBypassBtn);
     setupB(gui.tRateSlider, gui.tRateLabel, "Rate");
     setupB(gui.tDepthSlider, gui.tDepthLabel, "Depth");
     setupB(gui.tMixSlider, gui.tMixLabel, "Mix");
@@ -1741,10 +2001,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     // Delay Group
     SetupGroupParams dGp = { .page = gui.page, .group = gui.delayGroup, .title = "Delay" };
     setupGroup(dGp);
-
-    gui.page.addAndMakeVisible(gui.bypassToggle);
-    gui.bypassToggle.setButtonText("Master Bypass");
-    gui.bypassToggle.setColour(juce::ToggleButton::textColourId, juce::Colours::orange);
 
     setupBypass(gui.dBypassBtn);
     setupB(gui.dTimeSlider, gui.dTimeLabel, "Time (ms)");
@@ -1811,208 +2067,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RBC_MIX", gui.rbcMixSlider);
 }
 
-void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
-{
-    /********************
-    *
-    * 1. Folder
-    * 
-    *********************/
-
-    // defaultPresetDirから取ってくる
-    auto defaultPath = audioProcessor.getDefaultPresetDir();
-    gui.currentFolder = juce::File(defaultPath);
-    if (!gui.currentFolder.exists()) {
-        gui.currentFolder.createDirectory();
-    }
-
-    /********************
-    *
-    * 2. Path Label
-    *
-    *********************/
-
-    gui.page.addAndMakeVisible(gui.pathLabel);
-    gui.pathLabel.setText(gui.currentFolder.getFullPathName(), juce::dontSendNotification);
-    gui.pathLabel.setColour(juce::Label::outlineColourId, juce::Colours::grey);
-    gui.pathLabel.setJustificationType(juce::Justification::centredLeft);
-
-    /********************
-    *
-    * 3. Preset Table
-    *
-    *********************/
-
-    gui.table.getHeader().addColumn("File Name", 1, 150);
-    gui.table.getHeader().addColumn("Mode", 5, 80);
-    gui.table.getHeader().addColumn("Preset Name", 2, 150);
-    gui.table.getHeader().addColumn("Author", 3, 100);
-    gui.table.getHeader().addColumn("Ver", 4, 50);
-    gui.table.setMultipleSelectionEnabled(false);
-
-    gui.page.addAndMakeVisible(gui.table);
-
-    // ダブルクリック時の動作
-    gui.onDoubleClicked = [this](const juce::File& file) {
-        loadPresetFile(file); // ロード処理を分離
-    };
-
-    // 初期スキャン
-    scanPresets();
-
-    /********************
-    *
-    * 4. Metadata Group
-    *
-    *********************/
-
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.metaGroup, .title = "Preset Info" };
-    setupGroup(groupParams);
-
-    // Name
-    gui.page.addAndMakeVisible(gui.nameLabel);
-    gui.nameLabel.setText("Name:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.nameEditor);
-    gui.nameEditor.setText(audioProcessor.presetName);
-    gui.nameEditor.onTextChange = [this] { audioProcessor.presetName = presetGui.nameEditor.getText(); };
-
-    // Author
-    gui.page.addAndMakeVisible(gui.authorLabel);
-    gui.authorLabel.setText("Author:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.authorEditor);
-    gui.authorEditor.setText(audioProcessor.presetAuthor);
-    gui.authorEditor.onTextChange = [this] { audioProcessor.presetAuthor = presetGui.authorEditor.getText(); };
-
-    // Version
-    gui.page.addAndMakeVisible(gui.versionLabel);
-    gui.versionLabel.setText("Ver:", juce::dontSendNotification);
-    gui.page.addAndMakeVisible(gui.versionEditor);
-    gui.versionEditor.setText(audioProcessor.presetVersion);
-    gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
-
-    /********************
-    *
-    * 5. Buttons
-    *
-    *********************/
-
-    // --- Init Preset Button ---
-    gui.page.addAndMakeVisible(gui.initButton);
-    gui.initButton.setButtonText("Init Preset");
-    gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
-
-    gui.initButton.onClick = [this] {
-        // 確認ダイアログを表示
-        juce::AlertWindow::showAsync(juce::MessageBoxOptions()
-            .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle("Initialize Preset")
-            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
-            .withButton("Initialize")
-            .withButton("Cancel"),
-            [this](int result) {
-                if (result == 1) { // Initializeボタンが押された
-                    // 1. プロセッサ側の初期化実行
-                    audioProcessor.initPreset();
-
-                    // 2. エディタの表示更新
-                    // テキストエディタへの反映
-                    presetGui.nameEditor.setText(audioProcessor.presetName);
-                    presetGui.authorEditor.setText(audioProcessor.presetAuthor);
-                    presetGui.versionEditor.setText(audioProcessor.presetVersion);
-
-                    // ファイル名表示のクリア
-                    updateRhythmFileNames();
-                    adpcmGui.fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
-                }
-            }
-        );
-        };
-
-    // --- Load Preset Info Button ---
-    gui.page.addAndMakeVisible(gui.loadButton);
-    gui.loadButton.setButtonText("Load Preset");
-    gui.loadButton.setEnabled(false);
-    gui.loadButton.onClick = [this] {
-        auto file = presetGui.getSelectedFile();
-
-        if (file.existsAsFile()) loadPresetFile(file);
-    };
-
-    // --- Save Preset Button ---
-    gui.page.addAndMakeVisible(gui.saveButton);
-    gui.saveButton.setButtonText("Save Preset");
-    gui.saveButton.onClick = [this] { saveCurrentPreset(); };
-
-    // --- Delete Preset Button ---
-    gui.page.addAndMakeVisible(gui.deleteButton);
-    gui.deleteButton.setButtonText("Delete Preset");
-    gui.deleteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
-    gui.deleteButton.setEnabled(false);
-    gui.deleteButton.onClick = [this] {
-        auto file = presetGui.getSelectedFile();
-
-        if (file.existsAsFile()) {
-            // 確認ダイアログ
-            juce::AlertWindow::showAsync(juce::MessageBoxOptions()
-                .withIconType(juce::MessageBoxIconType::WarningIcon)
-                .withTitle("Delete Preset")
-                .withMessage("Are you sure you want to delete " + file.getFileName() + "?")
-                .withButton("Delete")
-                .withButton("Cancel"),
-                [this, file](int result) {
-                    if (result == 1) { // Delete
-                        file.deleteFile();
-                        scanPresets(); // リスト更新
-                    }
-                }
-            );
-        }
-    };
-
-    // --- Reflesh Preset List Button ---
-    gui.page.addAndMakeVisible(gui.refreshButton);
-    gui.refreshButton.setButtonText("Refresh Preset List");
-    gui.refreshButton.onClick = [this] { scanPresets(); };
-
-    // --- Reflect Preset Info Button ---
-    gui.page.addAndMakeVisible(gui.reflectButton);
-    gui.reflectButton.setButtonText("Reflect Preset Info");
-    gui.reflectButton.setEnabled(false);
-    gui.reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
-    gui.reflectButton.onClick = [this] {
-        int row = presetGui.table.getSelectedRow();
-
-        if (row >= 0 && row < presetGui.items.size()) {
-            const auto& item = presetGui.items[row];
-
-            // TextEditorにセットすると onTextChange が発火し、AudioProcessorの変数も更新されます
-            presetGui.nameEditor.setText(item.name);
-            presetGui.authorEditor.setText(item.author);
-            presetGui.versionEditor.setText(item.version);
-        }
-    };
-
-    // --- Copy Preset Info to Clipboard Button ---
-    gui.page.addAndMakeVisible(gui.copyButton);
-    gui.copyButton.setButtonText("Copy Preset Info to Clipboard");
-    gui.copyButton.setEnabled(false);
-    gui.copyButton.onClick = [this] {
-        int row = presetGui.table.getSelectedRow();
-
-        if (row >= 0 && row < presetGui.items.size()) {
-            const auto& item = presetGui.items[row];
-
-            // フォーマットはお好みで調整してください
-            juce::String info = "Preset Name: " + item.name + "\n" +
-                "Author: " + item.author + "\n" +
-                "Version: " + item.version + "\n" +
-                "Mode: " + item.modeName;
-
-            juce::SystemClipboard::copyTextToClipboard(info);
-        }
-    };
-}
-
 void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
 {
     SetupGroupParams gp = { gui.page, gui.group, "Environment Settings" };
@@ -2055,6 +2109,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
         loadWallpaperImage();
     };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     // --- ADPCM Dir ---
     setupRow(gui.sampleDirLabel, "Sample Dir:", gui.sampleDirPathLabel, gui.sampleDirBrowseBtn);
     gui.sampleDirPathLabel.setText(audioProcessor.defaultSampleDir, juce::dontSendNotification);
@@ -2135,6 +2190,7 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
     gui.headroomGainSlider.onValueChange = [this, &gui] {
         audioProcessor.headroomGain = (float)gui.headroomGainSlider.getValue();
         };
+#endif
 
     // --- Save Preference Button ---
     gui.page.addAndMakeVisible(gui.saveSettingsBtn);
@@ -2174,12 +2230,14 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
                     // 壁紙再描画
                     loadWallpaperImage();
 
+#if !defined(BUILD_AS_FX_PLUGIN)
                     // プリセットリスト更新
                     if (juce::File(audioProcessor.defaultPresetDir).isDirectory()) {
                         presetGui.currentFolder = juce::File(audioProcessor.defaultPresetDir);
                         presetGui.pathLabel.setText(presetGui.currentFolder.getFullPathName(), juce::dontSendNotification);
                         scanPresets(); // リスト更新関数を呼ぶ
                     }
+#endif
                 }
             }
         );
@@ -2281,6 +2339,7 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
     gui.page.addAndMakeVisible(gui.gplLinkButton);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
@@ -2446,6 +2505,7 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         layoutComponentsTtoB(innerRect, 15, 5, &gui.drLabel[i], &gui.dr[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.slLabel[i], &gui.sl[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.rrLabel[i], &gui.rr[i]);
+        layoutComponentsTtoB(innerRect, 15, 5, &gui.tlLabel[i], &gui.tl[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.amLabel[i], &gui.am[i]);
         layoutComponentsTtoB(innerRect, 15, 0, &gui.vibLabel[i], &gui.vib[i]);
         layoutComponentsTtoB(innerRect, 15, 5, &gui.egTypeLabel[i], &gui.egType[i]);
@@ -3111,6 +3171,7 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
     gui.sustainSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
     gui.releaseSlider.setBounds(adsrRow.removeFromLeft(aw).reduced(5));
 }
+#endif
 
 void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content)
 {
@@ -3256,6 +3317,7 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     layoutFooterArea(rbcFooterArea, gui.rbcBypassBtn);
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content)
 {
     auto area = content.withZeroOrigin().reduced(GlobalPaddingWidth, GlobalPaddingHeight);
@@ -3274,7 +3336,7 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     auto rightArea = area;
 
     // Metadata Group
-    gui.metaGroup.setBounds(rightArea.removeFromTop(200));
+    gui.metaGroup.setBounds(rightArea.removeFromTop(320));
     auto metaRect = gui.metaGroup.getBounds().reduced(15, 25);
 
     int rowH = 30;
@@ -3296,6 +3358,11 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     gui.versionLabel.setBounds(row3.removeFromLeft(50));
     gui.versionEditor.setBounds(row3);
 
+    // Comment
+    auto row4 = metaRect.removeFromTop(rowH);
+    gui.commentLabel.setBounds(row4);
+    gui.commentEditor.setBounds(metaRect);
+
     rightArea.removeFromTop(20);
 
     // Buttons
@@ -3313,6 +3380,7 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     rightArea.removeFromTop(10);
     gui.copyButton.setBounds(rightArea.removeFromTop(40));
 }
+#endif
 
 void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Rectangle<int> content)
 {
@@ -3421,6 +3489,7 @@ void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<i
     gui.vstGuidelineLabel.setBounds(area.removeFromTop(20));
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 // ヘルパー: プリセットロード処理 (共通化)
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 {
@@ -3490,9 +3559,10 @@ void AudioPlugin2686VEditor::scanPresets()
         auto xml = xmlDoc.getDocumentElement();
         if (xml != nullptr)
         {
-            item.name = xml->getStringAttribute("presetName", "(No Name)");
-            item.author = xml->getStringAttribute("presetAuthor", "");
-            item.version = xml->getStringAttribute("presetVersion", "");
+            item.name = xml->getStringAttribute("presetName", audioProcessor.presetName);
+            item.author = xml->getStringAttribute("presetAuthor", audioProcessor.presetAuthor);
+            item.version = xml->getStringAttribute("presetVersion", audioProcessor.presetVersion);
+            item.comment = xml->getStringAttribute("presetComment", audioProcessor.presetComment);
             item.modeName = xml->getStringAttribute("activeModeName", "-");
         }
         else
@@ -3507,6 +3577,7 @@ void AudioPlugin2686VEditor::scanPresets()
     presetGui.table.updateContent();
     presetGui.table.repaint();
 }
+#endif
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
 {
@@ -3528,6 +3599,7 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
 
 void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     // wtPage のサイズが変わったときだけレイアウトを実行
     if (&component == &wtGui.page && wasResized)
     {
@@ -3537,13 +3609,14 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
 
         layoutWtPage(wtGui, content);
     }
-
     // もし gui.page も登録したなら
     // if (&component == &gui.page && wasResized) layoutgui.page(); // (関数化していれば)
+#endif
 }
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     // ADPCM Load Buttons
     if (button == &adpcmGui.loadButton)
     {
@@ -3600,10 +3673,12 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
             }
         }
     }
+#endif
 }
 
 void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
 {
+#if !defined(BUILD_AS_FX_PLUGIN)
     if (event.mods.isRightButtonDown())
     {
         juce::Component* target = event.originalComponent;
@@ -3621,7 +3696,10 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
             showRegisterInput(slider, [slider, type](int regValue) {
                 float newVal = 0.0f;
                 switch (type) {
-                case RegisterType::FmRate: newVal = RegisterConverter::convertFmRate(regValue); break;
+                case RegisterType::FmAr: newVal = RegisterConverter::convertFmAr(regValue); break;
+                case RegisterType::FmDr: newVal = RegisterConverter::convertFmDr(regValue); break;
+                case RegisterType::FmSr: newVal = RegisterConverter::convertFmSr(regValue); break;
+                case RegisterType::FmRr: newVal = RegisterConverter::convertFmRr(regValue); break;
                 case RegisterType::FmSl:   newVal = RegisterConverter::convertFmSl(regValue); break;
                 case RegisterType::FmTl:   newVal = RegisterConverter::convertFmTl(regValue); break;
                 case RegisterType::FmMul:  newVal = (float)RegisterConverter::convertFmMul(regValue); break;
@@ -3635,8 +3713,10 @@ void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
             });
         }
     }
+#endif
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
 {
     // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
@@ -3658,6 +3738,7 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
         }
         }), true);
 }
+#endif
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
@@ -3673,6 +3754,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     }
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
@@ -3772,38 +3854,44 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
     // AR(Reverse)
     val = getValue("RAR:", 31);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(31 - val), juce::sendNotification);
+    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(31 - val), juce::sendNotification);
     // AR
     else {
         val = getValue("AR:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmARRate(val), juce::sendNotification);
+        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
     }
-
-    // DR
-    val = getValue("DR:", 31);
-    if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
 
     // RR(Reverse)
     val = getValue("RRR:", 15);
-    if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRRRate(15 - val), juce::sendNotification);
+    if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(15 - val), juce::sendNotification);
     // RR
     else {
         val = getValue("RR:", 15);
-        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRRRate(val), juce::sendNotification);
+        if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
 
     // Only for OPNA / OPN
     if constexpr (std::is_same<T, Fm4GuiSet>::value) {
+        // DR
+        val = getValue("RDR:", 31);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
+        // DR
+        else
+        {
+            val = getValue("DR:", 31);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
+        }
+
         val = getValue("SL:", 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
 
         // SR(Reverse)
         val = getValue("RSR:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(31 - val), juce::sendNotification);
         // SR
         else {
             val = getValue("SR:", 31);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT
@@ -3814,11 +3902,11 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
         // D1R(Reverse)
         val = getValue("RD1R:", 31);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(31 - val), juce::sendNotification);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
         // D1R
         else {
             val = getValue("D1R:", 31);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
         }
 
         // D1L
@@ -3827,11 +3915,11 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
 
         // D2R(Reverse)
         val = getValue("RD2R:", 15);
-        if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmRate(15 - val), juce::sendNotification);
+        if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(15 - val), juce::sendNotification);
         // D2R
         else {
             val = getValue("D2R:", 15);
-            if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRate(val), juce::sendNotification);
+            if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT1
@@ -3842,14 +3930,27 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
         val = getValue("DT2:", 7);
         if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
+    else {
+        // DR
+        val = getValue("RDR:", 31);
+        if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
+        // DR
+        else
+        {
+            val = getValue("DR:", 31);
+            if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
+        }
+
+        val = getValue("SL:", 15);
+        if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    }
 
     // TL
-    if constexpr (!std::is_same<T, Fm2GuiSet>::value) {
-        val = getValue("TL:", 127);
-        if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
-    }
+    val = getValue("TL:", 127);
+    if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
 
     // MUL
     val = getValue("MUL:", 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
 }
+#endif

@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 
+option(PROJECT_NAME "Project Name" "2686V")
+
 # プロジェクト名とバージョン
-project(2686_Project VERSION 0.0.1 LANGUAGES C CXX)
+project(${PROJECT_NAME} VERSION 0.0.1 LANGUAGES C CXX)
 
 # C++20標準を使用 (最新のJUCEとymfmの互換性のため)
 set(CMAKE_CXX_STANDARD 20)

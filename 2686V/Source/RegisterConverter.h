@@ -13,7 +13,7 @@ public:
     // --- Envelope Generator Rate (AR) ---
     // Register: 0 (Slowest) - 31 (Fastest)
     // VST Param: Time in Seconds (0.03s - 5.0s)
-    static float convertFmARRate(int regValue)
+    static float convertFmAr(int regValue)
     {
         if (regValue == 0) return 5.0f; // Slowest
         if (regValue >= 31) return 0.03f; // Fastest
@@ -38,7 +38,7 @@ public:
     // --- Envelope Generator Rate (RR) ---
     // Register: 0 (Slowest) - 15 (Fastest)
     // VST Param: Time in Seconds (0.03s - 5.0s)
-    static float convertFmRRRate(int regValue)
+    static float convertFmRr(int regValue)
     {
         if (regValue == 0) return 5.0f; // Slowest
         if (regValue >= 15) return 0.03f; // Fastest
@@ -63,7 +63,7 @@ public:
     // --- Envelope Generator Rate (DR, SR) ---
     // Register: 0 (Slowest) - 31 (Fastest)
     // VST Param: Time in Seconds (0.0s - 5.0s)
-    static float convertFmRate(int regValue)
+    static float convertFmDr(int regValue)
     {
         // Clamp 0-31
         float r = (float)std::clamp(regValue, 0, 31);
@@ -82,6 +82,30 @@ public:
         // 指数カーブ近似: pow(inv) で急峻に変化させる
         // regが小さい(invが大きい)ほど時間が大幅に増える
         return 0.005f * std::pow(inv, 2.0f);
+    }
+
+    // --- Sustain Rate (SR) Converter ---
+    // Register: 0 (Slowest) - 31 (Fastest)
+    // Output: Time in Seconds (0.03s - 10.0s)
+    static float convertFmSr(int regValue)
+    {
+        // ガード処理
+        if (regValue <= 0) return 10.0f;  // Slowest (10.0s)
+        if (regValue >= 31) return 0.03f; // Fastest (30ms)
+
+        // Clamp 0-31
+        float r = (float)std::clamp(regValue, 0, 31);
+
+        // 反転: 31(速) -> 0, 0(遅) -> 31
+        float inv = 31.0f - r;
+
+        // 計算式
+        // 目標: inv=31 (Reg0) のとき 10.0s
+        // 式: Time = MinTime + (Coefficient * inv^2)
+        // 10.0 = 0.03 + (Coef * 961)
+        // Coef = 9.97 / 961 ≈ 0.01037... -> 0.0104f を採用
+
+        return 0.03f + (0.0104f * std::pow(inv, 2.0f));
     }
 
     // --- Sustain Level (SL) ---

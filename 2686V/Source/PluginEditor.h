@@ -10,36 +10,18 @@ using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
 // Defined globally as it's used in structs
-#if defined(BUILD_AS_FX_PLUGIN)
-static const juce::String VstName = "2686VFX";
-#else
-static const juce::String VstName = "2686V";
-#endif
-static const juce::String VstVersion = "Version 0.0.2";
-static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
 static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
 static const int WindowWidth = 1200;
 static const int WindowHeight = 880;
 
+#if defined(BUILD_AS_FX_PLUGIN)
+static const int TabNumber = 3;
+#else
 static const int TabNumber = 13;
+#endif
 
-static const int Fm4Ops = 4;
-static const int Fm2Ops = 2;
-
-static const int WtSamples32 = 32;
-static const int WtSamples64 = 64;
-
-static const int GlobalPaddingWidth = 20;
-static const int GlobalPaddingHeight = 20;
-static const int GroupPaddingWidth = 10;
-static const int GroupPaddingHeight = 10;
-static const int TitlePaddingTop = 20;
-static const int TopGroupHeight = 80;
-static const int TopParamWidth = 160;
-static const int QualityGroupHeight = 60;
-static const int QualityParamWidth = 160;
 static const int LabelWidth = 40;
 static const int LabelHeight = 20;
 static const int SliderWidth = 50;
@@ -52,6 +34,24 @@ static const int ToggleButtonWidth = 80;
 static const int ToggleButtonHeight = 20;
 static const int TextButtonWidth = 80;
 static const int TextButtonHeight = 20;
+
+static const int GlobalPaddingWidth = 20;
+static const int GlobalPaddingHeight = 20;
+static const int GroupPaddingWidth = 10;
+static const int GroupPaddingHeight = 10;
+static const int TitlePaddingTop = 20;
+static const int TopGroupHeight = 80;
+
+#if !defined(BUILD_AS_FX_PLUGIN)
+static const int Fm4Ops = 4;
+static const int Fm2Ops = 2;
+
+static const int WtSamples32 = 32;
+static const int WtSamples64 = 64;
+
+static const int TopParamWidth = 160;
+static const int QualityGroupHeight = 60;
+static const int QualityParamWidth = 160;
 
 static const int OpLabelWidth = 40;
 static const int OpLabelHeight = 15;
@@ -79,6 +79,7 @@ static const int WtRightWidth = 800;
 static const int WtHeight = 640;
 static const int WtCustomSliderWidth = 22;
 static const int RhythmPadsAreaHeight = 320;
+#endif
 
 static const int FxWidth = 1000;
 static const int FxHeight = 720;
@@ -93,7 +94,10 @@ static const int FxMixButtonWidth = 40;
 enum class RegisterType
 {
     None,
-    FmRate, // AR, DR, SR, RR (0-31)
+    FmAr,   // AR (0-31)
+    FmDr,   // DR (0-31)
+    FmSr,   // SR (0-31)
+    FmRr,   // RR (0-15)
     FmSl,   // SL (0-15)
     FmTl,   // TL (0-127)
     FmMul,  // MUL (0-15)
@@ -127,20 +131,25 @@ static const Size SliderValueSize{ SliderValueWidth, SliderValueHeight };
 static const Size ComboBoxSize{ ComboBoxWidth, ComboBoxHeight };
 static const Size ToggleButtonSize{ ToggleButtonWidth, ToggleButtonHeight };
 static const Size TextButtonSize{ TextButtonWidth, TextButtonHeight };
+#if !defined(BUILD_AS_FX_PLUGIN)
 static const Size OpSliderSize{ OpSliderWidth, OpSliderHeight };
 static const Size OpSliderValueSize{ OpSliderValueWidth, OpSliderValueHeight };
 static const Size OpComboBoxSize{ OpComboBoxWidth, OpComboBoxHeight };
 static const Size OpToggleButtonSize{ OpToggleButtonWidth, OpToggleButtonHeight };
 static const Size OpTextButtonSize{ OpTextButtonWidth, OpTextButtonHeight };
 static const Size OpLabelSize{ OpLabelWidth, OpLabelHeight };
+#endif
+
 static const Flags SliderFlags{ true, false };
 static const Flags ComboBoxFlags{ true, false };
 static const Flags ToggleButtonFlags{ true, false };
 static const Flags TextButtonFlags{ true, false };
+#if !defined(BUILD_AS_FX_PLUGIN)
 static const Flags OpSliderFlags{ true, false };
 static const Flags OpComboBoxFlags{ true, false };
 static const Flags OpToggleButtonFlags{ true, false };
 static const Flags OpTextButtonFlags{ true, false };
+#endif
 
 class CustomTabLookAndFeel : public juce::LookAndFeel_V4
 {
@@ -321,6 +330,7 @@ private:
     juce::Colour backgroundColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f);
 };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 struct Fm4GuiSet
 {
     juce::Component page;
@@ -445,6 +455,7 @@ struct Fm2GuiSet
     std::array<juce::Slider, Fm2Ops> dr;
     std::array<juce::Slider, Fm2Ops> sl;
     std::array<juce::Slider, Fm2Ops> rr;
+    std::array<juce::Slider, Fm2Ops> tl;
     std::array<juce::ToggleButton, Fm2Ops> am;
     std::array<juce::ToggleButton, Fm2Ops> vib;
     std::array<juce::ToggleButton, Fm2Ops> egType;
@@ -460,6 +471,7 @@ struct Fm2GuiSet
     std::array<juce::Label, Fm2Ops> drLabel;
     std::array<juce::Label, Fm2Ops> slLabel;
     std::array<juce::Label, Fm2Ops> rrLabel;
+    std::array<juce::Label, Fm2Ops> tlLabel;
     std::array<juce::Label, Fm2Ops> amLabel;
     std::array<juce::Label, Fm2Ops> vibLabel;
     std::array<juce::Label, Fm2Ops> egTypeLabel;
@@ -480,6 +492,7 @@ struct Fm2GuiSet
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> drAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> slAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm2Ops> tlAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> amAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> vibAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm2Ops> egTypeAtt;
@@ -947,6 +960,7 @@ struct AdpcmGuiSet
     std::unique_ptr<SliderAttachment> releaseAtt;
     std::unique_ptr<ComboBoxAttachment> rateAtt;
 };
+#endif
 
 struct FxGuiSet
 {
@@ -1010,6 +1024,7 @@ struct FxGuiSet
     std::unique_ptr<ButtonAttachment> tBypassAtt, vBypassAtt, mbcBypassAtt, dBypassAtt, rBypassAtt, rbcBypassAtt;
 };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 // プリセット1つ分の情報を保持する構造体
 struct PresetItem
 {
@@ -1018,6 +1033,7 @@ struct PresetItem
     juce::String name;
     juce::String author;
     juce::String version;
+    juce::String comment;
     juce::String modeName;
 };
 
@@ -1034,6 +1050,8 @@ struct PresetGuiSet : public juce::TableListBoxModel
     ColoredGroupComponent metaGroup;
     juce::Label nameLabel, authorLabel, versionLabel;
     juce::TextEditor nameEditor, authorEditor, versionEditor;
+    juce::Label commentLabel;
+    juce::TextEditor commentEditor;
 
     // Buttons
     juce::TextButton initButton;
@@ -1126,6 +1144,7 @@ struct PresetGuiSet : public juce::TableListBoxModel
         loadButton.setEnabled(hasSelection);
     }
 };
+#endif
 
 struct SettingsGuiSet
 {
@@ -1211,6 +1230,7 @@ struct SetupLabelParams
 		return SetupLabelParams(p, par, l, t, width, height);
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     static SetupLabelParams createOp(
         juce::Component& p,
         juce::Component& par,
@@ -1222,6 +1242,7 @@ struct SetupLabelParams
     {
         return SetupLabelParams(p, par, l, t, width, height);
     }
+#endif
 };
 
 struct SetupSliderParams
@@ -1263,6 +1284,7 @@ struct SetupSliderParams
         return prm;
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     static SetupSliderParams createOp(
         juce::Component& p,
         juce::Slider& s,
@@ -1283,6 +1305,7 @@ struct SetupSliderParams
 
         return prm;
     }
+#endif
 };
 
 struct SetupComboParams
@@ -1317,6 +1340,7 @@ struct SetupComboParams
         return SetupComboParams(p, c, l, a, i, t, items, size.width, size.height, labelSize.width, labelSize.height, flags.isReset, flags.isResize);
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     static SetupComboParams createOp(
         juce::Component& p,
         juce::ComboBox& c,
@@ -1332,6 +1356,7 @@ struct SetupComboParams
     {
         return SetupComboParams(p, c, l, a, i, t, items, size.width, size.height, labelSize.width, labelSize.height, flags.isReset, flags.isResize);
     }
+#endif
 };
 
 struct SetupToggleButtonParams
@@ -1361,6 +1386,7 @@ struct SetupToggleButtonParams
         return SetupToggleButtonParams(p, b, l, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     static SetupToggleButtonParams createOp(
         juce::Component& p,
         juce::ToggleButton& b,
@@ -1374,6 +1400,7 @@ struct SetupToggleButtonParams
     {
         return SetupToggleButtonParams(p, b, l, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
+#endif
 };
 
 struct SetupTextButtonParams
@@ -1401,6 +1428,7 @@ struct SetupTextButtonParams
         return SetupTextButtonParams(p, b, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     static SetupTextButtonParams createOp(
         juce::Component& p,
         juce::TextButton& b,
@@ -1413,6 +1441,7 @@ struct SetupTextButtonParams
     {
         return SetupTextButtonParams(p, b, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
+#endif
 };
 
 template <size_t tableSize>
@@ -1449,8 +1478,10 @@ public:
     void buttonClicked(juce::Button* button) override;
     void mouseDown(const juce::MouseEvent& event) override;
     void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
+#if !defined(BUILD_AS_FX_PLUGIN)
     template <typename T>
     void applyMmlString(const juce::String& mml, T& gui, int opIndex);
+#endif
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames();
 private:
@@ -1468,9 +1499,12 @@ private:
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
     std::unique_ptr<juce::FileChooser> fileChooser;
+#if !defined(BUILD_AS_FX_PLUGIN)
     std::map<juce::Component*, RegisterType> sliderRegMap;
+#endif
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     Fm4GuiSet opnaGui;  // OPNA
     Fm4GuiSet opnGui; // OPN
 	Fm2GuiSet oplGui; // OPL
@@ -1481,8 +1515,9 @@ private:
 	WtGuiSet wtGui; // Wavetable
 	RhythmGuiSet rhythmGui; // Rhythm
 	AdpcmGuiSet adpcmGui; // ADPCM
-    FxGuiSet fxGui; // FX
     PresetGuiSet presetGui;
+#endif
+    FxGuiSet fxGui; // FX
     SettingsGuiSet settingsGui;
     AboutGuiSet aboutGui;
 
@@ -1508,6 +1543,7 @@ private:
     template <size_t opCount>
     void setupOpGroups(SetupOpGroupsParams<opCount>& params);
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     void setupOpnaGui(Fm4GuiSet& gui);
     void setupOpnGui(Fm4GuiSet& gui);
     void setupOplGui(Fm2GuiSet& gui);
@@ -1518,11 +1554,13 @@ private:
     void setupWtGui(WtGuiSet& gui);
     void setupRhythmGui(RhythmGuiSet& gui);
     void setupAdpcmGui(AdpcmGuiSet& gui);
-    void setupFxGui(FxGuiSet& gui);
     void setupPresetGui(PresetGuiSet& gui);
+#endif
+    void setupFxGui(FxGuiSet& gui);
     void setupSettingsGui(SettingsGuiSet& gui);
     void setupAboutGui(AboutGuiSet& gui);
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
     void layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content);
@@ -1533,17 +1571,22 @@ private:
     void layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> content);
     void layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content);
     void layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<int> content);
-    void layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content);
     void layoutPresetPage(PresetGuiSet& gui, juce::Rectangle<int> content);
+#endif
+    void layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content);
     void layoutSettingsPage(SettingsGuiSet& gui, juce::Rectangle<int> content);
     void layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content);
 
+#if !defined(BUILD_AS_FX_PLUGIN)
     void loadPresetFile(const juce::File& file);
     void saveCurrentPreset();
     void scanPresets();
+#endif
     void loadWallpaperImage();
+#if !defined(BUILD_AS_FX_PLUGIN)
     void setTooltipState(bool enabled);
     void assignTooltipsRecursive(juce::Component* parentComponent);
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };
