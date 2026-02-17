@@ -2,7 +2,6 @@
 #include <JuceHeader.h>
 
 static constexpr int MaxRhythmPads = 8;
-
 static constexpr int MaxFmOperators = 8;
 
 enum class OscMode

@@ -61,6 +61,16 @@ target_sources(${CY_PLUGIN_NAME} PRIVATE
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    Source/GlobalConstants.h
+    Source/OpConstants.h
+    Source/OpValueRange.h
+    Source/LabelConstants.h
+    Source/FileConstants.h
+    Source/PresetConstants.h
+    Source/MmlConstants.h
+    Source/GuiConstants.h
+    Source/GuiStructs.h
+    Source/RegisterType.h
     Source/Mode.h
     Source/SynthVoice.h
     Source/FmCommon.h

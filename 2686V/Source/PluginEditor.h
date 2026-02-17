@@ -3,7 +3,16 @@
 #include <array>
 #include <vector>
 #include "PluginProcessor.h"
+#include "GlobalConstants.h"
+#include "OpConstants.h"
+#include "FileConstants.h"
 #include "VstLogoForAbout.h"
+#include "PresetConstants.h"
+#include "LabelConstants.h"
+#include "MmlConstants.h"
+#include "GuiConstants.h"
+#include "GuiStructs.h"
+#include "RegisterType.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -91,40 +100,6 @@ static const int FxKnobWidth = 120;
 static const int FxKnobHeight = 60;
 static const int FxMixButtonWidth = 40;
 
-enum class RegisterType
-{
-    None,
-    FmAr,   // AR (0-31)
-    FmDr,   // DR (0-31)
-    FmSr,   // SR (0-31)
-    FmRr,   // RR (0-15)
-    FmSl,   // SL (0-15)
-    FmTl,   // TL (0-127)
-    FmMul,  // MUL (0-15)
-    FmDt,   // DT (0-7)
-    FmDt2,  // DT2 (0-3)
-    SsgVol, // Level (0-15)
-    SsgEnv  // Env Period (0-65535)
-};
-
-struct SelectItem
-{
-	const juce::String name;
-    const int value;
-};
-
-struct Size
-{
-    int width;
-    int height;
-};
-
-struct Flags
-{
-    bool isReset;
-    bool isResize;
-};
-
 static const Size LabelSize{ LabelWidth, LabelHeight };
 static const Size SliderSize{ SliderWidth, SliderHeight };
 static const Size SliderValueSize{ SliderValueWidth, SliderValueHeight };
@@ -161,7 +136,7 @@ public:
         auto center = area.getCentre();
         float s = std::min(area.getWidth(), area.getHeight()) * 0.5f; // アイコンサイズ
 
-        if (name == "FX") // エフェクトを示すアイコン
+        if (name == fxTabName) // エフェクトを示すアイコン
         {
             // [FX] Icon
             // F
@@ -189,7 +164,7 @@ public:
             p.addPath(bar1);
             p.addPath(bar2);
         }
-        else if (name == "PRESET") // プリセットブラウザタブはフォルダーアイコン
+        else if (name == presetTabName) // プリセットブラウザタブはフォルダーアイコン
         {
             // --- Folder / List Icon ---
             // フォルダーの形
@@ -206,7 +181,7 @@ public:
             p.startNewSubPath(center.x - w * 0.3f, center.y + h * 0.3f);
             p.lineTo(center.x + w * 0.3f, center.y + h * 0.3f);
         }
-        else if (name == "SETTINGS") // 設定タブは歯車アイコン
+        else if (name == settingsTabName) // 設定タブは歯車アイコン
         {
             // --- Gear Icon ---
             // 歯車
@@ -229,7 +204,7 @@ public:
             p.addEllipse(center.x - rHole, center.y - rHole, rHole * 2, rHole * 2);
             p.setUsingNonZeroWinding(false); // 穴を抜く設定
         }
-        else if (name == "ABOUT") // Aboutタブは丸囲みiアイコン
+        else if (name == aboutTabName) // Aboutタブは丸囲みiアイコン
         {
             // --- Info Icon (i) ---
             // 丸
@@ -289,7 +264,7 @@ public:
         // 3. 描画
         g.setColour(contentColour); // 色を確定
 
-        if (name == "FX" || name == "PRESET" || name == "SETTINGS" || name == "ABOUT")
+        if (name == fxTabName || name == presetTabName || name == settingsTabName || name == aboutTabName)
         {
             // アイコン描画
             juce::Path icon = getIconPath(name, area);

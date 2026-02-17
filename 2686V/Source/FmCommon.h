@@ -397,7 +397,8 @@ private:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
     double m_sampleRate = 44100.0;
-    float m_phase = 0.0f; float m_phaseDelta = 0.0f;
+    float m_phase = 0.0f;
+    float m_phaseDelta = 0.0f;
     double m_ssgPhase = 0.0;
     float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;
@@ -408,8 +409,12 @@ private:
     bool m_useWaveSelect = false;
     bool m_useOpmEg = false;
 
-    float m_currentLevel = 0.0f; float m_targetLevel = 0.0f;
-    float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f; float m_sustainRateDec = 0.0f;
+    float m_currentLevel = 0.0f;
+    float m_targetLevel = 0.0f;
+    float m_attackInc = 0.0f;
+    float m_decayDec = 0.0f;
+    float m_releaseDec = 0.0f;
+    float m_sustainRateDec = 0.0f;
     float m_fb1 = 0.0f; float m_fb2 = 0.0f;
 
     float m_pitchBendRatio = 1.0f;

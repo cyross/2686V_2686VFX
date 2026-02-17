@@ -52,7 +52,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     wtGui.page.addComponentListener(this);
 #endif
     tabs.getTabbedButtonBar().addChangeListener(this);
-    audioProcessor.apvts.addParameterListener("MODE", this);
+    audioProcessor.apvts.addParameterListener(codeMode, this);
 
     setupLogo();
 
@@ -125,7 +125,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     setupTabs(tabs);
 
-    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue("MODE");
+    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(codeMode);
     tabs.setCurrentTabIndex(currentMode);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -181,7 +181,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
         pad.loadButton.removeListener(this);
     }
 #endif
-    audioProcessor.apvts.removeParameterListener("MODE", this);
+    audioProcessor.apvts.removeParameterListener(codeMode, this);
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -195,7 +195,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
         if (targetMode >= 0 && targetMode <= (int)OscMode::ADPCM) // ADPCM is 10
         {
-            auto* param = audioProcessor.apvts.getParameter("MODE");
+            auto* param = audioProcessor.apvts.getParameter(codeMode);
             if (param != nullptr)
             {
                 float normalizedValue = param->getNormalisableRange().convertTo0to1((float)targetMode);
@@ -303,7 +303,7 @@ void AudioPlugin2686VEditor::attatchLabelToComponent(juce::Label& label, juce::C
 
 void AudioPlugin2686VEditor::setupLogo()
 {
-    logoLabel.setText(VstName, juce::dontSendNotification);
+    logoLabel.setText(pluginName, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
     logoLabel.setFont(juce::Font(FontFamily, LogoFontSize, juce::Font::bold | juce::Font::italic));
@@ -324,25 +324,26 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
     // FXモードならシンセ系タブを追加しない
-#if !defined(BUILD_AS_FX_PLUGIN)
-    tabs.addTab("OPNA", juce::Colours::transparentBlack, &opnaGui.page, true);
-    tabs.addTab("OPN", juce::Colours::transparentBlack, &opnGui.page, true);
-    tabs.addTab("OPL", juce::Colours::transparentBlack, &oplGui.page, true);
-    tabs.addTab("OPL3", juce::Colours::transparentBlack, &opl3Gui.page, true);
-    tabs.addTab("OPM", juce::Colours::transparentBlack, &opmGui.page, true);
-    tabs.addTab("OPZX3", juce::Colours::transparentBlack, &opzx3Gui.page, true);
-    tabs.addTab("SSG", juce::Colours::transparentBlack, &ssgGui.page, true);
-    tabs.addTab("WAVETABLE", juce::Colours::transparentBlack, &wtGui.page, true);
-    tabs.addTab("RHYTHM", juce::Colours::transparentBlack, &rhythmGui.page, true);
-    tabs.addTab("ADPCM", juce::Colours::transparentBlack, &adpcmGui.page, true);
+#if defined(BUILD_AS_FX_PLUGIN)
+    tabs.addTab(fxTabName, juce::Colours::transparentBlack, &fxGui.page, true);
+    tabs.addTab(settingsTabName, juce::Colours::transparentBlack, &settingsGui.page, true);
+    tabs.addTab(aboutTabName, juce::Colours::transparentBlack, &aboutGui.page, true);
+#else
+    tabs.addTab(opnaTabName, juce::Colours::transparentBlack, &opnaGui.page, true);
+    tabs.addTab(opnTabName, juce::Colours::transparentBlack, &opnGui.page, true);
+    tabs.addTab(oplTabName, juce::Colours::transparentBlack, &oplGui.page, true);
+    tabs.addTab(opl3TabName, juce::Colours::transparentBlack, &opl3Gui.page, true);
+    tabs.addTab(opmTabName, juce::Colours::transparentBlack, &opmGui.page, true);
+    tabs.addTab(opzx3TabName, juce::Colours::transparentBlack, &opzx3Gui.page, true);
+    tabs.addTab(ssgTabName, juce::Colours::transparentBlack, &ssgGui.page, true);
+    tabs.addTab(wtTabName, juce::Colours::transparentBlack, &wtGui.page, true);
+    tabs.addTab(rhythmTabName, juce::Colours::transparentBlack, &rhythmGui.page, true);
+    tabs.addTab(adpcmTabName, juce::Colours::transparentBlack, &adpcmGui.page, true);
+    tabs.addTab(fxTabName, juce::Colours::transparentBlack, &fxGui.page, true);
+    tabs.addTab(presetTabName, juce::Colours::transparentBlack, &presetGui.page, true);
+    tabs.addTab(settingsTabName, juce::Colours::transparentBlack, &settingsGui.page, true);
+    tabs.addTab(aboutTabName, juce::Colours::transparentBlack, &aboutGui.page, true);
 #endif
-    tabs.addTab("FX", juce::Colours::transparentBlack, &fxGui.page, true);
-    // FXモードならプリセットを使わない
-#if !defined(BUILD_AS_FX_PLUGIN)
-    tabs.addTab("PRESET", juce::Colours::transparentBlack, &presetGui.page, true);
-#endif
-    tabs.addTab("SETTINGS", juce::Colours::transparentBlack, &settingsGui.page, true);
-    tabs.addTab("ABOUT", juce::Colours::transparentBlack, &aboutGui.page, true);
 }
 
 void AudioPlugin2686VEditor::setupGroup(SetupGroupParams& params)
@@ -483,7 +484,7 @@ void AudioPlugin2686VEditor::setupOpGroups(SetupOpGroupsParams<opCount>& params)
     for (int i = 0; i < opCount; ++i)
     {
         
-        SetupGroupParams groupParams = { .page = params.page, .group = params.groups[i], .title = "Operator " + juce::String(i + 1) };
+        SetupGroupParams groupParams = { .page = params.page, .group = params.groups[i], .title = opGroupPrefix + juce::String(i + 1) };
 
         setupGroup(groupParams);
     }
@@ -491,6 +492,8 @@ void AudioPlugin2686VEditor::setupOpGroups(SetupOpGroupsParams<opCount>& params)
 
 void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
 {
+    const juce::String code = codeOpna;
+
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
@@ -525,33 +528,33 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         {.name = "6: 8kHz",     .value = 7 },
     };
 
-	SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+	SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = aflGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPNA_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
 	attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPNA_FEEDBACK", "Feedback");
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
     attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPNA_FEEDBACK2", "Feedback2");
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, code + postFb2, "Feedback2");
     setupFbSlider(fb2Params);
     attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
-    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPNA_LFO_FREQ", "LFO FREQ");
+    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, code + postLFreq, "LFO FREQ");
     setupSlider(fqParams);
 	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
-    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.lfoPmsSelector, gui.lfoPmsLabel, gui.lfoPmsAtt, "OPNA_LFO_PMS", "LFO PMS", pmsItems);
+    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.lfoPmsSelector, gui.lfoPmsLabel, gui.lfoPmsAtt, code + postLPms, "LFO PMS", pmsItems);
     setupCombo(pmsParams);
 	attatchLabelToComponent(gui.lfoPmsLabel, gui.lfoPmsSelector);
-    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.lfoAmsSelector, gui.lfoAmsLabel, gui.lfoAmsAtt, "OPNA_LFO_AMS", "LFO AMS", amsItems);
+    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.lfoAmsSelector, gui.lfoAmsLabel, gui.lfoAmsAtt, code + postLAms, "LFO AMS", amsItems);
     setupCombo(amsParams);
 	attatchLabelToComponent(gui.lfoAmsLabel, gui.lfoAmsSelector);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPNA_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPNA_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -560,7 +563,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 4; ++i)
     {
-        juce::String paramPrefix = "OPNA_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -583,47 +586,49 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         };
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + "SE", "SE", seItems);
+        SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + postSe, "SE", seItems);
         setupCombo(seParams);
-        SetupSliderParams seFreqParams = SetupSliderParams::createOp(gui.page, gui.seFreq[i], gui.seFreqLabel[i], gui.seFreqAtt[i], paramPrefix + "SEFREQ", "SSG Env Freq");
+        SetupSliderParams seFreqParams = SetupSliderParams::createOp(gui.page, gui.seFreq[i], gui.seFreqLabel[i], gui.seFreqAtt[i], paramPrefix + postSeFreq, "SSG Env Freq");
         setupSlider(seFreqParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + postAm, "AM");
         setupToggleButton(amParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 {
+    const juce::String code = codeOpn;
+
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
@@ -645,24 +650,24 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
         {.name = "6: 8kHz",     .value = 7 },
     };
 
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = afGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPN_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
-	attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPN_FEEDBACK", "Feedback");
+    attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPN_FEEDBACK2", "Feedback2");
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, code + postFb2, "Feedback2");
     setupFbSlider(fb2Params);
     attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPN_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPN_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -671,7 +676,7 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 4; ++i)
     {
-        juce::String paramPrefix = "OPN_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -693,41 +698,46 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
             }), true);
         };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+
+
+        // Pass RegisterType for sliders
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "SR", "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 {
+    const juce::String code = codeOpl;
+
     std::vector<SelectItem> algItems = { {.name = "0: FM(Serial)", .value = 1}, {.name = "1: AM (Parallel)", .value = 2}, };
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = { {.name = "0: Sine", .value = 1}, {.name = "1: Half", .value = 2}, {.name = "2: Abs", .value = 3}, {.name = "3: Pulse", .value = 4}, };
@@ -750,21 +760,21 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
         {.name = "6: 8kHz",     .value = 7 },
     };
 
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = afGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
-	attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL_FEEDBACK", "Feedback");
+    attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPL_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPL_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -772,7 +782,7 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 2; ++i)
     {
-        juce::String paramPrefix = "OPL_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -794,39 +804,43 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
             }), true);
         };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+
+        // Pass RegisterType for sliders
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + "DT", "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
-        setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
-        setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
-        setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
-        setupSlider(rrParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        setupSlider(arParams);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        setupSlider(drParams);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        setupSlider(slParams);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        setupSlider(rrParams);
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + postAm, "AM");
         setupToggleButton(amParams);
-        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
+        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + postVib, "VIB");
         setupToggleButton(vibParams);
-        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + "EG_TYP", "EGTYPE");
+        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + postEgType, "EGTYPE");
         setupToggleButton(egtParams);
-        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + "KSR", "KSR");
+        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + postKsr, "KSR");
         setupToggleButton(ksrParams);
-        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, "KSL", kslItems);
         setupCombo(kslParams);
-        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + "EG", "EG", egItems);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, "EG", egItems);
         setupCombo(egParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
 {
+    const juce::String code = codeOpl3;
+
     std::vector<SelectItem> algItems = createAlgItems(8);
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = {
@@ -858,24 +872,24 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
         {.name = "6: 8kHz",     .value = 7 },
     };
 
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = afGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPL3_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
-	attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPL3_FEEDBACK", "Feedback");
+    attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPL3_FEEDBACK2", "Feedback2");
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, code + postFb2, "Feedback2");
     setupFbSlider(fb2Params);
     attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPL3_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPL3_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -883,7 +897,7 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 4; ++i)
     {
-        juce::String paramPrefix = "OPL3_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -905,37 +919,41 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
             }), true);
         };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+
+        // Pass RegisterType for sliders
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "DR", "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "SL", "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + "AM", "AM");
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amLabel[i], gui.amAtt[i], paramPrefix + postAm, "AM");
         setupToggleButton(amParams);
-        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + "VIB", "VIB");
+        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibLabel[i], gui.vibAtt[i], paramPrefix + postVib, "VIB");
         setupToggleButton(vibParams);
-        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + "EG_TYP", "EGTYPE");
+        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeLabel[i], gui.egTypeAtt[i], paramPrefix + postEgType, "EGTYPE");
         setupToggleButton(egtParams);
-        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + "KSR", "KSR");
+        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrLabel[i], gui.ksrAtt[i], paramPrefix + postKsr, "KSR");
         setupToggleButton(ksrParams);
-        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + "KSL", "KSL", kslItems);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, "KSL", kslItems);
         setupCombo(kslParams);
-        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + "EG", "EG", egItems);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, "EG", egItems);
         setupCombo(egParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
 {
+    const juce::String code = codeOpm;
+
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(8);
@@ -959,33 +977,33 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
         {.name = "6: 8kHz",     .value = 7 },
     };
 
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = aflGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPM_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
-	attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPM_FEEDBACK", "Feedback");
+    attatchLabelToComponent(gui.algLabel, gui.algSelector);
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
-	attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPM_FEEDBACK2", "Feedback2");
+    attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, code + postFb2, "Feedback2");
     setupFbSlider(fb2Params);
     attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
-    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPM_LFO_FREQ", "LFO FREQ");
+    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, code + postLFreq, "LFO FREQ");
     setupSlider(fqParams);
-	attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
-    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, "OPM_LFO_PMS", "LFO PMS", pmsItems);
+    attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
+    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, code + postLPms, "LFO PMS", pmsItems);
     setupCombo(pmsParams);
-	attatchLabelToComponent(gui.pmsLabel, gui.pmsSelector);
-    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, "OPM_LFO_AMS", "LFO AMS", amsItems);
+    attatchLabelToComponent(gui.pmsLabel, gui.pmsSelector);
+    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, code + postLAms, "LFO AMS", amsItems);
     setupCombo(amsParams);
-	attatchLabelToComponent(gui.amsLabel, gui.amsSelector);
+    attatchLabelToComponent(gui.amsLabel, gui.amsSelector);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPM_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPM_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -994,7 +1012,7 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 4; ++i)
     {
-        juce::String paramPrefix = "OPM_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -1016,43 +1034,48 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
             }), true);
         };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+
+
+        // Pass RegisterType for sliders
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + "DT", "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
-        setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
-        setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
-        setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
-        setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
-        setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
-        setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
-        setupSlider(rrParams);
-        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        setupSlider(tlParams);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        setupCombo(ksParams);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        setupSlider(arParams);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        setupSlider(drParams);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        setupSlider(slParams);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        setupSlider(srParams);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        setupSlider(rrParams);
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
 {
+    const juce::String code = codeOpzx3;
+
     std::vector<SelectItem> pmsItems = createItems(8);
     std::vector<SelectItem> amsItems = createItems(4);
     std::vector<SelectItem> algItems = createAlgItems(27);
@@ -1106,33 +1129,33 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
         {.name = "28: Noise-Like", .value = 29},
     };
 
-    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = "Algorithm / Feedback / LFO" };
+    SetupGroupParams groupParams = { .page = gui.page, .group = gui.globalGroup, .title = aflGroupTitle };
     setupGroup(groupParams);
-    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, "OPZX3_ALGORITHM", "Algorithm", algItems);
+    SetupComboParams algParams = SetupComboParams::create(gui.page, gui.algSelector, gui.algLabel, gui.algAtt, code + postAlg, "Algorithm", algItems);
     setupCombo(algParams);
     attatchLabelToComponent(gui.algLabel, gui.algSelector);
-    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, "OPZX3_FEEDBACK", "Feedback");
+    SetupSliderParams fbParams = SetupSliderParams::create(gui.page, gui.feedbackSlider, gui.feedbackLabel, gui.fbAtt, code + postFb0, "Feedback");
     setupFbSlider(fbParams);
     attatchLabelToComponent(gui.feedbackLabel, gui.feedbackSlider);
-    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, "OPZX3_FEEDBACK2", "Feedback2");
+    SetupSliderParams fb2Params = SetupSliderParams::create(gui.page, gui.feedback2Slider, gui.feedback2Label, gui.fbAtt, code + postFb2, "Feedback2");
     setupFbSlider(fb2Params);
     attatchLabelToComponent(gui.feedback2Label, gui.feedback2Slider);
-    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, "OPZX3_LFO_FREQ", "LFO FREQ");
+    SetupSliderParams fqParams = SetupSliderParams::create(gui.page, gui.lfoFreqSlider, gui.lfoFreqLabel, gui.lfoFreqAtt, code + postLFreq, "LFO FREQ");
     setupSlider(fqParams);
     attatchLabelToComponent(gui.lfoFreqLabel, gui.lfoFreqSlider);
-    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, "OPZX3_LFO_PMS", "LFO PMS", pmsItems);
+    SetupComboParams pmsParams = SetupComboParams::create(gui.page, gui.pmsSelector, gui.pmsLabel, gui.pmsAtt, code + postLPms, "LFO PMS", pmsItems);
     setupCombo(pmsParams);
     attatchLabelToComponent(gui.pmsLabel, gui.pmsSelector);
-    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, "OPZX3_LFO_AMS", "LFO AMS", amsItems);
+    SetupComboParams amsParams = SetupComboParams::create(gui.page, gui.amsSelector, gui.amsLabel, gui.amsAtt, code + postLAms, "LFO AMS", amsItems);
     setupCombo(amsParams);
     attatchLabelToComponent(gui.amsLabel, gui.amsSelector);
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "OPZX3_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "OPZX3_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
@@ -1141,7 +1164,7 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
     setupOpGroups(opGroupsParams);
     for (int i = 0; i < 4; ++i)
     {
-        juce::String paramPrefix = "OPZX3_OP" + juce::String(i) + "_";
+        juce::String paramPrefix = code + codeOp + juce::String(i);
 
         gui.page.addAndMakeVisible(gui.mmlBtn[i]);
         gui.mmlBtn[i].setButtonText("MML");
@@ -1163,45 +1186,45 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
                 }), true);
             };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + "MUL", "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + "DT", "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + "TL", "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
-        setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + "KS", "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
-        setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + "AR", "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
-        setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + "D1R", "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
-        setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + "D1L", "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
-        setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + "D2R", "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
-        setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + "RR", "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
-        setupSlider(rrParams);
-        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + "DT2", "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + "FIX", "FIX");
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        setupSlider(tlParams);
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        setupCombo(ksParams);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        setupSlider(arParams);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        setupSlider(drParams);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        setupSlider(slParams);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        setupSlider(srParams);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        setupSlider(rrParams);
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixLabel[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + "FREQ", "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + "FREQ_TO_0", "Freq -> 0Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + "FREQ_TO_440", "Freq -> 440Hz", OpTextButtonSize, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + "WS", "WS", wsItems);
-        setupCombo(wsParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + "MASK", "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskLabel[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
         setupToggleButton(maskParams);
     }
 }
 
 void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
 {
+    const juce::String code = codeSsg;
+
     std::vector<SelectItem> wsItems = {
         { .name = "0: Pulse(Rect)", .value = 1 },
         { .name = "1: Triangle / Saw", .value = 2 },
@@ -1255,88 +1278,88 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     SetupGroupParams vGroupParams = { .page = gui.page, .group = gui.voiceGroup, .title = "Voice" };
     setupGroup(vGroupParams);
 
-    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, "SSG_WAVEFORM", "Wave Form", wsItems, ComboBoxSize, LabelSize, {true, true});
+    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWaveform, "Wave Form", wsItems, ComboBoxSize, LabelSize, {true, true});
     setupCombo(wsParams);
 	attatchLabelToComponent(gui.waveLabel, gui.waveSelector);
 
-    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "SSG_LEVEL", "Tone", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
+    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Tone", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(lvParams);
     attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
-    SetupSliderParams nsParams = SetupSliderParams::create(gui.page, gui.noiseSlider, gui.noiseLabel, gui.noiseAtt, "SSG_NOISE", "Noise", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
+    SetupSliderParams nsParams = SetupSliderParams::create(gui.page, gui.noiseSlider, gui.noiseLabel, gui.noiseAtt, code + postNoise, "Noise", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(nsParams);
     attatchLabelToComponent(gui.noiseLabel, gui.noiseSlider);
-    SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, "SSG_NOISE_FREQ", "Noise Freq");
+    SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, code + postNoiseFreq, "Noise Freq");
     setupSlider(nfParams);
 	attatchLabelToComponent(gui.noiseFreqLabel, gui.noiseFreqSlider);
-    SetupSliderParams mxParams = SetupSliderParams::create(gui.page, gui.mixSlider, gui.mixLabel, gui.mixAtt, "SSG_MIX", "Mix (T<-M->N)");
+    SetupSliderParams mxParams = SetupSliderParams::create(gui.page, gui.mixSlider, gui.mixLabel, gui.mixAtt, code + postMix, "Mix (T<-M->N)");
     setupSlider(mxParams);
 	attatchLabelToComponent(gui.mixLabel, gui.mixSlider);
 
     SetupTextButtonParams mstParams = SetupTextButtonParams::create(gui.page, gui.mixSetTone, gui.mixSetAtt, "Tone", "Tone", { 40, 20 }, { false, false });
     setupTextButton(mstParams);
 	attatchLabelToComponent(gui.mixSetToneLabel, gui.mixSetTone);
-    gui.mixSetTone.onClick = [this] { ssgGui.triPeakSlider.setValue(0.0, juce::sendNotification); };
+    gui.mixSetTone.onClick = [this] { ssgGui.mixSlider.setValue(0.0, juce::sendNotification); };
     SetupTextButtonParams msmParams = SetupTextButtonParams::create(gui.page, gui.mixSetMix, gui.mixSetAtt, "Mix", "Mix", { 40, 20 }, { false, false });
     setupTextButton(msmParams);
 	attatchLabelToComponent(gui.mixSetMixLabel, gui.mixSetMix);
-    gui.mixSetMix.onClick = [this] { ssgGui.triPeakSlider.setValue(0.5, juce::sendNotification); };
+    gui.mixSetMix.onClick = [this] { ssgGui.mixSlider.setValue(0.5, juce::sendNotification); };
     SetupTextButtonParams msnParams = SetupTextButtonParams::create(gui.page, gui.mixSetNoise, gui.mixSetAtt, "Noise", "Noise", { 40, 20 }, { false, false });
     setupTextButton(msnParams);
 	attatchLabelToComponent(gui.mixSetNoiseLabel, gui.mixSetNoise);
-    gui.mixSetNoise.onClick = [this] { ssgGui.triPeakSlider.setValue(1.0, juce::sendNotification); };
+    gui.mixSetNoise.onClick = [this] { ssgGui.mixSlider.setValue(1.0, juce::sendNotification); };
 
     SetupGroupParams qGroupParams = { .page = gui.page, .group = gui.qualityGroup, .title = "Quality" };
     setupGroup(qGroupParams);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "SSG_BIT", "Bit Depth", bdItems, { 40, 15 });
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems, { 40, 15 });
     setupCombo(bParams);
     attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "SSG_RATE", "Rate", rateItems, { 40, 15 });
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems, { 40, 15 });
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
 
     SetupGroupParams fGroupParams = { .page = gui.page, .group = gui.filterGroup, .title = "Filter (Envelope)" };
     setupGroup(fGroupParams);
-    SetupToggleButtonParams bpParams = SetupToggleButtonParams::create(gui.page, gui.adsrBypassButton, gui.adsrBypassButtonLabel, gui.adsrBypassAtt, "SSG_ADSR_BYPASS", "Bypass ADSR (Gate)", { 160, 20 }, { true, true });
+    SetupToggleButtonParams bpParams = SetupToggleButtonParams::create(gui.page, gui.adsrBypassButton, gui.adsrBypassButtonLabel, gui.adsrBypassAtt, code + codeAdsr + postBypass, "Bypass ADSR (Gate)", { 160, 20 }, { true, true });
     setupToggleButton(bpParams);
 	attatchLabelToComponent(gui.adsrBypassButtonLabel, gui.adsrBypassButton);
-    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "SSG_AR", "Attack");
+    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, code + postAr, "Attack");
     setupSlider(arParams);
 	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
-    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "SSG_DR", "Decay");
+    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, code + postDr, "Decay");
     setupSlider(drParams);
 	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
-    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "SSG_SL", "Sustain");
+    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, code + postSl, "Sustain");
     setupSlider(slParams);
 	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
-    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "SSG_RR", "Release");
+    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, code + postRr, "Release");
     setupSlider(rrParams);
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 
     // Duty Controls Setup
     SetupGroupParams dGroupParams = { .page = gui.page, .group = gui.dutyGroup, .title = "Pulse Width (Duty)" };
     setupGroup(dGroupParams);
-    SetupComboParams dmParams = SetupComboParams::create(gui.page, gui.dutyModeSelector, gui.dutyModeLabel, gui.dutyModeAtt, "SSG_DUTY_MODE", "Duty Mode", dmItems, ComboBoxSize, LabelSize, { true, true });
+    SetupComboParams dmParams = SetupComboParams::create(gui.page, gui.dutyModeSelector, gui.dutyModeLabel, gui.dutyModeAtt, code + postDutyMode, "Duty Mode", dmItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(dmParams);
 	attatchLabelToComponent(gui.dutyModeLabel, gui.dutyModeSelector);
-    SetupComboParams dpParams = SetupComboParams::create(gui.page, gui.dutyPresetSelector, gui.dutyPresetLabel, gui.dutyPresetAtt, "SSG_DUTY_PRESET", "Duty Preset", prItems);
+    SetupComboParams dpParams = SetupComboParams::create(gui.page, gui.dutyPresetSelector, gui.dutyPresetLabel, gui.dutyPresetAtt, code + postDutyPreset, "Duty Preset", prItems);
     setupCombo(dpParams);
 	attatchLabelToComponent(gui.dutyPresetLabel, gui.dutyPresetSelector);
-    SetupSliderParams dvParams = SetupSliderParams::create(gui.page, gui.dutyVarSlider, gui.dutyVarLabel, gui.dutyVarAtt, "SSG_DUTY_VAR", "Duty Ratio");
+    SetupSliderParams dvParams = SetupSliderParams::create(gui.page, gui.dutyVarSlider, gui.dutyVarLabel, gui.dutyVarAtt, code + postDutyVar, "Duty Ratio");
     setupSlider(dvParams);
 	attatchLabelToComponent(gui.dutyVarLabel, gui.dutyVarSlider);
-    SetupToggleButtonParams dtiParams = SetupToggleButtonParams::create(gui.page, gui.dutyInvertButton, gui.dutyInvertLabel, gui.dutyInvertAtt, "SSG_DUTY_INV", "Invert Phase", { 160, 20 });
+    SetupToggleButtonParams dtiParams = SetupToggleButtonParams::create(gui.page, gui.dutyInvertButton, gui.dutyInvertLabel, gui.dutyInvertAtt, code + postDutyInv, "Invert Phase", { 160, 20 });
     setupToggleButton(dtiParams);
 	attatchLabelToComponent(gui.dutyInvertLabel, gui.dutyInvertButton);
     SetupGroupParams tpGroupParams = { .page = gui.page, .group = gui.triGroup, .title = "Triangle Property" };
     setupGroup(tpGroupParams);
 	attatchLabelToComponent(gui.triKeyTrackLabel, gui.triKeyTrackButton);
-    SetupToggleButtonParams tktParams = SetupToggleButtonParams::create(gui.page, gui.triKeyTrackButton, gui.triKeyTrackLabel, gui.triKeyTrackAtt, "SSG_TRI_KEYTRK", "Key Track (Pitch)", ToggleButtonSize, { true, true });
+    SetupToggleButtonParams tktParams = SetupToggleButtonParams::create(gui.page, gui.triKeyTrackButton, gui.triKeyTrackLabel, gui.triKeyTrackAtt, code + postTriKeyTrk, "Key Track (Pitch)", ToggleButtonSize, { true, true });
     setupToggleButton(tktParams);
 	attatchLabelToComponent(gui.triFreqLabel, gui.triFreqSlider);
-    SetupSliderParams tfParams = SetupSliderParams::create(gui.page, gui.triFreqSlider, gui.triFreqLabel, gui.triFreqAtt, "SSG_TRI_FREQ", "Manual Freq (Hz)");
+    SetupSliderParams tfParams = SetupSliderParams::create(gui.page, gui.triFreqSlider, gui.triFreqLabel, gui.triFreqAtt, code + postTriFreq, "Manual Freq (Hz)");
     setupSlider(tfParams);
 	attatchLabelToComponent(gui.triPeakLabel, gui.triPeakSlider);
-    SetupSliderParams tpParams = SetupSliderParams::create(gui.page, gui.triPeakSlider, gui.triPeakLabel, gui.triPeakAtt, "SSG_TRI_PEAK", "Peak Position");
+    SetupSliderParams tpParams = SetupSliderParams::create(gui.page, gui.triPeakSlider, gui.triPeakLabel, gui.triPeakAtt, code + postTriPeak, "Peak Position");
     setupSlider(tpParams);
 	attatchLabelToComponent(gui.triPeakLabel, gui.triPeakSlider);
 
@@ -1356,19 +1379,21 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     // HW Env Group
     SetupGroupParams groupParams = { .page = gui.page, .group = gui.envGroup, .title = "Hardware Envelope" };
     setupGroup(groupParams);
-    SetupToggleButtonParams eeParams = SetupToggleButtonParams::create(gui.page, gui.envEnableButton, gui.envEnableLabel, gui.envEnableAtt, "SSG_ENV_ENABLE", "Enable HW Env", { 160, 20 }, { true, true });
+    SetupToggleButtonParams eeParams = SetupToggleButtonParams::create(gui.page, gui.envEnableButton, gui.envEnableLabel, gui.envEnableAtt, code + postEnvEnable, "Enable HW Env", { 160, 20 }, { true, true });
     setupToggleButton(eeParams);
 	attatchLabelToComponent(gui.envEnableLabel, gui.envEnableButton);
-    SetupComboParams evParams = SetupComboParams::create(gui.page, gui.shapeSelector, gui.shapeLabel, gui.shapeAtt, "SSG_ENV_SHAPE", "Shape", envItems, ComboBoxSize, LabelSize, { true, true });
+    SetupComboParams evParams = SetupComboParams::create(gui.page, gui.shapeSelector, gui.shapeLabel, gui.shapeAtt, code + postEnvShape, "Shape", envItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(evParams);
 	attatchLabelToComponent(gui.shapeLabel, gui.shapeSelector);
-    SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, "SSG_ENV_PERIOD", "Env Speed (Hz)", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgEnv);
+    SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, code + postEnvPeriod, "Env Speed (Hz)", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgEnv);
     setupSlider(epParams);
     attatchLabelToComponent(gui.periodLabel, gui.periodSlider);
 }
 
 void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
 {
+    const juce::String code = codeWt;
+
     std::vector<SelectItem> wsItems = {
         {.name = "0: Sine",          .value = 1 },
         {.name = "1: Triangle",      .value = 2 },
@@ -1407,19 +1432,19 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     // --- Filter Group (Left) ---
     SetupGroupParams fGroupParams = { .page = gui.page, .group = gui.filterGroup, .title = "Filter (ADSR)" };
     setupGroup(fGroupParams);
-    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "WT_LEVEL", "Level");
+    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Level");
     setupSlider(lvParams);
 	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
-    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "WT_AR", "Attack");
+    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, code + postAr, "Attack");
     setupSlider(arParams);
 	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
-    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "WT_DR", "Decay");
+    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, code + postDr, "Decay");
     setupSlider(drParams);
 	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
-    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "WT_SL", "Sustain");
+    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, code + postSl, "Sustain");
     setupSlider(slParams);
 	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
-    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "WT_RR", "Release");
+    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, code + postRr, "Release");
     setupSlider(rrParams);
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 
@@ -1428,39 +1453,41 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     setupGroup(wpGroupParams);
 
     // Waveform Selector Setup
-    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, "WT_WAVE", "Wave Form", wsItems, ComboBoxSize, LabelSize, { true, true });
+    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWave, "Wave Form", wsItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(wsParams);
 	attatchLabelToComponent(gui.waveLabel, gui.waveSelector);
 
     // Custom Sliders Setup
     SetupGroupParams cwGroupParams = { .page = gui.page, .group = gui.customGroup, .title = "Custom Wave" };
     setupGroup(cwGroupParams);
-	SetupCustomWaveTableParams cw32Params = { gui.page, gui.customSliders32, gui.customAtts32, "WT_CUSTOM32_" };
+	SetupCustomWaveTableParams cw32Params = { gui.page, gui.customSliders32, gui.customAtts32, code + codeCustom32 };
     setupCustomWaveTable(cw32Params);
-    SetupCustomWaveTableParams cw64Params = { gui.page, gui.customSliders64, gui.customAtts64, "WT_CUSTOM64_" };
+    SetupCustomWaveTableParams cw64Params = { gui.page, gui.customSliders64, gui.customAtts64, code + codeCustom64 };
     setupCustomWaveTable(cw64Params);
-    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, "WT_BIT", "Bit Depth", bdItems);
+    SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, "Bit Depth", bdItems);
     setupCombo(bParams);
 	attatchLabelToComponent(gui.bitLabel, gui.bitSelector);
-    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "WT_RATE", "Rate", rateItems);
+    SetupComboParams rtParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems);
     setupCombo(rtParams);
     attatchLabelToComponent(gui.rateLabel, gui.rateCombo);
-    SetupComboParams szParams = SetupComboParams::create(gui.page, gui.sizeSelector, gui.sizeLabel, gui.sizeAtt, "WT_SIZE", "Table Size", tsItems, ComboBoxSize, LabelSize, { true, true });
+    SetupComboParams szParams = SetupComboParams::create(gui.page, gui.sizeSelector, gui.sizeLabel, gui.sizeAtt, code + postSize, "Table Size", tsItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(szParams);
 	attatchLabelToComponent(gui.sizeLabel, gui.sizeSelector);
-    SetupToggleButtonParams meParams = SetupToggleButtonParams::create(gui.page, gui.modEnableButton, gui.modEnableLabel, gui.modEnableAtt, "WT_MOD_ENABLE", "Modulation ON", ToggleButtonSize, { true, true });
+    SetupToggleButtonParams meParams = SetupToggleButtonParams::create(gui.page, gui.modEnableButton, gui.modEnableLabel, gui.modEnableAtt, code + postModEnable, "Modulation ON", ToggleButtonSize, { true, true });
     setupToggleButton(meParams);
 	attatchLabelToComponent(gui.modEnableLabel, gui.modEnableButton);
-    SetupSliderParams mdParams = SetupSliderParams::create(gui.page, gui.modDepthSlider, gui.modDepthLabel, gui.modDepthAtt, "WT_MOD_DEPTH", "Mod Depth");
+    SetupSliderParams mdParams = SetupSliderParams::create(gui.page, gui.modDepthSlider, gui.modDepthLabel, gui.modDepthAtt, code + postModDepth, "Mod Depth");
     setupSlider(mdParams);
 	attatchLabelToComponent(gui.modDepthLabel, gui.modDepthSlider);
-    SetupSliderParams msParams = SetupSliderParams::create(gui.page, gui.modSpeedSlider, gui.modSpeedLabel, gui.modSpeedAtt, "WT_MOD_SPEED", "Mod Speed");
+    SetupSliderParams msParams = SetupSliderParams::create(gui.page, gui.modSpeedSlider, gui.modSpeedLabel, gui.modSpeedAtt, code + postModSpeed, "Mod Speed");
     setupSlider(msParams);
 	attatchLabelToComponent(gui.modSpeedLabel, gui.modSpeedSlider);
 }
 
 void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 {
+    const juce::String code = codeRhythm;
+
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
         {.name = "0: Raw (32bit)", .value = 1 },
@@ -1489,7 +1516,7 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
     setupGroup(groupParams);
 
     // 総合出力レベル
-    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "RHYTHM_LEVEL", "Master Vol");
+    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Master Vol");
     setupFbSlider(lvParams);
     attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
 
@@ -1498,7 +1525,7 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
     {
         // パッドタイトル・オートメーションキー
         auto& pad = gui.pads[i];
-        juce::String padPrefix = "RHYTHM_PAD" + juce::String(i);
+        juce::String padPrefix = code + codePad + juce::String(i);
         juce::String padTitle = "Pad " + juce::String(i + 1) + " (" + padNames[i] + ")";
 
         // メイングループ
@@ -1529,11 +1556,11 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
             };
 
         // ワンショット機能トグル
-        SetupToggleButtonParams shotP = SetupToggleButtonParams::createOp(gui.page, pad.oneShotButton, pad.oneShotLabel, pad.oneShotAtt, padPrefix + "_ONESHOT", "One Shot");
+        SetupToggleButtonParams shotP = SetupToggleButtonParams::createOp(gui.page, pad.oneShotButton, pad.oneShotLabel, pad.oneShotAtt, padPrefix + postOneShot, "One Shot");
         setupToggleButton(shotP);
 
         // 割り当てキーノート番号
-        SetupSliderParams noteP = SetupSliderParams::createOp(gui.page, pad.noteSlider, pad.noteLabel, pad.noteAtt, padPrefix + "_NOTE", "Note");
+        SetupSliderParams noteP = SetupSliderParams::createOp(gui.page, pad.noteSlider, pad.noteLabel, pad.noteAtt, padPrefix + postNote, "Note");
         setupSlider(noteP);
         pad.noteSlider.setRange(0, 127, 1);
         pad.noteSlider.textFromValueFunction = [](double value) {
@@ -1542,15 +1569,15 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         pad.noteSlider.updateText();
 
         // 内部ビット深度
-        SetupComboParams qualP = SetupComboParams::createOp(gui.page, pad.modeCombo, pad.modeLabel, pad.modeAtt, padPrefix + "_MODE", "Mode", qualityItems);
+        SetupComboParams qualP = SetupComboParams::createOp(gui.page, pad.modeCombo, pad.modeLabel, pad.modeAtt, padPrefix + postMode, "Mode", qualityItems);
         setupCombo(qualP);
 
         // 内部サンプリングレート
-        SetupComboParams rateP = SetupComboParams::createOp(gui.page, pad.rateCombo, pad.rateLabel, pad.rateAtt, padPrefix + "_RATE", "Rate", rateItems);
+        SetupComboParams rateP = SetupComboParams::createOp(gui.page, pad.rateCombo, pad.rateLabel, pad.rateAtt, padPrefix + postRate, "Rate", rateItems);
         setupCombo(rateP);
 
         // パンポット
-        SetupSliderParams panP = SetupSliderParams::createOp(gui.page, pad.panSlider, pad.panLabel, pad.panAtt, padPrefix + "_PAN", "Pan");
+        SetupSliderParams panP = SetupSliderParams::createOp(gui.page, pad.panSlider, pad.panLabel, pad.panAtt, padPrefix + postPan, "Pan");
         setupSlider(panP);
         pad.panSlider.setRange(0.0f, 1.0f);
 
@@ -1567,11 +1594,11 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         pad.btnPanR.addListener(this);
 
         // Vol
-        SetupSliderParams volP = SetupSliderParams::createOp(gui.page, pad.volSlider, pad.volLabel, pad.volAtt, padPrefix + "_VOL", "Vol");
+        SetupSliderParams volP = SetupSliderParams::createOp(gui.page, pad.volSlider, pad.volLabel, pad.volAtt, padPrefix + postVolume, "Vol");
         setupSlider(volP);
 
         // RR
-        SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + "_RR", "RR");
+        SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + postRr, "RR");
         setupSlider(rrP);
     }
 
@@ -1581,6 +1608,8 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
 
 void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
 {
+    const juce::String code = codeAdpcm;
+
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
         {.name = "0: Raw (32bit)", .value = 1 },
@@ -1607,11 +1636,11 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     setupGroup(groupParams);
 
     // 内部ビット深度
-    SetupComboParams modeParams = SetupComboParams::create(gui.page, gui.modeCombo, gui.modeLabel, gui.modeAtt, "ADPCM_MODE", "Quality", qualityItems);
+    SetupComboParams modeParams = SetupComboParams::create(gui.page, gui.modeCombo, gui.modeLabel, gui.modeAtt, code + postMode, "Quality", qualityItems);
     setupCombo(modeParams);
 
     // 内部サンプリングレート
-    SetupComboParams rateParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, "ADPCM_RATE", "Rate", rateItems);
+    SetupComboParams rateParams = SetupComboParams::create(gui.page, gui.rateCombo, gui.rateLabel, gui.rateAtt, code + postRate, "Rate", rateItems);
     setupCombo(rateParams);
 
     // 音声ファイル読み込みボタン
@@ -1639,12 +1668,12 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
         };
 
     // 出力レベル
-    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, "ADPCM_LEVEL", "Master Vol");
+    SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Master Vol");
     setupFbSlider(lvParams);
 	attatchLabelToComponent(gui.levelLabel, gui.levelSlider);
 
     // パンポット設定
-    SetupSliderParams panParams = SetupSliderParams::create(gui.page, gui.panSlider, gui.panLabel, gui.panAtt, "ADPCM_PAN", "Pan");
+    SetupSliderParams panParams = SetupSliderParams::create(gui.page, gui.panSlider, gui.panLabel, gui.panAtt, code + postPan, "Pan");
     setupSlider(panParams);
     gui.panSlider.setRange(0.0f, 1.0f);
     attatchLabelToComponent(gui.panLabel, gui.panSlider);
@@ -1653,27 +1682,27 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     gui.page.addAndMakeVisible(gui.btnPanR); gui.btnPanR.setButtonText("R"); gui.btnPanR.addListener(this);
 
     // ループトグルボタン
-    SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, "ADPCM_LOOP", "Loop");
+    SetupToggleButtonParams lpParams = SetupToggleButtonParams::create(gui.page, gui.loopButton, gui.loopLabel, gui.loopAtt, code + postLoop, "Loop");
     setupToggleButton(lpParams);
 	attatchLabelToComponent(gui.loopLabel, gui.loopButton);
 
     // フィルターAR
-    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, "ADPCM_AR", "Attack");
+    SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, code + postAr, "Attack");
     setupSlider(arParams);
 	attatchLabelToComponent(gui.attackLabel, gui.attackSlider);
 
     // フィルターDR
-    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, "ADPCM_DR", "Decay");
+    SetupSliderParams drParams = SetupSliderParams::create(gui.page, gui.decaySlider, gui.decayLabel, gui.decayAtt, code + postDr, "Decay");
     setupSlider(drParams);
 	attatchLabelToComponent(gui.decayLabel, gui.decaySlider);
 
     // フィルターSL
-    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, "ADPCM_SL", "Sustain");
+    SetupSliderParams slParams = SetupSliderParams::create(gui.page, gui.sustainSlider, gui.sustainLabel, gui.sustainAtt, code + postSl, "Sustain");
     setupSlider(slParams);
 	attatchLabelToComponent(gui.sustainLabel, gui.sustainSlider);
 
     // フィルターRR
-    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, "ADPCM_RR", "Release");
+    SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, code + postRr, "Release");
     setupSlider(rrParams);
 	attatchLabelToComponent(gui.releaseLabel, gui.releaseSlider);
 }
@@ -1711,11 +1740,11 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     *
     *********************/
 
-    gui.table.getHeader().addColumn("File Name", 1, 150);
-    gui.table.getHeader().addColumn("Mode", 5, 80);
-    gui.table.getHeader().addColumn("Preset Name", 2, 150);
-    gui.table.getHeader().addColumn("Author", 3, 100);
-    gui.table.getHeader().addColumn("Ver", 4, 50);
+    gui.table.getHeader().addColumn(presetTableFileNameColTitle, 1, 150);
+    gui.table.getHeader().addColumn(presetTableModeColTitle, 5, 80);
+    gui.table.getHeader().addColumn(presetTablePresetNameColTitle, 2, 150);
+    gui.table.getHeader().addColumn(presetTableAuthorColTitle, 3, 100);
+    gui.table.getHeader().addColumn(presetTableVersionColTitle, 4, 50);
     gui.table.setMultipleSelectionEnabled(false);
 
     gui.page.addAndMakeVisible(gui.table);
@@ -1779,7 +1808,7 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
 
     // --- Init Preset Button ---
     gui.page.addAndMakeVisible(gui.initButton);
-    gui.initButton.setButtonText("Init Preset");
+    gui.initButton.setButtonText(initPresetBtnLabel);
     gui.initButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue.withAlpha(0.7f));
 
     gui.initButton.onClick = [this] {
@@ -1900,6 +1929,8 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
 
 void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
 {
+    const juce::String code = codeFx;
+
     auto setupB = [&](juce::Slider& s, juce::Label& l, juce::String name) {
         gui.page.addAndMakeVisible(s);
 
@@ -2024,11 +2055,11 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
 
     setupBypass(gui.rbcBypassBtn);
 
-    SetupComboParams rbcRateP = SetupComboParams::create(gui.page, gui.rbcRateCombo, gui.rbcRateLabel, gui.rbcRateAtt, "FX_RBC_RATE", "Rate", rateItems);
+    SetupComboParams rbcRateP = SetupComboParams::create(gui.page, gui.rbcRateCombo, gui.rbcRateLabel, gui.rbcRateAtt, code + codeFxRbc + postRate, "Rate", rateItems);
     setupCombo(rbcRateP);
     gui.rbcRateLabel.setJustificationType(juce::Justification::centred);
 
-    SetupComboParams rbcModeP = SetupComboParams::create(gui.page, gui.rbcBitsCombo, gui.rbcBitsLabel, gui.rbcBitsAtt, "FX_RBC_BITS", "Quality", qualityItems);
+    SetupComboParams rbcModeP = SetupComboParams::create(gui.page, gui.rbcBitsCombo, gui.rbcBitsLabel, gui.rbcBitsAtt, code + codeFxRbc + postFxBit, "Quality", qualityItems);
     setupCombo(rbcModeP);
     gui.rbcBitsLabel.setJustificationType(juce::Justification::centred);
 
@@ -2036,35 +2067,35 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     setupMixBtns(gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn, gui.rbcMixSlider);
 
     // Attachments
-    gui.fxBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_BYPASS", gui.bypassToggle);
+    gui.fxBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + postBypass, gui.bypassToggle);
 
-    gui.tBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_TRM_BYPASS", gui.tBypassBtn);
-    gui.tRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_RATE", gui.tRateSlider);
-    gui.tDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_DEPTH", gui.tDepthSlider);
-    gui.tMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_TRM_MIX", gui.tMixSlider);
+    gui.tBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxTrm + postBypass, gui.tBypassBtn);
+    gui.tRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxTrm + postRate, gui.tRateSlider);
+    gui.tDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxTrm + postDepth, gui.tDepthSlider);
+    gui.tMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxTrm + postMix, gui.tMixSlider);
 
-    gui.vBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_VIB_BYPASS", gui.vBypassBtn);
-    gui.vRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_RATE", gui.vRateSlider);
-    gui.vDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_DEPTH", gui.vDepthSlider);
-    gui.vMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_VIB_MIX", gui.vMixSlider);
+    gui.vBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxVib + postBypass, gui.vBypassBtn);
+    gui.vRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxVib + postRate, gui.vRateSlider);
+    gui.vDepthAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxVib + postDepth, gui.vDepthSlider);
+    gui.vMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxVib + postMix, gui.vMixSlider);
 
-    gui.mbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_MBC_BYPASS", gui.mbcBypassBtn);
-    gui.mbcRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_RATE", gui.mbcRateSlider);
-    gui.mbcBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_BITS", gui.mbcBitsSlider);
-    gui.mbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_MBC_MIX", gui.mbcMixSlider);
+    gui.mbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxMbc + postBypass, gui.mbcBypassBtn);
+    gui.mbcRateAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxMbc + postRate, gui.mbcRateSlider);
+    gui.mbcBitsAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxMbc + postFxBit, gui.mbcBitsSlider);
+    gui.mbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxMbc + postMix, gui.mbcMixSlider);
 
-    gui.dBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_DLY_BYPASS", gui.dBypassBtn);
-    gui.dTimeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_TIME", gui.dTimeSlider);
-    gui.dFbAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_FB", gui.dFbSlider);
-    gui.dMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_DLY_MIX", gui.dMixSlider);
+    gui.dBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxDly + postBypass, gui.dBypassBtn);
+    gui.dTimeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxDly + postFxTime, gui.dTimeSlider);
+    gui.dFbAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxDly + postFxFb, gui.dFbSlider);
+    gui.dMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxDly + postMix, gui.dMixSlider);
 
-    gui.rBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_RVB_BYPASS", gui.rBypassBtn);
-    gui.rSizeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_SIZE", gui.rSizeSlider);
-    gui.rDampAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_DAMP", gui.rDampSlider);
-    gui.rMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RVB_MIX", gui.rMixSlider);
+    gui.rBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxRvb + postBypass, gui.rBypassBtn);
+    gui.rSizeAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxRvb + postFxSize, gui.rSizeSlider);
+    gui.rDampAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxRvb + postFxDamp, gui.rDampSlider);
+    gui.rMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxRvb + postMix, gui.rMixSlider);
 
-    gui.rbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, "FX_RBC_BYPASS", gui.rbcBypassBtn);
-    gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, "FX_RBC_MIX", gui.rbcMixSlider);
+    gui.rbcBypassAtt = std::make_unique<ButtonAttachment>(audioProcessor.apvts, code + codeFxRbc + postBypass, gui.rbcBypassBtn);
+    gui.rbcMixAtt = std::make_unique<SliderAttachment>(audioProcessor.apvts, code + codeFxRbc + postMix, gui.rbcMixSlider);
 }
 
 void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
@@ -2248,20 +2279,22 @@ void AudioPlugin2686VEditor::setupSettingsGui(SettingsGuiSet& gui)
     gui.saveStartupSettingsBtn.onClick = [this]
         {
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-            auto pluginDir = docDir.getChildFile("2686V");
+            auto pluginDir = docDir.getChildFile(assetFolder);
 
             // フォルダがなければ作る
             if (!pluginDir.exists()) pluginDir.createDirectory();
 
-            auto file = pluginDir.getChildFile("init_settings.xml");
+            auto file = pluginDir.getChildFile(defaultSettingFilename);
 
             // 2. XMLデータの作成
-            juce::XmlElement xml("PREF_2686V");
+            juce::XmlElement xml(envCode);
 
-            xml.setAttribute("wallpaperPath", audioProcessor.wallpaperPath);
-            xml.setAttribute("defaultSampleDir", audioProcessor.defaultSampleDir);
-            xml.setAttribute("defaultPresetDir", audioProcessor.defaultPresetDir);
-            xml.setAttribute("showTooltips", audioProcessor.showTooltips);
+            xml.setAttribute(settingWallpaperPath, audioProcessor.wallpaperPath);
+            xml.setAttribute(settingDefaultSampleDir, audioProcessor.defaultSampleDir);
+            xml.setAttribute(settingDefaultPresetDir, audioProcessor.defaultPresetDir);
+            xml.setAttribute(settingShowTooltips, audioProcessor.showTooltips);
+            xml.setAttribute(settingUseHeadroom, audioProcessor.useHeadroom);
+            xml.setAttribute(settingHeadroomGain, audioProcessor.headroomGain);
 
             // 3. 書き出し実行
             if (xml.writeTo(file))
@@ -2291,19 +2324,19 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
 {
     // 1. Plugin Name
     gui.page.addAndMakeVisible(gui.pluginNameLabel);
-    gui.pluginNameLabel.setText(VstName, juce::dontSendNotification);
+    gui.pluginNameLabel.setText(pluginName, juce::dontSendNotification);
     gui.pluginNameLabel.setFont(juce::Font(FontFamily, 64.0f, juce::Font::bold | juce::Font::italic));
     gui.pluginNameLabel.setJustificationType(juce::Justification::centred);
 
     // 2. Version
     gui.page.addAndMakeVisible(gui.versionLabel);
-    gui.versionLabel.setText(VstVersion, juce::dontSendNotification);
+    gui.versionLabel.setText(pluginVersion, juce::dontSendNotification);
     gui.versionLabel.setFont(juce::Font(24.0f));
     gui.versionLabel.setJustificationType(juce::Justification::centred);
 
     // 3. Copyright
     gui.page.addAndMakeVisible(gui.copyrightLabel);
-    gui.copyrightLabel.setText(VstAuthor, juce::dontSendNotification);
+    gui.copyrightLabel.setText(pluginAuthor, juce::dontSendNotification);
     gui.copyrightLabel.setJustificationType(juce::Justification::centred);
 
     // 4. Logo (BinaryDataから読み込み)
@@ -2320,21 +2353,21 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
 
     // 5. VST Trademark Notice (必須表記)
     gui.page.addAndMakeVisible(gui.vstGuidelineLabel);
-    gui.vstGuidelineLabel.setText("VST is a registered trademark of Steinberg Media Technologies GmbH.", juce::dontSendNotification);
+    gui.vstGuidelineLabel.setText(vstNotice, juce::dontSendNotification);
     gui.vstGuidelineLabel.setFont(juce::Font(12.0f)); // 小さめでOK
     gui.vstGuidelineLabel.setJustificationType(juce::Justification::centred);
     gui.vstGuidelineLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey); // 目立ちすぎない色に
 
     // --- GPLv3ライセンス表示 ---
     // 1. 通知テキスト
-    gui.gplNoticeLabel.setText("This software is released under the GNU General Public License v3.0 (GPLv3).", juce::dontSendNotification);
+    gui.gplNoticeLabel.setText(gplv3Notice, juce::dontSendNotification);
     gui.gplNoticeLabel.setFont(juce::Font(14.0f));
     gui.gplNoticeLabel.setJustificationType(juce::Justification::centred);
     gui.page.addAndMakeVisible(gui.gplNoticeLabel);
 
     // 2. リンクボタン
-    gui.gplLinkButton.setButtonText("View Full License (GNU.org)");
-    gui.gplLinkButton.setURL(juce::URL("https://www.gnu.org/licenses/gpl-3.0.en.html"));
+    gui.gplLinkButton.setButtonText(gplv3Navigate);
+    gui.gplLinkButton.setURL(juce::URL(gplLinkUrl));
     gui.gplLinkButton.setColour(juce::HyperlinkButton::textColourId, juce::Colours::lightblue); // 色設定（リンクっぽく青色にする例）
     gui.page.addAndMakeVisible(gui.gplLinkButton);
 }
@@ -2718,6 +2751,8 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
 
 void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> content)
 {
+    juce::String code = codeSsg;
+
     // ==================================
     // Layout for SSG Page (自動伸縮対応)
     // ==================================
@@ -2797,7 +2832,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     gui.bitSelector.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
     gui.rateCombo.setBounds(qRect.removeFromLeft(qRowWidth).reduced(5, 0));
 
-    float waveParam = *audioProcessor.apvts.getRawParameterValue("SSG_WAVEFORM");
+    float waveParam = *audioProcessor.apvts.getRawParameterValue(code + postWaveform);
     int waveMode = (waveParam > 0.5f) ? 1 : 0;
 
     // Wave Group
@@ -2834,7 +2869,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
         dRect.removeFromTop(10);
 
-        float dutyModeVal = *audioProcessor.apvts.getRawParameterValue("SSG_DUTY_MODE");
+        float dutyModeVal = *audioProcessor.apvts.getRawParameterValue(code + postDutyMode);
         if (dutyModeVal < 0.5f) {
             gui.dutyPresetSelector.setVisible(true);
             gui.dutyVarSlider.setVisible(false);
@@ -3546,7 +3581,7 @@ void AudioPlugin2686VEditor::scanPresets()
     presetGui.items.clear();
 
     // XMLファイルを探す
-    auto files = presetGui.currentFolder.findChildFiles(juce::File::findFiles, false, "*.xml");
+    auto files = presetGui.currentFolder.findChildFiles(juce::File::findFiles, false, globFiles);
 
     for (const auto& file : files)
     {
@@ -3559,15 +3594,15 @@ void AudioPlugin2686VEditor::scanPresets()
         auto xml = xmlDoc.getDocumentElement();
         if (xml != nullptr)
         {
-            item.name = xml->getStringAttribute("presetName", audioProcessor.presetName);
-            item.author = xml->getStringAttribute("presetAuthor", audioProcessor.presetAuthor);
-            item.version = xml->getStringAttribute("presetVersion", audioProcessor.presetVersion);
-            item.comment = xml->getStringAttribute("presetComment", audioProcessor.presetComment);
-            item.modeName = xml->getStringAttribute("activeModeName", "-");
+            item.name = xml->getStringAttribute(settingPresetName, audioProcessor.presetName);
+            item.author = xml->getStringAttribute(settingPresetAuthor, audioProcessor.presetAuthor);
+            item.version = xml->getStringAttribute(settingPresetVersion, audioProcessor.presetVersion);
+            item.comment = xml->getStringAttribute(settingPresetComment, audioProcessor.presetComment);
+            item.modeName = xml->getStringAttribute(settingActiveModeName, "-");
         }
         else
         {
-            item.name = "Invalid XML";
+            item.name = invalidXmlNotice;
         }
 
         presetGui.items.push_back(item);
@@ -3622,7 +3657,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
     {
         // ... (Existing ADPCM load logic) ...
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        fileChooser = std::make_unique<juce::FileChooser>("Select an Audio file...", audioProcessor.lastSampleDirectory, fileFilter);
+        fileChooser = std::make_unique<juce::FileChooser>(openAudioFileDialogTitle, audioProcessor.lastSampleDirectory, fileFilter);
         auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
 
         fileChooser->launchAsync(folderChooserFlags, [this](const juce::FileChooser& fc)
@@ -3650,7 +3685,7 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
             if (button == &pad.loadButton)
             {
                 auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-                fileChooser = std::make_unique<juce::FileChooser>("Load Sample for Pad " + juce::String(i + 1), audioProcessor.lastSampleDirectory, fileFilter);
+                fileChooser = std::make_unique<juce::FileChooser>(openAudioFileDialogTitle, audioProcessor.lastSampleDirectory, fileFilter);
                 auto folderChooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
 
                 // Capture index 'i' by value
@@ -3742,7 +3777,7 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    if (parameterID == "MODE")
+    if (parameterID == codeMode)
     {
         // UIスレッドで実行するために callAsync を使用
         juce::MessageManager::callAsync([this, idx = (int)newValue]() {
@@ -3816,7 +3851,7 @@ void AudioPlugin2686VEditor::updateRhythmFileNames()
     for (int i = 0; i < 8; ++i)
     {
         juce::String path = audioProcessor.rhythmFilePaths[i];
-        juce::String text = "(Empty)";
+        juce::String text = emptyFileName;
 
         if (path.isNotEmpty())
         {
@@ -3853,104 +3888,104 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     int val;
 
     // AR(Reverse)
-    val = getValue("RAR:", 31);
+    val = getValue(mmlPrefixRar, 31);
     if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(31 - val), juce::sendNotification);
     // AR
     else {
-        val = getValue("AR:", 31);
+        val = getValue(mmlPrefixAr, 31);
         if (val >= 0) gui.ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
     }
 
     // RR(Reverse)
-    val = getValue("RRR:", 15);
+    val = getValue(mmlPrefixRrr, 15);
     if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(15 - val), juce::sendNotification);
     // RR
     else {
-        val = getValue("RR:", 15);
+        val = getValue(mmlPrefixRr, 15);
         if (val >= 0) gui.rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
 
     // Only for OPNA / OPN
     if constexpr (std::is_same<T, Fm4GuiSet>::value) {
         // DR
-        val = getValue("RDR:", 31);
+        val = getValue(mmlPrefixRdr, 31);
         if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
         // DR
         else
         {
-            val = getValue("DR:", 31);
+            val = getValue(mmlPrefixDr, 31);
             if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
         }
 
-        val = getValue("SL:", 15);
+        val = getValue(mmlPrefixSl, 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
 
         // SR(Reverse)
-        val = getValue("RSR:", 31);
+        val = getValue(mmlPrefixRsr, 31);
         if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(31 - val), juce::sendNotification);
         // SR
         else {
-            val = getValue("SR:", 31);
+            val = getValue(mmlPrefixSr, 31);
             if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT
-        val = getValue("DT:", 7);
+        val = getValue(mmlPrefixDt, 7);
         if (val >= 0) gui.dt[opIndex].setValue((double)val, juce::sendNotification);
     }
     // Only for OPM / OPZX3
     else if constexpr (std::is_same<T, OpmGuiSet>::value || std::is_same<T, Opzx3GuiSet>::value) {
         // D1R(Reverse)
-        val = getValue("RD1R:", 31);
+        val = getValue(mmlPrefixRd1r, 31);
         if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
         // D1R
         else {
-            val = getValue("D1R:", 31);
+            val = getValue(mmlPrefixD1r, 31);
             if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
         }
 
         // D1L
-        val = getValue("D1L:", 15);
+        val = getValue(mmlPrefixD1l, 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
 
         // D2R(Reverse)
-        val = getValue("RD2R:", 15);
+        val = getValue(mmlPrefixRd2r, 15);
         if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(15 - val), juce::sendNotification);
         // D2R
         else {
-            val = getValue("D2R:", 15);
+            val = getValue(mmlPrefixD2r, 15);
             if (val >= 0) gui.sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
         }
 
         // DT1
-        val = getValue("DT1:", 7);
+        val = getValue(mmlPrefixDt1, 7);
         if (val >= 0) gui.dt1[opIndex].setValue((double)val, juce::sendNotification);
 
         // DT2
-        val = getValue("DT2:", 7);
+        val = getValue(mmlPrefixDt2, 7);
         if (val >= 0) gui.dt2[opIndex].setValue((double)val, juce::sendNotification);
     }
     else {
         // DR
-        val = getValue("RDR:", 31);
+        val = getValue(mmlPrefixRdr, 31);
         if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
         // DR
         else
         {
-            val = getValue("DR:", 31);
+            val = getValue(mmlPrefixDr, 31);
             if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
         }
 
-        val = getValue("SL:", 15);
+        val = getValue(mmlPrefixSl, 15);
         if (val >= 0) gui.sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
     }
 
     // TL
-    val = getValue("TL:", 127);
+    val = getValue(mmlPrefixTl, 127);
     if (val >= 0) gui.tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
 
     // MUL
-    val = getValue("MUL:", 15);
+    val = getValue(mmlPrefixMul, 15);
     if (val >= 0) gui.mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
 }
 #endif
