@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <filesystem>
+#include <fstream>
 
 // ============================================================================
 // Constructor
@@ -327,7 +328,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 
     xml->setAttribute(settingAdpcmPath, makePathRelative(juce::File(adpcmFilePath)));
     for (int i = 0; i < 8; ++i) {
-        xml->setAttribute(defaultPresetComment + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
+        xml->setAttribute(settingRhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
     }
 };
 
@@ -383,9 +384,56 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
 void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
     // 2686FXではプリセット情報のやり取りは無いので、何もしない関数を定義する
 #if !defined(BUILD_AS_FX_PLUGIN)
-    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+// 1. データ自体のバリデーション
+    if (data == nullptr || sizeInBytes <= 0) return;
 
-    getPresetFromXml(xmlState);
+    std::unique_ptr<juce::XmlElement> xmlState;
+
+    // データの先頭をチェックして、テキストかバイナリかを判別する
+    // 先頭の空白をスキップして '<' で始まっていればテキストとみなす
+    const char* charData = static_cast<const char*>(data);
+    int start = 0;
+    while (start < sizeInBytes && std::isspace(charData[start])) {
+        start++;
+    }
+
+    bool isProbablyText = (start < sizeInBytes && charData[start] == '<');
+
+    if (isProbablyText)
+    {
+        // テキストとして解析 (不正なタグがあれば nullptr が返る)
+        juce::String textData = juce::String::createStringFromData(data, sizeInBytes);
+        xmlState = juce::XmlDocument::parse(textData);
+    }
+    else
+    {
+        // バイナリとして解析 (テキストではない場合のみ実行することで jassert を回避)
+        xmlState = getXmlFromBinary(data, sizeInBytes);
+    }
+
+    // 3. バイナリ読み込みに失敗した場合、テキストXMLとして解析を試みる (フォールバック)
+    // (手動で編集されたXMLや、DAWによってはテキストで保存される場合があるため)
+    if (xmlState == nullptr)
+    {
+        juce::String textData = juce::String::createStringFromData(data, sizeInBytes);
+        xmlState = juce::XmlDocument::parse(textData);
+    }
+
+    // 4. XMLオブジェクトが生成できた場合のみ処理を進める
+    if (xmlState != nullptr)
+    {
+        // さらに安全性を高めるなら、ここでルートタグ名のチェックも可能です
+        // if (xmlState->hasTagName("Plugin_2686V") || xmlState->hasTagName("Parameters")) 
+        // {
+        getPresetFromXml(xmlState);
+        // }
+    }
+    else
+    {
+        // 読み込み失敗（データ破損など）。
+        // ここでは何もしないか、デバッグログを出す程度に留めることでクラッシュを防ぎます。
+        DBG("setStateInformation: Failed to parse XML state.");
+    }
 #endif
 }
 
@@ -411,10 +459,10 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, prefix + " AR", 0.03f, 5.0f, 0.03f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, prefix + " DR", 0.0f, 5.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, prefix + " SL", 0.0f, 1.0f, 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, prefix + " RR", 0.03f, 5.0f, 0.03f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, prefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, prefix + opPostDrLabel, 0.0f, 5.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, prefix + opPostSlLabel, 0.0f, 1.0f, 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, prefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
 }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -425,35 +473,35 @@ void AudioPlugin2686V::createOpnaParameterLayout(juce::AudioProcessorValueTreeSt
     // ==========================================
     juce::String code = codeOpna;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 0, 7, 7));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + " Feedback2", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + " LFO Freq", 0.1f, 200.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + " LFO PMS", 0, 7, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + " LFO AMS", 0, 3, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + mPostFb2Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + mPostLfoFreq, 0.1f, 200.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + mPostLfoPms, 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + mPostLfoAms, 0, 3, 0));
 
     for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = code + codeOp + juce::String(op);
-        juce::String namePrefix = code + " OP" + juce::String(op + 1) + " ";
+        juce::String namePrefix = code + opLabel + juce::String(op + 1) + " ";
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + " DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + " DR", 0.0f, 5.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + " SR", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + " SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + " SE", 0, 15, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + " SEFREQ", 0.1f, 20.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + " AM", false)); // AM Enable (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + " FIX", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + " FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + opPostDtLabel, 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + opPostDrLabel, 0.0f, 5.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + opPostSrLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + opPostSlLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + opPostSeLabel, 0, 15, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + opPostSeFreqLabel, 0.1f, 20.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + opPostKsLabel, 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + opPostAmLabel, false)); // AM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + opPostFixLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + opPostFixFreqLabel, juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -464,29 +512,29 @@ void AudioPlugin2686V::createOpnParameterLayout(juce::AudioProcessorValueTreeSta
     // ==========================================
     juce::String code = codeOpn;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 0, 7, 7));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + " Feedback2", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + mPostFb2Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
 
     for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = code + codeOp + juce::String(op);
-        juce::String namePrefix = code + " OP" + juce::String(op + 1);
+        juce::String namePrefix = code + opLabel + juce::String(op + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + " DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + " DR", 0.0f, 5.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + " SR", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + " SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + " FIX", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + " FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + opPostDtLabel, 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + opPostDrLabel, 0.0f, 5.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + opPostSrLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + opPostSlLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + opPostKsLabel, 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + opPostFixLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + opPostFixFreqLabel, juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -497,31 +545,31 @@ void AudioPlugin2686V::createOplParameterLayout(juce::AudioProcessorValueTreeSta
     // ==========================================
     juce::String code = codeOpl;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 0, 1, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 0, 1, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
 
     for (int op = 0; op < 2; ++op)
     {
         juce::String prefix = code + codeOp + juce::String(op);
-        juce::String namePrefix = code + " OP" + juce::String(op + 1);
+        juce::String namePrefix = code + opLabel + juce::String(op + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + " DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + " DR", 0.0f, 5.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + " SR", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + " SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + " AM", false)); // AM Enable (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postVib, namePrefix + " VIB", false));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postEgType, namePrefix + " EG TYPE", true)); // 1=Sustain, 0=Decay
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postKsr, namePrefix + " KSR", false)); // 0=Low, 1=High
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKsl, namePrefix + " KSL", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postEg, namePrefix + " EG", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + opPostDtLabel, 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + opPostDrLabel, 0.0f, 5.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + opPostSrLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + opPostSlLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + opPostAmLabel, false)); // AM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postVib, namePrefix + opPostVibLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postEgType, namePrefix + opPostEgTypeLabel, true)); // 1=Sustain, 0=Decay
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postKsr, namePrefix + opPostKsrLabel, false)); // 0=Low, 1=High
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKsl, namePrefix + opPostKslLabel, 0, 3, 0));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postEg, namePrefix + opPostEgLabel, 0, 3, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -532,31 +580,31 @@ void AudioPlugin2686V::createOpl3ParameterLayout(juce::AudioProcessorValueTreeSt
     // ==============================================================================
     juce::String code = codeOpl3;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 1, 8, 1));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + " Feedback2", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 1, 8, 1));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + mPostFb2Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
 
     for (int i = 0; i < 4; ++i)
     {
         juce::String prefix = code + codeOp + juce::String(i);
-        juce::String namePrefix = code + " OP" + juce::String(i + 1);
+        juce::String namePrefix = code + opLabel + juce::String(i + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + " DR", 0.0f, 5.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + " SR", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + " SL", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + " AM", false)); // AM Enable (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postVib, namePrefix + " VIB", false));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postEgType, namePrefix + " EG TYPE", true)); // 1=Sustain, 0=Decay
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postKsr, namePrefix + " KSR", false)); // 0=Low, 1=High
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKsl, namePrefix + " KSL", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postEg, namePrefix + " EG", 0, 3, 0));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, namePrefix + opPostDrLabel, 0.0f, 5.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSr, namePrefix + opPostSrLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, namePrefix + opPostSlLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postAm, namePrefix + opPostAmLabel, false)); // AM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postVib, namePrefix + opPostVibLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postEgType, namePrefix + opPostEgTypeLabel, true)); // 1=Sustain, 0=Decay
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postKsr, namePrefix + opPostKsrLabel, false)); // 0=Low, 1=High
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKsl, namePrefix + opPostKslLabel, 0, 3, 0));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postEg, namePrefix + opPostEgLabel, 0, 3, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -567,35 +615,35 @@ void AudioPlugin2686V::createOpmParameterLayout(juce::AudioProcessorValueTreeSta
     // ==========================================
     juce::String code = codeOpm;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 0, 7, 7));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + " Feedback2", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + " LFO Freq", 0.1f, 200.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + " LFO PMS", 0, 7, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + " LFO AMS", 0, 3, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 0, 7, 7));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + mPostFb2Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + mPostLfoFreq, 0.1f, 200.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + mPostLfoPms, 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + mPostLfoAms, 0, 3, 0));
 
     for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = code + codeOp + juce::String(op);
-        juce::String namePrefix = code + " OP" + juce::String(op + 1);
+        juce::String namePrefix = code + opLabel + juce::String(op + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + " DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt2, namePrefix + " DT2", 0, 3, 0)); // Coarse Detune (OPM Only)
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1r, namePrefix + " D1R", 0.0f, 5.0f, 0.1f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1l, namePrefix + " D1L", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD2r, namePrefix + " D2R", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + " SE", 0, 15, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + " SEFREQ", 0.1f, 20.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + " FIX", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + " FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + opPostDt1Label, 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt2, namePrefix + opPostDt2Label, 0, 3, 0)); // Coarse Detune (OPM Only)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1r, namePrefix + opPostD1rLabel, 0.0f, 5.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1l, namePrefix + opPostD1lLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD2r, namePrefix + opPostD2rLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + opPostSeLabel, 0, 15, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + opPostSeFreqLabel, 0.1f, 20.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + opPostKsLabel, 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + opPostFixLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + opPostFixFreqLabel, juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -606,36 +654,36 @@ void AudioPlugin2686V::createOpzx3ParameterLayout(juce::AudioProcessorValueTreeS
     // ==========================================
     juce::String code = codeOpzx3;
 
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + " Algorithm", 0, 27, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + " Feedback", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + " Feedback2", 0.0f, 7.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 4));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 2)); // Default 6 (16kHz)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + " LFO Freq", 0.1f, 200.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + " LFO PMS", 0, 7, 0));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + " LFO AMS", 0, 3, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postAlg, code + mPostAlgTitle, 0, 27, 0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb0, code + mPostFb0Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postFb2, code + mPostFb2Title, 0.0f, 7.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 4));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 2)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLFreq, code + mPostLfoFreq, 0.1f, 200.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLPms, code + mPostLfoPms, 0, 7, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postLAms, code + mPostLfoAms, 0, 3, 0));
 
     for (int op = 0; op < 4; ++op)
     {
         juce::String prefix = code + codeOp + juce::String(op);
-        juce::String namePrefix = code + " OP" + juce::String(op + 1);
+        juce::String namePrefix = code + opLabel + juce::String(op + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + " MUL", 0, 15, 1));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + " DT", 0, 7, 0));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt2, namePrefix + " DT2", 0, 3, 0)); // Coarse Detune (OPM Only)
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + " AR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1r, namePrefix + " D1R", 0.0f, 5.0f, 0.1f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1l, namePrefix + " D1L", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD2r, namePrefix + " D2R", 0.0f, 10.0f, 0.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + " RR", 0.03f, 5.0f, 0.03f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + " SE", 0, 15, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + " SEFREQ", 0.1f, 20.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + " TL", 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + " KS", 0, 3, 0)); // KS (0 to 3)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + " FIX", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + " FREQ", juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postWs, namePrefix + " WS", 0, 28, 0));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + " MASK", false)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMul, namePrefix + opPostMulLabel, 0, 15, 1));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt, namePrefix + opPostDt1Label, 0, 7, 0));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postDt2, namePrefix + opPostDt2Label, 0, 3, 0)); // Coarse Detune (OPM Only)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, namePrefix + opPostArLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1r, namePrefix + opPostD1rLabel, 0.0f, 5.0f, 0.1f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD1l, namePrefix + opPostD1lLabel, 0.0f, 1.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postD2r, namePrefix + opPostD2rLabel, 0.0f, 10.0f, 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, namePrefix + opPostRrLabel, 0.03f, 5.0f, 0.03f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postSe, namePrefix + opPostSeLabel, 0, 15, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSeFreq, namePrefix + opPostSeFreqLabel, 0.1f, 20.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postTl, namePrefix + opPostTlLabel, 0.0f, 1.0f, 0.0f)); // TL (0.0 to 1.0)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postKs, namePrefix + opPostKsLabel, 0, 3, 0)); // KS (0 to 3)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postFix, namePrefix + opPostFixLabel, false));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postFixFreq, namePrefix + opPostFixFreqLabel, juce::NormalisableRange<float>(0.0f, 8000.0f, 0.0f, 0.3f), 440.0f));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postWs, namePrefix + opPostWsLabel, 0, 28, 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postMask, namePrefix + opPostMaskLabel, false)); // OP Mask (Switch)
     }
 }
 
@@ -648,7 +696,8 @@ void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeSta
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLevel, code + " Tone", 0.0f, 1.0f, 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoise, code + " Noise", 0.0f, 1.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoiseFreq, code + "Noise Freq", juce::NormalisableRange<float>(50.0f, 20000.0f, 1.0f, 0.3f), 12000.0f)); // Noise Frequency Default: 12000Hz (Standard PSG feel)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoiseFreq, code + " Noise Freq", juce::NormalisableRange<float>(50.0f, 30000.0f, 1.0f, 0.3f), 12000.0f)); // Noise Frequency Default: 12000Hz (Standard PSG feel)
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + postNoiseOnNote, code + " Noise On Note", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postMix, code + " Tone/Noise Mix", 0.0f, 1.0f, 0.5f)); // デフォルトは 0.5 (Mix)
 
     layout.add(std::make_unique<juce::AudioParameterInt>(code + postWaveform, code + " Waveform", 0, 1, 0)); // 0:Pulse, 1:Triangle
@@ -668,10 +717,10 @@ void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeSta
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postTriFreq, code + " Tri Manual Freq", juce::NormalisableRange<float>(0.1f, 8000.0f, 0.1f, 0.3f), 440.0f));
 
     // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 3));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 3));
     // ADD: Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 6)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 6)); // Default 6 (16kHz)
 
     // Hardware Envelope Parameters
     layout.add(std::make_unique<juce::AudioParameterBool>(code + postEnvEnable, code + " HW Env Enable", false)); // HW Env Enable(Bool)
@@ -690,10 +739,10 @@ void AudioPlugin2686V::createWavetableParameterLayout(juce::AudioProcessorValueT
     juce::String code = codeWt;
 
     // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + " Bit Depth", 0, 4, 3));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postBit, code + mPostBitTitle, 0, 4, 3));
     // Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 1, 7, 6)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 1, 7, 6)); // Default 6 (16kHz)
     // Size: 0:32, 1:64
     layout.add(std::make_unique<juce::AudioParameterInt>(code + postSize, code + " Sample Size", 0, 1, 0));
     // Waveform Preset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
@@ -740,7 +789,7 @@ void AudioPlugin2686V::createRhythmParameterLayout(juce::AudioProcessorValueTree
         juce::String prefix = code + codePad + juce::String(i);
         juce::String namePrefix = code + " Pad" + juce::String(i + 1);
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postVolume, namePrefix + " Vol", 0.0f, 1.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postPan, namePrefix + " Pan", 0.0f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postPan, namePrefix + opPostPanLabel, 0.0f, 1.0f, 0.5f));
 
         // Note number
         int defNote = 60 + i;
@@ -751,7 +800,7 @@ void AudioPlugin2686V::createRhythmParameterLayout(juce::AudioProcessorValueTree
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postMode, namePrefix + " Quality", 1, 7, 7));
 
         // 1: 96kHz 2: 55.5kHz 3: 48kHz 4: 44.1kHz 5: 22.5kHz 6: 16k 7: 8k
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postRate, namePrefix + " Rate", 1, 7, 6));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + postRate, namePrefix + mPostRateTitle, 1, 7, 6));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + postOneShot, namePrefix + " One Shot", true));
 
@@ -769,12 +818,12 @@ void AudioPlugin2686V::createAdpcmParameterLayout(juce::AudioProcessorValueTreeS
     juce::String code = codeAdpcm;
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLevel, code + " Level", 0.0f, 1.0f, 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postPan, code + " Pan", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postPan, code + opPostPanLabel, 0.0f, 1.0f, 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>(code + postLoop, code + " Loop", true));
     // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + postMode, code + " Quality", 0, 6, 0));
     // 0: 96kHz 1: 55.5kHz 2: 48kHz 3: 44.1kHz 4: 22.5kHz 5: 16k 6: 8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + " Rate", 0, 6, 3)); // Default: 3 (44.1kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + postRate, code + mPostRateTitle, 0, 6, 3)); // Default: 3 (44.1kHz)
 
     addEnvParameters(layout, code);
 }
@@ -788,43 +837,43 @@ void AudioPlugin2686V::createFxParameterLayout(juce::AudioProcessorValueTreeStat
     juce::String code = codeFx;
 
     // Bypass
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + postBypass, code + " Master FX Bypass", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + postBypass, code + masterBypassLabel, false));
 
     // --- Tremolo ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxTrm + postBypass, code + " Tremolo Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postRate, code + " Tremolo Rate", 0.1f, 20.0f, 5.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postDepth, code + " Tremolo Depth", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postMix, code + " Tremolo Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxTrm + postBypass, code + fxTremoloLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postRate, code + fxTremoloLabel + fxPostRateLabel, 0.1f, 20.0f, 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postDepth, code + fxTremoloLabel + fxPostDepthLabel, 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxTrm + postMix, code + fxTremoloLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 
     // --- Vibrato / Detune ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxVib + postBypass, code + " Vibrato Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postRate, code + " Vibrato Rate", 0.1f, 10.0f, 2.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postDepth, code + " Vibrato Depth", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postMix, code + " Vibrato Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxVib + postBypass, code + fxVibratoLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postRate, code + fxVibratoLabel + fxPostRateLabel, 0.1f, 10.0f, 2.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postDepth, code + fxVibratoLabel + fxPostDepthLabel, 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxVib + postMix, code + fxVibratoLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 
     // --- Modern Bit Crusher ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxMbc + postBypass, code + " Modern BC Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postRate, code + " Modern BC Rate", 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postFxBit, code + " Modern BC Quality", 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postMix, code + " Modern BX Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxMbc + postBypass, code + fxMBCLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postRate, code + fxMBCLabel + fxPostRateLabel, 1.0f, 50.0f, 1.0f)); // Rate: 1(High) ～ 50(Low)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postFxBit, code + fxMBCLabel + fxPostQualityLabel, 2.0f, 24.0f, 24.0f)); // Bits: 24(Clean) ～ 2(Noisy)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxMbc + postMix, code + fxMBCLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 
     // --- Delay ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxDly + postBypass, code + " Delay Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postFxTime, code + " Delay Time", 10.0f, 1000.0f, 375.0f)); // ms
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postFxFb, code + " Delay Feedback", 0.0f, 0.95f, 0.4f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postMix, code + " Delay Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxDly + postBypass, code + fxDelayLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postFxTime, code + fxDelayLabel + fxPostTimeLabel, 10.0f, 1000.0f, 375.0f)); // ms
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postFxFb, code + fxDelayLabel + fxPostFbLabel, 0.0f, 0.95f, 0.4f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxDly + postMix, code + fxDelayLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 
     // --- Reverb ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxRvb + postBypass, code + " Reverb Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postFxSize, code + " Reverb Size", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postFxDamp, code + " Reverb Damp", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postMix, code + " Reverb Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxRvb + postBypass, code + fxReverbLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postFxSize, code + fxReverbLabel + fxPostSizeLabel, 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postFxDamp, code + fxReverbLabel + fxPostDampLabel, 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRvb + postMix, code + fxReverbLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 
     // --- Retro Bit Crusher ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxRbc + postBypass, code + " Retro BC Bypass", false));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + codeFxRbc + postRate, code + " Retro BC Rate", 1, 7, 6));    // Default: 16kHz
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + codeFxRbc + postFxBit, code + " Retro BC Quality", 1, 7, 7)); // Default: ADPCM
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRbc + postMix, code + " Retro BC Mix", 0.0f, 1.0f, 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + codeFxRbc + postBypass, code + fxRBCLabel + fxPostBypassLabel, false));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + codeFxRbc + postRate, code + fxRBCLabel + fxPostRateLabel, 1, 7, 6));    // Default: 16kHz
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + codeFxRbc + postFxBit, code + fxRBCLabel + fxPostQualityLabel, 1, 7, 7)); // Default: ADPCM
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + codeFxRbc + postMix, code + fxRBCLabel + fxPostMixLabel, 0.0f, 1.0f, 0.0f));
 }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -1063,8 +1112,9 @@ void AudioPlugin2686V::processSsgBlock(SynthParams &params)
     // --- SSG Parameters ---
     params.ssgLevel = *apvts.getRawParameterValue(code + postLevel);
     params.ssgNoiseLevel = *apvts.getRawParameterValue(code + postNoise);
-    params.ssgMix = *apvts.getRawParameterValue(code + postMix);
     params.ssgNoiseFreq = *apvts.getRawParameterValue(code + postNoiseFreq);
+    params.ssgNoiseOnNote = (*apvts.getRawParameterValue(code + postNoiseOnNote) > 0.5f);
+    params.ssgMix = *apvts.getRawParameterValue(code + postMix);
     params.ssgWaveform = (int)*apvts.getRawParameterValue(code + postWaveform);
     params.ssgBitDepth = (int)*apvts.getRawParameterValue(code + postBit);
     params.ssgRateIndex = (int)*apvts.getRawParameterValue(code + postRate);
@@ -1265,18 +1315,40 @@ void AudioPlugin2686V::loadStartupSettings()
     // 1. 読み込むディレクトリとファイル名を指定
     // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    auto presetFile = docDir.getChildFile(assetFolder).getChildFile(defaultSettingFilename);
+    auto pluginDir = docDir.getChildFile(assetFolder);
+    auto presetFile = pluginDir.getChildFile(defaultSettingFilename);
+
+    if (!pluginDir.exists()) {
+        pluginDir.createDirectory();
+    }
+
+    bool loadSuccess = false;
 
     // 2. ファイルが存在するかチェック
     if (presetFile.existsAsFile())
     {
-        loadEnvironment(presetFile);
+        juce::XmlDocument xmlDoc(presetFile);
+        std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
+
+        // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
+        if (xml == nullptr || !xml->hasTagName("PREF_2686V"))
+        {
+            DBG("Startup settings file is corrupted. Deleting...");
+            presetFile.deleteFile(); // 破損ファイルを削除
+            // loadSuccess = false のまま
+        }
+        else
+        {
+            // 正常なら読み込む
+            loadEnvironment(presetFile);
+            loadSuccess = true;
+        }
     }
 
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
-    if (defaultPresetDir.isEmpty())
+    if (defaultPresetDir.isEmpty() || !juce::File(defaultPresetDir).isDirectory())
     {
-        auto newPresetDir = docDir.getChildFile(assetFolder).getChildFile(presetFolder);
+        auto newPresetDir = pluginDir.getChildFile(presetFolder);
 
         // 存在していなければ作成
         if (!newPresetDir.exists()) {
@@ -1286,9 +1358,9 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultPresetDir = newPresetDir.getFullPathName();
     }
 
-    if (defaultSampleDir.isEmpty())
+    if (defaultSampleDir.isEmpty() || !juce::File(defaultSampleDir).isDirectory())
     {
-        auto newSampleDir = docDir.getChildFile(assetFolder).getChildFile(sampleFolder);
+        auto newSampleDir = pluginDir.getChildFile(sampleFolder);
 
         // 存在していなければ作成
         if (!newSampleDir.exists()) {
@@ -1296,6 +1368,7 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultSampleDir = newSampleDir.getFullPathName();
+        lastSampleDirectory = newSampleDir;
     }
 
 }

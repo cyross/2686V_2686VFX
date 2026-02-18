@@ -24,7 +24,6 @@ static inline const juce::String codeAdsr = "_ADSR";
 static inline const juce::String codeCustom32 = "_CUSTOM32_";
 static inline const juce::String codeCustom64 = "_CUSTOM64_";
 
-
 static inline const juce::String codeFxVib = "_VIB";
 static inline const juce::String codeFxTrm = "_TRM";
 static inline const juce::String codeFxDly = "_DLY";
@@ -88,6 +87,7 @@ static inline const juce::String postEgType = "_EG_TYP";
 static inline const juce::String postEg = "_EG";
 static inline const juce::String postNoise = "_NOISE";
 static inline const juce::String postNoiseFreq = "_NOISE_FREQ";
+static inline const juce::String postNoiseOnNote = "_NOISE_ON_NOTE";
 static inline const juce::String postWaveform = "_WAVEFORM";
 static inline const juce::String postEnvEnable = "_ENV_ENABLE";
 static inline const juce::String postEnvShape = "_ENV_SHAPE";
