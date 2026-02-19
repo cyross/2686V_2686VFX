@@ -433,7 +433,9 @@ private:
     float m_pan = 0.5f;
     SimpleAdsr m_adsr;
     float m_currentLevel = 0.0f;
-    float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f;
+    float m_attackInc = 0.0f;
+    float m_decayDec = 0.0f;
+    float m_releaseDec = 0.0f;
 
     bool m_isLooping = false;
     bool m_hasFinished = false;

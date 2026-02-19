@@ -24,7 +24,8 @@ public:
         m_level = params.ssgLevel;
         m_noiseLevel = params.ssgNoiseLevel;
         m_mix = params.ssgMix;
-        m_targetNoiseFreq = params.ssgNoiseFreq;
+        m_baseNoiseFreq = params.ssgNoiseFreq;
+        m_noiseOnNote = params.ssgNoiseOnNote;
 
         m_adsrBypass = params.ssgAdsrBypass;
         m_adsr = params.ssgAdsr;
@@ -46,7 +47,6 @@ public:
 
         if (m_rateIndex != params.ssgRateIndex) {
             m_rateIndex = params.ssgRateIndex;
-            updatePhaseDelta();
         }
 
         // Bit Depth
@@ -60,12 +60,16 @@ public:
         }
 
         updateIncrements();
+        updateNoiseFrequency();
+        updatePhaseDelta();
     }
 
     void noteOn(float frequency)
     {
         m_currentFrequency = frequency; // Save for recalculation
         m_phase = 0.0f;
+
+        updateNoiseFrequency();
 
         updatePhaseDelta();
 
@@ -321,7 +325,6 @@ private:
         m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.a) * m_sampleRate);
         m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.d) * m_sampleRate);
         m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
-        m_noiseDelta = m_targetNoiseFreq / m_sampleRate;
     }
 
     // New Rate Logic
@@ -336,6 +339,11 @@ private:
         case 6: return 8000.0;
         default: return 55500.0;
         }
+    }
+
+    void updateNoiseFrequency()
+    {
+        m_targetNoiseFreq = m_baseNoiseFreq * (m_currentFrequency / 440.0);
     }
 
     void updatePhaseDelta() {
@@ -380,7 +388,9 @@ private:
     float m_noisePhase = 0.0f;
     float m_noiseDelta = 0.0f;
     float m_currentNoiseSample = 0.0f;
-    float m_targetNoiseFreq = 12000.0f;
+    float m_baseNoiseFreq = 12000.0f; // Slider Value
+    float m_targetNoiseFreq = 12000.0f; // Active Frequency
+    bool m_noiseOnNote = false;
 
     // Rate / Quality Params
     int m_rateIndex = 1; // Default 55.5k

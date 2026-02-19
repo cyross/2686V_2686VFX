@@ -4,14 +4,11 @@
 #include "SynthVoice.h"
 #endif
 #include "SimpleEffects.h"
-
-#if defined(BUILD_AS_FX_PLUGIN)
-static const juce::String VstName = "2686VFX";
-#else
-static const juce::String VstName = "2686V";
-#endif
-static const juce::String VstVersion = "Version 0.0.3";
-static const juce::String VstAuthor = "Copyright (C) 2026 CYROSS";
+#include "GlobalConstants.h"
+#include "OpConstants.h"
+#include "FileConstants.h"
+#include "PresetConstants.h"
+#include "LabelConstants.h"
 
 class AudioPlugin2686V : public juce::AudioProcessor
 {
@@ -55,16 +52,11 @@ public:
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     // --- Metadata ---
-    juce::String presetName = "Init Preset";
-    juce::String presetAuthor = "User";
-    juce::String presetVersion = "1.0";
-    juce::String presetComment = "";
-    juce::String presetPluginVersion = VstVersion;
-
-    static const int presetNameLength = 512;
-    static const int presetAuthorLength = 128;
-    static const int presetVersionLength = 64;
-    static const int commentLength = 2048; // コメント欄の長さ(2048文字まで)
+    juce::String presetName = defaultPresetName;
+    juce::String presetAuthor = defaultPresetAuthor;
+    juce::String presetVersion = defaultPresetVersion;
+    juce::String presetComment = defaultPresetComment;
+    juce::String presetPluginVersion = pluginVersion;
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;

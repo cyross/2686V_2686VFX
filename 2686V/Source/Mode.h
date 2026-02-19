@@ -2,7 +2,6 @@
 #include <JuceHeader.h>
 
 static constexpr int MaxRhythmPads = 8;
-
 static constexpr int MaxFmOperators = 8;
 
 enum class OscMode
@@ -130,6 +129,7 @@ struct SynthParams
     float ssgLevel = 1.0f;
     float ssgNoiseLevel = 0.0f; // Noise
 	float ssgNoiseFreq = 12000.0f; // Noise Frequency (Hz)
+    bool ssgNoiseOnNote = false; // Noise On Note (ノイズ周波数をMIDIキーで変更)
     float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise)
     int ssgWaveform = 0; // 0: Pulse, 1: Triangle
 

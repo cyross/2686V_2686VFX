@@ -2,128 +2,22 @@
 #include <JuceHeader.h>
 #include <array>
 #include <vector>
+#include <span>
 #include "PluginProcessor.h"
+#include "GlobalConstants.h"
+#include "OpConstants.h"
+#include "FileConstants.h"
 #include "VstLogoForAbout.h"
+#include "PresetConstants.h"
+#include "LabelConstants.h"
+#include "MmlConstants.h"
+#include "GuiConstants.h"
+#include "GuiStructs.h"
+#include "RegisterType.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
-
-// Defined globally as it's used in structs
-static const juce::String FontFamily = "Times New Roman";
-static const float LogoFontSize = 128.0f;
-
-static const int WindowWidth = 1200;
-static const int WindowHeight = 880;
-
-#if defined(BUILD_AS_FX_PLUGIN)
-static const int TabNumber = 3;
-#else
-static const int TabNumber = 13;
-#endif
-
-static const int LabelWidth = 40;
-static const int LabelHeight = 20;
-static const int SliderWidth = 50;
-static const int SliderHeight = 20;
-static const int SliderValueWidth = 50;
-static const int SliderValueHeight = 20;
-static const int ComboBoxWidth = 50;
-static const int ComboBoxHeight = 20;
-static const int ToggleButtonWidth = 80;
-static const int ToggleButtonHeight = 20;
-static const int TextButtonWidth = 80;
-static const int TextButtonHeight = 20;
-
-static const int GlobalPaddingWidth = 20;
-static const int GlobalPaddingHeight = 20;
-static const int GroupPaddingWidth = 10;
-static const int GroupPaddingHeight = 10;
-static const int TitlePaddingTop = 20;
-static const int TopGroupHeight = 80;
-
-#if !defined(BUILD_AS_FX_PLUGIN)
-static const int Fm4Ops = 4;
-static const int Fm2Ops = 2;
-
-static const int WtSamples32 = 32;
-static const int WtSamples64 = 64;
-
-static const int TopParamWidth = 160;
-static const int QualityGroupHeight = 60;
-static const int QualityParamWidth = 160;
-
-static const int OpLabelWidth = 40;
-static const int OpLabelHeight = 15;
-static const int OpSliderWidth = 50;
-static const int OpSliderHeight = 15;
-static const int OpSliderValueWidth = 50;
-static const int OpSliderValueHeight = 15;
-static const int OpComboBoxWidth = 80;
-static const int OpComboBoxHeight = 15;
-static const int OpToggleButtonWidth = 80;
-static const int OpToggleButtonHeight = 15;
-static const int OpTextButtonWidth = 80;
-static const int OpTextButtonHeight = 15;
-static const int OpGroupPaddingWidth = 12;
-static const int OpGroupPaddingHeight = 8;
-
-static const int FmOpRowH = 36;
-static const int FmOpWidth = 240;
-
-static const int SsgLeftWidth = 240;
-static const int SsgRightWidth = 800;
-static const int SsgHeight = 640;
-static const int WtLeftWidth = 240;
-static const int WtRightWidth = 800;
-static const int WtHeight = 640;
-static const int WtCustomSliderWidth = 22;
-static const int RhythmPadsAreaHeight = 320;
-#endif
-
-static const int FxWidth = 1000;
-static const int FxHeight = 720;
-static const int FxGlobalBypassHeight = 120;
-static const int FxBypassWidth = 120;
-static const int FxGroupHeight = 200;
-static const int FxKnobAreaWidth = 200;
-static const int FxKnobWidth = 120;
-static const int FxKnobHeight = 60;
-static const int FxMixButtonWidth = 40;
-
-enum class RegisterType
-{
-    None,
-    FmAr,   // AR (0-31)
-    FmDr,   // DR (0-31)
-    FmSr,   // SR (0-31)
-    FmRr,   // RR (0-15)
-    FmSl,   // SL (0-15)
-    FmTl,   // TL (0-127)
-    FmMul,  // MUL (0-15)
-    FmDt,   // DT (0-7)
-    FmDt2,  // DT2 (0-3)
-    SsgVol, // Level (0-15)
-    SsgEnv  // Env Period (0-65535)
-};
-
-struct SelectItem
-{
-	const juce::String name;
-    const int value;
-};
-
-struct Size
-{
-    int width;
-    int height;
-};
-
-struct Flags
-{
-    bool isReset;
-    bool isResize;
-};
 
 static const Size LabelSize{ LabelWidth, LabelHeight };
 static const Size SliderSize{ SliderWidth, SliderHeight };
@@ -161,7 +55,7 @@ public:
         auto center = area.getCentre();
         float s = std::min(area.getWidth(), area.getHeight()) * 0.5f; // アイコンサイズ
 
-        if (name == "FX") // エフェクトを示すアイコン
+        if (name == fxTabName) // エフェクトを示すアイコン
         {
             // [FX] Icon
             // F
@@ -189,7 +83,7 @@ public:
             p.addPath(bar1);
             p.addPath(bar2);
         }
-        else if (name == "PRESET") // プリセットブラウザタブはフォルダーアイコン
+        else if (name == presetTabName) // プリセットブラウザタブはフォルダーアイコン
         {
             // --- Folder / List Icon ---
             // フォルダーの形
@@ -206,7 +100,7 @@ public:
             p.startNewSubPath(center.x - w * 0.3f, center.y + h * 0.3f);
             p.lineTo(center.x + w * 0.3f, center.y + h * 0.3f);
         }
-        else if (name == "SETTINGS") // 設定タブは歯車アイコン
+        else if (name == settingsTabName) // 設定タブは歯車アイコン
         {
             // --- Gear Icon ---
             // 歯車
@@ -229,7 +123,7 @@ public:
             p.addEllipse(center.x - rHole, center.y - rHole, rHole * 2, rHole * 2);
             p.setUsingNonZeroWinding(false); // 穴を抜く設定
         }
-        else if (name == "ABOUT") // Aboutタブは丸囲みiアイコン
+        else if (name == aboutTabName) // Aboutタブは丸囲みiアイコン
         {
             // --- Info Icon (i) ---
             // 丸
@@ -289,7 +183,7 @@ public:
         // 3. 描画
         g.setColour(contentColour); // 色を確定
 
-        if (name == "FX" || name == "PRESET" || name == "SETTINGS" || name == "ABOUT")
+        if (name == fxTabName || name == presetTabName || name == settingsTabName || name == aboutTabName)
         {
             // アイコン描画
             juce::Path icon = getIconPath(name, area);
@@ -331,77 +225,94 @@ private:
 };
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-struct Fm4GuiSet
+struct OpnaGuiSet
 {
     juce::Component page;
 
-    ColoredGroupComponent globalGroup;
-    ColoredGroupComponent qualityGroup;
+    ColoredGroupComponent mainGroup;
     std::array<ColoredGroupComponent, Fm4Ops> opGroups;
     ColoredGroupComponent lfoGroup;
 
     juce::ComboBox algSelector;
     juce::Label algLabel;
+
     juce::Slider feedbackSlider;
     juce::Label feedbackLabel;
+
     juce::Slider feedback2Slider;
     juce::Label feedback2Label;
+
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
     juce::Slider lfoFreqSlider;
     juce::Label lfoFreqLabel;
+
     juce::ComboBox lfoPmsSelector;
     juce::Label lfoPmsLabel;
+
     juce::ComboBox lfoAmsSelector;
     juce::Label lfoAmsLabel;
 
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     std::array<juce::Label, Fm4Ops> opLabels;
 
-    // 9 columns
     std::array<juce::Slider, Fm4Ops> mul;
-    std::array<juce::Slider, Fm4Ops> dt;
-    std::array<juce::Slider, Fm4Ops> ar;
-    std::array<juce::Slider, Fm4Ops> dr;
-    std::array<juce::Slider, Fm4Ops> sr;
-    std::array<juce::Slider, Fm4Ops> sl;
-    std::array<juce::Slider, Fm4Ops> rr;
-    std::array<juce::ToggleButton, Fm4Ops> fix;
-    std::array<juce::Slider, Fm4Ops> freq;
-    std::array<ColoredGroupComponent, Fm4Ops> freqBtnGroup;
-    std::array<juce::TextButton, Fm4Ops> freqToZero;
-    std::array<juce::TextButton, Fm4Ops> freqTo440;
-    std::array<juce::Slider, Fm4Ops> tl;  // Total Level
-    std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
-    std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
-    std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
-    std::array<juce::Slider, Fm4Ops> seFreq;
-    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
-    
-    std::array<juce::TextButton, Fm4Ops> mmlBtn;
-
     std::array<juce::Label, Fm4Ops> mulLabel;
-    std::array<juce::Label, Fm4Ops> dtLabel;
-    std::array<juce::Label, Fm4Ops> arLabel;
-    std::array<juce::Label, Fm4Ops> drLabel;
-    std::array<juce::Label, Fm4Ops> srLabel;
-    std::array<juce::Label, Fm4Ops> slLabel;
-    std::array<juce::Label, Fm4Ops> rrLabel;
-    std::array<juce::Label, Fm4Ops> fixLabel;
-    std::array<juce::Label, Fm4Ops> freqLabel;
-    std::array<juce::Label, Fm4Ops> freqBtnGroupLabel;
-    std::array<juce::Label, Fm4Ops> freqToZeroLabel;
-    std::array<juce::Label, Fm4Ops> freqTo440Label;
-    std::array<juce::Label, Fm4Ops> tlLabel;  // Total Level
-    std::array<juce::Label, Fm4Ops> ksLabel; // Key Scale (0-3)
-    std::array<juce::Label, Fm4Ops> amLabel; // AM Enable
-    std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
-    std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
-    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
 
-    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
+    std::array<juce::Slider, Fm4Ops> dt;
+    std::array<juce::Label, Fm4Ops> dtLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sr;
+    std::array<juce::Label, Fm4Ops> srLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
+    std::array<juce::ToggleButton, Fm4Ops> fix;
+
+    std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::Label, Fm4Ops> freqLabel;
+
+    std::array<ColoredGroupComponent, Fm4Ops> freqBtnGroup;
+    std::array<juce::Label, Fm4Ops> freqBtnGroupLabel;
+
+    std::array<juce::TextButton, Fm4Ops> freqToZero;
+
+    std::array<juce::TextButton, Fm4Ops> freqTo440;
+
+    std::array<juce::Slider, Fm4Ops> tl;  // Total Level
+    std::array<juce::Label, Fm4Ops> tlLabel;  // Total Level
+
+    std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
+    std::array<juce::Label, Fm4Ops> ksLabel; // Key Scale (0-3)
+
+    std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
+
+    std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
+    std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
+
+    std::array<juce::Slider, Fm4Ops> seFreq;
+    std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
+
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -431,55 +342,187 @@ struct Fm4GuiSet
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
 };
 
-struct Fm2GuiSet
+struct OpnGuiSet
 {
     juce::Component page;
 
-    ColoredGroupComponent globalGroup;
-    ColoredGroupComponent qualityGroup;
-    std::array<ColoredGroupComponent, Fm2Ops> opGroups;
+    ColoredGroupComponent mainGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups;
+    ColoredGroupComponent lfoGroup;
 
-    juce::ComboBox algSelector; juce::Label algLabel;
-    juce::Slider feedbackSlider; juce::Label feedbackLabel;
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
+
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
+
+    juce::Slider lfoFreqSlider;
+    juce::Label lfoFreqLabel;
+
+    juce::ComboBox lfoPmsSelector;
+    juce::Label lfoPmsLabel;
+
+    juce::ComboBox lfoAmsSelector;
+    juce::Label lfoAmsLabel;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
+    std::array<juce::Label, Fm4Ops> opLabels;
+
+    std::array<juce::Slider, Fm4Ops> mul;
+    std::array<juce::Label, Fm4Ops> mulLabel;
+
+    std::array<juce::Slider, Fm4Ops> dt;
+    std::array<juce::Label, Fm4Ops> dtLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sr;
+    std::array<juce::Label, Fm4Ops> srLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
+    std::array<juce::ToggleButton, Fm4Ops> fix;
+
+    std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::Label, Fm4Ops> freqLabel;
+
+    std::array<ColoredGroupComponent, Fm4Ops> freqBtnGroup;
+    std::array<juce::Label, Fm4Ops> freqBtnGroupLabel;
+
+    std::array<juce::TextButton, Fm4Ops> freqToZero;
+
+    std::array<juce::TextButton, Fm4Ops> freqTo440;
+
+    std::array<juce::Slider, Fm4Ops> tl;  // Total Level
+    std::array<juce::Label, Fm4Ops> tlLabel;  // Total Level
+
+    std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
+    std::array<juce::Label, Fm4Ops> ksLabel; // Key Scale (0-3)
+
+    std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
+
+    std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
+    std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
+
+    std::array<juce::Slider, Fm4Ops> seFreq;
+    std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
+
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
+    // Attachments
+    std::unique_ptr<ComboBoxAttachment> algAtt;
+    std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
+    std::unique_ptr<SliderAttachment> lfoFreqAtt;
+    std::unique_ptr<ComboBoxAttachment> lfoPmsAtt;
+    std::unique_ptr<ComboBoxAttachment> lfoAmsAtt;
+
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dtAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> arAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> drAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> srAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> slAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqToZeroAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqTo440Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> tlAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> amAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> seFreqAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
+};
+
+struct OplGuiSet
+{
+    juce::Component page;
+
+    ColoredGroupComponent mainGroup;
+    std::array<ColoredGroupComponent, Fm2Ops> opGroups;
+
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+    
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+    
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
 
     std::array<juce::Label, Fm2Ops> opLabels;
 
     // Cols: MUL, DT, AR, DR, SL, RR, WS (7 cols)
     std::array<juce::Slider, Fm2Ops> mul;
-    std::array<juce::Slider, Fm2Ops> dt;
-    std::array<juce::Slider, Fm2Ops> ar;
-    std::array<juce::Slider, Fm2Ops> dr;
-    std::array<juce::Slider, Fm2Ops> sl;
-    std::array<juce::Slider, Fm2Ops> rr;
-    std::array<juce::Slider, Fm2Ops> tl;
-    std::array<juce::ToggleButton, Fm2Ops> am;
-    std::array<juce::ToggleButton, Fm2Ops> vib;
-    std::array<juce::ToggleButton, Fm2Ops> egType;
-    std::array<juce::ToggleButton, Fm2Ops> ksr;
-    std::array<juce::ComboBox, Fm2Ops> ksl; // Key Scale Level
-    std::array<juce::ComboBox, Fm2Ops> eg; // Envlope Generator
-    std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
-    std::array<juce::TextButton, Fm2Ops> mmlBtn;
-
     std::array<juce::Label, Fm2Ops> mulLabel;
+
+    std::array<juce::Slider, Fm2Ops> dt;
     std::array<juce::Label, Fm2Ops> dtLabel;
+
+    std::array<juce::Slider, Fm2Ops> ar;
     std::array<juce::Label, Fm2Ops> arLabel;
+
+    std::array<juce::Slider, Fm2Ops> dr;
     std::array<juce::Label, Fm2Ops> drLabel;
+
+    std::array<juce::Slider, Fm2Ops> sl;
     std::array<juce::Label, Fm2Ops> slLabel;
+
+    std::array<juce::Slider, Fm2Ops> rr;
     std::array<juce::Label, Fm2Ops> rrLabel;
+
+    std::array<juce::Slider, Fm2Ops> tl;
     std::array<juce::Label, Fm2Ops> tlLabel;
-    std::array<juce::Label, Fm2Ops> amLabel;
-    std::array<juce::Label, Fm2Ops> vibLabel;
-    std::array<juce::Label, Fm2Ops> egTypeLabel;
-    std::array<juce::Label, Fm2Ops> ksrLabel;
+
+    std::array<juce::ToggleButton, Fm2Ops> am;
+
+    std::array<juce::ToggleButton, Fm2Ops> vib;
+
+    std::array<juce::ToggleButton, Fm2Ops> egType;
+
+    std::array<juce::ToggleButton, Fm2Ops> ksr;
+
+    std::array<juce::ComboBox, Fm2Ops> ksl; // Key Scale Level
     std::array<juce::Label, Fm2Ops> kslLabel;
+
+    std::array<juce::ComboBox, Fm2Ops> eg; // Envlope Generator
     std::array<juce::Label, Fm2Ops> egLabel;
-    std::array<juce::Label, Fm2Ops> maskLabel; // Mask
-    std::array<juce::Label, Fm2Ops> mmlBtnLabel;
+
+    std::array<juce::ToggleButton, Fm2Ops> mask; // Mask
+
+    std::array<juce::TextButton, Fm2Ops> mmlBtn;
 
     std::unique_ptr<ComboBoxAttachment> algAtt;
     std::unique_ptr<SliderAttachment> fbAtt;
@@ -506,8 +549,7 @@ struct Opl3GuiSet
 {
     juce::Component page;
 
-    ColoredGroupComponent globalGroup;
-    ColoredGroupComponent qualityGroup;
+    ColoredGroupComponent mainGroup;
     std::array<ColoredGroupComponent, Fm4Ops> opGroups; // 4 Operators
 
     juce::ComboBox algSelector;
@@ -521,27 +563,46 @@ struct Opl3GuiSet
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
-    // Sliders
-    std::array<juce::Slider, Fm4Ops> mul, tl, ar, dr, sl, rr;
-    std::array<juce::ToggleButton, Fm4Ops> am;
-    std::array<juce::ToggleButton, Fm4Ops> vib;
-    std::array<juce::ToggleButton, Fm4Ops> egType;
-    std::array<juce::ToggleButton, Fm4Ops> ksr;
-    std::array<juce::ComboBox, Fm4Ops> ksl; // Key Scale Level
-    std::array<juce::ComboBox, Fm4Ops> eg; // Envlope Generator
-    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
-    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
 
-    // Labels
-    std::array<juce::Label, Fm4Ops> mulLabel, tlLabel, arLabel, drLabel, slLabel, rrLabel;
-    std::array<juce::Label, Fm4Ops> amLabel;
-    std::array<juce::Label, Fm4Ops> vibLabel;
-    std::array<juce::Label, Fm4Ops> egTypeLabel;
-    std::array<juce::Label, Fm4Ops> ksrLabel;
+    // Sliders
+    std::array<juce::Slider, Fm4Ops> mul;
+    std::array<juce::Label, Fm4Ops> mulLabel;
+
+    std::array<juce::Slider, Fm4Ops> tl;
+    std::array<juce::Label, Fm4Ops> tlLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
+    std::array<juce::ToggleButton, Fm4Ops> am;
+
+    std::array<juce::ToggleButton, Fm4Ops> vib;
+
+    std::array<juce::ToggleButton, Fm4Ops> egType;
+
+    std::array<juce::ToggleButton, Fm4Ops> ksr;
+
+    std::array<juce::ComboBox, Fm4Ops> ksl; // Key Scale Level
     std::array<juce::Label, Fm4Ops> kslLabel;
+
+    std::array<juce::ComboBox, Fm4Ops> eg; // Envlope Generator
     std::array<juce::Label, Fm4Ops> egLabel;
-    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
-    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
+
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
 
     // Attachments
     std::unique_ptr<ComboBoxAttachment> algAtt;
@@ -549,7 +610,12 @@ struct Opl3GuiSet
     std::unique_ptr<ComboBoxAttachment> bitAtt;
     std::unique_ptr<ComboBoxAttachment> rateAtt;
 
-    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, tlAtt, arAtt, drAtt, slAtt, rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> tlAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> arAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> drAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> slAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> rrAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> amAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> vibAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> egTypeAtt;
@@ -563,9 +629,7 @@ struct OpmGuiSet
 {
     juce::Component page;
 
-    ColoredGroupComponent globalGroup;
-    ColoredGroupComponent lfoGroup;
-    ColoredGroupComponent qualityGroup;
+    ColoredGroupComponent mainGroup;
     std::array<ColoredGroupComponent, Fm4Ops> opGroups;
 
     // Global
@@ -590,29 +654,65 @@ struct OpmGuiSet
     juce::ComboBox amsSelector;
     juce::Label amsLabel;
 
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<juce::Slider, Fm4Ops> mul, dt1, dt2, tl, ar, dr, sl, sr, rr;
-    std::array<juce::Label, Fm4Ops> mulLabel, dt1Label, dt2Label, tlLabel, arLabel, drLabel, slLabel, srLabel, rrLabel, ksLabel;
+    std::array<juce::Slider, Fm4Ops> mul;
+    std::array<juce::Label, Fm4Ops> mulLabel;
+
+    std::array<juce::Slider, Fm4Ops> dt1;
+    std::array<juce::Label, Fm4Ops> dt1Label;
+
+    std::array<juce::Slider, Fm4Ops> dt2;
+    std::array<juce::Label, Fm4Ops> dt2Label;
+
+    std::array<juce::Slider, Fm4Ops> tl;
+    std::array<juce::Label, Fm4Ops> tlLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> sr;
+    std::array<juce::Label, Fm4Ops> srLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
     std::array<juce::ComboBox, Fm4Ops> ks;
-    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+    std::array<juce::Label, Fm4Ops> ksLabel;
 
     std::array<juce::ToggleButton, Fm4Ops> fix;
+
     std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::Label, Fm4Ops> freqLabel;
+
     std::array<juce::TextButton, Fm4Ops> freqToZero;
+
     std::array<juce::TextButton, Fm4Ops> freqTo440;
 
-    std::array<juce::Label, Fm4Ops> fixLabel;
-    std::array<juce::Label, Fm4Ops> freqLabel;
-    std::array<juce::Label, Fm4Ops> freqToZeroLabel;
-    std::array<juce::Label, Fm4Ops> freqTo440Label;
-    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
-    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
-    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dt1Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dt2Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> tlAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> arAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> drAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> slAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> srAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> rrAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
@@ -631,58 +731,100 @@ struct Opzx3GuiSet
 {
     juce::Component page;
 
-    ColoredGroupComponent globalGroup;
-    ColoredGroupComponent lfoGroup;
-    ColoredGroupComponent qualityGroup;
+    ColoredGroupComponent mainGroup;
     std::array<ColoredGroupComponent, Fm4Ops> opGroups;
 
     // Global
     juce::ComboBox algSelector;
     juce::Label algLabel;
+
     juce::Slider feedbackSlider;
     juce::Label feedbackLabel;
+
     juce::Slider feedback2Slider;
     juce::Label feedback2Label;
+
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
     // OPM LFO
     juce::Slider lfoFreqSlider;
     juce::Label lfoFreqLabel;
+
     juce::ComboBox lfoWaveSelector;
     juce::Label lfoWaveLabel;
+
     juce::ComboBox pmsSelector;
     juce::Label pmsLabel;
+
     juce::ComboBox amsSelector;
     juce::Label amsLabel;
 
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<juce::Slider, Fm4Ops> mul, dt1, dt2, tl, ar, dr, sl, sr, rr;
-    std::array<juce::Label, Fm4Ops> mulLabel, dt1Label, dt2Label, tlLabel, arLabel, drLabel, slLabel, srLabel, rrLabel, ksLabel;
+    std::array<juce::Slider, Fm4Ops> mul;
+    std::array<juce::Label, Fm4Ops> mulLabel;
+
+    std::array<juce::Slider, Fm4Ops> dt1;
+    std::array<juce::Label, Fm4Ops> dt1Label;
+
+    std::array<juce::Slider, Fm4Ops> dt2;
+    std::array<juce::Label, Fm4Ops> dt2Label;
+
+    std::array<juce::Slider, Fm4Ops> tl;
+    std::array<juce::Label, Fm4Ops> tlLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> sr;
+    std::array<juce::Label, Fm4Ops> srLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
     std::array<juce::ComboBox, Fm4Ops> ks;
-    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+    std::array<juce::Label, Fm4Ops> ksLabel;
 
     std::array<juce::ToggleButton, Fm4Ops> fix;
-    std::array<juce::Slider, Fm4Ops> freq;
-    std::array<juce::TextButton, Fm4Ops> freqToZero;
-    std::array<juce::TextButton, Fm4Ops> freqTo440;
-    std::array<juce::ComboBox, Fm4Ops> ws;
 
-    std::array<juce::Label, Fm4Ops> fixLabel;
+    std::array<juce::Slider, Fm4Ops> freq;
     std::array<juce::Label, Fm4Ops> freqLabel;
-    std::array<juce::Label, Fm4Ops> freqToZeroLabel;
-    std::array<juce::Label, Fm4Ops> freqTo440Label;
+
+    std::array<juce::TextButton, Fm4Ops> freqToZero;
+
+    std::array<juce::TextButton, Fm4Ops> freqTo440;
+
+    std::array<juce::ComboBox, Fm4Ops> ws;
     std::array<juce::Label, Fm4Ops> wsLabel;
-    std::array<juce::Label, Fm4Ops> maskLabel; // Mask
+
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
 
     std::array<juce::TextButton, Fm4Ops> mmlBtn;
-    std::array<juce::Label, Fm4Ops> mmlBtnLabel;
 
     // Attachments
-    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt, dt1Att, dt2Att, tlAtt, arAtt, drAtt, slAtt, srAtt, rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dt1Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dt2Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> tlAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> arAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> drAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> slAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> srAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> rrAtt;
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
     std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
     std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
@@ -704,77 +846,94 @@ struct SsgGuiSet
     juce::Component page;
 
     // Pane Groups
+    ColoredGroupComponent mainGroup;
     ColoredGroupComponent voiceGroup;
-    ColoredGroupComponent filterGroup;
-    ColoredGroupComponent qualityGroup;
     ColoredGroupComponent dutyGroup;
     ColoredGroupComponent triGroup;
     ColoredGroupComponent envGroup;
 
     juce::Slider levelSlider;
     juce::Label levelLabel;
+
     juce::Slider noiseSlider;
     juce::Label noiseLabel;
+
     juce::Slider noiseFreqSlider;
     juce::Label noiseFreqLabel;
+
+    juce::ToggleButton noiseOnNoteButton;
+
     juce::Slider mixSlider;
     juce::Label mixLabel; // Mix Slider
+
     juce::TextButton mixSetTone;  // 0.0
-    juce::Label mixSetToneLabel;
+
     juce::TextButton mixSetMix;   // 0.5
-    juce::Label mixSetMixLabel;
+
     juce::TextButton mixSetNoise; // 1.0
-    juce::Label mixSetNoiseLabel;
+
     juce::ComboBox waveSelector;
     juce::Label waveLabel; // Waveform Selector
+
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
 
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     // SSG ADSR
     juce::ToggleButton adsrBypassButton; // ADSR Bypass Switch
+
     juce::Slider attackSlider;
-    juce::Slider decaySlider;
-    juce::Slider sustainSlider;
-    juce::Slider releaseSlider;
-    juce::Label adsrBypassButtonLabel;
     juce::Label attackLabel;
+
+    juce::Slider decaySlider;
     juce::Label decayLabel;
+
+    juce::Slider sustainSlider;
     juce::Label sustainLabel;
+
+    juce::Slider releaseSlider;
     juce::Label releaseLabel;
 
     // Duty Controls
     juce::ComboBox dutyModeSelector; // Preset / Variable
 	juce::Label dutyModeLabel;
+
     juce::ComboBox dutyPresetSelector; // 1:1 ... 1:16
     juce::Label dutyPresetLabel;
+
     juce::Slider dutyVarSlider; // 0.0 - 0.5
     juce::Label dutyVarLabel;
+
     juce::ToggleButton dutyInvertButton; // Invert Switch
-    juce::Label dutyInvertLabel;
 
     // Triangle Controls
     juce::ToggleButton triKeyTrackButton;
-    juce::Label triKeyTrackLabel;
+
     juce::Slider triFreqSlider;
     juce::Label triFreqLabel;
+
     juce::Slider triPeakSlider;
     juce::Label triPeakLabel;
 
     // Peak Preset Buttons
     juce::TextButton triSetSawDown; // 0.0
-    juce::Label triSetSawDownLabel;
+
     juce::TextButton triSetTri;     // 0.5
-    juce::Label triSetTriLabel;
+
     juce::TextButton triSetSawUp;   // 1.0
-    juce::Label triSetSawUpLabel;
 
     // HW Env Controls
     juce::ToggleButton envEnableButton;
-    juce::Label envEnableLabel;
+
     juce::ComboBox shapeSelector;
     juce::Label shapeLabel;
+
     juce::Slider periodSlider;
     juce::Label periodLabel;
 
@@ -782,6 +941,7 @@ struct SsgGuiSet
     std::unique_ptr<SliderAttachment> levelAtt;
     std::unique_ptr<SliderAttachment> noiseAtt;
     std::unique_ptr<SliderAttachment> noiseFreqAtt;
+    std::unique_ptr<ButtonAttachment> noiseOnNoteAtt;
     std::unique_ptr<SliderAttachment> mixAtt;
     std::unique_ptr<ButtonAttachment> mixSetAtt;
     std::unique_ptr<ComboBoxAttachment> waveAtt;
@@ -805,49 +965,172 @@ struct SsgGuiSet
     std::unique_ptr<SliderAttachment> periodAtt;
 };
 
+// ==========================================================
+// Waveform Drawing Container
+// ==========================================================
+class WaveformContainer : public juce::Component
+{
+public:
+    // 描画対象のスライダー配列をセットする関数
+    // C++20の std::span を使うとサイズ違いの配列を共通化できて便利です
+    // C++17以前の場合はテンプレートかポインタ+サイズで代用してください
+    void setTargetSliders(std::span<juce::Slider> sliders)
+    {
+        // 一旦すべての子を削除（ポインタ参照を外すだけ）
+        removeAllChildren();
+        activeSliders.clear();
+
+        for (auto& slider : sliders)
+        {
+            // このコンテナの子にする
+            addAndMakeVisible(slider);
+
+            // スライダー個別のマウス操作を無効化する
+            // これにより、マウスイベントがこの親コンテナ(WaveformContainer)に貫通してくる
+            slider.setInterceptsMouseClicks(false, false);
+
+            activeSliders.push_back(&slider);
+        }
+
+        switch (sliders.size())
+        {
+        case 32:
+            sliderWidth = WtCustomSliderWidth;
+            break;
+        case 64:
+            sliderWidth = WtCustomSliderWidth / 2;
+            break;
+        default:
+            DBG("Illegal Custom Wave Size");
+            sliderWidth = 1; // ゼロ除算防止
+        }
+
+        resized(); // レイアウト更新
+    }
+
+    void resized() override
+    {
+        if (activeSliders.empty()) return;
+
+        auto area = getLocalBounds();
+
+        for (size_t i = 0; i < activeSliders.size(); ++i)
+        {
+            // float座標で正確に配置して隙間をなくす
+            int x = (int)(i * sliderWidth);
+            int w = (int)((i + 1) * sliderWidth) - x;
+
+            activeSliders[i]->setBounds(x, 0, w, WtCustomSliderHeight);
+        }
+    }
+
+    // マウスドラッグ時の処理（ここが描画の肝）
+    void mouseDown(const juce::MouseEvent& e) override { updateSliderValue(e); }
+    void mouseDrag(const juce::MouseEvent& e) override { updateSliderValue(e); }
+
+    void enable() { enabled = true; updateEnabled(); }
+    void disable() { enabled = false; updateEnabled(); }
+    void setEnabled(bool e) { enabled = e; updateEnabled(); }
+    bool isEnabled() const { return enabled; }
+private:
+    bool enabled = false;
+    int sliderWidth = 0;
+    std::vector<juce::Slider*> activeSliders;
+
+    void updateEnabled()
+    {
+        if (activeSliders.empty()) return;
+
+        for (size_t i = 0; i < activeSliders.size(); i++)
+        {
+            activeSliders[i]->setEnabled(enabled);
+        }
+    }
+
+    void updateSliderValue(const juce::MouseEvent& e)
+    {
+        if (!enabled) return;
+        if (activeSliders.empty()) return;
+
+        int index = (int)(e.position.x) / sliderWidth;
+
+        // 範囲外ガード
+        if (index < 0) index = 0;
+        if (index >= (int)activeSliders.size()) index = (int)activeSliders.size() - 1;
+
+        // 2. マウスY座標から、値(-1.0 ~ 1.0)を計算
+        // JUCEの座標系は上が0、下がHeight
+        // Sliderは通常 下がMin(-1)、上がMax(+1)
+        float normalizedY = 1.0f - (e.position.y / (float)getHeight());
+
+        // 値の範囲 (-1.0f ～ 1.0f) にマッピング
+        // jmap(value, inputMin, inputMax, outputMin, outputMax)
+        float newValue = juce::jmap(normalizedY, 0.0f, 1.0f, -1.0f, 1.0f);
+
+        // クランプ
+        newValue = std::clamp(newValue, -1.0f, 1.0f);
+
+        // 3. 値をセット (通知を送る)
+        activeSliders[index]->setValue(newValue, juce::sendNotification);
+    }
+};
+
 struct WtGuiSet
 {
     // --- Wavetable Page ---
     juce::Component page;
 
     // Groups
-    ColoredGroupComponent filterGroup;
-    ColoredGroupComponent propGroup; // Wavetable Property
-
-    // Custom Waveform Editors
-    ColoredGroupComponent customGroup;
-    std::array<juce::Slider, 32> customSliders32;
-    std::array<juce::Slider, 64> customSliders64;
+    ColoredGroupComponent mainGroup;
+    ColoredGroupComponent customWaveGroup;
 
     // Filter (ADSR)
     juce::Slider levelSlider;
     juce::Label levelLabel;
+
     juce::Slider attackSlider;
-    juce::Slider decaySlider;
-    juce::Slider sustainSlider;
-    juce::Slider releaseSlider;
     juce::Label attackLabel;
+
+    juce::Slider decaySlider;
     juce::Label decayLabel;
+
+    juce::Slider sustainSlider;
     juce::Label sustainLabel;
+
+    juce::Slider releaseSlider;
     juce::Label releaseLabel;
 
-    // Properties
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
+
     juce::ComboBox rateCombo;
     juce::Label rateLabel;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     juce::ComboBox sizeSelector;
     juce::Label sizeLabel;
+
     juce::ComboBox waveSelector;
     juce::Label waveLabel; // Waveform Selector
 
-    // Modulation
     juce::ToggleButton modEnableButton;
-    juce::Label modEnableLabel;
+
     juce::Slider modDepthSlider;
     juce::Label modDepthLabel;
+
     juce::Slider modSpeedSlider;
     juce::Label modSpeedLabel;
+
+    // スライダーを束ねるコンテナ
+    WaveformContainer waveContainer;
+
+    std::array<juce::Slider, 32> customSliders32;
+    std::array<juce::Slider, 64> customSliders64;
+
+    juce::TextButton customWaveResetBtn;
 
     // Wavetable Attachments
     std::unique_ptr<SliderAttachment> levelAtt;
@@ -864,6 +1147,7 @@ struct WtGuiSet
     std::unique_ptr<ButtonAttachment> modEnableAtt;
     std::unique_ptr<SliderAttachment> modDepthAtt;
     std::unique_ptr<SliderAttachment> modSpeedAtt;
+    std::unique_ptr<ButtonAttachment> customWaveResetAtt;
 };
 
 struct RhythmPadGui
@@ -871,17 +1155,30 @@ struct RhythmPadGui
     ColoredGroupComponent group;
 
     juce::Label fileNameLabel;
-    juce::Label noteLabel, modeLabel, rateLabel, panLabel, volLabel, oneShotLabel;
 
     juce::TextButton loadButton;
+
     juce::TextButton clearButton;
+
     juce::Slider noteSlider;
+    juce::Label noteLabel;
+
     juce::ComboBox modeCombo;
+    juce::Label modeLabel;
+
     juce::ComboBox rateCombo;
+    juce::Label rateLabel;
+
     juce::Slider panSlider;
+    juce::Label panLabel;
+
     juce::TextButton btnPanL, btnPanC, btnPanR;
+
     juce::Slider volSlider;
+    juce::Label volLabel;
+
     juce::ToggleButton oneShotButton;
+
     juce::Slider rrSlider;
     juce::Label rrLabel;
 
@@ -899,12 +1196,17 @@ struct RhythmGuiSet
     // --- Rhythm Page ---
     juce::Component page;
 
-    ColoredGroupComponent group;
+    ColoredGroupComponent mainGroup;
 
     // Master Level
     juce::Slider levelSlider;
     juce::Label levelLabel;
+
     std::unique_ptr<SliderAttachment> levelAtt;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
 
     // 8 Pads
     std::array<RhythmPadGui, 8> pads;
@@ -913,14 +1215,22 @@ struct RhythmGuiSet
 struct AdpcmGuiSet
 {
     // --- ADPCM Page ---
+    ColoredGroupComponent mainGroup;
+
     juce::Component page;
     ColoredGroupComponent group;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
 
     juce::ComboBox modeCombo;
     juce::Label modeLabel;
 
     juce::TextButton loadButton;
+
     juce::TextButton clearButton;
+
     juce::Label fileNameLabel;
 
     juce::Slider levelSlider;
@@ -928,11 +1238,11 @@ struct AdpcmGuiSet
 
     juce::Slider panSlider;
     juce::Label panLabel;
+
     juce::TextButton btnPanL, btnPanC, btnPanR;
 
     // Loop Button
     juce::ToggleButton loopButton;
-    juce::Label loopLabel;
 
     juce::Slider attackSlider;
     juce::Label attackLabel;
@@ -965,7 +1275,7 @@ struct AdpcmGuiSet
 struct FxGuiSet
 {
     juce::Component page;
-    ColoredGroupComponent globalGroup;
+    ColoredGroupComponent mainGroup;
     ColoredGroupComponent tremGroup;
     ColoredGroupComponent vibGroup;
     ColoredGroupComponent mbcGroup;
@@ -975,41 +1285,59 @@ struct FxGuiSet
 
     juce::ToggleButton bypassToggle;
 
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
     // Tremolo
     juce::ToggleButton tBypassBtn;
-    juce::Label tRateLabel, tDepthLabel, tMixLabel;
+
     juce::Slider tRateSlider, tDepthSlider, tMixSlider;
+    juce::Label tRateLabel, tDepthLabel, tMixLabel;
+
     juce::TextButton tDryBtn, tHalfBtn, tWetBtn;
 
     // Vibrato
     juce::ToggleButton vBypassBtn;
-    juce::Label vRateLabel, vDepthLabel, vMixLabel;
+
     juce::Slider vRateSlider, vDepthSlider, vMixSlider;
+    juce::Label vRateLabel, vDepthLabel, vMixLabel;
+
     juce::TextButton vDryBtn, vHalfBtn, vWetBtn;
 
     // Modern Bit Crusher
     juce::ToggleButton mbcBypassBtn;
-    juce::Label mbcRateLabel, mbcBitsLabel, mbcMixLabel;
+
     juce::Slider mbcRateSlider, mbcBitsSlider, mbcMixSlider;
+    juce::Label mbcRateLabel, mbcBitsLabel, mbcMixLabel;
+
     juce::TextButton mbcDryBtn, mbcHalfBtn, mbcWetBtn;
 
     // Delay
     juce::ToggleButton dBypassBtn;
-    juce::Label dTimeLabel, dFbLabel, dMixLabel;
+
     juce::Slider dTimeSlider, dFbSlider, dMixSlider;
+    juce::Label dTimeLabel, dFbLabel, dMixLabel;
+
     juce::TextButton dDryBtn, dHalfBtn, dWetBtn;
 
     // Reverb
     juce::ToggleButton rBypassBtn;
-    juce::Label rSizeLabel, rDampLabel, rMixLabel;
+
     juce::Slider rSizeSlider, rDampSlider, rMixSlider;
+    juce::Label rSizeLabel, rDampLabel, rMixLabel;
+
     juce::TextButton rDryBtn, rHalfBtn, rWetBtn;
 
     // Retro Bit Crusher
     juce::ToggleButton rbcBypassBtn;
-    juce::Label rbcRateLabel, rbcBitsLabel, rbcMixLabel;
+
     juce::ComboBox rbcRateCombo, rbcBitsCombo;
+    juce::Label rbcRateLabel, rbcBitsLabel;
+
     juce::Slider rbcMixSlider;
+    juce::Label rbcMixLabel;
+
     juce::TextButton rbcDryBtn, rbcHalfBtn, rbcWetBtn;
 
     // Attachments
@@ -1048,18 +1376,26 @@ struct PresetGuiSet : public juce::TableListBoxModel
 
     // Metadata Editors
     ColoredGroupComponent metaGroup;
-    juce::Label nameLabel, authorLabel, versionLabel;
+
     juce::TextEditor nameEditor, authorEditor, versionEditor;
-    juce::Label commentLabel;
+    juce::Label nameLabel, authorLabel, versionLabel;
+
     juce::TextEditor commentEditor;
+    juce::Label commentLabel;
 
     // Buttons
     juce::TextButton initButton;
+
     juce::TextButton saveButton;
+
     juce::TextButton loadButton;
+
     juce::TextButton deleteButton;
+
     juce::TextButton refreshButton;
+
     juce::TextButton reflectButton; // Reflect Info
+
     juce::TextButton copyButton;    // Copy Info to Clipboard
 
     // Data
@@ -1153,8 +1489,11 @@ struct SettingsGuiSet
 
     // Wallpaper
     juce::Label wallpaperLabel;
+
     juce::Label wallpaperPathLabel;
+
     juce::TextButton wallpaperBrowseBtn;
+
     juce::TextButton wallpaperClearBtn;
 
     // Directories
@@ -1363,7 +1702,6 @@ struct SetupToggleButtonParams
 {
     juce::Component& parent;
     juce::ToggleButton& btn;
-    juce::Label& label;
     std::unique_ptr<ButtonAttachment>& attr;
     const juce::String id;
     const juce::String title;
@@ -1375,7 +1713,6 @@ struct SetupToggleButtonParams
     static SetupToggleButtonParams create(
         juce::Component& p,
         juce::ToggleButton& b,
-        juce::Label& l,
         std::unique_ptr<ButtonAttachment>& a,
         const juce::String i,
         const juce::String t,
@@ -1383,14 +1720,13 @@ struct SetupToggleButtonParams
         Flags flags = ToggleButtonFlags
     )
     {
-        return SetupToggleButtonParams(p, b, l, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
+        return SetupToggleButtonParams(p, b, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     static SetupToggleButtonParams createOp(
         juce::Component& p,
         juce::ToggleButton& b,
-        juce::Label& l,
         std::unique_ptr<ButtonAttachment>& a,
         const juce::String i,
         const juce::String t,
@@ -1398,7 +1734,7 @@ struct SetupToggleButtonParams
         Flags flags = OpToggleButtonFlags
     )
     {
-        return SetupToggleButtonParams(p, b, l, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
+        return SetupToggleButtonParams(p, b, a, i, t, size.width, size.height, flags.isReset, flags.isResize);
     }
 #endif
 };
@@ -1487,13 +1823,6 @@ public:
 private:
     AudioPlugin2686V& audioProcessor;
 
-    // グローバルフッター
-    ColoredGroupComponent footerGroup;
-    // マスターボリューム用のスライダーとアタッチメント
-    juce::Slider masterVolSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
-    juce::Label masterVolLabel;
-
     CustomTabLookAndFeel customTabLF;
 
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
@@ -1505,9 +1834,9 @@ private:
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    Fm4GuiSet opnaGui;  // OPNA
-    Fm4GuiSet opnGui; // OPN
-	Fm2GuiSet oplGui; // OPL
+    OpnaGuiSet opnaGui;  // OPNA
+    OpnGuiSet opnGui; // OPN
+	OplGuiSet oplGui; // OPL
     Opl3GuiSet opl3Gui; // OPL3
     OpmGuiSet opmGui; // OPM
     Opzx3GuiSet opzx3Gui; // OPZX3
@@ -1528,7 +1857,6 @@ private:
     void drawBg(juce::Graphics& g);
     std::vector<SelectItem> createItems(int size, const juce::String& prefix = "");
     std::vector<SelectItem> createAlgItems(int size);
-    void attatchLabelToComponent(juce::Label& label, juce::Component& component);
     void setupLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void setupGroup(SetupGroupParams& params);
@@ -1544,9 +1872,9 @@ private:
     void setupOpGroups(SetupOpGroupsParams<opCount>& params);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    void setupOpnaGui(Fm4GuiSet& gui);
-    void setupOpnGui(Fm4GuiSet& gui);
-    void setupOplGui(Fm2GuiSet& gui);
+    void setupOpnaGui(OpnaGuiSet& gui);
+    void setupOpnGui(OpnGuiSet& gui);
+    void setupOplGui(OplGuiSet& gui);
     void setupOpl3Gui(Opl3GuiSet& gui);
     void setupOpmGui(OpmGuiSet& gui);
     void setupOpzx3Gui(Opzx3GuiSet& gui);
@@ -1561,9 +1889,9 @@ private:
     void setupAboutGui(AboutGuiSet& gui);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
-    void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
-    void layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpnaPage(OpnaGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpnPage(OpnGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOplPage(OplGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<int> content);
