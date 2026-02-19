@@ -343,18 +343,7 @@ private:
 
     void updateNoiseFrequency()
     {
-        if (m_noiseOnNote)
-        {
-            // ノート周波数を利用
-            // ノイズとしては高すぎる場合があるので、上限を設けても良いですが、
-            // 表現の幅としてそのまま通します
-            m_targetNoiseFreq = m_currentFrequency;
-        }
-        else
-        {
-            // スライダーの値を使用
-            m_targetNoiseFreq = m_baseNoiseFreq;
-        }
+        m_targetNoiseFreq = m_baseNoiseFreq * (m_currentFrequency / 440.0);
     }
 
     void updatePhaseDelta() {

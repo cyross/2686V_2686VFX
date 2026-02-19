@@ -696,7 +696,7 @@ void AudioPlugin2686V::createSsgParameterLayout(juce::AudioProcessorValueTreeSta
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postLevel, code + " Tone", 0.0f, 1.0f, 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoise, code + " Noise", 0.0f, 1.0f, 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoiseFreq, code + " Noise Freq", juce::NormalisableRange<float>(50.0f, 30000.0f, 1.0f, 0.3f), 12000.0f)); // Noise Frequency Default: 12000Hz (Standard PSG feel)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + postNoiseFreq, code + " Noise Freq", juce::NormalisableRange<float>(0.0f, 30000.0f, 1.0f, 0.3f), 12000.0f)); // Noise Frequency Default: 12000Hz (Standard PSG feel)
     layout.add(std::make_unique<juce::AudioParameterBool>(code + postNoiseOnNote, code + " Noise On Note", false));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + postMix, code + " Tone/Noise Mix", 0.0f, 1.0f, 0.5f)); // デフォルトは 0.5 (Mix)
 
@@ -1368,7 +1368,9 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultSampleDir = newSampleDir.getFullPathName();
+#if !defined(BUILD_AS_FX_PLUGIN)
         lastSampleDirectory = newSampleDir;
+#endif
     }
 
 }

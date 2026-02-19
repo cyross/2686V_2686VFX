@@ -34,13 +34,6 @@ void layoutComponentsLtoR(juce::Rectangle<int>& rect,
     rect.removeFromTop(space);
 }
 
-template<typename... Components>
-void layoutComponentsTtoB(juce::Rectangle<int>& rect, int height, int space, Components*... components) {
-    (components->setBounds(rect.removeFromTop(height)), ...);
-
-    rect.removeFromTop(space);
-}
-
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
 {
@@ -426,13 +419,12 @@ void AudioPlugin2686VEditor::setupCustomWaveTable(SetupCustomWaveTableParams<tab
     for (int i = 0; i < tableSize; ++i)
     {
         juce::Slider& slider = params.wts[i];
-        params.page.addAndMakeVisible(slider);
 
         // バーグラフ風の見た目にする
         slider.setSliderStyle(juce::Slider::LinearBarVertical);
         slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         slider.setRange(-1.0, 1.0);
-        slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colours::white.withAlpha(0.3f));
+        slider.setColour(juce::Slider::ColourIds::trackColourId, juce::Colours::white.withAlpha(0.5f));
 
         auto paramId = params.idPrefix + juce::String(i);
         params.attrs[i].reset(new SliderAttachment(audioProcessor.apvts, paramId, slider));
@@ -452,7 +444,7 @@ void AudioPlugin2686VEditor::setupOpGroups(SetupOpGroupsParams<opCount>& params)
     }
 }
 
-void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
+void AudioPlugin2686VEditor::setupOpnaGui(OpnaGuiSet& gui)
 {
     const juce::String code = codeOpna;
 
@@ -510,7 +502,7 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
     setupCombo(amsParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // Operators
@@ -541,31 +533,31 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         };
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, opDtLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, opKSLabel, ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, opDrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, opSlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, opSrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + postSe, "SE", seItems);
+        SetupComboParams seParams = SetupComboParams::createOp(gui.page, gui.se[i], gui.seLabel[i], gui.seAtt[i], paramPrefix + postSe, opSEnvLabel, seItems);
         setupCombo(seParams);
-        SetupSliderParams seFreqParams = SetupSliderParams::createOp(gui.page, gui.seFreq[i], gui.seFreqLabel[i], gui.seFreqAtt[i], paramPrefix + postSeFreq, "SSG Env Freq");
+        SetupSliderParams seFreqParams = SetupSliderParams::createOp(gui.page, gui.seFreq[i], gui.seFreqLabel[i], gui.seFreqAtt[i], paramPrefix + postSeFreq, opSFreqLabel);
         setupSlider(seFreqParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, opFixLabel);
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, opFFreqLabel);
         setupSlider(freqParams);
         SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
@@ -573,14 +565,14 @@ void AudioPlugin2686VEditor::setupOpnaGui(Fm4GuiSet& gui)
         SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, "AM");
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, opAmLabel);
         setupToggleButton(amParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
 
-void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
+void AudioPlugin2686VEditor::setupOpnGui(OpnGuiSet& gui)
 {
     const juce::String code = codeOpn;
 
@@ -619,7 +611,7 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
     setupFbSlider(fb2Params);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // Operators
@@ -652,40 +644,40 @@ void AudioPlugin2686VEditor::setupOpnGui(Fm4GuiSet& gui)
 
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, opDtLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, opKSLabel, ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, opDrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, opSlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, "SR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postSr, opSrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, opFixLabel);
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, opFFreqLabel);
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, opFreqTo0Label, { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, opFreqTo440Label, { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
 
-void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
+void AudioPlugin2686VEditor::setupOplGui(OplGuiSet& gui)
 {
     const juce::String code = codeOpl;
 
@@ -723,7 +715,7 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
     setupFbSlider(fbParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     SetupOpGroupsParams<2> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
@@ -754,33 +746,33 @@ void AudioPlugin2686VEditor::setupOplGui(Fm2GuiSet& gui)
 
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, "DT", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt[i], gui.dtLabel[i], gui.dtAtt[i], paramPrefix + postDt, opDtLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, opDrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, opSlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, "AM");
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, opAmLabel);
         setupToggleButton(amParams);
-        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibAtt[i], paramPrefix + postVib, "VIB");
+        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibAtt[i], paramPrefix + postVib, opVibLabel);
         setupToggleButton(vibParams);
-        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeAtt[i], paramPrefix + postEgType, "EGTYPE");
+        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeAtt[i], paramPrefix + postEgType, opEgTypeLabel);
         setupToggleButton(egtParams);
-        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrAtt[i], paramPrefix + postKsr, "KSR");
+        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrAtt[i], paramPrefix + postKsr, opKsrLabel);
         setupToggleButton(ksrParams);
-        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, "KSL", kslItems);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, opKslLabel, kslItems);
         setupCombo(kslParams);
-        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, "EG", egItems);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, opEgLabel, egItems);
         setupCombo(egParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
@@ -834,7 +826,7 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
     setupFbSlider(fb2Params);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     SetupOpGroupsParams<4> opGroupsParams = { .page = gui.page, .groups = gui.opGroups };
@@ -865,31 +857,31 @@ void AudioPlugin2686VEditor::setupOpl3Gui(Opl3GuiSet& gui)
 
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, "DR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postDr, opDrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, "SL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postSl, opSlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, "AM");
+        SetupToggleButtonParams amParams = SetupToggleButtonParams::createOp(gui.page, gui.am[i], gui.amAtt[i], paramPrefix + postAm, opAmLabel);
         setupToggleButton(amParams);
-        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibAtt[i], paramPrefix + postVib, "VIB");
+        SetupToggleButtonParams vibParams = SetupToggleButtonParams::createOp(gui.page, gui.vib[i], gui.vibAtt[i], paramPrefix + postVib, opVibLabel);
         setupToggleButton(vibParams);
-        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeAtt[i], paramPrefix + postEgType, "EGTYPE");
+        SetupToggleButtonParams egtParams = SetupToggleButtonParams::createOp(gui.page, gui.egType[i], gui.egTypeAtt[i], paramPrefix + postEgType, opEgTypeLabel);
         setupToggleButton(egtParams);
-        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrAtt[i], paramPrefix + postKsr, "KSR");
+        SetupToggleButtonParams ksrParams = SetupToggleButtonParams::createOp(gui.page, gui.ksr[i], gui.ksrAtt[i], paramPrefix + postKsr, opKsrLabel);
         setupToggleButton(ksrParams);
-        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, "KSL", kslItems);
+        SetupComboParams kslParams = SetupComboParams::createOp(gui.page, gui.ksl[i], gui.kslLabel[i], gui.kslAtt[i], paramPrefix + postKsl, opKslLabel, kslItems);
         setupCombo(kslParams);
-        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, "EG", egItems);
+        SetupComboParams egParams = SetupComboParams::createOp(gui.page, gui.eg[i], gui.egLabel[i], gui.egAtt[i], paramPrefix + postEg, opEgLabel, egItems);
         setupCombo(egParams);
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
@@ -941,7 +933,7 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
     setupCombo(amsParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // Operators
@@ -974,37 +966,37 @@ void AudioPlugin2686VEditor::setupOpmGui(OpmGuiSet& gui)
 
 
         // Pass RegisterType for sliders
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, opDt1Label, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, opDt2Label, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, opKSLabel, ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, opD1rLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, opD1lLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, opD2rLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, opFixLabel);
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, opFFreqLabel);
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, opFreqTo0Label, { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, opFreqTo440Label, { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
@@ -1086,7 +1078,7 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
     setupCombo(amsParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // Operators
@@ -1116,37 +1108,39 @@ void AudioPlugin2686VEditor::setupOpzx3Gui(Opzx3GuiSet& gui)
                 }), true);
             };
 
-        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, "MUL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
+        SetupSliderParams mulParams = SetupSliderParams::createOp(gui.page, gui.mul[i], gui.mulLabel[i], gui.mulAtt[i], paramPrefix + postMul, opMulLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmMul);
         setupSlider(mulParams);
-        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, "DT1", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
+        SetupSliderParams dtParams = SetupSliderParams::createOp(gui.page, gui.dt1[i], gui.dt1Label[i], gui.dt1Att[i], paramPrefix + postDt, opDt1Label, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt);
         setupSlider(dtParams);
-        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, "DT2", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
+        SetupSliderParams dt2Params = SetupSliderParams::createOp(gui.page, gui.dt2[i], gui.dt2Label[i], gui.dt2Att[i], paramPrefix + postDt2, opDt2Label, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDt2);
         setupSlider(dt2Params);
-        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, "TL", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
+        SetupSliderParams tlParams = SetupSliderParams::createOp(gui.page, gui.tl[i], gui.tlLabel[i], gui.tlAtt[i], paramPrefix + postTl, opTlLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmTl);
         setupSlider(tlParams);
-        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, "KS", ksItems); // KS doesn't strictly need reg convert, it's 0-3
+        SetupComboParams ksParams = SetupComboParams::createOp(gui.page, gui.ks[i], gui.ksLabel[i], gui.ksAtt[i], paramPrefix + postKs, opKSLabel, ksItems); // KS doesn't strictly need reg convert, it's 0-3
         setupCombo(ksParams);
-        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, "AR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
+        SetupSliderParams arParams = SetupSliderParams::createOp(gui.page, gui.ar[i], gui.arLabel[i], gui.arAtt[i], paramPrefix + postAr, opArLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmAr);
         setupSlider(arParams);
-        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, "D1R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
+        SetupSliderParams drParams = SetupSliderParams::createOp(gui.page, gui.dr[i], gui.drLabel[i], gui.drAtt[i], paramPrefix + postD1r, opD1rLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmDr);
         setupSlider(drParams);
-        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, "D1L", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
+        SetupSliderParams slParams = SetupSliderParams::createOp(gui.page, gui.sl[i], gui.slLabel[i], gui.slAtt[i], paramPrefix + postD1l, opD1lLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSl);
         setupSlider(slParams);
-        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, "D2R", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
+        SetupSliderParams srParams = SetupSliderParams::createOp(gui.page, gui.sr[i], gui.srLabel[i], gui.srAtt[i], paramPrefix + postD2r, opD2rLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmSr);
         setupSlider(srParams);
-        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, "RR", OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
+        SetupSliderParams rrParams = SetupSliderParams::createOp(gui.page, gui.rr[i], gui.rrLabel[i], gui.rrAtt[i], paramPrefix + postRr, opRrLabel, OpSliderSize, OpSliderValueSize, OpLabelSize, OpSliderFlags, RegisterType::FmRr);
         setupSlider(rrParams);
-        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, "FIX");
+        SetupToggleButtonParams fixParams = SetupToggleButtonParams::createOp(gui.page, gui.fix[i], gui.fixAtt[i], paramPrefix + postFix, opFixLabel);
         setupToggleButton(fixParams);
-        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, "FRQ");
+        SetupSliderParams freqParams = SetupSliderParams::createOp(gui.page, gui.freq[i], gui.freqLabel[i], gui.freqAtt[i], paramPrefix + postFixFreq, opFFreqLabel);
         setupSlider(freqParams);
-        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, "Freq -> 0Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto0Params = SetupTextButtonParams::createOp(gui.page, gui.freqToZero[i], gui.freqToZeroAtt[i], paramPrefix + postFixFreqTo0, opFreqTo0Label, { 64, 15 }, { false, false });
         setupTextButton(fto0Params);
         gui.freqToZero[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(0, juce::sendNotification); };
-        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, "Freq -> 440Hz", { 64, 15 }, { false, false });
+        SetupTextButtonParams fto440Params = SetupTextButtonParams::createOp(gui.page, gui.freqTo440[i], gui.freqTo440Att[i], paramPrefix + postFixFreqTo440, opFreqTo440Label, { 64, 15 }, { false, false });
         setupTextButton(fto440Params);
         gui.freqTo440[i].onClick = [this, index = i] { opnaGui.freq[index].setValue(440, juce::sendNotification); };
-        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, "MASK");
+        SetupComboParams wsParams = SetupComboParams::createOp(gui.page, gui.ws[i], gui.wsLabel[i], gui.wsAtt[i], paramPrefix + postWs, opWsLabel, wsItems);
+        setupCombo(wsParams);
+        SetupToggleButtonParams maskParams = SetupToggleButtonParams::createOp(gui.page, gui.mask[i], gui.maskAtt[i], paramPrefix + postMask, opMaskLabel);
         setupToggleButton(maskParams);
     }
 }
@@ -1209,7 +1203,7 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     setupGroup(mGroupParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     SetupComboParams bParams = SetupComboParams::create(gui.page, gui.bitSelector, gui.bitLabel, gui.bitAtt, code + postBit, mBitTitle, bdItems);
@@ -1221,30 +1215,20 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     SetupGroupParams vGroupParams = { .page = gui.page, .group = gui.voiceGroup, .title = "Voice" };
     setupGroup(vGroupParams);
 
-    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWaveform, "Wave Form", wsItems, ComboBoxSize, LabelSize, {true, true});
+    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWaveform, "Form", wsItems, ComboBoxSize, LabelSize, {true, true});
     setupCombo(wsParams);
 
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Tone", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(lvParams);
     SetupSliderParams nsParams = SetupSliderParams::create(gui.page, gui.noiseSlider, gui.noiseLabel, gui.noiseAtt, code + postNoise, "Noise", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgVol);
     setupSlider(nsParams);
-    SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, code + postNoiseFreq, "Noise Freq");
+    SetupSliderParams nfParams = SetupSliderParams::create(gui.page, gui.noiseFreqSlider, gui.noiseFreqLabel, gui.noiseFreqAtt, code + postNoiseFreq, "Freq");
     setupSlider(nfParams);
     SetupToggleButtonParams nonParams = SetupToggleButtonParams::create(gui.page, gui.noiseOnNoteButton, gui.noiseOnNoteAtt, code + postNoiseOnNote, "Noise On Note", { 120, 20 }, { true, true });
     setupToggleButton(nonParams);
 
-    // KeyTrackがONのときは、Freqスライダーを無効化してあげると親切です
-    gui.noiseOnNoteButton.onClick = [this, &gui] {
-        bool isTrack = gui.noiseOnNoteButton.getToggleState();
-        gui.noiseFreqSlider.setEnabled(!isTrack);
-        gui.noiseFreqLabel.setEnabled(!isTrack);
-    };
-
     // 初期状態反映
-    bool isTrack = (bool)*audioProcessor.apvts.getRawParameterValue(code + postNoiseOnNote);
-    gui.noiseFreqSlider.setEnabled(!isTrack);
-    gui.noiseFreqLabel.setEnabled(!isTrack);
-    SetupSliderParams mxParams = SetupSliderParams::create(gui.page, gui.mixSlider, gui.mixLabel, gui.mixAtt, code + postMix, "Mix (T<-M->N)");
+    SetupSliderParams mxParams = SetupSliderParams::create(gui.page, gui.mixSlider, gui.mixLabel, gui.mixAtt, code + postMix, "Mix");
     setupSlider(mxParams);
 
     SetupTextButtonParams mstParams = SetupTextButtonParams::create(gui.page, gui.mixSetTone, gui.mixSetAtt, "Tone", "Tone", { 40, 20 }, { false, false });
@@ -1256,7 +1240,7 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     SetupTextButtonParams msnParams = SetupTextButtonParams::create(gui.page, gui.mixSetNoise, gui.mixSetAtt, "Noise", "Noise", { 40, 20 }, { false, false });
     setupTextButton(msnParams);
     gui.mixSetNoise.onClick = [this] { ssgGui.mixSlider.setValue(1.0, juce::sendNotification); };
-    SetupToggleButtonParams bpParams = SetupToggleButtonParams::create(gui.page, gui.adsrBypassButton, gui.adsrBypassAtt, code + codeAdsr + postBypass, "Bypass ADSR (Gate)", { 160, 20 }, { true, true });
+    SetupToggleButtonParams bpParams = SetupToggleButtonParams::create(gui.page, gui.adsrBypassButton, gui.adsrBypassAtt, code + codeAdsr + postBypass, "Bypass ADSR", { 160, 20 }, { true, true });
     setupToggleButton(bpParams);
     SetupSliderParams arParams = SetupSliderParams::create(gui.page, gui.attackSlider, gui.attackLabel, gui.attackAtt, code + postAr, mArLabel);
     setupSlider(arParams);
@@ -1270,11 +1254,11 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     // Duty Controls Setup
     SetupGroupParams dGroupParams = { .page = gui.page, .group = gui.dutyGroup, .title = "Pulse Width (Duty)" };
     setupGroup(dGroupParams);
-    SetupComboParams dmParams = SetupComboParams::create(gui.page, gui.dutyModeSelector, gui.dutyModeLabel, gui.dutyModeAtt, code + postDutyMode, "Duty Mode", dmItems, ComboBoxSize, LabelSize, { true, true });
+    SetupComboParams dmParams = SetupComboParams::create(gui.page, gui.dutyModeSelector, gui.dutyModeLabel, gui.dutyModeAtt, code + postDutyMode, "Mode", dmItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(dmParams);
-    SetupComboParams dpParams = SetupComboParams::create(gui.page, gui.dutyPresetSelector, gui.dutyPresetLabel, gui.dutyPresetAtt, code + postDutyPreset, "Duty Preset", prItems);
+    SetupComboParams dpParams = SetupComboParams::create(gui.page, gui.dutyPresetSelector, gui.dutyPresetLabel, gui.dutyPresetAtt, code + postDutyPreset, "Preset", prItems);
     setupCombo(dpParams);
-    SetupSliderParams dvParams = SetupSliderParams::create(gui.page, gui.dutyVarSlider, gui.dutyVarLabel, gui.dutyVarAtt, code + postDutyVar, "Duty Ratio");
+    SetupSliderParams dvParams = SetupSliderParams::create(gui.page, gui.dutyVarSlider, gui.dutyVarLabel, gui.dutyVarAtt, code + postDutyVar, "Ratio");
     setupSlider(dvParams);
     SetupToggleButtonParams dtiParams = SetupToggleButtonParams::create(gui.page, gui.dutyInvertButton, gui.dutyInvertAtt, code + postDutyInv, "Invert Phase", { 160, 20 });
     setupToggleButton(dtiParams);
@@ -1282,9 +1266,9 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     setupGroup(tpGroupParams);
     SetupToggleButtonParams tktParams = SetupToggleButtonParams::create(gui.page, gui.triKeyTrackButton, gui.triKeyTrackAtt, code + postTriKeyTrk, "Key Track (Pitch)", ToggleButtonSize, { true, true });
     setupToggleButton(tktParams);
-    SetupSliderParams tfParams = SetupSliderParams::create(gui.page, gui.triFreqSlider, gui.triFreqLabel, gui.triFreqAtt, code + postTriFreq, "Manual Freq (Hz)");
+    SetupSliderParams tfParams = SetupSliderParams::create(gui.page, gui.triFreqSlider, gui.triFreqLabel, gui.triFreqAtt, code + postTriFreq, "Freq");
     setupSlider(tfParams);
-    SetupSliderParams tpParams = SetupSliderParams::create(gui.page, gui.triPeakSlider, gui.triPeakLabel, gui.triPeakAtt, code + postTriPeak, "Peak Position");
+    SetupSliderParams tpParams = SetupSliderParams::create(gui.page, gui.triPeakSlider, gui.triPeakLabel, gui.triPeakAtt, code + postTriPeak, "Peak");
     setupSlider(tpParams);
 
     SetupTextButtonParams tsdParams = SetupTextButtonParams::create(gui.page, gui.triSetSawDown, gui.triKeyTrackAtt, "0.0 (Down)", "0.0 (Down)", TextButtonSize, { false, false });
@@ -1304,7 +1288,7 @@ void AudioPlugin2686VEditor::setupSsgGui(SsgGuiSet& gui)
     setupToggleButton(eeParams);
     SetupComboParams evParams = SetupComboParams::create(gui.page, gui.shapeSelector, gui.shapeLabel, gui.shapeAtt, code + postEnvShape, "Shape", envItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(evParams);
-    SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, code + postEnvPeriod, "Env Speed (Hz)", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgEnv);
+    SetupSliderParams epParams = SetupSliderParams::create(gui.page, gui.periodSlider, gui.periodLabel, gui.periodAtt, code + postEnvPeriod, "Speed", SliderSize, SliderValueSize, LabelSize, SliderFlags, RegisterType::SsgEnv);
     setupSlider(epParams);
 }
 
@@ -1364,33 +1348,60 @@ void AudioPlugin2686VEditor::setupWtGui(WtGuiSet& gui)
     SetupSliderParams rrParams = SetupSliderParams::create(gui.page, gui.releaseSlider, gui.releaseLabel, gui.releaseAtt, code + postRr, mRrLabel);
     setupSlider(rrParams);
 
-    SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
-    gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
-
-    // --- Property Group (Right) ---
-    SetupGroupParams wpGroupParams = { .page = gui.page, .group = gui.propGroup, .title = "Wavetable Properties" };
-    setupGroup(wpGroupParams);
-
-    // Waveform Selector Setup
-    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWave, "Wave Form", wsItems, ComboBoxSize, LabelSize, { true, true });
+    // Waveform
+    SetupComboParams wsParams = SetupComboParams::create(gui.page, gui.waveSelector, gui.waveLabel, gui.waveAtt, code + postWave, "Form", wsItems, ComboBoxSize, LabelSize, { true, true });
     setupCombo(wsParams);
 
-    // Custom Sliders Setup
-    SetupGroupParams cwGroupParams = { .page = gui.page, .group = gui.customGroup, .title = "Custom Wave" };
+    // Modulation
+    SetupToggleButtonParams meParams = SetupToggleButtonParams::create(gui.page, gui.modEnableButton, gui.modEnableAtt, code + postModEnable, "Mod", ToggleButtonSize, { true, true });
+    setupToggleButton(meParams);
+    SetupSliderParams mdParams = SetupSliderParams::create(gui.page, gui.modDepthSlider, gui.modDepthLabel, gui.modDepthAtt, code + postModDepth, "Depth");
+    setupSlider(mdParams);
+    SetupSliderParams msParams = SetupSliderParams::create(gui.page, gui.modSpeedSlider, gui.modSpeedLabel, gui.modSpeedAtt, code + postModSpeed, "Speed");
+    setupSlider(msParams);
+
+    // Master Volume
+    SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
+    setupSlider(mvParams);
+    gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
+
+    // Custom Wave Group
+    SetupGroupParams cwGroupParams = { .page = gui.page, .group = gui.customWaveGroup, .title = "Custom Wave" };
     setupGroup(cwGroupParams);
+
+    // Custom Wave Size
+    SetupComboParams szParams = SetupComboParams::create(gui.page, gui.sizeSelector, gui.sizeLabel, gui.sizeAtt, code + postSize, "Wave Size", tsItems, ComboBoxSize, LabelSize, { true, true });
+    setupCombo(szParams);
+
+    gui.page.addAndMakeVisible(gui.waveContainer);
+
+    // スライダーのセットアップはそのまま (APVTSへのアタッチが必要なため)
+    // ただし、addAndMakeVisible(slider) は WaveformContainer::setTargetSliders 内で行われるため、
+    // ここでの addAndMakeVisible は削除するか、containerに任せる形になります。
+    // setupCustomWaveTable 内で params.page.addAndMakeVisible(slider) していますが、
+    // 親が container に変わるので、そこだけ注意が必要です。
+
+    // 既存のヘルパー setupCustomWaveTable は「ページに貼り付ける」処理を含んでいるため、
+    // その部分だけ副作用が出ないように修正するか、
+    // あるいは setupCustomWaveTable 実行後に container に移し替える処理を入れます。
+
+    // Custom Wave Sliders
 	SetupCustomWaveTableParams cw32Params = { gui.page, gui.customSliders32, gui.customAtts32, code + codeCustom32 };
     setupCustomWaveTable(cw32Params);
     SetupCustomWaveTableParams cw64Params = { gui.page, gui.customSliders64, gui.customAtts64, code + codeCustom64 };
     setupCustomWaveTable(cw64Params);
-    SetupComboParams szParams = SetupComboParams::create(gui.page, gui.sizeSelector, gui.sizeLabel, gui.sizeAtt, code + postSize, "Table Size", tsItems, ComboBoxSize, LabelSize, { true, true });
-    setupCombo(szParams);
-    SetupToggleButtonParams meParams = SetupToggleButtonParams::create(gui.page, gui.modEnableButton, gui.modEnableAtt, code + postModEnable, "Modulation ON", ToggleButtonSize, { true, true });
-    setupToggleButton(meParams);
-    SetupSliderParams mdParams = SetupSliderParams::create(gui.page, gui.modDepthSlider, gui.modDepthLabel, gui.modDepthAtt, code + postModDepth, "Mod Depth");
-    setupSlider(mdParams);
-    SetupSliderParams msParams = SetupSliderParams::create(gui.page, gui.modSpeedSlider, gui.modSpeedLabel, gui.modSpeedAtt, code + postModSpeed, "Mod Speed");
-    setupSlider(msParams);
+
+    SetupTextButtonParams cwrParams = SetupTextButtonParams::create(gui.page, gui.customWaveResetBtn, gui.customWaveResetAtt, "Reset", "Reset", TextButtonSize, { false, false });
+    setupTextButton(cwrParams);
+    gui.customWaveResetBtn.onClick = [this] { 
+        for (auto& s : wtGui.customSliders32) {
+            s.setValue(0.0, juce::sendNotification);
+        }
+        for (auto& s : wtGui.customSliders64) {
+            s.setValue(0.0, juce::sendNotification);
+        }
+        resized();
+    };
 }
 
 void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
@@ -1425,11 +1436,11 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
     setupGroup(groupParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Vol");
-    setupFbSlider(lvParams);
+    setupSlider(lvParams);
 
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
@@ -1509,7 +1520,7 @@ void AudioPlugin2686VEditor::setupRhythmGui(RhythmGuiSet& gui)
         setupSlider(volP);
 
         // RR
-        SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + postRr, "RR");
+        SetupSliderParams rrP = SetupSliderParams::createOp(gui.page, pad.rrSlider, pad.rrLabel, pad.rrAtt, padPrefix + postRr, opRrLabel);
         setupSlider(rrP);
     }
 
@@ -1551,12 +1562,12 @@ void AudioPlugin2686VEditor::setupAdpcmGui(AdpcmGuiSet& gui)
     setupCombo(rateParams);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // 出力レベル
     SetupSliderParams lvParams = SetupSliderParams::create(gui.page, gui.levelSlider, gui.levelLabel, gui.levelAtt, code + postLevel, "Vol");
-    setupFbSlider(lvParams);
+    setupSlider(lvParams);
 
     // パンポット設定
     SetupSliderParams panParams = SetupSliderParams::create(gui.page, gui.panSlider, gui.panLabel, gui.panAtt, code + postPan, "Pan");
@@ -1647,11 +1658,11 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
     *
     *********************/
 
-    gui.table.getHeader().addColumn(presetTableFileNameColTitle, 1, 150);
-    gui.table.getHeader().addColumn(presetTableModeColTitle, 5, 80);
-    gui.table.getHeader().addColumn(presetTablePresetNameColTitle, 2, 150);
-    gui.table.getHeader().addColumn(presetTableAuthorColTitle, 3, 100);
-    gui.table.getHeader().addColumn(presetTableVersionColTitle, 4, 50);
+    gui.table.getHeader().addColumn(presetTableFileNameColTitle, 1, PresetTableFileNameColTitleWidth);
+    gui.table.getHeader().addColumn(presetTablePresetNameColTitle, 2, PresetTablePresetNameColTitleWidth);
+    gui.table.getHeader().addColumn(presetTableAuthorColTitle, 3, PresetTableAuthorColTitleWidth);
+    gui.table.getHeader().addColumn(presetTableVersionColTitle, 4, PresetTableVersionColTitleWidth);
+    gui.table.getHeader().addColumn(presetTableModeColTitle, 5, PresetTableModeColTitleWidth);
     gui.table.setMultipleSelectionEnabled(false);
 
     gui.page.addAndMakeVisible(gui.table);
@@ -1675,28 +1686,28 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
 
     // Name
     gui.page.addAndMakeVisible(gui.nameLabel);
-    gui.nameLabel.setText("Name:", juce::dontSendNotification);
+    gui.nameLabel.setText(presetCbName, juce::dontSendNotification);
     gui.page.addAndMakeVisible(gui.nameEditor);
     gui.nameEditor.setText(audioProcessor.presetName);
     gui.nameEditor.onTextChange = [this] { audioProcessor.presetName = presetGui.nameEditor.getText(); };
 
     // Author
     gui.page.addAndMakeVisible(gui.authorLabel);
-    gui.authorLabel.setText("Author:", juce::dontSendNotification);
+    gui.authorLabel.setText(presetCbAuther, juce::dontSendNotification);
     gui.page.addAndMakeVisible(gui.authorEditor);
     gui.authorEditor.setText(audioProcessor.presetAuthor);
     gui.authorEditor.onTextChange = [this] { audioProcessor.presetAuthor = presetGui.authorEditor.getText(); };
 
     // Version
     gui.page.addAndMakeVisible(gui.versionLabel);
-    gui.versionLabel.setText("Ver:", juce::dontSendNotification);
+    gui.versionLabel.setText(presetCbVersion, juce::dontSendNotification);
     gui.page.addAndMakeVisible(gui.versionEditor);
     gui.versionEditor.setText(audioProcessor.presetVersion);
     gui.versionEditor.onTextChange = [this] { audioProcessor.presetVersion = presetGui.versionEditor.getText(); };
 
     // Comment
     gui.page.addAndMakeVisible(gui.commentLabel);
-    gui.commentLabel.setText("Comment:", juce::dontSendNotification);
+    gui.commentLabel.setText(presetCbComment, juce::dontSendNotification);
     gui.page.addAndMakeVisible(gui.commentEditor);
     gui.commentEditor.setMultiLine(true); // 複数行OK
     gui.commentEditor.setReturnKeyStartsNewLine(true); // Enterで改行
@@ -1822,11 +1833,11 @@ void AudioPlugin2686VEditor::setupPresetGui(PresetGuiSet& gui)
             const auto& item = presetGui.items[row];
 
             // フォーマットはお好みで調整してください
-            juce::String info = "Preset Name: " + item.name + "\n" +
-                "Author: " + item.author + "\n" +
-                "Version: " + item.version + "\n" +
-                "Comment: " + item.comment + "\n" +
-                "Mode: " + item.modeName;
+            juce::String info = presetCbName + item.name + "\n" +
+                presetCbAuther + item.author + "\n" +
+                presetCbVersion + item.version + "\n" +
+                presetCbComment + item.comment + "\n" +
+                presetCbMode + item.modeName;
 
             juce::SystemClipboard::copyTextToClipboard(info);
         }
@@ -1842,7 +1853,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         gui.page.addAndMakeVisible(s);
 
         s.setSliderStyle(juce::Slider::LinearHorizontal);
-        s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+        s.setTextBoxStyle(juce::Slider::TextBoxRight, false, SliderValueWidth, SliderValueHeight);
 
         gui.page.addAndMakeVisible(l);
 
@@ -1859,12 +1870,6 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
         bDry.setButtonText("Dry");
         bHalf.setButtonText("50%");
         bWet.setButtonText("Wet");
-
-        // ボタンを小さくするので文字サイズも調整
-        juce::Font f(10.0f);
-        for (auto* b : { &bDry, &bHalf, &bWet }) {
-            b->setConnectedEdges(juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight); // 連結した見た目に
-        }
 
         // クリック時の動作 (スライダーを動かせば連動してパラメータも変わります)
         bDry.onClick = [&] { targetSlider.setValue(0.0f); };
@@ -1907,7 +1912,7 @@ void AudioPlugin2686VEditor::setupFxGui(FxGuiSet& gui)
     gui.bypassToggle.setButtonText(masterBypassLabel);
 
     SetupSliderParams mvParams = SetupSliderParams::create(gui.page, gui.masterVolSlider, gui.masterVolLabel, gui.masterVolAttachment, codeMasterVol, masterVolumeLabel);
-    setupFbSlider(mvParams);
+    setupSlider(mvParams);
     gui.masterVolSlider.setTextValueSuffix(masterVolumeUnit); // 単位表示
 
     // Tremolo Group
@@ -2284,7 +2289,7 @@ void AudioPlugin2686VEditor::setupAboutGui(AboutGuiSet& gui)
 }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
+void AudioPlugin2686VEditor::layoutOpnaPage(OpnaGuiSet& gui, juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
@@ -2294,15 +2299,15 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { 50, 0} }, { &gui.feedback2Slider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { 50, 0} }, { &gui.lfoFreqSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoPmsLabel, { 50, 0} }, { &gui.lfoPmsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoAmsLabel, { 50, 0} }, { &gui.lfoAmsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedback2Slider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.lfoFreqSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoPmsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.lfoPmsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoAmsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.lfoAmsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -2314,26 +2319,27 @@ void AudioPlugin2686VEditor::layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int>
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { 50, 0} }, { &gui.dt[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { 50, 0} }, { &gui.sr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { 50, 0} }, { &gui.ks[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.seLabel[i], { 50, 0} }, { &gui.se[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.seFreqLabel[i], { 50, 0} }, { &gui.seFreq[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.fix[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { 50, 0} }, { &gui.freq[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { 120, 0} }, { &gui.freqTo440[i], { 120, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ks[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.seLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.se[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.seFreqLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.seFreq[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.fix[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.freq[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &gui.freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.am[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0 } } });
     }
 }
 
-void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content)
+void AudioPlugin2686VEditor::layoutOpnPage(OpnGuiSet& gui, juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
@@ -2343,12 +2349,12 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { 50, 0} }, { &gui.feedback2Slider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedback2Slider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -2362,24 +2368,24 @@ void AudioPlugin2686VEditor::layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { 50, 0} }, { &gui.dt[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { 50, 0} }, { &gui.sr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { 50, 0} }, { &gui.ks[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.fix[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { 50, 0} }, { &gui.freq[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { 120, 0} }, { &gui.freqTo440[i], { 120, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ks[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.fix[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.freq[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &gui.freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0} } });
     }
 }
 
-void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content)
+void AudioPlugin2686VEditor::layoutOplPage(OplGuiSet& gui, juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
@@ -2389,11 +2395,11 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section ---
     for (int i = 0; i < 2; ++i)
@@ -2404,21 +2410,21 @@ void AudioPlugin2686VEditor::layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { 50, 0} }, { &gui.dt[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0}} });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.am[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.vib[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.egType[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.ksr[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.kslLabel[i], { 50, 0} }, { &gui.ksl[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egLabel[i], { 50, 0} }, { &gui.eg[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dtLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.am[i], { OpRegButtonWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.vib[i], { OpRegButtonWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egType[i], { OpRegButtonWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksr[i], { OpRegButtonWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.kslLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ksl[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.eg[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, OpRegPaddingRight}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0}} });
     }
 }
 
@@ -2432,12 +2438,12 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { 50, 0} }, { &gui.feedback2Slider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedback2Slider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- Operators Section ---
     for (int i = 0; i < 4; ++i)
@@ -2448,20 +2454,20 @@ void AudioPlugin2686VEditor::layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0}} });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.am[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.vib[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.egType[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.ksr[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.kslLabel[i], { 50, 0} }, { &gui.ksl[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egLabel[i], { 50, 0} }, { &gui.eg[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.am[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.vib[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egType[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksr[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.kslLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ksl[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.egLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.eg[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0} } });
     }
 }
 
@@ -2475,15 +2481,15 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { 50, 0} }, { &gui.feedback2Slider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { 50, 0} }, { &gui.lfoFreqSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.pmsLabel, { 50, 0} }, { &gui.pmsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.amsLabel, { 50, 0} }, { &gui.amsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedback2Slider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.lfoFreqSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.pmsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.pmsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.amsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.amsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -2497,21 +2503,21 @@ void AudioPlugin2686VEditor::layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> 
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt1Label[i], { 50, 0} }, { &gui.dt1[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt2Label[i], { 50, 0} }, { &gui.dt2[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { 50, 0} }, { &gui.sr[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { 50, 0} }, { &gui.ks[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.fix[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { 50, 0} }, { &gui.freq[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { 120, 0} }, { &gui.freqTo440[i], { 120, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt1Label[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt1[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt2Label[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt2[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sr[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ks[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.fix[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.freq[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &gui.freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0} } });
     }
 }
 
@@ -2525,15 +2531,15 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { 50, 0} }, { &gui.algSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { 50, 0} }, { &gui.feedbackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { 50, 0} }, { &gui.feedback2Slider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { 50, 0} }, { &gui.lfoFreqSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.pmsLabel, { 50, 0} }, { &gui.pmsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.amsLabel, { 50, 0} }, { &gui.amsSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.algLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.algSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedbackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedbackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.feedback2Label, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.feedback2Slider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.lfoFreqLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.lfoFreqSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.pmsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.pmsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.amsLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.amsSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -2547,22 +2553,22 @@ void AudioPlugin2686VEditor::layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<i
         auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
         innerRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { 50, 0} }, { &gui.mul[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt1Label[i], { 50, 0} }, { &gui.dt1[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt2Label[i], { 50, 0} }, { &gui.dt2[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { 50, 0} }, { &gui.ar[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { 50, 0} }, { &gui.dr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { 50, 0} }, { &gui.sr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { 50, 0} }, { &gui.sl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { 50, 0} }, { &gui.rr[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { 50, 0} }, { &gui.tl[i], { 190, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { 50, 0} }, { &gui.ks[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.fix[i]);
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { 50, 0} }, { &gui.freq[i], { 190, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { 120, 0} }, { &gui.freqTo440[i], { 120, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.wsLabel[i], { 50, 0} }, { &gui.ws[i], { 190, 0} } });
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpRowPaddingBottom, &gui.mask[i]);
-        layoutComponentsTtoB(innerRect, OpRowHeight, OpLastRowPaddingBottom, &gui.mmlBtn[i]);
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mulLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mul[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt1Label[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt1[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dt2Label[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dt2[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.arLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ar[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.drLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.srLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.slLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.sl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rrLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rr[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tlLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tl[i], { OpRegValueWidth, 0}} });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.ksLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ks[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.fix[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.freq[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &gui.freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.wsLabel[i], { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.ws[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mask[i], { OpRegButtonWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mmlBtn[i], { OpRegButtonWidth, 0} } });
     }
 }
 
@@ -2577,14 +2583,14 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.adsrBypassButton, { 240, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { 50, 0} }, { &gui.attackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { 50, 0} }, { &gui.decaySlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { 50, 0} }, { &gui.sustainSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { 50, 0} }, { &gui.releaseSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.adsrBypassButton, { MainRegButtonWidth, MainRegPaddingRight} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.attackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.decaySlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.sustainSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.releaseSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- Voice Group ---
     auto voiceArea = pageArea.removeFromLeft(FmOpWidth);
@@ -2594,13 +2600,17 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
     vRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.levelLabel, { 50, 0} }, { &gui.levelSlider, { 190, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseLabel, { 50, 0} }, { &gui.noiseSlider, { 190, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseFreqLabel, { 50, 0} }, { &gui.noiseFreqSlider, { 190, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseOnNoteButton, { 240, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mixLabel, { 50, 0} }, { &gui.mixSlider, { 190, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mixSetTone, { 80, 0} }, { &gui.mixSetMix, { 80, 0} }, { &gui.mixSetNoise, { 80, 0} } });
-    layoutComponentsLtoR(vRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.waveLabel, { 50, 0} }, { &gui.waveSelector, { 190, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.levelLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.levelSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.noiseSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseFreqLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.noiseFreqSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.noiseOnNoteButton, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mixSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.mixSetTone, { OpRegMixChangeButtonWidth, 0} },
+        { &gui.mixSetMix, { OpRegMixChangeButtonWidth, 0} },
+        { &gui.mixSetNoise, { OpRegMixChangeButtonWidth, 0} }
+    });
+    layoutComponentsLtoR(vRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.waveLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.waveSelector, { OpRegValueWidth, 0} } });
 
     // Wave Group
     float waveParam = *audioProcessor.apvts.getRawParameterValue(code + postWaveform);
@@ -2632,8 +2642,8 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
         dRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(dRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dutyModeLabel, { 50, 0} }, { &gui.dutyModeSelector, { 190, 0} } });
-        layoutComponentsLtoR(dRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dutyInvertButton, { 240, 0} } });
+        layoutComponentsLtoR(dRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dutyModeLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dutyModeSelector, { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(dRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dutyInvertButton, { OpRegButtonWidth, 0} } });
 
         float dutyModeVal = *audioProcessor.apvts.getRawParameterValue(code + postDutyMode);
         if (dutyModeVal < 0.5f) {
@@ -2641,14 +2651,14 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
             gui.dutyPresetLabel.setVisible(true);
             gui.dutyVarSlider.setVisible(false);
             gui.dutyVarLabel.setVisible(false);
-            layoutComponentsLtoR(dRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.dutyPresetLabel, { 50, 0} }, { &gui.dutyPresetSelector, { 240, 0} } });
+            layoutComponentsLtoR(dRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.dutyPresetLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dutyPresetSelector, { OpRegValueWidth, 0} } });
         }
         else {
             gui.dutyPresetSelector.setVisible(false);
             gui.dutyPresetLabel.setVisible(false);
             gui.dutyVarSlider.setVisible(true);
             gui.dutyVarLabel.setVisible(true);
-            layoutComponentsLtoR(dRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.dutyVarLabel, { 50, 0} }, { &gui.dutyVarSlider, { 240, 0} } });
+            layoutComponentsLtoR(dRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.dutyVarLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dutyVarSlider, { OpRegValueWidth, 0} } });
         }
     }
     else // Triangle
@@ -2678,21 +2688,25 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
         tRect.removeFromTop(TitlePaddingTop);
 
-        layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triKeyTrackButton, { 240, 0} } });
+        layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triKeyTrackButton, { OpRegButtonWidth, 0} } });
 
         bool isKeyTrack = gui.triKeyTrackButton.getToggleState();
         gui.triFreqSlider.setVisible(!isKeyTrack);
         gui.triFreqLabel.setVisible(!isKeyTrack);
 
         if (!isKeyTrack) {
-            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triFreqLabel, { 50, 0} }, { &gui.triFreqSlider, { 190, 0} } });
-            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triPeakLabel, { 50, 0} }, { &gui.triPeakSlider, { 190, 0} } });
+            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triFreqLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.triFreqSlider, { OpRegValueWidth, 0} } });
+            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triPeakLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.triPeakSlider, { OpRegValueWidth, 0} } });
         }
         else {
-            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triPeakLabel, { 50, 0} }, { &gui.triPeakSlider, { 190, 0} } });
+            layoutComponentsLtoR(tRect, OpRowHeight, OpRowPaddingBottom, { { &gui.triPeakLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.triPeakSlider, { OpRegValueWidth, 0} } });
         }
 
-        layoutComponentsLtoR(tRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.triSetSawDown, { 80, 0} }, { &gui.triSetTri, { 80, 0} }, { &gui.triSetSawUp, { 80, 0} } });
+        layoutComponentsLtoR(tRect, OpRowHeight, OpLastRowPaddingBottom, {
+            { &gui.triSetSawDown, { OpRegSsgTriPeakButtonWidth, 0} },
+            { &gui.triSetTri, { OpRegSsgTriPeakButtonWidth, 0} },
+            { &gui.triSetSawUp, { OpRegSsgTriPeakButtonWidth, 0} }
+        });
     }
 
     // HW Env Group
@@ -2702,9 +2716,9 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
     eRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.envEnableButton, { 240, 0} } });
-    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.shapeLabel, { 50, 0} }, { &gui.shapeSelector, { 190, 0} } });
-    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.periodLabel, { 50, 0} }, { &gui.periodSlider, { 190, 0} } });
+    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.envEnableButton, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.shapeLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.shapeSelector, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(eRect, OpRowHeight, OpRowPaddingBottom, { { &gui.periodLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.periodSlider, { OpRegValueWidth, 0} } });
 }
 
 void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> content)
@@ -2717,113 +2731,110 @@ void AudioPlugin2686VEditor::layoutWtPage(WtGuiSet& gui, juce::Rectangle<int> co
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { 50, 0} }, { &gui.bitSelector, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { 50, 0}}, { &gui.levelSlider, { 190, 0}} });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { 50, 0}}, { &gui.attackSlider, { 190, 0}} });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { 50, 0}}, { &gui.decaySlider, { 190, 0}} });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { 50, 0}}, { &gui.sustainSlider, { 190, 0}} });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { 50, 0}}, { &gui.releaseSlider, { 190, 0}} });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
-
-    // Right: Properties
-    auto rightArea = pageArea.removeFromLeft(WtRightWidth);
-    gui.propGroup.setBounds(rightArea);
-    auto pRect = gui.propGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
-    pRect.removeFromTop(TitlePaddingTop);
-
-    // Waveform Selector (Top)
-    gui.waveSelector.setBounds(pRect.removeFromTop(30).withSizeKeepingCentre(200, 24));
-
-    // Bit & Size (Middle)
-    auto configRow = pRect.removeFromTop(30);
-    int configRowWidth = 160;
-    gui.sizeSelector.setBounds(configRow.removeFromLeft(configRowWidth));
-
-    // Check if Custom Mode is selected (Index 8 -> ID 9 based on addItem?)
-    // 以前のコードで: addItem("Custom (Draw)", 9); としたので ID=9 です。
-    // getSelectedId() を使うのが確実です。
-    bool isCustom = (gui.waveSelector.getSelectedId() == 9);
-    int waveSize = 32;
-    if (gui.sizeSelector.getSelectedId() == 2) waveSize = 64;
-
-    gui.customGroup.setVisible(isCustom);
-    for (auto& s : gui.customSliders32) s.setVisible(false);
-    for (auto& s : gui.customSliders64) s.setVisible(false);
-
-    if (isCustom)
-    {
-        // Custom Mode Layout
-        // 中央に32本のスライダーを配置
-        auto customArea = pRect.removeFromTop(120); // 高さ確保
-        gui.customGroup.setBounds(customArea);
-
-        auto sliderRect = customArea.reduced(10, 20);
-
-        if (waveSize == 32)
-        {
-            for (auto& s : gui.customSliders32) s.setVisible(true);
-
-            int sliderW = WtCustomSliderWidth;
-            for (int i = 0; i < 32; ++i)
-            {
-                gui.customSliders32[i].setBounds(sliderRect.removeFromLeft(sliderW));
-            }
-
-        }
-        else if (waveSize == 64)
-        {
-            for (auto& s : gui.customSliders64) s.setVisible(true);
-
-            int sliderW = WtCustomSliderWidth / 2;
-            for (int i = 0; i < 64; ++i)
-            {
-                gui.customSliders64[i].setBounds(sliderRect.removeFromLeft(sliderW));
-            }
-
-        }
-    }
-    else
-    {
-        // Custom以外ならスペースを空けない（詰める）
-        // 何もしない
-    }
-
-    // Modulation
-    gui.modEnableButton.setBounds(pRect.removeFromTop(30).withSizeKeepingCentre(150, 30));
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bitLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.bitSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.levelSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.attackSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.decaySlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.sustainSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.releaseSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.waveLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.waveSelector, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sizeLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.sizeSelector, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.modEnableButton, { MainRegButtonWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.modDepthLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.modDepthSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.modSpeedLabel, { MainRegLabelWidth, MainRegPaddingRight}}, { &gui.modSpeedSlider, { MainRegValueWidth, 0}} });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     bool isMod = gui.modEnableButton.getToggleState();
-    gui.modDepthSlider.setEnabled(isMod); gui.modDepthLabel.setEnabled(isMod);
-    gui.modSpeedSlider.setEnabled(isMod); gui.modSpeedLabel.setEnabled(isMod);
+    gui.modDepthSlider.setEnabled(isMod);
+    gui.modDepthLabel.setEnabled(isMod);
+    gui.modSpeedSlider.setEnabled(isMod);
+    gui.modSpeedLabel.setEnabled(isMod);
 
-    // Mod Sliders
-    auto modRow = pRect.removeFromTop(100);
-    gui.modDepthSlider.setBounds(modRow.removeFromLeft(modRow.getWidth() / 2).withSizeKeepingCentre(100, 100));
-    gui.modSpeedSlider.setBounds(modRow.withSizeKeepingCentre(100, 100));
+    // 波形がカスタム以外の時は波形精度選択を Disabled に
+    bool isCustomWave = (gui.waveSelector.getSelectedId() == 9);
+
+    gui.sizeLabel.setEnabled(isCustomWave);
+    gui.sizeSelector.setEnabled(isCustomWave);
+    gui.waveContainer.setEnabled(isCustomWave);
+    gui.customWaveResetBtn.setEnabled(isCustomWave);
+
+    // Custom Wave
+    // Custom Mode Layout
+    // 中央に32/64本のスライダーを配置
+    // 波形選択が Custom 以外の時は Disabled 表示
+    auto rightArea = pageArea.removeFromLeft(WtRightWidth).removeFromTop(WtRightHeight);
+
+    gui.customWaveGroup.setBounds(rightArea);
+
+    auto cwRect = gui.customWaveGroup.getBounds().reduced(GroupPaddingWidth, GroupPaddingHeight);
+    cwRect.removeFromTop(TitlePaddingTop);
+
+    gui.waveContainer.setBounds(cwRect.removeFromTop(WtCustomSliderHeight));
+
+    // Check if Custom Mode is selected (Index 8 -> ID 9 based on addItem?)
+    int waveSize = gui.sizeSelector.getSelectedId() == 2 ? 64 : 32;
+
+    gui.customWaveGroup.setEnabled(isCustomWave);
+    gui.waveContainer.setEnabled(isCustomWave);
+
+    switch (waveSize)
+    {
+    case 32:
+        gui.waveContainer.setTargetSliders(gui.customSliders32);
+
+        for (auto& s : gui.customSliders64) {
+            s.setVisible(false);
+            s.setEnabled(false);
+        }
+
+        break;
+    case 64:
+        gui.waveContainer.setTargetSliders(gui.customSliders64);
+
+        for (auto& s : gui.customSliders32)
+        {
+            s.setVisible(false);
+            s.setEnabled(false);
+        }
+
+        break;
+    default:
+        DBG("Illegal Custom Wave Size");
+    }
+
+    cwRect.removeFromTop(WtCustomSliderResetBtnPaddingTop);
+    layoutComponentsLtoR(cwRect, WtCustomSliderResetBtnHeight, MainLastRowPaddingBottom, { { &gui.customWaveResetBtn, { MainRegButtonWidth, 0} } });
 }
 
 void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle<int> content)
 {
     auto applyPads = [&](juce::Rectangle<int>& area, int width, int start, int length)
         {
-            area.removeFromTop(TitlePaddingTop);
-
             for (int i = start; i < start + length; ++i)
             {
                 auto& pad = gui.pads[i];
-                auto padArea = area.removeFromLeft(width);
 
+                auto padArea = area.removeFromLeft(width);
                 pad.group.setBounds(padArea);
 
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.loadButton, { 50, 0}}, { &pad.fileNameLabel, { 150, 0}},{ &pad.clearButton, { 30, 0}}, });
-                layoutComponentsTtoB(padArea, OpRowHeight, OpRowPaddingBottom, &pad.oneShotButton);
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.noteLabel, { 50, 0}}, { &pad.noteSlider, { 190, 0}} });
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.modeLabel, { 50, 0}}, { &pad.modeCombo, { 190, 0}} });
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.rateLabel, { 50, 0}}, { &pad.rateCombo, { 190, 0}} });
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.panLabel, { 50, 0}}, { &pad.panSlider, { 190, 0}} });
-                layoutComponentsLtoR(padArea, OpRowHeight, OpRowPaddingBottom, { { &pad.btnPanL, { 80, 0}}, { &pad.btnPanC, { 80, 0}}, { &pad.btnPanR, { 80, 0}} });
-                layoutComponentsTtoB(padArea, OpRowHeight, OpRowPaddingBottom, &pad.volLabel, &pad.volSlider);
-                layoutComponentsTtoB(padArea, OpRowHeight, OpRowPaddingBottom, &pad.rrLabel, &pad.rrSlider);
+                auto padRect = padArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+                padRect.removeFromTop(TitlePaddingTop);
+
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.loadButton, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.fileNameLabel, { 150, 0}},{ &pad.clearButton, { 30, 0}}, });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.oneShotButton, { OpRegButtonWidth, 0} } });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.noteLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.noteSlider, { OpRegValueWidth, 0}} });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.modeLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.modeCombo, { OpRegValueWidth, 0}} });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.rateLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.rateCombo, { OpRegValueWidth, 0}} });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.panLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.panSlider, { OpRegValueWidth, 0}} });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, {
+                    { &pad.btnPanL, { OpRegPanChangeButtonWidth, 0} },
+                    { &pad.btnPanC, { OpRegPanChangeButtonWidth, 0} },
+                    { &pad.btnPanR, { OpRegPanChangeButtonWidth, 0} }
+                });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.volLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.volSlider, { OpRegValueWidth, 0}} });
+                layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &pad.rrLabel, { OpRegLabelWidth, OpRegPaddingRight}}, { &pad.rrSlider, { OpRegValueWidth, 0}} });
             }
 
         };
@@ -2837,8 +2848,8 @@ void AudioPlugin2686VEditor::layoutRhythmPage(RhythmGuiSet& gui, juce::Rectangle
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { 50, 0} }, { &gui.levelSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.levelSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     auto topPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
     auto bottomPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
@@ -2857,17 +2868,21 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.modeLabel, { 50, 0} }, { &gui.modeCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { 50, 0} }, { &gui.rateCombo, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { 50, 0} }, { &gui.levelSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.loopButton, { 240, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.panLabel, { 50, 0} }, { &gui.panSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.btnPanL, { 80, 0}}, { &gui.btnPanC, { 80, 0}}, { &gui.btnPanR, { 80, 0}} });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { 50, 0} }, { &gui.attackSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { 50, 0} }, { &gui.decaySlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { 50, 0} }, { &gui.sustainSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { 50, 0} }, { &gui.releaseSlider, { 190, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.modeLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.modeCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.rateLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.rateCombo, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.levelLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.levelSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.loopButton, { MainRegButtonWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.panLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.panSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, {
+        { &gui.btnPanL, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
+        { &gui.btnPanC, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
+        { &gui.btnPanR, { MainRegPanChangeButtonWidth, 0}}
+    });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.attackLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.attackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.decayLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.decaySlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.sustainLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.sustainSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.releaseLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.releaseSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
     auto headerArea = pageArea.removeFromTop(HeaderHeight);
 
@@ -2890,57 +2905,6 @@ void AudioPlugin2686VEditor::layoutAdpcmPage(AdpcmGuiSet& gui, juce::Rectangle<i
 
 void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> content)
 {
-    auto layoutFooterArea = [&](juce::Rectangle<int>& area, juce::ToggleButton& bypassBtn)
-    {
-        auto header = area.removeFromTop(TitlePaddingTop);
-
-        bypassBtn.setBounds(header);
-    };
-
-    auto layoutKnob = [&](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l) {
-        auto labelArea = r.removeFromTop(20);
-        l.setBounds(labelArea);
-
-        auto knobArea = r.removeFromTop(FxKnobHeight);
-        s.setBounds(knobArea.withSizeKeepingCentre(FxKnobWidth, knobArea.getHeight()));
-
-        // Mixボタンの空白を開けるため
-        r.removeFromTop(5);
-        r.removeFromTop(20);
-    };
-
-    auto layoutMixSection = [&](juce::Rectangle<int> r, juce::Slider& s, juce::Label& l,
-        juce::TextButton& b1, juce::TextButton& b2, juce::TextButton& b3)
-    {
-        // 上部: ラベル
-        auto labelArea = r.removeFromTop(20);
-        l.setBounds(labelArea);
-
-        // 中間: スライダー
-        auto knobArea = r.removeFromTop(FxKnobHeight);
-        s.setBounds(knobArea.withSizeKeepingCentre(FxKnobWidth, knobArea.getHeight()));
-
-        r.removeFromTop(5);
-
-        // 下部: ボタンエリア (高さ20px)
-        auto btnArea = r.removeFromTop(20);
-
-        b1.setBounds(btnArea.removeFromLeft(FxMixButtonWidth).withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 左側
-        b3.setBounds(btnArea.removeFromRight(FxMixButtonWidth).withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 右側
-        b2.setBounds(btnArea.withSizeKeepingCentre(FxMixButtonWidth, btnArea.getHeight())); // 中央
-    };
-
-    auto layoutCombo = [&](juce::Rectangle<int> r, juce::ComboBox& c, juce::Label& l) {
-        auto labelArea = r.removeFromTop(20);
-        l.setBounds(labelArea);
-
-        auto comboArea = r.removeFromTop(FxKnobHeight);
-        c.setBounds(comboArea.withSizeKeepingCentre(100, 24).translated(0, (FxKnobHeight - 24) / 2));
-
-        r.removeFromTop(5);
-        r.removeFromTop(20);
-    };
-
     auto pageArea = content.withZeroOrigin();
        
     auto mainArea = pageArea.removeFromLeft(MainWidth);
@@ -2949,77 +2913,121 @@ void AudioPlugin2686VEditor::layoutFxPage(FxGuiSet& gui, juce::Rectangle<int> co
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     mRect.removeFromTop(TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bypassToggle, { 240, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { 50, 0} }, { &gui.masterVolSlider, { 190, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &gui.bypassToggle, { MainRegButtonWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &gui.masterVolLabel, { MainRegLabelWidth, MainRegPaddingRight} }, { &gui.masterVolSlider, { MainRegValueWidth, 0} } });
 
-    auto fxArea = pageArea.withSizeKeepingCentre(FxWidth, FxHeight);
-
-    auto leftCol = fxArea.removeFromLeft(fxArea.getWidth() / 2 - 5);
-    auto rightCol = fxArea.removeFromRight(leftCol.getWidth()); // 残りの右側
+    auto topCol = pageArea.removeFromTop(FxAreaHeight);
+    auto bottomCol = pageArea.removeFromTop(FxAreaHeight);
 
     // Left
 
     // 1. Tremolo
-    auto tremoloArea = leftCol.removeFromTop(FxGroupHeight);
-    gui.tremGroup.setBounds(tremoloArea);
+    auto trmArea = topCol.removeFromLeft(FmOpWidth);
+    gui.tremGroup.setBounds(trmArea);
 
-    layoutKnob(tremoloArea.removeFromLeft(FxKnobWidth), gui.tRateSlider, gui.tRateLabel);
-    layoutMixSection(tremoloArea.removeFromRight(FxKnobAreaWidth), gui.tMixSlider, gui.tMixLabel, gui.tDryBtn, gui.tHalfBtn, gui.tWetBtn);
-    auto tremoloFooterArea = tremoloArea.removeFromBottom(30);
-    layoutKnob(tremoloArea.withSizeKeepingCentre(FxKnobWidth, tremoloArea.getHeight()), gui.tDepthSlider, gui.tDepthLabel);
-    layoutFooterArea(tremoloFooterArea, gui.tBypassBtn);
+    auto trmRect = trmArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    trmRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(trmRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.tBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(trmRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tRateLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tRateSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(trmRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tDepthLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tDepthSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(trmRect, OpRowHeight, OpRowPaddingBottom, { { &gui.tMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.tMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(trmRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.tDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.tHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.tWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 
     // 2. Vibrato
-    auto vibratoArea = leftCol.removeFromTop(FxGroupHeight);
-    gui.vibGroup.setBounds(vibratoArea);
+    auto vibArea = topCol.removeFromLeft(FmOpWidth);
+    gui.vibGroup.setBounds(vibArea);
 
-    layoutKnob(vibratoArea.removeFromLeft(FxKnobWidth + 20), gui.vRateSlider, gui.vRateLabel);
-    layoutMixSection(vibratoArea.removeFromRight(FxKnobAreaWidth), gui.vMixSlider, gui.vMixLabel, gui.vDryBtn, gui.vHalfBtn, gui.vWetBtn);
-    layoutKnob(vibratoArea.withSizeKeepingCentre(FxKnobWidth, vibratoArea.getHeight()), gui.vDepthSlider, gui.vDepthLabel);
-    auto vibratoFooterArea = vibratoArea.removeFromBottom(30);
-    layoutFooterArea(vibratoFooterArea, gui.vBypassBtn);
+    auto vibRect = vibArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    vibRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(vibRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.vBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(vibRect, OpRowHeight, OpRowPaddingBottom, { { &gui.vRateLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.vRateSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(vibRect, OpRowHeight, OpRowPaddingBottom, { { &gui.vDepthLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.vDepthSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(vibRect, OpRowHeight, OpRowPaddingBottom, { { &gui.vMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.vMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(vibRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.vDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.vHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.vWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 
     // 3. Modern Bit Crusher
-    auto mbcArea = leftCol.removeFromTop(FxGroupHeight);
+    auto mbcArea = topCol.removeFromLeft(FmOpWidth);
     gui.mbcGroup.setBounds(mbcArea);
 
-    layoutKnob(mbcArea.removeFromLeft(FxKnobWidth + 20), gui.mbcRateSlider, gui.mbcRateLabel);
-    layoutMixSection(mbcArea.removeFromRight(FxKnobAreaWidth), gui.mbcMixSlider, gui.mbcMixLabel, gui.mbcDryBtn, gui.mbcHalfBtn, gui.mbcWetBtn);
-    layoutKnob(mbcArea.withSizeKeepingCentre(FxKnobWidth, mbcArea.getHeight()), gui.mbcBitsSlider, gui.mbcBitsLabel);
-    auto mbcFooterArea = mbcArea.removeFromBottom(30);
-    layoutFooterArea(mbcFooterArea, gui.mbcBypassBtn);
+    auto mbcRect = mbcArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
 
-    // Right
+    mbcRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(mbcRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.mbcBypassBtn, { OpRegButtonWidth, OpRegPaddingRight} } });
+    layoutComponentsLtoR(mbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mbcRateLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mbcRateSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(mbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mbcBitsLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mbcBitsSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(mbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.mbcMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.mbcMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(mbcRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.mbcDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.mbcHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.mbcWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 
     // 4. Delay
-    auto delayArea = rightCol.removeFromTop(FxGroupHeight);
-    gui.delayGroup.setBounds(delayArea);
+    auto dlyArea = bottomCol.removeFromLeft(FmOpWidth);
+    gui.delayGroup.setBounds(dlyArea);
 
-    layoutKnob(delayArea.removeFromLeft(FxKnobWidth + 20), gui.dTimeSlider, gui.dTimeLabel);
-    layoutMixSection(delayArea.removeFromRight(FxKnobAreaWidth), gui.dMixSlider, gui.dMixLabel, gui.dDryBtn, gui.dHalfBtn, gui.dWetBtn);
-    layoutKnob(delayArea.withSizeKeepingCentre(FxKnobWidth, delayArea.getHeight()), gui.dFbSlider, gui.dFbLabel);
-    auto delayFooterArea = delayArea.removeFromBottom(30);
-    layoutFooterArea(delayFooterArea, gui.dBypassBtn);
+    auto dlyRect = dlyArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    dlyRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(dlyRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.dBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(dlyRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dTimeLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dTimeSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(dlyRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dFbLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dFbSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(dlyRect, OpRowHeight, OpRowPaddingBottom, { { &gui.dMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.dMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(dlyRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.dDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.dHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.dWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 
     // 5. Reverb
-    auto reverbArea = rightCol.removeFromTop(FxGroupHeight);
-    gui.reverbGroup.setBounds(reverbArea);
+    auto rvbArea = bottomCol.removeFromLeft(FmOpWidth);
+    gui.reverbGroup.setBounds(rvbArea);
 
-    layoutKnob(reverbArea.removeFromLeft(FxKnobWidth + 20), gui.rSizeSlider, gui.rSizeLabel);
-    layoutMixSection(reverbArea.removeFromRight(FxKnobAreaWidth), gui.rMixSlider, gui.rMixLabel, gui.rDryBtn, gui.rHalfBtn, gui.rWetBtn);
-    layoutKnob(reverbArea.withSizeKeepingCentre(FxKnobWidth, reverbArea.getHeight() - 30), gui.rDampSlider, gui.rDampLabel);
-    auto reverbFooterArea = reverbArea.removeFromBottom(30);
-    layoutFooterArea(reverbFooterArea, gui.rBypassBtn);
+    auto rvbRect = rvbArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    rvbRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(rvbRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.rBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(rvbRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rSizeLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rSizeSlider, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(rvbRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rDampLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rDampSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(rvbRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(rvbRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.rDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.rHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.rWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 
     // 6. Retro Bit Crusher
-    auto rbcArea = rightCol.removeFromTop(FxGroupHeight);
+    auto rbcArea = bottomCol.removeFromLeft(FmOpWidth);
     gui.rbcGroup.setBounds(rbcArea);
 
-    layoutCombo(rbcArea.removeFromLeft(FxKnobWidth + 20), gui.rbcBitsCombo, gui.rbcBitsLabel);
-    layoutMixSection(rbcArea.removeFromRight(FxKnobAreaWidth), gui.rbcMixSlider, gui.rbcMixLabel, gui.rbcDryBtn, gui.rbcHalfBtn, gui.rbcWetBtn);
-    layoutCombo(rbcArea.withSizeKeepingCentre(FxKnobWidth, rbcArea.getHeight()), gui.rbcRateCombo, gui.rbcRateLabel);
-    auto rbcFooterArea = rbcArea.removeFromBottom(30);
-    layoutFooterArea(rbcFooterArea, gui.rbcBypassBtn);
+    auto rbcRect = rbcArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    rbcRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(rbcRect, OpRowHeight, OpLastRowPaddingBottom, { { &gui.rbcBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(rbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rbcBitsLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rbcBitsCombo, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(rbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rbcRateLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rbcRateCombo, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(rbcRect, OpRowHeight, OpRowPaddingBottom, { { &gui.rbcMixLabel, { OpRegLabelWidth, OpRegPaddingRight} }, { &gui.rbcMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(rbcRect, OpRowHeight, OpRowPaddingBottom, {
+        { &gui.rbcDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.rbcHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
+        { &gui.rbcWetBtn, { OpRegPanChangeButtonWidth, 0} }
+    });
 }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -3028,60 +3036,71 @@ void AudioPlugin2686VEditor::layoutPresetPage(PresetGuiSet& gui, juce::Rectangle
     auto pageArea = content.withZeroOrigin();
 
     // Path Label (Top)
-    gui.pathLabel.setBounds(pageArea.removeFromTop(24));
+    gui.pathLabel.setBounds(pageArea.removeFromTop(PresetFileLabelHeight));
 
-    // Left: List (60%)
-    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * 0.6);
-    gui.table.setBounds(listArea);
+    // Left: List
+    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetTableWidthRate);
+    gui.table.setBounds(listArea.reduced(PresetTablePaddingWidth, PresetTablePaddingHeight));
 
     // Right: Info & Buttons
     auto rightArea = pageArea;
 
     // Metadata Group
-    gui.metaGroup.setBounds(rightArea.removeFromTop(320));
-    auto metaRect = gui.metaGroup.getBounds();
-    metaRect.removeFromTop(TitlePaddingTop);
+    auto metaArea = rightArea.removeFromTop(PresetMetaAreaHeight);
 
-    int rowH = 30;
+    gui.metaGroup.setBounds(metaArea);
+
+    auto mRect = metaArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    mRect.removeFromTop(TitlePaddingTop);
 
     // Name
-    auto row1 = metaRect.removeFromTop(rowH);
-    gui.nameLabel.setBounds(row1.removeFromLeft(50));
+    auto row1 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
+    gui.nameLabel.setBounds(row1.removeFromLeft(PresetMetaLabelWidth));
     gui.nameEditor.setBounds(row1);
-    metaRect.removeFromTop(10);
+
+    mRect.removeFromTop(PresetMetaPaddingHeight);
 
     // Author
-    auto row2 = metaRect.removeFromTop(rowH);
-    gui.authorLabel.setBounds(row2.removeFromLeft(50));
+    auto row2 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
+    gui.authorLabel.setBounds(row2.removeFromLeft(PresetMetaLabelWidth));
     gui.authorEditor.setBounds(row2);
-    metaRect.removeFromTop(10);
+
+    mRect.removeFromTop(PresetMetaPaddingHeight);
 
     // Version
-    auto row3 = metaRect.removeFromTop(rowH);
-    gui.versionLabel.setBounds(row3.removeFromLeft(50));
+    auto row3 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
+    gui.versionLabel.setBounds(row3.removeFromLeft(PresetMetaLabelWidth));
     gui.versionEditor.setBounds(row3);
 
-    // Comment
-    auto row4 = metaRect.removeFromTop(rowH);
-    gui.commentLabel.setBounds(row4);
-    gui.commentEditor.setBounds(metaRect);
+    mRect.removeFromTop(PresetMetaPaddingHeight);
 
-    rightArea.removeFromTop(20);
+    // Comment
+    auto row4 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
+
+    gui.commentLabel.setBounds(row4);
+
+    mRect.removeFromTop(PresetMetaPaddingHeight);
+
+    auto row5 = mRect.reduced(PresetMetaPaddingWidth, 0);
+    gui.commentEditor.setBounds(row5);
+
+    rightArea.removeFromTop(PresetButtonsPaddingTop);
 
     // Buttons
-    gui.initButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.loadButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.saveButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.deleteButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.refreshButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.reflectButton.setBounds(rightArea.removeFromTop(40));
-    rightArea.removeFromTop(10);
-    gui.copyButton.setBounds(rightArea.removeFromTop(40));
+    gui.initButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.loadButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.saveButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.deleteButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.refreshButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.reflectButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    rightArea.removeFromTop(PresetButtonPaddingHeight);
+    gui.copyButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
 }
 #endif
 
@@ -3090,65 +3109,58 @@ void AudioPlugin2686VEditor::layoutSettingsPage(SettingsGuiSet& gui, juce::Recta
     auto pageArea = content.withZeroOrigin();
 
     gui.group.setBounds(pageArea);
-    pageArea.removeFromTop(TitlePaddingTop);
 
-    int rowH = 30;
-    int gap = 15;
+    auto sRect = pageArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    sRect.removeFromTop(TitlePaddingTop);
 
     // 1. Wallpaper
-    auto row1 = pageArea.removeFromTop(rowH);
-    gui.wallpaperLabel.setBounds(row1.removeFromLeft(80));
-    gui.wallpaperClearBtn.setBounds(row1.removeFromRight(60).reduced(2));
-    gui.wallpaperBrowseBtn.setBounds(row1.removeFromRight(80).reduced(2));
-    gui.wallpaperPathLabel.setBounds(row1.reduced(5, 0));
+    auto row1 = sRect.removeFromTop(SettingsRowHeight);
+    gui.wallpaperLabel.setBounds(row1.removeFromLeft(SettingsLabelWidth));
+    gui.wallpaperClearBtn.setBounds(row1.removeFromRight(SettingsClearButtonWidth));
+    gui.wallpaperBrowseBtn.setBounds(row1.removeFromRight(SettingsBrowseButtonWidth));
+    gui.wallpaperPathLabel.setBounds(row1);
+
+    sRect.removeFromTop(SettingsPaddingHeight);
 
     // 2. ADPCM Dir
-    auto row2 = pageArea.removeFromTop(rowH);
-    gui.sampleDirLabel.setBounds(row2.removeFromLeft(80));
-    gui.sampleDirBrowseBtn.setBounds(row2.removeFromRight(80).reduced(2));
-    gui.sampleDirPathLabel.setBounds(row2.reduced(5, 0));
+    auto row2 = sRect.removeFromTop(SettingsRowHeight);
+    gui.sampleDirLabel.setBounds(row2.removeFromLeft(SettingsLabelWidth));
+    gui.sampleDirBrowseBtn.setBounds(row2.removeFromRight(SettingsBrowseButtonWidth));
+    gui.sampleDirPathLabel.setBounds(row2);
+
+    sRect.removeFromTop(SettingsPaddingHeight);
 
     // 3. Preset Dir
-    auto row3 = pageArea.removeFromTop(rowH);
-    gui.presetDirLabel.setBounds(row3.removeFromLeft(80));
-    gui.presetDirBrowseBtn.setBounds(row3.removeFromRight(80).reduced(2));
-    gui.presetDirPathLabel.setBounds(row3.reduced(5, 0));
+    auto row3 = sRect.removeFromTop(SettingsRowHeight);
+    gui.presetDirLabel.setBounds(row3.removeFromLeft(SettingsLabelWidth));
+    gui.presetDirBrowseBtn.setBounds(row3.removeFromRight(SettingsBrowseButtonWidth));
+    gui.presetDirPathLabel.setBounds(row3);
+
+    sRect.removeFromTop(SettingsPaddingHeight);
 
     // 4. Tooltip Visible Row
-    auto rowTooltip = pageArea.removeFromTop(rowH);
-    gui.tooltipLabel.setBounds(rowTooltip.removeFromLeft(140));
-    gui.tooltipToggle.setBounds(rowTooltip.removeFromLeft(60));
+    auto rowTooltip = sRect.removeFromTop(SettingsRowHeight);
+    gui.tooltipLabel.setBounds(rowTooltip.removeFromLeft(SettingsLongLabelWidth));
+    gui.tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsToggleWidth));
+
+    sRect.removeFromTop(SettingsPaddingHeight);
 
     // Headroom Row
-    auto rowHeadroom = pageArea.removeFromTop(30);
-    gui.useHeadroomLabel.setBounds(rowHeadroom.removeFromLeft(140));
-    gui.useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(80)); // Enableスイッチ
-    // スライダー
-    gui.headroomGainSlider.setBounds(rowHeadroom.removeFromLeft(200));
+    auto rowHeadroom = sRect.removeFromTop(SettingsRowHeight);
+    gui.useHeadroomLabel.setBounds(rowHeadroom.removeFromLeft(SettingsLongLabelWidth));
+    gui.useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsToggleWidth));
+    gui.headroomGainSlider.setBounds(rowHeadroom.removeFromLeft(SettingsHeadroomGainSliderWidth));
+
+    sRect.removeFromTop(SettingsPaddingHeight);
 
     // 5. Config IO Buttons (Fixed Layout)
-    auto row4 = pageArea.removeFromTop(40);
+    auto row4 = sRect.removeFromTop(SettingsRowHeight);
 
-    int btnW = 120;     // Load / Save 幅
-    int defBtnW = 240;  // Default Save 幅
-    int btnGap = 20;    // ボタン間の隙間
-
-    int totalBtnWidth = 480;
-
-    // 行の中央に配置するためのエリアを作成 (高さ30pxで統一)
-    auto btnArea = row4.withSizeKeepingCentre(totalBtnWidth, row4.getHeight());
-
-    // 左から順に切り取って配置
-    gui.loadSettingsBtn.setBounds(btnArea.removeFromLeft(btnW));
-    btnArea.removeFromLeft(btnGap);
-    gui.saveSettingsBtn.setBounds(btnArea.removeFromRight(btnW));
-
-    auto row5 = pageArea.removeFromTop(40);
-    auto btn2Area = row5.withSizeKeepingCentre(totalBtnWidth, row5.getHeight());
-
-    btn2Area.removeFromLeft((totalBtnWidth - defBtnW) / 2);
-
-    gui.saveStartupSettingsBtn.setBounds(btn2Area.removeFromLeft(defBtnW));
+    layoutComponentsLtoR(row4, OpRowHeight, OpLastRowPaddingBottom, {
+        { &gui.loadSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
+        { &gui.saveSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
+        { &gui.saveStartupSettingsBtn, { SettingsButtonWidth, 0} }
+    });
 }
 
 void AudioPlugin2686VEditor::layoutAboutPage(AboutGuiSet& gui, juce::Rectangle<int> content)
@@ -3561,7 +3573,7 @@ void AudioPlugin2686VEditor::applyMmlString(const juce::String& mml, T& gui, int
     }
 
     // Only for OPNA / OPN
-    if constexpr (std::is_same<T, Fm4GuiSet>::value) {
+    if constexpr (std::is_same<T, OpnaGuiSet>::value || std::is_same<T, OpnGuiSet>::value) {
         // DR
         val = getValue(mmlPrefixRdr, 31);
         if (val >= 0) gui.dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);

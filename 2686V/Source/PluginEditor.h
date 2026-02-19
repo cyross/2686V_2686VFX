@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include <array>
 #include <vector>
+#include <span>
 #include "PluginProcessor.h"
 #include "GlobalConstants.h"
 #include "OpConstants.h"
@@ -224,7 +225,7 @@ private:
 };
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-struct Fm4GuiSet
+struct OpnaGuiSet
 {
     juce::Component page;
 
@@ -341,7 +342,124 @@ struct Fm4GuiSet
     std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
 };
 
-struct Fm2GuiSet
+struct OpnGuiSet
+{
+    juce::Component page;
+
+    ColoredGroupComponent mainGroup;
+    std::array<ColoredGroupComponent, Fm4Ops> opGroups;
+    ColoredGroupComponent lfoGroup;
+
+    juce::ComboBox algSelector;
+    juce::Label algLabel;
+
+    juce::Slider feedbackSlider;
+    juce::Label feedbackLabel;
+
+    juce::Slider feedback2Slider;
+    juce::Label feedback2Label;
+
+    juce::ComboBox bitSelector;
+    juce::Label bitLabel;
+
+    juce::ComboBox rateCombo;
+    juce::Label rateLabel;
+
+    juce::Slider lfoFreqSlider;
+    juce::Label lfoFreqLabel;
+
+    juce::ComboBox lfoPmsSelector;
+    juce::Label lfoPmsLabel;
+
+    juce::ComboBox lfoAmsSelector;
+    juce::Label lfoAmsLabel;
+
+    juce::Slider masterVolSlider;
+    juce::Label masterVolLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolAttachment;
+
+    std::array<juce::Label, Fm4Ops> opLabels;
+
+    std::array<juce::Slider, Fm4Ops> mul;
+    std::array<juce::Label, Fm4Ops> mulLabel;
+
+    std::array<juce::Slider, Fm4Ops> dt;
+    std::array<juce::Label, Fm4Ops> dtLabel;
+
+    std::array<juce::Slider, Fm4Ops> ar;
+    std::array<juce::Label, Fm4Ops> arLabel;
+
+    std::array<juce::Slider, Fm4Ops> dr;
+    std::array<juce::Label, Fm4Ops> drLabel;
+
+    std::array<juce::Slider, Fm4Ops> sr;
+    std::array<juce::Label, Fm4Ops> srLabel;
+
+    std::array<juce::Slider, Fm4Ops> sl;
+    std::array<juce::Label, Fm4Ops> slLabel;
+
+    std::array<juce::Slider, Fm4Ops> rr;
+    std::array<juce::Label, Fm4Ops> rrLabel;
+
+    std::array<juce::ToggleButton, Fm4Ops> fix;
+
+    std::array<juce::Slider, Fm4Ops> freq;
+    std::array<juce::Label, Fm4Ops> freqLabel;
+
+    std::array<ColoredGroupComponent, Fm4Ops> freqBtnGroup;
+    std::array<juce::Label, Fm4Ops> freqBtnGroupLabel;
+
+    std::array<juce::TextButton, Fm4Ops> freqToZero;
+
+    std::array<juce::TextButton, Fm4Ops> freqTo440;
+
+    std::array<juce::Slider, Fm4Ops> tl;  // Total Level
+    std::array<juce::Label, Fm4Ops> tlLabel;  // Total Level
+
+    std::array<juce::ComboBox, Fm4Ops> ks; // Key Scale (0-3)
+    std::array<juce::Label, Fm4Ops> ksLabel; // Key Scale (0-3)
+
+    std::array<juce::ToggleButton, Fm4Ops> am; // AM Enable
+
+    std::array<juce::ComboBox, Fm4Ops> se; // SSG-EG Shape Selector
+    std::array<juce::Label, Fm4Ops> seLabel; // SSG-EG Shape Selector
+
+    std::array<juce::Slider, Fm4Ops> seFreq;
+    std::array<juce::Label, Fm4Ops> seFreqLabel; // SSG-EG Freq
+
+    std::array<juce::ToggleButton, Fm4Ops> mask; // Mask
+
+    std::array<juce::TextButton, Fm4Ops> mmlBtn;
+
+    // Attachments
+    std::unique_ptr<ComboBoxAttachment> algAtt;
+    std::unique_ptr<SliderAttachment> fbAtt;
+    std::unique_ptr<ComboBoxAttachment> bitAtt;
+    std::unique_ptr<ComboBoxAttachment> rateAtt;
+    std::unique_ptr<SliderAttachment> lfoFreqAtt;
+    std::unique_ptr<ComboBoxAttachment> lfoPmsAtt;
+    std::unique_ptr<ComboBoxAttachment> lfoAmsAtt;
+
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> mulAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> dtAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> arAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> drAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> srAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> slAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> rrAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> freqAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqToZeroAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> freqTo440Att;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> tlAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> ksAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> amAtt;
+    std::array<std::unique_ptr<ComboBoxAttachment>, Fm4Ops> seAtt;
+    std::array<std::unique_ptr<SliderAttachment>, Fm4Ops> seFreqAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> fixAtt;
+    std::array<std::unique_ptr<ButtonAttachment>, Fm4Ops> maskAtt; // Mask
+};
+
+struct OplGuiSet
 {
     juce::Component page;
 
@@ -847,6 +965,116 @@ struct SsgGuiSet
     std::unique_ptr<SliderAttachment> periodAtt;
 };
 
+// ==========================================================
+// Waveform Drawing Container
+// ==========================================================
+class WaveformContainer : public juce::Component
+{
+public:
+    // 描画対象のスライダー配列をセットする関数
+    // C++20の std::span を使うとサイズ違いの配列を共通化できて便利です
+    // C++17以前の場合はテンプレートかポインタ+サイズで代用してください
+    void setTargetSliders(std::span<juce::Slider> sliders)
+    {
+        // 一旦すべての子を削除（ポインタ参照を外すだけ）
+        removeAllChildren();
+        activeSliders.clear();
+
+        for (auto& slider : sliders)
+        {
+            // このコンテナの子にする
+            addAndMakeVisible(slider);
+
+            // スライダー個別のマウス操作を無効化する
+            // これにより、マウスイベントがこの親コンテナ(WaveformContainer)に貫通してくる
+            slider.setInterceptsMouseClicks(false, false);
+
+            activeSliders.push_back(&slider);
+        }
+
+        switch (sliders.size())
+        {
+        case 32:
+            sliderWidth = WtCustomSliderWidth;
+            break;
+        case 64:
+            sliderWidth = WtCustomSliderWidth / 2;
+            break;
+        default:
+            DBG("Illegal Custom Wave Size");
+            sliderWidth = 1; // ゼロ除算防止
+        }
+
+        resized(); // レイアウト更新
+    }
+
+    void resized() override
+    {
+        if (activeSliders.empty()) return;
+
+        auto area = getLocalBounds();
+
+        for (size_t i = 0; i < activeSliders.size(); ++i)
+        {
+            // float座標で正確に配置して隙間をなくす
+            int x = (int)(i * sliderWidth);
+            int w = (int)((i + 1) * sliderWidth) - x;
+
+            activeSliders[i]->setBounds(x, 0, w, WtCustomSliderHeight);
+        }
+    }
+
+    // マウスドラッグ時の処理（ここが描画の肝）
+    void mouseDown(const juce::MouseEvent& e) override { updateSliderValue(e); }
+    void mouseDrag(const juce::MouseEvent& e) override { updateSliderValue(e); }
+
+    void enable() { enabled = true; updateEnabled(); }
+    void disable() { enabled = false; updateEnabled(); }
+    void setEnabled(bool e) { enabled = e; updateEnabled(); }
+    bool isEnabled() const { return enabled; }
+private:
+    bool enabled = false;
+    int sliderWidth = 0;
+    std::vector<juce::Slider*> activeSliders;
+
+    void updateEnabled()
+    {
+        if (activeSliders.empty()) return;
+
+        for (size_t i = 0; i < activeSliders.size(); i++)
+        {
+            activeSliders[i]->setEnabled(enabled);
+        }
+    }
+
+    void updateSliderValue(const juce::MouseEvent& e)
+    {
+        if (!enabled) return;
+        if (activeSliders.empty()) return;
+
+        int index = (int)(e.position.x) / sliderWidth;
+
+        // 範囲外ガード
+        if (index < 0) index = 0;
+        if (index >= (int)activeSliders.size()) index = (int)activeSliders.size() - 1;
+
+        // 2. マウスY座標から、値(-1.0 ~ 1.0)を計算
+        // JUCEの座標系は上が0、下がHeight
+        // Sliderは通常 下がMin(-1)、上がMax(+1)
+        float normalizedY = 1.0f - (e.position.y / (float)getHeight());
+
+        // 値の範囲 (-1.0f ～ 1.0f) にマッピング
+        // jmap(value, inputMin, inputMax, outputMin, outputMax)
+        float newValue = juce::jmap(normalizedY, 0.0f, 1.0f, -1.0f, 1.0f);
+
+        // クランプ
+        newValue = std::clamp(newValue, -1.0f, 1.0f);
+
+        // 3. 値をセット (通知を送る)
+        activeSliders[index]->setValue(newValue, juce::sendNotification);
+    }
+};
+
 struct WtGuiSet
 {
     // --- Wavetable Page ---
@@ -854,12 +1082,7 @@ struct WtGuiSet
 
     // Groups
     ColoredGroupComponent mainGroup;
-    ColoredGroupComponent propGroup; // Wavetable Property
-
-    // Custom Waveform Editors
-    ColoredGroupComponent customGroup;
-    std::array<juce::Slider, 32> customSliders32;
-    std::array<juce::Slider, 64> customSliders64;
+    ColoredGroupComponent customWaveGroup;
 
     // Filter (ADSR)
     juce::Slider levelSlider;
@@ -877,7 +1100,6 @@ struct WtGuiSet
     juce::Slider releaseSlider;
     juce::Label releaseLabel;
 
-    // Properties
     juce::ComboBox bitSelector;
     juce::Label bitLabel;
 
@@ -894,7 +1116,6 @@ struct WtGuiSet
     juce::ComboBox waveSelector;
     juce::Label waveLabel; // Waveform Selector
 
-    // Modulation
     juce::ToggleButton modEnableButton;
 
     juce::Slider modDepthSlider;
@@ -902,6 +1123,14 @@ struct WtGuiSet
 
     juce::Slider modSpeedSlider;
     juce::Label modSpeedLabel;
+
+    // スライダーを束ねるコンテナ
+    WaveformContainer waveContainer;
+
+    std::array<juce::Slider, 32> customSliders32;
+    std::array<juce::Slider, 64> customSliders64;
+
+    juce::TextButton customWaveResetBtn;
 
     // Wavetable Attachments
     std::unique_ptr<SliderAttachment> levelAtt;
@@ -918,6 +1147,7 @@ struct WtGuiSet
     std::unique_ptr<ButtonAttachment> modEnableAtt;
     std::unique_ptr<SliderAttachment> modDepthAtt;
     std::unique_ptr<SliderAttachment> modSpeedAtt;
+    std::unique_ptr<ButtonAttachment> customWaveResetAtt;
 };
 
 struct RhythmPadGui
@@ -1604,9 +1834,9 @@ private:
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    Fm4GuiSet opnaGui;  // OPNA
-    Fm4GuiSet opnGui; // OPN
-	Fm2GuiSet oplGui; // OPL
+    OpnaGuiSet opnaGui;  // OPNA
+    OpnGuiSet opnGui; // OPN
+	OplGuiSet oplGui; // OPL
     Opl3GuiSet opl3Gui; // OPL3
     OpmGuiSet opmGui; // OPM
     Opzx3GuiSet opzx3Gui; // OPZX3
@@ -1642,9 +1872,9 @@ private:
     void setupOpGroups(SetupOpGroupsParams<opCount>& params);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    void setupOpnaGui(Fm4GuiSet& gui);
-    void setupOpnGui(Fm4GuiSet& gui);
-    void setupOplGui(Fm2GuiSet& gui);
+    void setupOpnaGui(OpnaGuiSet& gui);
+    void setupOpnGui(OpnGuiSet& gui);
+    void setupOplGui(OplGuiSet& gui);
     void setupOpl3Gui(Opl3GuiSet& gui);
     void setupOpmGui(OpmGuiSet& gui);
     void setupOpzx3Gui(Opzx3GuiSet& gui);
@@ -1659,9 +1889,9 @@ private:
     void setupAboutGui(AboutGuiSet& gui);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    void layoutOpnaPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
-    void layoutOpnPage(Fm4GuiSet& gui, juce::Rectangle<int> content);
-    void layoutOplPage(Fm2GuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpnaPage(OpnaGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOpnPage(OpnGuiSet& gui, juce::Rectangle<int> content);
+    void layoutOplPage(OplGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpl3Page(Opl3GuiSet& gui, juce::Rectangle<int> content);
     void layoutOpmPage(OpmGuiSet& gui, juce::Rectangle<int> content);
     void layoutOpzx3Page(Opzx3GuiSet& gui, juce::Rectangle<int> content);

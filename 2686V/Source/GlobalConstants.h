@@ -8,7 +8,7 @@ static inline const juce::String pluginName = "2686VFX";
 #else
 static inline const juce::String pluginName = "2686V";
 #endif
-static inline const juce::String pluginVersion = "Version 0.1";
+static inline const juce::String pluginVersion = "Version 0.1.0";
 static inline const juce::String pluginAuthor = "Copyright (C) 2026 CYROSS";
 
 static inline const juce::String vstNotice = "VST is a registered trademark of Steinberg Media Technologies GmbH.";
@@ -36,3 +36,10 @@ static inline constexpr bool defaultShowTooltip = true;
 static inline constexpr bool defaultUseHeadroom = true;
 static inline constexpr float defaultHeadroomGain = 0.25f;
 static inline const juce::String allowedControlChars = "\r\n\t";
+
+// プリセット部分
+static inline const juce::String presetCbName = "Name: ";
+static inline const juce::String presetCbAuther = "Author: ";
+static inline const juce::String presetCbVersion = "Ver: ";
+static inline const juce::String presetCbComment = "Comment: ";
+static inline const juce::String presetCbMode = "Mode: ";
