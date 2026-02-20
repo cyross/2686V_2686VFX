@@ -196,6 +196,7 @@ static inline const float adpcmVolDefault = 1.0f; // 初期値
 static inline const float adpcmPanMin = 0.0f; // 最小値
 static inline const float adpcmPanMax = 1.0f;  // 最大値
 static inline const float adpcmPanDefault = 0.5f; // 初期値
+static inline const float adpcmLoopDefault = true; // 初期値
 // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
 static inline const int adpcmBitMin = 0; // 最小値
 static inline const int adpcmBitMax = 6; // 最大値

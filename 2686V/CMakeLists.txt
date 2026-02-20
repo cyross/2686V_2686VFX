@@ -61,6 +61,18 @@ target_sources(${CY_PLUGIN_NAME} PRIVATE
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    Source/PrBase.h
+    Source/PrOpna.h
+    Source/PrOpn.h
+    Source/PrOpl.h
+    Source/PrOpl3.h
+    Source/PrOpm.h
+    Source/PrOpzx3.h
+    Source/PrSsg.h
+    Source/PrWt.h
+    Source/PrRhythm.h
+    Source/PrAdpcm.h
+    Source/PrFx.h
     Source/GlobalConstants.h
     Source/OpConstants.h
     Source/OpValueRange.h

@@ -2,6 +2,16 @@
 #include <JuceHeader.h>
 #if !defined(BUILD_AS_FX_PLUGIN)
 #include "SynthVoice.h"
+#include "PrOpna.h"
+#include "PrOpn.h"
+#include "PrOpl.h"
+#include "PrOpl3.h"
+#include "PrOpm.h"
+#include "PrOpzx3.h"
+#include "PrSSg.h"
+#include "PrWt.h"
+#include "PrRhythm.h"
+#include "PrAdpcm.h"
 #endif
 #include "SimpleEffects.h"
 #include "GlobalConstants.h"
@@ -10,6 +20,7 @@
 #include "PresetConstants.h"
 #include "LabelConstants.h"
 #include "OpValueRange.h"
+#include "PrFx.h"
 
 class AudioPlugin2686V : public juce::AudioProcessor
 {
@@ -86,38 +97,22 @@ public:
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
 
-    // --- Effect ---
-    EffectChain effects;
 private:
+#if !defined(BUILD_AS_FX_PLUGIN)
+    OpnaProcessor prOpna;
+    OpnProcessor prOpn;
+    OplProcessor prOpl;
+    Opl3Processor prOpl3;
+    OpmProcessor prOpm;
+    Opzx3Processor prOpzx3;
+    SsgProcessor prSsg;
+    WtProcessor prWt;
+    RhythmProcessor prRhythm;
+    AdpcmProcessor prAdpcm;
+#endif
+    FxProcessor prFx;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
-#if !defined(BUILD_AS_FX_PLUGIN)
-    void createOpnaParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOpnParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOplParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOpl3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOpmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createOpzx3ParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createSsgParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createWavetableParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createRhythmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-    void createAdpcmParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-#endif
-    void createFxParameterLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
-
-#if !defined(BUILD_AS_FX_PLUGIN)
-    void processOpnaBlock(SynthParams &params);
-    void processOpnBlock(SynthParams &params);
-    void processOplBlock(SynthParams &params);
-    void processOpl3Block(SynthParams& params);
-    void processOpmBlock(SynthParams& params);
-    void processOpzx3Block(SynthParams& params);
-    void processSsgBlock(SynthParams &params);
-    void processWavetableBlock(SynthParams &params);
-    void processRhythmBlock(SynthParams &params);
-    void processAdpcmBlock(SynthParams &params);
-#endif
-    void processFxBlock(juce::AudioBuffer<float>& buffer, SynthParams& params);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     juce::Synthesiser m_synth;
