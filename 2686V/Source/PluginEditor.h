@@ -14,6 +14,7 @@
 #include "GuiConstants.h"
 #include "GuiStructs.h"
 #include "RegisterType.h"
+#include "OpValueRange.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;

@@ -9,6 +9,7 @@
 #include "FileConstants.h"
 #include "PresetConstants.h"
 #include "LabelConstants.h"
+#include "OpValueRange.h"
 
 class AudioPlugin2686V : public juce::AudioProcessor
 {

@@ -68,7 +68,6 @@ static inline const juce::String opWsLabel = "WS";
 static inline const juce::String opFreqTo0Label = "Freq -> 0Hz";
 static inline const juce::String opFreqTo440Label = "Freq -> 440Hz";
 
-
 static inline const juce::String mPostBitTitle = " BIT";
 static inline const juce::String mPostRateTitle = " RATE";
 static inline const juce::String mPostAlgTitle = " ALG";
@@ -104,9 +103,48 @@ static inline const juce::String opPostAmLabel = " AM";
 static inline const juce::String opPostVibLabel = " VIB";
 static inline const juce::String opPostEgTypeLabel = " EG TYPE";
 static inline const juce::String opPostEgLabel = " EG";
-
-
 static inline const juce::String opPostPanLabel = " Pan";
+
+// Ssg
+static inline const juce::String ssgPostTone = " Tone";
+static inline const juce::String ssgPostNoise = " Noise";
+static inline const juce::String ssgPostNoiseFreq = " Noise Freq";
+static inline const juce::String ssgPostNoiseOnNote = " Noise On Note";
+static inline const juce::String ssgPostToneNoiseMix = " Tone/Noise Mix";
+static inline const juce::String ssgPostWaveform = " Waveform";
+static inline const juce::String ssgPostAdsrBypass = " ADSR Bypass";
+static inline const juce::String ssgPostDutyMode = " Duty Mode";
+static inline const juce::String ssgPostDutyPreset = " Duty Preset";
+static inline const juce::String ssgPostDutyVar = " Duty Var";
+static inline const juce::String ssgPostDutyInvert = " Duty Invert";
+static inline const juce::String ssgPostTriangleKeyTrack = " Triangle Key Track";
+static inline const juce::String ssgPostTrianglePeak = " Triangle Peak";
+static inline const juce::String ssgPostTriangleManualFreq = " Tri Manual Freq";
+static inline const juce::String ssgPostHwEnvEnable = " HW Env Enable";
+static inline const juce::String ssgPostEnvShape = " Env Shape";
+static inline const juce::String ssgPostEnvSpeed = " Env Speed";
+
+// Wt
+static inline const juce::String wtCodeCustom32 = " Custom32 ";
+static inline const juce::String wtCodeCustom64 = " Custom64 ";
+static inline const juce::String wtPostSampleSize = " Sample Size";
+static inline const juce::String wtPostWaveform = " Waveform";
+static inline const juce::String wtPostModEnable = " Mod Enable";
+static inline const juce::String wtPostModDepth = " Mod Depth";
+static inline const juce::String wtPostModSpeed = " Mod Speed";
+static inline const juce::String wtPostLevel = " Level";
+
+// Rhythm
+static inline const juce::String rhythmCodePad = " Pad";
+static inline const juce::String rhythmPostVol = " Vol";
+static inline const juce::String rhythmPostNote = " Note";
+static inline const juce::String rhythmPostQuality = " Quality";
+static inline const juce::String rhythmPostOneShot = " One Shot";
+
+// Adpcm
+static inline const juce::String adpcmPostLevel = " Level";
+static inline const juce::String adpcmPostLoop = " Loop";
+static inline const juce::String adpcmPostQuality = " Quality";
 
 // FX
 static inline const juce::String masterBypassLabel = "M.Bypass";

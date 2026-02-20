@@ -2614,7 +2614,7 @@ void AudioPlugin2686VEditor::layoutSsgPage(SsgGuiSet& gui, juce::Rectangle<int> 
 
     // Wave Group
     float waveParam = *audioProcessor.apvts.getRawParameterValue(code + postWaveform);
-    int waveMode = (waveParam > 0.5f) ? 1 : 0;
+    int waveMode = (waveParam > opBoolThread) ? 1 : 0;
     auto waveArea = pageArea.removeFromLeft(FmOpWidth);
 
     if (waveMode == 0) // Pulse

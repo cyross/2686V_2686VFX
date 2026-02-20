@@ -18,6 +18,8 @@ static inline const juce::String gplLinkUrl = "https://www.gnu.org/licenses/gpl-
 
 static inline const juce::String envCode = "PREF_2686V";
 
+static inline const int voices = 32; // 最大同時発音数
+
 // オーディオ部分
 static inline const juce::String audioInputName = "Input";
 static inline const juce::String audioOutputName = "Output";
