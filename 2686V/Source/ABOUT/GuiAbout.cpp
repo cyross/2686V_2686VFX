@@ -30,8 +30,8 @@ void GuiAbout::setup()
     vst3Logo.setImage(logoImg);
 
     // 5. VST Trademark Notice (必須表記)
-    vstGuidelineLabel.setup({ .parent = *this, .title = vstNotice, .color = juce::Colours::lightgrey });
-    vstGuidelineLabel.setFont(juce::Font(12.0f)); // 小さめでOK
+    vstGuidelineLabel.setup({ .parent = *this, .title = vstNotice });
+    vstGuidelineLabel.setFont(juce::Font(14.0f)); // 小さめでOK
     vstGuidelineLabel.setJustificationType(juce::Justification::centred);
 
     // --- GPLv3ライセンス表示 ---
