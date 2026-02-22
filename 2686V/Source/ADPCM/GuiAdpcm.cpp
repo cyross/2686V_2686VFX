@@ -1,0 +1,156 @@
+﻿#include "GuiAdpcm.h"
+#include "../processor/PluginProcessor.h"
+#include "../gui/GuiConstants.h"
+#include "../gui/LabelConstants.h"
+#include "../fm/OpConstants.h"
+
+void GuiAdpcm::setup()
+{
+    const juce::String code = codeAdpcm;
+
+    // Prepare Items for ComboBoxes
+    std::vector<SelectItem> qualityItems = {
+        {.name = "0: Raw (32bit)", .value = 1 },
+        {.name = "1: 24-bit PCM",  .value = 2 },
+        {.name = "2: 16-bit PCM",  .value = 3 },
+        {.name = "3: 8-bit PCM",   .value = 4 },
+        {.name = "4: 5-bit PCM",   .value = 5 },
+        {.name = "5: 4-bit PCM",   .value = 6 },
+        {.name = "6: 4-bit ADPCM", .value = 7 },
+    };
+
+    std::vector<SelectItem> rateItems = {
+        {.name = "0: 96kHz",    .value = 1 },
+        {.name = "1: 55.5kHz",  .value = 2 },
+        {.name = "2: 48kHz",    .value = 3 },
+        {.name = "3: 44.1kHz",  .value = 4 },
+        {.name = "4: 22.05kHz", .value = 5 },
+        {.name = "5: 16kHz",    .value = 6 },
+        {.name = "6: 8kHz",     .value = 7 },
+    };
+
+    mainGroup.setup(*this, mGroupTitle);
+    modeSelector.setup({ .parent = *this, .id = code + postMode, .title = "Quality", .items = qualityItems});
+    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems });
+
+    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
+
+    // 出力レベル
+	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol" });
+
+    // パンポット設定
+	panSlider.setup({ .parent = *this, .id = code + postPan, .title = "Pan" });
+    panSlider.setRange(0.0f, 1.0f);
+    addAndMakeVisible(btnPanL); btnPanL.setButtonText("L"); btnPanL.addListener(&ctx.editor);
+    addAndMakeVisible(btnPanC); btnPanC.setButtonText("C"); btnPanC.addListener(&ctx.editor);
+    addAndMakeVisible(btnPanR); btnPanR.setButtonText("R"); btnPanR.addListener(&ctx.editor);
+
+    // ループトグルボタン
+	loopButton.setup({ .parent = *this, .id = code + postLoop, .title = "Loop" });
+
+	paramGroup.setup(*this, "ADPCM Parameters");
+
+    // 音声ファイル読み込みボタン
+	loadButton.setup({ .parent = *this, .title = "Load File", .isReset = false });
+    loadButton.addListener(&ctx.editor);
+
+    // ロードしているファイル名
+    addAndMakeVisible(fileNameLabel);
+    fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+    fileNameLabel.setJustificationType(juce::Justification::centredLeft);
+    fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+
+    // 音声ファイルのアンロード
+	clearButton.setup({ .parent = *this, .title = "Clear", .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.onClick = [this]
+    {
+        // 1. プロセッサーのアンロード関数を呼ぶ
+        ctx.audioProcessor.unloadAdpcmFile();
+
+        // 2. ラベル表示をクリア
+        fileNameLabel.setText("No File", juce::dontSendNotification);
+    };
+
+    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel });
+    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel });
+    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel });
+    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel });
+}
+
+void GuiAdpcm::layout(juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin();
+
+    auto mainArea = pageArea.removeFromLeft(MainWidth);
+    mainGroup.setBounds(mainArea);
+    auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    mRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &modeSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &modeSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &rateSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &rateSelector, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &levelSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &levelSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &loopButton, { MainRegButtonWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &panSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &panSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, {
+        { &btnPanL, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
+        { &btnPanC, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
+        { &btnPanR, { MainRegPanChangeButtonWidth, 0}}
+        });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &attackSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &attackSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &decaySlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &decaySlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &sustainSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &sustainSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &releaseSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &releaseSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, MainRowHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
+
+    auto headerArea = pageArea.removeFromTop(HeaderHeight);
+
+    paramGroup.setBounds(headerArea);
+
+    auto inner = headerArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    inner.removeFromTop(TitlePaddingTop);
+
+    auto fileRow = inner.removeFromTop(30);
+    // 左にロードボタン
+    loadButton.setBounds(fileRow.removeFromLeft(100));
+    fileRow.removeFromLeft(10);
+    // 右にクリアボタン
+    clearButton.setBounds(fileRow.removeFromRight(60));
+    fileRow.removeFromRight(10);
+    // 中間にファイル名ラベル
+    fileNameLabel.setBounds(fileRow);
+}
+
+void GuiAdpcm::updateFileName(const juce::String& fileName)
+{
+    fileNameLabel.setText(fileName, juce::dontSendNotification);
+}
+
+bool GuiAdpcm::isThis(juce::Button* button)
+{
+    return button == &loadButton;
+}
+
+bool GuiAdpcm::isBtnPanL(juce::Button* button)
+{
+    return button == &btnPanL;
+}
+
+bool GuiAdpcm::isBtnPanC(juce::Button* button)
+{
+    return button == &btnPanC;
+}
+
+bool GuiAdpcm::isBtnPanR(juce::Button* button)
+{
+    return button == &btnPanR;
+}
+
+void GuiAdpcm::setPan(float pan)
+{
+    panSlider.setValue(pan);
+}
+
+void GuiAdpcm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
+{
+    loadButton.removeListener(editor);
+}
