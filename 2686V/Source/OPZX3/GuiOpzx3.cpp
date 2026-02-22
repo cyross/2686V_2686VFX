@@ -64,16 +64,16 @@ void GuiOpzx3::setup()
     };
 
     mainGroup.setup(*this, mGroupTitle);
-    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems });
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems });
+    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems });
-    feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title });
-    feedback2Slider.setup({ .parent = *this, .id = code + postFb2, .title = mFb2Title });
+    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
+    feedback2Slider.setup({ .parent = *this, .id = code + postFb2, .title = mFb2Title, .isReset = true });
 
-    lfoFreqSlider.setup({ .parent = *this, .id = code + postLFreq, .title = mLfoFreq });
-    lfoPmsSelector.setup({ .parent = *this, .id = codeOpna + postLPms, .title = mLfoPms, .items = pmsItems });
-    lfoAmsSelector.setup({ .parent = *this, .id = codeOpna + postLAms, .title = mLfoAms, .items = amsItems });
+    lfoFreqSlider.setup({ .parent = *this, .id = code + postLFreq, .title = mLfoFreq, .isReset = true });
+    lfoPmsSelector.setup({ .parent = *this, .id = codeOpna + postLPms, .title = mLfoPms, .items = pmsItems, .isReset = true });
+    lfoAmsSelector.setup({ .parent = *this, .id = codeOpna + postLAms, .title = mLfoAms, .items = amsItems, .isReset = true });
 
     masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
 
@@ -91,26 +91,26 @@ void GuiOpzx3::setup()
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
 
-        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postMul, .title = opMulLabel, .regType = RegisterType::FmMul });
-        dt1[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDt1, .title = opDt1Label, .regType = RegisterType::FmDt });
-        dt2[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDt2, .title = opDt2Label, .regType = RegisterType::FmDt2 });
-        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = opTlLabel, .regType = RegisterType::FmTl });
+        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postMul, .title = opMulLabel, .isReset = true, .regType = RegisterType::FmMul });
+        dt1[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDt, .title = opDt1Label, .isReset = true, .regType = RegisterType::FmDt });
+        dt2[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDt2, .title = opDt2Label, .isReset = true, .regType = RegisterType::FmDt2 });
+        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postTl, .title = opTlLabel, .isReset = true, .regType = RegisterType::FmTl });
 
-        ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postAr, .title = opArLabel, .regType = RegisterType::FmAr });
-        d1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD1r, .title = opD1rLabel, .regType = RegisterType::FmDr });
-        d1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD1l, .title = opD1lLabel, .regType = RegisterType::FmSl });
-        d2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD2r, .title = opD2rLabel, .regType = RegisterType::FmSr });
-        rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = mRrLabel, .regType = RegisterType::FmRr });
+        ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postAr, .title = opArLabel, .isReset = true, .regType = RegisterType::FmAr });
+        d1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD1r, .title = opD1rLabel, .isReset = true, .regType = RegisterType::FmDr });
+        d1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD1l, .title = opD1lLabel, .isReset = true, .regType = RegisterType::FmSl });
+        d2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD2r, .title = opD2rLabel, .isReset = true, .regType = RegisterType::FmSr });
+        rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = mRrLabel, .isReset = true, .regType = RegisterType::FmRr });
 
-        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postFix, .title = opFixLabel });
-        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postFixFreq, .title = opFFreqLabel });
-        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .id = paramPrefix + postRr, .title = opFreqTo0Label, .isReset = false, .isResized = false });
+        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postFix, .title = opFixLabel, .isReset = true });
+        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postFixFreq, .title = opFFreqLabel, .isReset = true });
+        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = opFreqTo0Label, .isReset = false, .isResized = false });
         freqToZero[i].onClick = [this, index = i] { freq[index].setValue(0, juce::sendNotification); };
-        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .id = paramPrefix + postRr, .title = opFreqTo440Label, .isReset = false, .isResized = false });
+        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = opFreqTo440Label, .isReset = false, .isResized = false });
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
-        ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = wsItems });
-        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel });
+        ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = wsItems, .isReset = true });
+        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
     }
 }
 void GuiOpzx3::layout(juce::Rectangle<int> content)

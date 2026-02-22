@@ -134,7 +134,7 @@ class GuiWt : public GuiBase
 
     GuiComboBox waveSelector;
 
-	GuiTextButton modEnableButton;
+	GuiToggleButton modEnableButton;
 
     GuiSlider modDepthSlider;
 

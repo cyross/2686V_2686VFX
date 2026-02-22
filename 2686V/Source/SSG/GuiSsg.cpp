@@ -60,18 +60,18 @@ void GuiSsg::setup()
     };
 
     mainGroup.setup(*this, mGroupTitle);
-    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems });
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems });
+    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
 	voiceGroup.setup(*this, "Voice");
 	waveSelector.setup({ .parent = *this, .id = code + postWaveform, .title = "Form", .items = wsItems, .isReset = true, .isResized = true });
-	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Tone", .regType = RegisterType::SsgVol });
-    noiseSlider.setup({ .parent = *this, .id = code + postNoise, .title = "Noise", .regType = RegisterType::SsgVol });
-	noiseFreqSlider.setup({ .parent = *this, .id = code + postNoiseFreq, .title = "Freq" });
+	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Tone", .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = *this, .id = code + postNoise, .title = "Noise", .isReset = true, .regType = RegisterType::SsgVol });
+	noiseFreqSlider.setup({ .parent = *this, .id = code + postNoiseFreq, .title = "Freq", .isReset = true });
 	noiseOnNoteButton.setup({ .parent = *this, .id = code + postNoiseOnNote, .title = "Noise On Note", .isReset = true, .isResized = true });
 
     // 初期状態反映
-	mixSlider.setup({ .parent = *this, .id = code + postMix, .title = "Mix" });
+	mixSlider.setup({ .parent = *this, .id = code + postMix, .title = "Mix", .isReset = true });
 	mixSetTone.setup({ .parent = *this, .title = "Tone", .isReset = false, .isResized = false });
     mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
     mixSetMix.setup({ .parent = *this, .title = "Mix", .isReset = false, .isResized = false });
@@ -80,12 +80,12 @@ void GuiSsg::setup()
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
 	adsrBypassButton.setup({ .parent = *this, .id = code + codeAdsr + postBypass, .title = "Bypass ADSR", .isReset = true, .isResized = true });
-    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel });
-    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel });
-    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel });
-    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel });
+    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel, .isReset = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
+    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
 
     // Duty Controls Setup
 	dutyGroup.setup(*this, "Pulse Width (Duty)");
@@ -96,8 +96,8 @@ void GuiSsg::setup()
 
 	triGroup.setup(*this, "Triangle Property");
 	triKeyTrackButton.setup({ .parent = *this, .id = code + postTriKeyTrk, .title = "Key Track (Pitch)", .isReset = true, .isResized = true });
-	triFreqSlider.setup({ .parent = *this, .id = code + postTriFreq, .title = "Freq" });
-	triPeakSlider.setup({ .parent = *this, .id = code + postTriPeak, .title = "Peak" });
+	triFreqSlider.setup({ .parent = *this, .id = code + postTriFreq, .title = "Freq", .isReset = true });
+	triPeakSlider.setup({ .parent = *this, .id = code + postTriPeak, .title = "Peak", .isReset = true });
 	triSetSawDown.setup({ .parent = *this, .title = "0.0 (Down)", .isReset = false, .isResized = false });
     triSetSawDown.onClick = [this] { triPeakSlider.setValue(0.0, juce::sendNotification); };
 	triSetTri.setup({ .parent = *this, .title = "0.5 (Tri)", .isReset = false, .isResized = false });
@@ -109,7 +109,7 @@ void GuiSsg::setup()
 	envGroup.setup(*this, "Hardware Envelope");
 	envEnableButton.setup({ .parent = *this, .id = code + postEnvEnable, .title = "Enable HW Env", .isReset = true, .isResized = true });
 	shapeSelector.setup({ .parent = *this, .id = code + postEnvShape, .title = "Shape", .items = envItems, .isReset = true, .isResized = true });
-	periodSlider.setup({ .parent = *this, .id = code + postEnvPeriod, .title = "Speed", .regType = RegisterType::SsgEnv });
+	periodSlider.setup({ .parent = *this, .id = code + postEnvPeriod, .title = "Speed", .isReset = true, .regType = RegisterType::SsgEnv });
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)

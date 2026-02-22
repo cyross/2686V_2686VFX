@@ -81,7 +81,7 @@ public:
         juce::String id = "";
         juce::String title;
         juce::Colour trackColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-        juce::Colour thumbColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 0.5f);
+        juce::Colour thumbColor = juce::Colour::fromFloatRGBA(0.03f, 0.03f, 0.7f, 1.0f);
         bool isReset = false;
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;

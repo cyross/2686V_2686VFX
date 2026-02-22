@@ -46,26 +46,26 @@ void GuiWt::setup()
 
     mainGroup.setup(*this, mGroupTitle);
 
-    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems });
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems });
+    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Level"});
+    levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Level", .isReset = true });
 
-    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel });
-    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel });
-    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel });
-    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel });
+    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel, .isReset = true });
 
     // Waveform
 	waveSelector.setup({ .parent = *this, .id = code + postWave, .title = "Form", .items = wsItems, .isReset = true, .isResized = true });
 
     // Modulation
     modEnableButton.setup({ .parent = *this, .id = code + postModEnable, .title = "Mod", .isReset = true, .isResized = true });
-	modDepthSlider.setup({ .parent = *this, .id = code + postModDepth, .title = "Depth" });
-	modSpeedSlider.setup({ .parent = *this, .id = code + postModSpeed, .title = "Speed" });
+	modDepthSlider.setup({ .parent = *this, .id = code + postModDepth, .title = "Depth", .isReset = true });
+	modSpeedSlider.setup({ .parent = *this, .id = code + postModSpeed, .title = "Speed", .isReset = true });
 
     // Master Volume
-	masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = "Master Volume" });
+	masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, "Custom Wave");
@@ -160,8 +160,18 @@ void GuiWt::layout(juce::Rectangle<int> content)
         }
     }
     else {
-        customSliders32.setVisible(false);
-        customSliders64.setVisible(false);
+        if (waveSize == 32) {
+            customSliders32.setVisible(true);
+            customSliders32.setCustomEnabled(false);
+            customSliders64.setVisible(false);
+            customSliders64.setCustomEnabled(false);
+        }
+        else {
+            customSliders32.setVisible(false);
+            customSliders32.setCustomEnabled(false);
+            customSliders64.setVisible(true);
+            customSliders64.setCustomEnabled(false);
+        }
     }
 
     cwRect.removeFromTop(WtCustomSliderResetBtnPaddingTop);

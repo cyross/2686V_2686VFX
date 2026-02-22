@@ -11,7 +11,7 @@ void GuiSettings::setup()
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
 		lbl.setup({ .parent = *this, .title = title });
 		pathLbl.setup({ .parent = *this, .title = emptyFilename });
-        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
+        pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
     };
@@ -33,8 +33,8 @@ void GuiSettings::setup()
             }
         );
     };
-
-	wallpaperBrowseBtn.setup({ .parent = *this, .title = "Clear", .isReset = false });
+    
+	wallpaperClearBtn.setup({ .parent = *this, .title = "Clear", .isReset = false });
     wallpaperClearBtn.onClick = [this] {
         ctx.audioProcessor.wallpaperPath = "";
         wallpaperPathLabel.setText("(None)", juce::dontSendNotification);

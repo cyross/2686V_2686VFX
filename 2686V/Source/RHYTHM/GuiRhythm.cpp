@@ -46,6 +46,7 @@ void RhythmPadGui::setup(int index, juce::String padName)
     // ロードしている音声ファイル名
     fileNameLabel.setup({ .parent = *this, .title = emptyFilename });
     fileNameLabel.setJustificationType(juce::Justification::centred);
+    fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // パッド音声アンロード
     clearButton.setup({ .parent = *this, .title = "X", .isReset = false });
@@ -60,37 +61,37 @@ void RhythmPadGui::setup(int index, juce::String padName)
         };
 
     // ワンショット機能トグル
-    oneShotButton.setup({ .parent = *this, .id = padPrefix + postOneShot, .title = "One Shot" });
+    oneShotButton.setup({ .parent = *this, .id = padPrefix + postOneShot, .title = "One Shot", .isReset = true });
 
     // 割り当てキーノート番号
-    noteSlider.setup({ .parent = *this, .id = padPrefix + postNote, .title = "Note" });
+    noteSlider.setup({ .parent = *this, .id = padPrefix + postNote, .title = "Note", .isReset = true });
     noteSlider.setRange(0, 127, 1);
     noteSlider.textFromValueFunction = [](double value) {
         return getNoteName((int)value);
         };
     noteSlider.updateText();
 
-    modeSelector.setup({ .parent = *this, .id = padPrefix + postMode, .title = "Mode", .items = qualityItems });
-    rateSelector.setup({ .parent = *this, .id = padPrefix + postRate, .title = mRateTitle, .items = rateItems });
+    modeSelector.setup({ .parent = *this, .id = padPrefix + postMode, .title = "Mode", .items = qualityItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = padPrefix + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
     // パンポット
-    panSlider.setup({ .parent = *this, .id = padPrefix + postPan, .title = "Pan" });
+    panSlider.setup({ .parent = *this, .id = padPrefix + postPan, .title = "Pan", .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
 
-    btnPanL.setup({ .parent = *this, .title = "L" });
+    btnPanL.setup({ .parent = *this, .title = "L", .isReset = false });
     btnPanL.addListener(&ctx.editor);
 
-    btnPanC.setup({ .parent = *this, .title = "C" });
+    btnPanC.setup({ .parent = *this, .title = "C", .isReset = false });
     btnPanC.addListener(&ctx.editor);
 
-    btnPanR.setup({ .parent = *this, .title = "R" });
+    btnPanR.setup({ .parent = *this, .title = "R", .isReset = false });
     btnPanR.addListener(&ctx.editor);
 
     // Vol
-    volSlider.setup({ .parent = *this, .id = padPrefix + postVolume, .title = "Vol" });
+    volSlider.setup({ .parent = *this, .id = padPrefix + postVolume, .title = "Vol", .isReset = true });
 
     // RR
-    rrSlider.setup({ .parent = *this, .id = padPrefix + postRr, .title = opRrLabel });
+    rrSlider.setup({ .parent = *this, .id = padPrefix + postRr, .title = opRrLabel, .isReset = true });
 
 }
 
@@ -137,9 +138,9 @@ void GuiRhythm::setup()
 
     mainGroup.setup(*this, mGroupTitle);
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
+    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
    
-	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol" });
+	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol", .isReset = true });
 
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)

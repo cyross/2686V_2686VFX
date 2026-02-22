@@ -30,23 +30,23 @@ void GuiAdpcm::setup()
     };
 
     mainGroup.setup(*this, mGroupTitle);
-    modeSelector.setup({ .parent = *this, .id = code + postMode, .title = "Quality", .items = qualityItems});
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems });
+    modeSelector.setup({ .parent = *this, .id = code + postMode, .title = "Quality", .items = qualityItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
+    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
 
     // 出力レベル
-	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol" });
+	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol", .isReset = true });
 
     // パンポット設定
-	panSlider.setup({ .parent = *this, .id = code + postPan, .title = "Pan" });
+	panSlider.setup({ .parent = *this, .id = code + postPan, .title = "Pan", .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     addAndMakeVisible(btnPanL); btnPanL.setButtonText("L"); btnPanL.addListener(&ctx.editor);
     addAndMakeVisible(btnPanC); btnPanC.setButtonText("C"); btnPanC.addListener(&ctx.editor);
     addAndMakeVisible(btnPanR); btnPanR.setButtonText("R"); btnPanR.addListener(&ctx.editor);
 
     // ループトグルボタン
-	loopButton.setup({ .parent = *this, .id = code + postLoop, .title = "Loop" });
+	loopButton.setup({ .parent = *this, .id = code + postLoop, .title = "Loop", .isReset = true });
 
 	paramGroup.setup(*this, "ADPCM Parameters");
 
@@ -55,8 +55,7 @@ void GuiAdpcm::setup()
     loadButton.addListener(&ctx.editor);
 
     // ロードしているファイル名
-    addAndMakeVisible(fileNameLabel);
-    fileNameLabel.setText("No File Loaded", juce::dontSendNotification);
+    fileNameLabel.setup({ .parent = *this, .title = emptyFilename});
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -71,10 +70,10 @@ void GuiAdpcm::setup()
         fileNameLabel.setText("No File", juce::dontSendNotification);
     };
 
-    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel });
-    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel });
-    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel });
-    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel });
+    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel, .isReset = true });
 }
 
 void GuiAdpcm::layout(juce::Rectangle<int> content)

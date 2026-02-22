@@ -31,16 +31,16 @@ void GuiFx::setup()
     // MainGroup
     mainGroup.setup(*this, mGroupTitle);
 
-	bypassToggle.setup({ .parent = *this, .id = code + postBypass, .title = masterBypassLabel });
+	bypassToggle.setup({ .parent = *this, .id = code + postBypass, .title = masterBypassLabel, .isReset = true });
 
-	masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = false });
+	masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
 
     // Tremolo Group
 	tremGroup.setup(*this, "Tremolo");
-    tBypassBtn.setup({ .parent = *this, .id = code + codeFxTrm + postBypass, .title = "Bypass" });
-	tRateSlider.setup({ .parent = *this, .id = code + codeFxTrm + postRate, .title = "Rate" });
-    tDepthSlider.setup({ .parent = *this, .id = code + codeFxTrm + postDepth, .title = "Depth" });
-    tMixSlider.setup({ .parent = *this, .id = code + codeFxTrm + postMix, .title = "Mix" });
+    tBypassBtn.setup({ .parent = *this, .id = code + codeFxTrm + postBypass, .title = "Bypass", .isReset = true });
+	tRateSlider.setup({ .parent = *this, .id = code + codeFxTrm + postRate, .title = "Rate", .isReset = true });
+    tDepthSlider.setup({ .parent = *this, .id = code + codeFxTrm + postDepth, .title = "Depth", .isReset = true });
+    tMixSlider.setup({ .parent = *this, .id = code + codeFxTrm + postMix, .title = "Mix", .isReset = true });
 	tDryBtn.setup({ .parent = *this, .title = "Dry" });
     tDryBtn.onClick = [&] { tMixSlider.setValue(0.0f); };
     tHalfBtn.setup({ .parent = *this, .title = "50%" });
@@ -50,10 +50,10 @@ void GuiFx::setup()
 
     // Vibrato Group
 	vibGroup.setup(*this, "Vibrato");
-    vBypassBtn.setup({ .parent = *this, .id = code + codeFxVib + postBypass, .title = "Bypass" });
-    vRateSlider.setup({ .parent = *this, .id = code + codeFxVib + postRate, .title = "Rate" });
-    vDepthSlider.setup({ .parent = *this, .id = code + codeFxVib + postDepth, .title = "Depth" });
-    vMixSlider.setup({ .parent = *this, .id = code + codeFxVib + postMix, .title = "Mix" });
+    vBypassBtn.setup({ .parent = *this, .id = code + codeFxVib + postBypass, .title = "Bypass", .isReset = true });
+    vRateSlider.setup({ .parent = *this, .id = code + codeFxVib + postRate, .title = "Rate", .isReset = true });
+    vDepthSlider.setup({ .parent = *this, .id = code + codeFxVib + postDepth, .title = "Depth", .isReset = true });
+    vMixSlider.setup({ .parent = *this, .id = code + codeFxVib + postMix, .title = "Mix", .isReset = true });
     vDryBtn.setup({ .parent = *this, .title = "Dry" });
     vDryBtn.onClick = [&] { vMixSlider.setValue(0.0f); };
     vHalfBtn.setup({ .parent = *this, .title = "50%" });
@@ -63,10 +63,10 @@ void GuiFx::setup()
 
     // Modern Bit Crusher Group
 	mbcGroup.setup(*this, "Modern Bit Crusher");
-    mbcBypassBtn.setup({ .parent = *this, .id = code + codeFxMbc + postBypass, .title = "Bypass" });
-    mbcRateSlider.setup({ .parent = *this, .id = code + codeFxMbc + postRate, .title = "Rate" });
-    mbcBitsSlider.setup({ .parent = *this, .id = code + codeFxMbc + postDepth, .title = "Depth" });
-    mbcMixSlider.setup({ .parent = *this, .id = code + codeFxMbc + postMix, .title = "Mix" });
+    mbcBypassBtn.setup({ .parent = *this, .id = code + codeFxMbc + postBypass, .title = "Bypass", .isReset = true });
+    mbcRateSlider.setup({ .parent = *this, .id = code + codeFxMbc + postRate, .title = "Rate", .isReset = true });
+    mbcBitsSlider.setup({ .parent = *this, .id = code + codeFxMbc + postFxBit, .title = "Depth", .isReset = true });
+    mbcMixSlider.setup({ .parent = *this, .id = code + codeFxMbc + postMix, .title = "Mix", .isReset = true });
     mbcDryBtn.setup({ .parent = *this, .title = "Dry" });
     mbcDryBtn.onClick = [&] { mbcMixSlider.setValue(0.0f); };
     mbcHalfBtn.setup({ .parent = *this, .title = "50%" });
@@ -76,10 +76,10 @@ void GuiFx::setup()
 
     // Delay Group
 	delayGroup.setup(*this, "Delay");
-    dBypassBtn.setup({ .parent = *this, .id = code + codeFxDly + postBypass, .title = "Bypass" });
-    dTimeSlider.setup({ .parent = *this, .id = code + codeFxDly + postFxTime, .title = "Time (ms)" });
-    dFbSlider.setup({ .parent = *this, .id = code + codeFxDly + postFxFb, .title = "Feedback" });
-    dMixSlider.setup({ .parent = *this, .id = code + codeFxDly + postMix, .title = "Mix" });
+    dBypassBtn.setup({ .parent = *this, .id = code + codeFxDly + postBypass, .title = "Bypass", .isReset = true });
+    dTimeSlider.setup({ .parent = *this, .id = code + codeFxDly + postFxTime, .title = "Time (ms)", .isReset = true });
+    dFbSlider.setup({ .parent = *this, .id = code + codeFxDly + postFxFb, .title = "Feedback", .isReset = true });
+    dMixSlider.setup({ .parent = *this, .id = code + codeFxDly + postMix, .title = "Mix", .isReset = true });
     dDryBtn.setup({ .parent = *this, .title = "Dry" });
     dDryBtn.onClick = [&] { dMixSlider.setValue(0.0f); };
     dHalfBtn.setup({ .parent = *this, .title = "50%" });
@@ -89,10 +89,10 @@ void GuiFx::setup()
 
     // Reverb Group
 	reverbGroup.setup(*this, "Reverb");
-    rBypassBtn.setup({ .parent = *this, .id = code + codeFxRvb + postBypass, .title = "Bypass" });
-    rSizeSlider.setup({ .parent = *this, .id = code + codeFxRvb + postFxSize, .title = "Size" });
-    rDampSlider.setup({ .parent = *this, .id = code + codeFxRvb + postFxDamp, .title = "Damp" });
-    rMixSlider.setup({ .parent = *this, .id = code + codeFxRvb + postMix, .title = "Mix" });
+    rBypassBtn.setup({ .parent = *this, .id = code + codeFxRvb + postBypass, .title = "Bypass", .isReset = true });
+    rSizeSlider.setup({ .parent = *this, .id = code + codeFxRvb + postFxSize, .title = "Size", .isReset = true });
+    rDampSlider.setup({ .parent = *this, .id = code + codeFxRvb + postFxDamp, .title = "Damp", .isReset = true });
+    rMixSlider.setup({ .parent = *this, .id = code + codeFxRvb + postMix, .title = "Mix", .isReset = true });
     rDryBtn.setup({ .parent = *this, .title = "Dry" });
     rDryBtn.onClick = [&] { rMixSlider.setValue(0.0f); };
     rHalfBtn.setup({ .parent = *this, .title = "50%" });
@@ -102,10 +102,10 @@ void GuiFx::setup()
 
     // Retro Bit Crusher Group
 	rbcGroup.setup(*this, "Retro Bit Crusher");
-	rbcBypassBtn.setup({ .parent = *this, .id = code + codeFxRbc + postBypass, .title = "Bypass" });
-    rbcRateSelector.setup({ .parent = *this, .id = code + codeFxRbc + postRate, .title = "Rate", .items = rateItems });
-    rbcBitsSelector.setup({ .parent = *this, .id = code + codeFxRbc + postFxBit, .title = "Quality", .items = qualityItems });
-    tMixSlider.setup({ .parent = *this, .id = code + codeFxRbc + postMix, .title = "Mix" });
+	rbcBypassBtn.setup({ .parent = *this, .id = code + codeFxRbc + postBypass, .title = "Bypass", .isReset = true });
+    rbcRateSelector.setup({ .parent = *this, .id = code + codeFxRbc + postRate, .title = "Rate", .items = rateItems, .isReset = true });
+    rbcBitsSelector.setup({ .parent = *this, .id = code + codeFxRbc + postFxBit, .title = "Quality", .items = qualityItems, .isReset = true });
+    tMixSlider.setup({ .parent = *this, .id = code + codeFxRbc + postMix, .title = "Mix", .isReset = true });
     rbcDryBtn.setup({ .parent = *this, .title = "Dry" });
     rbcDryBtn.onClick = [&] { rbcMixSlider.setValue(0.0f); };
     rbcHalfBtn.setup({ .parent = *this, .title = "50%" });
