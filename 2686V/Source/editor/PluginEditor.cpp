@@ -90,6 +90,25 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     }
 #endif
 
+    addAndMakeVisible(togglePreviewBtn);
+    addChildComponent(waveformPreview); // 最初は非表示なので addChildComponent にする
+
+    togglePreviewBtn.onClick = [this] {
+        isPreviewVisible = !isPreviewVisible;
+
+        // 1. 波形コンポーネントの表示/非表示を切り替え
+        waveformPreview.setVisible(isPreviewVisible);
+
+        // 2. ボタンのテキストを変更
+        togglePreviewBtn.setButtonText(isPreviewVisible ? "Hide Waveform" : "Show Waveform");
+
+        // 3. ウィンドウサイズを動的に変更！ (これがトリガーになって resized() が呼ばれる)
+        int newHeight = isPreviewVisible ? WindowHeight + PreviewHeight : WindowHeight;
+        setSize(WindowWidth, newHeight);
+    };
+
+    startTimerHz(15);
+
     setSize(WindowWidth, WindowHeight);
 }
 
@@ -105,6 +124,8 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 	rhythmGui->removeLoadButtonListener(this);
 #endif
     audioProcessor.apvts.removeParameterListener(codeMode, this);
+
+    stopTimer();
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -146,6 +167,22 @@ void AudioPlugin2686VEditor::resized()
     logoLabel.setBounds(getLocalBounds().reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
     auto area = getLocalBounds();
+
+    if (isPreviewVisible)
+    {
+        auto previewArea = area.removeFromBottom(PreviewHeight);
+
+        // プレビュー画面の少し上にトグルボタンを配置する例
+        auto btnArea = previewArea.removeFromTop(24).removeFromRight(120);
+        togglePreviewBtn.setBounds(btnArea);
+
+        waveformPreview.setBounds(previewArea);
+    }
+    else
+    {
+        // プレビュー非表示時は、右下などにトグルボタンを配置
+        togglePreviewBtn.setBounds(area.getRight() - 125, area.getBottom() - 29, 120, 24);
+    }
 
     tabs.setBounds(area);
 
@@ -670,3 +707,17 @@ void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
     }
 }
 #endif
+
+void AudioPlugin2686VEditor::timerCallback()
+{
+    if (isPreviewVisible)
+    {
+        std::vector<float> previewData;
+
+        // プロセッサに「現在のパラメータで波形を計算して！」と依頼する
+        audioProcessor.generatePreviewWaveform(previewData);
+
+        // 計算結果をそのままプレビュー画面に渡す
+        waveformPreview.pushBuffer(previewData.data(), (int)previewData.size());
+    }
+}

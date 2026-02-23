@@ -108,6 +108,8 @@ public:
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
 
+    // --- Preview ---
+    void generatePreviewWaveform(std::vector<float>& destBuffer);
 private:
 #if !defined(BUILD_AS_FX_PLUGIN)
     // SynthSound/SynthVoice へ直接メソッドを渡す必用を鑑みて
@@ -134,6 +136,9 @@ private:
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
     void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
+
+    juce::Synthesiser previewSynth;
+    std::unique_ptr<SynthSound> previewSound;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

@@ -5,6 +5,7 @@
 #include <functional>
 #include <span>
 #include <vector>
+#include <atomic>
 #include "GuiColor.h"
 #include "GuiStructs.h"
 #include "GuiConstants.h"
@@ -30,6 +31,66 @@ class ColoredGroupComponent : public juce::GroupComponent
 public:
     void setBackgroundColor(juce::Colour c);
     void paint(juce::Graphics& g) override;
+};
+
+class GuiWaveformPreview : public juce::Component, public juce::Timer
+{
+public:
+    GuiWaveformPreview()
+    {
+        // 30fps (約33ms) で画面更新
+        startTimerHz(30);
+        m_displayBuffer.resize(512, 0.0f);
+    }
+
+    // AudioProcessorのprocessBlockから呼ばれる関数
+    void pushBuffer(const float* data, int numSamples)
+    {
+        // 簡単な実装：一定数のサンプルをコピーする
+        int copySize = juce::jmin(numSamples, (int)m_displayBuffer.size());
+        for (int i = 0; i < copySize; ++i) {
+            m_displayBuffer[i] = data[i];
+        }
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        // 背景を黒く塗りつぶす
+        g.fillAll(juce::Colours::black);
+        g.setColour(juce::Colours::darkgrey);
+        g.drawRect(getLocalBounds(), 1);
+
+        // 中央のゼロ線
+        g.setColour(juce::Colours::grey.withAlpha(0.5f));
+        g.drawLine(0, getHeight() / 2.0f, getWidth(), getHeight() / 2.0f);
+
+        // 波形の描画パスを作成
+        juce::Path wavePath;
+        float halfHeight = getHeight() / 2.0f;
+        float xStep = (float)getWidth() / m_displayBuffer.size();
+
+        wavePath.startNewSubPath(0, halfHeight - (m_displayBuffer[0] * halfHeight));
+
+        for (size_t i = 1; i < m_displayBuffer.size(); ++i)
+        {
+            float x = i * xStep;
+            // 振幅( -1.0 ~ 1.0 )をY座標にマッピング
+            float y = halfHeight - (m_displayBuffer[i] * halfHeight);
+            wavePath.lineTo(x, y);
+        }
+
+        // 鮮やかな色（例：シアン）で線を描画
+        g.setColour(juce::Colours::cyan);
+        g.strokePath(wavePath, juce::PathStrokeType(2.0f));
+    }
+
+    void timerCallback() override
+    {
+        repaint(); // タイマーで定期的に再描画
+    }
+
+private:
+    std::vector<float> m_displayBuffer;
 };
 
 class GuiBaseComponent

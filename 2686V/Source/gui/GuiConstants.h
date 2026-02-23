@@ -8,6 +8,7 @@ static const float LogoFontSize = 128.0f;
 
 static const int WindowWidth = 1280;
 static const int WindowHeight = 600;
+static const int PreviewHeight = 150;    // 波形画面を開いた時に増える高さ
 
 #if defined(BUILD_AS_FX_PLUGIN)
 static const int TabNumber = 3;

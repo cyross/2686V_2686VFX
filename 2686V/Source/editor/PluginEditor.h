@@ -38,11 +38,16 @@ class AudioPlugin2686VEditor :
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,
-    public juce::AudioProcessorValueTreeState::Listener
+    public juce::AudioProcessorValueTreeState::Listener,
+    public juce::Timer
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
     ~AudioPlugin2686VEditor() override;
+
+    juce::TextButton togglePreviewBtn{ "Show Waveform" };
+    GuiWaveformPreview waveformPreview;
+    bool isPreviewVisible = false;
 
     void paint(juce::Graphics&) override;
     void resized() override;
@@ -100,6 +105,7 @@ public:
         presetGui->updatePresetPath();
 	}
 #endif
+    void timerCallback() override; 
 private:
     AudioPlugin2686V& audioProcessor;
 

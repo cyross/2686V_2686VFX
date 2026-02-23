@@ -34,6 +34,10 @@ AudioPlugin2686V::AudioPlugin2686V()
         m_synth.addVoice(synthVoices[i].get());
     }
 
+    previewSound = std::make_unique<SynthSound>();
+    previewSynth.addSound(previewSound.get());
+    previewSynth.addVoice(new SynthVoice()); // 1ボイスだけ追加
+
     formatManager.registerBasicFormats();
 #endif
     loadStartupSettings();
@@ -780,3 +784,68 @@ void AudioPlugin2686V::unloadOpzx3PcmFile(int opIndex)
     }
 }
 #endif
+
+void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
+{
+    // 1. 現在の全パラメータを APVTS から取得して SynthParams に詰める
+    SynthParams currentParams;
+    int m = (int)*apvts.getRawParameterValue(codeMode);
+    currentParams.mode = (OscMode)m;
+
+    // 現在のモードに合わせてパラメータを更新
+    switch (currentParams.mode) {
+    case OscMode::OPNA:      prOpna.processBlock(currentParams, apvts); break;
+    case OscMode::OPN:       prOpn.processBlock(currentParams, apvts); break;
+    case OscMode::OPL:       prOpl.processBlock(currentParams, apvts); break;
+    case OscMode::OPL3:      prOpl3.processBlock(currentParams, apvts); break;
+    case OscMode::OPM:       prOpm.processBlock(currentParams, apvts); break;
+    case OscMode::OPZX3:     prOpzx3.processBlock(currentParams, apvts); break;
+    case OscMode::SSG:       prSsg.processBlock(currentParams, apvts); break;
+    case OscMode::WAVETABLE: prWt.processBlock(currentParams, apvts); break;
+    case OscMode::RHYTHM:    prRhythm.processBlock(currentParams, apvts); break;
+    case OscMode::ADPCM:     prAdpcm.processBlock(currentParams, apvts); break;
+    }
+
+    // 2. プレビュー用ボイスにパラメータを適用
+    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
+        voice->setParameters(currentParams);
+        // (必要であれば PCM バッファなどもここで渡す)
+        for (int i = 0; i < 4; ++i) {
+            voice->setOpzx3PcmBuffer(i, &opzx3PcmBuffers[i]);
+        }
+    }
+
+    // 3. サンプルレートを固定して発音開始 (110Hz = A2)
+    previewSynth.setCurrentPlaybackSampleRate(44100.0);
+    previewSynth.noteOn(1, 45, 1.0f);
+
+    // 4. 空回し (アタックフェーズをスキップして波形を安定させる)
+    // 512サンプル × 20回 ≒ 約0.23秒ほど時間を進める
+    juce::AudioBuffer<float> skipBuffer(2, 512);
+    for (int i = 0; i < 20; ++i) {
+        skipBuffer.clear();
+        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, 512);
+    }
+
+    // 5. 描画用の波形を取得 (400サンプル ≒ 110Hzのちょうど1周期分)
+    juce::AudioBuffer<float> renderBuffer(2, 400);
+    renderBuffer.clear();
+    previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, 400);
+
+    // 6. オートノーマライズ (音量が小さくても画面いっぱいに波形の形を描画する)
+    destBuffer.assign(400, 0.0f);
+    auto* readPtr = renderBuffer.getReadPointer(0); // Lチャンネルを使用
+
+    float maxAmplitude = 0.0001f; // ゼロ除算防止
+    for (int i = 0; i < 400; ++i) {
+        maxAmplitude = std::max(maxAmplitude, std::abs(readPtr[i]));
+    }
+
+    for (int i = 0; i < 400; ++i) {
+        // 波形の形を見やすくするため、最大値が 1.0 になるように拡大
+        destBuffer[i] = readPtr[i] / maxAmplitude;
+    }
+
+    // 7. 発音停止
+    previewSynth.noteOff(1, 45, 0.0f, false);
+}
