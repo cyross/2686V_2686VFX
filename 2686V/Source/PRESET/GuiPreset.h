@@ -1,0 +1,67 @@
+﻿#pragma once
+
+#include <JuceHeader.h>
+#include <array>
+#include "../gui/GuiComponents.h"
+#include "../gui/GuiBase.h"
+#include "../gui/GuiContext.h"
+
+class GuiPreset : public GuiBase
+{
+    GuiGroup mainGroup;
+    GuiGroup metaGroup;
+
+    // UI Components
+    GuiLabel pathLabel; // パス表示用
+
+    GuiTableList table; // メタデータ付きリスト
+
+    GuiTextEditor nameEditor;
+    GuiTextEditor authorEditor;
+    GuiTextEditor versionEditor;
+    GuiTextEditor commentEditor;
+
+    // Buttons
+    GuiTextButton initButton;
+
+    GuiTextButton saveButton;
+
+    GuiTextButton loadButton;
+
+    GuiTextButton deleteButton;
+
+    GuiTextButton refreshButton;
+
+    GuiTextButton reflectButton; // Reflect Info
+
+    GuiTextButton copyButton;    // Copy Info to Clipboard
+
+    // Callback for Editor
+    std::function<void(const juce::File&)> onDoubleClicked;
+
+    juce::File getSelectedFile() const;
+public:
+	GuiPreset(const GuiContext& context) :
+        GuiBase(context),
+        mainGroup(context),
+        metaGroup(context),
+        pathLabel(context),
+        table(context),
+        nameEditor(context), authorEditor(context), versionEditor(context), commentEditor(context),
+        initButton(context), saveButton(context), loadButton(context), deleteButton(context), refreshButton(context),
+        reflectButton(context), copyButton(context)
+    {
+    }
+
+    // Data
+    juce::File currentFolder;
+    std::vector<PresetItem> items; // 読み込んだプリセット一覧
+
+    void setup() override;
+    void layout(juce::Rectangle<int> content) override;
+	void setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment);
+    void clearTable();
+	void updateTableContent();
+	void repaintTable();
+    void updatePresetPath();
+};
