@@ -240,6 +240,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
 - [MAMEのFM271部分](https://git.libretro.com/libretro/mame/-/blob/f3218cc336813f24adf720e7c48b544e7bfc2d0e/src/devices/sound/ymf271.cpp)
+- [OPL3解析ドキュメント](https://moddingwiki.shikadi.net/wiki/OPL_chip)
 
 ## 更新履歴
 

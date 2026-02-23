@@ -138,6 +138,7 @@ float Opl3Core::getSample() {
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
+        // [OP0] -> [OP1] -> [OP2] -> [OP3]
         case 0:
             m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f; // Mask
@@ -147,59 +148,35 @@ float Opl3Core::getSample() {
             if (m_opMask[3]) out4 = 0.0f; // Mask
             finalOut = out4;
             break;
+        // [OP0] + ([OP1] -> [OP2] -> [OP3])
         case 1:
-            m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out4;
-            break;
-        case 2:
             m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f; // Mask
             m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpVal, lfoPitchVal);
+            m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
             if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out4;
+            finalOut = out1 + out4;
             break;
-        case 3:
+        // ([OP0] -> [OP1]) + ([OP2] -> [OP3])
+        case 2:
             m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f; // Mask
             m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
+            m_operators[3].getSample(out4, out3 + out1, lfoAmpVal, lfoPitchVal);
             if (m_opMask[3]) out4 = 0.0f; // Mask
             finalOut = out2 + out4;
             break;
-        case 4:
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
+        // [OP0] + ([OP1] + [OP2]) + [OP3]
+        case 3:
+            m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
+            m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
             if (m_opMask[2]) out3 = 0.0f; // Mask
             m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
             if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out2 + out3 + out4;
-            break;
-        case 5:
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out2 + out3 + out4;
-            break;
-        case 6:
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out2 + out3 + out4;
+            finalOut = out1 + out3 + out4;
             break;
         default:
             m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
