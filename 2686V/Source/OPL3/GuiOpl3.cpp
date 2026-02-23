@@ -10,7 +10,12 @@ void GuiOpl3::setup()
 {
     const juce::String code = codeOpl3;
 
-    std::vector<SelectItem> algItems = createAlgItems(4);
+    std::vector<SelectItem> algItems = {
+        {.name = "0: [OP0]:FB -> [OP1] -> [OP2] -> [OP3]", .value = 1 },
+        {.name = "1: [OP0]:FB + ([OP1] -> [OP2] -> [OP3])", .value = 2 },
+        {.name = "2: ([OP0]:FB -> [OP1]) + ([OP2] -> [OP3])", .value = 3 },
+        {.name = "3: [OP0]:FB + ([OP1] + [OP2]) + [OP3]", .value = 4 },
+    };
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = {
         {.name = "0: Sine", .value = 1},

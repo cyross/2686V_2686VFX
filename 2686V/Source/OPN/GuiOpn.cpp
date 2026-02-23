@@ -10,7 +10,16 @@ void GuiOpn::setup()
 {
     const juce::String code = codeOpn;
 
-    std::vector<SelectItem> algItems = createAlgItems(8);
+    std::vector<SelectItem> algItems = {
+        {.name = "0: [OP0]:FB -> [OP1] -> [OP2] -> [OP3]", .value = 1 },
+        {.name = "1: ([OP0]:FB + [OP1]) -> [OP2] -> [OP3]", .value = 2 },
+        {.name = "2: ([OP0] -> [OP1] + [OP2]:FB) -> [OP3]", .value = 3 },
+        {.name = "3: ([OP0]:FB -> [OP1]) + [OP2] -> [OP3]", .value = 4 },
+        {.name = "4: ([OP0]:FB -> [OP1]) + ([OP2] -> [OP3])", .value = 5 },
+        {.name = "5: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 6 },
+        {.name = "6: ([OP0]:FB -> [OP1]) + [OP2] + [OP3]", .value = 7 },
+        {.name = "7: [OP0]:FB + [OP1] + [OP2] + [OP3]", .value = 8 },
+    };
     std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
 
     std::vector<SelectItem> bdItems = {

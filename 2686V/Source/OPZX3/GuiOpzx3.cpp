@@ -13,7 +13,36 @@ void GuiOpzx3::setup()
 
     std::vector<SelectItem> pmsItems = createItems(8, "Pms: ");
     std::vector<SelectItem> amsItems = createItems(4, "Ams: ");
-    std::vector<SelectItem> algItems = createAlgItems(28);
+    std::vector<SelectItem> algItems = {
+        {.name = "00: [OP0]:FB -> [OP1] -> [OP2] -> [OP3]", .value = 1 },
+        {.name = "01: ([OP0] -> [OP1]):FB -> [OP2] -> [OP3]", .value = 2 },
+        {.name = "02: ([OP0]:FB + [OP1]) -> [OP2] -> [OP3]", .value = 3 },
+        {.name = "03: ([OP0]:FB -> [OP3]) + ([OP1] -> [OP2] -> [OP3])", .value = 4 },
+        {.name = "04: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 5 },
+        {.name = "05: ([OP0] -> [OP1]):FB + ([OP0] -> [OP2]) + ([OP0] -> [OP3])", .value = 6 },
+        {.name = "06: ([OP0]:FB -> [OP1]) + ([OP2] -> [O32])", .value = 7 },
+        {.name = "07: ([OP0] -> [OP1]):FB + ([OP2] -> [O32])", .value = 8 },
+        {.name = "08: [OP0]:FB + ([OP1] -> [OP2] -> [OP3])", .value = 9 },
+        {.name = "09: [OP0]:FB + ([OP1] -> [OP2]) -> [OP3]", .value = 10 },
+        {.name = "10: ([OP0]:FB -> [OP1]) + [OP2] + [OP3]", .value = 11 },
+        {.name = "11: ([OP0] -> [OP1]):FB + [OP2] + [OP3]", .value = 12 },
+        {.name = "12: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 13 },
+        {.name = "13: [OP0]:FB + ([OP1] -> [OP2]) + [OP3]", .value = 14 },
+        {.name = "14: [OP0]:FB + ([OP0]:FB -> [OP1]) + ([OP2] -> [OP3])", .value = 15 },
+        {.name = "15: [OP0]:FB + [OP1] + [OP2] + [OP3]", .value = 16 },
+        {.name = "16 [OP0]:FB -> [OP1] -> [OP2]", .value = 17 },
+        {.name = "17 ([OP0] -> [OP1]):FB -> [OP2]", .value = 18 },
+        {.name = "18 ([OP0]:FB + [OP2]) -> [OP1]", .value = 19 },
+        {.name = "19: [OP0]:FB + [OP2] -> [OP1]", .value = 20 },
+        {.name = "20: ([OP0]:FB -> [OP2]) + [OP1]", .value = 21 },
+        {.name = "21: ([OP0]:FB -> [OP1]):FB + [OP2]", .value = 22 },
+        {.name = "22: [OP0]:FB + ([OP1] -> [OP2]) + [OP1]", .value = 23 },
+        {.name = "23: [OP0]:FB + ([OP0] -> [OP2]) + [OP1]", .value = 24 },
+        {.name = "24: [OP0]:FB -> [OP1]", .value = 25 },
+        {.name = "25: ([OP0] -> [OP1]):FB", .value = 26 },
+        {.name = "26: [OP0]:FB + [OP1]", .value = 27 },
+        {.name = "27: [OP0]:FB + ([OP0] -> [OP1])", .value = 28 },
+    };
     std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
     std::vector<SelectItem> bdItems = {
         {.name = "0: 4-bit (16 steps)",  .value = 1 },
