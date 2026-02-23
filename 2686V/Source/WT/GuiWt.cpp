@@ -77,12 +77,26 @@ void GuiWt::setup()
 	customSliders32.setup({ .parent = *this, .idPrefix = code + codeCustom32 });
     customSliders64.setup({ .parent = *this, .idPrefix = code + codeCustom64 });
 
-	customWaveResetBtn.setup({ .parent = *this, .title = "Reset", .isReset = false, .isResized = false });
-    customWaveResetBtn.onClick = [this] {
-        customSliders32.resetValues();
-        customSliders64.resetValues();
+	customWaveResetTo0Btn.setup({ .parent = *this, .title = "-> 0.0", .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
+    customWaveResetTo0Btn.onClick = [this] {
+        customSliders32.setAllValues(0.0f);
+        customSliders64.setAllValues(0.0f);
         resized();
     };
+
+    customWaveResetTo1Btn.setup({ .parent = *this, .title = "-> 1.0", .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
+    customWaveResetTo1Btn.onClick = [this] {
+        customSliders32.setAllValues(1.0f);
+        customSliders64.setAllValues(1.0f);
+        resized();
+        };
+
+    customWaveResetToM1Btn.setup({ .parent = *this, .title = "-> -1.0", .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
+    customWaveResetToM1Btn.onClick = [this] {
+        customSliders32.setAllValues(-1.0f);
+        customSliders64.setAllValues(-1.0f);
+        resized();
+        };
 }
 
 void GuiWt::layout(juce::Rectangle<int> content)
@@ -122,7 +136,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
     sizeSelector.label.setEnabled(isCustomWave);
     customSliders32.setEnabled(isCustomWave);
     customSliders64.setEnabled(isCustomWave);
-    customWaveResetBtn.setEnabled(isCustomWave);
+    customWaveResetTo0Btn.setEnabled(isCustomWave);
+    customWaveResetTo1Btn.setEnabled(isCustomWave);
+    customWaveResetToM1Btn.setEnabled(isCustomWave);
 
     // Custom Wave
     // Custom Mode Layout
@@ -175,5 +191,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
     }
 
     cwRect.removeFromTop(WtCustomSliderResetBtnPaddingTop);
-    layoutComponentsLtoR(cwRect, WtCustomSliderResetBtnHeight, MainLastRowPaddingBottom, { { &customWaveResetBtn, { MainRegButtonWidth, 0} } });
+    layoutComponentsLtoR(cwRect, WtCustomSliderResetBtnHeight, MainLastRowPaddingBottom, {
+        { &customWaveResetTo0Btn, { WtCustomResetTo0ButtonWidth, WtCustomSliderResetBtnPaddingRight} },
+        { &customWaveResetTo1Btn, { WtCustomResetTo1ButtonWidth, WtCustomSliderResetBtnPaddingRight} },
+        { &customWaveResetToM1Btn, { WtCustomResetToM1ButtonWidth, 0} }
+    });
 }

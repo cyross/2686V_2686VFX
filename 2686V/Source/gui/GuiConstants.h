@@ -105,7 +105,12 @@ static const int WtHeight = 640;
 static const int WtCustomSliderWidth = 30;
 static const int WtCustomSliderHeight = 480;
 static const int WtCustomSliderResetBtnPaddingTop = 8;
+static const int WtCustomSliderResetBtnPaddingRight = 4;
 static const int WtCustomSliderResetBtnHeight = 36;
+static const int WtCustomResetTo0ButtonWidth = 120;
+static const int WtCustomResetTo1ButtonWidth = 120;
+static const int WtCustomResetToM1ButtonWidth = 120;
+
 static const int RhythmPadsAreaWidth = FmOpWidth;
 static const int RhythmPadsAreaHeight = 240;
 
