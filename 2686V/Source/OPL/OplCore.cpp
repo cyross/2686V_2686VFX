@@ -149,7 +149,7 @@ float OplCore::getSample() {
         else { // Parallel (AM)
             m_operators[1].getSample(out2, 0.0f, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f;
-            finalOut = (out1 + out2) * 0.5f;
+            finalOut = out1 + out2;
         }
 
         if (m_quantizeSteps > 0.0f) {

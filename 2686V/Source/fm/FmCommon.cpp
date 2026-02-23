@@ -216,16 +216,31 @@ float FmOperator::calcWaveform(double phase, int wave)
         {
             return (float)(phase < 0.25 ? s : 0.0); // Quarter Sine (Pulse Sine)
         }
-        // case 4:  return (float)(phase < 0.5 ? s : -s); // Alternating Sine (Period*2 like) -> actually OPL3 "Camel" is different
+    // OPL3の Wave 4 (Alternating Sine)
+    // 2倍の速度でサイン波を1周期描くが、後半(phase >= 0.5)はゼロになる
     case 4:
-        return (float)(std::sin(p * 2.0) * (phase < 0.5 ? 1.0 : -1.0)); // SD-1 spec for 4: "Alternating Half Sine" (Phase x 2)
-    case 5:  return (float)(std::abs(std::sin(p * 2.0))); // Alt Abs (Camel)
+        return (float)(phase < 0.5 ? std::sin(p * 2.0) : 0.0);
+
+        // ★修正: OPL3の Wave 5 (Alternating Abs Sine)
+        // 2倍の速度で全波整流を描くが、後半(phase >= 0.5)はゼロになる
+    case 5:
+        return (float)(phase < 0.5 ? std::abs(std::sin(p * 2.0)) : 0.0);
+
     case 6:  return (float)(phase < 0.5 ? 1.0 : -1.0); // Square
-    case 7:  return (float)(s > 0.0 ? s : 0.0) * (phase < 0.5 ? 1.0 : -1.0); // Derived Square (Saturated Sine)
-        // Or simple Saw approximation using Sine segments?
-        // SD-1 7 is "Exponentiated Sine" or "Derived Square".
-        // Let's use "Square-ish Sine" for now.
-        // 8-12: Saw / Tri Variations
+
+    // OPL3の Wave 7 (Derived Square / Exponentiated Sine)
+    // 実機は対数テーブルから生成された、頭が少し丸い特殊な矩形波。
+    // 近似として「サイン波を少し歪ませた形」に修正します。
+    case 7:
+    {
+        float sign = (phase < 0.5) ? 1.0f : -1.0f;
+        // サイン波を指数関数的に持ち上げて矩形波に近づける(OPL3独特の硬い音)
+        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+    }
+    // Or simple Saw approximation using Sine segments?
+    // SD-1 7 is "Exponentiated Sine" or "Derived Square".
+    // Let's use "Square-ish Sine" for now.
+    // 8-12: Saw / Tri Variations
     case 8:  return (float)(1.0 - phase * 2.0); // Saw Down
     case 9:  return (float)(phase * 2.0 - 1.0); // Saw Up
     case 10: // Triangle

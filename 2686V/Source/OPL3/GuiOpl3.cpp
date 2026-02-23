@@ -10,7 +10,7 @@ void GuiOpl3::setup()
 {
     const juce::String code = codeOpl3;
 
-    std::vector<SelectItem> algItems = createAlgItems(8);
+    std::vector<SelectItem> algItems = createAlgItems(4);
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = {
         {.name = "0: Sine", .value = 1},
@@ -73,12 +73,16 @@ void GuiOpl3::setup()
         rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = mRrLabel, .isReset = true, .regType = RegisterType::FmRr });
 
         am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postAm, .title = opVibLabel, .isReset = true });
+
         vib[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postVib, .title = opEgTypeLabel, .isReset = true });
+
         egType[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postEgType, .title = opAmLabel, .isReset = true });
+
         ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postKsr, .title = opKsrLabel, .isReset = true });
         ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postKsl, .title = opKslLabel, .items = kslItems, .isReset = true });
 
-        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postEg, .title = opEgLabel, .items = egItems, .isReset = true });
+        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postEg, .title = opWsLabel, .items = egItems, .isReset = true });
+
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
     }
 }
