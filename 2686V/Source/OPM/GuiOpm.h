@@ -16,7 +16,6 @@ class GuiOpm : public GuiBase
     // Global
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
-    GuiFbSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
@@ -55,7 +54,6 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         algSelector(context),
         feedbackSlider(context),
-        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoFreqSlider(context),

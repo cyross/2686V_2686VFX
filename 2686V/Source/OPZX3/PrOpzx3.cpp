@@ -7,7 +7,6 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpzx3 + postAlg, codeOpzx3 + mPostAlgTitle, mOpxz3AlgMin, mOpxz3AlgMax, mOpxz3AlgDefault));
     layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpzx3 + postFb0, codeOpzx3 + mPostFb0Title, mFb0Min, mFb0Max, mFb0Default));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpzx3 + postFb2, codeOpzx3 + mPostFb2Title, mFb2Min, mFb2Max, mFb2Default));
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpzx3 + postBit, codeOpzx3 + mPostBitTitle, mBitMin, mBitMax, mBitDefault));
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpzx3 + postRate, codeOpzx3 + mPostRateTitle, mRateMin, mRateMax, mRateDefault)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpzx3 + postLFreq, codeOpzx3 + mPostLfoFreq, mLfoFreqMin, mLfoFreqMax, mLfoFreqDefault));
@@ -42,7 +41,6 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 {
     params.algorithm = (int)*apvts.getRawParameterValue(codeOpzx3 + postAlg);
     params.feedback = *apvts.getRawParameterValue(codeOpzx3 + postFb0);
-    params.feedback2 = *apvts.getRawParameterValue(codeOpzx3 + postFb2);
     params.fmBitDepth = (int)*apvts.getRawParameterValue(codeOpzx3 + postBit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(codeOpzx3 + postRate);
     params.lfoFreq = *apvts.getRawParameterValue(codeOpzx3 + postLFreq);
@@ -68,7 +66,7 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.fmOp[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + postSeFreq);
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + postFix) > opBoolThread);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + postFixFreq);
-        params.fmOp[op].waveSelect = 0; // Sine
+        params.fmOp[op].waveSelect = (int)*apvts.getRawParameterValue(p + postWs);
         params.fmOp[op].amEnable = false;
         params.fmOp[op].vibEnable = true;
         params.fmOp[op].egType = true;

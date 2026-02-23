@@ -16,7 +16,6 @@ class GuiOpzx3 : public GuiBase
     // Global
     GuiComboBox algSelector;
     GuiSlider feedbackSlider;
-    GuiSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiSlider lfoFreqSlider;
@@ -44,6 +43,9 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiTextButton, Fm4Ops> freqToZero;
     std::array<GuiTextButton, Fm4Ops> freqTo440;
     std::array<GuiComboBox, Fm4Ops> ws;
+    std::array<GuiTextButton, Fm4Ops> loadPcmBtn;
+    std::array<GuiTextButton, Fm4Ops> clearPcmBtn;
+    std::array<GuiLabel, Fm4Ops> pcmFileNameLabel;
     std::array<GuiToggleButton, Fm4Ops> mask; // Mask
     std::array<GuiMmlButton, Fm4Ops> mml;
 
@@ -55,7 +57,6 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         algSelector(context),
         feedbackSlider(context),
-        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoFreqSlider(context),
@@ -78,6 +79,9 @@ public:
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) }
     {
@@ -85,4 +89,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void updatePcmFileName(int opIndex, const juce::String& fileName) {
+        pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+    }
 };

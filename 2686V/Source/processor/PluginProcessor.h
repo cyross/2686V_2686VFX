@@ -81,6 +81,13 @@ public:
     void savePreset(const juce::File& file);
     void loadPreset(const juce::File& file);
     void initPreset();
+
+    // --- OPZX3 PCM File ---
+    std::array<std::vector<float>, 4> opzx3PcmBuffers;
+    std::array<juce::String, 4> opzx3PcmFilePaths;
+
+    void loadOpzx3PcmFile(int opIndex, const juce::File& file);
+    void unloadOpzx3PcmFile(int opIndex);
 #endif
 
     // --- Settings Data ---
@@ -103,6 +110,9 @@ public:
 
 private:
 #if !defined(BUILD_AS_FX_PLUGIN)
+    // SynthSound/SynthVoice へ直接メソッドを渡す必用を鑑みて
+    std::unique_ptr<SynthSound> synthSound;
+    std::vector<std::unique_ptr<SynthVoice>> synthVoices;
     OpnaProcessor prOpna;
     OpnProcessor prOpn;
     OplProcessor prOpl;

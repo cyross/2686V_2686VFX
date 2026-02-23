@@ -1,5 +1,6 @@
 ﻿#include "GuiOpzx3.h"
 
+#include "../processor/PluginProcessor.h"
 #include "../gui/GuiConstants.h"
 #include "../gui/LabelConstants.h"
 #include "../fm/OpConstants.h"
@@ -12,7 +13,7 @@ void GuiOpzx3::setup()
 
     std::vector<SelectItem> pmsItems = createItems(8, "Pms: ");
     std::vector<SelectItem> amsItems = createItems(4, "Ams: ");
-    std::vector<SelectItem> algItems = createAlgItems(27);
+    std::vector<SelectItem> algItems = createAlgItems(28);
     std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
     std::vector<SelectItem> bdItems = {
         {.name = "0: 4-bit (16 steps)",  .value = 1 },
@@ -61,6 +62,7 @@ void GuiOpzx3::setup()
         {.name = "26: Metallic 1", .value = 27},
         {.name = "27: Metallic 2", .value = 28},
         {.name = "28: Noise-Like", .value = 29},
+        {.name = "29: PCM(Audio) File", .value = 30},
     };
 
     mainGroup.setup(*this, mGroupTitle);
@@ -69,7 +71,6 @@ void GuiOpzx3::setup()
 
     algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
-    feedback2Slider.setup({ .parent = *this, .id = code + postFb2, .title = mFb2Title, .isReset = true });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + postLFreq, .title = mLfoFreq, .isReset = true });
     lfoPmsSelector.setup({ .parent = *this, .id = codeOpna + postLPms, .title = mLfoPms, .items = pmsItems, .isReset = true });
@@ -102,6 +103,8 @@ void GuiOpzx3::setup()
         d2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postD2r, .title = opD2rLabel, .isReset = true, .regType = RegisterType::FmSr });
         rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = mRrLabel, .isReset = true, .regType = RegisterType::FmRr });
 
+        ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postKs, .title = opKsLabel, .items = ksItems, .isReset = true });
+
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postFix, .title = opFixLabel, .isReset = true });
         freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postFixFreq, .title = opFFreqLabel, .isReset = true });
         freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = opFreqTo0Label, .isReset = false, .isResized = false });
@@ -110,6 +113,37 @@ void GuiOpzx3::setup()
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = wsItems, .isReset = true });
+
+        loadPcmBtn[i].setup({ .parent = *this, .title = opPcmLabel, .isReset = false, .isResized = false });
+        loadPcmBtn[i].onClick = [this, i] {
+            auto fileFilter = ctx.audioProcessor.formatManager.getWildcardForAllFormats();
+            ctx.editor.openFileChooser(
+                "Load PCM for OP" + juce::String(i + 1),
+                ctx.audioProcessor.lastSampleDirectory,
+                fileFilter,
+                [this, i](const juce::FileChooser& fc) {
+                    auto file = fc.getResult();
+                    if (file.existsAsFile()) {
+                        ctx.audioProcessor.loadOpzx3PcmFile(i, file);
+                        updatePcmFileName(i, file.getFileName());
+                        ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    }
+                }
+            );
+        };
+
+        clearPcmBtn[i].setup({ .parent = *this, .title = opPcmClearLabel, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearPcmBtn[i].onClick = [this, i] {
+            ctx.audioProcessor.unloadOpzx3PcmFile(i);
+            updatePcmFileName(i, emptyFilename);
+        };
+
+        pcmFileNameLabel[i].setup({ .parent = *this, .title = emptyFilename });
+        if (ctx.audioProcessor.opzx3PcmFilePaths[i].isNotEmpty()) {
+            updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx3PcmFilePaths[i]).getFileName());
+        }
+
+
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
     }
 }
@@ -127,10 +161,10 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &rateSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &rateSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &algSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &algSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &feedbackSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &feedbackSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &feedback2Slider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &feedback2Slider, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoFreqSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoFreqSlider, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoPmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoPmsSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoAmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoAmsSelector, { MainRegValueWidth, 0} } });
+
     layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
@@ -159,6 +193,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &freq[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &freq[i], { OpRegValueWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &ws[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &ws[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &loadPcmBtn[i], { OpRegLabelWidth, OpRegPaddingRight } }, { &pcmFileNameLabel[i], { OpRegPcmFilePathWidth, OpRegPaddingRight } }, { &clearPcmBtn[i], { OpRegClearPcmFileWidth, 0 } } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &mask[i], { OpRegButtonWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &mml[i], { OpRegButtonWidth, 0} } });
     }

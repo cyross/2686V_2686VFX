@@ -228,20 +228,35 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
   - 1994年
 
 - 「PC-9801-86サウンドボード ユーザーズマニュアル」
-  - 日本電気編
+  - 日本電気 編
   - 日本電気
   - 1993年
 
+-「Inside X68000」
+  - 桒野雅彦 著
+  - ソフトバンク
+  - 1992年
+
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
+- [MAMEのFM271部分](https://git.libretro.com/libretro/mame/-/blob/f3218cc336813f24adf720e7c48b544e7bfc2d0e/src/devices/sound/ymf271.cpp)
 
 ## 更新履歴
 
 ### 2026.02.XX
 
 - v0.2.0
-- Master Volumeの初期値を -3.0dB に変更
+- <2686V>OPM/OPZX3 のパラメータ設定から Feedback2 を削除
+- <2686V>OPZX3 のアルゴリズム見直し
+- <2686V>OPZX3 の各OPに任意のPCMファイルをロードする機能を追加(WSの拡張機能扱い)
+- <2686V>カスタム波形メモリに以下の機能を追加
+  - 波形メモリ編集画面をホバー・ドラッグすると、その値をツールチップ表示
+  - 各スライダーに-1.0, -0.5,  0.0,  0.5,  1.0に変更するボタンを追加
+  - 全スライダーに-1.0,  1.0  に変更するボタンを追加
+- - Master Volumeの初期値を -3.0dB に変更
 - リファクタリング第2弾
+  - 大幅なモジュール化
+  - 定数・構造体の分離
 - 一部パラメータの設定バグを修正
 - マニュアル修正
 - 軽微バグ修正
