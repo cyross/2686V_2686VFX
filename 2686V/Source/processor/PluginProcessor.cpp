@@ -468,6 +468,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     juce::XmlElement xml(envCode);
 
     xml.setAttribute(settingWallpaperPath, wallpaperPath);
+    xml.setAttribute(settingWallpaperMode, wallpaperMode);
     xml.setAttribute(settingDefaultSampleDir, defaultSampleDir);
     xml.setAttribute(settingDefaultPresetDir, defaultPresetDir);
     xml.setAttribute(settingShowTooltips, showTooltips);
@@ -486,6 +487,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
     if (xml.get() != nullptr && xml->hasTagName(envCode))
     {
         wallpaperPath = xml->getStringAttribute(settingWallpaperPath);
+        wallpaperMode = xml->getIntAttribute(settingWallpaperMode);
         defaultSampleDir = xml->getStringAttribute(settingDefaultSampleDir);
         defaultPresetDir = xml->getStringAttribute(settingDefaultPresetDir);
         showTooltips = xml->getBoolAttribute(settingShowTooltips, defaultShowTooltip);

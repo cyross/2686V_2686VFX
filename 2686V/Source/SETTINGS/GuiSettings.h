@@ -10,11 +10,14 @@ class GuiSettings : public GuiBase
 {
     GuiGroup mainGroup;
 
-    // Wallpaper
+    // WallpaperPath
     GuiLabel wallpaperLabel;
     GuiLabel wallpaperPathLabel;
     GuiTextButton wallpaperBrowseBtn;
     GuiTextButton wallpaperClearBtn;
+
+    // Wallpaper Mode
+    GuiComboBox wallpaperModeSelector;
 
     // Directories
     GuiLabel sampleDirLabel;
@@ -44,6 +47,7 @@ public:
         wallpaperPathLabel(context),
         wallpaperBrowseBtn(context),
         wallpaperClearBtn(context),
+        wallpaperModeSelector(context),
         sampleDirLabel(context),
         sampleDirPathLabel(context),
         sampleDirBrowseBtn(context),

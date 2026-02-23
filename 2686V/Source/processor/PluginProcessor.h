@@ -85,6 +85,7 @@ public:
 
     // --- Settings Data ---
     juce::String wallpaperPath;
+    int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
     bool showTooltips = true; // For show Parameter Range Tooltop
