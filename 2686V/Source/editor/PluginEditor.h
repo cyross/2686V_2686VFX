@@ -33,10 +33,6 @@
 #include "../processor/PluginProcessor.h"
 #include "../fm/SliderRegMap.h"
 
-using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
-using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
-using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
-
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,

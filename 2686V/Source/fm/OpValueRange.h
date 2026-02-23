@@ -260,4 +260,4 @@ static inline const float masterVolumeMin = -60.0f; // 最小値（dB）
 static inline const float masterVolumeMax = 6.0f;   // 最大値（dB）
 static inline const float masterVolumeInterval = 0.1f; // ステップ値（dB）
 static inline const float masterVolumeSkew = 1.0f; // スキュー（1.0は線形）
-static inline const float masterVolumeDefault = -6.0f; // デフォルト値（dB）
+static inline const float masterVolumeDefault = -3.0f; // デフォルト値（dB）

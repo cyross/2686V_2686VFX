@@ -5,6 +5,7 @@
 #include <functional>
 #include <span>
 #include <vector>
+#include "GuiColor.h"
 #include "GuiStructs.h"
 #include "GuiConstants.h"
 #include "GuiHelpers.h"
@@ -25,12 +26,10 @@ public:
 
 class ColoredGroupComponent : public juce::GroupComponent
 {
+    juce::Colour backgroundColor = GuiColor::Group::Bg;
 public:
     void setBackgroundColor(juce::Colour c);
     void paint(juce::Graphics& g) override;
-
-private:
-    juce::Colour backgroundColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.4f);
 };
 
 class GuiBaseComponent
@@ -43,6 +42,8 @@ public:
 
 class GuiGroup : public ColoredGroupComponent, public GuiBaseComponent
 {
+    juce::Colour borderColor = GuiColor::Group::Border;
+    juce::Colour textColor = GuiColor::Group::Text;
 public:
     GuiGroup(const GuiContext& context) : GuiBaseComponent(context) {}
 
@@ -59,9 +60,7 @@ public:
         juce::String title;
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
-        juce::Colour color = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-        juce::Colour bgColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-        juce::Colour labelColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+        juce::Colour color = GuiColor::Label::Text;
     };
 
     void setup(const Config& c);
@@ -80,12 +79,15 @@ public:
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
-        juce::Colour trackColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-        juce::Colour thumbColor = juce::Colour::fromFloatRGBA(0.03f, 0.03f, 0.7f, 1.0f);
+        juce::Colour trackColor = GuiColor::Slider::Track;
+        juce::Colour thumbColor = GuiColor::Slider::Thumb;
+        juce::Colour valueBorderColor = GuiColor::Slider::Value::Border;
+        juce::Colour valueTextColor = GuiColor::Slider::Value::Text;
+        juce::Colour valueHighlightColor = GuiColor::Slider::Value::Highlight;
         bool isReset = false;
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
-        juce::Colour labelColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+        juce::Colour labelColor = GuiColor::Label::Text;
         RegisterType regType = RegisterType::None;
     };
 
@@ -106,13 +108,13 @@ public:
         juce::String id = "";
         juce::String title;
         std::vector<SelectItem>& items;
-        juce::Colour color = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-        juce::Colour bgColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);
+        juce::Colour color = GuiColor::ComboBox::Text;
+        juce::Colour bgColor = GuiColor::ComboBox::Bg;
         bool isReset = true;
         bool isResized = false;
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
-        juce::Colour labelColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+        juce::Colour labelColor = GuiColor::Label::Text;
     };
 
     void setup(const Config& c);
@@ -131,7 +133,7 @@ public:
         juce::String title;
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
-        juce::Colour color = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+        juce::Colour color = GuiColor::ToggleButton::Fg;
         bool isReset = false;
         bool isResized = false;
     };
@@ -150,8 +152,9 @@ public:
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
-        juce::Colour textColor = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-        juce::Colour bgColor = juce::Colour::fromFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);
+        juce::Colour textColor = GuiColor::TextButton::Text;
+        juce::Colour bgColor = GuiColor::TextButton::Bg;
+        juce::Colour borderColor = GuiColor::TextButton::Border;
         bool isReset = false;
         bool isResized = false;
     };
@@ -195,6 +198,9 @@ class GuiTableList : public juce::TableListBox, public juce::TableListBoxModel, 
 {
 protected:
     std::unique_ptr<ButtonAttachment> att;
+    juce::Colour selectedBgColor;
+    juce::Colour bgColor1;
+    juce::Colour bgColor2;
 public:
     GuiTableList(const GuiContext& context) : GuiBaseComponent(context) {
         this->setModel(this);
@@ -211,8 +217,11 @@ public:
         juce::String title;
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
-        juce::Colour color = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
-		bool canMultipleSelection = false;
+        juce::Colour color = GuiColor::TableList::Text;
+        juce::Colour bgColor1 = GuiColor::TableList::RowBg1;
+        juce::Colour bgColor2 = GuiColor::TableList::RowBg2;
+        juce::Colour selectedBgColor = GuiColor::TableList::SelectedBg;
+        bool canMultipleSelection = false;
     };
 
     void setup(const Config& c);
@@ -237,7 +246,10 @@ public:
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
-		bool isMultiLine = false;
+        juce::Colour color = GuiColor::TextEditor::Text;
+        juce::Colour bgColor = GuiColor::TextEditor::Bg;
+        juce::Colour borderColor = GuiColor::TextEditor::Border;
+        bool isMultiLine = false;
         bool isReturnKeyStartsNewLine = false;
     };
 

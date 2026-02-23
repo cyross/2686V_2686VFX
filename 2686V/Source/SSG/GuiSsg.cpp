@@ -68,7 +68,7 @@ void GuiSsg::setup()
 	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Tone", .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setup({ .parent = *this, .id = code + postNoise, .title = "Noise", .isReset = true, .regType = RegisterType::SsgVol });
 	noiseFreqSlider.setup({ .parent = *this, .id = code + postNoiseFreq, .title = "Freq", .isReset = true });
-	noiseOnNoteButton.setup({ .parent = *this, .id = code + postNoiseOnNote, .title = "Noise On Note", .isReset = true, .isResized = true });
+	noiseOnNoteButton.setup({ .parent = *this, .id = code + postNoiseOnNote, .title = "Noise On Note", .isReset = true });
 
     // 初期状態反映
 	mixSlider.setup({ .parent = *this, .id = code + postMix, .title = "Mix", .isReset = true });
@@ -79,7 +79,8 @@ void GuiSsg::setup()
     mixSetNoise.setup({ .parent = *this, .title = "Noise", .isReset = false, .isResized = false });
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-	adsrBypassButton.setup({ .parent = *this, .id = code + codeAdsr + postBypass, .title = "Bypass ADSR", .isReset = true, .isResized = true });
+	adsrBypassButton.setup({ .parent = *this, .id = code + codeAdsr + postBypass, .title = "Bypass ADSR", .isReset = true });
+
     attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });
     decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel, .isReset = true });
     sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel, .isReset = true });
@@ -91,7 +92,7 @@ void GuiSsg::setup()
 	dutyGroup.setup(*this, "Pulse Width (Duty)");
 	dutyModeSelector.setup({ .parent = *this, .id = code + postDutyMode, .title = "Mode", .items = dmItems, .isReset = true, .isResized = true });
 	dutyPresetSelector.setup({ .parent = *this, .id = code + postDutyPreset, .title = "Preset", .items = prItems, .isReset = true, .isResized = true });
-	dutyVarSlider.setup({ .parent = *this, .id = code + postDutyVar, .title = "Ratio" });
+	dutyVarSlider.setup({ .parent = *this, .id = code + postDutyVar, .title = "Ratio", .isReset = true });
 	dutyInvertButton.setup({ .parent = *this, .id = code + postDutyInv, .title = "Invert Phase", .isReset = true, .isResized = true });
 
 	triGroup.setup(*this, "Triangle Property");
@@ -107,8 +108,8 @@ void GuiSsg::setup()
 
     // HW Env Group
 	envGroup.setup(*this, "Hardware Envelope");
-	envEnableButton.setup({ .parent = *this, .id = code + postEnvEnable, .title = "Enable HW Env", .isReset = true, .isResized = true });
-	shapeSelector.setup({ .parent = *this, .id = code + postEnvShape, .title = "Shape", .items = envItems, .isReset = true, .isResized = true });
+	envEnableButton.setup({ .parent = *this, .id = code + postEnvEnable, .title = "Enable HW Env", .isReset = true });
+	shapeSelector.setup({ .parent = *this, .id = code + postEnvShape, .title = "Shape", .items = envItems, .isReset = true });
 	periodSlider.setup({ .parent = *this, .id = code + postEnvPeriod, .title = "Speed", .isReset = true, .regType = RegisterType::SsgEnv });
 }
 

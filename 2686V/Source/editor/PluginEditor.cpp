@@ -83,6 +83,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     // 2. 保存された設定に基づいてON/OFF初期化
     setTooltipState(audioProcessor.showTooltips);
+
+    if (presetGui->currentFolder.isDirectory()) {
+        scanPresets();
+    }
 #endif
 
     setSize(WindowWidth, WindowHeight);

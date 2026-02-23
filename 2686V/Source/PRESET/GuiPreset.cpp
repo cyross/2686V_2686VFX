@@ -52,7 +52,7 @@ void GuiPreset::setup()
     table.addColumn(presetTableVersionColTitle, 4, PresetTableVersionColTitleWidth);
     table.addColumn(presetTableModeColTitle, 5, PresetTableModeColTitleWidth);
     table.onGetNumRows = [this]() {
-        return items.size();
+        return (int)items.size();
     };
     table.onGetCellText = [this](int row, int columnId) {
         if (row >= items.size()) return juce::String();

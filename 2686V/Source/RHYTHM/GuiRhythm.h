@@ -57,8 +57,8 @@ public:
 	}
 
     void updatePadFileName(const juce::String& fileName);
-    void setup(int index, juce::String padName);
-	void layout(juce::Rectangle<int> content, int width);
+    void setup(juce::Component& parent, int index, juce::String padName);
+	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
 };

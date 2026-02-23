@@ -128,8 +128,6 @@ set(CONST_FILES
 set(CORE_FILES
     Source/core/PrBase.h
     Source/core/PrBase.cpp
-    Source/core/PrFile.h
-    Source/core/PrFile.cpp
 )
 
 set(SYNTH_FILES
@@ -158,16 +156,19 @@ set(FM_FILES
 )
 
 set(GUI_FILES
-    Source/gui/FileManager.h
-    Source/gui/FileManager.cpp
+    Source/gui/GuiFile.h
+    Source/gui/GuiFile.cpp
     Source/gui/GuiBase.h
     Source/gui/GuiBase.cpp
+    Source/gui/GuiColor.h
     Source/gui/GuiComponents.h
     Source/gui/GuiComponents.cpp
     Source/gui/GuiConstants.h
     Source/gui/GuiContext.h
     Source/gui/GuiHelpers.h
     Source/gui/GuiHelpers.cpp
+    Source/gui/GuiLF.h
+    Source/gui/GuiLF.cpp
     Source/gui/GuiSelectItems.h
     Source/gui/GuiStructs.h
     Source/gui/GuiStateManager.h

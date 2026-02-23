@@ -172,6 +172,12 @@ void GuiGroup::setup(juce::Component& parent, const juce::String title)
 {
     parent.addAndMakeVisible(*this);
 
+    this->setText(title);
+
+    this->setColour(juce::GroupComponent::textColourId, textColor);
+    this->setColour(juce::GroupComponent::outlineColourId, borderColor);
+
+    // 枠線が他のコンポーネントを削らないように最背面へ
     this->toBack();
 }
 
@@ -185,8 +191,6 @@ void GuiLabel::setup(const Config& c)
     {
         this->setColour(juce::Label::textColourId, c.color);
     }
-
-    this->toBack();
 }
 
 void GuiSlider::setup(const Config& c)
@@ -195,7 +199,7 @@ void GuiSlider::setup(const Config& c)
 
     c.parent.addAndMakeVisible(*this);
     this->setSliderStyle(juce::Slider::LinearHorizontal);
-    this->setTextBoxStyle(juce::Slider::TextBoxRight, false, label.getWidth(), label.getHeight());
+    this->setTextBoxStyle(juce::Slider::TextBoxRight, false, 42, 20);
 
     if (!c.trackColor.isTransparent())
     {
@@ -205,6 +209,21 @@ void GuiSlider::setup(const Config& c)
     if (!c.thumbColor.isTransparent())
     {
         this->setColour(juce::Slider::thumbColourId, c.thumbColor);
+    }
+
+    if (!c.valueBorderColor.isTransparent())
+    {
+        this->setColour(juce::Slider::textBoxOutlineColourId, c.valueBorderColor);
+    }
+
+    if (!c.valueTextColor.isTransparent())
+    {
+        this->setColour(juce::Slider::textBoxTextColourId, c.valueTextColor);
+    }
+
+    if (!c.valueHighlightColor.isTransparent())
+    {
+        this->setColour(juce::Slider::textBoxHighlightColourId, c.valueHighlightColor);
     }
 
     if (c.isReset)
@@ -341,6 +360,10 @@ void GuiTableList::setup(const Config& c)
     {
         this->setColour(juce::Label::textColourId, c.color);
     }
+
+    selectedBgColor = c.selectedBgColor;
+    bgColor1 = c.bgColor1;
+    bgColor2 = c.bgColor2;
 }
 
 void GuiTableList::addColumn(const juce::String& columnName, int columnId, int width)
@@ -358,10 +381,13 @@ int GuiTableList::getNumRows()
 // 行の背景を描画する
 void GuiTableList::paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) {
     if (rowIsSelected) {
-        g.fillAll(juce::Colours::lightblue.withAlpha(0.5f));
+        g.fillAll(selectedBgColor);
     }
     else if (rowNumber % 2) {
-        g.fillAll(juce::Colours::white.withAlpha(0.1f)); // ストライプ
+        g.fillAll(bgColor1); // ストライプ
+    }
+    else {
+        g.fillAll(bgColor2); // ストライプ
     }
 }
 
@@ -387,6 +413,21 @@ void GuiTextEditor::setup(const Config& c)
     c.parent.addAndMakeVisible(*this);
 
 	this->setMultiLine(c.isMultiLine);
+
+    if (!c.color.isTransparent())
+    {
+        this->setColour(juce::TextEditor::textColourId, c.color);
+    }
+
+    if (!c.bgColor.isTransparent())
+    {
+        this->setColour(juce::TextEditor::backgroundColourId, c.bgColor);
+    }
+
+    if (!c.borderColor.isTransparent())
+    {
+        this->setColour(juce::TextEditor::outlineColourId, c.borderColor);
+    }
 }
 
 void GuiFbSlider::setup(const GuiSlider::Config& c)

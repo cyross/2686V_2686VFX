@@ -59,6 +59,9 @@ void GuiWt::setup()
     // Waveform
 	waveSelector.setup({ .parent = *this, .id = code + postWave, .title = "Form", .items = wsItems, .isReset = true, .isResized = true });
 
+    // Custom Wave Size
+    sizeSelector.setup({ .parent = *this, .id = code + postSize, .title = "Size", .items = tsItems, .isReset = true, .isResized = true });
+
     // Modulation
     modEnableButton.setup({ .parent = *this, .id = code + postModEnable, .title = "Mod", .isReset = true, .isResized = true });
 	modDepthSlider.setup({ .parent = *this, .id = code + postModDepth, .title = "Depth", .isReset = true });
@@ -69,9 +72,6 @@ void GuiWt::setup()
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, "Custom Wave");
-
-    // Custom Wave Size
-	sizeSelector.setup({ .parent = *this, .id = code + postSize, .title = "Wave Size", .items = tsItems, .isReset = true, .isResized = true });
 
     // Custom Wave Sliders
 	customSliders32.setup({ .parent = *this, .idPrefix = code + codeCustom32 });

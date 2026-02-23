@@ -10,7 +10,7 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
     fileNameLabel.setText(fileName, juce::dontSendNotification);
 }
 
-void RhythmPadGui::setup(int index, juce::String padName)
+void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName)
 {
     // Prepare Items for ComboBoxes
     std::vector<SelectItem> qualityItems = {
@@ -32,6 +32,8 @@ void RhythmPadGui::setup(int index, juce::String padName)
         {.name = "5: 16kHz",    .value = 6 },
         {.name = "6: 8kHz",     .value = 7 },
     };
+
+    parent.addAndMakeVisible(this);
 
     juce::String padPrefix = codeRhythm + codePad + juce::String(index);
     juce::String padTitle = "Pad " + juce::String(index + 1) + " (" + padName + ")";
@@ -92,15 +94,13 @@ void RhythmPadGui::setup(int index, juce::String padName)
 
     // RR
     rrSlider.setup({ .parent = *this, .id = padPrefix + postRr, .title = opRrLabel, .isReset = true });
-
 }
 
-void RhythmPadGui::layout(juce::Rectangle<int> content, int width)
+void RhythmPadGui::layout(juce::Rectangle<int> content)
 {
-    auto padArea = content.removeFromLeft(width);
-    mainGroup.setBounds(padArea);
+    mainGroup.setBounds(content);
 
-    auto padRect = padArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    auto padRect = content.reduced(GroupPaddingWidth, GroupPaddingHeight);
 
     padRect.removeFromTop(TitlePaddingTop);
 
@@ -145,20 +145,22 @@ void GuiRhythm::setup()
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
     {
-        pads[i].setup(i, padNames[i]);
+        pads[i].setup(*this, i, padNames[i]);
     }
 }
 
 void GuiRhythm::layout(juce::Rectangle<int> content)
 {
     auto applyPads = [&](juce::Rectangle<int>& area, int width, int start, int length)
+    {
+        for (int i = start; i < start + length; ++i)
         {
-            for (int i = start; i < start + length; ++i)
-            {
-                pads[i].layout(area, width);
-            }
+            auto padArea = area.removeFromLeft(width);
 
-        };
+            pads[i].setBounds(padArea);
+            pads[i].layout(pads[i].getLocalBounds());
+        }
+    };
 
     // Top section for Master Volume
     auto pageArea = content.withZeroOrigin();
