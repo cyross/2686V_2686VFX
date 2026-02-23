@@ -130,6 +130,7 @@ private:
     std::unique_ptr<GuiAbout> aboutGui;
 
     juce::Image backgroundImage; // Cache for wallpaper
+    juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };

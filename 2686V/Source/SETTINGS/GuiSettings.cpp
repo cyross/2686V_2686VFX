@@ -1,11 +1,19 @@
 ﻿#include "GuiSettings.h"
 #include "../editor/PluginEditor.h"
+#include "../gui/GuiColor.h"
 #include "../gui/GuiConstants.h"
 #include "../gui/LabelConstants.h"
 #include "../fm/OpConstants.h"
 
 void GuiSettings::setup()
 {
+    std::vector<SelectItem> wpModeItems = {
+        {.name = "Stretch", .value = 1 },
+        {.name = "Fill",  .value = 2 },
+        {.name = "Fit",  .value = 3 },
+        {.name = "Original",   .value = 4 },
+    };
+
     mainGroup.setup(*this, "Environment Settings");
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
@@ -16,7 +24,7 @@ void GuiSettings::setup()
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
     };
 
-    // --- Wallpaper ---
+    // --- Wallpaper Path ---
     setupRow(wallpaperLabel, "Wallpaper:", wallpaperPathLabel, wallpaperBrowseBtn);
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath, juce::dontSendNotification);
     wallpaperBrowseBtn.onClick = [this] {
@@ -37,8 +45,16 @@ void GuiSettings::setup()
 	wallpaperClearBtn.setup({ .parent = *this, .title = "Clear", .isReset = false });
     wallpaperClearBtn.onClick = [this] {
         ctx.audioProcessor.wallpaperPath = "";
-        wallpaperPathLabel.setText("(None)", juce::dontSendNotification);
+        wallpaperPathLabel.setText(emptyFilename, juce::dontSendNotification);
         ctx.editor.loadWallpaperImage();
+    };
+
+    // --- Wallpaper Mode ---
+    wallpaperModeSelector.setup({ .parent = *this, .title = "Mode", .items = wpModeItems, .isReset = false });
+    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
+    wallpaperModeSelector.onChange = [this] {
+        ctx.audioProcessor.wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
+        ctx.editor.repaint(); // Editor全体の再描画を呼び出す
     };
 
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -143,6 +159,7 @@ void GuiSettings::setup()
 
                     // UI反映
                     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty() ? emptyFilename : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
+                    wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1);
                     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
                     presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
 
@@ -163,7 +180,7 @@ void GuiSettings::setup()
         );
     };
 
-    saveStartupSettingsBtn.setup({ .parent = *this, .title = "Save Current Settings as Default", .isReset = false });
+    saveStartupSettingsBtn.setup({ .parent = *this, .title = "Save Current Settings as Default", .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.onClick = [this]
         {
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
@@ -217,48 +234,55 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sRect = pageArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
     sRect.removeFromTop(TitlePaddingTop);
 
-    // 1. Wallpaper
-    auto row1 = sRect.removeFromTop(SettingsRowHeight);
-    wallpaperLabel.setBounds(row1.removeFromLeft(SettingsLabelWidth));
-    wallpaperClearBtn.setBounds(row1.removeFromRight(SettingsClearButtonWidth));
-    wallpaperBrowseBtn.setBounds(row1.removeFromRight(SettingsBrowseButtonWidth));
-    wallpaperPathLabel.setBounds(row1);
+    // 1. WallpaperPath
+    auto rowWpPath = sRect.removeFromTop(SettingsRowHeight);
+    wallpaperLabel.setBounds(rowWpPath.removeFromLeft(SettingsLabelWidth));
+    wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(SettingsClearButtonWidth));
+    wallpaperBrowseBtn.setBounds(rowWpPath.removeFromRight(SettingsBrowseButtonWidth));
+    wallpaperPathLabel.setBounds(rowWpPath);
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // 2. ADPCM Dir
-    auto row2 = sRect.removeFromTop(SettingsRowHeight);
-    sampleDirLabel.setBounds(row2.removeFromLeft(SettingsLabelWidth));
-    sampleDirBrowseBtn.setBounds(row2.removeFromRight(SettingsBrowseButtonWidth));
-    sampleDirPathLabel.setBounds(row2);
+    // 2. WallpaperMode
+    auto rowWpMode = sRect.removeFromTop(SettingsRowHeight);
+    wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(SettingsLabelWidth));
+    wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(SettingsModeSelectorWidth));
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // 3. Preset Dir
-    auto row3 = sRect.removeFromTop(SettingsRowHeight);
-    presetDirLabel.setBounds(row3.removeFromLeft(SettingsLabelWidth));
-    presetDirBrowseBtn.setBounds(row3.removeFromRight(SettingsBrowseButtonWidth));
-    presetDirPathLabel.setBounds(row3);
+    // 3. ADPCM Dir
+    auto rowAdpcmDir = sRect.removeFromTop(SettingsRowHeight);
+    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsLabelWidth));
+    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsBrowseButtonWidth));
+    sampleDirPathLabel.setBounds(rowAdpcmDir);
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // 4. Tooltip Visible Row
+    // 4. Preset Dir
+    auto rowPresetDir = sRect.removeFromTop(SettingsRowHeight);
+    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsLabelWidth));
+    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsBrowseButtonWidth));
+    presetDirPathLabel.setBounds(rowPresetDir);
+
+    sRect.removeFromTop(SettingsPaddingHeight);
+
+    // 5. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsRowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsToggleWidth));
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // Headroom Row
+    // 6. Headroom Row
     auto rowHeadroom = sRect.removeFromTop(SettingsRowHeight);
     useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsToggleWidth));
     headroomGainSlider.setBounds(rowHeadroom.removeFromLeft(SettingsHeadroomGainSliderWidth));
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // 5. Config IO Buttons (Fixed Layout)
-    auto row4 = sRect.removeFromTop(SettingsRowHeight);
+    // 7. Config IO Buttons (Fixed Layout)
+    auto rowIoBtns = sRect.removeFromTop(SettingsRowHeight);
 
-    layoutComponentsLtoR(row4, OpRowHeight, OpLastRowPaddingBottom, {
+    layoutComponentsLtoR(rowIoBtns, OpRowHeight, OpLastRowPaddingBottom, {
         { &loadSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
         { &saveSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
         { &saveStartupSettingsBtn, { SettingsButtonWidth, 0} }

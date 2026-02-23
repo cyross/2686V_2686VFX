@@ -6,6 +6,7 @@
 #include "PluginEditor.h"
 #include "../processor/PluginProcessor.h"
 #include "../const/FileConstants.h"
+#include "../gui/GuiColor.h"
 #include "../gui/GuiContext.h"
 #include "../fm/SliderRegMap.h"
 
@@ -176,16 +177,49 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 {
     if (backgroundImage.isValid())
     {
-        // Draw Image (Scale to fit)
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::stretchToFit);
+        int mode = audioProcessor.wallpaperMode;
+
+        // Fit または Original の場合、余白にぼかし背景を敷き詰める
+        if (mode == 2 || mode == 3)
+        {
+            if (blurredBackgroundImage.isValid())
+            {
+                // ぼかし画像を画面全体に Fill (アスペクト比を維持して隙間なく拡大) で描画
+                g.drawImage(blurredBackgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::fillDestination);
+
+                // ぼかし背景を少し暗く落とす (手前のメイン画像を目立たせるため)
+                g.fillAll(GuiColor::Editor::blurWallpaperBg);
+            }
+        }
+
+        int placement = juce::RectanglePlacement::stretchToFit; // デフォルト (0)
+
+        switch (audioProcessor.wallpaperMode)
+        {
+        case 0:
+            placement = juce::RectanglePlacement::stretchToFit;
+            break;
+        case 1:
+            placement = juce::RectanglePlacement::fillDestination;
+            break;
+        case 2:
+            placement = juce::RectanglePlacement::centred;
+            break;
+        case 3:
+            placement = juce::RectanglePlacement::centred | juce::RectanglePlacement::doNotResize;
+            break;
+        }
+
+        // Draw Image
+        g.drawImage(backgroundImage, getLocalBounds().toFloat(), placement);
 
         // Optional: Add a dark overlay to make controls readable
-        g.fillAll(juce::Colours::black.withAlpha(0.2f));
+        g.fillAll(GuiColor::Editor::wallpaperBg);
     }
     else
     {
         // Default Solid Color
-        g.fillAll(juce::Colour::fromFloatRGBA(0.15f, 0.15f, 0.15f, 1.0f));
+        g.fillAll(GuiColor::Editor::defaultBg);
     }
 
     // Reset color for other drawings
@@ -359,8 +393,6 @@ void AudioPlugin2686VEditor::saveCurrentPreset()
     }
 }
 
-
-
 void AudioPlugin2686VEditor::loadWallpaperImage()
 {
     if (audioProcessor.wallpaperPath.isNotEmpty())
@@ -369,12 +401,31 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
         if (imgFile.existsAsFile())
         {
             backgroundImage = juce::ImageFileFormat::loadFrom(imgFile);
+
+            // ぼかし背景の生成
+            if (backgroundImage.isValid())
+            {
+                // 1. 処理を軽くするため、画像を 1/16 サイズに縮小
+                int smallW = juce::jmax(1, backgroundImage.getWidth() / 16);
+                int smallH = juce::jmax(1, backgroundImage.getHeight() / 16);
+                juce::Image smallImg = backgroundImage.rescaled(smallW, smallH, juce::Graphics::lowResamplingQuality);
+
+                // 2. 5x5のガウシアンブラーをかける
+                juce::ImageConvolutionKernel blurKernel(5);
+                blurKernel.createGaussianBlur(2.0f); // ぼかしの強さ
+
+                // ブラーを適用するための出力先画像を作成
+                blurredBackgroundImage = juce::Image(smallImg.getFormat(), smallW, smallH, true);
+                blurKernel.applyToImage(blurredBackgroundImage, smallImg, smallImg.getBounds());
+            }
+
             repaint(); // Trigger redraw
         }
     }
     else
     {
         backgroundImage = juce::Image(); // Null image
+        blurredBackgroundImage = juce::Image(); // Null image
         repaint();
     }
 }

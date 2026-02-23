@@ -5,6 +5,11 @@
 namespace GuiColor {
 	static const juce::Colour defaultFgColor = juce::Colours::white.withAlpha(0.8f);
 	static const juce::Colour defaultBgColor = juce::Colours::transparentBlack;
+	namespace Editor {
+		static const juce::Colour defaultBg = juce::Colour::fromFloatRGBA(0.15f, 0.15f, 0.15f, 1.0f);
+		static const juce::Colour wallpaperBg = juce::Colours::black.withAlpha(0.2f);
+		static const juce::Colour blurWallpaperBg = juce::Colours::black.withAlpha(0.5f);
+	};
 	namespace Group {
 		static const juce::Colour Text = defaultFgColor;
 		static const juce::Colour Bg = juce::Colours::black.withAlpha(0.4f);
@@ -58,5 +63,8 @@ namespace GuiColor {
 			static const juce::Colour ToM05 = juce::Colours::cyan.withAlpha(0.7f);
 			static const juce::Colour ToM1 = juce::Colours::blue.withAlpha(0.7f);
 		}
+	};
+	namespace Settings {
+		static const juce::Colour SaveAsDefaultBtnBg = juce::Colours::green.withAlpha(0.5f);
 	};
 };

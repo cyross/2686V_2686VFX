@@ -148,6 +148,7 @@ static const int SettingsPaddingHeight = 4;
 static const int SettingsRowHeight = 30;
 static const int SettingsLabelWidth = 80;
 static const int SettingsLongLabelWidth = 140;
+static const int SettingsModeSelectorWidth = 320;
 static const int SettingsBrowseButtonWidth = 80;
 static const int SettingsClearButtonWidth = 60;
 static const int SettingsHeadroomGainSliderWidth = 200;

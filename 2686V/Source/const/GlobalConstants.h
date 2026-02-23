@@ -29,6 +29,7 @@ static inline const juce::String pluginParametersName = "Parameters";
 
 // 設定部分
 static inline const juce::String settingWallpaperPath = "wallpaperPath";
+static inline const juce::String settingWallpaperMode = "wallpaperMode";
 static inline const juce::String settingDefaultSampleDir = "defaultSampleDir";
 static inline const juce::String settingDefaultPresetDir = "defaultPresetDir";
 static inline const juce::String settingShowTooltips = "showTooltips";
