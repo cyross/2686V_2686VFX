@@ -10,7 +10,11 @@ void GuiOpl::setup()
 {
     const juce::String code = codeOpl;
 
-    std::vector<SelectItem> algItems = { {.name = "0: FM(Serial)", .value = 1}, {.name = "1: AM (Parallel)", .value = 2}, };
+    std::vector<SelectItem> algItems = {
+        {.name = "0: [OP0]:FB -> [OP1]", .value = 1 },
+        {.name = "1: [OP0]:FB + [OP1]", .value = 2 },
+    };
+
     std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
     std::vector<SelectItem> egItems = { {.name = "0: Sine", .value = 1}, {.name = "1: Half", .value = 2}, {.name = "2: Abs", .value = 3}, {.name = "3: Pulse", .value = 4}, };
 
