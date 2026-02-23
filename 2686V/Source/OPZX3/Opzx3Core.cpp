@@ -40,10 +40,6 @@ void Opzx3Core::setParameters(const SynthParams& params) {
         {
             fb = params.feedback;
         }
-        else if (i == 2) // OP2
-        {
-            fb = params.feedback2;
-        }
 
         // WaveSelect=True, SSG-EG=False, OpmEg=True
         m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);

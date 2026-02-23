@@ -69,7 +69,6 @@ void GuiOpzx3::setup()
 
     algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
-    feedback2Slider.setup({ .parent = *this, .id = code + postFb2, .title = mFb2Title, .isReset = true });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + postLFreq, .title = mLfoFreq, .isReset = true });
     lfoPmsSelector.setup({ .parent = *this, .id = codeOpna + postLPms, .title = mLfoPms, .items = pmsItems, .isReset = true });
@@ -127,7 +126,6 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &rateSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &rateSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &algSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &algSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &feedbackSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &feedbackSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &feedback2Slider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &feedback2Slider, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoFreqSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoFreqSlider, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoPmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoPmsSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoAmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoAmsSelector, { MainRegValueWidth, 0} } });

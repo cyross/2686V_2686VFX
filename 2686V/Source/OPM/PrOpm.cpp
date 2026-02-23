@@ -7,7 +7,6 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpm + postAlg, codeOpm + mPostAlgTitle, mAlgMin, mAlgMax, mAlgDefault));
     layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpm + postFb0, codeOpm + mPostFb0Title, mFb0Min, mFb0Max, mFb0Default));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpm + postFb2, codeOpm + mPostFb2Title, mFb2Min, mFb2Max, mFb2Default));
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpm + postBit, codeOpm + mPostBitTitle, mBitMin, mBitMax, mBitDefault));
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpm + postRate, codeOpm + mPostRateTitle, mRateMin, mRateMax, mRateDefault)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterFloat>(codeOpm + postLFreq, codeOpm + mPostLfoFreq, mLfoFreqMin, mLfoFreqMax, mLfoFreqDefault));
@@ -41,7 +40,6 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 {
     params.algorithm = (int)*apvts.getRawParameterValue(codeOpm + postAlg);
     params.feedback = *apvts.getRawParameterValue(codeOpm + postFb0);
-    params.feedback2 = *apvts.getRawParameterValue(codeOpm + postFb2);
     params.fmBitDepth = (int)*apvts.getRawParameterValue(codeOpm + postBit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(codeOpm + postRate);
     params.lfoFreq = *apvts.getRawParameterValue(codeOpm + postLFreq);

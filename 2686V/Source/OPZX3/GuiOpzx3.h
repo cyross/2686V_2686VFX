@@ -16,7 +16,6 @@ class GuiOpzx3 : public GuiBase
     // Global
     GuiComboBox algSelector;
     GuiSlider feedbackSlider;
-    GuiSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiSlider lfoFreqSlider;
@@ -55,7 +54,6 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         algSelector(context),
         feedbackSlider(context),
-        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoFreqSlider(context),
