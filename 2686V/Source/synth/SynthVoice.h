@@ -49,6 +49,8 @@ public:
 
     // コントローラー (CC)
     void controllerMoved(int controllerNumber, int newControllerValue) override;
+
+    void setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
 private:
     OscMode m_mode = OscMode::OPNA;
     OpnaCore m_opnaCore;

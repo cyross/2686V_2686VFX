@@ -307,3 +307,8 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
         }
     }
 }
+
+void SynthVoice::setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData)
+{
+    m_opzx3Core.setPcmBuffer(opIndex, pcmData);
+}

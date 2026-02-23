@@ -18,6 +18,8 @@ static inline const juce::String settingActiveModeName = "activeModeName";
 static inline const juce::String settingPluginVersion = "pluginVersion";
 static inline const juce::String settingAdpcmPath = "adpcmPath";
 static inline const juce::String settingRhythmPathPrefix = "rhythmPath";
+static inline const juce::String settingOpzx3PathPrefix = "opzx3PcmPath";
+
 
 // 初期メタデータ
 static inline const juce::String defaultPresetName = "Init Preset";

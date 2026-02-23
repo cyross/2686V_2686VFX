@@ -1,5 +1,6 @@
 ﻿#include "GuiOpzx3.h"
 
+#include "../processor/PluginProcessor.h"
 #include "../gui/GuiConstants.h"
 #include "../gui/LabelConstants.h"
 #include "../fm/OpConstants.h"
@@ -61,6 +62,7 @@ void GuiOpzx3::setup()
         {.name = "26: Metallic 1", .value = 27},
         {.name = "27: Metallic 2", .value = 28},
         {.name = "28: Noise-Like", .value = 29},
+        {.name = "29: PCM(Audio) File", .value = 30},
     };
 
     mainGroup.setup(*this, mGroupTitle);
@@ -111,6 +113,37 @@ void GuiOpzx3::setup()
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = wsItems, .isReset = true });
+
+        loadPcmBtn[i].setup({ .parent = *this, .title = opPcmLabel, .isReset = false, .isResized = false });
+        loadPcmBtn[i].onClick = [this, i] {
+            auto fileFilter = ctx.audioProcessor.formatManager.getWildcardForAllFormats();
+            ctx.editor.openFileChooser(
+                "Load PCM for OP" + juce::String(i + 1),
+                ctx.audioProcessor.lastSampleDirectory,
+                fileFilter,
+                [this, i](const juce::FileChooser& fc) {
+                    auto file = fc.getResult();
+                    if (file.existsAsFile()) {
+                        ctx.audioProcessor.loadOpzx3PcmFile(i, file);
+                        updatePcmFileName(i, file.getFileName());
+                        ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    }
+                }
+            );
+        };
+
+        clearPcmBtn[i].setup({ .parent = *this, .title = opPcmClearLabel, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearPcmBtn[i].onClick = [this, i] {
+            ctx.audioProcessor.unloadOpzx3PcmFile(i);
+            updatePcmFileName(i, emptyFilename);
+        };
+
+        pcmFileNameLabel[i].setup({ .parent = *this, .title = emptyFilename });
+        if (ctx.audioProcessor.opzx3PcmFilePaths[i].isNotEmpty()) {
+            updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx3PcmFilePaths[i]).getFileName());
+        }
+
+
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
     }
 }
@@ -131,6 +164,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoFreqSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoFreqSlider, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoPmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoPmsSelector, { MainRegValueWidth, 0} } });
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &lfoAmsSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &lfoAmsSelector, { MainRegValueWidth, 0} } });
+
     layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
 
     // --- B. Operators Section (Bottom) ---
@@ -159,6 +193,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &freq[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &freq[i], { OpRegValueWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &freqToZero[i], { OpRegFreqChangeButtonWidth, OpRegPaddingRight} }, { &freqTo440[i], { OpRegFreqChangeButtonWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &ws[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &ws[i], { OpRegValueWidth, 0} } });
+        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &loadPcmBtn[i], { OpRegLabelWidth, OpRegPaddingRight } }, { &pcmFileNameLabel[i], { OpRegPcmFilePathWidth, OpRegPaddingRight } }, { &clearPcmBtn[i], { OpRegClearPcmFileWidth, 0 } } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &mask[i], { OpRegButtonWidth, 0} } });
         layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &mml[i], { OpRegButtonWidth, 0} } });
     }

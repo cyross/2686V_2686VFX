@@ -446,3 +446,10 @@ float Opzx3Core::getSample() {
 void Opzx3Core::updateNoiseDelta(double targetRate) {
     if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
 }
+
+void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
+{
+    if (opIndex >= 0 && opIndex < 4) {
+        m_operators[opIndex].setPcmBuffer(pcmData);
+    }
+}

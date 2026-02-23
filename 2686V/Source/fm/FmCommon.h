@@ -24,6 +24,8 @@ public:
     void getSample(float& output, float modulator, float lfoAmp = 1.0f, float lfoPitch = 1.0f);
     void setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
+    // OPZX3 の外部 PCM データ用
+    void setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
 private:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
@@ -50,6 +52,9 @@ private:
     float m_fb1 = 0.0f; float m_fb2 = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
+
+    // OPZX3 の外部 PCM データ用
+    const std::vector<float>* m_pcmBuffer = nullptr;
 
     float calcWaveform(double phase, int wave);
     float getSsgEnvelopeLevel(double p);

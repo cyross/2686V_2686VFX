@@ -65,6 +65,8 @@ static inline const juce::String opVibLabel = "VIB";
 static inline const juce::String opEgTypeLabel = "EGTYPE";
 static inline const juce::String opEgLabel = "EG";
 static inline const juce::String opWsLabel = "WS";
+static inline const juce::String opPcmLabel = "PCM";
+static inline const juce::String opPcmClearLabel = "X";
 static inline const juce::String opFreqTo0Label = "Freq -> 0Hz";
 static inline const juce::String opFreqTo440Label = "Freq -> 440Hz";
 

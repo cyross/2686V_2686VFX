@@ -25,6 +25,7 @@ public:
     void setPitchBend(int pitchWheelValue);
     void setModulationWheel(int wheelValue);
     float getSample();
+    void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
 private:
     std::array<FmOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };

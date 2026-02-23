@@ -66,7 +66,7 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.fmOp[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + postSeFreq);
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + postFix) > opBoolThread);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + postFixFreq);
-        params.fmOp[op].waveSelect = 0; // Sine
+        params.fmOp[op].waveSelect = (int)*apvts.getRawParameterValue(p + postWs);
         params.fmOp[op].amEnable = false;
         params.fmOp[op].vibEnable = true;
         params.fmOp[op].egType = true;

@@ -275,6 +275,24 @@ float FmOperator::calcWaveform(double phase, int wave)
     case 28: // Noise-like (LFO Noiseとは別、周期的なノイズ波形)
         // Pseudo-random but phase locked
         return (float)(std::sin(p * 13.0) * std::cos(p * 7.0) * std::sin(p * 2.0));
+    case 29: // 外部オーディオファイル (PCM)
+        if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+        {
+            // 位相(0.0 ~ 2π)を、バッファのインデックス(0.0 ~ 1.0)に正規化
+            float phaseNorm = p / (2.0f * juce::MathConstants<float>::pi);
+
+            // バッファの長さに掛け合わせて、読み取る位置を計算
+            float floatIndex = phaseNorm * m_pcmBuffer->size();
+
+            // 整数部と小数部に分ける
+            int index1 = (int)floatIndex;
+            int index2 = (index1 + 1) % m_pcmBuffer->size(); // ループ処理
+            float frac = floatIndex - (float)index1;
+
+            // 線形補間（滑らかに波形をつなぐ）
+            return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
+        }
+        return (float)s; // ファイルが読み込まれていない場合はSine波にフォールバック
     default:
         return (float)s; // Default Sine
     }
