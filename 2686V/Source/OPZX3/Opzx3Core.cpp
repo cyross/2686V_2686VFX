@@ -45,6 +45,14 @@ void Opzx3Core::setParameters(const SynthParams& params) {
         m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);
         m_opMask[i] = params.fmOp[i].mask;
     }
+
+    // OPX特有の外部フィードバックアルゴリズムの場合、OP0の自己FBをオフにする
+    bool useExtFb = false;
+    if (m_algorithm == 1 || m_algorithm == 5 || m_algorithm == 7 || m_algorithm == 11) useExtFb = true; // 4OP: OP1->OP0 FB
+    if (m_algorithm == 17 || m_algorithm == 21) useExtFb = true; // 3OP: OP2->OP0 FB
+    if (m_algorithm == 25) useExtFb = true; // 2OP: OP1->OP0 FB
+
+    m_operators[0].setExternalFeedbackMode(useExtFb);
 }
 
 void Opzx3Core::noteOn(float freq, float velocity) {
@@ -151,157 +159,274 @@ float Opzx3Core::getSample() {
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
-        // Algorithm Routing (0-27)
+        // OPX (YMF271) Algorithm Routing (0-15)
         // =================================================================
         switch (m_algorithm) {
-
-            // --- 4-Operator Algorithms (0-15) ---
-            // 0-7: Standard OPM/OPN Compatible
-        case 0: // 1->2->3->4
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out4; break;
-        case 1: // (1+2)->3->4
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out4; break;
-        case 2: // 1+(2->3)->4
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out1 + out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out4; break;
-        case 3: // (1->2) + (3->4)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out4; break;
-        case 4: // (1->2) + 3 + 4
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out3 + out4; break;
-        case 5: // 1->(2,3,4)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out3 + out4; break;
-        case 6: // (1->2) + 3 + 4
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out3 + out4; break;
-        case 7: // 1 + 2 + 3 + 4
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out1 + out2 + out3 + out4; break;
-
-            // 8-15: Extended 4-Op Algorithms (Variations)
-        case 8: // 1->3, 2->4 (Cross)
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out3 + out4; break;
-        case 9: // 1->2->4, 3->4 (Mixed Input)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out4; break;
-        case 10: // 1->2->3, 4 (Series + 1 Parallel)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out3 + out4; break;
-        case 11: // 1->2, 3->2, 4 (Double Mod to 2)
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[1].getSample(out2, out1 + out3, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out4; break;
-        case 12: // 1->(2+3+4) (Super Split)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out3 + out4; break;
-        case 13: // (1+2+3)->4 (Super Mix)
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out1 + out2 + out3, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out4; break;
-        case 14: // 1->2, 3->4, 1->4 (Cross Mod)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out2 + out4; break;
-        case 15: // Ring Mod Simulation (1*2 -> out) - Pseudo
-            // Just Parallel for now to fill 16
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[3]) out4 = 0.0f;
-            finalOut = out1 + out2 + out3 + out4; break;
-
+            // 0: 0->1->2->3 (OPN Alg 0)
+        case 0:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 1: 0->1->2->3 (特殊FB版。ルーティング構造自体は0と同じ)
+        case 1:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[0].pushFeedback(out2); // Ext FB
+            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 2: (0+1)->2->3 (OPN Alg 1)
+        case 2:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod); 
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); 
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 3: 0->3, 1->2->3 (OPN Alg 2)
+        case 3:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out1 + out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 4: 0->1->3, 2->3 (OPN Alg 3)
+        case 4:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 5: 0->1->3, 2->3 (特殊FB版)
+        case 5:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); 
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[0].pushFeedback(out2); // Ext FB
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod); 
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); 
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4;
+            break;
+            // 6: 0->1(Out), 2->3(Out) (OPN Alg 5)
+        case 6:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out4;
+            break;
+            // 7: 0->1(Out), 2->3(Out) (特殊FB版)
+        case 7:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[0].pushFeedback(out2); // Ext FB
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out4;
+            break;
+            // 8: 0(Out), 1->2->3(Out)
+        case 8:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out1 + out4;
+            break;
+            // 9: 0(Out), (1+2)->3(Out)
+        case 9:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out1 + out4;
+            break;
+            // 10: 0->1(Out), 2(Out), 3(Out) (OPN Alg 6)
+        case 10:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out3 + out4;
+            break;
+            // 11: 0->1(Out), 2(Out), 3(Out) (特殊FB版)
+        case 11:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[0].pushFeedback(out2); // Ext FB
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out3 + out4;
+            break;
+            // 12: 0->1(Out), 0->2(Out), 0->3(Out) (OPN Alg 4)
+        case 12:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out3 + out4;
+            break;
+            // 13: 0(Out), 1->2(Out), 3(Out)
+        case 13:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out1 + out3 + out4;
+            break;
+            // 14: 0(Out), 0->1(Out), 2->3(Out)
+        case 14:
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out1 + out2 + out4;
+            break;
+            // 15: 0(Out), 1(Out), 2(Out), 3(Out) (OPN Alg 7)
+        case 15:
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out1 + out2 + out3 + out4;
+            break;
+            // =================================================================
             // --- 3-Operator Algorithms (16-23) ---
-            // Using Op1, Op2, Op3. Op4 is inactive.
+            // 使用: OP0(out1), OP1(out2), OP2(out3). ※OP3(out4)は音声出力には使われない
+            // =================================================================
         case 16: // 1->2->3
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out3; break;
-        case 17: // 1->3, 2->3
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out3; break;
-        case 18: // 1->2, 3
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out2 + out3; break;
-        case 19: // 1, 2->3
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out1 + out3; break;
-        case 20: // 1->(2,3)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out2 + out3; break;
-        case 21: // 1->2->3 (duplicate of 16 for filling) -> Let's do 2->1, 3
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out1 + out2 + out3; break;
-        case 22: // 1, 2, 3
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out1 + out2 + out3; break;
-        case 23: // (1+2)->3
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod); if (m_opMask[2]) out3 = 0.0f;
-            finalOut = out3; break;
-
-            // --- 2-Operator Algorithms (24-27) ---
-            // Using Op1, Op2.
-        case 24: // 1->2
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out2; break;
-        case 25: // 1, 2
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out1 + out2; break;
-        case 26: // 1+(1->2) (Feedback to 2 and Mix)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out1 + out2; break;
-        case 27: // 1->2 (Feedback on 2) - Simulation by ignoring logic
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out2; break;
-
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out2;
+            break;
+        case 17: // 0 -> 2 -> 1 -> Out (FB: 2->0)
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[0].pushFeedback(out3); // Ext FB
+            m_operators[1].getSample(out2, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out2;
+            break;
+        case 18: // (0(FB) + 2) -> 1 -> Out
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, out1 + out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out2;
+            break;
+        case 19: // 0(FB)->Out, 2->1->Out
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, out3, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out1 + out2;
+            break;
+        case 20: // 0(FB)->2->Out, 1->Out
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out3 + out2;
+            break;
+        case 21: // 0->2->Out (FB: 2->0), 1->Out
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[0].pushFeedback(out3); // Ext FB
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out3 + out2;
+            break;
+        case 22: // 0(FB)->Out, 1->Out, 2->Out
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out1 + out2 + out3;
+            break;
+        case 23: // 0(FB)->Out, 0->2->Out, 1->Out
+            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out1 + out3 + out2;
+            break;
+        // =================================================================
+        // --- 2-Operator Algorithms (24-27) ---
+        // 使用: OP0(out1), OP1(out2). ※OP2(out3)とOP3(out4)は音声出力には使われない
+        // =================================================================
+        case 24: // 0(FB) -> 1 -> Out
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out2;
+            break;
+        case 25: // 0 -> 1 -> Out (FB: 1->0)
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[0].pushFeedback(out2); // Ext FB
+            finalOut = out2;
+            break;
+        case 26: // 0(FB)->Out, 1->Out
+            m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out1 + out2;
+            break;
+        case 27: // 0(FB)->Out, 0->1->Out
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f;
+            finalOut = out1 + out2;
+            break;
         default:
-            finalOut = 0.0f; break;
+            finalOut = 0.0f;
+            break;
         }
 
-        // --- Update unused operators to keep EG/Phase running ---
-        if (m_algorithm >= 24) { // 2-Op Mode: Run 3 & 4
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+        // --- 出力に使われないOPのエンベロープ/位相を空回しして同期を保つ ---
+        if (m_algorithm >= 16 && m_algorithm <= 23) {
+            // 3OPモード: OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
         }
-        else if (m_algorithm >= 16) { // 3-Op Mode: Run 4
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+        else if (m_algorithm >= 24) {
+            // 2OPモード: OP2, OP3を空回し
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
+            m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
         }
 
         // Quantization

@@ -12,7 +12,7 @@ void GuiOpzx3::setup()
 
     std::vector<SelectItem> pmsItems = createItems(8, "Pms: ");
     std::vector<SelectItem> amsItems = createItems(4, "Ams: ");
-    std::vector<SelectItem> algItems = createAlgItems(27);
+    std::vector<SelectItem> algItems = createAlgItems(28);
     std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
     std::vector<SelectItem> bdItems = {
         {.name = "0: 4-bit (16 steps)",  .value = 1 },

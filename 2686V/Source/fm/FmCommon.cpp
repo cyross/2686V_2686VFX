@@ -180,9 +180,11 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     // これにより、Attackが1.0に張り付くスパイクノイズが解消されます。
     output = rawWave * envVal * m_targetLevel;
 
-    // Feedback Memory Update
-    // フィードバックはGain適用後の値を使うのが一般的ですが、FMの構成によっては適用前の場合もあります。今回は適用後でOKです。
-    m_fb2 = m_fb1; m_fb1 = output;
+    // 外部フィードバックモードでない場合のみ、自身の出力を格納する
+    if (!m_isExternalFeedback) {
+        m_fb2 = m_fb1;
+        m_fb1 = output;
+    }
 
     // Phase Advance
     m_phase += currentPhaseDelta;

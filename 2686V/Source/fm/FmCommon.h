@@ -22,6 +22,8 @@ public:
     float getCurrentEnvelope() const { return m_currentLevel; }
     void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
     void getSample(float& output, float modulator, float lfoAmp = 1.0f, float lfoPitch = 1.0f);
+    void setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
+    void pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
 private:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
@@ -34,6 +36,7 @@ private:
 
     FmOpParams m_params;
     float m_feedback = 0.0f;
+    bool m_isExternalFeedback = false;
     bool m_useSsgEg = false;
     bool m_useWaveSelect = false;
     bool m_useOpmEg = false;
