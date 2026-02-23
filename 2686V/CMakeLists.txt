@@ -63,6 +63,39 @@ set(CORE_FILES
     Source/core/PrBase.cpp
 )
 
+set(SYNTH_FILES
+    Source/synth/Mode.h
+    Source/synth/Mode.cpp
+    Source/synth/Pcm.h
+    Source/synth/Pcm.cpp
+    Source/synth/SynthHelpers.h
+    Source/synth/SynthHelpers.cpp
+    Source/synth/SynthParams.h
+    Source/synth/SynthVoice.h
+    Source/synth/SynthVoice.cpp
+)
+
+set(GUI_FILES
+    Source/gui/GuiFile.h
+    Source/gui/GuiFile.cpp
+    Source/gui/GuiBase.h
+    Source/gui/GuiBase.cpp
+    Source/gui/GuiColor.h
+    Source/gui/GuiComponents.h
+    Source/gui/GuiComponents.cpp
+    Source/gui/GuiConstants.h
+    Source/gui/GuiContext.h
+    Source/gui/GuiHelpers.h
+    Source/gui/GuiHelpers.cpp
+    Source/gui/GuiLF.h
+    Source/gui/GuiLF.cpp
+    Source/gui/GuiSelectItems.h
+    Source/gui/GuiStructs.h
+    Source/gui/GuiStateManager.h
+    Source/gui/GuiStateManager.cpp
+    Source/gui/LabelConstants.h
+)
+
 set(FX_FILES
     Source/FX/FxCore.h
     Source/FX/FxCore.cpp
@@ -95,20 +128,22 @@ set(EDITOR_FILES
 set(DOCUMENT_FILES ../readme.md)
 
 # ソースグループの設定
-source_group("Constants" FILES ${CONST_FILES})
-source_group("Core" FILES ${CORE_FILES})
-source_group("Gui" FILES ${GUI_FILES})
-source_group("FX" FILES ${FX_FILES})
-source_group("SETTINGS" FILES ${SETTINGS_FILES})
-source_group("ABOUT" FILES ${ABOUT_FILES})
-source_group("Processor" FILES ${PROCESSOR_FILES})
-source_group("Editor" FILES ${EDITOR_FILES})
-source_group("Documentation" FILES ${DOCUMENT_FILES})
+source_group("Core 1: Main" FILES ${CORE_FILES})
+source_group("Core 2: Const" FILES ${CONST_FILES})
+source_group("Core 3: Synth" FILES ${SYNTH_FILES})
+source_group("Core 4: Gui" FILES ${GUI_FILES})
+source_group("Core 5: Processor" FILES ${PROCESSOR_FILES})
+source_group("Core 6: Editor" FILES ${EDITOR_FILES})
+source_group("Tab 1: FX" FILES ${FX_FILES})
+source_group("Tab 2: SETTINGS" FILES ${SETTINGS_FILES})
+source_group("Tab 3: ABOUT" FILES ${ABOUT_FILES})
+source_group("Doc" FILES ${DOCUMENT_FILES})
 
 # ソースファイルの指定
 target_sources(${CY_PLUGIN_NAME} PRIVATE
     ${CONST_FILES}
     ${CORE_FILES}
+    ${SYNTH_FILES}
     ${GUI_FILES}
     ${FX_FILES}
     ${SETTINGS_FILES}

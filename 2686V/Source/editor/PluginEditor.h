@@ -54,20 +54,17 @@ public:
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileName(const juce::String finename);
-#if !defined(BUILD_AS_FX_PLUGIN)
-    void drawBg(juce::Graphics& g);
     void setupLogo();
     void setupTabs(juce::TabbedComponent& tabs);
-    void loadPresetFile(const juce::File& file);
+    void drawBg(juce::Graphics& g);
     void loadSettingsFile();
+#if !defined(BUILD_AS_FX_PLUGIN)
+    void loadPresetFile(const juce::File& file);
     void scanPresets();
     void saveCurrentPreset();
 #endif
     void loadWallpaperImage();
-#if !defined(BUILD_AS_FX_PLUGIN)
-    void setTooltipState(bool enabled);
-    void assignTooltipsRecursive(juce::Component* parentComponent);
-	void openFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
+    void openFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
         fileChooser = std::make_unique<juce::FileChooser>(title, juce::File(), filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, callback);
     }
@@ -91,6 +88,9 @@ public:
         fileChooser = std::make_unique<juce::FileChooser>(title, file, filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting, callback);
     }
+#if !defined(BUILD_AS_FX_PLUGIN)
+    void setTooltipState(bool enabled);
+    void assignTooltipsRecursive(juce::Component* parentComponent);
     void setPresetDir(const juce::File& dir)
     {
 		presetGui->currentFolder = dir;

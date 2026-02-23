@@ -232,7 +232,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
   - 日本電気
   - 1993年
 
--「Inside X68000」
+- 「Inside X68000」
   - 桒野雅彦 著
   - ソフトバンク
   - 1992年
@@ -244,7 +244,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 
 ## 更新履歴
 
-### 2026.02.XX
+### 2026.02.23
 
 - v0.2.0
 - <2686V>OPM/OPZX3 のパラメータ設定から Feedback2 を削除

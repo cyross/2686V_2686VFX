@@ -250,9 +250,9 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     addAndMakeVisible(tabs);
     // FXモードならシンセ系タブを追加しない
 #if defined(BUILD_AS_FX_PLUGIN)
-    tabs.addTab(fxTabName, juce::Colours::transparentBlack, fxGui, true);
-    tabs.addTab(settingsTabName, juce::Colours::transparentBlack, settingsGui, true);
-    tabs.addTab(aboutTabName, juce::Colours::transparentBlack, aboutGui, true);
+    tabs.addTab(fxTabName, juce::Colours::transparentBlack, fxGui.get(), true);
+    tabs.addTab(settingsTabName, juce::Colours::transparentBlack, settingsGui.get(), true);
+    tabs.addTab(aboutTabName, juce::Colours::transparentBlack, aboutGui.get(), true);
 #else
     tabs.addTab(opnaTabName, juce::Colours::transparentBlack, opnaGui.get(), true);
     tabs.addTab(opnTabName, juce::Colours::transparentBlack, opnGui.get(), true);
@@ -327,6 +327,7 @@ void AudioPlugin2686VEditor::loadSettingsFile()
 
 }
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::scanPresets()
 {
     presetGui->clearTable();
@@ -392,6 +393,7 @@ void AudioPlugin2686VEditor::saveCurrentPreset()
         scanPresets(); // リスト更新
     }
 }
+#endif
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
 {
