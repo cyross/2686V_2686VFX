@@ -34,6 +34,10 @@ AudioPlugin2686V::AudioPlugin2686V()
         m_synth.addVoice(synthVoices[i].get());
     }
 
+    previewSound = std::make_unique<SynthSound>();
+    previewSynth.addSound(previewSound.get());
+    previewSynth.addVoice(new SynthVoice()); // 1ボイスだけ追加
+
     formatManager.registerBasicFormats();
 #endif
     loadStartupSettings();
@@ -220,6 +224,28 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
             data[i] = sample;
         }
+    }
+
+    // リアルタイムプレビュー用の波形保存（常に最新の512サンプルを維持して流す）
+    auto* finalOutL = buffer.getReadPointer(0);
+    int numSamples = buffer.getNumSamples();
+    int bufferSize = 512;
+
+    // 今回追加するサンプル数と、残しておく過去のサンプル数を計算
+    int shiftAmount = juce::jmin(numSamples, bufferSize);
+    int keepAmount = bufferSize - shiftAmount;
+
+    // 1. 既存の波形データを左にずらす（古いデータを押し出して捨てる）
+    for (int i = 0; i < keepAmount; ++i) {
+        float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
+        realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
+    }
+
+    // 2. 空いた右側のスペースに、今回の最新の波形データを繋げる
+    for (int i = 0; i < shiftAmount; ++i) {
+        // DAWからのブロックサイズが512より大きい場合も考慮して末尾から取得
+        float newVal = finalOutL[numSamples - shiftAmount + i];
+        realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
     }
 }
 
@@ -780,3 +806,86 @@ void AudioPlugin2686V::unloadOpzx3PcmFile(int opIndex)
     }
 }
 #endif
+
+void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
+{
+    // 1. パラメータの取得と設定
+    SynthParams currentParams;
+    int m = (int)*apvts.getRawParameterValue(codeMode);
+    currentParams.mode = (OscMode)m;
+
+    switch (currentParams.mode) {
+    case OscMode::OPNA:      prOpna.processBlock(currentParams, apvts); break;
+    case OscMode::OPN:       prOpn.processBlock(currentParams, apvts); break;
+    case OscMode::OPL:       prOpl.processBlock(currentParams, apvts); break;
+    case OscMode::OPL3:      prOpl3.processBlock(currentParams, apvts); break;
+    case OscMode::OPM:       prOpm.processBlock(currentParams, apvts); break;
+    case OscMode::OPZX3:     prOpzx3.processBlock(currentParams, apvts); break;
+    case OscMode::SSG:       prSsg.processBlock(currentParams, apvts); break;
+    case OscMode::WAVETABLE: prWt.processBlock(currentParams, apvts); break;
+    case OscMode::RHYTHM:    prRhythm.processBlock(currentParams, apvts); break;
+    case OscMode::ADPCM:     prAdpcm.processBlock(currentParams, apvts); break;
+    }
+
+    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
+        voice->setParameters(currentParams);
+        for (int i = 0; i < 4; ++i) voice->setOpzx3PcmBuffer(i, &opzx3PcmBuffers[i]);
+    }
+
+    // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
+    previewSynth.setCurrentPlaybackSampleRate(44000.0);
+    previewSynth.noteOn(1, 69, 1.0f); // 69 = A3 (440.0Hz)
+
+    // 3. アタックフェーズのスキップ (エンベロープを安定させる)
+    juce::AudioBuffer<float> skipBuffer(2, 512);
+    for (int i = 0; i < 40; ++i) {
+        skipBuffer.clear();
+        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, 512);
+    }
+
+    // 4. 1周期をピッタリ100サンプルにする
+    int samplesPerCycle = 100; // 44000 / 440 = 100
+    int renderSamples = samplesPerCycle * 3;
+    juce::AudioBuffer<float> renderBuffer(2, renderSamples);
+    renderBuffer.clear();
+    previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
+
+    auto* readPtr = renderBuffer.getReadPointer(0);
+
+    // 5. DCオフセット（波形の全体的な上下のズレ）を計算
+    float dcOffset = 0.0f;
+    for (int i = 0; i < renderSamples; ++i) {
+        dcOffset += readPtr[i];
+    }
+    dcOffset /= renderSamples;
+
+    // 6. オシロスコープのトリガー（ゼロクロッシング）を探す
+    int startIndex = 0;
+    for (int i = 0; i < renderSamples - samplesPerCycle; ++i) {
+        float current = readPtr[i] - dcOffset;
+        float next = readPtr[i + 1] - dcOffset;
+
+        if (current <= 0.0f && next > 0.0f) {
+            startIndex = i;
+            break;
+        }
+    }
+
+    // 1周期分 ＋ 1サンプル（次の周期の始まりの0）を取得する
+    int drawSamples = samplesPerCycle + 1;
+    destBuffer.assign(drawSamples, 0.0f);
+
+    float maxAmplitude = 0.0001f;
+    for (int i = 0; i < drawSamples; ++i) {
+        float val = readPtr[startIndex + i] - dcOffset;
+        maxAmplitude = std::max(maxAmplitude, std::abs(val));
+    }
+
+    for (int i = 0; i < drawSamples; ++i) {
+        float val = readPtr[startIndex + i] - dcOffset;
+        destBuffer[i] = val / maxAmplitude;
+    }
+
+    // 8. 停止
+    previewSynth.noteOff(1, 69, 0.0f, false);
+}

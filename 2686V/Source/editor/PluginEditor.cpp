@@ -90,6 +90,25 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     }
 #endif
 
+    addAndMakeVisible(togglePreviewBtn);
+    addChildComponent(staticPreview);
+    addChildComponent(realtimePreview);
+
+    togglePreviewBtn.onClick = [this] {
+        isPreviewVisible = !isPreviewVisible;
+
+        staticPreview.setVisible(isPreviewVisible);
+        realtimePreview.setVisible(isPreviewVisible);
+        togglePreviewBtn.setButtonText(isPreviewVisible ? "<<" : ">>");
+
+        // ウィンドウの幅を動的に変更
+        int newWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+        setSize(newWidth, WindowHeight); // 高さは固定、幅を伸縮
+
+        // タイマーのON/OFFを切り替え
+        updateTimerState();
+    };
+
     setSize(WindowWidth, WindowHeight);
 }
 
@@ -105,6 +124,8 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 	rhythmGui->removeLoadButtonListener(this);
 #endif
     audioProcessor.apvts.removeParameterListener(codeMode, this);
+
+    stopTimer();
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -132,6 +153,8 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
                 }
             }
         }
+
+        updateTimerState();
     }
 #endif
 }
@@ -146,6 +169,18 @@ void AudioPlugin2686VEditor::resized()
     logoLabel.setBounds(getLocalBounds().reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
     auto area = getLocalBounds();
+
+    togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
+
+    if (isPreviewVisible)
+    {
+        auto rightArea = area.removeFromRight(PreviewExtraWidth);
+
+        // 描画区画を 200 x 200 に設定 (タブの少し下あたりに配置)
+        // Y座標はタブバーの高さなどに合わせて調整してください (ここでは30px下から)
+        staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
+        realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
+    }
 
     tabs.setBounds(area);
 
@@ -670,3 +705,40 @@ void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
     }
 }
 #endif
+
+void AudioPlugin2686VEditor::timerCallback()
+{
+    if (isPreviewVisible)
+    {
+        // 1. 静的波形（完成波形）の更新
+        std::vector<float> staticData;
+
+        audioProcessor.generatePreviewWaveform(staticData);
+        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
+
+        // 2. リアルタイム波形の更新
+        std::vector<float> realTimeData(512);
+
+        for (int i = 0; i < 512; ++i) {
+            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
+        }
+        realtimePreview.pushBuffer(realTimeData.data(), 512);
+    }
+}
+
+void AudioPlugin2686VEditor::updateTimerState()
+{
+    // 現在のタブがシンセ系かチェック (例: 0〜9 が OPNA〜ADPCM、それ以降がFXや設定など)
+    // ※ ADPCM が 9 番目のタブであることを前提としています。構成に合わせて数字を調整してください。
+    int currentTab = tabs.getCurrentTabIndex();
+    bool isSynthTab = (currentTab <= 9);
+
+    // プレビューが開いていて、かつシンセ画面の時だけタイマーを動かす
+    if (isPreviewVisible && isSynthTab) {
+        startTimerHz(15);
+        timerCallback(); // ★タイマー開始時に即座に1回強制描画する！
+    }
+    else {
+        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+    }
+}

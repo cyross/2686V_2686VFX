@@ -38,7 +38,8 @@ class AudioPlugin2686VEditor :
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,
-    public juce::AudioProcessorValueTreeState::Listener
+    public juce::AudioProcessorValueTreeState::Listener,
+    public juce::Timer
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -100,6 +101,8 @@ public:
         presetGui->updatePresetPath();
 	}
 #endif
+    void timerCallback() override; 
+    void updateTimerState();
 private:
     AudioPlugin2686V& audioProcessor;
 
@@ -131,6 +134,13 @@ private:
 
     juce::Image backgroundImage; // Cache for wallpaper
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
+
+    juce::TextButton togglePreviewBtn{ ">>" }; // 初期状態は閉じているので ">>"
+    // 青系のリアルタイムプレビュー
+    GuiWaveformPreview staticPreview{ juce::Colour(0xff0a1a3a), juce::Colours::cyan };
+    // 緑系のリアルタイムプレビュー
+    GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
+    bool isPreviewVisible = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };
