@@ -308,6 +308,9 @@ public:
         juce::Colour color = GuiColor::TextEditor::Text;
         juce::Colour bgColor = GuiColor::TextEditor::Bg;
         juce::Colour borderColor = GuiColor::TextEditor::Border;
+        std::optional<juce::Font> labelFont = std::nullopt;
+        juce::Justification labelJustification = juce::Justification::centred;
+        juce::Colour labelColor = GuiColor::Label::Text;
         bool isMultiLine = false;
         bool isReturnKeyStartsNewLine = false;
     };
