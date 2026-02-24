@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "VstLogoForAbout.h"
+#include "AppIconForAbout.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -10,6 +11,8 @@
 class GuiAbout : public GuiBase
 {
     GuiGroup mainGroup;
+
+    GuiImage iconImage;
 
     // Labels
     GuiLabel pluginNameLabel;
@@ -29,6 +32,7 @@ public:
     GuiAbout(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        iconImage(context),
         pluginNameLabel(context),
         versionLabel(context),
 		copyrightLabel(context),

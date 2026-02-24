@@ -5,6 +5,15 @@ void GuiAbout::setup()
 {
     mainGroup.setup(*this, "");
 
+    // 0. App Icon
+    iconImage.setup(*this);
+
+    auto iconImg = juce::ImageCache::getFromMemory(
+        AppIconAboutForAboutData::icon_png,
+        AppIconAboutForAboutData::icon_pngSize
+    );
+    iconImage.setImage(iconImg);
+
     // 1. Plugin Name
     pluginNameLabel.setup({ .parent = *this, .title = pluginName });
     pluginNameLabel.setFont(juce::Font(FontFamily, 64.0f, juce::Font::bold | juce::Font::italic));
@@ -54,6 +63,9 @@ void GuiAbout::layout(juce::Rectangle<int> content)
     auto mainArea = pageArea.reduced(GlobalPaddingWidth, GlobalPaddingHeight);
 
     mainGroup.setBounds(pageArea);
+
+    auto iconArea = pageArea.removeFromTop(160);
+    iconImage.setBounds(iconArea.withSizeKeepingCentre(128, 128));
 
     // Name & Ver
     pluginNameLabel.setBounds(mainArea.removeFromTop(80));
