@@ -8,7 +8,7 @@ static inline const juce::String pluginName = "2686VFX";
 #else
 static inline const juce::String pluginName = "2686V";
 #endif
-static inline const juce::String pluginVersion = "Version 0.2.0";
+static inline const juce::String pluginVersion = "Version 0.3.0";
 static inline const juce::String pluginAuthor = "Copyright (C) 2026 CYROSS";
 
 static inline const juce::String vstNotice = "VST is a registered trademark of Steinberg Media Technologies GmbH.";

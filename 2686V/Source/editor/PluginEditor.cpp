@@ -166,8 +166,6 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 
 void AudioPlugin2686VEditor::resized()
 {
-    logoLabel.setBounds(getLocalBounds().reduced(GlobalPaddingWidth, GlobalPaddingHeight));
-
     auto area = getLocalBounds();
 
     togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
@@ -181,6 +179,8 @@ void AudioPlugin2686VEditor::resized()
         staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
     }
+
+    logoLabel.setBounds(area.reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
     tabs.setBounds(area);
 
