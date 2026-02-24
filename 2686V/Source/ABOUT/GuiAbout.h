@@ -9,6 +9,8 @@
 
 class GuiAbout : public GuiBase
 {
+    GuiGroup mainGroup;
+
     // Labels
     GuiLabel pluginNameLabel;
     GuiLabel versionLabel;
@@ -26,6 +28,7 @@ class GuiAbout : public GuiBase
 public:
     GuiAbout(const GuiContext& context) :
         GuiBase(context),
+        mainGroup(context),
         pluginNameLabel(context),
         versionLabel(context),
 		copyrightLabel(context),
