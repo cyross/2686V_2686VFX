@@ -235,6 +235,11 @@ void AudioPlugin2686VEditor::resized()
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 {
+    auto fullArea = getLocalBounds().toFloat();
+
+    // 拡張パネルを含まない、本来のメイン画面の固定サイズ
+    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)WindowWidth, (float)WindowHeight);
+
     if (backgroundImage.isValid())
     {
         int mode = audioProcessor.wallpaperMode;
@@ -244,8 +249,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
         {
             if (blurredBackgroundImage.isValid())
             {
-                // ぼかし画像を画面全体に Fill (アスペクト比を維持して隙間なく拡大) で描画
-                g.drawImage(blurredBackgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::fillDestination);
+                g.drawImage(blurredBackgroundImage, fullArea, juce::RectanglePlacement::fillDestination);
 
                 // ぼかし背景を少し暗く落とす (手前のメイン画像を目立たせるため)
                 g.fillAll(GuiColor::Editor::blurWallpaperBg);
@@ -271,7 +275,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
         }
 
         // Draw Image
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), placement);
+        g.drawImage(backgroundImage, baseArea, placement);
 
         // Optional: Add a dark overlay to make controls readable
         g.fillAll(GuiColor::Editor::wallpaperBg);

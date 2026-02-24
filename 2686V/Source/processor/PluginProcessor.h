@@ -118,9 +118,6 @@ public:
     static juce::String sanitizeString(const juce::String& input, int length);
 private:
 #if !defined(BUILD_AS_FX_PLUGIN)
-    // SynthSound/SynthVoice へ直接メソッドを渡す必用を鑑みて
-    std::unique_ptr<SynthSound> synthSound;
-    std::vector<std::unique_ptr<SynthVoice>> synthVoices;
     OpnaProcessor prOpna;
     OpnProcessor prOpn;
     OplProcessor prOpl;

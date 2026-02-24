@@ -20,23 +20,13 @@ AudioPlugin2686V::AudioPlugin2686V()
 #endif
 {
 #if !defined(BUILD_AS_FX_PLUGIN)
-    synthSound = std::make_unique<SynthSound>();
-
-    for (int i = 0; i < voices; i++)
-    {
-        synthVoices.push_back(std::make_unique<SynthVoice>());
+    m_synth.addSound(new SynthSound());
+    for (int i = 0; i < voices; i++) {
+        m_synth.addVoice(new SynthVoice());
     }
 
-    m_synth.addSound(synthSound.get());
-
-    for (int i = 0; i < voices; i++)
-    {
-        m_synth.addVoice(synthVoices[i].get());
-    }
-
-    previewSound = std::make_unique<SynthSound>();
-    previewSynth.addSound(previewSound.get());
-    previewSynth.addVoice(new SynthVoice()); // 1ボイスだけ追加
+    previewSynth.addSound(new SynthSound());
+    previewSynth.addVoice(new SynthVoice());
 
     formatManager.registerBasicFormats();
 #endif
@@ -579,7 +569,7 @@ void AudioPlugin2686V::loadStartupSettings()
         std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
 
         // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
-        if (xml == nullptr || !xml->hasTagName("PREF_2686V"))
+        if (xml == nullptr || !xml->hasTagName(envCode))
         {
             DBG("Startup settings file is corrupted. Deleting...");
             presetFile.deleteFile(); // 破損ファイルを削除
@@ -792,9 +782,10 @@ void AudioPlugin2686V::loadOpzx3PcmFile(int opIndex, const juce::File& file)
         opzx3PcmBuffers[opIndex].assign(readPtr, readPtr + tempBuffer.getNumSamples());
         opzx3PcmFilePaths[opIndex] = file.getFullPathName();
 
-        for (int i = 0; i < voices; i++)
-        {
-            synthVoices[i]->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+                voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+            }
         }
     }
 }
@@ -806,9 +797,10 @@ void AudioPlugin2686V::unloadOpzx3PcmFile(int opIndex)
     opzx3PcmBuffers[opIndex].clear();
     opzx3PcmFilePaths[opIndex] = juce::String();
 
-    for (int i = 0; i < voices; i++)
-    {
-        synthVoices[i]->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+        }
     }
 }
 

@@ -129,11 +129,10 @@ void GuiSettings::setup()
     };
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = "Show Virtual Midi Keyboard", .isReset = false });
+    virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
     virtualMidiKeyboardToggle.onClick = [this] {
-        // プロセッサ側のフラグを反転（またはボタンの状態を代入）
         ctx.audioProcessor.showVirtualKeyboard = !ctx.audioProcessor.showVirtualKeyboard;
 
-        // エディタ(PluginEditor)の関数を呼んで、実際にウィンドウの大きさを変える！
         ctx.editor.updateKeyboardVisibility();
     };
 #endif
