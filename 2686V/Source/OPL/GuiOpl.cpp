@@ -10,37 +10,11 @@ void GuiOpl::setup()
 {
     const juce::String code = codeOpl;
 
-    std::vector<SelectItem> algItems = {
-        {.name = "0: [OP0]:FB -> [OP1]", .value = 1 },
-        {.name = "1: [OP0]:FB + [OP1]", .value = 2 },
-    };
-
-    std::vector<SelectItem> kslItems = { {.name = "KSL: 0", .value = 1}, {.name = "KSL: 1", .value = 2}, {.name = "KSL: 2", .value = 3}, {.name = "KSL: 3", .value = 4}, };
-    std::vector<SelectItem> egItems = { {.name = "0: Sine", .value = 1}, {.name = "1: Half", .value = 2}, {.name = "2: Abs", .value = 3}, {.name = "3: Pulse", .value = 4}, };
-
-    std::vector<SelectItem> bdItems = {
-        {.name = "0: 4-bit (16 steps)",  .value = 1 },
-        {.name = "1: 5-bit (32 steps)",  .value = 2 },
-        {.name = "2: 6-bit (64 steps)",  .value = 3 },
-        {.name = "3: 8-bit (256 steps)", .value = 4 },
-        {.name = "4: Raw",               .value = 5 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     mainGroup.setup(*this, mGroupTitle);
     bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
+    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = oplAlgItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
 
     masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
@@ -73,7 +47,7 @@ void GuiOpl::setup()
         ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postKsr, .title = opKsrLabel, .isReset = true });
         ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postKsl, .title = opKslLabel, .items = kslItems, .isReset = true });
 
-        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postEg, .title = opEgLabel, .items = egItems, .isReset = true });
+        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postEg, .title = opEgLabel, .items = oplEgItems, .isReset = true });
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
     }
 }

@@ -7,54 +7,11 @@
 
 void GuiOpna::setup()
 {
-    std::vector<SelectItem> pmsItems = createItems(8, "Pms: ");
-    std::vector<SelectItem> amsItems = createItems(4, "Ams: ");
-    std::vector<SelectItem> algItems = {
-        {.name = "0: [OP0]:FB -> [OP1] -> [OP2] -> [OP3]", .value = 1 },
-        {.name = "1: ([OP0]:FB + [OP1]) -> [OP2] -> [OP3]", .value = 2 },
-        {.name = "2: ([OP0] -> [OP1] + [OP2]:FB) -> [OP3]", .value = 3 },
-        {.name = "3: ([OP0]:FB -> [OP1]) + [OP2] -> [OP3]", .value = 4 },
-        {.name = "4: ([OP0]:FB -> [OP1]) + ([OP2] -> [OP3])", .value = 5 },
-        {.name = "5: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 6 },
-        {.name = "6: ([OP0]:FB -> [OP1]) + [OP2] + [OP3]", .value = 7 },
-        {.name = "7: [OP0]:FB + [OP1] + [OP2] + [OP3]", .value = 8 },
-    };
-    std::vector<SelectItem> seItems = {
-        {.name = "0: Normal", .value = 1 },
-        {.name = "1: Saw Down", .value = 2 },
-        {.name = "2: Saw Down & Hold", .value = 3 },
-        {.name = "3: Triangle", .value = 4 },
-        {.name = "4: Alternative Saw Down & Hold", .value = 5 },
-        {.name = "5: Saw Up", .value = 6 },
-        {.name = "6: Saw Up & Hold", .value = 7 },
-        {.name = "7: Triangle Invert", .value = 8 },
-        {.name = "8: Alternative Saw Up & Hold", .value = 9 },
-    };
-    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
-
-    std::vector<SelectItem> bdItems = {
-        {.name = "0: 4-bit (16 steps)",  .value = 1 },
-        {.name = "1: 5-bit (32 steps)",  .value = 2 },
-        {.name = "2: 6-bit (64 steps)",  .value = 3 },
-        {.name = "3: 8-bit (256 steps)", .value = 4 },
-        {.name = "4: Raw",               .value = 5 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     mainGroup.setup(*this, mGroupTitle);
     bitSelector.setup({ .parent = *this, .id = codeOpna + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = codeOpna + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = codeOpna + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
+    algSelector.setup({ .parent = *this, .id = codeOpna + postAlg, .title = mAlgTitle, .items = opnaAlgItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = codeOpna + postFb0, .title = mFb0Title, .isReset = true });
     feedback2Slider.setup({ .parent = *this, .id = codeOpna + postFb2, .title = mFb2Title, .isReset = true });
 
@@ -98,7 +55,7 @@ void GuiOpna::setup()
 
         am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postAm, .title = opVibLabel, .isReset = true });
 
-        se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postSe, .title = opSEnvLabel, .items = seItems, .isReset = true });
+        se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postSe, .title = opSEnvLabel, .items = opnaSeItems, .isReset = true });
         seFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postSeFreq, .title = opSFreqLabel, .isReset = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });

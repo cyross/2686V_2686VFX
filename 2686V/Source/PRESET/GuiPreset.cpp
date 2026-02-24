@@ -10,8 +10,8 @@
 juce::File GuiPreset::getSelectedFile() const
 {
     int row = table.getSelectedRow();
-    if (row >= 0 && row < items.size()) {
-        return items[row].file;
+    if (row >= 0 && row < filteredItems.size()) {
+        return filteredItems[row].file;
     }
     return {};
 }
@@ -41,9 +41,18 @@ void GuiPreset::setup()
 
     /********************
     *
-    * 3. Preset Table
+    * 3. Preset Table & Search
     *
     *********************/
+
+    searchBox.setup({ .parent = *this, .title = "Search", .isMultiLine = false });
+    searchBox.onTextChange = [this] { applyFilter(); };
+
+    clearSearchButton.setup({ .parent = *this, .title = "X", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
+    clearSearchButton.onClick = [this] {
+        searchBox.setText(""); // テキストボックスを空にする
+        applyFilter();         // リストの絞り込みをリセット（全件表示）する
+    };
 
 	table.setup({ .parent = *this, .title = "Presets", .canMultipleSelection = false });
     table.addColumn(presetTableFileNameColTitle, 1, PresetTableFileNameColTitleWidth);
@@ -52,11 +61,11 @@ void GuiPreset::setup()
     table.addColumn(presetTableVersionColTitle, 4, PresetTableVersionColTitleWidth);
     table.addColumn(presetTableModeColTitle, 5, PresetTableModeColTitleWidth);
     table.onGetNumRows = [this]() {
-        return (int)items.size();
-    };
+        return (int)filteredItems.size();
+        };
     table.onGetCellText = [this](int row, int columnId) {
-        if (row >= items.size()) return juce::String();
-        const auto& item = items[row];
+        if (row >= filteredItems.size()) return juce::String();
+        const auto& item = filteredItems[row];
         switch (columnId) {
         case 1: return item.fileName;
         case 2: return item.name;
@@ -142,7 +151,7 @@ void GuiPreset::setup()
                 }
             }
         );
-        };
+    };
 
     // --- Load Preset Info Button ---
 	loadButton.setup({ .parent = *this, .title = "Load Preset", .isReset = false });
@@ -191,33 +200,28 @@ void GuiPreset::setup()
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
 
-        if (row >= 0 && row < items.size()) {
-            const auto& item = items[row];
+        if (row >= 0 && row < filteredItems.size()) {
+            const auto& item = filteredItems[row];
 
-            // TextEditorにセットすると onTextChange が発火し、AudioProcessorの変数も更新されます
             nameEditor.setText(item.name);
             authorEditor.setText(item.author);
             versionEditor.setText(item.version);
             commentEditor.setText(item.comment);
         }
-        };
+    };
 
     // --- Copy Preset Info to Clipboard Button ---
 	copyButton.setup({ .parent = *this, .title = "Copy Preset Info to Clipboard", .isReset = false });
     copyButton.setEnabled(false);
     copyButton.onClick = [this] {
         int row = table.getSelectedRow();
-
-        if (row >= 0 && row < items.size()) {
-            const auto& item = items[row];
-
-            // フォーマットはお好みで調整してください
+        if (row >= 0 && row < filteredItems.size()) {
+            const auto& item = filteredItems[row];
             juce::String info = presetCbName + item.name + "\n" +
                 presetCbAuther + item.author + "\n" +
                 presetCbVersion + item.version + "\n" +
                 presetCbComment + item.comment + "\n" +
                 presetCbMode + item.modeName;
-
             juce::SystemClipboard::copyTextToClipboard(info);
         }
     };
@@ -232,6 +236,20 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     // Left: List
     auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetTableWidthRate);
+
+    // リストのすぐ上に検索ボックスを配置する
+    auto searchArea = listArea.removeFromTop(PresetMetaHeight).reduced(PresetTablePaddingWidth, 0);
+
+    searchBox.label.setBounds(searchArea.removeFromLeft(60)); // "Search" というラベルの幅
+
+    clearSearchButton.setBounds(searchArea.removeFromRight(30));
+
+    searchArea.removeFromRight(5);
+
+    searchBox.setBounds(searchArea);
+
+    listArea.removeFromTop(5); // 検索ボックスとリストの間の少しの余白
+
     table.setBounds(listArea.reduced(PresetTablePaddingWidth, PresetTablePaddingHeight));
 
     // Right: Info & Buttons
@@ -305,9 +323,10 @@ void GuiPreset::clearTable()
     items.clear();
 }
 
+// テーブル更新時にフィルター関数を呼び出すようにする
 void GuiPreset::updateTableContent()
 {
-    table.updateContent();
+    applyFilter();
 }
 
 void GuiPreset::repaintTable()
@@ -318,4 +337,32 @@ void GuiPreset::repaintTable()
 void GuiPreset::updatePresetPath()
 {
     pathLabel.setText(currentFolder.getFullPathName(), juce::dontSendNotification);
+}
+
+// 検索ボックスの文字列でリストを絞り込む関数
+void GuiPreset::applyFilter()
+{
+    filteredItems.clear();
+    juce::String query = searchBox.getText().trim().toLowerCase();
+
+    // 検索窓が空なら全件表示
+    if (query.isEmpty()) {
+        filteredItems = items;
+    }
+    else {
+        // ファイル名、プリセット名、作者名、コメント、モード名のどれかに合致したら表示
+        for (const auto& item : items) {
+            if (item.name.toLowerCase().contains(query) ||
+                item.fileName.toLowerCase().contains(query) ||
+                item.author.toLowerCase().contains(query) ||
+                item.comment.toLowerCase().contains(query) ||
+                item.modeName.toLowerCase().contains(query))
+            {
+                filteredItems.push_back(item);
+            }
+        }
+    }
+
+    // テーブルに更新を通知
+    table.updateContent();
 }

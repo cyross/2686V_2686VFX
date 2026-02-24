@@ -20,23 +20,13 @@ AudioPlugin2686V::AudioPlugin2686V()
 #endif
 {
 #if !defined(BUILD_AS_FX_PLUGIN)
-    synthSound = std::make_unique<SynthSound>();
-
-    for (int i = 0; i < voices; i++)
-    {
-        synthVoices.push_back(std::make_unique<SynthVoice>());
+    m_synth.addSound(new SynthSound());
+    for (int i = 0; i < voices; i++) {
+        m_synth.addVoice(new SynthVoice());
     }
 
-    m_synth.addSound(synthSound.get());
-
-    for (int i = 0; i < voices; i++)
-    {
-        m_synth.addVoice(synthVoices[i].get());
-    }
-
-    previewSound = std::make_unique<SynthSound>();
-    previewSynth.addSound(previewSound.get());
-    previewSynth.addVoice(new SynthVoice()); // 1ボイスだけ追加
+    previewSynth.addSound(new SynthSound());
+    previewSynth.addVoice(new SynthVoice());
 
     formatManager.registerBasicFormats();
 #endif
@@ -129,14 +119,13 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
+#if defined(BUILD_AS_FX_PLUGIN)
+    SynthParams params;
+#else
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
+
     SynthParams params;
 
-    // FXモードかどうかで分岐
-#if defined(BUILD_AS_FX_PLUGIN)
-    // 【FXモード】
-    // 入力音(bufferに入っている音)をそのまま使うので、buffer.clear() はしない！
-    // シンセの発音処理(m_synth.renderNextBlock)もしない！
-#else
     // 【シンセモード】
     // 入力バッファはノイズの原因になるのでクリアする
     buffer.clear();
@@ -226,27 +215,32 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-    // リアルタイムプレビュー用の波形保存（常に最新の512サンプルを維持して流す）
-    auto* finalOutL = buffer.getReadPointer(0);
-    int numSamples = buffer.getNumSamples();
-    int bufferSize = 512;
+#if !defined(BUILD_AS_FX_PLUGIN)
+    if (previewVisiblity)
+    {
+        // リアルタイムプレビュー用の波形保存（常に最新の512サンプルを維持して流す）
+        auto* finalOutL = buffer.getReadPointer(0);
+        int numSamples = buffer.getNumSamples();
+        int bufferSize = 512;
 
-    // 今回追加するサンプル数と、残しておく過去のサンプル数を計算
-    int shiftAmount = juce::jmin(numSamples, bufferSize);
-    int keepAmount = bufferSize - shiftAmount;
+        // 今回追加するサンプル数と、残しておく過去のサンプル数を計算
+        int shiftAmount = juce::jmin(numSamples, bufferSize);
+        int keepAmount = bufferSize - shiftAmount;
 
-    // 1. 既存の波形データを左にずらす（古いデータを押し出して捨てる）
-    for (int i = 0; i < keepAmount; ++i) {
-        float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
-        realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
+        // 1. 既存の波形データを左にずらす（古いデータを押し出して捨てる）
+        for (int i = 0; i < keepAmount; ++i) {
+            float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
+            realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
+        }
+
+        // 2. 空いた右側のスペースに、今回の最新の波形データを繋げる
+        for (int i = 0; i < shiftAmount; ++i) {
+            // DAWからのブロックサイズが512より大きい場合も考慮して末尾から取得
+            float newVal = finalOutL[numSamples - shiftAmount + i];
+            realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
+        }
     }
-
-    // 2. 空いた右側のスペースに、今回の最新の波形データを繋げる
-    for (int i = 0; i < shiftAmount; ++i) {
-        // DAWからのブロックサイズが512より大きい場合も考慮して末尾から取得
-        float newVal = finalOutL[numSamples - shiftAmount + i];
-        realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
-    }
+#endif
 }
 
 // ============================================================================
@@ -524,6 +518,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(settingShowTooltips, showTooltips);
     xml.setAttribute(settingUseHeadroom, useHeadroom);
     xml.setAttribute(settingHeadroomGain, headroomGain);
+    xml.setAttribute(settingShowVirtualKeyboard, showVirtualKeyboard);
 
     xml.writeTo(file);
 }
@@ -543,6 +538,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         showTooltips = xml->getBoolAttribute(settingShowTooltips, defaultShowTooltip);
         useHeadroom = xml->getBoolAttribute(settingUseHeadroom, defaultUseHeadroom);
         headroomGain = xml->getDoubleAttribute(settingHeadroomGain, defaultHeadroomGain);
+        showVirtualKeyboard = xml->getBoolAttribute(settingShowVirtualKeyboard, true);
 #if !defined(BUILD_AS_FX_PLUGIN)
         // 内部変数の更新
         if (juce::File(defaultSampleDir).isDirectory()) {
@@ -573,7 +569,7 @@ void AudioPlugin2686V::loadStartupSettings()
         std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
 
         // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
-        if (xml == nullptr || !xml->hasTagName("PREF_2686V"))
+        if (xml == nullptr || !xml->hasTagName(envCode))
         {
             DBG("Startup settings file is corrupted. Deleting...");
             presetFile.deleteFile(); // 破損ファイルを削除
@@ -786,9 +782,10 @@ void AudioPlugin2686V::loadOpzx3PcmFile(int opIndex, const juce::File& file)
         opzx3PcmBuffers[opIndex].assign(readPtr, readPtr + tempBuffer.getNumSamples());
         opzx3PcmFilePaths[opIndex] = file.getFullPathName();
 
-        for (int i = 0; i < voices; i++)
-        {
-            synthVoices[i]->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+                voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+            }
         }
     }
 }
@@ -800,12 +797,12 @@ void AudioPlugin2686V::unloadOpzx3PcmFile(int opIndex)
     opzx3PcmBuffers[opIndex].clear();
     opzx3PcmFilePaths[opIndex] = juce::String();
 
-    for (int i = 0; i < voices; i++)
-    {
-        synthVoices[i]->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+        }
     }
 }
-#endif
 
 void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 {
@@ -889,3 +886,4 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     // 8. 停止
     previewSynth.noteOff(1, 69, 0.0f, false);
 }
+#endif

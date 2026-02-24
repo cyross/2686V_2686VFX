@@ -28,8 +28,8 @@ static inline const float mFb2Min = 0.0f; // 最小値
 static inline const float mFb2Max = 7.0f; // 最大値
 static inline const float mFb2Default = 0.0f; // 初期値
 
-static inline const int mBitMin = 0; // 最小値
-static inline const int mBitMax = 4; // 最大値
+static inline const int mBitMin = 1; // 最小値
+static inline const int mBitMax = 5; // 最大値
 static inline const int mBitDefault = 4; // 初期値
 static inline const int mRateMin = 1; // 最小値
 static inline const int mRateMax = 7; // 最大値
@@ -204,13 +204,13 @@ static inline const float adpcmPanMax = 1.0f;  // 最大値
 static inline const float adpcmPanDefault = 0.5f; // 初期値
 static inline const float adpcmLoopDefault = true; // 初期値
 // 0:Raw, 1:24bit, 2:16bit, 3:8bit, 4:5bit, 5:4bit PCM 6:ADPCM(4bit)
-static inline const int adpcmBitMin = 0; // 最小値
-static inline const int adpcmBitMax = 6; // 最大値
-static inline const int adpcmBitDefault = 0; // 初期値
+static inline const int adpcmBitMin = 1; // 最小値
+static inline const int adpcmBitMax = 7; // 最大値
+static inline const int adpcmBitDefault = 1; // 初期値
 // 0: 96kHz 1: 55.5kHz 2: 48kHz 3: 44.1kHz 4: 22.5kHz 5: 16k 6: 8k
-static inline const int adpcmRateMin = 0; // 最小値
-static inline const int adpcmRateMax = 6; // 最大値
-static inline const int adpcmRateDefault = 3; // 初期値
+static inline const int adpcmRateMin = 1; // 最小値
+static inline const int adpcmRateMax = 7; // 最大値
+static inline const int adpcmRateDefault = 4; // 初期値
 
 static inline const float fxMBypassDefault = false; // 初期値
 static inline const float fxBypassDefault = false; // 初期値

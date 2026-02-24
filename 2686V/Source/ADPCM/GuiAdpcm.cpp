@@ -8,27 +8,6 @@ void GuiAdpcm::setup()
 {
     const juce::String code = codeAdpcm;
 
-    // Prepare Items for ComboBoxes
-    std::vector<SelectItem> qualityItems = {
-        {.name = "0: Raw (32bit)", .value = 1 },
-        {.name = "1: 24-bit PCM",  .value = 2 },
-        {.name = "2: 16-bit PCM",  .value = 3 },
-        {.name = "3: 8-bit PCM",   .value = 4 },
-        {.name = "4: 5-bit PCM",   .value = 5 },
-        {.name = "5: 4-bit PCM",   .value = 6 },
-        {.name = "6: 4-bit ADPCM", .value = 7 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     mainGroup.setup(*this, mGroupTitle);
     modeSelector.setup({ .parent = *this, .id = code + postMode, .title = "Quality", .items = qualityItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
@@ -67,7 +46,7 @@ void GuiAdpcm::setup()
         ctx.audioProcessor.unloadAdpcmFile();
 
         // 2. ラベル表示をクリア
-        fileNameLabel.setText("No File", juce::dontSendNotification);
+        fileNameLabel.setText(emptyFilename, juce::dontSendNotification);
     };
 
     attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });

@@ -11,94 +11,11 @@ void GuiOpzx3::setup()
 {
     const juce::String code = codeOpzx3;
 
-    std::vector<SelectItem> pmsItems = createItems(8, "Pms: ");
-    std::vector<SelectItem> amsItems = createItems(4, "Ams: ");
-    std::vector<SelectItem> algItems = {
-        {.name = "00: [OP0]:FB -> [OP1] -> [OP2] -> [OP3]", .value = 1 },
-        {.name = "01: ([OP0] -> [OP1]):FB -> [OP2] -> [OP3]", .value = 2 },
-        {.name = "02: ([OP0]:FB + [OP1]) -> [OP2] -> [OP3]", .value = 3 },
-        {.name = "03: ([OP0]:FB -> [OP3]) + ([OP1] -> [OP2] -> [OP3])", .value = 4 },
-        {.name = "04: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 5 },
-        {.name = "05: ([OP0] -> [OP1]):FB + ([OP0] -> [OP2]) + ([OP0] -> [OP3])", .value = 6 },
-        {.name = "06: ([OP0]:FB -> [OP1]) + ([OP2] -> [O32])", .value = 7 },
-        {.name = "07: ([OP0] -> [OP1]):FB + ([OP2] -> [O32])", .value = 8 },
-        {.name = "08: [OP0]:FB + ([OP1] -> [OP2] -> [OP3])", .value = 9 },
-        {.name = "09: [OP0]:FB + ([OP1] -> [OP2]) -> [OP3]", .value = 10 },
-        {.name = "10: ([OP0]:FB -> [OP1]) + [OP2] + [OP3]", .value = 11 },
-        {.name = "11: ([OP0] -> [OP1]):FB + [OP2] + [OP3]", .value = 12 },
-        {.name = "12: ([OP0]:FB -> [OP1]) + ([OP0]:FB -> [OP2]) + ([OP0]:FB -> [OP3])", .value = 13 },
-        {.name = "13: [OP0]:FB + ([OP1] -> [OP2]) + [OP3]", .value = 14 },
-        {.name = "14: [OP0]:FB + ([OP0]:FB -> [OP1]) + ([OP2] -> [OP3])", .value = 15 },
-        {.name = "15: [OP0]:FB + [OP1] + [OP2] + [OP3]", .value = 16 },
-        {.name = "16 [OP0]:FB -> [OP1] -> [OP2]", .value = 17 },
-        {.name = "17 ([OP0] -> [OP1]):FB -> [OP2]", .value = 18 },
-        {.name = "18 ([OP0]:FB + [OP2]) -> [OP1]", .value = 19 },
-        {.name = "19: [OP0]:FB + [OP2] -> [OP1]", .value = 20 },
-        {.name = "20: ([OP0]:FB -> [OP2]) + [OP1]", .value = 21 },
-        {.name = "21: ([OP0]:FB -> [OP1]):FB + [OP2]", .value = 22 },
-        {.name = "22: [OP0]:FB + ([OP1] -> [OP2]) + [OP1]", .value = 23 },
-        {.name = "23: [OP0]:FB + ([OP0] -> [OP2]) + [OP1]", .value = 24 },
-        {.name = "24: [OP0]:FB -> [OP1]", .value = 25 },
-        {.name = "25: ([OP0] -> [OP1]):FB", .value = 26 },
-        {.name = "26: [OP0]:FB + [OP1]", .value = 27 },
-        {.name = "27: [OP0]:FB + ([OP0] -> [OP1])", .value = 28 },
-    };
-    std::vector<SelectItem> ksItems = { {.name = "0 OFF", .value = 1}, {.name = "1 (Weak)", .value = 2}, {.name = "2 (Mid)", .value = 3}, {.name = "3 (Strong)", .value = 4}, };
-    std::vector<SelectItem> bdItems = {
-        {.name = "0: 4-bit (16 steps)",  .value = 1 },
-        {.name = "1: 5-bit (32 steps)",  .value = 2 },
-        {.name = "2: 6-bit (64 steps)",  .value = 3 },
-        {.name = "3: 8-bit (256 steps)", .value = 4 },
-        {.name = "4: Raw",               .value = 5 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-    std::vector<SelectItem> wsItems = {
-        {.name = "00: Sine", .value = 1},
-        {.name = "01: Half Sine", .value = 2},
-        {.name = "02: Abs Sine", .value = 3},
-        {.name = "03: Alternating Half Sine", .value = 4},
-        {.name = "04: Alternating Sine", .value = 5},
-        {.name = "05: Alternating Abs Sine", .value = 6},
-        {.name = "06: Square", .value = 7},
-        {.name = "07: Derived Square", .value = 8},
-        {.name = "08: Saw Down", .value = 9},
-        {.name = "09: Saw Up", .value = 10},
-        {.name = "10: Triangle", .value = 11},
-        {.name = "11: Saw + Sine", .value = 12},
-        {.name = "12: Log Saw", .value = 13},
-        {.name = "13: Pulse 25%", .value = 14},
-        {.name = "14: Pulse 12.5%", .value = 15},
-        {.name = "15: Pulse 6.25%", .value = 16},
-        {.name = "16: Round Square", .value = 17},
-        {.name = "17: Impulse Train", .value = 18},
-        {.name = "18: Comb / Multi-pulse", .value = 19},
-        {.name = "19: Resonant Saw (Low)", .value = 20},
-        {.name = "20: Resonant Saw (High)", .value = 21},
-        {.name = "21: Resonant Triangle", .value = 22},
-        {.name = "22: Bulb Sine", .value = 23},
-        {.name = "23: Double Hump", .value = 24},
-        {.name = "24: Pseudo Voice Formant 1", .value = 25},
-        {.name = "25: Pseudo Voice Formant 2", .value = 26},
-        {.name = "26: Metallic 1", .value = 27},
-        {.name = "27: Metallic 2", .value = 28},
-        {.name = "28: Noise-Like", .value = 29},
-        {.name = "29: PCM(Audio) File", .value = 30},
-    };
-
     mainGroup.setup(*this, mGroupTitle);
     bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = algItems, .isReset = true });
+    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = opzx3AlgItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + postLFreq, .title = mLfoFreq, .isReset = true });
@@ -141,7 +58,7 @@ void GuiOpzx3::setup()
         freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = opFreqTo440Label, .isReset = false, .isResized = false });
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
-        ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = wsItems, .isReset = true });
+        ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postWs, .title = opWsLabel, .items = opzx3WsItems, .isReset = true });
 
         loadPcmBtn[i].setup({ .parent = *this, .title = opPcmLabel, .isReset = false, .isResized = false });
         loadPcmBtn[i].onClick = [this, i] {

@@ -33,6 +33,7 @@ public:
     void paint(juce::Graphics& g) override;
 };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 class GuiWaveformPreview : public juce::Component
 {
 public:
@@ -88,6 +89,7 @@ public:
 private:
     std::vector<float> m_displayBuffer;
 };
+#endif
 
 class GuiBaseComponent
 {
@@ -306,6 +308,9 @@ public:
         juce::Colour color = GuiColor::TextEditor::Text;
         juce::Colour bgColor = GuiColor::TextEditor::Bg;
         juce::Colour borderColor = GuiColor::TextEditor::Border;
+        std::optional<juce::Font> labelFont = std::nullopt;
+        juce::Justification labelJustification = juce::Justification::centred;
+        juce::Colour labelColor = GuiColor::Label::Text;
         bool isMultiLine = false;
         bool isReturnKeyStartsNewLine = false;
     };
