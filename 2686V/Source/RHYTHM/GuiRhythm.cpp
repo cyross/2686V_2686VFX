@@ -12,27 +12,6 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName)
 {
-    // Prepare Items for ComboBoxes
-    std::vector<SelectItem> qualityItems = {
-        {.name = "0: Raw (32bit)", .value = 1 },
-        {.name = "1: 24-bit PCM",  .value = 2 },
-        {.name = "2: 16-bit PCM",  .value = 3 },
-        {.name = "3: 8-bit PCM",   .value = 4 },
-        {.name = "4: 5-bit PCM",   .value = 5 },
-        {.name = "5: 4-bit PCM",   .value = 6 },
-        {.name = "6: 4-bit ADPCM", .value = 7 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     parent.addAndMakeVisible(this);
 
     juce::String padPrefix = codeRhythm + codePad + juce::String(index);
@@ -59,7 +38,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             ctx.audioProcessor.unloadRhythmFile(index);
 
             // 2. ファイル名表示を更新
-            fileNameLabel.setText("(Empty)", juce::dontSendNotification);
+            fileNameLabel.setText(emptyFilename, juce::dontSendNotification);
         };
 
     // ワンショット機能トグル

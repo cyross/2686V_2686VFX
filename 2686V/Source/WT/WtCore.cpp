@@ -21,14 +21,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr = params.wtAdsr;
 
     // Bit Depth & Table Size
-    switch (params.wtBitDepth) {
-    case 0: m_quantizeSteps = 15.0f; break;
-    case 1: m_quantizeSteps = 31.0f; break;
-    case 2: m_quantizeSteps = 63.0f; break;
-    case 3: m_quantizeSteps = 255.0f; break;
-    case 4: m_quantizeSteps = 0.0f; break; // Raw (No Quantize) - 追加の可能性を考慮
-    default: m_quantizeSteps = 255.0f; break;
-    }
+    m_quantizeSteps = getTargetBitDepth(params.wtBitDepth);
     m_rateIndex = params.wtRateIndex;
     m_tableSize = (params.wtTableSize == 0) ? 32 : 64;
 
@@ -59,7 +52,14 @@ void WtCore::noteOn(float frequency)
 {
     m_phase = 0.0f;
     m_modPhase = 0.0f;
-    m_phaseDelta = frequency / m_sampleRate;
+
+    double targetRate = getTargetRate(m_rateIndex);
+    if (targetRate > 0.0) {
+        m_phaseDelta = frequency / targetRate;
+    }
+    else {
+        m_phaseDelta = 0.0;
+    }
 
     m_currentLevel = 0.0f;
     m_state = State::Attack;
@@ -132,7 +132,7 @@ float WtCore::getSample()
     m_rateAccumulator += step;
 
     // --- Wavetable Synthesis ---
-    if (m_rateAccumulator >= 1.0)
+    while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 

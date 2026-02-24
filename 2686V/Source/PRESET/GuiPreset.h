@@ -14,6 +14,9 @@ class GuiPreset : public GuiBase
     // UI Components
     GuiLabel pathLabel; // パス表示用
 
+    GuiTextEditor searchBox; // 検索ボックス
+    GuiTextButton clearSearchButton; // 検索クリアボタン
+
     GuiTableList table; // メタデータ付きリスト
 
     GuiTextEditor nameEditor;
@@ -46,6 +49,8 @@ public:
         mainGroup(context),
         metaGroup(context),
         pathLabel(context),
+        searchBox(context),
+        clearSearchButton(context),
         table(context),
         nameEditor(context), authorEditor(context), versionEditor(context), commentEditor(context),
         initButton(context), saveButton(context), loadButton(context), deleteButton(context), refreshButton(context),
@@ -56,6 +61,7 @@ public:
     // Data
     juce::File currentFolder;
     std::vector<PresetItem> items; // 読み込んだプリセット一覧
+    std::vector<PresetItem> filteredItems; // 検索で絞り込まれた表示用のプリセット一覧
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
@@ -64,4 +70,6 @@ public:
 	void updateTableContent();
 	void repaintTable();
     void updatePresetPath();
+
+    void applyFilter(); // 絞り込み実行関数
 };

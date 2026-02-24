@@ -3,6 +3,17 @@
 
 void GuiAbout::setup()
 {
+    mainGroup.setup(*this, "");
+
+    // 0. App Icon
+    iconImage.setup(*this);
+
+    auto iconImg = juce::ImageCache::getFromMemory(
+        AppIconAboutForAboutData::icon_png,
+        AppIconAboutForAboutData::icon_pngSize
+    );
+    iconImage.setImage(iconImg);
+
     // 1. Plugin Name
     pluginNameLabel.setup({ .parent = *this, .title = pluginName });
     pluginNameLabel.setFont(juce::Font(FontFamily, 64.0f, juce::Font::bold | juce::Font::italic));
@@ -49,24 +60,31 @@ void GuiAbout::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
     pageArea.removeFromTop(TitlePaddingTop);
 
+    auto mainArea = pageArea.reduced(GlobalPaddingWidth, GlobalPaddingHeight);
+
+    mainGroup.setBounds(pageArea);
+
+    auto iconArea = pageArea.removeFromTop(160);
+    iconImage.setBounds(iconArea.withSizeKeepingCentre(128, 128));
+
     // Name & Ver
-    pluginNameLabel.setBounds(pageArea.removeFromTop(80));
-    versionLabel.setBounds(pageArea.removeFromTop(40));
-    copyrightLabel.setBounds(pageArea.removeFromTop(30));
+    pluginNameLabel.setBounds(mainArea.removeFromTop(80));
+    versionLabel.setBounds(mainArea.removeFromTop(40));
+    copyrightLabel.setBounds(mainArea.removeFromTop(30));
 
     // Logo Row
     // ロゴの元サイズ比率を維持して中央配置
-    auto logoArea = pageArea.removeFromTop(80);
+    auto logoArea = mainArea.removeFromTop(80);
     vst3Logo.setBounds(logoArea.withSizeKeepingCentre(150, 60)); // 枠内で最大150x60に収める等の調整
 
     // VST Guideline Text
-    vstGuidelineLabel.setBounds(pageArea.removeFromTop(20));
+    vstGuidelineLabel.setBounds(mainArea.removeFromTop(20));
 
-    auto gplNoticeArea = pageArea.removeFromTop(40);
+    auto gplNoticeArea = mainArea.removeFromTop(40);
 
     gplNoticeLabel.setBounds(gplNoticeArea);
 
-    auto gplLinkArea = pageArea.removeFromTop(40);
+    auto gplLinkArea = mainArea.removeFromTop(40);
 
     gplLinkButton.setBounds(gplLinkArea);
 

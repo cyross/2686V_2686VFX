@@ -410,6 +410,8 @@ void GuiTableList::selectedRowsChanged(int lastRowSelected) {
 
 void GuiTextEditor::setup(const Config& c)
 {
+    label.setup({ .parent = c.parent, .title = c.title, .color = c.labelColor });
+
     c.parent.addAndMakeVisible(*this);
 
 	this->setMultiLine(c.isMultiLine);

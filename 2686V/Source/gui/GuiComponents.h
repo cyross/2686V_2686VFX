@@ -5,6 +5,7 @@
 #include <functional>
 #include <span>
 #include <vector>
+#include <atomic>
 #include "GuiColor.h"
 #include "GuiStructs.h"
 #include "GuiConstants.h"
@@ -31,6 +32,64 @@ public:
     void setBackgroundColor(juce::Colour c);
     void paint(juce::Graphics& g) override;
 };
+
+#if !defined(BUILD_AS_FX_PLUGIN)
+class GuiWaveformPreview : public juce::Component
+{
+public:
+    juce::Colour bgColor;
+    juce::Colour lineColor;
+
+    // コンストラクタで色を受け取る
+    GuiWaveformPreview(juce::Colour background, juce::Colour line)
+        : bgColor(background), lineColor(line)
+    {
+    }
+
+    void pushBuffer(const float* data, int numSamples)
+    {
+        if (numSamples <= 0) return;
+        m_displayBuffer.assign(data, data + numSamples);
+        repaint(); // データが来たら再描画
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        // カスタム背景色で塗りつぶし
+        g.fillAll(bgColor);
+        g.setColour(juce::Colours::darkgrey);
+        g.drawRect(getLocalBounds(), 1);
+
+        g.setColour(juce::Colours::grey.withAlpha(0.5f));
+        g.drawLine(0, getHeight() / 2.0f, getWidth(), getHeight() / 2.0f);
+
+        if (m_displayBuffer.empty()) return;
+
+        juce::Path wavePath;
+        float halfHeight = getHeight() / 2.0f;
+
+        float xStep = 0.0f;
+        if (m_displayBuffer.size() > 1) {
+            xStep = (float)getWidth() / (m_displayBuffer.size() - 1);
+        }
+
+        wavePath.startNewSubPath(0, halfHeight - (m_displayBuffer[0] * halfHeight));
+
+        for (size_t i = 1; i < m_displayBuffer.size(); ++i) {
+            float x = i * xStep;
+            float y = halfHeight - (m_displayBuffer[i] * halfHeight);
+            wavePath.lineTo(x, y);
+        }
+
+        // カスタム波形色で描画
+        g.setColour(lineColor);
+        g.strokePath(wavePath, juce::PathStrokeType(2.0f));
+    }
+
+private:
+    std::vector<float> m_displayBuffer;
+};
+#endif
 
 class GuiBaseComponent
 {
@@ -249,6 +308,9 @@ public:
         juce::Colour color = GuiColor::TextEditor::Text;
         juce::Colour bgColor = GuiColor::TextEditor::Bg;
         juce::Colour borderColor = GuiColor::TextEditor::Border;
+        std::optional<juce::Font> labelFont = std::nullopt;
+        juce::Justification labelJustification = juce::Justification::centred;
+        juce::Colour labelColor = GuiColor::Label::Text;
         bool isMultiLine = false;
         bool isReturnKeyStartsNewLine = false;
     };

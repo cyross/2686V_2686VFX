@@ -71,7 +71,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(codeMode);
     tabs.setCurrentTabIndex(currentMode);
 
-#if !defined(BUILD_AS_FX_PLUGIN)
+#if defined(BUILD_AS_FX_PLUGIN)
+    setSize(WindowWidth, WindowHeight);
+#else
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
     {
@@ -88,23 +90,61 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     if (presetGui->currentFolder.isDirectory()) {
         scanPresets();
     }
-#endif
 
-    setSize(WindowWidth, WindowHeight);
+    addAndMakeVisible(togglePreviewBtn);
+    addChildComponent(staticPreview);
+    addChildComponent(realtimePreview);
+
+    togglePreviewBtn.onClick = [this] {
+        isPreviewVisible = !isPreviewVisible;
+        updatePreviewVisibilityToProcessor();
+
+        staticPreview.setVisible(isPreviewVisible);
+        realtimePreview.setVisible(isPreviewVisible);
+        togglePreviewBtn.setButtonText(isPreviewVisible ? "<<" : ">>");
+
+        // ウィンドウの幅を動的に変更
+        int newWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+        setSize(newWidth, WindowHeight); // 高さは固定、幅を伸縮
+
+        // タイマーのON/OFFを切り替え
+        updateTimerState();
+    };
+
+    midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
+
+    // 鍵盤を画面に追加し、PCキーボードのフォーカスを受け取れるようにする
+    addAndMakeVisible(*midiKeyboard);
+    midiKeyboard->setWantsKeyboardFocus(true);
+
+    midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+    int initialHeight = audioProcessor.showVirtualKeyboard ? WindowHeight + KeyboardHeight : WindowHeight;
+    setSize(WindowWidth, initialHeight);
+#endif
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
-    tabs.setLookAndFeel(nullptr);
+#if defined(BUILD_AS_FX_PLUGIN)
 
+    tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
-#if !defined(BUILD_AS_FX_PLUGIN)
+
+    audioProcessor.apvts.removeParameterListener(codeMode, this);
+#else
+    tabs.setLookAndFeel(nullptr);
+    tabs.getTabbedButtonBar().removeChangeListener(this);
+
     wtGui->removeComponentListener(this);
+
     adpcmGui->removeLoadButtonListener(this);
 
-	rhythmGui->removeLoadButtonListener(this);
-#endif
+    rhythmGui->removeLoadButtonListener(this);
+
     audioProcessor.apvts.removeParameterListener(codeMode, this);
+
+    stopTimer();
+#endif
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -132,6 +172,8 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
                 }
             }
         }
+
+        updateTimerState();
     }
 #endif
 }
@@ -143,9 +185,27 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 
 void AudioPlugin2686VEditor::resized()
 {
-    logoLabel.setBounds(getLocalBounds().reduced(GlobalPaddingWidth, GlobalPaddingHeight));
-
     auto area = getLocalBounds();
+
+#if !defined(BUILD_AS_FX_PLUGIN)
+    // 画面の一番下を鍵盤UIに割り当てる
+    if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
+    {
+        midiKeyboard->setBounds(area.removeFromBottom(KeyboardHeight));
+    }
+
+    togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
+
+    if (isPreviewVisible)
+    {
+        auto rightArea = area.removeFromRight(PreviewExtraWidth);
+
+        staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
+        realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
+    }
+#endif
+
+    logoLabel.setBounds(area.reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
     tabs.setBounds(area);
 
@@ -175,6 +235,11 @@ void AudioPlugin2686VEditor::resized()
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 {
+    auto fullArea = getLocalBounds().toFloat();
+
+    // 拡張パネルを含まない、本来のメイン画面の固定サイズ
+    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)WindowWidth, (float)WindowHeight);
+
     if (backgroundImage.isValid())
     {
         int mode = audioProcessor.wallpaperMode;
@@ -184,8 +249,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
         {
             if (blurredBackgroundImage.isValid())
             {
-                // ぼかし画像を画面全体に Fill (アスペクト比を維持して隙間なく拡大) で描画
-                g.drawImage(blurredBackgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::fillDestination);
+                g.drawImage(blurredBackgroundImage, fullArea, juce::RectanglePlacement::fillDestination);
 
                 // ぼかし背景を少し暗く落とす (手前のメイン画像を目立たせるため)
                 g.fillAll(GuiColor::Editor::blurWallpaperBg);
@@ -211,7 +275,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
         }
 
         // Draw Image
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), placement);
+        g.drawImage(backgroundImage, baseArea, placement);
 
         // Optional: Add a dark overlay to make controls readable
         g.fillAll(GuiColor::Editor::wallpaperBg);
@@ -548,23 +612,7 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
         }
         }), true);
 }
-#endif
 
-void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    if (parameterID == codeMode)
-    {
-        // UIスレッドで実行するために callAsync を使用
-        juce::MessageManager::callAsync([this, idx = (int)newValue]() {
-            // 現在のタブと違えば切り替える（ループ防止）
-            if (tabs.getCurrentTabIndex() != idx) {
-                tabs.setCurrentTabIndex(idx);
-            }
-            });
-    }
-}
-
-#if !defined(BUILD_AS_FX_PLUGIN)
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
@@ -669,4 +717,74 @@ void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
         adpcmGui->updateFileName(text);
     }
 }
+
+void AudioPlugin2686VEditor::timerCallback()
+{
+    if (isPreviewVisible)
+    {
+        // 1. 静的波形（完成波形）の更新
+        std::vector<float> staticData;
+
+        audioProcessor.generatePreviewWaveform(staticData);
+        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
+
+        // 2. リアルタイム波形の更新
+        std::vector<float> realTimeData(512);
+
+        for (int i = 0; i < 512; ++i) {
+            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
+        }
+        realtimePreview.pushBuffer(realTimeData.data(), 512);
+    }
+}
+
+void AudioPlugin2686VEditor::updateTimerState()
+{
+    // 現在のタブがシンセ系かチェック (例: 0〜9 が OPNA〜ADPCM、それ以降がFXや設定など)
+    // ※ ADPCM が 9 番目のタブであることを前提としています。構成に合わせて数字を調整してください。
+    int currentTab = tabs.getCurrentTabIndex();
+    bool isSynthTab = (currentTab <= 9);
+
+    // プレビューが開いていて、かつシンセ画面の時だけタイマーを動かす
+    if (isPreviewVisible && isSynthTab) {
+        startTimerHz(15);
+        timerCallback(); // ★タイマー開始時に即座に1回強制描画する！
+    }
+    else {
+        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+    }
+}
+
+void AudioPlugin2686VEditor::updateKeyboardVisibility()
+{
+    // コンポーネントの表示/非表示を切り替え
+    if (midiKeyboard != nullptr) {
+        midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+    }
+
+    // プレビューの開閉状態（幅）と、キーボードの開閉状態（高さ）を両方考慮してリサイズ
+    int targetWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+    int targetHeight = audioProcessor.showVirtualKeyboard ? WindowHeight + KeyboardHeight : WindowHeight;
+
+    setSize(targetWidth, targetHeight);
+}
+
+void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
+{
+    audioProcessor.previewVisiblity = isPreviewVisible;
+}
 #endif
+
+void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    if (parameterID == codeMode)
+    {
+        // UIスレッドで実行するために callAsync を使用
+        juce::MessageManager::callAsync([this, idx = (int)newValue]() {
+            // 現在のタブと違えば切り替える（ループ防止）
+            if (tabs.getCurrentTabIndex() != idx) {
+                tabs.setCurrentTabIndex(idx);
+            }
+            });
+    }
+}

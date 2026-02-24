@@ -17,14 +17,7 @@ void OplCore::setParameters(const SynthParams& params) {
         for (auto& op : m_operators) op.setSampleRate(target);
     }
 
-    switch (params.fmBitDepth) {
-    case 0: m_quantizeSteps = 15.0f; break;
-    case 1: m_quantizeSteps = 31.0f; break;
-    case 2: m_quantizeSteps = 63.0f; break;
-    case 3: m_quantizeSteps = 255.0f; break;
-    case 4: m_quantizeSteps = 0.0f; break;
-    default: m_quantizeSteps = 0.0f; break;
-    }
+    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
 
     for (int i = 0; i < 2; ++i) {
         float fb = (i == 0) ? params.feedback : 0.0f; // OP1のみFeedback
@@ -83,7 +76,8 @@ float OplCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    if (m_rateAccumulator >= 1.0) {
+    while (m_rateAccumulator >= 1.0)
+    {
         m_rateAccumulator -= 1.0;
 
         // LFO Logic (Run at Target Rate)

@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "../synth/SynthParams.h"
-#include "../synth/Pcm.h"
 
 // Class representing a single drum pad
 class RhythmPad

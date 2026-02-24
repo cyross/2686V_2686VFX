@@ -88,6 +88,14 @@ public:
 
     void loadOpzx3PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx3PcmFile(int opIndex);
+
+    // --- Preview ---
+    bool previewVisiblity = false; // Editorとの同期用
+    void generatePreviewWaveform(std::vector<float>& destBuffer);
+    std::atomic<float> realTimeBuffer[512];
+
+    // --- 仮想キーボード ---
+    juce::MidiKeyboardState keyboardState;
 #endif
 
     // --- Settings Data ---
@@ -98,6 +106,7 @@ public:
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
+    bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
 
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 
@@ -107,12 +116,8 @@ public:
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
-
 private:
 #if !defined(BUILD_AS_FX_PLUGIN)
-    // SynthSound/SynthVoice へ直接メソッドを渡す必用を鑑みて
-    std::unique_ptr<SynthSound> synthSound;
-    std::vector<std::unique_ptr<SynthVoice>> synthVoices;
     OpnaProcessor prOpna;
     OpnProcessor prOpn;
     OplProcessor prOpl;
@@ -130,6 +135,10 @@ private:
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     juce::Synthesiser m_synth;
+
+    // 波形プレビュー用
+    juce::Synthesiser previewSynth;
+    std::unique_ptr<SynthSound> previewSound;
 #endif
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);

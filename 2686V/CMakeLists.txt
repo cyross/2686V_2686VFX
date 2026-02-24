@@ -35,6 +35,7 @@ juce_add_plugin(${CY_PLUGIN_NAME}
     PLUGIN_MANUFACTURER_CODE ${CY_MANUFACTURER_CODE} # 独自のID
     PLUGIN_CODE ${CY_PLUGIN_CODE}
     FORMATS VST3 Standalone         # VST3とデバッグ用スタンドアロン
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
     PRODUCT_NAME ${CY_PLUGIN_NAME}
 )
 
@@ -48,6 +49,14 @@ juce_add_binary_data(VstLogoForAbout
     NAMESPACE VstLogoForAboutData
     SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/Resources/vst3_logo.png"
+)
+
+# アイコンの登録
+juce_add_binary_data(AppIconForAbout
+    HEADER_NAME "AppIconForAbout.h"
+    NAMESPACE AppIconAboutForAboutData
+    SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
 )
 
 if(BUILD_AS_FX)
@@ -141,15 +150,15 @@ source_group("Doc" FILES ${DOCUMENT_FILES})
 
 # ソースファイルの指定
 target_sources(${CY_PLUGIN_NAME} PRIVATE
-    ${CONST_FILES}
     ${CORE_FILES}
+    ${CONST_FILES}
     ${SYNTH_FILES}
     ${GUI_FILES}
+    ${PROCESSOR_FILES}
+    ${EDITOR_FILES}
     ${FX_FILES}
     ${SETTINGS_FILES}
     ${ABOUT_FILES}
-    ${PROCESSOR_FILES}
-    ${EDITOR_FILES}
     ${DOCUMENT_FILES}
 )
 else()
@@ -390,6 +399,8 @@ endif()
 
 # ライブラリのリンク
 target_link_libraries(${CY_PLUGIN_NAME} PRIVATE
+    # アイコン
+    AppIconForAbout
     # VSTロゴ
     VstLogoForAbout
     # JUCEモジュール

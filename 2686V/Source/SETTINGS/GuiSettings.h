@@ -10,13 +10,17 @@ class GuiSettings : public GuiBase
 {
     GuiGroup mainGroup;
 
-    // WallpaperPath
+    // 壁紙のファイルパス
     GuiLabel wallpaperLabel;
     GuiLabel wallpaperPathLabel;
     GuiTextButton wallpaperBrowseBtn;
     GuiTextButton wallpaperClearBtn;
 
-    // Wallpaper Mode
+    // 壁紙表示モード
+    // 0: Stretch
+    // 1: Fill
+    // 2: Fit
+    // 3: Original
     GuiComboBox wallpaperModeSelector;
 
     // Directories
@@ -39,6 +43,9 @@ class GuiSettings : public GuiBase
     // For Headroom
     GuiToggleButton useHeadroomToggle;
     GuiSlider headroomGainSlider;
+
+    // 仮想MIDIキーボード表示制御
+    GuiToggleButton virtualMidiKeyboardToggle;
 public:
     GuiSettings(const GuiContext& context) :
         GuiBase(context),
@@ -54,6 +61,7 @@ public:
         presetDirLabel(context),
         presetDirPathLabel(context),
         presetDirBrowseBtn(context),
+        virtualMidiKeyboardToggle(context),
         saveSettingsBtn(context),
         loadSettingsBtn(context),
         saveStartupSettingsBtn(context),

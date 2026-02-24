@@ -56,7 +56,6 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
         params.wtCustomWave32[i] = *apvts.getRawParameterValue(paramId);
     }
 
-
     // Custom Wave params reading
     for (int i = 0; i < wtCustomSize2; ++i)
     {
