@@ -141,15 +141,15 @@ source_group("Doc" FILES ${DOCUMENT_FILES})
 
 # ソースファイルの指定
 target_sources(${CY_PLUGIN_NAME} PRIVATE
-    ${CONST_FILES}
     ${CORE_FILES}
+    ${CONST_FILES}
     ${SYNTH_FILES}
     ${GUI_FILES}
+    ${PROCESSOR_FILES}
+    ${EDITOR_FILES}
     ${FX_FILES}
     ${SETTINGS_FILES}
     ${ABOUT_FILES}
-    ${PROCESSOR_FILES}
-    ${EDITOR_FILES}
     ${DOCUMENT_FILES}
 )
 else()

@@ -71,7 +71,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(codeMode);
     tabs.setCurrentTabIndex(currentMode);
 
-#if !defined(BUILD_AS_FX_PLUGIN)
+#if defined(BUILD_AS_FX_PLUGIN)
+    setSize(WindowWidth, WindowHeight);
+#else
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
     {
@@ -88,7 +90,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     if (presetGui->currentFolder.isDirectory()) {
         scanPresets();
     }
-#endif
 
     addAndMakeVisible(togglePreviewBtn);
     addChildComponent(staticPreview);
@@ -96,6 +97,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
+        updatePreviewVisibilityToProcessor();
 
         staticPreview.setVisible(isPreviewVisible);
         realtimePreview.setVisible(isPreviewVisible);
@@ -109,23 +111,40 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         updateTimerState();
     };
 
-    setSize(WindowWidth, WindowHeight);
+    midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
+
+    // 鍵盤を画面に追加し、PCキーボードのフォーカスを受け取れるようにする
+    addAndMakeVisible(*midiKeyboard);
+    midiKeyboard->setWantsKeyboardFocus(true);
+
+    midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+    int initialHeight = audioProcessor.showVirtualKeyboard ? WindowHeight + KeyboardHeight : WindowHeight;
+    setSize(WindowWidth, initialHeight);
+#endif
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
-    tabs.setLookAndFeel(nullptr);
+#if defined(BUILD_AS_FX_PLUGIN)
 
+    tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
-#if !defined(BUILD_AS_FX_PLUGIN)
+
+    audioProcessor.apvts.removeParameterListener(codeMode, this);
+#else
+    tabs.setLookAndFeel(nullptr);
+    tabs.getTabbedButtonBar().removeChangeListener(this);
+
     wtGui->removeComponentListener(this);
+
     adpcmGui->removeLoadButtonListener(this);
 
-	rhythmGui->removeLoadButtonListener(this);
-#endif
+    rhythmGui->removeLoadButtonListener(this);
+
     audioProcessor.apvts.removeParameterListener(codeMode, this);
 
     stopTimer();
+#endif
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -168,17 +187,23 @@ void AudioPlugin2686VEditor::resized()
 {
     auto area = getLocalBounds();
 
+#if !defined(BUILD_AS_FX_PLUGIN)
+    // 画面の一番下を鍵盤UIに割り当てる
+    if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
+    {
+        midiKeyboard->setBounds(area.removeFromBottom(KeyboardHeight));
+    }
+
     togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
 
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(PreviewExtraWidth);
 
-        // 描画区画を 200 x 200 に設定 (タブの少し下あたりに配置)
-        // Y座標はタブバーの高さなどに合わせて調整してください (ここでは30px下から)
         staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
     }
+#endif
 
     logoLabel.setBounds(area.reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
@@ -583,23 +608,7 @@ void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std:
         }
         }), true);
 }
-#endif
 
-void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    if (parameterID == codeMode)
-    {
-        // UIスレッドで実行するために callAsync を使用
-        juce::MessageManager::callAsync([this, idx = (int)newValue]() {
-            // 現在のタブと違えば切り替える（ループ防止）
-            if (tabs.getCurrentTabIndex() != idx) {
-                tabs.setCurrentTabIndex(idx);
-            }
-            });
-    }
-}
-
-#if !defined(BUILD_AS_FX_PLUGIN)
 // 再帰的に全ての子コンポーネントを探索し、スライダーなら範囲をツールチップにセット
 void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComponent)
 {
@@ -704,7 +713,6 @@ void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
         adpcmGui->updateFileName(text);
     }
 }
-#endif
 
 void AudioPlugin2686VEditor::timerCallback()
 {
@@ -740,5 +748,39 @@ void AudioPlugin2686VEditor::updateTimerState()
     }
     else {
         stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+    }
+}
+
+void AudioPlugin2686VEditor::updateKeyboardVisibility()
+{
+    // コンポーネントの表示/非表示を切り替え
+    if (midiKeyboard != nullptr) {
+        midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+    }
+
+    // プレビューの開閉状態（幅）と、キーボードの開閉状態（高さ）を両方考慮してリサイズ
+    int targetWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+    int targetHeight = audioProcessor.showVirtualKeyboard ? WindowHeight + KeyboardHeight : WindowHeight;
+
+    setSize(targetWidth, targetHeight);
+}
+
+void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
+{
+    audioProcessor.previewVisiblity = isPreviewVisible;
+}
+#endif
+
+void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    if (parameterID == codeMode)
+    {
+        // UIスレッドで実行するために callAsync を使用
+        juce::MessageManager::callAsync([this, idx = (int)newValue]() {
+            // 現在のタブと違えば切り替える（ループ防止）
+            if (tabs.getCurrentTabIndex() != idx) {
+                tabs.setCurrentTabIndex(idx);
+            }
+            });
     }
 }

@@ -33,6 +33,7 @@ public:
     void paint(juce::Graphics& g) override;
 };
 
+#if !defined(BUILD_AS_FX_PLUGIN)
 class GuiWaveformPreview : public juce::Component
 {
 public:
@@ -88,6 +89,7 @@ public:
 private:
     std::vector<float> m_displayBuffer;
 };
+#endif
 
 class GuiBaseComponent
 {

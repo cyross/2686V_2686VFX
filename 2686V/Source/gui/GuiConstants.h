@@ -7,7 +7,7 @@ static const juce::String FontFamily = "Times New Roman";
 static const float LogoFontSize = 128.0f;
 
 static const int WindowWidth = 1280;
-static const int WindowHeight = 600;
+static const int WindowHeight = 660;
 static const int PreviewExtraWidth = 288;
 static const int PreviewDrawSize = 280;
 
@@ -15,6 +15,9 @@ static const int PreviewDrawSize = 280;
 static const int TabNumber = 3;
 #else
 static const int TabNumber = 13;
+
+// 鍵盤UIの高さ
+const int KeyboardHeight = 60;
 #endif
 
 static const int MainWidth = 280;
@@ -156,7 +159,7 @@ static const int SettingsModeSelectorWidth = 320;
 static const int SettingsBrowseButtonWidth = 80;
 static const int SettingsClearButtonWidth = 60;
 static const int SettingsHeadroomGainSliderWidth = 200;
-static const int SettingsToggleWidth = 80;
+static const int SettingsToggleWidth = 400;
 static const int SettingsButtonWidth = 200;
 static const int SettingsButtonPaddingRight = 4;
 

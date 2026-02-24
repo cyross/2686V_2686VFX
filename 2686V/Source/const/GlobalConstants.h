@@ -35,6 +35,7 @@ static inline const juce::String settingDefaultPresetDir = "defaultPresetDir";
 static inline const juce::String settingShowTooltips = "showTooltips";
 static inline const juce::String settingUseHeadroom = "useHeadRoom";
 static inline const juce::String settingHeadroomGain = "headRoomGain";
+static inline const juce::String settingShowVirtualKeyboard = "showVirtualKeyboard";
 static inline constexpr bool defaultShowTooltip = true;
 static inline constexpr bool defaultUseHeadroom = true;
 static inline constexpr float defaultHeadroomGain = 0.25f;

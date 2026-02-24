@@ -50,7 +50,7 @@ void GuiSettings::setup()
     };
 
     // --- Wallpaper Mode ---
-    wallpaperModeSelector.setup({ .parent = *this, .title = "Mode", .items = wpModeItems, .isReset = false });
+    wallpaperModeSelector.setup({ .parent = *this, .title = "Mode:", .items = wpModeItems, .isReset = false });
     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
     wallpaperModeSelector.onChange = [this] {
         ctx.audioProcessor.wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
@@ -118,7 +118,7 @@ void GuiSettings::setup()
     // --- Headroom Gain Slider---
 	headroomGainSlider.setup({ .parent = *this, .title = "Headroom Gain", .isReset = false });
     headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-    headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
     headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
     // プロセッサの値で初期化
     headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
@@ -126,6 +126,15 @@ void GuiSettings::setup()
 
     headroomGainSlider.onValueChange = [this] {
         ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
+    };
+
+    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = "Show Virtual Midi Keyboard", .isReset = false });
+    virtualMidiKeyboardToggle.onClick = [this] {
+        // プロセッサ側のフラグを反転（またはボタンの状態を代入）
+        ctx.audioProcessor.showVirtualKeyboard = !ctx.audioProcessor.showVirtualKeyboard;
+
+        // エディタ(PluginEditor)の関数を呼んで、実際にウィンドウの大きさを変える！
+        ctx.editor.updateKeyboardVisibility();
     };
 #endif
 
@@ -275,11 +284,23 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 6. Headroom Row
     auto rowHeadroom = sRect.removeFromTop(SettingsRowHeight);
     useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsToggleWidth));
-    headroomGainSlider.setBounds(rowHeadroom.removeFromLeft(SettingsHeadroomGainSliderWidth));
 
     sRect.removeFromTop(SettingsPaddingHeight);
 
-    // 7. Config IO Buttons (Fixed Layout)
+    // 7. Headroom Row
+    auto rowHeadroomGain = sRect.removeFromTop(SettingsRowHeight);
+    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsLabelWidth));
+    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsHeadroomGainSliderWidth));
+
+    sRect.removeFromTop(SettingsPaddingHeight);
+
+    // 8. Headroom Row
+    auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsRowHeight);
+    virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsToggleWidth));
+
+    sRect.removeFromTop(SettingsPaddingHeight);
+
+    // 8. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(SettingsRowHeight);
 
     layoutComponentsLtoR(rowIoBtns, OpRowHeight, OpLastRowPaddingBottom, {
