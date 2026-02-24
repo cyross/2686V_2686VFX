@@ -248,7 +248,7 @@ float SsgCore::getSample()
         }
         else {
             // Standard Note Frequency
-            // ★修正: ここでピッチベンドとビブラートを適用
+            // ピッチベンドとビブラートを適用
             phaseInc = m_phaseDelta * freqMult;
         }
         m_phase += phaseInc;
@@ -257,18 +257,26 @@ float SsgCore::getSample()
         // ==========================================
         // 3. Noise Generator (Target Rate)
         // ==========================================
-        m_noisePhase += m_noiseDelta; // Noise usually doesn't track pitch
-        if (m_noisePhase >= 1.0f)
+        if (m_targetNoiseFreq > 0.001f)
         {
-            m_noisePhase -= 1.0f;
-            // LFSR Step
-            unsigned int bit0 = m_lfsr & 1;
-            unsigned int bit3 = (m_lfsr >> 3) & 1;
-            unsigned int nextBit = bit0 ^ bit3;
-            m_lfsr >>= 1;
-            if (nextBit) m_lfsr |= (1 << 16);
+            m_noisePhase += m_noiseDelta; // Noise usually doesn't track pitch
 
-            m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
+            while (m_noisePhase >= 1.0f)
+            {
+                m_noisePhase -= 1.0f;
+                // LFSR Step
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+
+                m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
+            }
+        }
+        else
+        {
+            m_currentNoiseSample = 0.0f;
         }
 
         // ==========================================
@@ -295,8 +303,14 @@ float SsgCore::getSample()
             if (rawMixed > 1.0f) rawMixed = 1.0f;
             if (rawMixed < -1.0f) rawMixed = -1.0f;
 
-            float norm = (rawMixed + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
+            float dither = 0.0f;
+            if (std::abs(rawMixed) > 0.0001f) {
+                // 音が鳴っている時だけ、ブツ切れ防止のノイズを混ぜる
+                dither = ((float)std::rand() / RAND_MAX - 0.5f) * (1.0f / m_quantizeSteps);
+            }
+            float norm = (rawMixed + dither + 1.0f) * 0.5f;
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+
             m_lastSample = (quantized * 2.0f) - 1.0f;
         }
         else {
@@ -318,7 +332,14 @@ void SsgCore::updateIncrements()
 
 void SsgCore::updateNoiseFrequency()
 {
-    m_targetNoiseFreq = m_baseNoiseFreq * (m_currentFrequency / 440.0);
+    if (m_noiseOnNote) {
+        // ONの時：キーボードの音程に合わせてノイズの周波数を上下させる
+        m_targetNoiseFreq = m_baseNoiseFreq * (m_currentFrequency / 440.0);
+    }
+    else {
+        // OFFの時：スライダーで設定したノイズ周波数に固定する
+        m_targetNoiseFreq = m_baseNoiseFreq;
+    }
 }
 
 void SsgCore::updatePhaseDelta() {
