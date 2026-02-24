@@ -1,4 +1,5 @@
 ﻿#include "Pcm.h"
+#include "SynthHelpers.h"
 
 void Ym2608AdpcmCodec::reset()
 {
@@ -60,4 +61,31 @@ int16_t Ym2608AdpcmCodec::decodeAndUpdateState(uint8_t nibble) {
     else if (stepIndex > 48) stepIndex = 48;
 
     return (int16_t)predictedValue;
+}
+
+// ADPCM特有の無音時ノイズ（ピー音）を打ち消すローパスフィルタ
+void adpcmLowPassFilter(std::vector<int16_t>& adpcmBuffer)
+{
+    if (adpcmBuffer.size() > 1) {
+        int16_t prev = adpcmBuffer[0];
+        for (size_t i = 1; i < adpcmBuffer.size(); ++i) {
+            int16_t current = adpcmBuffer[i];
+            adpcmBuffer[i] = (int16_t)(((int32_t)current + (int32_t)prev) / 2);
+            prev = current;
+        }
+    }
+}
+
+float bitReduction(float input, int qIndex)
+{
+    float maxVal = getTargetMaxVal(qIndex);
+
+    if (maxVal > 0.0f) {
+        float dither = ((float)std::rand() / RAND_MAX - 0.5f) * (1.0f / maxVal);
+
+        // ディザを足してから丸めることで、無音にならずにノイズとして残る
+        return std::round((input + dither) * maxVal) / maxVal;
+    }
+
+    return input;
 }

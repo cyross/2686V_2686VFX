@@ -144,7 +144,7 @@ float SsgCore::getSample()
     m_rateAccumulator += step;
 
     // Update core logic only when virtual clock ticks
-    if (m_rateAccumulator >= 1.0)
+    while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 

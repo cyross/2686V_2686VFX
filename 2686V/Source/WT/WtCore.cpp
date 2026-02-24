@@ -52,7 +52,14 @@ void WtCore::noteOn(float frequency)
 {
     m_phase = 0.0f;
     m_modPhase = 0.0f;
-    m_phaseDelta = frequency / m_sampleRate;
+
+    double targetRate = getTargetRate(m_rateIndex);
+    if (targetRate > 0.0) {
+        m_phaseDelta = frequency / targetRate;
+    }
+    else {
+        m_phaseDelta = 0.0;
+    }
 
     m_currentLevel = 0.0f;
     m_state = State::Attack;
@@ -125,7 +132,7 @@ float WtCore::getSample()
     m_rateAccumulator += step;
 
     // --- Wavetable Synthesis ---
-    if (m_rateAccumulator >= 1.0)
+    while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 

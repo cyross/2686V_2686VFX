@@ -1,4 +1,7 @@
-﻿#include "SynthHelpers.h"
+﻿#include <cmath>
+#include <vector>
+
+#include "SynthHelpers.h"
 
 double getTargetRate(int index, double defaultValue) {
     switch (index) {

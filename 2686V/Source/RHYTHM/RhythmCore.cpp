@@ -1,4 +1,6 @@
 ﻿#include "RhythmCore.h"
+
+#include "../synth/Pcm.h"
 #include "../synth/SynthHelpers.h"
 
 // Set data (Same logic as AdpcmCore)
@@ -84,7 +86,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     float output = 0.0f;
     size_t bufferSize = 0;
 
-    if (m_qualityMode == 7) // ADPCM Playback
+    if (m_qualityMode == adpcmMode) // ADPCM Playback
     {
         bufferSize = m_adpcmBuffer.size();
         if (m_adpcmBuffer.empty()) return 0.0f;
@@ -123,10 +125,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
         float frac = (float)(m_position - idx0);
         output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
 
-        // Bitcrush Logic
-        float maxVal = getTargetMaxVal(m_qualityMode);
-
-        if (maxVal > 0.0f) output = std::floor(output * maxVal) / maxVal;
+        output = bitReduction(output, m_qualityMode);
     }
 
     m_position += increment;
@@ -140,7 +139,7 @@ void RhythmPad::refreshAdpcmBuffer()
     // (To avoid code duplication, it's best to extract Codec to a separate header, but omitted here)
     if (m_rawBuffer.empty()) return;
 
-    double targetRate = getTargetRate(m_rateIndex - 1);
+    double targetRate = getTargetRate(m_rateIndex);
 
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
     m_bufferSampleRate = targetRate;
@@ -163,6 +162,8 @@ void RhythmPad::refreshAdpcmBuffer()
 
         pos += step;
     }
+
+    adpcmLowPassFilter(m_adpcmBuffer);
 }
 
 void RhythmCore::prepare(double sampleRate)

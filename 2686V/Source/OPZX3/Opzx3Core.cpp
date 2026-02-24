@@ -84,7 +84,8 @@ float Opzx3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    if (m_rateAccumulator >= 1.0) {
+    while (m_rateAccumulator >= 1.0)
+    {
         m_rateAccumulator -= 1.0;
 
         // --- LFO Processing ---
