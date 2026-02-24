@@ -33,60 +33,56 @@ public:
     void paint(juce::Graphics& g) override;
 };
 
-class GuiWaveformPreview : public juce::Component, public juce::Timer
+class GuiWaveformPreview : public juce::Component
 {
 public:
-    GuiWaveformPreview()
+    juce::Colour bgColor;
+    juce::Colour lineColor;
+
+    // コンストラクタで色を受け取る
+    GuiWaveformPreview(juce::Colour background, juce::Colour line)
+        : bgColor(background), lineColor(line)
     {
-        // 30fps (約33ms) で画面更新
-        startTimerHz(30);
-        m_displayBuffer.resize(512, 0.0f);
     }
 
-    // AudioProcessorのprocessBlockから呼ばれる関数
     void pushBuffer(const float* data, int numSamples)
     {
-        // 簡単な実装：一定数のサンプルをコピーする
-        int copySize = juce::jmin(numSamples, (int)m_displayBuffer.size());
-        for (int i = 0; i < copySize; ++i) {
-            m_displayBuffer[i] = data[i];
-        }
+        if (numSamples <= 0) return;
+        m_displayBuffer.assign(data, data + numSamples);
+        repaint(); // データが来たら再描画
     }
 
     void paint(juce::Graphics& g) override
     {
-        // 背景を黒く塗りつぶす
-        g.fillAll(juce::Colours::black);
+        // カスタム背景色で塗りつぶし
+        g.fillAll(bgColor);
         g.setColour(juce::Colours::darkgrey);
         g.drawRect(getLocalBounds(), 1);
 
-        // 中央のゼロ線
         g.setColour(juce::Colours::grey.withAlpha(0.5f));
         g.drawLine(0, getHeight() / 2.0f, getWidth(), getHeight() / 2.0f);
 
-        // 波形の描画パスを作成
+        if (m_displayBuffer.empty()) return;
+
         juce::Path wavePath;
         float halfHeight = getHeight() / 2.0f;
-        float xStep = (float)getWidth() / m_displayBuffer.size();
+
+        float xStep = 0.0f;
+        if (m_displayBuffer.size() > 1) {
+            xStep = (float)getWidth() / (m_displayBuffer.size() - 1);
+        }
 
         wavePath.startNewSubPath(0, halfHeight - (m_displayBuffer[0] * halfHeight));
 
-        for (size_t i = 1; i < m_displayBuffer.size(); ++i)
-        {
+        for (size_t i = 1; i < m_displayBuffer.size(); ++i) {
             float x = i * xStep;
-            // 振幅( -1.0 ~ 1.0 )をY座標にマッピング
             float y = halfHeight - (m_displayBuffer[i] * halfHeight);
             wavePath.lineTo(x, y);
         }
 
-        // 鮮やかな色（例：シアン）で線を描画
-        g.setColour(juce::Colours::cyan);
+        // カスタム波形色で描画
+        g.setColour(lineColor);
         g.strokePath(wavePath, juce::PathStrokeType(2.0f));
-    }
-
-    void timerCallback() override
-    {
-        repaint(); // タイマーで定期的に再描画
     }
 
 private:

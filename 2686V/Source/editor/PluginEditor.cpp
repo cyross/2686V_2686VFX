@@ -91,23 +91,23 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 #endif
 
     addAndMakeVisible(togglePreviewBtn);
-    addChildComponent(waveformPreview); // 最初は非表示なので addChildComponent にする
+    addChildComponent(staticPreview);
+    addChildComponent(realtimePreview);
 
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
 
-        // 1. 波形コンポーネントの表示/非表示を切り替え
-        waveformPreview.setVisible(isPreviewVisible);
+        staticPreview.setVisible(isPreviewVisible);
+        realtimePreview.setVisible(isPreviewVisible);
+        togglePreviewBtn.setButtonText(isPreviewVisible ? "<<" : ">>");
 
-        // 2. ボタンのテキストを変更
-        togglePreviewBtn.setButtonText(isPreviewVisible ? "Hide Waveform" : "Show Waveform");
+        // ウィンドウの幅を動的に変更
+        int newWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+        setSize(newWidth, WindowHeight); // 高さは固定、幅を伸縮
 
-        // 3. ウィンドウサイズを動的に変更！ (これがトリガーになって resized() が呼ばれる)
-        int newHeight = isPreviewVisible ? WindowHeight + PreviewHeight : WindowHeight;
-        setSize(WindowWidth, newHeight);
+        // タイマーのON/OFFを切り替え
+        updateTimerState();
     };
-
-    startTimerHz(15);
 
     setSize(WindowWidth, WindowHeight);
 }
@@ -153,6 +153,8 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
                 }
             }
         }
+
+        updateTimerState();
     }
 #endif
 }
@@ -168,20 +170,16 @@ void AudioPlugin2686VEditor::resized()
 
     auto area = getLocalBounds();
 
+    togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
+
     if (isPreviewVisible)
     {
-        auto previewArea = area.removeFromBottom(PreviewHeight);
+        auto rightArea = area.removeFromRight(PreviewExtraWidth);
 
-        // プレビュー画面の少し上にトグルボタンを配置する例
-        auto btnArea = previewArea.removeFromTop(24).removeFromRight(120);
-        togglePreviewBtn.setBounds(btnArea);
-
-        waveformPreview.setBounds(previewArea);
-    }
-    else
-    {
-        // プレビュー非表示時は、右下などにトグルボタンを配置
-        togglePreviewBtn.setBounds(area.getRight() - 125, area.getBottom() - 29, 120, 24);
+        // 描画区画を 200 x 200 に設定 (タブの少し下あたりに配置)
+        // Y座標はタブバーの高さなどに合わせて調整してください (ここでは30px下から)
+        staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
+        realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
     }
 
     tabs.setBounds(area);
@@ -712,12 +710,35 @@ void AudioPlugin2686VEditor::timerCallback()
 {
     if (isPreviewVisible)
     {
-        std::vector<float> previewData;
+        // 1. 静的波形（完成波形）の更新
+        std::vector<float> staticData;
 
-        // プロセッサに「現在のパラメータで波形を計算して！」と依頼する
-        audioProcessor.generatePreviewWaveform(previewData);
+        audioProcessor.generatePreviewWaveform(staticData);
+        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
 
-        // 計算結果をそのままプレビュー画面に渡す
-        waveformPreview.pushBuffer(previewData.data(), (int)previewData.size());
+        // 2. リアルタイム波形の更新
+        std::vector<float> realTimeData(512);
+
+        for (int i = 0; i < 512; ++i) {
+            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
+        }
+        realtimePreview.pushBuffer(realTimeData.data(), 512);
+    }
+}
+
+void AudioPlugin2686VEditor::updateTimerState()
+{
+    // 現在のタブがシンセ系かチェック (例: 0〜9 が OPNA〜ADPCM、それ以降がFXや設定など)
+    // ※ ADPCM が 9 番目のタブであることを前提としています。構成に合わせて数字を調整してください。
+    int currentTab = tabs.getCurrentTabIndex();
+    bool isSynthTab = (currentTab <= 9);
+
+    // プレビューが開いていて、かつシンセ画面の時だけタイマーを動かす
+    if (isPreviewVisible && isSynthTab) {
+        startTimerHz(15);
+        timerCallback(); // ★タイマー開始時に即座に1回強制描画する！
+    }
+    else {
+        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
     }
 }

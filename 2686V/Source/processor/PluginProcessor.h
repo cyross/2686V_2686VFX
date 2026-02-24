@@ -110,6 +110,7 @@ public:
 
     // --- Preview ---
     void generatePreviewWaveform(std::vector<float>& destBuffer);
+    std::atomic<float> realTimeBuffer[512];
 private:
 #if !defined(BUILD_AS_FX_PLUGIN)
     // SynthSound/SynthVoice へ直接メソッドを渡す必用を鑑みて
