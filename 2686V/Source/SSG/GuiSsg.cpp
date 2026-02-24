@@ -9,62 +9,12 @@ void GuiSsg::setup()
 {
     const juce::String code = codeSsg;
 
-    std::vector<SelectItem> wsItems = {
-        {.name = "0: Pulse(Rect)", .value = 1 },
-        {.name = "1: Triangle / Saw", .value = 2 },
-    };
-
-    std::vector<SelectItem> dmItems = {
-        {.name = "0: Preset Ratio", .value = 1 },
-        {.name = "1: Variable (Slider)", .value = 2 },
-    };
-
-    std::vector<SelectItem> prItems = {
-        {.name = "0: 1:1 (50%)", .value = 1 },
-        {.name = "1: 3:5 (37.5%)", .value = 2 },
-        {.name = "2: 5:11 (31.25%)", .value = 3 },
-        {.name = "3: 1:3 (25%)", .value = 4 },
-        {.name = "4: 1:4 (20%)", .value = 5 },
-        {.name = "5: 3:13 (18.75%)", .value = 6 },
-        {.name = "6: 1:7 (12.5%)", .value = 7 },
-        {.name = "7: 1:15 (6.25%)", .value = 8 },
-    };
-
-    std::vector<SelectItem> envItems = {
-        {.name = "0: Saw Down", .value = 1 },
-        {.name = "1: Saw Down & Hold", .value = 2 },
-        {.name = "2: Triangle", .value = 3 },
-        {.name = "3: Alternative Saw Down & Hold", .value = 4 },
-        {.name = "4: Saw Up", .value = 5 },
-        {.name = "5: Saw Up & Hold", .value = 6 },
-        {.name = "6: Triangle Invert", .value = 7 },
-        {.name = "7: Alternative Saw Up & Hold", .value = 8 },
-    };
-
-    std::vector<SelectItem> bdItems = {
-        {.name = "0: 4-bit (16 steps)",  .value = 1 },
-        {.name = "1: 5-bit (32 steps)",  .value = 2 },
-        {.name = "2: 6-bit (64 steps)",  .value = 3 },
-        {.name = "3: 8-bit (256 steps)", .value = 4 },
-        {.name = "4: Raw",               .value = 5 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     mainGroup.setup(*this, mGroupTitle);
     bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
 
 	voiceGroup.setup(*this, "Voice");
-	waveSelector.setup({ .parent = *this, .id = code + postWaveform, .title = "Form", .items = wsItems, .isReset = true, .isResized = true });
+	waveSelector.setup({ .parent = *this, .id = code + postWaveform, .title = "Form", .items = ssgWsItems, .isReset = true, .isResized = true });
 	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Tone", .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setup({ .parent = *this, .id = code + postNoise, .title = "Noise", .isReset = true, .regType = RegisterType::SsgVol });
 	noiseFreqSlider.setup({ .parent = *this, .id = code + postNoiseFreq, .title = "Freq", .isReset = true });
@@ -90,8 +40,8 @@ void GuiSsg::setup()
 
     // Duty Controls Setup
 	dutyGroup.setup(*this, "Pulse Width (Duty)");
-	dutyModeSelector.setup({ .parent = *this, .id = code + postDutyMode, .title = "Mode", .items = dmItems, .isReset = true, .isResized = true });
-	dutyPresetSelector.setup({ .parent = *this, .id = code + postDutyPreset, .title = "Preset", .items = prItems, .isReset = true, .isResized = true });
+	dutyModeSelector.setup({ .parent = *this, .id = code + postDutyMode, .title = "Mode", .items = ssgDmItems, .isReset = true, .isResized = true });
+	dutyPresetSelector.setup({ .parent = *this, .id = code + postDutyPreset, .title = "Preset", .items = ssgPrItems, .isReset = true, .isResized = true });
 	dutyVarSlider.setup({ .parent = *this, .id = code + postDutyVar, .title = "Ratio", .isReset = true });
 	dutyInvertButton.setup({ .parent = *this, .id = code + postDutyInv, .title = "Invert Phase", .isReset = true, .isResized = true });
 
@@ -109,7 +59,7 @@ void GuiSsg::setup()
     // HW Env Group
 	envGroup.setup(*this, "Hardware Envelope");
 	envEnableButton.setup({ .parent = *this, .id = code + postEnvEnable, .title = "Enable HW Env", .isReset = true });
-	shapeSelector.setup({ .parent = *this, .id = code + postEnvShape, .title = "Shape", .items = envItems, .isReset = true });
+	shapeSelector.setup({ .parent = *this, .id = code + postEnvShape, .title = "Shape", .items = ssgEnvItems, .isReset = true });
 	periodSlider.setup({ .parent = *this, .id = code + postEnvPeriod, .title = "Speed", .isReset = true, .regType = RegisterType::SsgEnv });
 }
 

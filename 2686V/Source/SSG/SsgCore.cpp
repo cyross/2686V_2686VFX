@@ -44,15 +44,7 @@ void SsgCore::setParameters(const SynthParams& params)
         m_rateIndex = params.ssgRateIndex;
     }
 
-    // Bit Depth
-    switch (params.ssgBitDepth) {
-    case 0: m_quantizeSteps = 15.0f; break; // 4bit (Real SSG Volume steps)
-    case 1: m_quantizeSteps = 31.0f; break; // 5bit
-    case 2: m_quantizeSteps = 63.0f; break; // 6bit
-    case 3: m_quantizeSteps = 255.0f; break; // 8bit
-    case 4: m_quantizeSteps = 0.0f; break;   // Raw
-    default: m_quantizeSteps = 255.0f; break;
-    }
+    m_quantizeSteps = getTargetBitDepth(params.ssgBitDepth);
 
     updateIncrements();
     updateNoiseFrequency();

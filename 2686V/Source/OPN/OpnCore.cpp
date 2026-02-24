@@ -19,14 +19,7 @@ void OpnCore::setParameters(const SynthParams& params)
         for (auto& op : m_operators) op.setSampleRate(target);
     }
 
-    switch (params.fmBitDepth) {
-    case 0: m_quantizeSteps = 15.0f; break;
-    case 1: m_quantizeSteps = 31.0f; break;
-    case 2: m_quantizeSteps = 63.0f; break;
-    case 3: m_quantizeSteps = 255.0f; break;
-    case 4: m_quantizeSteps = 0.0f; break;
-    default: m_quantizeSteps = 0.0f; break;
-    }
+    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;

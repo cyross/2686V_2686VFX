@@ -21,14 +21,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr = params.wtAdsr;
 
     // Bit Depth & Table Size
-    switch (params.wtBitDepth) {
-    case 0: m_quantizeSteps = 15.0f; break;
-    case 1: m_quantizeSteps = 31.0f; break;
-    case 2: m_quantizeSteps = 63.0f; break;
-    case 3: m_quantizeSteps = 255.0f; break;
-    case 4: m_quantizeSteps = 0.0f; break; // Raw (No Quantize) - 追加の可能性を考慮
-    default: m_quantizeSteps = 255.0f; break;
-    }
+    m_quantizeSteps = getTargetBitDepth(params.wtBitDepth);
     m_rateIndex = params.wtRateIndex;
     m_tableSize = (params.wtTableSize == 0) ? 32 : 64;
 

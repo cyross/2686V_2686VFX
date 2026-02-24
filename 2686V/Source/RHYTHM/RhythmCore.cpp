@@ -124,15 +124,8 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
         output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
 
         // Bitcrush Logic
-        float maxVal = 0.0f;
-        switch (m_qualityMode) {
-        case 1: maxVal = 0.0f; break;       // 32bit Float
-        case 2: maxVal = 8388607.0f; break; // 24bit
-        case 3: maxVal = 32767.0f; break;   // 16bit
-        case 4: maxVal = 127.0f; break;     // 8bit
-        case 5: maxVal = 15.0f; break;      // 5bit
-        case 6: maxVal = 7.0f; break;       // 4bit Linear
-        }
+        float maxVal = getTargetMaxVal(m_qualityMode);
+
         if (maxVal > 0.0f) output = std::floor(output * maxVal) / maxVal;
     }
 

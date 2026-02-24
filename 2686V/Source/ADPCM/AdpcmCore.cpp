@@ -4,6 +4,7 @@
 #include <array>
 #include "../synth/Mode.h"
 #include "../synth/Pcm.h"
+#include "../synth/SynthHelpers.h"
 
 void AdpcmCore::prepare(double sampleRate)
 {
@@ -237,16 +238,7 @@ float AdpcmCore::getSample()
         sample = s0 * (1.0f - frac) + s1 * frac;
 
         // Bit Reduction
-        float maxVal = 0.0f;
-        switch (m_qualityMode)
-        {
-        case 1: maxVal = 0.0f; break;       // Raw 32-bit (No crush)
-        case 2: maxVal = 8388607.0f; break; // 24bit
-        case 3: maxVal = 32767.0f; break;   // 16bit
-        case 4: maxVal = 127.0f; break;     // 8bit
-        case 5: maxVal = 15.0f; break;      // 5bit
-            // case 6 is ADPCM handled above
-        }
+        float maxVal = getTargetMaxVal(m_qualityMode);
 
         if (maxVal > 0.0f) {
             sample = std::floor(sample * maxVal) / maxVal;
@@ -263,17 +255,7 @@ void AdpcmCore::refreshAdpcmBuffer()
 {
     if (m_rawBuffer.empty()) return;
 
-    double targetRate = 16000.0;
-    switch (m_rateIndex) {
-    case 1: targetRate = 96000.0; break;
-    case 2: targetRate = 55500.0; break; // OPNA Limit
-    case 3: targetRate = 48000.0; break;
-    case 4: targetRate = 44100.0; break; // CD
-    case 5: targetRate = 22050.0; break; // Half
-    case 6: targetRate = 16000.0; break; // PC-98 Standard
-    case 7: targetRate = 8000.0;  break; // Telephone
-    default: targetRate = 16000.0; break;
-    }
+    double targetRate = getTargetRate(m_rateIndex, 16000.0f);
 
     // Do not upsample beyond source rate for the ADPCM buffer gen
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
