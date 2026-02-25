@@ -1,10 +1,11 @@
 ﻿#include "GuiOpl3.h"
 
-#include "../gui/GuiConstants.h"
-#include "../gui/LabelConstants.h"
-#include "../fm/OpConstants.h"
+#include "../core/GuiConstants.h"
+#include "../core/LabelConstants.h"
+#include "../core/OpConstants.h"
+#include "../core/MmlConstants.h"
+
 #include "../fm/RegisterConverter.h"
-#include "../fm/MmlConstants.h"
 
 void GuiOpl3::setup()
 {

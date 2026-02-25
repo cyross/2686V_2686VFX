@@ -1,5 +1,9 @@
 ﻿#include "PrRhythm.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     // ==========================================

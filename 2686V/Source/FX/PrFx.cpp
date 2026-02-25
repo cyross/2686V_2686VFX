@@ -1,5 +1,9 @@
 ﻿#include "PrFx.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void FxProcessor::prepare(double sampleRate)
 {
     effects.prepare(sampleRate);

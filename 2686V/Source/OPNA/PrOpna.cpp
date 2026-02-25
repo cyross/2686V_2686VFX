@@ -1,5 +1,9 @@
 ﻿#include "PrOpna.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     // ==========================================

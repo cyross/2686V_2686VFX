@@ -23,15 +23,17 @@ juce_add_binary_data(AppIconForAbout
 )
 
 # 定義
-set(CONST_FILES
-    Source/const/FileConstants.h
-    Source/const/GlobalConstants.h
-    Source/const/PresetConstants.h
-)
-
 set(CORE_FILES
+    Source/core/FileConstants.h
+    Source/core/GlobalConstants.h
+    Source/core/GuiConstants.h
+    Source/core/LabelConstants.h
+    Source/core/MmlConstants.h
+    Source/core/OpConstants.h
+    Source/core/OpValueRange.h
     Source/core/PrBase.h
     Source/core/PrBase.cpp
+    Source/core/PresetConstants.h
 )
 
 set(SYNTH_FILES
@@ -49,9 +51,6 @@ set(SYNTH_FILES
 set(FM_FILES
     Source/fm/FmCommon.h
     Source/fm/FmCommon.cpp
-    Source/fm/MmlConstants.h
-    Source/fm/OpConstants.h
-    Source/fm/OpValueRange.h
     Source/fm/RegisterType.h
     Source/fm/RegisterConverter.h
     Source/fm/RegisterConverter.cpp
@@ -67,7 +66,6 @@ set(GUI_FILES
     Source/gui/GuiColor.h
     Source/gui/GuiComponents.h
     Source/gui/GuiComponents.cpp
-    Source/gui/GuiConstants.h
     Source/gui/GuiContext.h
     Source/gui/GuiHelpers.h
     Source/gui/GuiHelpers.cpp
@@ -77,7 +75,6 @@ set(GUI_FILES
     Source/gui/GuiStructs.h
     Source/gui/GuiStateManager.h
     Source/gui/GuiStateManager.cpp
-    Source/gui/LabelConstants.h
 )
 
 set(OPNA_FILES
@@ -208,7 +205,6 @@ set(DOCUMENT_FILES ../readme.md)
 
 # ソースグループの設定
 source_group("[Core]Main" FILES ${CORE_FILES})
-source_group("[Core]Const" FILES ${CONST_FILES})
 source_group("[Core]Synth" FILES ${SYNTH_FILES})
 source_group("[Core]FM" FILES ${FM_FILES})
 source_group("[Core]Gui" FILES ${GUI_FILES})
@@ -262,7 +258,6 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
         target_compile_definitions(${TARGET_NAME} PUBLIC BUILD_AS_FX_PLUGIN=1)
         target_sources(${TARGET_NAME} PRIVATE
             ${CORE_FILES}
-            ${CONST_FILES}
             ${SYNTH_FILES}
             ${GUI_FILES}
             ${PROCESSOR_FILES}
@@ -275,7 +270,6 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
     else()
         target_sources(${TARGET_NAME} PRIVATE
             ${CORE_FILES}
-            ${CONST_FILES}
             ${SYNTH_FILES}
             ${FM_FILES}
             ${GUI_FILES}
