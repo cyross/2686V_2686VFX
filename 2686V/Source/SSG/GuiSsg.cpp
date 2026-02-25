@@ -1,9 +1,10 @@
 ﻿#include "GuiSsg.h"
 #include "../processor/PluginProcessor.h"
-#include "../gui/GuiConstants.h"
-#include "../gui/LabelConstants.h"
-#include "../fm/OpConstants.h"
-#include "../fm/OpValueRange.h"
+
+#include "../core/GuiConstants.h"
+#include "../core/LabelConstants.h"
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
 
 void GuiSsg::setup()
 {

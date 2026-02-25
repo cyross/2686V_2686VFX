@@ -14,6 +14,9 @@ class FmOperator
 {
 public:
     FmOperator() {}
+
+    FmOpParams m_params;
+
     void setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false, float ssgEgFreq = 1.0f);
     void noteOn(float frequency, float velocity, int noteNumber);
@@ -36,7 +39,6 @@ private:
     float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;
 
-    FmOpParams m_params;
     float m_feedback = 0.0f;
     bool m_isExternalFeedback = false;
     bool m_useSsgEg = false;

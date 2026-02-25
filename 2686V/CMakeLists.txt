@@ -1,47 +1,10 @@
-﻿# ==============================================================================
+﻿cmake_minimum_required(VERSION 3.20)
+
+# ==============================================================================
 # 共通設定 (変えない部分)
 # ==============================================================================
 set(CY_MANUFACTURER_CODE "CYRS") # 例: あなたのメーカーID (4文字)
 set(CY_COMPANY_NAME "CYROSS")  # 会社名・作者名
-
-# ==============================================================================
-# ビルドモード設定スイッチ
-# ON にするとエフェクト版 (2686VFX)、OFF にするとシンセ版 (2686V) になります
-option(BUILD_AS_FX "Build as FX Plugin" OFF)
-
-# スイッチの状態によって変数をセット
-if(BUILD_AS_FX)
-    set(CY_PLUGIN_NAME "2686VFX")     # ファイル名: 2686VFX.vst3
-    set(CY_PLUGIN_CODE "28FX")        # プラグインID (必ず変える必要があります！)
-    set(CY_IS_SYNTH FALSE)            # インストゥルメント扱いしない
-    set(CY_CATEGORIES "Fx" "Distortion" "BitCrusher")
-else()
-    set(CY_PLUGIN_NAME "2686V")       # ファイル名: 2686V.vst3
-    set(CY_PLUGIN_CODE "2686")        # プラグインID
-    set(CY_IS_SYNTH TRUE)             # インストゥルメント扱い
-    set(CY_CATEGORIES "Instrument" "Synth")
-endif()
-# ==============================================================================
-
-# プラグインの定義
-juce_add_plugin(${CY_PLUGIN_NAME}
-    COMPANY_NAME ${CY_COMPANY_NAME}         # あなたの名前に変更してください
-    IS_SYNTH ${CY_IS_SYNTH}                   # シンセサイザーとして定義
-    NEEDS_MIDI_INPUT TRUE           # MIDI入力を有効化
-    NEEDS_MIDI_OUTPUT FALSE
-    IS_MIDI_EFFECT FALSE
-    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-    COPY_PLUGIN_AFTER_BUILD FALSE    # ビルド後にVST3フォルダへコピー
-    PLUGIN_MANUFACTURER_CODE ${CY_MANUFACTURER_CODE} # 独自のID
-    PLUGIN_CODE ${CY_PLUGIN_CODE}
-    FORMATS VST3 Standalone         # VST3とデバッグ用スタンドアロン
-    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
-    PRODUCT_NAME ${CY_PLUGIN_NAME}
-)
-
-if(BUILD_AS_FX)
-    target_compile_definitions(${CY_PLUGIN_NAME} PUBLIC BUILD_AS_FX_PLUGIN=1)
-endif()
 
 # VSTロゴの登録
 juce_add_binary_data(VstLogoForAbout
@@ -59,119 +22,18 @@ juce_add_binary_data(AppIconForAbout
         "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
 )
 
-if(BUILD_AS_FX)
 # 定義
-set(CONST_FILES
-    Source/const/GlobalConstants.h
-    Source/const/FileConstants.h
-    Source/const/PresetConstants.h
-)
-
 set(CORE_FILES
+    Source/core/FileConstants.h
+    Source/core/GlobalConstants.h
+    Source/core/GuiConstants.h
+    Source/core/LabelConstants.h
+    Source/core/MmlConstants.h
+    Source/core/OpConstants.h
+    Source/core/OpValueRange.h
     Source/core/PrBase.h
     Source/core/PrBase.cpp
-)
-
-set(SYNTH_FILES
-    Source/synth/Mode.h
-    Source/synth/Mode.cpp
-    Source/synth/Pcm.h
-    Source/synth/Pcm.cpp
-    Source/synth/SynthHelpers.h
-    Source/synth/SynthHelpers.cpp
-    Source/synth/SynthParams.h
-    Source/synth/SynthVoice.h
-    Source/synth/SynthVoice.cpp
-)
-
-set(GUI_FILES
-    Source/gui/GuiFile.h
-    Source/gui/GuiFile.cpp
-    Source/gui/GuiBase.h
-    Source/gui/GuiBase.cpp
-    Source/gui/GuiColor.h
-    Source/gui/GuiComponents.h
-    Source/gui/GuiComponents.cpp
-    Source/gui/GuiConstants.h
-    Source/gui/GuiContext.h
-    Source/gui/GuiHelpers.h
-    Source/gui/GuiHelpers.cpp
-    Source/gui/GuiLF.h
-    Source/gui/GuiLF.cpp
-    Source/gui/GuiSelectItems.h
-    Source/gui/GuiStructs.h
-    Source/gui/GuiStateManager.h
-    Source/gui/GuiStateManager.cpp
-    Source/gui/LabelConstants.h
-)
-
-set(FX_FILES
-    Source/FX/FxCore.h
-    Source/FX/FxCore.cpp
-    Source/FX/PrFx.h
-    Source/FX/PrFx.cpp
-    Source/FX/GuiFx.h
-    Source/FX/GuiFx.cpp
-)
-
-set(SETTINGS_FILES
-    Source/SETTINGS/GuiSettings.h
-    Source/SETTINGS/GuiSettings.cpp
-)
-
-set(ABOUT_FILES
-    Source/ABOUT/GuiAbout.h
-    Source/ABOUT/GuiAbout.cpp
-)
-
-set(PROCESSOR_FILES
-    Source/processor/PluginProcessor.h
-    Source/processor/PluginProcessor.cpp
-)
-
-set(EDITOR_FILES
-    Source/editor/PluginEditor.h
-    Source/editor/PluginEditor.cpp
-)
-
-set(DOCUMENT_FILES ../readme.md)
-
-# ソースグループの設定
-source_group("Core 1: Main" FILES ${CORE_FILES})
-source_group("Core 2: Const" FILES ${CONST_FILES})
-source_group("Core 3: Synth" FILES ${SYNTH_FILES})
-source_group("Core 4: Gui" FILES ${GUI_FILES})
-source_group("Core 5: Processor" FILES ${PROCESSOR_FILES})
-source_group("Core 6: Editor" FILES ${EDITOR_FILES})
-source_group("Tab 1: FX" FILES ${FX_FILES})
-source_group("Tab 2: SETTINGS" FILES ${SETTINGS_FILES})
-source_group("Tab 3: ABOUT" FILES ${ABOUT_FILES})
-source_group("Doc" FILES ${DOCUMENT_FILES})
-
-# ソースファイルの指定
-target_sources(${CY_PLUGIN_NAME} PRIVATE
-    ${CORE_FILES}
-    ${CONST_FILES}
-    ${SYNTH_FILES}
-    ${GUI_FILES}
-    ${PROCESSOR_FILES}
-    ${EDITOR_FILES}
-    ${FX_FILES}
-    ${SETTINGS_FILES}
-    ${ABOUT_FILES}
-    ${DOCUMENT_FILES}
-)
-else()
-# 定義
-set(CONST_FILES
-    Source/const/FileConstants.h
-    Source/const/GlobalConstants.h
-    Source/const/PresetConstants.h
-)
-
-set(CORE_FILES
-    Source/core/PrBase.h
-    Source/core/PrBase.cpp
+    Source/core/PresetConstants.h
 )
 
 set(SYNTH_FILES
@@ -189,9 +51,6 @@ set(SYNTH_FILES
 set(FM_FILES
     Source/fm/FmCommon.h
     Source/fm/FmCommon.cpp
-    Source/fm/MmlConstants.h
-    Source/fm/OpConstants.h
-    Source/fm/OpValueRange.h
     Source/fm/RegisterType.h
     Source/fm/RegisterConverter.h
     Source/fm/RegisterConverter.cpp
@@ -207,7 +66,6 @@ set(GUI_FILES
     Source/gui/GuiColor.h
     Source/gui/GuiComponents.h
     Source/gui/GuiComponents.cpp
-    Source/gui/GuiConstants.h
     Source/gui/GuiContext.h
     Source/gui/GuiHelpers.h
     Source/gui/GuiHelpers.cpp
@@ -217,7 +75,6 @@ set(GUI_FILES
     Source/gui/GuiStructs.h
     Source/gui/GuiStateManager.h
     Source/gui/GuiStateManager.cpp
-    Source/gui/LabelConstants.h
 )
 
 set(OPNA_FILES
@@ -347,69 +204,106 @@ set(EDITOR_FILES
 set(DOCUMENT_FILES ../readme.md)
 
 # ソースグループの設定
-source_group("Core 1: Main" FILES ${CORE_FILES})
-source_group("Core 2: Const" FILES ${CONST_FILES})
-source_group("Core 3: Synth" FILES ${SYNTH_FILES})
-source_group("Core 4: FM" FILES ${FM_FILES})
-source_group("Core 5: Gui" FILES ${GUI_FILES})
-source_group("Core 6: Processor" FILES ${PROCESSOR_FILES})
-source_group("Core 7: Editor" FILES ${EDITOR_FILES})
-source_group("Tab 01: OPNA" FILES ${OPNA_FILES})
-source_group("Tab 02: OPN" FILES ${OPN_FILES})
-source_group("Tab 03: OPL" FILES ${OPL_FILES})
-source_group("Tab 04: OPL3" FILES ${OPL3_FILES})
-source_group("Tab 05: OPM" FILES ${OPM_FILES})
-source_group("Tab 06: OPZX3" FILES ${OPZX3_FILES})
-source_group("Tab 07: SSG" FILES ${SSG_FILES})
-source_group("Tab 08: WT" FILES ${WT_FILES})
-source_group("Tab 09: RHYTHM" FILES ${RHYTHM_FILES})
-source_group("Tab 10: ADPCM" FILES ${ADPCM_FILES})
-source_group("Tab 11: FX" FILES ${FX_FILES})
-source_group("Tab 12: PRESET" FILES ${PRESET_FILES})
-source_group("Tab 13: SETTINGS" FILES ${SETTINGS_FILES})
-source_group("Tab 14: ABOUT" FILES ${ABOUT_FILES})
-source_group("Docs" FILES ${DOCUMENT_FILES})
+source_group("[Core]Main" FILES ${CORE_FILES})
+source_group("[Core]Synth" FILES ${SYNTH_FILES})
+source_group("[Core]FM" FILES ${FM_FILES})
+source_group("[Core]Gui" FILES ${GUI_FILES})
+source_group("[Core]Processor" FILES ${PROCESSOR_FILES})
+source_group("[Core]Editor" FILES ${EDITOR_FILES})
+source_group("[Core]Docs" FILES ${DOCUMENT_FILES})
+source_group("[TAB]OPNA" FILES ${OPNA_FILES})
+source_group("[TAB]OPN" FILES ${OPN_FILES})
+source_group("[TAB]OPL" FILES ${OPL_FILES})
+source_group("[TAB]OPL3" FILES ${OPL3_FILES})
+source_group("[TAB]OPM" FILES ${OPM_FILES})
+source_group("[TAB]OPZX3" FILES ${OPZX3_FILES})
+source_group("[TAB]SSG" FILES ${SSG_FILES})
+source_group("[TAB]WT" FILES ${WT_FILES})
+source_group("[TAB]RHYTHM" FILES ${RHYTHM_FILES})
+source_group("[TAB]ADPCM" FILES ${ADPCM_FILES})
+source_group("[TAB]FX" FILES ${FX_FILES})
+source_group("[TAB]PRESET" FILES ${PRESET_FILES})
+source_group("[TAB]SETTINGS" FILES ${SETTINGS_FILES})
+source_group("[TAB]ABOUT" FILES ${ABOUT_FILES})
 
-# ソースファイルの指定
-target_sources(${CY_PLUGIN_NAME} PRIVATE
-    ${CORE_FILES}
-    ${CONST_FILES}
-    ${SYNTH_FILES}
-    ${FM_FILES}
-    ${GUI_FILES}
-    ${PROCESSOR_FILES}
-    ${EDITOR_FILES}
-    ${OPNA_FILES}
-    ${OPN_FILES}
-    ${OPL_FILES}
-    ${OPL3_FILES}
-    ${OPM_FILES}
-    ${OPZX3_FILES}
-    ${SSG_FILES}
-    ${WT_FILES}
-    ${RHYTHM_FILES}
-    ${ADPCM_FILES}
-    ${FX_FILES}
-    ${PRESET_FILES}
-    ${SETTINGS_FILES}
-    ${ABOUT_FILES}
-    ${DOCUMENT_FILES}
-)
-endif()
+# ==============================================================================
+# プラグイン生成関数 (関数化して使い回す)
+# ==============================================================================
+function(create_cyross_plugin TARGET_NAME IS_FX)
+    if(IS_FX)
+        set(CY_PLUGIN_CODE "28FX")
+        set(CY_IS_SYNTH FALSE)
+    else()
+        set(CY_PLUGIN_CODE "2686")
+        set(CY_IS_SYNTH TRUE)
+    endif()
 
-# ライブラリのリンク
-target_link_libraries(${CY_PLUGIN_NAME} PRIVATE
-    # アイコン
-    AppIconForAbout
-    # VSTロゴ
-    VstLogoForAbout
-    # JUCEモジュール
-    juce::juce_audio_utils
-    juce::juce_recommended_config_flags
-)
+    juce_add_plugin(${TARGET_NAME}
+        COMPANY_NAME ${CY_COMPANY_NAME}
+        IS_SYNTH ${CY_IS_SYNTH}
+        NEEDS_MIDI_INPUT TRUE
+        NEEDS_MIDI_OUTPUT FALSE
+        IS_MIDI_EFFECT FALSE
+        EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+        COPY_PLUGIN_AFTER_BUILD FALSE
+        PLUGIN_MANUFACTURER_CODE ${CY_MANUFACTURER_CODE}
+        PLUGIN_CODE ${CY_PLUGIN_CODE}
+        FORMATS VST3 Standalone
+        ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
+        PRODUCT_NAME ${TARGET_NAME}
+    )
 
-target_compile_definitions(${CY_PLUGIN_NAME} PRIVATE
-    JUCE_VST3_CAN_REPLACE_VST2=0
-)
+    # ソースコードの紐付け (FXかどうかで混ぜるファイルを分ける)
+    if(IS_FX)
+        target_compile_definitions(${TARGET_NAME} PUBLIC BUILD_AS_FX_PLUGIN=1)
+        target_sources(${TARGET_NAME} PRIVATE
+            ${CORE_FILES}
+            ${SYNTH_FILES}
+            ${GUI_FILES}
+            ${PROCESSOR_FILES}
+            ${EDITOR_FILES}
+            ${FX_FILES}
+            ${SETTINGS_FILES}
+            ${ABOUT_FILES}
+            ${DOCUMENT_FILES}
+        )
+    else()
+        target_sources(${TARGET_NAME} PRIVATE
+            ${CORE_FILES}
+            ${SYNTH_FILES}
+            ${FM_FILES}
+            ${GUI_FILES}
+            ${PROCESSOR_FILES}
+            ${EDITOR_FILES}
+            ${OPNA_FILES}
+            ${OPN_FILES}
+            ${OPL_FILES}
+            ${OPL3_FILES}
+            ${OPM_FILES}
+            ${OPZX3_FILES}
+            ${SSG_FILES}
+            ${WT_FILES}
+            ${RHYTHM_FILES}
+            ${ADPCM_FILES}
+            ${FX_FILES}
+            ${PRESET_FILES}
+            ${SETTINGS_FILES}
+            ${ABOUT_FILES}
+            ${DOCUMENT_FILES}
+        )
+    endif()
 
-juce_generate_juce_header(${CY_PLUGIN_NAME})
+    target_link_libraries(${TARGET_NAME} PRIVATE
+        AppIconForAbout
+        VstLogoForAbout
+        juce::juce_audio_utils
+        juce::juce_recommended_config_flags
+    )
+
+    target_compile_definitions(${TARGET_NAME} PRIVATE JUCE_VST3_CAN_REPLACE_VST2=0)
+
+    juce_generate_juce_header(${TARGET_NAME})
+endfunction()
+
+create_cyross_plugin("2686V" FALSE)
+create_cyross_plugin("2686VFX" TRUE)

@@ -1,5 +1,9 @@
 ﻿#include "PrAdpcm.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     // ==========================================

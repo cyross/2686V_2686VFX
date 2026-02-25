@@ -8,11 +8,11 @@
 #include <atomic>
 #include "GuiColor.h"
 #include "GuiStructs.h"
-#include "GuiConstants.h"
 #include "GuiHelpers.h"
-#include "LabelConstants.h"
-#include "../fm/SliderRegMap.h"
 #include "GuiContext.h"
+#include "../core/GuiConstants.h"
+#include "../core/LabelConstants.h"
+#include "../fm/SliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;

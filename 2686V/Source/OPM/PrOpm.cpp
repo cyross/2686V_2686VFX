@@ -1,5 +1,9 @@
 ﻿#include "PrOpm.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     // ==========================================

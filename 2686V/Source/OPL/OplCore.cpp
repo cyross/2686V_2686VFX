@@ -22,6 +22,10 @@ void OplCore::setParameters(const SynthParams& params) {
     for (int i = 0; i < 2; ++i) {
         float fb = (i == 0) ? params.feedback : 0.0f; // OP1のみFeedback
 
+        // FmCommon(96dB)に対して、OPL(48dB)のスケールを合わせるためTLを半分にする
+        FmOpParams opParams = params.fmOp[i];
+        opParams.totalLevel *= 0.5f;
+
         m_operators[i].setParameters(params.fmOp[i], fb, false, true);
 
         m_opMask[i] = params.fmOp[i].mask;
@@ -76,59 +80,53 @@ float OplCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
+    int steps = 0;
+    float sumOut = 0.0f;
+
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 
         // LFO Logic (Run at Target Rate)
+                // AM Phase (Tremolo)
         m_amPhase += (3.7 / targetRate);
         if (m_amPhase >= 1.0) m_amPhase -= 1.0;
 
         float amVal = 0.0f;
+        if (m_amPhase < 0.25)           amVal = (float)(m_amPhase * 4.0);
+        else if (m_amPhase < 0.75)      amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
+        else                            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
 
-        if (m_amPhase < 0.25) {
-            amVal = (float)(m_amPhase * 4.0);
-        }
-        else if (m_amPhase < 0.75)
-        {
-            amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
-        }
-        else
-        {
-            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
-        }
+        // 実機OPLのトレモロ深度(-4.8dB = 音量比 約0.575)に合わせる
+        // amVal(-1.0 ~ 1.0) を 0.0 ~ 1.0 に正規化
+        float normAm = (amVal + 1.0f) * 0.5f;
+        // 最大で 0.425 (約42.5%) だけ音量が減るようにする
+        float lfoAmpVal = 1.0f - (normAm * 0.425f);
 
-        float lfoAmpVal = 1.0f - (0.5f * (amVal + 1.0f));
-
+        // VIB Phase (Vibrato)
         m_vibPhase += (6.4 / targetRate);
         if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
 
         float vibVal = 0.0f;
+        if (m_vibPhase < 0.25)          vibVal = (float)(m_vibPhase * 4.0);
+        else if (m_vibPhase < 0.75)     vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
+        else                            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
 
-        if (m_vibPhase < 0.25) {
-            vibVal = (float)(m_vibPhase * 4.0);
-        }
-        else if (m_vibPhase < 0.75)
-        {
-            vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
-        }
-        else
-        {
-            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
-        }
-
-        float pmDepth = 0.03f * m_modWheel; // +/- 3% (approx 50cents)
-        float lfoPitchVal = 1.0f + (vibVal * pmDepth);
+        // ModWheelによる手動ビブラート(最大50セント)と、OPL内蔵ビブラート(約14セント)の合成
+        float pmDepth = 0.03f * m_modWheel;
+        // OPL内蔵ビブラート(約14セント = 0.008)を加算
+        float lfoPitchVal = 1.0f + (vibVal * (0.008f + pmDepth));
 
         // -------------------------------
 
         float out1, out2;
         float finalOut = 0.0f;
 
-        // FmOperator::getSample は内部で amEnable/vibEnable をチェックしません
-        // (前回確認したFmCommon.hの実装に依存しますが、汎用性を高めるならここで制御すべきです)
-        // もしFmOperator側でチェック済みならそのまま渡してOKですが、
-        // ここでは念のため「FmOperatorがフラグを見て判断する」前提で値を渡します。
+        // オペレーターのフラグ(amEnable / vibEnable)を見て、LFOを適用するか決める
+        // FmOperator::getSample は引数で渡されたものをそのまま掛ける仕様なので、ここで1.0f(無効)か変調値かを渡す
+        float am1 = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
+        float pm1 = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
+        m_operators[0].getSample(out1, 0.0f, am1, pm1);
 
         m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
 
@@ -143,18 +141,27 @@ float OplCore::getSample() {
         else { // Parallel (AM)
             m_operators[1].getSample(out2, 0.0f, lfoAmpVal, lfoPitchVal);
             if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out1 + out2;
+            finalOut = (out1 + out2) * 0.5f;
         }
 
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
+
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+
             m_lastSample = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        // 出力を加算し、ステップ数をカウント
+        sumOut += finalOut;
+        steps++;
     }
+
+    // 平均を出力（アンチエイリアス）
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample;
 }

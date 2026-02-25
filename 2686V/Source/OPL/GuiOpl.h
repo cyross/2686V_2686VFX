@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../gui/GuiConstants.h"
+#include "../core/GuiConstants.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"

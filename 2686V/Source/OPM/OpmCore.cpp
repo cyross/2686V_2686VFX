@@ -81,6 +81,10 @@ float OpmCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
+    // ★追加: アンチエイリアス（ノイズ防止）のための平均化変数
+    int steps = 0;
+    float sumOut = 0.0f;
+
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
@@ -123,178 +127,119 @@ float OpmCore::getSample() {
         }
 
         // PMS (Pitch Modulation Sensitivity) + Mod Wheel
-        // ★修正: PMS設定値とホイール値を合算します
         float pmDepth = 0.0f;
         if (m_pms > 0) {
-            // 実機(YM2151/2608)の仕様に合わせた深度テーブル
-            // 0: 0
-            // 1: +/- 5 cents   (~0.003)
-            // 2: +/- 10 cents  (~0.006)
-            // 3: +/- 20 cents  (~0.012)
-            // 4: +/- 50 cents  (~0.03)
-            // 5: +/- 100 cents (~0.06)  -> 半音
-            // 6: +/- 400 cents (~0.26)  -> 長3度
-            // 7: +/- 700 cents (~0.50)  -> 完全5度 (かなり激しい)
-
             float depths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-
-            // 旧コード（参考）: { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
             pmDepth = depths[m_pms & 7];
         }
 
-        // ホイールによる追加深度 (0.05 = +/- 50cents)
         float wheelDepth = m_modWheel * 0.05f;
-
-        // 最終的なピッチ変調率
         float lfoPitchMod = 1.0f + (lfoVal * (pmDepth + wheelDepth));
 
 
         float out1, out2, out3, out4;
         float finalOut = 0.0f;
 
-        // 各オペレーターに渡す
         m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
-
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
         case 0:
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out4;
-
             break;
         case 1:
             m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out4;
-
             break;
         case 2:
             m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out4;
-
             break;
-        case 3:
+        case 3: // OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
-
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod);
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
+            finalOut = out4;
+            break;
+        case 4: // OP1->OP2, OP3->OP4 (出力は2と4)
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[1]) out2 = 0.0f; // Mask
+            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+            if (m_opMask[2]) out3 = 0.0f; // Mask
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); // モジュレーターはout3
+            if (m_opMask[3]) out4 = 0.0f; // Mask
             finalOut = out2 + out4;
-            break;
-        case 4:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
-
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-
-            finalOut = out2 + out3 + out4;
-
             break;
         case 5:
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out2 + out3 + out4;
             break;
         case 6:
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out2 + out3 + out4;
-
             break;
         default:
             m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[1]) out2 = 0.0f; // Mask
-
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[2]) out3 = 0.0f; // Mask
-
             m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
-
             if (m_opMask[3]) out4 = 0.0f; // Mask
-
             finalOut = out1 + out2 + out3 + out4;
             break;
         }
 
+        // 複数のキャリアが加算されてもクリッピングしないように音量を下げる
+        finalOut *= 0.4f;
+
+        // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // ★修正: std::round を使用
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        // 出力を加算し、ステップ数をカウント
+        sumOut += finalOut;
+        steps++;
     }
+
+    // 平均を出力（アンチエイリアス）
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample;
 }
 
