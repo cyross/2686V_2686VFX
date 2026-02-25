@@ -64,7 +64,7 @@ void GuiAbout::layout(juce::Rectangle<int> content)
 
     mainGroup.setBounds(pageArea);
 
-    auto iconArea = pageArea.removeFromTop(160);
+    auto iconArea = mainArea.removeFromTop(160); 
     iconImage.setBounds(iconArea.withSizeKeepingCentre(128, 128));
 
     // Name & Ver
