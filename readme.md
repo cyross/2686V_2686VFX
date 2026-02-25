@@ -145,8 +145,8 @@ git submodule update --init --recursive
 
 ## 2686V/2686VFX を Visual Studio 2026 向けに CMake ビルド
 
-- Visual Studio 2026 で、 プロジェクトルート直下の `CMakeLists.txt` を開く
-- 「プロジェクト」メニューの「キャッシュを削除し再構成する」を選択する
+- Visual Studio 2026 で、 「folderを開く」を選択
+- 画面が開いたら、「プロジェクト」メニューの「構成をビルビルド」を選択する
 - エラー無く無事に環境構築が終われば完了
 
 ## ソリューション下で編集・ビルド
