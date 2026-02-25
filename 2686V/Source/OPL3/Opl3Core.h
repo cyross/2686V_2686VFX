@@ -11,6 +11,8 @@ class Opl3Core
 public:
     Opl3Core() {}
 
+    std::array<FmOperator, 4> m_operators;
+
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
     void noteOn(float freq, float velocity);
@@ -20,7 +22,6 @@ public:
     void setModulationWheel(int wheelValue);
     float getSample();
 private:
-    std::array<FmOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
     int m_algorithm = 0;

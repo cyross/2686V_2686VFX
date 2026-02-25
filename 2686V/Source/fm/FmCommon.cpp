@@ -100,8 +100,12 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
     // TL Calculation
-    float tlGain = 1.0f - m_params.totalLevel;
-    if (tlGain < 0.0f) tlGain = 0.0f;
+    float tlGain = 0.0f;
+    if (m_params.totalLevel < 0.99f) {
+        // totalLevel(0.0〜1.0) を 0dB 〜 -96dB に変換
+        float attenuationDb = m_params.totalLevel * 96.0f;
+        tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    }
 
     float kslAttenuation = 1.0f;
     if (m_params.keyScaleLevel > 0)
@@ -161,9 +165,9 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     // Feedback
     float feedbackMod = 0.0f;
     if (m_feedback > 0.0f) {
-        float fbScale = std::pow(2.0f, m_feedback - 4.0f);
-        if (m_feedback < 1.0f) fbScale = 0.0f;
-        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale;
+        // 実機のFB(0〜7)の掛かり具合に近似させる
+        float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
+        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
     // LFO PM (OPNA Only)
@@ -171,7 +175,12 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 
     currentPhaseDelta *= lfoPitch;
 
-    float modulatedPhase = m_phase + modulator + feedbackMod;
+    // YMチップ実機と同等のFM変調の深さ（モジュレーションインデックス）を設定
+    // Modulator に対して、FM変調の最大インデックスを実機のスケール(約4π)に設定
+    float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+
+    // 変調波(modulator)にインデックスを掛けてから足す
+    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
