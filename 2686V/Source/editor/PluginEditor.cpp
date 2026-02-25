@@ -5,7 +5,7 @@
 
 #include "PluginEditor.h"
 #include "../processor/PluginProcessor.h"
-#include "../const/FileConstants.h"
+#include "../core/FileConstants.h"
 #include "../gui/GuiColor.h"
 #include "../gui/GuiContext.h"
 #include "../fm/SliderRegMap.h"

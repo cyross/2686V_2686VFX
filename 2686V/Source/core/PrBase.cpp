@@ -1,5 +1,9 @@
 ﻿#include "PrBase.h"
 
+#include "../core/LabelConstants.h"
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+
 void PrBase::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, prefix + opPostArLabel, opArMin, opArMax, opArDefault));

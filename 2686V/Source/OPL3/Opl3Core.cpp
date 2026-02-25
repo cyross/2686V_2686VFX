@@ -8,6 +8,8 @@ void Opl3Core::prepare(double sampleRate) {
     m_rateAccumulator = 1.0;
 }
 
+// --- Opl3Core.cpp : setParameters() 内 ---
+
 void Opl3Core::setParameters(const SynthParams& params) {
     m_algorithm = params.algorithm;
 
@@ -22,16 +24,14 @@ void Opl3Core::setParameters(const SynthParams& params) {
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
-        if (i == 0) // OP0
-        {
-            fb = params.feedback;
-        }
-        else if (i == 2) // OP2
-        {
-            fb = params.feedback2;
-        }
+        if (i == 0) fb = params.feedback;
+        else if (i == 2) fb = params.feedback2;
 
-        m_operators[i].setParameters(params.fmOp[i], fb, false, true);
+        // FmCommon(96dB)に対して、OPL3(48dB)のスケールを合わせるためTLを半分にする
+        FmOpParams opParams = params.fmOp[i];
+        opParams.totalLevel *= 0.5f;
+
+        m_operators[i].setParameters(opParams, fb, false, true);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }
@@ -73,125 +73,131 @@ void Opl3Core::setModulationWheel(int wheelValue)
     m_modWheel = (float)wheelValue / 127.0f;
 }
 
+// --- Opl3Core.cpp : getSample() の全体 ---
+
 float Opl3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
+
+    // アンチエイリアスのための平均化変数
+    int steps = 0;
+    float sumOut = 0.0f;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 
-        // LFO Logic (Run at Target Rate)
+        // LFO Logic
         m_amPhase += (3.7 / targetRate);
         if (m_amPhase >= 1.0) m_amPhase -= 1.0;
 
         float amVal = 0.0f;
+        if (m_amPhase < 0.25)           amVal = (float)(m_amPhase * 4.0);
+        else if (m_amPhase < 0.75)      amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
+        else                            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
 
-        if (m_amPhase < 0.25) {
-            amVal = (float)(m_amPhase * 4.0);
-        }
-        else if (m_amPhase < 0.75)
-        {
-            amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
-        }
-        else
-        {
-            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
-        }
-
-        float lfoAmpVal = 1.0f - (0.5f * (amVal + 1.0f));
+        // OPL3のトレモロ深度(-4.8dB)に合わせる
+        float normAm = (amVal + 1.0f) * 0.5f;
+        float lfoAmpVal = 1.0f - (normAm * 0.425f);
 
         m_vibPhase += (6.4 / targetRate);
         if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
 
         float vibVal = 0.0f;
+        if (m_vibPhase < 0.25)          vibVal = (float)(m_vibPhase * 4.0);
+        else if (m_vibPhase < 0.75)     vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
+        else                            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
 
-        if (m_vibPhase < 0.25) {
-            vibVal = (float)(m_vibPhase * 4.0);
-        }
-        else if (m_vibPhase < 0.75)
-        {
-            vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
-        }
-        else
-        {
-            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
-        }
-
-        float pmDepth = 0.03f * m_modWheel; // +/- 3% (approx 50cents)
-        float lfoPitchVal = 1.0f + (vibVal * pmDepth);
+        float pmDepth = 0.03f * m_modWheel;
+        // OPL3内蔵ビブラート(約14セント)を加算
+        float lfoPitchVal = 1.0f + (vibVal * (0.008f + pmDepth));
 
         // -------------------------------
 
         float out1, out2, out3, out4;
         float finalOut = 0.0f;
 
-        // getSample に lfoPitchMod を渡す
-        m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
+        // 各オペレーターの AM/VIB 有効フラグを個別に判定する
+        auto getAm = [&](int i) { return m_operators[i].m_params.amEnable ? lfoAmpVal : 1.0f; };
+        auto getPm = [&](int i) { return m_operators[i].m_params.vibEnable ? lfoPitchVal : 1.0f; };
 
+        m_operators[0].getSample(out1, 0.0f, getAm(0), getPm(0));
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
-        // [OP0] -> [OP1] -> [OP2] -> [OP3]
+            // [OP0] -> [OP1] -> [OP2] -> [OP3] (出力: 3)
         case 0:
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
+            m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            if (m_opMask[3]) out4 = 0.0f;
             finalOut = out4;
             break;
-        // [OP0] + ([OP1] -> [OP2] -> [OP3])
+            // [OP0] + ([OP1] -> [OP2] -> [OP3]) (出力: 0と3)
         case 1:
-            m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
+            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            if (m_opMask[3]) out4 = 0.0f;
             finalOut = out1 + out4;
             break;
-        // ([OP0] -> [OP1]) + ([OP2] -> [OP3])
+            // ([OP0] -> [OP1]) + ([OP2] -> [OP3]) (出力: 1と3)
         case 2:
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
+            m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+            if (m_opMask[2]) out3 = 0.0f;
+            // out3 + out1 になっていたのを out3 単独に修正 (標準の2ペア構成)
+            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            if (m_opMask[3]) out4 = 0.0f;
             finalOut = out2 + out4;
             break;
-        // [OP0] + ([OP1] + [OP2]) + [OP3]
+            // [OP0] + ([OP1] -> [OP2]) + [OP3] (出力: 0と2と3)
         case 3:
-            m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
+            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+            if (m_opMask[3]) out4 = 0.0f;
             finalOut = out1 + out3 + out4;
             break;
+            // 並列 (出力: 0+1+2+3)
         default:
-            m_operators[1].getSample(out2, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpVal, lfoPitchVal);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
+            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            if (m_opMask[1]) out2 = 0.0f;
+            m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+            if (m_opMask[3]) out4 = 0.0f;
             finalOut = out1 + out2 + out3 + out4;
             break;
         }
 
+        // 4キャリア(最大音量4.0)が加算される可能性があるため、安全のためマスターゲインを絞る
+        finalOut *= 0.3f;
+
+        // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // ★修正: std::round を使用
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        sumOut += finalOut;
+        steps++;
     }
+
+    // アンチエイリアス
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample;
 }

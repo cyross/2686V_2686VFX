@@ -88,6 +88,9 @@ float OpnCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
+    int steps = 0;
+    float sumOut = 0.0f;
+
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
@@ -147,23 +150,23 @@ float OpnCore::getSample() {
             if (m_opMask[3]) out4 = 0.0f; // Mask
             finalOut = out4;
             break;
-        case 3:
+        case 3: // OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
+            if (m_opMask[1]) out2 = 0.0f;
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out2 + out4;
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); // out2 + out3
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out4; // 出力は4のみ
             break;
-        case 4:
+        case 4: // OP1->OP2, OP3->OP4 (出力は2と4)
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
+            if (m_opMask[1]) out2 = 0.0f;
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[3]) out4 = 0.0f; // Mask
-            finalOut = out2 + out3 + out4;
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); // モジュレーターはout3
+            if (m_opMask[3]) out4 = 0.0f;
+            finalOut = out2 + out4; // 出力は2と4のみ
             break;
         case 5:
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
@@ -194,15 +197,26 @@ float OpnCore::getSample() {
             break;
         }
 
+        finalOut *= 0.4f;
+
+        // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // ★修正: floorをroundにして波形の中心を安定させる
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        // 出力を加算し、ステップ数をカウント
+        sumOut += finalOut;
+        steps++;
     }
+ 
+    // 平均を出力（アンチエイリアス）
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample;
 }

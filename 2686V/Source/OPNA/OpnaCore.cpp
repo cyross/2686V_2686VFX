@@ -90,6 +90,9 @@ float OpnaCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
+    int steps = 0;
+    float sumOut = 0.0f;
+
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
@@ -175,21 +178,22 @@ float OpnaCore::getSample() {
             m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
             finalOut = out4;
             break;
-        case 3:
+        case 3: // 実機ALG 3: OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
+            if (m_opMask[1]) out2 = 0.0f;
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
-            finalOut = out2 + out4;
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); // 2と3を足して4に入れる
+            finalOut = out4;
             break;
-        case 4:
+        case 4: // 実機ALG 4: OP1->OP2, OP3->OP4 (出力は2と4)
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
+            if (m_opMask[1]) out2 = 0.0f;
             m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
-            finalOut = out2 + out3 + out4;
+            if (m_opMask[2]) out3 = 0.0f;
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            finalOut = out2 + out4;
             break;
         case 5:
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
@@ -219,15 +223,22 @@ float OpnaCore::getSample() {
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
-            // Clamp first to avoid blowing up logic
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
+
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // ※ついでに floor ではなく round にしておくと波形が綺麗になります
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        // 出力を加算し、ステップ数をカウント
+        sumOut += finalOut;
+        steps++;
+    }
+
+    // ループが回った場合は平均を取り、回らなかったら前回の値を維持(Sample&Hold)
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
     }
 
     return m_lastSample;

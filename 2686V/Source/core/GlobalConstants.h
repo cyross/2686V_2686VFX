@@ -3,12 +3,8 @@
 #include <JuceHeader.h>
 
 // 共通部分
-#if defined(BUILD_AS_FX_PLUGIN)
-static inline const juce::String pluginName = "2686VFX";
-#else
-static inline const juce::String pluginName = "2686V";
-#endif
-static inline const juce::String pluginVersion = "Version 0.3.0";
+static inline const juce::String pluginName = ProjectInfo::projectName;
+static inline const juce::String pluginVersion = ProjectInfo::versionString;
 static inline const juce::String pluginAuthor = "Copyright (C) 2026 CYROSS";
 
 static inline const juce::String vstNotice = "VST is a registered trademark of Steinberg Media Technologies GmbH.";

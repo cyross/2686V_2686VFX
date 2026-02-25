@@ -84,6 +84,10 @@ float Opzx3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
     m_rateAccumulator += targetRate / m_hostSampleRate;
 
+    // ★追加: アンチエイリアス（ノイズ防止）のための平均化変数
+    int steps = 0;
+    float sumOut = 0.0f;
+
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
@@ -126,19 +130,7 @@ float Opzx3Core::getSample() {
 
         float pmDepth = 0.0f;
         if (m_pms > 0) {
-            // 実機(YM2151/2608)の仕様に合わせた深度テーブル
-            // 0: 0
-            // 1: +/- 5 cents   (~0.003)
-            // 2: +/- 10 cents  (~0.006)
-            // 3: +/- 20 cents  (~0.012)
-            // 4: +/- 50 cents  (~0.03)
-            // 5: +/- 100 cents (~0.06)  -> 半音
-            // 6: +/- 400 cents (~0.26)  -> 長3度
-            // 7: +/- 700 cents (~0.50)  -> 完全5度 (かなり激しい)
-
             float depths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-
-            // 旧コード（参考）: { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
             pmDepth = depths[m_pms & 7];
         }
         float wheelDepth = m_modWheel * 0.05f;
@@ -153,7 +145,7 @@ float Opzx3Core::getSample() {
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
-        // OPX (YMF271) Algorithm Routing (0-15)
+        // OPX (YMF271) Algorithm Routing (0-27)
         // =================================================================
         switch (m_algorithm) {
             // 0: 0->1->2->3 (OPN Alg 0)
@@ -181,9 +173,9 @@ float Opzx3Core::getSample() {
         case 2:
             m_operators[1].getSample(out2, 0.0f, lfoAmpMod, lfoPitchMod);
             if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod); 
+            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); 
+            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
             if (m_opMask[3]) out4 = 0.0f;
             finalOut = out4;
             break;
@@ -209,12 +201,12 @@ float Opzx3Core::getSample() {
             break;
             // 5: 0->1->3, 2->3 (特殊FB版)
         case 5:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod); 
+            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
             if (m_opMask[1]) out2 = 0.0f;
             m_operators[0].pushFeedback(out2); // Ext FB
-            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod); 
+            m_operators[2].getSample(out3, 0.0f, lfoAmpMod, lfoPitchMod);
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); 
+            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod);
             if (m_opMask[3]) out4 = 0.0f;
             finalOut = out4;
             break;
@@ -322,7 +314,6 @@ float Opzx3Core::getSample() {
             break;
             // =================================================================
             // --- 3-Operator Algorithms (16-23) ---
-            // 使用: OP0(out1), OP1(out2), OP2(out3). ※OP3(out4)は音声出力には使われない
             // =================================================================
         case 16: // 1->2->3
             m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
@@ -382,10 +373,9 @@ float Opzx3Core::getSample() {
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = out1 + out3 + out2;
             break;
-        // =================================================================
-        // --- 2-Operator Algorithms (24-27) ---
-        // 使用: OP0(out1), OP1(out2). ※OP2(out3)とOP3(out4)は音声出力には使われない
-        // =================================================================
+            // =================================================================
+            // --- 2-Operator Algorithms (24-27) ---
+            // =================================================================
         case 24: // 0(FB) -> 1 -> Out
             m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
             if (m_opMask[1]) out2 = 0.0f;
@@ -423,17 +413,29 @@ float Opzx3Core::getSample() {
             m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
         }
 
+        // ★追加: 複数のキャリアが加算されてもクリッピングしないように音量を下げる
+        // アルゴリズムによって加算される数が違うが、安全を取って0.4倍にする
+        finalOut *= 0.4f;
+
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // ★修正: std::round を使用
+            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
-        else {
-            m_lastSample = finalOut;
-        }
+
+        // ★追加: 出力を加算し、ステップ数をカウント
+        sumOut += finalOut;
+        steps++;
     }
+
+    // ★追加: 平均を出力（アンチエイリアス）
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample;
 }
 

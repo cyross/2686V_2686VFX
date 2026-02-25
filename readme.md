@@ -145,35 +145,14 @@ git submodule update --init --recursive
 
 ## 2686V/2686VFX を Visual Studio 2026 向けに CMake ビルド
 
-- 開いているターミナルで以下のコマンドを入力する
+- Visual Studio 2026 で、 「folderを開く」を選択
+- 画面が開いたら、「プロジェクト」メニューの「構成をビルビルド」を選択する
+- エラー無く無事に環境構築が終われば完了
 
-### 2686V
+## ソリューション下で編集・ビルド
 
-```bash
-cd /path/of/root/2686V_2686VFX/
-./gen_2686V_solution.bat
-```
-
-### 2686VFX
-
-```bash
-cd /path/of/root/2686V_2686VFX/
-./gen_2686VFX_solution.bat
-```
-
-## VS2026 で編集・ビルド
-
-- `2686V` のソリューションファイルは以下にあります。
-
-```bash
-/path/of/root/2686V_2686VFX/build/2686_Project.sln
-```
-
-- `2686VFX` のソリューションファイルは以下にあります。
-
-```bash
-/path/of/root/2686V_2686VFX/buildFx/2686_Project.sln
-```
+- 「ソリューションエクスプローラー」のリストに `2686V_Bundle.sln` があるのでそれを選択する
+- あとは、ソースを編集したりビルドすることでVST3ファイルやスタンドアロンexeファイルを作成できる
 
 ## 今後の課題
 
@@ -243,6 +222,12 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 - [OPL3解析ドキュメント](https://moddingwiki.shikadi.net/wiki/OPL_chip)
 
 ## 更新履歴
+
+### 2026.02.26
+
+- v0.4.0
+- FM音源部分のバグを駆逐
+  - 設定やキーを押す強さによってノイズが乗る問題を解消
 
 ### 2026.02.24
 

@@ -16,12 +16,13 @@
 #include "../ADPCM/PrAdpcm.h"
 #endif
 #include "../FX/FxCore.h"
-#include "../const/GlobalConstants.h"
-#include "../fm/OpConstants.h"
-#include "../const/FileConstants.h"
-#include "../const/PresetConstants.h"
-#include "../gui/LabelConstants.h"
-#include "../fm/OpValueRange.h"
+#include "../core/GlobalConstants.h"
+#include "../core/OpConstants.h"
+#include "../core/FileConstants.h"
+#include "../core/PresetConstants.h"
+#include "../core/LabelConstants.h"
+#include "../core/OpValueRange.h"
+
 #include "../FX/PrFx.h"
 #include "../editor/PluginEditor.h"
 

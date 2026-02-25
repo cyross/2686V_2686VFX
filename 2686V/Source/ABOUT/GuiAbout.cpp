@@ -1,5 +1,5 @@
 ﻿#include "GuiAbout.h"
-#include "../const/GlobalConstants.h"
+#include "../core/GlobalConstants.h"
 
 void GuiAbout::setup()
 {

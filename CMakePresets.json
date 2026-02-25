@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "2686V_Bundle",
+      "displayName": "2686V & FX Bundle",
+      "description": "Builds both Synth and FX plugins sharing JUCE cache",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/build"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Bundle-Debug",
+      "configurePreset": "2686V_Bundle",
+      "configuration": "Debug"
+    },
+    {
+      "name": "Bundle-Release",
+      "configurePreset": "2686V_Bundle",
+      "configuration": "Release"
+    }
+  ]
+}

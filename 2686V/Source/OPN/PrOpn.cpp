@@ -1,5 +1,9 @@
 ﻿#include "PrOpn.h"
 
+#include "../core/OpConstants.h"
+#include "../core/OpValueRange.h"
+#include "../core/LabelConstants.h"
+
 void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     layout.add(std::make_unique<juce::AudioParameterInt>(codeOpn + postAlg, codeOpn + mPostAlgTitle, mAlgMin, mAlgMax, mAlgDefault));
