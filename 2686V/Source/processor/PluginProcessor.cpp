@@ -65,7 +65,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 #endif
 	prFx.createLayout(layout);
 
-    // ★マスターボリューム追加
+    // マスターボリューム追加
     // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
     // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
     layout.add(std::make_unique<juce::AudioParameterFloat>(

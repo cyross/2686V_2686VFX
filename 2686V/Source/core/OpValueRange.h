@@ -14,11 +14,11 @@ static inline const int mOplAlgDefault = 0; // 初期値
 
 static inline const int mOpl3AlgMin = 0; // 最小値
 static inline const int mOpl3AlgMax = 3; // 最大値
-static inline const int mOpl3AlgDefault = 0; // 初期値
+static inline const int mOpl3AlgDefault = 3; // 初期値
 
 static inline const int mOpxz3AlgMin = 0; // 最小値
 static inline const int mOpxz3AlgMax = 27; // 最大値
-static inline const int mOpxz3AlgDefault = 0; // 初期値
+static inline const int mOpxz3AlgDefault = 15; // 初期値
 
 static inline const float mFb0Min = 0.0f; // 最小値
 static inline const float mFb0Max = 7.0f; // 最大値
@@ -117,10 +117,10 @@ static inline const float ssgToneMax = 1.0f;  // 最大値
 static inline const float ssgToneDefault = 1.0f; // 初期値
 static inline const float ssgNoiseMin = 0.0f; // 最小値
 static inline const float ssgNoiseMax = 1.0f;  // 最大値
-static inline const float ssgNoiseDefault = 0.0f; // 初期値
+static inline const float ssgNoiseDefault = 1.0f; // 初期値
 static inline const float ssgNoiseMixMin = 0.0f; // 最小値
 static inline const float ssgNoiseMixMax = 1.0f;  // 最大値
-static inline const float ssgNoiseMixDefault = 0.5f; // 初期値
+static inline const float ssgNoiseMixDefault = 0.0f; // 初期値
 static inline const float ssgNoiseOnNoteDefault = false; // 初期値
 static inline const int ssgWaveformMin = 0; // 最小値
 static inline const int ssgWaveformMax = 1; // 最大値
@@ -274,13 +274,13 @@ static inline const float fxFlQMax = 10.0f;
 static inline const float fxFlQDefault = 0.707f;
 static inline const float fxFlMixMin = 0.0f;
 static inline const float fxFlMixMax = 1.0f;
-static inline const float fxFlMixDefault = 1.0f;
+static inline const float fxFlMixDefault = 0.0f;
 
 // FX Soft Clipper
 static inline const float fxScBypassDefault = false; // 初期値
 static inline const float fxScMixMin = 0.0f;
 static inline const float fxScMixMax = 1.0f;
-static inline const float fxScMixDefault = 1.0f;
+static inline const float fxScMixDefault = 0.0f;
 
 static inline const float masterVolumeMin = -60.0f; // 最小値（dB）
 static inline const float masterVolumeMax = 6.0f;   // 最大値（dB）
