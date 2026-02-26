@@ -85,7 +85,7 @@ void GuiFx::setup()
 	rbcBypassBtn.setup({ .parent = *this, .id = code + codeFxRbc + postBypass, .title = "Bypass", .isReset = true });
     rbcRateSelector.setup({ .parent = *this, .id = code + codeFxRbc + postRate, .title = "Rate", .items = rateItems, .isReset = true });
     rbcBitsSelector.setup({ .parent = *this, .id = code + codeFxRbc + postFxBit, .title = "Quality", .items = qualityItems, .isReset = true });
-    tMixSlider.setup({ .parent = *this, .id = code + codeFxRbc + postMix, .title = "Mix", .isReset = true });
+    rbcMixSlider.setup({ .parent = *this, .id = code + codeFxRbc + postMix, .title = "Mix", .isReset = true });
     rbcDryBtn.setup({ .parent = *this, .title = "Dry" });
     rbcDryBtn.onClick = [&] { rbcMixSlider.setValue(0.0f); };
     rbcHalfBtn.setup({ .parent = *this, .title = "50%" });

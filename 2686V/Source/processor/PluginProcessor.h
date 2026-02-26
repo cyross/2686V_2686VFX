@@ -90,14 +90,16 @@ public:
     void loadOpzx3PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx3PcmFile(int opIndex);
 
-    // --- Preview ---
-    bool previewVisiblity = false; // Editorとの同期用
+    // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>& destBuffer);
-    std::atomic<float> realTimeBuffer[512];
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
 #endif
+
+    // --- Preview ---
+    bool previewVisiblity = true; // Editorとの同期用
+    std::atomic<float> realTimeBuffer[512];
 
     // --- Settings Data ---
     juce::String wallpaperPath;

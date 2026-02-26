@@ -38,12 +38,8 @@ class AudioPlugin2686VEditor :
     public juce::ChangeListener,
     public juce::ComponentListener,
     public juce::Button::Listener,
-#if !defined(BUILD_AS_FX_PLUGIN)
     public juce::AudioProcessorValueTreeState::Listener,
     public juce::Timer
-#else
-    public juce::AudioProcessorValueTreeState::Listener
-#endif
 {
 public:
     AudioPlugin2686VEditor(AudioPlugin2686V&);
@@ -105,14 +101,14 @@ public:
         presetGui->updatePresetPath();
 	}
 
+    // 仮想MIDIキーボード用
+    void updateKeyboardVisibility();
+#endif
+
     // 波形プレビュー用
     void timerCallback() override;
     void updateTimerState();
     void updatePreviewVisibilityToProcessor();
-
-    // 仮想MIDIキーボード用
-    void updateKeyboardVisibility();
-#endif
 private:
     AudioPlugin2686V& audioProcessor;
 
@@ -138,6 +134,9 @@ private:
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiPreset> presetGui;
 
+    // 仮想MIDIキーボード用
+    std::unique_ptr<juce::MidiKeyboardComponent> midiKeyboard;
+#endif
     // 波形プレビュー用
     juce::TextButton togglePreviewBtn{ ">>" }; // 初期状態は閉じているので ">>"
     // 青系のリアルタイムプレビュー
@@ -146,9 +145,6 @@ private:
     GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
     bool isPreviewVisible = false;
 
-    // 仮想MIDIキーボード用
-    std::unique_ptr<juce::MidiKeyboardComponent> midiKeyboard;
-#endif
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;
     std::unique_ptr<GuiAbout> aboutGui;
