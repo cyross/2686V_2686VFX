@@ -98,7 +98,7 @@ public:
 #endif
 
     // --- Preview ---
-    bool previewVisiblity = false; // Editorとの同期用
+    bool previewVisiblity = true; // Editorとの同期用
     std::atomic<float> realTimeBuffer[512];
 
     // --- Settings Data ---
