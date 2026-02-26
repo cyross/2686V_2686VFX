@@ -215,32 +215,26 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
+    // FX専用プラグインでもリアルタイム波形を取得できるようにする
     if (previewVisiblity)
     {
-        // リアルタイムプレビュー用の波形保存（常に最新の512サンプルを維持して流す）
         auto* finalOutL = buffer.getReadPointer(0);
         int numSamples = buffer.getNumSamples();
         int bufferSize = 512;
 
-        // 今回追加するサンプル数と、残しておく過去のサンプル数を計算
         int shiftAmount = juce::jmin(numSamples, bufferSize);
         int keepAmount = bufferSize - shiftAmount;
 
-        // 1. 既存の波形データを左にずらす（古いデータを押し出して捨てる）
         for (int i = 0; i < keepAmount; ++i) {
             float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
             realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
         }
 
-        // 2. 空いた右側のスペースに、今回の最新の波形データを繋げる
         for (int i = 0; i < shiftAmount; ++i) {
-            // DAWからのブロックサイズが512より大きい場合も考慮して末尾から取得
             float newVal = finalOutL[numSamples - shiftAmount + i];
             realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
         }
     }
-#endif
 }
 
 // ============================================================================
@@ -846,6 +840,23 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     juce::AudioBuffer<float> renderBuffer(2, renderSamples);
     renderBuffer.clear();
     previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
+
+    // 一時的なFXプロセッサを作成（現在の状態を汚さないため）
+    FxProcessor tempFx;
+    tempFx.prepare(44000.0);
+    // 現在のパラメータを適用してFX処理
+    tempFx.processBlock(renderBuffer, currentParams, apvts);
+
+    // マスターボリュームとソフトクリッパーの適用
+    float dbValue = *apvts.getRawParameterValue(codeMasterVol);
+    float linearGain = juce::Decibels::decibelsToGain(dbValue);
+
+    for (int ch = 0; ch < renderBuffer.getNumChannels(); ++ch) {
+        auto* data = renderBuffer.getWritePointer(ch);
+        for (int i = 0; i < renderSamples; ++i) {
+            data[i] = std::tanh(data[i] * linearGain);
+        }
+    }
 
     auto* readPtr = renderBuffer.getReadPointer(0);
 

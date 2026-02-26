@@ -73,6 +73,25 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
 #if defined(BUILD_AS_FX_PLUGIN)
     setSize(WindowWidth, WindowHeight);
+
+    addAndMakeVisible(togglePreviewBtn);
+    addChildComponent(realtimePreview);
+
+    togglePreviewBtn.onClick = [this] {
+        isPreviewVisible = !isPreviewVisible;
+        updatePreviewVisibilityToProcessor();
+
+        staticPreview.setVisible(isPreviewVisible);
+        realtimePreview.setVisible(isPreviewVisible);
+        togglePreviewBtn.setButtonText(isPreviewVisible ? "<<" : ">>");
+
+        // ウィンドウの幅を動的に変更
+        int newWidth = isPreviewVisible ? WindowWidth + PreviewExtraWidth : WindowWidth;
+        setSize(newWidth, WindowHeight); // 高さは固定、幅を伸縮
+
+        // タイマーのON/OFFを切り替え
+        updateTimerState();
+    };
 #else
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
@@ -91,8 +110,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         scanPresets();
     }
 
-    addAndMakeVisible(togglePreviewBtn);
     addChildComponent(staticPreview);
+    addAndMakeVisible(togglePreviewBtn);
     addChildComponent(realtimePreview);
 
     togglePreviewBtn.onClick = [this] {
@@ -193,17 +212,22 @@ void AudioPlugin2686VEditor::resized()
     {
         midiKeyboard->setBounds(area.removeFromBottom(KeyboardHeight));
     }
+#endif
 
     togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
 
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(PreviewExtraWidth);
-
+#if defined(BUILD_AS_FX_PLUGIN)
+        // FX版: リアルタイム波形だけを大きく中央に表示
+        realtimePreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize * 2);
+#else
+        // シンセ版: 上下に並べる
         staticPreview.setBounds(rightArea.getX() + 4, 30, PreviewDrawSize, PreviewDrawSize);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, PreviewDrawSize, PreviewDrawSize);
-    }
 #endif
+    }
 
     logoLabel.setBounds(area.reduced(GlobalPaddingWidth, GlobalPaddingHeight));
 
@@ -718,43 +742,6 @@ void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
     }
 }
 
-void AudioPlugin2686VEditor::timerCallback()
-{
-    if (isPreviewVisible)
-    {
-        // 1. 静的波形（完成波形）の更新
-        std::vector<float> staticData;
-
-        audioProcessor.generatePreviewWaveform(staticData);
-        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
-
-        // 2. リアルタイム波形の更新
-        std::vector<float> realTimeData(512);
-
-        for (int i = 0; i < 512; ++i) {
-            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
-        }
-        realtimePreview.pushBuffer(realTimeData.data(), 512);
-    }
-}
-
-void AudioPlugin2686VEditor::updateTimerState()
-{
-    // 現在のタブがシンセ系かチェック (例: 0〜9 が OPNA〜ADPCM、それ以降がFXや設定など)
-    // ※ ADPCM が 9 番目のタブであることを前提としています。構成に合わせて数字を調整してください。
-    int currentTab = tabs.getCurrentTabIndex();
-    bool isSynthTab = (currentTab <= 9);
-
-    // プレビューが開いていて、かつシンセ画面の時だけタイマーを動かす
-    if (isPreviewVisible && isSynthTab) {
-        startTimerHz(15);
-        timerCallback(); // ★タイマー開始時に即座に1回強制描画する！
-    }
-    else {
-        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
-    }
-}
-
 void AudioPlugin2686VEditor::updateKeyboardVisibility()
 {
     // コンポーネントの表示/非表示を切り替え
@@ -768,12 +755,45 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
 
     setSize(targetWidth, targetHeight);
 }
+#endif
+
+void AudioPlugin2686VEditor::timerCallback()
+{
+    if (isPreviewVisible)
+    {
+#if !defined(BUILD_AS_FX_PLUGIN)
+        // 1. 静的波形（完成波形）の更新
+        std::vector<float> staticData;
+
+        audioProcessor.generatePreviewWaveform(staticData);
+        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
+#endif
+        // 2. リアルタイム波形の更新
+        std::vector<float> realTimeData(512);
+
+        for (int i = 0; i < 512; ++i) {
+            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
+        }
+        realtimePreview.pushBuffer(realTimeData.data(), 512);
+    }
+}
+
+void AudioPlugin2686VEditor::updateTimerState()
+{
+    // プレビューが開いていている時だけタイマーを動かす
+    if (isPreviewVisible) {
+        startTimerHz(15);
+        timerCallback(); // タイマー開始時に即座に1回強制描画する！
+    }
+    else {
+        stopTimer(); // 閉じてる時、または設定・About画面では負荷ゼロにする
+    }
+}
 
 void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
 {
     audioProcessor.previewVisiblity = isPreviewVisible;
 }
-#endif
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {

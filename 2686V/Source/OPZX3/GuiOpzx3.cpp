@@ -24,7 +24,7 @@ void GuiOpzx3::setup()
     lfoPmsSelector.setup({ .parent = *this, .id = codeOpna + postLPms, .title = mLfoPms, .items = pmsItems, .isReset = true });
     lfoAmsSelector.setup({ .parent = *this, .id = codeOpna + postLAms, .title = mLfoAms, .items = amsItems, .isReset = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel });
+    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
 
     // Operators
     for (int i = 0; i < 4; ++i)
