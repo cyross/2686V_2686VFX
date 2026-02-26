@@ -8,26 +8,6 @@ void GuiFx::setup()
 {
     const juce::String code = codeFx;
 
-    std::vector<SelectItem> qualityItems = {
-        {.name = "0: Raw (32bit)", .value = 1 },
-        {.name = "1: 24-bit PCM",  .value = 2 },
-        {.name = "2: 16-bit PCM",  .value = 3 },
-        {.name = "3: 8-bit PCM",   .value = 4 },
-        {.name = "4: 5-bit PCM",   .value = 5 },
-        {.name = "5: 4-bit PCM",   .value = 6 },
-        {.name = "6: 4-bit ADPCM", .value = 7 },
-    };
-
-    std::vector<SelectItem> rateItems = {
-        {.name = "0: 96kHz",    .value = 1 },
-        {.name = "1: 55.5kHz",  .value = 2 },
-        {.name = "2: 48kHz",    .value = 3 },
-        {.name = "3: 44.1kHz",  .value = 4 },
-        {.name = "4: 22.05kHz", .value = 5 },
-        {.name = "5: 16kHz",    .value = 6 },
-        {.name = "6: 8kHz",     .value = 7 },
-    };
-
     // MainGroup
     mainGroup.setup(*this, mGroupTitle);
 
@@ -112,6 +92,25 @@ void GuiFx::setup()
     rbcHalfBtn.onClick = [&] { rbcMixSlider.setValue(0.5f); };
     rbcWetBtn.setup({ .parent = *this, .title = "Wet" });
     rbcWetBtn.onClick = [&] { rbcMixSlider.setValue(1.0f); };
+
+    // Filter Group
+    filterGroup.setup(*this, "Filter");
+    flBypassBtn.setup({ .parent = *this, .id = code + "fl" + postBypass, .title = "Bypass", .isReset = true });
+    flTypeSelector.setup({ .parent = *this, .id = code + "flType", .title = "Type", .items = flTypeItems, .isReset = true });
+    flFreqSlider.setup({ .parent = *this, .id = code + "flFreq", .title = "Cutoff", .isReset = true });
+    flQSlider.setup({ .parent = *this, .id = code + "flQ", .title = "Reso/Q", .isReset = true });
+    flMixSlider.setup({ .parent = *this, .id = code + "flMix", .title = "Mix", .isReset = true });
+    flDryBtn.setup({ .parent = *this, .title = "Dry" }); flDryBtn.onClick = [&] { flMixSlider.setValue(0.0f); };
+    flHalfBtn.setup({ .parent = *this, .title = "50%" }); flHalfBtn.onClick = [&] { flMixSlider.setValue(0.5f); };
+    flWetBtn.setup({ .parent = *this, .title = "Wet" }); flWetBtn.onClick = [&] { flMixSlider.setValue(1.0f); };
+
+    // Soft Clipper Group
+    softClipperGroup.setup(*this, "Soft Clipper");
+    scBypassBtn.setup({ .parent = *this, .id = code + "sc" + postBypass, .title = "Bypass", .isReset = true });
+    scMixSlider.setup({ .parent = *this, .id = code + "scMix", .title = "Mix", .isReset = true });
+    scDryBtn.setup({ .parent = *this, .title = "Dry" }); scDryBtn.onClick = [&] { scMixSlider.setValue(0.0f); };
+    scHalfBtn.setup({ .parent = *this, .title = "50%" }); scHalfBtn.onClick = [&] { scMixSlider.setValue(0.5f); };
+    scWetBtn.setup({ .parent = *this, .title = "Wet" }); scWetBtn.onClick = [&] { scMixSlider.setValue(1.0f); };
 }
 
 void GuiFx::layout(juce::Rectangle<int> content)
@@ -121,7 +120,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     auto mainArea = pageArea.removeFromLeft(MainWidth);
 
     mainGroup.setBounds(mainArea);
+
     auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
     mRect.removeFromTop(TitlePaddingTop);
 
     layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &bypassToggle, { MainRegButtonWidth, 0} } });
@@ -132,8 +133,25 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     // Left
 
-    // 1. Tremolo
+    // 1. Filter
+    auto flArea = topCol.removeFromLeft(FmOpWidth);
+
+    filterGroup.setBounds(flArea);
+
+    auto flRect = flArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    flRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(flRect, OpRowHeight, OpLastRowPaddingBottom, { { &flBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(flRect, OpRowHeight, OpRowPaddingBottom, { { &flTypeSelector.label, { OpRegLabelWidth, OpRegPaddingRight} }, { &flTypeSelector, { OpRegValueWidth, 0} } });
+    layoutComponentsLtoR(flRect, OpRowHeight, OpRowPaddingBottom, { { &flFreqSlider.label, { OpRegLabelWidth, OpRegPaddingRight} }, { &flFreqSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(flRect, OpRowHeight, OpRowPaddingBottom, { { &flQSlider.label, { OpRegLabelWidth, OpRegPaddingRight} }, { &flQSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(flRect, OpRowHeight, OpRowPaddingBottom, { { &flMixSlider.label, { OpRegLabelWidth, OpRegPaddingRight} }, { &flMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(flRect, OpRowHeight, OpRowPaddingBottom, { { &flDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} }, { &flHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} }, { &flWetBtn, { OpRegPanChangeButtonWidth, 0} } });
+
+    // 2. Tremolo
     auto trmArea = topCol.removeFromLeft(FmOpWidth);
+
     tremGroup.setBounds(trmArea);
 
     auto trmRect = trmArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -150,8 +168,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &tWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
 
-    // 2. Vibrato
+    // 3. Vibrato
     auto vibArea = topCol.removeFromLeft(FmOpWidth);
+
     vibGroup.setBounds(vibArea);
 
     auto vibRect = vibArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -168,8 +187,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &vWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
 
-    // 3. Modern Bit Crusher
+    // 4. Modern Bit Crusher
     auto mbcArea = topCol.removeFromLeft(FmOpWidth);
+
     mbcGroup.setBounds(mbcArea);
 
     auto mbcRect = mbcArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -186,8 +206,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &mbcWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
 
-    // 4. Delay
+    // 5. Delay
     auto dlyArea = bottomCol.removeFromLeft(FmOpWidth);
+
     delayGroup.setBounds(dlyArea);
 
     auto dlyRect = dlyArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -204,8 +225,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &dWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
 
-    // 5. Reverb
+    // 6. Reverb
     auto rvbArea = bottomCol.removeFromLeft(FmOpWidth);
+
     reverbGroup.setBounds(rvbArea);
 
     auto rvbRect = rvbArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -222,8 +244,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &rWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
 
-    // 6. Retro Bit Crusher
+    // 7. Retro Bit Crusher
     auto rbcArea = bottomCol.removeFromLeft(FmOpWidth);
+
     rbcGroup.setBounds(rbcArea);
 
     auto rbcRect = rbcArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
@@ -239,4 +262,17 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &rbcHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} },
         { &rbcWetBtn, { OpRegPanChangeButtonWidth, 0} }
         });
+
+    // 8. Soft Clipper
+    auto scArea = bottomCol.removeFromLeft(FmOpWidth);
+
+    softClipperGroup.setBounds(scArea);
+
+    auto scRect = scArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+
+    scRect.removeFromTop(TitlePaddingTop);
+
+    layoutComponentsLtoR(scRect, OpRowHeight, OpLastRowPaddingBottom, { { &scBypassBtn, { OpRegButtonWidth, 0} } });
+    layoutComponentsLtoR(scRect, OpRowHeight, OpRowPaddingBottom, { { &scMixSlider.label, { OpRegLabelWidth, OpRegPaddingRight} }, { &scMixSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(scRect, OpRowHeight, OpRowPaddingBottom, { { &scDryBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} }, { &scHalfBtn, { OpRegPanChangeButtonWidth, OpRegPanPaddingHeight} }, { &scWetBtn, { OpRegPanChangeButtonWidth, 0} } });
 }

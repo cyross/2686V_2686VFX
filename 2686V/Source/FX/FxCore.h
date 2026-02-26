@@ -12,12 +12,14 @@
 // ======================================================
 enum class FxType
 {
-    Tremolo = 0,
+    Filter = 0, // フィルターは最初にかけるのが一般的
+    Tremolo,
     Vibrato,
     ModernBitCrusher,
     RetroBitCrusher,
     Delay,
     Reverb,
+    SoftClipper, // ソフトクリッパーは最後にかけるのが一般的
     Count // Total Count
 };
 
@@ -144,35 +146,69 @@ private:
     Ym2608AdpcmCodec codec[2];
 };
 
+// ======================================================
+// 7. Filter (State Variable Filter)
+// ======================================================
+class FxFilter : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+    // mode=Type(0:LPF, 1:HPF, 2:BPF, 3:BSF), rate=Freq, mix=Q, wetLevel=Mix (引数を流用)
+    void setParameters(float type, float freq, float q, float mix);
+    void process(juce::AudioBuffer<float>& buffer) override;
+private:
+    juce::dsp::StateVariableTPTFilter<float> filterL;
+    juce::dsp::StateVariableTPTFilter<float> filterR;
+    int currentType = 0;
+    float currentFreq = 20000.0f;
+    float currentQ = 0.707f;
+};
+
+// ======================================================
+// 8. Soft Clipper (tanh Saturation)
+// ======================================================
+class FxSoftClipper : public FxCore
+{
+public:
+    void prepare(double sampleRate) override {} // 何もしない
+    void setParameters(float dummy1, float dummy2, float mix) override;
+    void process(juce::AudioBuffer<float>& buffer) override;
+};
+
 // --- Effect Manager ---
 class EffectChain
 {
 public:
     EffectChain();
-    void prepare(double sampleRate);
     void setTremoloParams(float rate, float depth, float mix);
     void setVibratoParams(float rate, float depth, float mix);
     void setModernBitCrusherParams(float rate, float bits, float mix);
     void setRetroBitCrusherParams(int mode, int rate, float mix);
     void setDelayParams(float time, float fb, float mix);
     void setReverbParams(float size, float damp, float width, float mix);
+    void setFilterParams(int type, float freq, float q, float mix);
+    void setSoftClipperParams(float mix);
+
+    void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
     void reset();
-    void setBypasses(bool t, bool v, bool mc, bool rc, bool d, bool r);
+    void setBypasses(bool fl, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc);
     void updateOrder(const std::array<int, NumEffects>& newOrders);
 private:
     // 各エフェクトオブジェクト
+    FxFilter filter;
     FxTremolo tremolo;
     FxVibrato vibrato;
     FxMBC modernBitCrusher;
     FxDelay delay;
     FxReverb reverb;
     FxRBC retroBitCrusher;
+    FxSoftClipper softClipper;
 
     // エフェクトの適応順
-    int fxSize = 6;
-    std::array<int, 6> orderIndex{ { 0, 1, 2, 3, 4, 5 } };
-    std::vector<FxCore*> fxs{ &tremolo, &vibrato, &modernBitCrusher, &retroBitCrusher, &delay, &reverb };
+    int fxSize = 8;
+    std::array<int, 8> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7 } };
+    std::vector<FxCore*> fxs{ &filter, &tremolo, &vibrato, &modernBitCrusher, &retroBitCrusher, &delay, &reverb, &softClipper };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;

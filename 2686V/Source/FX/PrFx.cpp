@@ -11,8 +11,15 @@ void FxProcessor::prepare(double sampleRate)
 
 void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    // Bypass
+    // --- Bypass ---
     layout.add(std::make_unique<juce::AudioParameterBool>(codeFx + postBypass, codeFx + masterBypassLabel, fxMBypassDefault));
+
+    // --- Filter ---
+    layout.add(std::make_unique<juce::AudioParameterBool>(codeFx + "fl" + postBypass, "Filter Bypass", fxBypassDefault));
+    layout.add(std::make_unique<juce::AudioParameterInt>(codeFx + "flType", "Filter Type", fxFlTypeMin, fxFlTypeMax, fxFlTypeDefault));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(codeFx + "flFreq", "Filter Freq", fxFlFreqRange, fxFlFreqDefault));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(codeFx + "flQ", "Filter Q", fxFlQMin, fxFlQMax, fxFlQDefault));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(codeFx + "flMix", "Filter Mix", fxFlMixMin, fxFlMixMax, fxFlMixDefault));
 
     // --- Tremolo ---
     layout.add(std::make_unique<juce::AudioParameterBool>(codeFx + codeFxTrm + postBypass, codeFx + fxTremoloLabel + fxPostBypassLabel, fxBypassDefault));
@@ -49,6 +56,10 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterInt>(codeFx + codeFxRbc + postRate, codeFx + fxRBCLabel + fxPostRateLabel, fxRbcRateMin, fxRbcRateMax, fxRbcRateDefault));
     layout.add(std::make_unique<juce::AudioParameterInt>(codeFx + codeFxRbc + postFxBit, codeFx + fxRBCLabel + fxPostQualityLabel, fxRbcBitMin, fxRbcBitMax, fxRbcBitDefault));
     layout.add(std::make_unique<juce::AudioParameterFloat>(codeFx + codeFxRbc + postMix, codeFx + fxRBCLabel + fxPostMixLabel, fxMixMin, fxMixMax, fxMixDefault));
+
+    // --- Soft Clipper (tanH) ---
+    layout.add(std::make_unique<juce::AudioParameterBool>(codeFx + "sc" + postBypass, "Clipper Bypass", fxBypassDefault));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(codeFx + "scMix", "Clipper Mix", fxScMixMin, fxScMixMax, fxScMixDefault));
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -57,6 +68,14 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     {
         return;
     }
+
+    // Filter
+    bool flB = *apvts.getRawParameterValue(codeFx + "fl" + postBypass) > opBoolThread;
+    int flType = (int)*apvts.getRawParameterValue(codeFx + "flType");
+    float flFreq = *apvts.getRawParameterValue(codeFx + "flFreq");
+    float flQ = *apvts.getRawParameterValue(codeFx + "flQ");
+    float flMix = *apvts.getRawParameterValue(codeFx + "flMix");
+    effects.setFilterParams(flType, flFreq, flQ, flMix);
 
     // Vibrato
     bool vB = *apvts.getRawParameterValue(codeFx + codeFxVib + postBypass) > opBoolThread;
@@ -101,8 +120,13 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
 
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
+    // Soft Clipper (tanH)
+    bool scB = *apvts.getRawParameterValue(codeFx + "sc" + postBypass) > opBoolThread;
+    float scMix = *apvts.getRawParameterValue(codeFx + "scMix");
+    effects.setSoftClipperParams(scMix);
+
     // バイパス設定
-    effects.setBypasses(tB, vB, mcB, rcB, dB, rB);
+    effects.setBypasses(flB, tB, vB, mcB, rcB, dB, rB, scB);
 
     // エフェクト処理実行
     effects.process(buffer);
