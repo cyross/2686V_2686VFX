@@ -30,7 +30,7 @@ class GuiOpm : public GuiBase
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiSlider, Fm4Ops> mul;
-    std::array<GuiSlider, Fm4Ops> dt1;
+    std::array<GuiComboBox, Fm4Ops> dt1;
     std::array<GuiSlider, Fm4Ops> dt2;
     std::array<GuiSlider, Fm4Ops> tl;
     std::array<GuiSlider, Fm4Ops> ar;
@@ -61,7 +61,7 @@ public:
         lfoAmsSelector(context),
         masterVolSlider(context),
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

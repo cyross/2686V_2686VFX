@@ -22,7 +22,7 @@ class GuiOpl : public GuiBase
     GuiMasterVolumeSlider masterVolSlider;
 
     std::array<GuiSlider, Fm2Ops> mul;
-    std::array<GuiSlider, Fm2Ops> dt;
+    std::array<GuiComboBox, Fm2Ops> dt;
     std::array<GuiSlider, Fm2Ops> ar;
     std::array<GuiSlider, Fm2Ops> dr;
     std::array<GuiSlider, Fm2Ops> sl;
@@ -49,7 +49,7 @@ public:
         rateSelector(context),
         masterVolSlider(context),
         mul{ GuiSlider(context), GuiSlider(context) },
-        dt{ GuiSlider(context), GuiSlider(context) },
+        dt{ GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context) },
         dr{ GuiSlider(context), GuiSlider(context) },
         sl{ GuiSlider(context), GuiSlider(context) },

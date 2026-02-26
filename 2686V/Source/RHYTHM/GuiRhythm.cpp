@@ -2,9 +2,9 @@
 #include "../editor/PluginEditor.h"
 
 #include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 #include "../core/OpConstants.h"
-#include "../core/FileConstants.h"
+#include "../core/FileValues.h"
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {

@@ -7,7 +7,7 @@ static inline const juce::String presetTableFileNameColTitle = "File Name";
 static inline const juce::String presetTableModeColTitle = "Mode";
 static inline const juce::String presetTablePresetNameColTitle = "Preset Name";
 static inline const juce::String presetTableAuthorColTitle = "Author";
-static inline const juce::String presetTableVersionColTitle = "Ver";
+static inline const juce::String presetTableVersionColTitle = "Version";
 
 // プリセット名
 static inline const juce::String settingPresetName = "presetName";
@@ -19,7 +19,6 @@ static inline const juce::String settingPluginVersion = "pluginVersion";
 static inline const juce::String settingAdpcmPath = "adpcmPath";
 static inline const juce::String settingRhythmPathPrefix = "rhythmPath";
 static inline const juce::String settingOpzx3PathPrefix = "opzx3PcmPath";
-
 
 // 初期メタデータ
 static inline const juce::String defaultPresetName = "Init Preset";

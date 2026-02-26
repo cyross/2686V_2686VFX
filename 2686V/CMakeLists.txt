@@ -24,17 +24,18 @@ juce_add_binary_data(AppIconForAbout
 
 # 定義
 set(CORE_FILES
-    Source/core/FileConstants.h
+    Source/core/FileValues.h
     Source/core/GlobalConstants.h
     Source/core/GuiConstants.h
-    Source/core/LabelConstants.h
+    Source/core/GuiLabels.h
     Source/core/MmlConstants.h
+    Source/core/MmlValues.h
     Source/core/OpConstants.h
     Source/core/OpNames.h
     Source/core/OpValueRange.h
     Source/core/PrBase.h
     Source/core/PrBase.cpp
-    Source/core/PresetConstants.h
+    Source/core/PresetValues.h
 )
 
 set(SYNTH_FILES

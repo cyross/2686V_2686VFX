@@ -158,6 +158,93 @@ int RegisterConverter::convertFmDt2(int regValue)
 }
 
 // ==============================================================================
+// OPL / OPL3 Parameters (YM3812 / YMF262 Standard)
+// ==============================================================================
+
+// --- OPL: Attack Rate (AR) ---
+// Register: 0 (Slowest) - 15 (Fastest)
+// VST Param: Time in Seconds (0.03s - 5.0s)
+float RegisterConverter::convertOplAr(int regValue)
+{
+    if (regValue <= 0) return 5.0f; // Slowest
+    if (regValue >= 15) return 0.03f; // Fastest
+
+    float r = (float)std::clamp(regValue, 0, 15);
+    float inv = 15.0f - r;
+
+    // 15の2乗=225 をベースに係数を調整。 5.0sを目指す。
+    // 5.0 = 0.03 + (Coef * 225) -> Coef = 4.97 / 225 ≈ 0.022f
+    return 0.03f + (0.022f * std::pow(inv, 2.0f));
+}
+
+// --- OPL: Decay Rate (DR) ---
+// Register: 0 (Slowest) - 15 (Fastest)
+// VST Param: Time in Seconds (0.0s - 5.0s)
+float RegisterConverter::convertOplDr(int regValue)
+{
+    if (regValue >= 15) return 0.0f; // Fastest (Instant decay)
+
+    float r = (float)std::clamp(regValue, 0, 15);
+    float inv = 15.0f - r;
+
+    // 5.0 = Coef * 225 -> Coef = 5.0 / 225 ≈ 0.0222f
+    return 0.0222f * std::pow(inv, 2.0f);
+}
+
+// --- OPL: Release Rate (RR) ---
+// Register: 0 (Slowest) - 15 (Fastest)
+// VST Param: Time in Seconds (0.03s - 5.0s)
+float RegisterConverter::convertOplRr(int regValue)
+{
+    // OPLのRRは0〜15で、DRと同じようなカーブを描きます。
+    if (regValue <= 0) return 5.0f; // Slowest
+    if (regValue >= 15) return 0.03f; // Fastest
+
+    float r = (float)std::clamp(regValue, 0, 15);
+    float inv = 15.0f - r;
+
+    return 0.03f + (0.022f * std::pow(inv, 2.0f));
+}
+
+// --- OPL: Sustain Level (SL) ---
+// Register: 0 (Max Level) - 15 (Min Level / Silent)
+// VST Param: 0.0 (Silent) - 1.0 (Max)
+float RegisterConverter::convertOplSl(int regValue)
+{
+    int v = std::clamp(regValue, 0, 15);
+    if (v == 15) return 0.0f; // Silent
+
+    // 線形での簡易変換 (0->1.0, 15->0.0)
+    return 1.0f - ((float)v / 15.0f);
+}
+
+// --- OPL: Total Level (TL) ---
+// Register: 0 (Max Volume) - 63 (Min Volume / -47dB)
+// VST Param: 0.0 (Max) - 1.0 (Min)
+float RegisterConverter::convertOplTl(int regValue)
+{
+    int v = std::clamp(regValue, 0, 63);
+
+    // OPLのTLは最大63なので、それをVST用の0.0〜1.0スケールに正規化する
+    return (float)v / 63.0f;
+}
+
+// --- OPL: Multiple (MUL) ---
+// Register: 0-15
+int RegisterConverter::convertOplMul(int regValue)
+{
+    return std::clamp(regValue, 0, 15);
+}
+
+// --- OPL: Detune (DT) ---
+// Register: 0-7
+// VST Param: Integer 0-7
+int RegisterConverter::convertOplDt(int regValue)
+{
+    return std::clamp(regValue, 0, 7);
+}
+
+// ==============================================================================
 // SSG Parameters
 // ==============================================================================
 
@@ -201,4 +288,48 @@ float RegisterConverter::convertSsgEnvPeriod(int regValue)
     // BaseClock(approx 2MHz) / (256 * Reg)
     // e.g. 2000000 / (256 * 1000) = 7.8Hz
     return 7812.5f / (float)regValue;
+}
+
+// MMLの -3 ～ +3 を、レジスタ値 0 ～ 7 に変換する
+int RegisterConverter::convertMmlDtToReg(int mmlDtValue)
+{
+    if (mmlDtValue == 0) return 0;
+
+    if (mmlDtValue > 0) {
+        // +1 ～ +3 -> レジスタ 5 ～ 7
+        return std::clamp(mmlDtValue + 4, 5, 7);
+    }
+    else {
+        // -1 ～ -3 -> レジスタ 3 ～ 1
+        return std::clamp(4 + mmlDtValue, 1, 3);
+    }
+}
+
+
+// マイナス符号を許容し、エラー時の戻り値を -1000 に変更（-1 だと正常なDT値と区別がつかないため）
+int RegisterConverter::getValue(const juce::String& input, const juce::String& key, int maxVal)
+{
+    int idx = input.indexOf(key);
+
+    if (idx < 0) return -1000;
+
+    int valStart = idx + key.length();
+    int valEnd = valStart;
+
+    // マイナス符号 '-' またはプラス符号 '+' があればインデックスを進める
+    if (valEnd < input.length() && (input[valEnd] == '-' || input[valEnd] == '+')) {
+        valEnd++;
+    }
+
+    while (valEnd < input.length() && juce::CharacterFunctions::isDigit(input[valEnd])) {
+        valEnd++;
+    }
+
+    if (valStart == valEnd) return -1000;
+    return input.substring(valStart, valEnd).getIntValue();
+};
+
+bool RegisterConverter::isValidVal(int val)
+{
+    return val != -1000;
 }

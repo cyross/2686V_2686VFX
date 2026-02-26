@@ -27,7 +27,7 @@ class GuiOpna : public GuiBase
     GuiMasterVolumeSlider masterVolSlider;
 
     std::array<GuiSlider, Fm4Ops> mul;
-    std::array<GuiSlider, Fm4Ops> dt;
+    std::array<GuiComboBox, Fm4Ops> dt;
     std::array<GuiSlider, Fm4Ops> ar;
     std::array<GuiSlider, Fm4Ops> dr;
     std::array<GuiSlider, Fm4Ops> sr;
@@ -63,7 +63,7 @@ public:
         lfoAmsSelector(context),
         masterVolSlider(context),
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         sr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

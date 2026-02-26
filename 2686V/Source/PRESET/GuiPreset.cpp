@@ -2,11 +2,11 @@
 #include "../processor/PluginProcessor.h"
 
 #include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 #include "../core/OpConstants.h"
 #include "../core/GlobalConstants.h"
-#include "../core/FileConstants.h"
-#include "../core/PresetConstants.h"
+#include "../core/FileValues.h"
+#include "../core/PresetValues.h"
 
 juce::File GuiPreset::getSelectedFile() const
 {

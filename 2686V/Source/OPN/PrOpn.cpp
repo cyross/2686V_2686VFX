@@ -2,7 +2,7 @@
 
 #include "../core/OpConstants.h"
 #include "../core/OpValueRange.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 
 void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {

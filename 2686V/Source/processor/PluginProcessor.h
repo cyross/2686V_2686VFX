@@ -18,9 +18,9 @@
 #include "../FX/FxCore.h"
 #include "../core/GlobalConstants.h"
 #include "../core/OpConstants.h"
-#include "../core/FileConstants.h"
-#include "../core/PresetConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/FileValues.h"
+#include "../core/PresetValues.h"
+#include "../core/GuiLabels.h"
 #include "../core/OpValueRange.h"
 
 #include "../FX/PrFx.h"

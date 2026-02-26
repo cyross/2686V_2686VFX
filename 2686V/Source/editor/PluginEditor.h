@@ -4,11 +4,11 @@
 #include <vector>
 #include <span>
 #include "../core/GlobalConstants.h"
-#include "../core/FileConstants.h"
-#include "../core/PresetConstants.h"
+#include "../core/FileValues.h"
+#include "../core/PresetValues.h"
 #include "../core/OpConstants.h"
 #include "../core/OpValueRange.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 #include "../core/GuiConstants.h"
 #include "../core/MmlConstants.h"
 #include "../fm/RegisterType.h"

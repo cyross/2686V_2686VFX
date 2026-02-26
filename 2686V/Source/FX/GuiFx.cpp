@@ -1,7 +1,7 @@
 ﻿#include "GuiFx.h"
 
 #include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 #include "../core/OpConstants.h"
 
 void GuiFx::setup()

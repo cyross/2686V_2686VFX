@@ -1,6 +1,6 @@
 ﻿#include "PrBase.h"
 
-#include "../core/LabelConstants.h"
+#include "../core/GuiLabels.h"
 #include "../core/OpConstants.h"
 #include "../core/OpValueRange.h"
 

@@ -269,6 +269,13 @@ void GuiComboBox::setup(const Config& c)
     {
         this->onChange = [this] { ctx.editor.resized(); };
     }
+
+    if (c.regType != RegisterType::None)
+    {
+        ctx.sliderRegMap[this] = c.regType;
+
+        this->addMouseListener(&ctx.editor, false);
+    }
 }
 
 void GuiToggleButton::setup(const Config& c)
@@ -468,6 +475,11 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
                     c.onMmlApplied(mmlText);
                 }
             }
-            }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
-        };
+        }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
+
+        if (auto* editor = w->getTextEditor("mmlInput"))
+        {
+            editor->grabKeyboardFocus();
+        }
+    };
 }

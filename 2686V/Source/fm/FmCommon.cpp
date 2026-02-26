@@ -47,6 +47,7 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     // 1: +/- 0.1% (approx)
     // 2: +/- 0.25%
     // 3: +/- 0.45%
+    juce::Logger::getCurrentLogger()->writeToLog("DT:" + juce::String(dtReg));
     switch (dtReg)
     {
     case 0: // 0
