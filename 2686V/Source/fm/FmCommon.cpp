@@ -200,125 +200,86 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
 
-// 29種類の波形生成ロジック
-// phase: 0.0 ～ 1.0 (正規化された位相)
-// wave: 0 ～ 28 (波形番号)
 float FmOperator::calcWaveform(double phase, int wave)
 {
-    float p = std::fmod(phase, 2.0f * juce::MathConstants<float>::pi);
+    // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
+    float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
     if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
+
+    // サイン波はラジアンで計算
     float s = std::sin(p);
 
-    if (!m_useWaveSelect) return s; // Default Sine
+    if (!m_useWaveSelect) return s; // Default Sine (OPN/OPNA/OPM)
 
+    // ★重要追加: 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
+    float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
+
+    // ★修正: 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
     switch (wave) {
         // 0-7: OPZ / OPL3 Compatible Set
-    case 0:  return (float)s; // Sine
-    case 1:  return (float)(phase < 0.5 ? s : 0.0); // Half Sine
-    case 2:  return (float)(std::abs(s)); // Abs Sine
+    case 0:  return s; // Sine
+    case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+    case 2:  return std::abs(s); // Abs Sine
     case 3:
-        if (m_useSsgEg)
-        {
-            return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-        }
-        else
-        {
-            return (float)(phase < 0.25 ? s : 0.0); // Quarter Sine (Pulse Sine)
-        }
-    // OPL3の Wave 4 (Alternating Sine)
-    // 2倍の速度でサイン波を1周期描くが、後半(phase >= 0.5)はゼロになる
-    case 4:
-        return (float)(phase < 0.5 ? std::sin(p * 2.0) : 0.0);
-
-        // ★修正: OPL3の Wave 5 (Alternating Abs Sine)
-        // 2倍の速度で全波整流を描くが、後半(phase >= 0.5)はゼロになる
-    case 5:
-        return (float)(phase < 0.5 ? std::abs(std::sin(p * 2.0)) : 0.0);
-
-    case 6:  return (float)(phase < 0.5 ? 1.0 : -1.0); // Square
-
-    // OPL3の Wave 7 (Derived Square / Exponentiated Sine)
-    // 実機は対数テーブルから生成された、頭が少し丸い特殊な矩形波。
-    // 近似として「サイン波を少し歪ませた形」に修正します。
+        if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
+        else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
+    case 4:  return (normPhase < 0.5f ? std::sin(p * 2.0f) : 0.0f);
+    case 5:  return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
+    case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
     case 7:
     {
-        float sign = (phase < 0.5) ? 1.0f : -1.0f;
-        // サイン波を指数関数的に持ち上げて矩形波に近づける(OPL3独特の硬い音)
+        float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
         return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
     }
-    // Or simple Saw approximation using Sine segments?
-    // SD-1 7 is "Exponentiated Sine" or "Derived Square".
-    // Let's use "Square-ish Sine" for now.
     // 8-12: Saw / Tri Variations
-    case 8:  return (float)(1.0 - phase * 2.0); // Saw Down
-    case 9:  return (float)(phase * 2.0 - 1.0); // Saw Up
+    case 8:  return (1.0f - normPhase * 2.0f); // Saw Down
+    case 9:  return (normPhase * 2.0f - 1.0f); // Saw Up
     case 10: // Triangle
-        return (float)(phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
-    case 11: // Saw + Sine combined (Hybrid)
-        return (float)((1.0 - phase * 2.0) * 0.5 + s * 0.5);
-    case 12: // Log Saw (Buzzy)
+        return (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+    case 11: // Saw + Sine combined
+        return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
+    case 12: // Log Saw
     {
-        double saw = 1.0 - phase * 2.0;
-        return (float)(saw * saw * saw); // Cubic curve
+        float saw = 1.0f - normPhase * 2.0f;
+        return saw * saw * saw;
     }
-    // 13-18: Pulse / Square Variations (Duty Cycles)
-    case 13: return (float)(phase < 0.25 ? 1.0 : -1.0); // Pulse 25%
-    case 14: return (float)(phase < 0.125 ? 1.0 : -1.0); // Pulse 12.5%
-    case 15: return (float)(phase < 0.0625 ? 1.0 : -1.0); // Pulse 6.25%
-    case 16: // Rounded Square (Soft Square)
-        return (float)(std::tanh(s * 5.0));
-    case 17: // Impulse train (approx)
-        return (float)(std::exp(-100.0 * std::pow(phase - 0.5, 2.0)) * 2.0 - 1.0);
-    case 18: // Comb / Multi-pulse
-        return (float)(std::sin(p * 1.0) + std::sin(p * 3.0) * 0.5 + std::sin(p * 5.0) * 0.25);
-        // 19-28: Resonant / Complex Waves (MA-5 Special)
-    case 19: // Resonant Saw (Low)
-        return (float)((1.0 - phase * 2.0) * std::sin(p * 4.0));
-    case 20: // Resonant Saw (High)
-        return (float)((1.0 - phase * 2.0) * std::sin(p * 8.0));
-    case 21: // Resonant Triangle
+    // 13-18: Pulse / Square Variations
+    case 13: return (normPhase < 0.25f ? 1.0f : -1.0f); // Pulse 25%
+    case 14: return (normPhase < 0.125f ? 1.0f : -1.0f); // Pulse 12.5%
+    case 15: return (normPhase < 0.0625f ? 1.0f : -1.0f); // Pulse 6.25%
+    case 16: // Rounded Square
+        return std::tanh(s * 5.0f);
+    case 17: // Impulse train
+        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+    case 18: // Comb
+        return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
+        // 19-28: Resonant / Complex Waves
+    case 19: return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
+    case 20: return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
+    case 21:
     {
-        double tri = (phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
-        return (float)(tri * std::sin(p * 3.0));
+        float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+        return tri * std::sin(p * 3.0f);
     }
-    case 22: // Bulb Sine (Narrow Sine)
-    {
-        double x = std::sin(p);
-        return (float)(x * x * x);
-    }
-    case 23: // Double Hump
-        return (float)(std::sin(p) * std::sin(p * 2.0));
-    case 24: // Pseudo Voice Formant 1
-        return (float)(s + 0.5 * std::sin(p * 2.0) + 0.25 * std::sin(p * 4.0));
-    case 25: // Pseudo Voice Formant 2
-        return (float)(s * std::cos(p * 2.5));
-    case 26: // Metallic 1
-        return (float)(std::sin(p) * std::sin(p * 1.414)); // FM Ring Mod simulation
-    case 27: // Metallic 2
-        return (float)(std::sin(p) * std::cos(p * 0.5));
-    case 28: // Noise-like (LFO Noiseとは別、周期的なノイズ波形)
-        // Pseudo-random but phase locked
-        return (float)(std::sin(p * 13.0) * std::cos(p * 7.0) * std::sin(p * 2.0));
+    case 22: return s * s * s; // Bulb Sine
+    case 23: return std::sin(p) * std::sin(p * 2.0f); // Double Hump
+    case 24: return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
+    case 25: return s * std::cos(p * 2.5f);
+    case 26: return std::sin(p) * std::sin(p * 1.414f);
+    case 27: return std::sin(p) * std::cos(p * 0.5f);
+    case 28: return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
     case 29: // 外部オーディオファイル (PCM)
         if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
         {
-            // 位相(0.0 ~ 2π)を、バッファのインデックス(0.0 ~ 1.0)に正規化
-            float phaseNorm = p / (2.0f * juce::MathConstants<float>::pi);
-
-            // バッファの長さに掛け合わせて、読み取る位置を計算
-            float floatIndex = phaseNorm * m_pcmBuffer->size();
-
-            // 整数部と小数部に分ける
+            // ここも normPhase を使って計算
+            float floatIndex = normPhase * m_pcmBuffer->size();
             int index1 = (int)floatIndex;
-            int index2 = (index1 + 1) % m_pcmBuffer->size(); // ループ処理
+            int index2 = (index1 + 1) % m_pcmBuffer->size();
             float frac = floatIndex - (float)index1;
-
-            // 線形補間（滑らかに波形をつなぐ）
             return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
         }
-        return (float)s; // ファイルが読み込まれていない場合はSine波にフォールバック
-    default:
-        return (float)s; // Default Sine
+        return s;
+    default: return s;
     }
 }
 

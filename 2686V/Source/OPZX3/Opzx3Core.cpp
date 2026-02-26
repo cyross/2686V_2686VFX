@@ -413,9 +413,11 @@ float Opzx3Core::getSample() {
             m_operators[3].getSample(out4, 0.0f, lfoAmpMod, lfoPitchMod);
         }
 
-        // ★追加: 複数のキャリアが加算されてもクリッピングしないように音量を下げる
-        // アルゴリズムによって加算される数が違うが、安全を取って0.4倍にする
-        finalOut *= 0.4f;
+        // 4つのキャリアがすべて最大音量(4.0)で加算されても1.0に収まるように 0.25倍(1/4) にする
+        finalOut *= 0.25f;
+
+        // 予期せぬフィードバック等で1.0を超えた場合でも、DAWでのバリバリ音を防ぐ「絶対安全ガード」
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {

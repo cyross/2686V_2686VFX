@@ -30,6 +30,7 @@ set(CORE_FILES
     Source/core/LabelConstants.h
     Source/core/MmlConstants.h
     Source/core/OpConstants.h
+    Source/core/OpNames.h
     Source/core/OpValueRange.h
     Source/core/PrBase.h
     Source/core/PrBase.cpp
@@ -203,29 +204,6 @@ set(EDITOR_FILES
 
 set(DOCUMENT_FILES ../readme.md)
 
-# ソースグループの設定
-source_group("[Core]Main" FILES ${CORE_FILES})
-source_group("[Core]Synth" FILES ${SYNTH_FILES})
-source_group("[Core]FM" FILES ${FM_FILES})
-source_group("[Core]Gui" FILES ${GUI_FILES})
-source_group("[Core]Processor" FILES ${PROCESSOR_FILES})
-source_group("[Core]Editor" FILES ${EDITOR_FILES})
-source_group("[Core]Docs" FILES ${DOCUMENT_FILES})
-source_group("[TAB]OPNA" FILES ${OPNA_FILES})
-source_group("[TAB]OPN" FILES ${OPN_FILES})
-source_group("[TAB]OPL" FILES ${OPL_FILES})
-source_group("[TAB]OPL3" FILES ${OPL3_FILES})
-source_group("[TAB]OPM" FILES ${OPM_FILES})
-source_group("[TAB]OPZX3" FILES ${OPZX3_FILES})
-source_group("[TAB]SSG" FILES ${SSG_FILES})
-source_group("[TAB]WT" FILES ${WT_FILES})
-source_group("[TAB]RHYTHM" FILES ${RHYTHM_FILES})
-source_group("[TAB]ADPCM" FILES ${ADPCM_FILES})
-source_group("[TAB]FX" FILES ${FX_FILES})
-source_group("[TAB]PRESET" FILES ${PRESET_FILES})
-source_group("[TAB]SETTINGS" FILES ${SETTINGS_FILES})
-source_group("[TAB]ABOUT" FILES ${ABOUT_FILES})
-
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
 # ==============================================================================
@@ -233,9 +211,44 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
     if(IS_FX)
         set(CY_PLUGIN_CODE "28FX")
         set(CY_IS_SYNTH FALSE)
+
+        # ソースグループの設定
+        source_group("[Core01]Main" FILES ${CORE_FILES})
+        source_group("[Core02]Synth" FILES ${SYNTH_FILES})
+        source_group("[Core03]FM" FILES ${FM_FILES})
+        source_group("[Core04]Gui" FILES ${GUI_FILES})
+        source_group("[Core05]Processor" FILES ${PROCESSOR_FILES})
+        source_group("[Core06]Editor" FILES ${EDITOR_FILES})
+        source_group("[Core07]Docs" FILES ${DOCUMENT_FILES})
+        source_group("[TAB 01]FX" FILES ${FX_FILES})
+        source_group("[TAB 02]SETTINGS" FILES ${SETTINGS_FILES})
+        source_group("[TAB 03]ABOUT" FILES ${ABOUT_FILES})
     else()
         set(CY_PLUGIN_CODE "2686")
         set(CY_IS_SYNTH TRUE)
+
+        # ソースグループの設定
+        source_group("[Core01]Main" FILES ${CORE_FILES})
+        source_group("[Core02]Synth" FILES ${SYNTH_FILES})
+        source_group("[Core03]FM" FILES ${FM_FILES})
+        source_group("[Core04]Gui" FILES ${GUI_FILES})
+        source_group("[Core05]Processor" FILES ${PROCESSOR_FILES})
+        source_group("[Core06]Editor" FILES ${EDITOR_FILES})
+        source_group("[Core07]Docs" FILES ${DOCUMENT_FILES})
+        source_group("[TAB 01]OPNA" FILES ${OPNA_FILES})
+        source_group("[TAB 02]OPN" FILES ${OPN_FILES})
+        source_group("[TAB 03]OPL" FILES ${OPL_FILES})
+        source_group("[TAB 04]OPL3" FILES ${OPL3_FILES})
+        source_group("[TAB 05]OPM" FILES ${OPM_FILES})
+        source_group("[TAB 06]OPZX3" FILES ${OPZX3_FILES})
+        source_group("[TAB 07]SSG" FILES ${SSG_FILES})
+        source_group("[TAB 08]WT" FILES ${WT_FILES})
+        source_group("[TAB 09]RHYTHM" FILES ${RHYTHM_FILES})
+        source_group("[TAB 10]ADPCM" FILES ${ADPCM_FILES})
+        source_group("[TAB 11]FX" FILES ${FX_FILES})
+        source_group("[TAB 12]PRESET" FILES ${PRESET_FILES})
+        source_group("[TAB 13]SETTINGS" FILES ${SETTINGS_FILES})
+        source_group("[TAB 14]ABOUT" FILES ${ABOUT_FILES})
     endif()
 
     juce_add_plugin(${TARGET_NAME}

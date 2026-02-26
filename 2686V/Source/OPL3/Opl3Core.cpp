@@ -178,8 +178,12 @@ float Opl3Core::getSample() {
             break;
         }
 
-        // 4キャリア(最大音量4.0)が加算される可能性があるため、安全のためマスターゲインを絞る
-        finalOut *= 0.3f;
+
+        // 4つのキャリアがすべて最大音量(4.0)で加算されても1.0に収まるように 0.25倍(1/4) にする
+        finalOut *= 0.25f;
+
+        // 予期せぬフィードバック等で1.0を超えた場合でも、DAWでのバリバリ音を防ぐ「絶対安全ガード」
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {

@@ -30,7 +30,7 @@ static inline const float mFb2Default = 0.0f; // 初期値
 
 static inline const int mBitMin = 1; // 最小値
 static inline const int mBitMax = 5; // 最大値
-static inline const int mBitDefault = 4; // 初期値
+static inline const int mBitDefault = 5; // 初期値
 static inline const int mRateMin = 1; // 最小値
 static inline const int mRateMax = 7; // 最大値
 static inline const int mRateDefault = 2; // 初期値
