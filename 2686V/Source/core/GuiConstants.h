@@ -386,3 +386,9 @@ static std::vector<SelectItem> wtTsItems = {
     {.name = "0: 32 Samples",  .value = 1 },
     {.name = "1: 64 Samples",  .value = 2 },
 };
+
+static std::vector<SelectItem> flTypeItems = {
+    {.name = "LPF (Low Pass)", .value = 1 },
+    {.name = "HPF (High Pass)", .value = 2 },
+    {.name = "BPF (Band Pass)", .value = 3 }
+};

@@ -15,6 +15,8 @@ class GuiFx : public GuiBase
     GuiGroup delayGroup;
     GuiGroup reverbGroup;
     GuiGroup rbcGroup;
+    GuiGroup filterGroup;
+    GuiGroup softClipperGroup;
 
     GuiToggleButton bypassToggle;
 
@@ -53,6 +55,19 @@ class GuiFx : public GuiBase
     GuiComboBox rbcRateSelector, rbcBitsSelector;
     GuiSlider rbcMixSlider;
     GuiTextButton rbcDryBtn, rbcHalfBtn, rbcWetBtn;
+
+    // Filter
+    GuiToggleButton flBypassBtn;
+    GuiComboBox flTypeSelector;
+    GuiSlider flFreqSlider;
+    GuiSlider flQSlider;
+    GuiSlider flMixSlider;
+    GuiTextButton flDryBtn, flHalfBtn, flWetBtn;
+
+    // Soft Clipper
+    GuiToggleButton scBypassBtn;
+    GuiSlider scMixSlider;
+    GuiTextButton scDryBtn, scHalfBtn, scWetBtn;
 public:
 	GuiFx(const GuiContext& context) :
         GuiBase(context),
@@ -63,6 +78,8 @@ public:
         delayGroup(context),
         reverbGroup(context),
         rbcGroup(context),
+        filterGroup(context),
+        softClipperGroup(context),
         bypassToggle(context),
         masterVolSlider(context),
         tBypassBtn(context),
@@ -106,7 +123,20 @@ public:
         rbcMixSlider(context),
         rbcDryBtn(context),
         rbcHalfBtn(context),
-        rbcWetBtn(context)
+        rbcWetBtn(context),
+        flBypassBtn(context),
+        flTypeSelector(context),
+        flFreqSlider(context),
+        flQSlider(context),
+        flMixSlider(context),
+        flDryBtn(context),
+        flHalfBtn(context),
+        flWetBtn(context),
+        scBypassBtn(context),
+        scMixSlider(context),
+        scDryBtn(context),
+        scHalfBtn(context),
+        scWetBtn(context)
     {}
 
     void setup() override;

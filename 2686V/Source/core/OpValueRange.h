@@ -262,6 +262,26 @@ static inline const int fxRbcBitMin = 1; // 最小値
 static inline const int fxRbcBitMax = 7;  // 最大値
 static inline const int fxRbcBitDefault = 7; // 初期値
 
+// FX Filter (State Variable Filter)
+static inline const float fxFlBypassDefault = false; // 初期値
+static inline const int fxFlTypeMin = 1;
+static inline const int fxFlTypeMax = 3;
+static inline const int fxFlTypeDefault = 1; // 1:LPF, 2:HPF, 3:BPF
+static const juce::NormalisableRange<float> fxFlFreqRange = juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f);
+static inline const float fxFlFreqDefault = 20000.0f;
+static inline const float fxFlQMin = 0.1f;
+static inline const float fxFlQMax = 10.0f;
+static inline const float fxFlQDefault = 0.707f;
+static inline const float fxFlMixMin = 0.0f;
+static inline const float fxFlMixMax = 1.0f;
+static inline const float fxFlMixDefault = 1.0f;
+
+// FX Soft Clipper
+static inline const float fxScBypassDefault = false; // 初期値
+static inline const float fxScMixMin = 0.0f;
+static inline const float fxScMixMax = 1.0f;
+static inline const float fxScMixDefault = 1.0f;
+
 static inline const float masterVolumeMin = -60.0f; // 最小値（dB）
 static inline const float masterVolumeMax = 6.0f;   // 最大値（dB）
 static inline const float masterVolumeInterval = 0.1f; // ステップ値（dB）

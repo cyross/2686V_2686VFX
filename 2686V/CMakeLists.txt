@@ -311,6 +311,7 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
         VstLogoForAbout
         juce::juce_audio_utils
         juce::juce_recommended_config_flags
+        juce::juce_dsp
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE JUCE_VST3_CAN_REPLACE_VST2=0)

@@ -398,16 +398,100 @@ void FxRBC::process(juce::AudioBuffer<float>& buffer)
     }
 }
 
+// --- Filter ---
+void FxFilter::prepare(double sampleRate)
+{
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = 4096;
+    spec.numChannels = 1; // 1chずつ処理するため1で初期化
+
+    filterL.prepare(spec);
+    filterR.prepare(spec);
+    filterL.reset();
+    filterR.reset();
+}
+
+void FxFilter::setParameters(float type, float freq, float q, float mix)
+{
+    currentType = (int)type;
+    currentFreq = freq;
+    currentQ = q;
+    wetLevel = mix;
+
+    using FType = juce::dsp::StateVariableTPTFilterType;
+    FType fType = FType::lowpass;
+    if (currentType == 2) fType = FType::highpass;
+    else if (currentType == 3) fType = FType::bandpass;
+
+    filterL.setType(fType);
+    filterR.setType(fType);
+    filterL.setCutoffFrequency(currentFreq);
+    filterR.setCutoffFrequency(currentFreq);
+    filterL.setResonance(currentQ);
+    filterR.setResonance(currentQ);
+}
+
+void FxFilter::process(juce::AudioBuffer<float>& buffer)
+{
+    if (wetLevel < 0.01f) return;
+
+    int numSamples = buffer.getNumSamples();
+    float* outL = buffer.getWritePointer(0);
+    float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : outL;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float dryL = outL[i];
+        float wetL = filterL.processSample(0, dryL);
+        outL[i] = (dryL * (1.0f - wetLevel)) + (wetL * wetLevel);
+
+        if (buffer.getNumChannels() > 1) {
+            float dryR = outR[i];
+            float wetR = filterR.processSample(0, dryR);
+            outR[i] = (dryR * (1.0f - wetLevel)) + (wetR * wetLevel);
+        }
+    }
+}
+
+// --- Soft Clipper ---
+void FxSoftClipper::setParameters(float dummy1, float dummy2, float mix)
+{
+    wetLevel = mix;
+}
+
+void FxSoftClipper::process(juce::AudioBuffer<float>& buffer)
+{
+    if (wetLevel < 0.01f) return;
+
+    int numSamples = buffer.getNumSamples();
+    int numChannels = buffer.getNumChannels();
+
+    for (int ch = 0; ch < numChannels; ++ch)
+    {
+        float* data = buffer.getWritePointer(ch);
+        for (int i = 0; i < numSamples; ++i)
+        {
+            float dry = data[i];
+            float wet = std::tanh(dry); // アナログクリッピング
+            data[i] = (dry * (1.0f - wetLevel)) + (wet * wetLevel);
+        }
+    }
+}
+
+// --- EffectChain への組み込み ---
 EffectChain::EffectChain()
 {
+    fxMap[static_cast<int>(FxType::Filter)] = &filter;
     fxMap[static_cast<int>(FxType::Tremolo)] = &tremolo;
     fxMap[static_cast<int>(FxType::Vibrato)] = &vibrato;
     fxMap[static_cast<int>(FxType::ModernBitCrusher)] = &modernBitCrusher;
     fxMap[static_cast<int>(FxType::RetroBitCrusher)] = &retroBitCrusher;
     fxMap[static_cast<int>(FxType::Delay)] = &delay;
     fxMap[static_cast<int>(FxType::Reverb)] = &reverb;
+    fxMap[static_cast<int>(FxType::SoftClipper)] = &softClipper;
 
-    // 2. 処理順序配列の初期化 (デフォルトは定義順)
+    // 処理順序配列の初期化 (デフォルトは定義順)
     processChain = fxMap;
 }
 
@@ -425,6 +509,8 @@ void EffectChain::setModernBitCrusherParams(float rate, float bits, float mix) {
 void EffectChain::setRetroBitCrusherParams(int mode, int rate, float mix) { retroBitCrusher.setParameters(mode, rate, mix); }
 void EffectChain::setDelayParams(float time, float fb, float mix) { delay.setParameters(time, fb, mix); }
 void EffectChain::setReverbParams(float size, float damp, float width, float mix) { reverb.setParameters(size, damp, width, mix); }
+void EffectChain::setFilterParams(int type, float freq, float q, float mix) { filter.setParameters((float)type, freq, q, mix); }
+void EffectChain::setSoftClipperParams(float mix) { softClipper.setParameters(0.0f, 0.0f, mix); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {
@@ -446,14 +532,16 @@ void EffectChain::reset()
 }
 
 // バイパス状態のセット
-void EffectChain::setBypasses(bool t, bool v, bool mc, bool rc, bool d, bool r)
+void EffectChain::setBypasses(bool fl, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc)
 {
+    filter.setBypass(fl);
     tremolo.setBypass(t);
     vibrato.setBypass(v);
     modernBitCrusher.setBypass(mc);
     retroBitCrusher.setBypass(rc);
     delay.setBypass(d);
     reverb.setBypass(r);
+    softClipper.setBypass(sc);
 }
 
 // 順番更新
