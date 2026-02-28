@@ -1,3 +1,5 @@
+﻿// MML変換で使用するパラメータキーを管理
+
 #pragma once
 
 #include <JuceHeader.h>

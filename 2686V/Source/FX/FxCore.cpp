@@ -1,7 +1,7 @@
 ﻿#include "FxCore.h"
-#include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
-#include "../core/OpConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/PrKeys.h"
 
 void FxTremolo::prepare(double sampleRate)
 {

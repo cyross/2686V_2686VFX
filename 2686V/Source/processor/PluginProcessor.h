@@ -15,13 +15,13 @@
 #include "../RHYTHM/PrRhythm.h"
 #include "../ADPCM/PrAdpcm.h"
 #endif
-#include "../FX/FxCore.h"
-#include "../core/GlobalConstants.h"
-#include "../core/OpConstants.h"
-#include "../core/FileConstants.h"
-#include "../core/PresetConstants.h"
-#include "../core/LabelConstants.h"
-#include "../core/OpValueRange.h"
+#include "../core/Global.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
+#include "../core/FileValues.h"
+#include "../core/GuiText.h"
+#include "../core/PresetKeys.h"
+#include "../core/PresetValues.h"
 
 #include "../FX/PrFx.h"
 #include "../editor/PluginEditor.h"
@@ -68,11 +68,11 @@ public:
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     // --- Metadata ---
-    juce::String presetName = defaultPresetName;
-    juce::String presetAuthor = defaultPresetAuthor;
-    juce::String presetVersion = defaultPresetVersion;
-    juce::String presetComment = defaultPresetComment;
-    juce::String presetPluginVersion = pluginVersion;
+    juce::String presetName = PresetValue::MetaData::Initial::name;
+    juce::String presetAuthor = PresetValue::MetaData::Initial::author;
+    juce::String presetVersion = PresetValue::MetaData::Initial::version;
+    juce::String presetComment = PresetValue::MetaData::Initial::comment;
+    juce::String presetPluginVersion = Global::Plugin::version;
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;

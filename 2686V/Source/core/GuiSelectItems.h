@@ -1,169 +1,10 @@
-﻿#pragma once
+﻿// UIで使用するコンボボックスの選択肢を管理
 
-#include <JuceHeader.h>
+#pragma once
+
+#include <vector>
 
 #include "../gui/GuiStructs.h"
-
-// Defined globally as it's used in structs
-static const juce::String FontFamily = "Times New Roman";
-static inline const float LogoFontSize = 128.0f;
-
-static inline const int WindowWidth = 1280;
-static inline const int WindowHeight = 660;
-static inline const int PreviewExtraWidth = 288;
-static inline const int PreviewDrawSize = 280;
-
-#if defined(BUILD_AS_FX_PLUGIN)
-static inline const int TabNumber = 3;
-#else
-static inline const int TabNumber = 13;
-
-// 鍵盤UIの高さ
-const inline int KeyboardHeight = 60;
-#endif
-
-static inline const int MainWidth = 280;
-static inline const int MainRowHeight = 20;
-static inline const int MainVolHeight = 28;
-static inline const int MainRowPaddingTop = 2;
-static inline const int MainRowPaddingBottom = 2;
-static inline const int MainLastRowPaddingBottom = 0;
-static inline const int MainRegLabelWidth = 50;
-static inline const int MainRegValueWidth = 190;
-static inline const int MainRegButtonWidth = 240;
-static inline const int MainRegPaddingRight = 0;
-static inline const int MainOpRegFreqChangeButtonWidth = 120;
-static inline const int MainRegMixChangeButtonWidth = 64;
-static inline const int MainRegPanChangeButtonWidth = 64;
-static inline const int MainRegPanPaddingHeight = 2;
-
-static inline const int HeaderWidth = 960;
-static inline const int HeaderHeight = 80;
-static inline const int FooterWidth = 960;
-static inline const int FooterHeight = 80;
-
-static inline const int LabelWidth = 40;
-static inline const int LabelHeight = 20;
-static inline const int SliderWidth = 50;
-static inline const int SliderHeight = 20;
-static inline const int SliderValueWidth = 50;
-static inline const int SliderValueHeight = 20;
-static inline const int ComboBoxWidth = 50;
-static inline const int ComboBoxHeight = 20;
-static inline const int ToggleButtonWidth = 80;
-static inline const int ToggleButtonHeight = 20;
-static inline const int TextButtonWidth = 80;
-static inline const int TextButtonHeight = 20;
-
-static inline const int GlobalPaddingWidth = 20;
-static inline const int GlobalPaddingHeight = 20;
-static inline const int GroupPaddingWidth = 10;
-static inline const int GroupPaddingHeight = 10;
-static inline const int TitlePaddingTop = 10;
-static inline const int TopGroupHeight = 80;
-
-static inline const int FmOpRowH = 36;
-static inline const int FmOpWidth = 250;
-static inline const int FmOpHeight = 640;
-
-static const int Fm4Ops = 4;
-static const int Fm2Ops = 2;
-
-static const int WtSamples32 = 32;
-static const int WtSamples64 = 64;
-
-static const int TopParamWidth = 160;
-static const int QualityGroupHeight = 60;
-static const int QualityParamWidth = 160;
-
-static const int OpRowHeight = 20;
-static const int OpRowPaddingBottom = 2;
-static const int OpLastRowPaddingBottom = 0;
-static const int OpRegLabelWidth = 50;
-static const int OpRegValueWidth = 190;
-static const int OpRegButtonWidth = 240;
-static const int OpRegPaddingRight = 0;
-static const int OpRegFreqChangeButtonWidth = 120;
-static const int OpRegMixChangeButtonWidth = 64;
-static const int OpRegPanChangeButtonWidth = 64;
-static const int OpRegPanPaddingHeight = 2;
-static const int OpRegSsgTriPeakButtonWidth = 80;
-static const int OpRegPcmFilePathWidth = 155;
-static const int OpRegClearPcmFileWidth = 20;
-static const int OpLabelWidth = 50;
-static const int OpLabelHeight = 15;
-static const int OpSliderWidth = 50;
-static const int OpSliderHeight = 15;
-static const int OpSliderValueWidth = 50;
-static const int OpSliderValueHeight = 15;
-static const int OpComboBoxWidth = 80;
-static const int OpComboBoxHeight = 15;
-static const int OpToggleButtonWidth = 80;
-static const int OpToggleButtonHeight = 15;
-static const int OpTextButtonWidth = 80;
-static const int OpTextButtonHeight = 15;
-static const int OpGroupPaddingWidth = 12;
-static const int OpGroupPaddingHeight = 8;
-
-static const int SsgLeftWidth = 240;
-static const int SsgRightWidth = 800;
-static const int SsgHeight = 640;
-static const int WtRightWidth = 1000;
-static const int WtRightHeight = 560;
-static const int WtHeight = 640;
-static const int WtCustomSliderWidth = 30;
-static const int WtCustomSliderHeight = 480;
-static const int WtCustomSliderResetBtnPaddingTop = 8;
-static const int WtCustomSliderResetBtnPaddingRight = 4;
-static const int WtCustomSliderResetBtnHeight = 36;
-static const int WtCustomResetTo0ButtonWidth = 120;
-static const int WtCustomResetTo1ButtonWidth = 120;
-static const int WtCustomResetToM1ButtonWidth = 120;
-
-static const int RhythmPadsAreaWidth = FmOpWidth;
-static const int RhythmPadsAreaHeight = 240;
-
-static const int PresetFileLabelHeight = 24;
-static const int PresetMetaAreaHeight = 320;
-static const int PresetMetaHeight = 20;
-static const int PresetMetaLabelWidth = 50;
-static const int PresetMetaPaddingWidth = 4;
-static const int PresetMetaPaddingHeight = 4;
-static const float PresetTableWidthRate = 0.6f;
-static const int PresetTablePaddingWidth = 4;
-static const int PresetTablePaddingHeight = 4;
-static const int PresetTableFileNameColTitleWidth = 150;
-static const int PresetTableModeColTitleWidth = 80;
-static const int PresetTablePresetNameColTitleWidth = 150;
-static const int PresetTableAuthorColTitleWidth = 100;
-static const int PresetTableVersionColTitleWidth = 50;
-
-static const int PresetButtonsPaddingTop = 10;
-static const int PresetButtonHeight = 20;
-static const int PresetButtonPaddingHeight = 4;
-
-static const int FxWidth = 1000;
-static const int FxHeight = 720;
-static const int FxAreaHeight = 160;
-static const int FxGlobalBypassHeight = 120;
-static const int FxBypassWidth = 120;
-static const int FxGroupHeight = 200;
-static const int FxKnobAreaWidth = 200;
-static const int FxKnobWidth = 120;
-static const int FxKnobHeight = 60;
-static const int FxButtonWidth = 240;
-
-static const int SettingsPaddingHeight = 4;
-static const int SettingsRowHeight = 30;
-static const int SettingsLabelWidth = 80;
-static const int SettingsLongLabelWidth = 140;
-static const int SettingsModeSelectorWidth = 320;
-static const int SettingsBrowseButtonWidth = 80;
-static const int SettingsClearButtonWidth = 60;
-static const int SettingsHeadroomGainSliderWidth = 200;
-static const int SettingsToggleWidth = 400;
-static const int SettingsButtonWidth = 200;
-static const int SettingsButtonPaddingRight = 4;
 
 static std::vector<SelectItem> bdItems = {
     {.name = "1: 4-bit (16 steps)",  .value = 1 },
@@ -391,4 +232,17 @@ static std::vector<SelectItem> flTypeItems = {
     {.name = "LPF (Low Pass)", .value = 1 },
     {.name = "HPF (High Pass)", .value = 2 },
     {.name = "BPF (Band Pass)", .value = 3 }
+};
+
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
 };

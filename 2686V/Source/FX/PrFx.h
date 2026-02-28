@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 
 #include "FxCore.h"
-#include "../core/PrBase.h"
+#include "../processor/PrBase.h"
 
 class FxProcessor : PrBase
 {

@@ -10,8 +10,8 @@
 #include "GuiStructs.h"
 #include "GuiHelpers.h"
 #include "GuiContext.h"
-#include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
 #include "../fm/SliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -172,6 +172,7 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
+        RegisterType regType = RegisterType::None;
     };
 
     void setup(const Config& c);
