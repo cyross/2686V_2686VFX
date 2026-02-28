@@ -206,7 +206,7 @@ set(EDITOR_FILES
     "Source/editor/PluginEditor.cpp"
 )
 
-set(DOCUMENT_FILES "../readme.md")
+set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
 source_group("[Core01]Main" FILES ${CORE_FILES})

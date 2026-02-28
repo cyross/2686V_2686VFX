@@ -217,6 +217,7 @@ Email: `cyross4github@gmail.com `
 ### 2026.02.26 (v0.4.0)
 
 - <2686V> Fixed FM engine bugs causing noise based on velocity/settings.
+- <2686V> (OPNA/OPM/OPZX3)Separated LFO parameters into global (all operators) and per-operator settings.
 - <2686V> Changed DT/DT1 display range to -3 to 3 (internally 0–7).
 - <2686V> Clicking the MML button now focuses the text box.
 - <2686V/VFX> Added "Filter" and "SoftClipper (tanH)" to the FX tab.
