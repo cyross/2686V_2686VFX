@@ -336,6 +336,37 @@ namespace GuiValue
 	{
 		static const int FileLabelHeight = 24;
 
+		namespace Search
+		{
+			namespace Row
+			{
+				static const int Height = 30;
+
+				namespace Padding
+				{
+					static const int Right = 5;
+				}
+
+				namespace Button
+				{
+					namespace Search
+					{
+						static const int Width = 60;
+					}
+
+					namespace Clear
+					{
+						static const int Width = 30;
+					}
+				}
+			}
+
+			namespace Padding
+			{
+				static const int Botton = 5;
+			}
+		}
+
 		namespace Table
 		{
 			static const float WidthRate = 0.6f;

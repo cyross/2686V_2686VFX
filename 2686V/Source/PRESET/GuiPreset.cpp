@@ -242,17 +242,17 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * GuiValue::Preset::Table::WidthRate);
 
     // リストのすぐ上に検索ボックスを配置する
-    auto searchArea = listArea.removeFromTop(GuiValue::Preset::Meta::AreaHeight).reduced(GuiValue::Preset::Table::PaddingWidth, 0);
+    auto searchArea = listArea.removeFromTop(GuiValue::Preset::Search::Row::Height).reduced(GuiValue::Preset::Table::PaddingWidth, 0);
 
-    searchBox.label.setBounds(searchArea.removeFromLeft(60)); // "Search" というラベルの幅
+    searchBox.label.setBounds(searchArea.removeFromLeft(GuiValue::Preset::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
 
-    clearSearchButton.setBounds(searchArea.removeFromRight(30));
+    clearSearchButton.setBounds(searchArea.removeFromRight(GuiValue::Preset::Search::Row::Button::Clear::Width));
 
-    searchArea.removeFromRight(5);
+    searchArea.removeFromRight(GuiValue::Preset::Search::Row::Padding::Right);
 
     searchBox.setBounds(searchArea);
 
-    listArea.removeFromTop(5); // 検索ボックスとリストの間の少しの余白
+    listArea.removeFromTop(GuiValue::Preset::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
 
     table.setBounds(listArea.reduced(GuiValue::Preset::Table::PaddingWidth, GuiValue::Preset::Table::PaddingHeight));
 

@@ -443,7 +443,7 @@ void AudioPlugin2686VEditor::scanPresets()
             item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
             item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
             item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
-            item.modeName = xml->getStringAttribute(PresetKey::puginVersion, "-");
+            item.modeName = xml->getStringAttribute(PresetKey::mode, "-");
         }
         else
         {
