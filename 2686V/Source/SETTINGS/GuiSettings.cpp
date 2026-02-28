@@ -203,7 +203,7 @@ void GuiSettings::setup()
             if (!pluginDir.exists()) pluginDir.createDirectory();
 
             // 初期設定ファイル名を指定
-            auto file = pluginDir.getChildFile(SettingsValue::File::Name::def);
+            auto file = pluginDir.getChildFile(SettingsValue::File::Name::initial);
 
             // 2. XMLデータの作成
             juce::XmlElement xml(SettingsKey::envCode);
