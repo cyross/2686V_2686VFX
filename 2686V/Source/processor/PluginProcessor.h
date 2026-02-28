@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include <JuceHeader.h>
-#include <filesystem>
-#include <fstream>
 #if !defined(BUILD_AS_FX_PLUGIN)
 #include "../synth/SynthVoice.h"
 #include "../OPNA/PrOpna.h"

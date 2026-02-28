@@ -48,6 +48,9 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
     std::array<GuiSlider, Global::Fm::Op4> freq;
     std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
+    std::array<GuiTextButton, Global::Fm::Op4> freqTo05;
+    std::array<GuiTextButton, Global::Fm::Op4> freqTo1;
+    std::array<GuiTextButton, Global::Fm::Op4> freqTo2;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
     std::array<GuiComboBox, Global::Fm::Op4> ws;
     std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
@@ -92,6 +95,9 @@ public:
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        freqTo05{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        freqTo1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        freqTo2{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },

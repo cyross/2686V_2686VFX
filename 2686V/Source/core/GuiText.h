@@ -107,6 +107,11 @@ namespace GuiText
 				static inline const juce::String PcmClear = "X";
 				static inline const juce::String FreqTo0 = "Freq -> 0Hz";
 				static inline const juce::String FreqTo440 = "Freq -> 440Hz";
+				static inline const juce::String Opzx3FreqTo0 = "->0";
+				static inline const juce::String Opzx3FreqTo05 = "->0.5";
+				static inline const juce::String Opzx3FreqTo1 = "->1";
+				static inline const juce::String Opzx3FreqTo2 = "->2";
+				static inline const juce::String Opzx3FreqTo440 = "->440";
 
 				namespace Post
 				{

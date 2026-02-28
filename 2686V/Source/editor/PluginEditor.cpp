@@ -365,22 +365,31 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 }
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-// ヘルパー: プリセットロード処理 (共通化)
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 {
     audioProcessor.loadPreset(file);
 
-	presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment);
+    presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment);
 
-    // リズム音源ファイル名エリアに反映
-    updateRhythmFileNames(Io::empty);
+    // 1. リズム音源のファイル名を復元
+    // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
+    updateRhythmFileNames("Reload");
 
-    // ADPCMファイル名エリアに反映
-    if (audioProcessor.adpcmFilePath.isNotEmpty()) {
-        adpcmGui->updateFileName(juce::File(audioProcessor.adpcmFilePath).getFileName());
-    }
-    else {
-        adpcmGui->updateFileName(Io::empty);
+    // 2. ADPCMのファイル名を復元
+    updateAdpcmFileName("Reload");
+
+    // 3. OPZX3のPCMファイル名を復元
+    for (int i = 0; i < 4; ++i) {
+        juce::String path = audioProcessor.opzx3PcmFilePaths[i];
+        juce::String text = Io::empty;
+
+        if (path.isNotEmpty()) {
+            // 相対パスを絶対パスに復元してからファイル名を取得する
+            juce::File f = audioProcessor.resolvePath(path);
+            text = f.getFileName();
+        }
+
+        opzx3Gui->updatePcmFileName(i, text);
     }
 }
 #endif

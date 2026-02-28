@@ -665,9 +665,10 @@ juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
     if (targetFile == juce::File() || defaultSampleDir.isEmpty())
         return targetFile.getFullPathName();
 
-    std::filesystem::path fpath = std::filesystem::path(targetFile.getFullPathName().toStdString());
+    juce::File baseDir(defaultSampleDir);
 
-    return juce::String(fpath.lexically_relative(defaultSampleDir.toStdString()).generic_string());
+    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
+    return targetFile.getRelativePathFrom(baseDir);
 }
 
 // パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
@@ -675,31 +676,23 @@ juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
 {
     if (pathStr.isEmpty()) return juce::File();
 
-    std::string fpathStr = pathStr.toStdString();
-
-    std::filesystem::path fPath = fpathStr;
-
-    // すでに絶対パスであれば、そのまま使う (互換性維持のため)
-    if (fPath.is_absolute())
+    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
+    if (juce::File::isAbsolutePath(pathStr))
     {
-        juce::File file(pathStr);
-
-        return file;
+        return juce::File(pathStr);
     }
 
     // 相対パスの場合は defaultSampleDir と結合する
     if (defaultSampleDir.isNotEmpty())
     {
-        std::filesystem::path baseDir = defaultSampleDir.toStdString();
-        juce::String fullPath = juce::String(baseDir.append(fpathStr).generic_string());
+        juce::File baseDir(defaultSampleDir);
 
-        return juce::File(fullPath);
+        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
+        return baseDir.getChildFile(pathStr);
     }
 
-    // ベースディレクトリがない場合は解決不能だが、一応そのまま返す
-    juce::File file(pathStr);
-
-    return file;
+    // ベースディレクトリがない場合は一応そのまま返す
+    return juce::File(pathStr);
 }
 
 // コメントなどのサニタイズ (static)

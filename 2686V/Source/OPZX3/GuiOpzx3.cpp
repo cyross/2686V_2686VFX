@@ -64,9 +64,15 @@ void GuiOpzx3::setup()
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Group::Fm::Op::Fix, .isReset = true });
         freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Group::Fm::Op::FFreq, .isReset = true });
-        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::FreqTo0, .isReset = false, .isResized = false });
+        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::Opzx3FreqTo0, .isReset = false, .isResized = false });
         freqToZero[i].onClick = [this, index = i] { freq[index].setValue(0, juce::sendNotification); };
-        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::FreqTo440, .isReset = false, .isResized = false });
+        freqTo05[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::Opzx3FreqTo05, .isReset = false, .isResized = false });
+        freqTo05[i].onClick = [this, index = i] { freq[index].setValue(0.5, juce::sendNotification); };
+        freqTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::Opzx3FreqTo1, .isReset = false, .isResized = false });
+        freqTo1[i].onClick = [this, index = i] { freq[index].setValue(1, juce::sendNotification); };
+        freqTo2[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::Opzx3FreqTo2, .isReset = false, .isResized = false });
+        freqTo2[i].onClick = [this, index = i] { freq[index].setValue(2, juce::sendNotification); };
+        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Group::Fm::Op::Opzx3FreqTo440, .isReset = false, .isResized = false });
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ws, .title = GuiText::Group::Fm::Op::Ws, .items = opzx3WsItems, .isReset = true });
@@ -168,7 +174,13 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ams[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right } }, { &ams[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
         layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &fix[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
         layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &freq[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &freq[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &freqToZero[i], { GuiValue::Fm::Op::Row::Button::Freq::width, GuiValue::Fm::Op::Row::Padding::right} }, { &freqTo440[i], { GuiValue::Fm::Op::Row::Button::Freq::width, 0} } });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, {
+            { &freqToZero[i], { GuiValue::Fm::Op::Row::Button::Freq::opzx3Width, GuiValue::Fm::Op::Row::Padding::right} },
+            { &freqTo05[i], { GuiValue::Fm::Op::Row::Button::Freq::opzx3Width, GuiValue::Fm::Op::Row::Padding::right} },
+            { &freqTo1[i], { GuiValue::Fm::Op::Row::Button::Freq::opzx3Width, GuiValue::Fm::Op::Row::Padding::right} },
+            { &freqTo2[i], { GuiValue::Fm::Op::Row::Button::Freq::opzx3Width, GuiValue::Fm::Op::Row::Padding::right} },
+            { &freqTo440[i], { GuiValue::Fm::Op::Row::Button::Freq::opzx3Width, 0} }
+        });
         layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ws[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &ws[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
         layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { 
             { &loadPcmBtn[i], { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right } },

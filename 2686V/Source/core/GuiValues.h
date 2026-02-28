@@ -189,6 +189,7 @@ namespace GuiValue
 					namespace Freq
 					{
 						static const int width = 120;
+						static const int opzx3Width = 45;
 					}
 
 					namespace Pan

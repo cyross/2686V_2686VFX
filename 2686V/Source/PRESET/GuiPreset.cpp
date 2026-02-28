@@ -164,7 +164,7 @@ void GuiPreset::setup()
 
     // Comment
     commentEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::comment, .isMultiLine = true, .isReturnKeyStartsNewLine = true });
-    commentEditor.setText(ctx.audioProcessor.presetVersion);
+    commentEditor.setText(ctx.audioProcessor.presetComment);
     commentEditor.onTextChange = [this] { ctx.audioProcessor.presetComment = commentEditor.getText(); };
 
     /********************

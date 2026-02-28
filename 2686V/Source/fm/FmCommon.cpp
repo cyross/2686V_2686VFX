@@ -29,9 +29,34 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     m_currentLevel = 0.0f;
 
-    // Fixed Mode
+    // ========================================================
+    // Base Frequency Calculation (PCMのサンプラー挙動対応)
+    // ========================================================
     float baseFreq = frequency;
-    if (m_params.fixedMode) baseFreq = m_params.fixedFreq;
+
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        if (m_params.fixedMode) {
+            // FIXモード時: fixedFreq(1.0等) を「再生速度の倍率」として扱う
+            baseFreq = originalHz * m_params.fixedFreq;
+        }
+        else {
+            // キーボードモード時: C4 (Note 60, 約261.626Hz) を Root Key(等速) としてピッチを変化
+            float rootFreq = 261.625565f;
+            float pitchRatio = frequency / rootFreq;
+            baseFreq = originalHz * pitchRatio;
+        }
+    }
+    else
+    {
+        // --- 通常の波形（Sineなど）の場合 ---
+        if (m_params.fixedMode) {
+            baseFreq = m_params.fixedFreq;
+        }
+    }
 
     // Detune
     // Range: -3 to +3 (Derived from params.detune 0-7)
@@ -157,7 +182,26 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
     float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitch;
 
+    // --------------------------------------------------------
+    // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
+    // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 波形の長さから「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float scale = originalHz / 261.625565f;
+
+        // 極端に小さくなりすぎないよう、最低限の変調は残す
+        scale = std::max(scale, 0.005f);
+
+        // FM変調インデックスを波形の長さに合わせて縮小
+        fmModIndex *= scale;
+    }
+
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
@@ -246,7 +290,27 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     }
 
     float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+
+    // --------------------------------------------------------
+    // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
+    // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 波形の長さから「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float scale = originalHz / 261.625565f;
+
+        // 極端に小さくなりすぎないよう、最低限の変調は残す
+        scale = std::max(scale, 0.005f);
+
+        // FM変調インデックスを波形の長さに合わせて縮小
+        fmModIndex *= scale;
+    }
+
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
@@ -336,6 +400,13 @@ float FmOperator::calcWaveform(double phase, int wave)
             // ここも normPhase を使って計算
             float floatIndex = normPhase * m_pcmBuffer->size();
             int index1 = (int)floatIndex;
+
+            // ==========================================================
+            // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
+            // ==========================================================
+            if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
+            if (index1 < 0) index1 = 0;
+
             int index2 = (index1 + 1) % m_pcmBuffer->size();
             float frac = floatIndex - (float)index1;
             return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
