@@ -433,6 +433,7 @@ void AudioPlugin2686VEditor::scanPresets()
         PresetItem item;
         item.file = file;
         item.fileName = file.getFileName();
+        item.lastModificationTime = file.getLastModificationTime();
 
         // XMLをパースしてメタデータを取得
         juce::XmlDocument xmlDoc(file);

@@ -289,6 +289,14 @@ public:
     void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
     void cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent& e) override;
     void selectedRowsChanged(int lastRowSelected) override;
+    std::function<void(int columnId, bool isForwards)> onSortOrderChanged;
+
+    void sortOrderChanged(int newSortColumnId, bool isForwards) override
+    {
+        if (onSortOrderChanged != nullptr) {
+            onSortOrderChanged(newSortColumnId, isForwards);
+        }
+    }
 };
 
 class GuiTextEditor : public juce::TextEditor, public GuiBaseComponent

@@ -64,6 +64,7 @@ void GuiPreset::setup()
     table.addColumn(PresetKey::Table::ColName::author, 3, GuiValue::Preset::Table::ColWidth::Author);
     table.addColumn(PresetKey::Table::ColName::version, 4, GuiValue::Preset::Table::ColWidth::Version);
     table.addColumn(PresetKey::Table::ColName::mode, 5, GuiValue::Preset::Table::ColWidth::Mode);
+    table.addColumn("Last Modified", 6, 120);
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
         };
@@ -76,6 +77,7 @@ void GuiPreset::setup()
         case 3: return item.author;
         case 4: return item.version;
         case 5: return item.modeName;
+        case 6: return item.lastModificationTime.formatted("%Y-%m-%d %H:%M");
         }
         return juce::String();
     };
@@ -92,7 +94,51 @@ void GuiPreset::setup()
         copyButton.setEnabled(hasSelection);
         loadButton.setEnabled(hasSelection);
     };
-        
+    table.onSortOrderChanged = [this](int newSortColumnId, bool isForwards) {
+        // 並び替え処理
+        std::sort(filteredItems.begin(), filteredItems.end(),
+            [newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
+            {
+                int result = 0;
+                switch (newSortColumnId)
+                {
+                case 1: result = a.fileName.compareNatural(b.fileName); break;
+                case 2: result = a.name.compareNatural(b.name); break;
+                case 3: result = a.author.compareNatural(b.author); break;
+                case 4: result = a.version.compareNatural(b.version); break;
+                case 5: result = a.modeName.compareNatural(b.modeName); break;
+                    // 日時の比較
+                case 6: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+                default: break;
+                }
+
+                // isForwards (昇順) / !isForwards (降順) に応じて true/false を返す
+                if (isForwards) return result < 0;
+                else            return result > 0;
+            });
+
+        // 絞り込み元の元リスト(items)も同じようにソートしておくと、
+        // 検索枠をクリアした時にソート順が維持されるので親切です。
+        std::sort(items.begin(), items.end(),
+            [newSortColumnId, isForwards](const PresetItem& a, const PresetItem& b) -> bool
+            {
+                // ... (上と全く同じロジックをコピー) ...
+                int result = 0;
+                switch (newSortColumnId) {
+                case 1: result = a.fileName.compareNatural(b.fileName); break;
+                case 2: result = a.name.compareNatural(b.name); break;
+                case 3: result = a.author.compareNatural(b.author); break;
+                case 4: result = a.version.compareNatural(b.version); break;
+                case 5: result = a.modeName.compareNatural(b.modeName); break;
+                case 6: result = (a.lastModificationTime < b.lastModificationTime) ? -1 : (a.lastModificationTime > b.lastModificationTime ? 1 : 0); break;
+                }
+                if (isForwards) return result < 0; else return result > 0;
+            });
+
+        // テーブルを再描画
+        table.updateContent();
+    };
+
     /********************
     *
     * 4. Metadata Group
