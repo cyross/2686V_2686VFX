@@ -43,6 +43,10 @@ private:
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
     int m_pms = 0; int m_ams = 0; int m_lfoWave = 2;
+    bool m_pm = false;
+    bool m_am = false;
+    int m_pmd = 0;
+    int m_amd = 0;
 
     // Noise LFSR Variables
     unsigned int m_lfsr = 0x1FFFF;

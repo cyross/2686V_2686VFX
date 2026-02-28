@@ -16,8 +16,12 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::bit, code + PrName::Fm::Post::bit, PrValue::Opzx3::Bit::min, PrValue::Opzx3::Bit::max, PrValue::Opzx3::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::rate, code + PrName::Fm::Post::rate, PrValue::Opzx3::Rate::min, PrValue::Opzx3::Rate::max, PrValue::Opzx3::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::freq, code + PrName::Fm::Post::Lfo::freq, PrValue::Opzx3::Lfo::Freq::min, PrValue::Opzx3::Lfo::Freq::max, PrValue::Opzx3::Lfo::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Fm::Lfo::am, code + PrName::Fm::Post::Lfo::am, PrValue::Opzx3::Lfo::Am::initial)); // AM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Fm::Lfo::pm, code + PrName::Fm::Post::Lfo::pm, PrValue::Opzx3::Lfo::Pm::initial)); // PM Enable (Switch)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pms, code + PrName::Fm::Post::Lfo::pms, PrValue::Opzx3::Lfo::Pms::min, PrValue::Opzx3::Lfo::Pms::max, PrValue::Opzx3::Lfo::Pms::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::ams, code + PrName::Fm::Post::Lfo::ams, PrValue::Opzx3::Lfo::Ams::min, PrValue::Opzx3::Lfo::Ams::max, PrValue::Opzx3::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Opna::Lfo::Pmd::min, PrValue::Opna::Lfo::Pmd::max, PrValue::Opna::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Opna::Lfo::Amd::min, PrValue::Opna::Lfo::Amd::max, PrValue::Opna::Lfo::Amd::initial));
 
     for (int op = 0; op < PrValue::Opzx3::ops; ++op)
     {
@@ -38,6 +42,10 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::fix, namePrefix + PrName::Fm::Op::Post::fix, PrValue::Opzx3::Op::Fix::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::fixFreq, namePrefix + PrName::Fm::Op::Post::fixFreq, PrValue::Opzx3::Op::FixFreq::min, PrValue::Opzx3::Op::FixFreq::max, PrValue::Opzx3::Op::FixFreq::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::ws, namePrefix + PrName::Fm::Op::Post::ws, PrValue::Opzx3::Op::Ws::min, PrValue::Opzx3::Op::Ws::max, PrValue::Opzx3::Op::Ws::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::am, namePrefix + PrName::Fm::Op::Post::am, PrValue::Opzx3::Op::Am::initial)); // AM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::vib, namePrefix + PrName::Fm::Op::Post::vib, PrValue::Opzx3::Op::Vib::initial)); // PM Enable (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::pms, namePrefix + PrName::Fm::Op::Post::pms, PrValue::Opzx3::Op::Pms::min, PrValue::Opzx3::Op::Pms::max, PrValue::Opzx3::Op::Pms::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::ams, namePrefix + PrName::Fm::Op::Post::ams, PrValue::Opzx3::Op::Ams::min, PrValue::Opzx3::Op::Ams::max, PrValue::Opzx3::Op::Ams::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::mask, namePrefix + PrName::Fm::Op::Post::mask, PrValue::Opzx3::Op::Mask::initial)); // OP Mask (Switch)
     }
 }
@@ -51,8 +59,12 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
     params.lfoFreq = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::freq);
-    params.pms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pms);
-    params.ams = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::ams);
+    params.amEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::am) > PrValue::boolThread);
+    params.pmEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pm) > PrValue::boolThread);
+    params.lfoPms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pms);
+    params.lfoAms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::ams);
+    params.lfoPmd = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pmd);
+    params.lfoAmd = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::amd);
 
     for (int op = 0; op < PrValue::Opzx3::ops; ++op)
     {
@@ -74,9 +86,11 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::fix) > PrValue::boolThread);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::fixFreq);
         params.fmOp[op].waveSelect = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ws);
-        params.fmOp[op].amEnable = false;
-        params.fmOp[op].vibEnable = true;
         params.fmOp[op].egType = true;
+        params.fmOp[op].vibEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::vib) > PrValue::boolThread);
+        params.fmOp[op].pms = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
+        params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
+        params.fmOp[op].ams = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }
 }

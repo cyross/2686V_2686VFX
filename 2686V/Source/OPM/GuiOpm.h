@@ -22,8 +22,12 @@ class GuiOpm : public GuiBase
 
     // OPM LFO
     GuiSlider lfoFreqSlider;
+    GuiToggleButton lfoPmToggle;
+    GuiToggleButton lfoAmToggle;
     GuiComboBox lfoPmsSelector;
     GuiComboBox lfoAmsSelector;
+    GuiSlider lfoPmdSlider;
+    GuiSlider lfoAmdSlider;
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
@@ -44,6 +48,10 @@ class GuiOpm : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> freq;
     std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
+    std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
+    std::array<GuiComboBox, Global::Fm::Op4> pms;
+    std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
+    std::array<GuiComboBox, Global::Fm::Op4> ams;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
@@ -58,8 +66,12 @@ public:
         bitSelector(context),
         rateSelector(context),
         lfoFreqSlider(context),
+        lfoPmToggle(context),
+        lfoAmToggle(context),
         lfoPmsSelector(context),
         lfoAmsSelector(context),
+        lfoPmdSlider(context),
+        lfoAmdSlider(context),
         masterVolSlider(context),
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -75,6 +87,10 @@ public:
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) }
     {

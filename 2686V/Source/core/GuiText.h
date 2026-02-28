@@ -45,8 +45,12 @@ namespace GuiText
 			static inline const juce::String fb0 = "FB0";
 			static inline const juce::String fb2 = "FB2";
 			static inline const juce::String lfoFreq = "L.FREQ";
+			static inline const juce::String amEn = "L.AM-EN";
+			static inline const juce::String pmEn = "L.PM-EN";
 			static inline const juce::String ams = "L.AMS";
 			static inline const juce::String pms = "L.PMS";
+			static inline const juce::String amd = "L.AMD";
+			static inline const juce::String pmd = "L.PMD";
 
 			namespace Post
 			{
@@ -90,7 +94,12 @@ namespace GuiText
 				static inline const juce::String SEnv = "SENV";
 				static inline const juce::String SFreq = "SFREQ";
 				static inline const juce::String Am = "AM";
+				static inline const juce::String Pm = "PM";
+				static inline const juce::String AmEn = "AM-EN";
+				static inline const juce::String PmEn = "PM-EN";
 				static inline const juce::String Vib = "VIB";
+				static inline const juce::String Ams = "AMS";
+				static inline const juce::String Pms = "PMS";
 				static inline const juce::String EgType = "EGTYPE";
 				static inline const juce::String Eg = "EG";
 				static inline const juce::String Ws = "WS";

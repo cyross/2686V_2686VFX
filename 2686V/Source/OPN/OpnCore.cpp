@@ -107,93 +107,142 @@ float OpnCore::getSample() {
         else if (m_lfoPhase < 0.75) lfoValue = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
         else                        lfoValue = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
 
-        // モジュレーション深度計算 (最大約半音程度の揺れ)
-        float wheelDepth = m_modWheel * 0.05f;
-        float lfoPitchMod = 1.0f + (lfoValue * wheelDepth);
-        float lfoAmpMod = 1.0f; // トレモロはなし
-
-        // ------------------------------------
-
         float out1, out2, out3, out4;
+        float finalOut = 0.0f;
 
         // 各getSample呼び出しに lfoPitchMod を渡すように修正
-        m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
+        m_operators[0].getSample(out1, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
 
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
-        float finalOut = 0.0f;
         switch (m_algorithm) {
         case 0:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out2, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
         case 1:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out1 + out2, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
         case 2:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out2, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3 + out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
         case 3: // OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); // out2 + out3
+
+            m_operators[3].getSample(out4, out2 + out3, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4; // 出力は4のみ
+
             break;
         case 4: // OP1->OP2, OP3->OP4 (出力は2と4)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); // モジュレーターはout3
+
+            m_operators[3].getSample(out4, out3, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out2 + out4; // 出力は2と4のみ
+
             break;
         case 5:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out2 + out3 + out4;
+
             break;
         case 6:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out2 + out3 + out4;
+
             break;
         default:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, 0.0f, lfoValue, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out1 + out2 + out3 + out4;
+
             break;
         }
 
@@ -202,8 +251,8 @@ float OpnCore::getSample() {
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
+
             float norm = (finalOut + 1.0f) * 0.5f;
-            // ★修正: floorをroundにして波形の中心を安定させる
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
             finalOut = (quantized * 2.0f) - 1.0f;
         }

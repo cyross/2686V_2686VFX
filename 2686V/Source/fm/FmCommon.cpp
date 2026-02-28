@@ -47,7 +47,6 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     // 1: +/- 0.1% (approx)
     // 2: +/- 0.25%
     // 3: +/- 0.45%
-    juce::Logger::getCurrentLogger()->writeToLog("DT:" + juce::String(dtReg));
     switch (dtReg)
     {
     case 0: // 0
@@ -130,73 +129,135 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     updateIncrementsWithKeyScale();
 }
 
-// --- Processing ---
-// output: 結果書き込み先
-// modulator: FM変調入力
-// lfoAmp: AM変調 (1.0 = 変調なし)
-// lfoPitch: PM変調 (1.0 = 変調なし)
+// =====================================================================
+// ① 直接指定版 (OPL / OPL3 等用)
+// =====================================================================
 void FmOperator::getSample(float& output, float modulator, float lfoAmp, float lfoPitch)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
-    // 1. ADSR Update
     updateEnvelopeState();
-
-    // 2. Calculate Envelope Value
-    // ここではエンベロープの形状(0.0-1.0)のみを取得し、
-    // 最終的な音量は出力段で掛けます。
     float envVal = m_currentLevel;
 
-    // SSG-EG (OPNA Only)
     if (m_useSsgEg && m_params.ssgEg > 0) {
         envVal *= getSsgEnvelopeLevel(m_ssgPhase);
-
-        // 音程(m_phaseDelta)ではなく、設定した周波数(m_ssgEgFreq)で進める
-        // これにより、音程に関わらず一定の速度でシュワシュワします
         double phaseInc = (double)m_ssgEgFreq / m_sampleRate;
         m_ssgPhase += phaseInc;
     }
 
-    // LFO AM (OPNA Only)
-    if (m_params.amEnable) {
-        envVal *= lfoAmp;
-    }
+    // AM適用 (無条件。変調がない場合はコア側から 1.0 が渡ってくる)
+    envVal *= lfoAmp;
 
-    // 3. Phase & Waveform
-    // Feedback
     float feedbackMod = 0.0f;
     if (m_feedback > 0.0f) {
-        // 実機のFB(0〜7)の掛かり具合に近似させる
         float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    // LFO PM (OPNA Only)
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio;
+    // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
+    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitch;
 
-    currentPhaseDelta *= lfoPitch;
-
-    // YMチップ実機と同等のFM変調の深さ（モジュレーションインデックス）を設定
-    // Modulator に対して、FM変調の最大インデックスを実機のスケール(約4π)に設定
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
-
-    // 変調波(modulator)にインデックスを掛けてから足す
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
-
-    // Wave Select (OPL Only / Standard Sine)
-    // ここで m_targetLevel (Velocity/TL) を適用します！
-    // これにより、Attackが1.0に張り付くスパイクノイズが解消されます。
     output = rawWave * envVal * m_targetLevel;
 
-    // 外部フィードバックモードでない場合のみ、自身の出力を格納する
     if (!m_isExternalFeedback) {
         m_fb2 = m_fb1;
         m_fb1 = output;
     }
 
-    // Phase Advance
+    m_phase += currentPhaseDelta;
+    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+}
+
+// =====================================================================
+// ② ハイブリッドLFO版 (OPNA / OPM / OPZX3 / OPN 用)
+// =====================================================================
+void FmOperator::getSample(float& output, float modulator, float lfoVal,
+    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+{
+    if (m_state == State::Idle) { output = 0.0f; return; }
+
+    updateEnvelopeState();
+    float envVal = m_currentLevel;
+
+    if (m_useSsgEg && m_params.ssgEg > 0) {
+        envVal *= getSsgEnvelopeLevel(m_ssgPhase);
+        m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
+    }
+
+    // ========================================================
+    // 1. Amplitude Modulation (Tremolo / Wah) の計算
+    // ========================================================
+    float amsDepths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
+    float totalAmDepth = 0.0f;
+
+    // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
+    if (globalAm) {
+        float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
+        totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
+    }
+
+    // ② ローカルAM (このOP独自の揺れ深さ)
+    if (m_params.amEnable) {
+        totalAmDepth += amsDepths[std::clamp(m_params.ams, 0, 3)];
+    }
+
+    // 上限を1.0(100%)でクリップ
+    totalAmDepth = std::min(totalAmDepth, 1.0f);
+
+    if (totalAmDepth > 0.0f) {
+        float lfoAmpMod = 1.0f - (std::abs(lfoVal) * totalAmDepth);
+        envVal *= lfoAmpMod; // 音量に直接適用
+    }
+
+    // ========================================================
+    // 2. Pitch Modulation (Vibrato) の計算
+    // ========================================================
+    float pmsDepths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
+    float totalPmDepth = 0.0f;
+
+    // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
+    if (globalPm) {
+        float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
+        totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
+    }
+
+    // ② ローカルPM (このOP独自の揺れ深さ)
+    if (m_params.vibEnable) {
+        totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
+    }
+
+    // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
+    float wheelDepth = modWheel * 0.03f;
+    totalPmDepth += wheelDepth;
+
+    float lfoPitchMod = 1.0f + (lfoVal * totalPmDepth);
+
+    // ========================================================
+    // 3. 位相と波形の生成
+    // ========================================================
+    float feedbackMod = 0.0f;
+    if (m_feedback > 0.0f) {
+        float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
+        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
+    }
+
+    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
+
+    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
+
+    output = rawWave * envVal * m_targetLevel;
+
+    if (!m_isExternalFeedback) {
+        m_fb2 = m_fb1;
+        m_fb1 = output;
+    }
+
     m_phase += currentPhaseDelta;
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
