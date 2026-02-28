@@ -13,6 +13,7 @@
 #include "../WT/WtCore.h"
 #include "../RHYTHM/RhythmCore.h"
 #include "../ADPCM/AdpcmCore.h"
+#include "../BEEP/BeepCore.h"
 
 class SynthSound : public juce::SynthesiserSound
 {
@@ -63,4 +64,5 @@ private:
     WtCore m_wtCore;
     RhythmCore m_rhythmCore;
     AdpcmCore m_adpcmCore;
+    BeepCore m_beepCore;
 };

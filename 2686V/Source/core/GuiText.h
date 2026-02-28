@@ -26,6 +26,7 @@ namespace GuiText
 		static inline const juce::String wt = "WT";
 		static inline const juce::String rhythm = "RHYTHM";
 		static inline const juce::String adpcm = "ADPCM";
+		static inline const juce::String beep = "BEEP";
 		static inline const juce::String fx = "FX";
 		static inline const juce::String preset = "PRESET";
 		static inline const juce::String settings = "SETTINGS";
@@ -255,6 +256,22 @@ namespace GuiText
 				static inline const juce::String level = " Level";
 				static inline const juce::String loop = " Loop";
 				static inline const juce::String quality = " Quality";
+			}
+		}
+
+		namespace Beep
+		{
+			namespace Post
+			{
+				namespace Adsr
+				{
+					static inline const juce::String ar = " AR";
+					static inline const juce::String dr = " DR";
+					static inline const juce::String sl = " SL";
+					static inline const juce::String rr = " RR";
+				}
+
+				static inline const juce::String level = " Level";
 			}
 		}
 

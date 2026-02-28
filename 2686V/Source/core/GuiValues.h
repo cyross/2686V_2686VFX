@@ -24,7 +24,7 @@ namespace GuiValue
 #if defined(BUILD_AS_FX_PLUGIN)
 	static inline const int TabNumber = 3;
 #else
-	static inline const int TabNumber = 13;
+	static inline const int TabNumber = 14;
 
 	// 鍵盤UIの高さ
 	const inline int KeyboardHeight = 60;

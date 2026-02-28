@@ -12,6 +12,7 @@
 #include "../WT/PrWt.h"
 #include "../RHYTHM/PrRhythm.h"
 #include "../ADPCM/PrAdpcm.h"
+#include "../BEEP/PrBeep.h"
 #endif
 #include "../core/Global.h"
 #include "../core/PrKeys.h"
@@ -129,6 +130,7 @@ private:
     WtProcessor prWt;
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
+    BeepProcessor prBeep;
 #endif
     FxProcessor prFx;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

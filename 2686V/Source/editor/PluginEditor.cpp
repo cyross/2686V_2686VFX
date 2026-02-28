@@ -35,6 +35,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	wtGui = std::make_unique<GuiWt>(context);
 	rhythmGui = std::make_unique<GuiRhythm>(context);
 	adpcmGui = std::make_unique<GuiAdpcm>(context);
+    beepGui = std::make_unique<GuiBeep>(context);
     presetGui = std::make_unique<GuiPreset>(context);
 #endif
     fxGui = std::make_unique<GuiFx>(context);
@@ -60,6 +61,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     wtGui->setup();
     rhythmGui->setup();
     adpcmGui->setup();
+    beepGui->setup();
     presetGui->setup();
 #endif
     fxGui->setup();
@@ -180,7 +182,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
 
-        if (targetMode >= 0 && targetMode <= (int)OscMode::ADPCM) // ADPCM is 10
+        if (targetMode >= 0 && targetMode <= (int)OscMode::BEEP) // BEEP is 11
         {
             auto* param = audioProcessor.apvts.getParameter(PrKey::mode);
             if (param != nullptr)
@@ -253,6 +255,7 @@ void AudioPlugin2686VEditor::resized()
     wtGui->layout(content);
     rhythmGui->layout(content);
     adpcmGui->layout(content);
+    beepGui->layout(content);
 #endif
     fxGui->layout(content);
 #if !defined(BUILD_AS_FX_PLUGIN)
@@ -357,6 +360,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(GuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
     tabs.addTab(GuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(GuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
+    tabs.addTab(GuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
     tabs.addTab(GuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
     tabs.addTab(GuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(GuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);

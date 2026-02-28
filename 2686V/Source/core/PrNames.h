@@ -197,6 +197,23 @@ namespace PrName
 		}
 	}
 
+	namespace Beep
+	{
+		namespace Post
+		{
+			static inline const juce::String level = " Level";
+
+			namespace Adsr
+			{
+				static inline const juce::String bypass = " ADSR Bypass";
+				static inline const juce::String ar = " AR";
+				static inline const juce::String dr = " DR";
+				static inline const juce::String sl = " SL";
+				static inline const juce::String rr = " RR";
+			}
+		}
+	}
+
 	namespace Fx
 	{
 		static inline const juce::String masterBypass = "M.Bypass";

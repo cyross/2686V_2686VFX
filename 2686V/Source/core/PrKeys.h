@@ -21,6 +21,7 @@ namespace PrKey
 		static inline const juce::String wt = "WT";
 		static inline const juce::String rhythm = "RHYTHM";
 		static inline const juce::String adpcm = "ADPCM";
+		static inline const juce::String beep = "BEEP";
 		static inline const juce::String fx = "FX";
 	};
 
@@ -201,6 +202,18 @@ namespace PrKey
 			static inline const juce::String mode = "_MODE";
 			static inline const juce::String rate = "_RATE";
 			static inline const juce::String loop = "_LOOP";
+
+			namespace Adsr
+			{
+				static inline const juce::String ar = "_AR";
+				static inline const juce::String dr = "_DR";
+				static inline const juce::String sl = "_SL";
+				static inline const juce::String rr = "_RR";
+			};
+		};
+
+		namespace Beep {
+			static inline const juce::String level = "_LEVEL";
 
 			namespace Adsr
 			{

@@ -262,4 +262,17 @@ struct SynthParams
 
     // Params
     SimpleAdsr adpcmAdsr;
+
+    // [[ BEEP Parameters ]]
+
+    // --- Level ---
+    float beepLevel = 1.0f;
+
+    // --- ADSR Filter ---
+
+    // Bypass
+    bool beepAdsrBypass = false;
+
+    // Params
+    SimpleAdsr beepAdsr;
 };

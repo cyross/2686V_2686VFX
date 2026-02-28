@@ -170,6 +170,15 @@ set(ADPCM_FILES
     "Source/ADPCM/PrAdpcm.cpp"
 )
 
+set(BEEP_FILES
+    "Source/BEEP/GuiBeep.h"
+    "Source/BEEP/GuiBeep.cpp"
+    "Source/BEEP/BeepCore.h"
+    "Source/BEEP/BeepCore.cpp"
+    "Source/BEEP/PrBeep.h"
+    "Source/BEEP/PrBeep.cpp"
+)
+
 set(FX_FILES
     "Source/FX/FxCore.h"
     "Source/FX/FxCore.cpp"
@@ -226,10 +235,11 @@ source_group("[TAB 07]SSG" FILES ${SSG_FILES})
 source_group("[TAB 08]WT" FILES ${WT_FILES})
 source_group("[TAB 09]RHYTHM" FILES ${RHYTHM_FILES})
 source_group("[TAB 10]ADPCM" FILES ${ADPCM_FILES})
-source_group("[TAB 11]PRESET" FILES ${PRESET_FILES})
-source_group("[TAB 12]FX" FILES ${FX_FILES})
-source_group("[TAB 13]SETTINGS" FILES ${SETTINGS_FILES})
-source_group("[TAB 14]ABOUT" FILES ${ABOUT_FILES})
+source_group("[TAB 11]BEEP" FILES ${BEEP_FILES})
+source_group("[TAB 12]PRESET" FILES ${PRESET_FILES})
+source_group("[TAB 13]FX" FILES ${FX_FILES})
+source_group("[TAB 14]SETTINGS" FILES ${SETTINGS_FILES})
+source_group("[TAB 15]ABOUT" FILES ${ABOUT_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
@@ -290,6 +300,7 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
             ${WT_FILES}
             ${RHYTHM_FILES}
             ${ADPCM_FILES}
+            ${BEEP_FILES}
             ${FX_FILES}
             ${PRESET_FILES}
             ${SETTINGS_FILES}

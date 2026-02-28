@@ -36,6 +36,9 @@ void SynthVoice::setParameters(const SynthParams& params)
         case OscMode::ADPCM:
             m_adpcmCore.setParameters(params);
             break;
+        case OscMode::BEEP:
+            m_beepCore.setParameters(params);
+            break;
         default:
             break;
     }
@@ -77,6 +80,9 @@ void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*
         case OscMode::ADPCM:
             m_adpcmCore.noteOn(cyclesPerSecond);
             break;
+        case OscMode::BEEP:
+            m_beepCore.noteOn(cyclesPerSecond, velocity);
+            break;
         default:
             break;
     }
@@ -96,6 +102,7 @@ void SynthVoice::stopNote(float, bool allowTailOff)
         m_wtCore.noteOff();
         m_rhythmCore.noteOff();
         m_adpcmCore.noteOff();
+        m_beepCore.noteOff();
     }
     else
     {
@@ -201,6 +208,13 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
             outL[startSample + i] += sample * (1.0f - pan);
             outR[startSample + i] += sample * pan;
         }
+        else if (m_mode == OscMode::BEEP) {
+            sample = m_beepCore.getSample();
+            isActive = m_beepCore.isPlaying();
+
+            outL[startSample + i] += sample;
+            outR[startSample + i] += sample;
+        }
 
         if (!isActive)
         {
@@ -226,6 +240,7 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
         m_wtCore.prepare(newRate);
         m_rhythmCore.prepare(newRate);
         m_adpcmCore.prepare(newRate);
+        m_beepCore.prepare(newRate);
     }
 }
 
@@ -263,6 +278,9 @@ void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
         break;
     case OscMode::ADPCM:
         m_adpcmCore.setPitchBend(newPitchWheelValue);
+        break;
+    case OscMode::BEEP:
+        m_beepCore.setPitchBend(newPitchWheelValue);
         break;
     }
 }
@@ -303,6 +321,9 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
             break;
         case OscMode::ADPCM:
             m_adpcmCore.setModulationWheel(newControllerValue);
+            break;
+        case OscMode::BEEP:
+            m_beepCore.setModulationWheel(newControllerValue);
             break;
         }
     }

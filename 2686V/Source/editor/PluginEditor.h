@@ -13,6 +13,7 @@
 #include "../WT/GuiWt.h"
 #include "../RHYTHM/GuiRhythm.h"
 #include "../ADPCM/GuiAdpcm.h"
+#include "../BEEP/GuiBeep.h"
 #include "../FX/GuiFx.h"
 #include "../PRESET/GuiPreset.h"
 #include "../SETTINGS/GuiSettings.h"
@@ -119,6 +120,7 @@ private:
     std::unique_ptr<GuiWt> wtGui; // Wavetable
     std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
+    std::unique_ptr<GuiBeep> beepGui;
     std::unique_ptr<GuiPreset> presetGui;
 
     // 仮想MIDIキーボード用

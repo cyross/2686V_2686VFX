@@ -66,6 +66,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prWt.createLayout(layout);
 	prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
+    prBeep.createLayout(layout);
 #endif
 	prFx.createLayout(layout);
 
@@ -169,6 +170,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         break;
     case OscMode::ADPCM:
 		prAdpcm.processBlock(params, apvts);
+        break;
+    case OscMode::BEEP:
+        prBeep.processBlock(params, apvts);
         break;
     }
 

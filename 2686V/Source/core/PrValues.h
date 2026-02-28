@@ -1391,6 +1391,24 @@ namespace PrValue
 		}
 	}
 
+	namespace Beep
+	{
+		namespace Level
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 1.0f; // 初期値
+		}
+
+		namespace Adsr
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = false; // 初期値
+			}
+		}
+	}
+
 	namespace Fx
 	{
 		namespace MBypass
