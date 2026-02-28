@@ -36,6 +36,8 @@ private:
     float m_lfoFreq = 5.0f;
     int m_pms = 0;
     int m_ams = 0;
+    bool m_pm = false;
+    bool m_am = false;
 
     float m_modWheel = 0.0f;
 };

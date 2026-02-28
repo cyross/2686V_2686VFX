@@ -124,22 +124,21 @@ float OplCore::getSample() {
 
         // オペレーターのフラグ(amEnable / vibEnable)を見て、LFOを適用するか決める
         // FmOperator::getSample は引数で渡されたものをそのまま掛ける仕様なので、ここで1.0f(無効)か変調値かを渡す
-        float am1 = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
-        float pm1 = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
-        m_operators[0].getSample(out1, 0.0f, am1, pm1);
+        float finalAmVal = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
+        float finalPmVal = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
 
-        m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
+        m_operators[0].getSample(out1, 0.0f, finalAmVal, finalPmVal);
 
         if (m_opMask[0]) out1 = 0.0f;
 
         if (m_algorithm == 0) { // Serial (FM)
             // OP1 -> OP2
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
+            m_operators[1].getSample(out2, out1, finalAmVal, finalPmVal);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = out2;
         }
         else { // Parallel (AM)
-            m_operators[1].getSample(out2, 0.0f, lfoAmpVal, lfoPitchVal);
+            m_operators[1].getSample(out2, 0.0f, finalAmVal, finalPmVal);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = (out1 + out2) * 0.5f;
         }

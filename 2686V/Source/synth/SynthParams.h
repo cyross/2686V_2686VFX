@@ -33,6 +33,10 @@ struct FmOpParams
     bool vibEnable = false; // VIB (LFO Pitch)
     bool egType = false;    // EG-TYP (Sustain Mode)
 
+    // オペレーターごとのLFO個別感度（上乗せ分）
+    int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
+    int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
+
     // CSM/Fix Mode
     bool fixedMode = false;
     float fixedFreq = 440.0f;
@@ -61,64 +65,158 @@ struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
 
 struct SynthParams
 {
+    // [[ Global Parameters ]]
+
+    // --- Synth Mode ---
     OscMode mode = OscMode::OPNA;
 
-    // --- FM Parameters ---
-    int opllPreset = 0; // OPLL Preset Instrument Index
+    // [[ FM Parameters ]]
+
+    // --- Algorithm ---
     int algorithm = 7;
+
+    // --- Feedback ---
     float feedback = 0.0f;
     float feedback2 = 0.0f;
-    // FM LFO (OPNA Global)
-    float lfoFreq = 5.0f; // LFO Speed (approx 3Hz - 30Hz)
-    int pms = 0;          // Pitch Modulation Sensitivity (0-7)
-    int ams = 0;          // Amplitude Modulation Sensitivity (0-3)
-    int lfoWave = 2; // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
+
+    // --- Bit Depth ---
+    // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    // Default: Raw (32bit float) or 3 (8bit) depending on preference
+    int fmBitDepth = 4;
+
+    // --- Sampling Rate ---
+    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
+    // Default: 55.5kHz (Typical FM Chip Rate)
+    int fmRateIndex = 1;
+
+    // -- OPNA/OPM/OPZX3 LFO(Global) ---
+
+    // LFO Speed Freq (approx 3Hz - 30Hz)
+    float lfoFreq = 5.0f;
+
+    // LFO Enable Flag
+    bool amEnable = false;
+    bool pmEnable = false;
+
+    // LFO Sensitivity
+
+    // Pitch Modulation Sensitivity (0-7)
+    int lfoPms = 0;
+
+    // Amplitude Modulation Sensitivity (0-3)
+    int lfoAms = 0;
+
+    // LFO Depth (0-127)
+
+    // Pitch Modulation Depth
+    int lfoPmd = 0;
+
+    // Amplitude Modulation Depth
+    int lfoAmd = 0;
+
+    // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
+    int lfoWave = 2;
+
+    // --- OPLL Preset ---
+    int opllPreset = 0; // OPLL Preset Instrument Index
+
+    // Parameters for Operator
     std::array<FmOpParams, MaxFmOperators> fmOp;
 
-    // ADD: FM Quality & Rate (Shared across all FM modes)
-    // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    int fmBitDepth = 4; // Default: Raw (32bit float) or 3 (8bit) depending on preference
-    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
-    int fmRateIndex = 1; // Default: 55.5kHz (Typical FM Chip Rate)
 
-    // --- SSG Parameters ---
-    float ssgLevel = 1.0f;
-    float ssgNoiseLevel = 0.0f; // Noise
-    float ssgNoiseFreq = 12000.0f; // Noise Frequency (Hz)
-    bool ssgNoiseOnNote = false; // Noise On Note (ノイズ周波数をMIDIキーで変更)
-    float ssgMix = 0.0f; // 0.0(Tone) ~ 1.0(Noise)
-    int ssgWaveform = 0; // 0: Pulse, 1: Triangle
+    // [[ SSG Parameters ]]
 
-    // ADD: SSG Quality & Rate
+    // --- Bit Depth ---
     // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
     int ssgBitDepth = 3; // Default 8bit (or 4bit to be like real hardware volume steps?)
+
+    // --- Sampling Rate ---
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
     int ssgRateIndex = 1; // Default 55.5kHz (Standard SSG/OPNA rate)
 
-    // SSG Hardware Envelope Params
-    bool ssgUseHwEnv = false;
-    int ssgEnvShape = 0;
-    float ssgEnvPeriod = 1.0f;
+    // --- Tone Level ---
+    float ssgLevel = 1.0f;
 
-    // Duty Cycle Params
-    int ssgDutyMode = 0;      // 0: Preset, 1: Variable
-    int ssgDutyPreset = 0;    // Preset Index (0-8)
-    float ssgDutyVar = 0.5f;  // Variable Value (0.0-0.5)
-    bool ssgDutyInvert = false; // Invert Switch
+    // --- Noise Level ---
+    float ssgNoiseLevel = 0.0f; // Noise
 
-    // Triangle Params
-    bool ssgTriKeyTrack = true;
-    float ssgTriPeak = 0.5f; // 0.0=SawDown, 0.5=Tri, 1.0=SawUp
-    float ssgTriFreq = 440.0f;
+    // --- Noise Speed Freq ---
+    float ssgNoiseFreq = 12000.0f; // Noise Frequency (Hz)
 
-    // ADSR Bypass
+    // --- Noise On Note ---
+    // ノイズ周波数をMIDIキーで変更
+    bool ssgNoiseOnNote = false;
+
+    // --- Tone and Noise Mix ---
+    // 0.0(Tone) - 1.0(Noise)
+    float ssgMix = 0.0f;
+
+    // --- ADSR Filter ---
+
+    // Bypass
     bool ssgAdsrBypass = false;
 
-    // --- Wavetable ---
-    int wtBitDepth = 3;   // 0:4bit, 1:5bit, 2:6bit, 3:8bit
+    // Params
+    SimpleAdsr ssgAdsr;
+
+    // --- Waveform ---
+    // 0: Pulse, 1: Triangle
+    int ssgWaveform = 0;
+
+    // --- Pulse Wave ---
+
+    // Duty Mode
+    // 0: Preset, 1: Variable
+    int ssgDutyMode = 0;
+
+    // Duty Preset
+    // Index (0-8)
+    int ssgDutyPreset = 0;
+
+    // Duty Variable Value
+    // 0.0-0.5
+    float ssgDutyVar = 0.5f;
+
+    // Duty Invert Switch
+    bool ssgDutyInvert = false;
+
+    // --- Triangle Params ---
+
+    // Triangle Key Track Switch
+    bool ssgTriKeyTrack = true;
+
+    // Triangle Peak Position
+    // 0.0=SawDown, 0.5=Tri, 1.0=SawUp
+    float ssgTriPeak = 0.5f;
+
+    // Triangle Manual Spped Freq
+    float ssgTriFreq = 440.0f;
+
+    // --- Hardware Envelope ---
+
+    // Hardware Envelope Enable Switch
+    bool ssgUseHwEnv = false;
+
+    // Hardware Envelope Shape Index
+    int ssgEnvShape = 0;
+
+    // Hardware Envelope Period Freq
+    float ssgEnvPeriod = 1.0f;
+
+
+    // [[ Wavetable Parameters ]]
+
+
+    // --- Bit Depth ---
+    // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
+    int  wtBitDepth = 3;
+
+    // --- Sampling Rate ---
+    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
+    int wtRateIndex = 6;
+
     int wtTableSize = 0;  // 0:32, 1:64
     int wtWaveform = 0; // Waveform Select 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
-    int wtRateIndex = 6;  // Default: 16kHz
     // Custom Waveform Data (32 steps)
     std::array<float, 32> wtCustomWave32 = { 0.0f };
     // Custom Waveform Data (64 steps)
@@ -128,12 +226,26 @@ struct SynthParams
     float wtModSpeed = 1.0f; // Ratio or Hz
     float wtLevel = 1.0f;
 
+    // --- ADSR Filter ---
+
+    // Bypass
+    bool wtAdsrBypass = false;
+
+    // Params
+    SimpleAdsr wtAdsr;
+
+
+    // [[ Rhythm Parameters ]]
+
     // --- Rhythm (PCM) ---
     float rhythmLevel = 1.0f;
     // Global master volume
     float rhythmMasterLevel = 1.0f;
     // Parameters for each individual pad
     std::array<RhythmPadParams, MaxRhythmPads> rhythmPads;
+
+
+    // [[ ADPCM Parameters ]]
 
     // --- ADPCM ---
     float adpcmLevel = 1.0f;
@@ -143,5 +255,11 @@ struct SynthParams
     int adpcmQualityMode = 6; // Default: ADPCM
     int adpcmRateIndex = 3;   // Default: 16kHz
 
-    SimpleAdsr ssgAdsr, adpcmAdsr, wtAdsr;
+    // --- ADSR Filter ---
+
+    // Bypass
+    bool adpcmAdsrBypass = false;
+
+    // Params
+    SimpleAdsr adpcmAdsr;
 };

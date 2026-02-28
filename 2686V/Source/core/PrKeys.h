@@ -68,8 +68,12 @@ namespace PrKey
 			namespace Lfo
 			{
 				static inline const juce::String freq = "_LFO_FREQ";
+				static inline const juce::String am = "_LFO_AM";
+				static inline const juce::String pm = "_LFO_PM";
 				static inline const juce::String pms = "_LFO_PMS";
 				static inline const juce::String ams = "_LFO_AMS";
+				static inline const juce::String pmd = "_LFO_PMD";
+				static inline const juce::String amd = "_LFO_AMD";
 			};
 
 			namespace Op
@@ -101,8 +105,12 @@ namespace PrKey
 				static inline const juce::String seFreq = "_SEFREQ";
 
 				static inline const juce::String am = "_AM";
-				static inline const juce::String ws = "_WS";
 				static inline const juce::String vib = "_VIB";
+
+				static inline const juce::String pms = "_PMS";
+				static inline const juce::String ams = "_AMS";
+
+				static inline const juce::String ws = "_WS";
 
 				static inline const juce::String eg = "_EG";
 				static inline const juce::String egType = "_EG_TYP";

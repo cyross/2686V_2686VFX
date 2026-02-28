@@ -122,62 +122,91 @@ float Opl3Core::getSample() {
         auto getPm = [&](int i) { return m_operators[i].m_params.vibEnable ? lfoPitchVal : 1.0f; };
 
         m_operators[0].getSample(out1, 0.0f, getAm(0), getPm(0));
+
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
-            // [OP0] -> [OP1] -> [OP2] -> [OP3] (出力: 3)
         case 0:
             m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4;
+
             break;
-            // [OP0] + ([OP1] -> [OP2] -> [OP3]) (出力: 0と3)
         case 1:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out4;
+
             break;
-            // ([OP0] -> [OP1]) + ([OP2] -> [OP3]) (出力: 1と3)
         case 2:
             m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
-            // out3 + out1 になっていたのを out3 単独に修正 (標準の2ペア構成)
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out2 + out4;
+
             break;
-            // [OP0] + ([OP1] -> [OP2]) + [OP3] (出力: 0と2と3)
         case 3:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out3 + out4;
+
             break;
-            // 並列 (出力: 0+1+2+3)
         default:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out2 + out3 + out4;
+
             break;
         }
-
 
         // 4つのキャリアがすべて最大音量(4.0)で加算されても1.0に収まるように 0.25倍(1/4) にする
         finalOut *= 0.25f;

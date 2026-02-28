@@ -14,8 +14,12 @@ void OpmCore::prepare(double sampleRate) {
 void OpmCore::setParameters(const SynthParams& params) {
     m_algorithm = params.algorithm;
     m_lfoFreq = params.lfoFreq;
-    m_pms = params.pms;
-    m_ams = params.ams;
+    m_am = params.amEnable;
+    m_pm = params.pmEnable;
+    m_pms = params.lfoPms;
+    m_ams = params.lfoAms;
+    m_pmd = params.lfoPmd;
+    m_amd = params.lfoAmd;
     m_lfoWave = params.lfoWave; // OPM LFO Wave
 
     if (m_rateIndex != params.fmRateIndex) {
@@ -119,102 +123,141 @@ float OpmCore::getSample() {
             break;
         }
 
-        // AMS (Amplitude Modulation Sensitivity)
-        float lfoAmpMod = 1.0f;
-        if (m_ams > 0) {
-            float depths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
-            lfoAmpMod = 1.0f - (std::abs(lfoVal) * depths[m_ams & 3]);
-        }
-
-        // PMS (Pitch Modulation Sensitivity) + Mod Wheel
-        float pmDepth = 0.0f;
-        if (m_pms > 0) {
-            float depths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-            pmDepth = depths[m_pms & 7];
-        }
-
-        float wheelDepth = m_modWheel * 0.05f;
-        float lfoPitchMod = 1.0f + (lfoVal * (pmDepth + wheelDepth));
-
-
         float out1, out2, out3, out4;
         float finalOut = 0.0f;
 
-        m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
+        m_operators[0].getSample(out1, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
         case 0:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
         case 1:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
         case 2:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
-        case 3: // OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+        case 3:
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out4;
+
             break;
-        case 4: // OP1->OP2, OP3->OP4 (出力は2と4)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+        case 4:
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod); // モジュレーターはout3
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out2 + out4;
+
             break;
         case 5:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out2 + out3 + out4;
+
             break;
         case 6:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out2 + out3 + out4;
+
             break;
         default:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
             if (m_opMask[3]) out4 = 0.0f; // Mask
+
             finalOut = out1 + out2 + out3 + out4;
+
             break;
         }
 

@@ -43,6 +43,13 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.feedback2 = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb2);
     params.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
+    params.lfoFreq = 0.0f;
+    params.amEnable = false;
+    params.pmEnable = false;
+    params.lfoPms = 0;
+    params.lfoAms = 0;
+    params.lfoPmd = 0;
+    params.lfoAmd = 0;
 
     for (int op = 0; op < PrValue::Opn::ops; ++op)
     {
@@ -63,8 +70,10 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::fix) > PrValue::boolThread);
         params.fmOp[op].fixedFreq = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::fixFreq);
         params.fmOp[op].waveSelect = 0; // Sine
-        params.fmOp[op].amEnable = false; // OPNにはAMは無い
         params.fmOp[op].vibEnable = false;
+        params.fmOp[op].pms = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
+        params.fmOp[op].amEnable = false; // OPNにはAMは無い
+        params.fmOp[op].ams = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
         params.fmOp[op].egType = true;
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }

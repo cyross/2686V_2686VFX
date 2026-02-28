@@ -97,6 +97,11 @@ namespace PrValue
 				inline constexpr float initial = 5.0f;
 			}
 
+			namespace Pm
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Pms
 			{
 				inline constexpr int min = 0;
@@ -105,10 +110,30 @@ namespace PrValue
 
 			}
 
+			namespace Pmd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
+
+			}
+
+			namespace Am
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Ams
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Amd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
 			}
 		}
@@ -179,9 +204,28 @@ namespace PrValue
 				inline constexpr int initial = 0; // 最大値
 			}
 
+			namespace Vib
+			{
+				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Pms
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 7;
+				inline constexpr int initial = 0;
+			}
+
 			namespace Am
 			{
 				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Ams
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
 			}
 
 			namespace Fix
@@ -644,6 +688,11 @@ namespace PrValue
 				inline constexpr float initial = 5.0f;
 			}
 
+			namespace Pm
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Pms
 			{
 				inline constexpr int min = 0;
@@ -652,10 +701,30 @@ namespace PrValue
 
 			}
 
+			namespace Pmd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
+
+			}
+
+			namespace Am
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Ams
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Amd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
 			}
 		}
@@ -759,6 +828,30 @@ namespace PrValue
 				inline constexpr float initial = 1.0f; // 初期値
 			}
 
+			namespace Vib
+			{
+				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Pms
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 7;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Am
+			{
+				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Ams
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
 			namespace Mask
 			{
 				inline constexpr bool initial = false;
@@ -810,6 +903,11 @@ namespace PrValue
 				inline constexpr float initial = 5.0f;
 			}
 
+			namespace Pm
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Pms
 			{
 				inline constexpr int min = 0;
@@ -818,10 +916,30 @@ namespace PrValue
 
 			}
 
+			namespace Pmd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
+
+			}
+
+			namespace Am
+			{
+				inline constexpr bool initial = false;
+			}
+
 			namespace Ams
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Amd
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
 			}
 		}
@@ -923,6 +1041,30 @@ namespace PrValue
 				inline constexpr float min = 0.1f; // 最小値
 				inline constexpr float max = 20.0f; // 最大値
 				inline constexpr float initial = 1.0f; // 初期値
+			}
+
+			namespace Vib
+			{
+				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Pms
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 7;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Am
+			{
+				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Ams
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
 			}
 
 			namespace Mask
