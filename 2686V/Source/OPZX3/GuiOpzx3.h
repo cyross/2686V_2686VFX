@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../core/GuiConstants.h"
+#include "../core/Global.h"
+#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -11,7 +12,7 @@
 class GuiOpzx3 : public GuiBase
 {
     GuiGroup mainGroup;
-    std::array<GuiGroup, Fm4Ops> opGroups;
+    std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
     // Global
     GuiComboBox algSelector;
@@ -28,26 +29,26 @@ class GuiOpzx3 : public GuiBase
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiSlider, Fm4Ops> mul;
-    std::array<GuiComboBox, Fm4Ops> dt1;
-    std::array<GuiSlider, Fm4Ops> dt2;
-    std::array<GuiSlider, Fm4Ops> tl;
-    std::array<GuiSlider, Fm4Ops> ar;
-    std::array<GuiSlider, Fm4Ops> d1r;
-    std::array<GuiSlider, Fm4Ops> d1l;
-    std::array<GuiSlider, Fm4Ops> d2r;
-    std::array<GuiSlider, Fm4Ops> rr;
-    std::array<GuiComboBox, Fm4Ops> ks;
-    std::array<GuiToggleButton, Fm4Ops> fix;
-    std::array<GuiSlider, Fm4Ops> freq;
-    std::array<GuiTextButton, Fm4Ops> freqToZero;
-    std::array<GuiTextButton, Fm4Ops> freqTo440;
-    std::array<GuiComboBox, Fm4Ops> ws;
-    std::array<GuiTextButton, Fm4Ops> loadPcmBtn;
-    std::array<GuiTextButton, Fm4Ops> clearPcmBtn;
-    std::array<GuiLabel, Fm4Ops> pcmFileNameLabel;
-    std::array<GuiToggleButton, Fm4Ops> mask; // Mask
-    std::array<GuiMmlButton, Fm4Ops> mml;
+    std::array<GuiSlider, Global::Fm::Op4> mul;
+    std::array<GuiComboBox, Global::Fm::Op4> dt1;
+    std::array<GuiSlider, Global::Fm::Op4> dt2;
+    std::array<GuiSlider, Global::Fm::Op4> tl;
+    std::array<GuiSlider, Global::Fm::Op4> ar;
+    std::array<GuiSlider, Global::Fm::Op4> d1r;
+    std::array<GuiSlider, Global::Fm::Op4> d1l;
+    std::array<GuiSlider, Global::Fm::Op4> d2r;
+    std::array<GuiSlider, Global::Fm::Op4> rr;
+    std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiToggleButton, Global::Fm::Op4> fix;
+    std::array<GuiSlider, Global::Fm::Op4> freq;
+    std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
+    std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
+    std::array<GuiComboBox, Global::Fm::Op4> ws;
+    std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
+    std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
+    std::array<GuiLabel, Global::Fm::Op4> pcmFileNameLabel;
+    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
+    std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 public:

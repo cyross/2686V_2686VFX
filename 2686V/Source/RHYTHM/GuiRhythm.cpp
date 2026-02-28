@@ -1,9 +1,11 @@
 ﻿#include "GuiRhythm.h"
 #include "../editor/PluginEditor.h"
 
-#include "../core/GuiConstants.h"
-#include "../core/GuiLabels.h"
-#include "../core/OpConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/GuiSelectItems.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
 #include "../core/FileValues.h"
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
@@ -15,7 +17,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 {
     parent.addAndMakeVisible(this);
 
-    juce::String padPrefix = codeRhythm + codePad + juce::String(index);
+    juce::String padPrefix = PrKey::Prefix::rhythm + PrKey::Innder::pad + juce::String(index);
     juce::String padTitle = "Pad " + juce::String(index + 1) + " (" + padName + ")";
 
     // メイングループ
@@ -26,7 +28,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     loadButton.addListener(&ctx.editor);
 
     // ロードしている音声ファイル名
-    fileNameLabel.setup({ .parent = *this, .title = emptyFilename });
+    fileNameLabel.setup({ .parent = *this, .title = Io::empty });
     fileNameLabel.setJustificationType(juce::Justification::centred);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -39,25 +41,25 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             ctx.audioProcessor.unloadRhythmFile(index);
 
             // 2. ファイル名表示を更新
-            fileNameLabel.setText(emptyFilename, juce::dontSendNotification);
+            fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
     // ワンショット機能トグル
-    oneShotButton.setup({ .parent = *this, .id = padPrefix + postOneShot, .title = "One Shot", .isReset = true });
+    oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::oneShot, .title = GuiText::Group::Rhythm::Pad::Post::oneShot, .isReset = true });
 
     // 割り当てキーノート番号
-    noteSlider.setup({ .parent = *this, .id = padPrefix + postNote, .title = "Note", .isReset = true });
+    noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::note, .title = GuiText::Group::Rhythm::Pad::Post::note, .isReset = true });
     noteSlider.setRange(0, 127, 1);
     noteSlider.textFromValueFunction = [](double value) {
         return getNoteName((int)value);
         };
     noteSlider.updateText();
 
-    modeSelector.setup({ .parent = *this, .id = padPrefix + postMode, .title = "Mode", .items = qualityItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = padPrefix + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
+    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Group::Rhythm::Pad::Post::quality, .items = qualityItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Group::Rhythm::Pad::Post::rate, .items = rateItems, .isReset = true });
 
     // パンポット
-    panSlider.setup({ .parent = *this, .id = padPrefix + postPan, .title = "Pan", .isReset = true });
+    panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pan, .title = GuiText::Group::Rhythm::Pad::Post::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
 
     btnPanL.setup({ .parent = *this, .title = "L", .isReset = false });
@@ -70,33 +72,33 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     btnPanR.addListener(&ctx.editor);
 
     // Vol
-    volSlider.setup({ .parent = *this, .id = padPrefix + postVolume, .title = "Vol", .isReset = true });
+    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Group::Rhythm::Pad::Post::vol, .isReset = true });
 
     // RR
-    rrSlider.setup({ .parent = *this, .id = padPrefix + postRr, .title = opRrLabel, .isReset = true });
+    rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Group::Rhythm::Pad::Post::rr, .isReset = true });
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
 {
     mainGroup.setBounds(content);
 
-    auto padRect = content.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    auto padRect = content.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
 
-    padRect.removeFromTop(TitlePaddingTop);
+    padRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &loadButton, { OpRegLabelWidth, OpRegPaddingRight}}, { &fileNameLabel, { 150, 0}},{ &clearButton, { 30, 0}}, });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &oneShotButton, { OpRegButtonWidth, 0} } });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &noteSlider.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &noteSlider, { OpRegValueWidth, 0}} });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &modeSelector.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &modeSelector, { OpRegValueWidth, 0}} });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &rateSelector.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &rateSelector, { OpRegValueWidth, 0}} });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &panSlider.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &panSlider, { OpRegValueWidth, 0}} });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, {
-        { &btnPanL, { OpRegPanChangeButtonWidth, 0} },
-        { &btnPanC, { OpRegPanChangeButtonWidth, 0} },
-        { &btnPanR, { OpRegPanChangeButtonWidth, 0} }
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &loadButton, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &fileNameLabel, { 150, 0}},{ &clearButton, { 30, 0}}, });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &oneShotButton, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &noteSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &noteSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &modeSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &modeSelector, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &rateSelector, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &panSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &panSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, {
+        { &btnPanL, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} },
+        { &btnPanC, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} },
+        { &btnPanR, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} }
         });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &volSlider.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &volSlider, { OpRegValueWidth, 0}} });
-    layoutComponentsLtoR(padRect, OpRowHeight, OpRowPaddingBottom, { { &rrSlider.label, { OpRegLabelWidth, OpRegPaddingRight}}, { &rrSlider, { OpRegValueWidth, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &volSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &volSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, 0, { { &rrSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &rrSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -111,16 +113,16 @@ bool RhythmPadGui::isThis(juce::Button* button)
 
 void GuiRhythm::setup()
 {
-    const juce::String code = codeRhythm;
+    const juce::String code = PrKey::Prefix::rhythm;
 
     // パッド名定義
     const std::array<juce::String, 8> padNames = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
 
-    mainGroup.setup(*this, mGroupTitle);
+    mainGroup.setup(*this, GuiText::Group::mainGroup);
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
    
-	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol", .isReset = true });
+	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = "Vol", .isReset = true });
 
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
@@ -145,17 +147,17 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // Top section for Master Volume
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(MainWidth);
+    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    mRect.removeFromTop(TitlePaddingTop);
+    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &levelSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &levelSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &levelSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &levelSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
 
-    auto topPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
-    auto bottomPadsArea = pageArea.removeFromTop(RhythmPadsAreaHeight);
+    auto topPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
+    auto bottomPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
 
     // Remaining area for 8 pads
     applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);

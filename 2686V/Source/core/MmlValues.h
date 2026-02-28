@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// MML変換で使用するレジスタ値を管理
+
+#pragma once
 
 namespace mmlValues
 {

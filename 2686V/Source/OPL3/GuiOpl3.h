@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../core/GuiConstants.h"
+#include "../core/Global.h"
+#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -11,7 +12,7 @@
 class GuiOpl3 : public GuiBase
 {
     GuiGroup mainGroup;
-    std::array<GuiGroup, Fm4Ops> opGroups;
+    std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
@@ -22,20 +23,20 @@ class GuiOpl3 : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    std::array<GuiSlider, Fm4Ops> mul;
-    std::array<GuiSlider, Fm4Ops> tl;
-    std::array<GuiSlider, Fm4Ops> ar;
-    std::array<GuiSlider, Fm4Ops> dr;
-    std::array<GuiSlider, Fm4Ops> sl;
-    std::array<GuiSlider, Fm4Ops> rr;
-    std::array<GuiToggleButton, Fm4Ops> am;
-    std::array<GuiToggleButton, Fm4Ops> vib;
-    std::array<GuiToggleButton, Fm4Ops> egType;
-    std::array<GuiToggleButton, Fm4Ops> ksr;
-    std::array<GuiComboBox, Fm4Ops> ksl; // Key Scale Level
-    std::array<GuiComboBox, Fm4Ops> eg; // Envlope Generator
-    std::array<GuiToggleButton, Fm4Ops> mask; // Mask
-    std::array<GuiMmlButton, Fm4Ops> mml;
+    std::array<GuiSlider, Global::Fm::Op4> mul;
+    std::array<GuiSlider, Global::Fm::Op4> tl;
+    std::array<GuiSlider, Global::Fm::Op4> ar;
+    std::array<GuiSlider, Global::Fm::Op4> dr;
+    std::array<GuiSlider, Global::Fm::Op4> sl;
+    std::array<GuiSlider, Global::Fm::Op4> rr;
+    std::array<GuiToggleButton, Global::Fm::Op4> am;
+    std::array<GuiToggleButton, Global::Fm::Op4> vib;
+    std::array<GuiToggleButton, Global::Fm::Op4> egType;
+    std::array<GuiToggleButton, Global::Fm::Op4> ksr;
+    std::array<GuiComboBox, Global::Fm::Op4> ksl; // Key Scale Level
+    std::array<GuiComboBox, Global::Fm::Op4> eg; // Envlope Generator
+    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
+    std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 public:

@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../core/GuiConstants.h"
+#include "../core/Global.h"
+#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -11,7 +12,7 @@
 class GuiOpl : public GuiBase
 {
     GuiGroup mainGroup;
-    std::array<GuiGroup, Fm2Ops> opGroups;
+    std::array<GuiGroup, Global::Fm::Op2> opGroups;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
@@ -21,21 +22,21 @@ class GuiOpl : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    std::array<GuiSlider, Fm2Ops> mul;
-    std::array<GuiComboBox, Fm2Ops> dt;
-    std::array<GuiSlider, Fm2Ops> ar;
-    std::array<GuiSlider, Fm2Ops> dr;
-    std::array<GuiSlider, Fm2Ops> sl;
-    std::array<GuiSlider, Fm2Ops> rr;
-    std::array<GuiSlider, Fm2Ops> tl;
-    std::array<GuiToggleButton, Fm2Ops> am;
-    std::array<GuiToggleButton, Fm2Ops> vib;
-    std::array<GuiToggleButton, Fm2Ops> egType;
-    std::array<GuiToggleButton, Fm2Ops> ksr;
-    std::array<GuiComboBox, Fm2Ops> ksl; // Key Scale Level
-    std::array<GuiComboBox, Fm2Ops> eg; // Envlope Generator
-    std::array<GuiToggleButton, Fm2Ops> mask; // Mask
-    std::array<GuiMmlButton, Fm2Ops> mml;
+    std::array<GuiSlider, Global::Fm::Op2> mul;
+    std::array<GuiComboBox, Global::Fm::Op2> dt;
+    std::array<GuiSlider, Global::Fm::Op2> ar;
+    std::array<GuiSlider, Global::Fm::Op2> dr;
+    std::array<GuiSlider, Global::Fm::Op2> sl;
+    std::array<GuiSlider, Global::Fm::Op2> rr;
+    std::array<GuiSlider, Global::Fm::Op2> tl;
+    std::array<GuiToggleButton, Global::Fm::Op2> am;
+    std::array<GuiToggleButton, Global::Fm::Op2> vib;
+    std::array<GuiToggleButton, Global::Fm::Op2> egType;
+    std::array<GuiToggleButton, Global::Fm::Op2> ksr;
+    std::array<GuiComboBox, Global::Fm::Op2> ksl; // Key Scale Level
+    std::array<GuiComboBox, Global::Fm::Op2> eg; // Envlope Generator
+    std::array<GuiToggleButton, Global::Fm::Op2> mask; // Mask
+    std::array<GuiMmlButton, Global::Fm::Op2> mml;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 public:

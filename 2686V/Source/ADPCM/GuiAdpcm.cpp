@@ -1,32 +1,34 @@
 ﻿#include "GuiAdpcm.h"
 #include "../processor/PluginProcessor.h"
 
-#include "../core/GuiConstants.h"
-#include "../core/GuiLabels.h"
-#include "../core/OpConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/GuiSelectItems.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
 
 void GuiAdpcm::setup()
 {
-    const juce::String code = codeAdpcm;
+    const juce::String code = PrKey::Prefix::adpcm;
 
-    mainGroup.setup(*this, mGroupTitle);
-    modeSelector.setup({ .parent = *this, .id = code + postMode, .title = "Quality", .items = qualityItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
+    mainGroup.setup(*this, GuiText::Group::mainGroup);
+    modeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::mode, .title = GuiText::Group::Adpcm::Post::quality, .items = qualityItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::rate, .title = GuiText::Group::Adpcm::Post::rate, .items = rateItems, .isReset = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
     // 出力レベル
-	levelSlider.setup({ .parent = *this, .id = code + postLevel, .title = "Vol", .isReset = true });
+	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::level, .title = "Vol", .isReset = true });
 
     // パンポット設定
-	panSlider.setup({ .parent = *this, .id = code + postPan, .title = "Pan", .isReset = true });
+	panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::pan, .title = "Pan", .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     addAndMakeVisible(btnPanL); btnPanL.setButtonText("L"); btnPanL.addListener(&ctx.editor);
     addAndMakeVisible(btnPanC); btnPanC.setButtonText("C"); btnPanC.addListener(&ctx.editor);
     addAndMakeVisible(btnPanR); btnPanR.setButtonText("R"); btnPanR.addListener(&ctx.editor);
 
     // ループトグルボタン
-	loopButton.setup({ .parent = *this, .id = code + postLoop, .title = "Loop", .isReset = true });
+	loopButton.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::loop, .title = "Loop", .isReset = true });
 
 	paramGroup.setup(*this, "ADPCM Parameters");
 
@@ -35,7 +37,7 @@ void GuiAdpcm::setup()
     loadButton.addListener(&ctx.editor);
 
     // ロードしているファイル名
-    fileNameLabel.setup({ .parent = *this, .title = emptyFilename});
+    fileNameLabel.setup({ .parent = *this, .title = Io::empty });
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
@@ -47,46 +49,46 @@ void GuiAdpcm::setup()
         ctx.audioProcessor.unloadAdpcmFile();
 
         // 2. ラベル表示をクリア
-        fileNameLabel.setText(emptyFilename, juce::dontSendNotification);
+        fileNameLabel.setText(Io::empty, juce::dontSendNotification);
     };
 
-    attackSlider.setup({ .parent = *this, .id = code + postAr, .title = mArLabel, .isReset = true });
-    decaySlider.setup({ .parent = *this, .id = code + postDr, .title = mDrLabel, .isReset = true });
-    sustainSlider.setup({ .parent = *this, .id = code + postSl, .title = mSlLabel, .isReset = true });
-    releaseSlider.setup({ .parent = *this, .id = code + postRr, .title = mRrLabel, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::ar, .title = GuiText::Group::Adpcm::Post::Adsr::ar, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::dr, .title = GuiText::Group::Adpcm::Post::Adsr::dr, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::sl, .title = GuiText::Group::Adpcm::Post::Adsr::sl, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::rr, .title = GuiText::Group::Adpcm::Post::Adsr::rr, .isReset = true });
 }
 
 void GuiAdpcm::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(MainWidth);
+    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    mRect.removeFromTop(TitlePaddingTop);
+    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &modeSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &modeSelector, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &rateSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &rateSelector, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &levelSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &levelSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &loopButton, { MainRegButtonWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &panSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &panSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, {
-        { &btnPanL, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
-        { &btnPanC, { MainRegPanChangeButtonWidth, MainRegPanPaddingHeight}},
-        { &btnPanR, { MainRegPanChangeButtonWidth, 0}}
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &modeSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &modeSelector, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &rateSelector, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &levelSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &levelSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &loopButton, { GuiValue::MainGroup::Button::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &panSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &panSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
+        { &btnPanL, { GuiValue::MainGroup::Button::Pan::width, GuiValue::MainGroup::Button::Pan::paddingHeight}},
+        { &btnPanC, { GuiValue::MainGroup::Button::Pan::width, GuiValue::MainGroup::Button::Pan::paddingHeight}},
+        { &btnPanR, { GuiValue::MainGroup::Button::Pan::width, 0}}
         });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &attackSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &attackSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &decaySlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &decaySlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &sustainSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &sustainSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &releaseSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &releaseSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &attackSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &attackSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &decaySlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &decaySlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &sustainSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &sustainSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &releaseSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &releaseSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
 
-    auto headerArea = pageArea.removeFromTop(HeaderHeight);
+    auto headerArea = pageArea.removeFromTop(GuiValue::Adpcm::File::height);
 
     paramGroup.setBounds(headerArea);
 
-    auto inner = headerArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    inner.removeFromTop(TitlePaddingTop);
+    auto inner = headerArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    inner.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
     auto fileRow = inner.removeFromTop(30);
     // 左にロードボタン

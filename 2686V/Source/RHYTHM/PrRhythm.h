@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 
 #include "../synth/SynthParams.h"
-#include "../core/PrBase.h"
+#include "../processor/PrBase.h"
 
 class RhythmProcessor : PrBase
 {

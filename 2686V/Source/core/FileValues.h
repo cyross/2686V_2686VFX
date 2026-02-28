@@ -1,13 +1,25 @@
-﻿#pragma once
+﻿// ファイルに関するデータを管理
+
+#pragma once
 
 #include <JuceHeader.h>
 
-// フォルダ名
-static inline const juce::String assetFolder = "2686V";
-static inline const juce::String presetFolder = "Presets";
-static inline const juce::String sampleFolder = "Samples";
+namespace Io
+{
+	static inline const juce::String empty = "(Empty)";
 
-// ファイル名
-static inline const juce::String defaultSettingFilename = "init_settings.xml";
-static inline const juce::String defaultPresetFilename = "init_preset.xml";
-static inline const juce::String emptyFilename = "(Empty)";
+	namespace Folder
+	{
+		static inline const juce::String asset = "2686V";
+		static inline const juce::String preset = "Presets";
+		static inline const juce::String sample = "Samples";
+	};
+
+	namespace Dialog
+	{
+		namespace Title
+		{
+			static inline const juce::String openAudioFile = "Select an Audio file";
+		}
+	}
+};

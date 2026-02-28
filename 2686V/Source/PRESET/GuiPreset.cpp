@@ -1,11 +1,14 @@
 ﻿#include "GuiPreset.h"
 #include "../processor/PluginProcessor.h"
 
-#include "../core/GuiConstants.h"
-#include "../core/GuiLabels.h"
-#include "../core/OpConstants.h"
-#include "../core/GlobalConstants.h"
+#include "../core/Global.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/GuiSelectItems.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
 #include "../core/FileValues.h"
+#include "../core/PresetKeys.h"
 #include "../core/PresetValues.h"
 
 juce::File GuiPreset::getSelectedFile() const
@@ -46,21 +49,21 @@ void GuiPreset::setup()
     *
     *********************/
 
-    searchBox.setup({ .parent = *this, .title = "Search", .isMultiLine = false });
+    searchBox.setup({ .parent = *this, .title = PresetKey::Search::title, .isMultiLine = false });
     searchBox.onTextChange = [this] { applyFilter(); };
 
-    clearSearchButton.setup({ .parent = *this, .title = "X", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
+    clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
     clearSearchButton.onClick = [this] {
         searchBox.setText(""); // テキストボックスを空にする
         applyFilter();         // リストの絞り込みをリセット（全件表示）する
     };
 
-	table.setup({ .parent = *this, .title = "Presets", .canMultipleSelection = false });
-    table.addColumn(presetTableFileNameColTitle, 1, PresetTableFileNameColTitleWidth);
-    table.addColumn(presetTablePresetNameColTitle, 2, PresetTablePresetNameColTitleWidth);
-    table.addColumn(presetTableAuthorColTitle, 3, PresetTableAuthorColTitleWidth);
-    table.addColumn(presetTableVersionColTitle, 4, PresetTableVersionColTitleWidth);
-    table.addColumn(presetTableModeColTitle, 5, PresetTableModeColTitleWidth);
+	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
+    table.addColumn(PresetKey::Table::ColName::fileName, 1, GuiValue::Preset::Table::ColWidth::FileName);
+    table.addColumn(PresetKey::Table::ColName::name, 2, GuiValue::Preset::Table::ColWidth::PresetName);
+    table.addColumn(PresetKey::Table::ColName::author, 3, GuiValue::Preset::Table::ColWidth::Author);
+    table.addColumn(PresetKey::Table::ColName::version, 4, GuiValue::Preset::Table::ColWidth::Version);
+    table.addColumn(PresetKey::Table::ColName::mode, 5, GuiValue::Preset::Table::ColWidth::Mode);
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
         };
@@ -96,25 +99,25 @@ void GuiPreset::setup()
     *
     *********************/
 
-	metaGroup.setup(*this, "Preset Info");
+	metaGroup.setup(*this, PresetKey::MetaData::title);
 
     // Name
-	nameEditor.setup({ .parent = *this, .title = presetCbName, .isMultiLine = false });
+	nameEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::name, .isMultiLine = false });
     nameEditor.setText(ctx.audioProcessor.presetName);
     nameEditor.onTextChange = [this] { ctx.audioProcessor.presetName = nameEditor.getText(); };
 
     // Author
-    authorEditor.setup({ .parent = *this, .title = presetCbAuther, .isMultiLine = false });
+    authorEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::auther, .isMultiLine = false });
     authorEditor.setText(ctx.audioProcessor.presetAuthor);
     authorEditor.onTextChange = [this] { ctx.audioProcessor.presetAuthor = authorEditor.getText(); };
 
     // Version
-    versionEditor.setup({ .parent = *this, .title = presetCbVersion, .isMultiLine = false });
+    versionEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::version, .isMultiLine = false });
     versionEditor.setText(ctx.audioProcessor.presetVersion);
     versionEditor.onTextChange = [this] { ctx.audioProcessor.presetVersion = versionEditor.getText(); };
 
     // Comment
-    commentEditor.setup({ .parent = *this, .title = presetCbComment, .isMultiLine = true, .isReturnKeyStartsNewLine = true });
+    commentEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::comment, .isMultiLine = true, .isReturnKeyStartsNewLine = true });
     commentEditor.setText(ctx.audioProcessor.presetVersion);
     commentEditor.onTextChange = [this] { ctx.audioProcessor.presetComment = commentEditor.getText(); };
 
@@ -125,7 +128,7 @@ void GuiPreset::setup()
     *********************/
 
     // --- Init Preset Button ---
-	initButton.setup({ .parent = *this, .title = initPresetBtnLabel, .bgColor = juce::Colours::darkblue.withAlpha(0.7f) });
+	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .bgColor = juce::Colours::darkblue.withAlpha(0.7f) });
     initButton.onClick = [this] {
         // 確認ダイアログを表示
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
@@ -147,15 +150,15 @@ void GuiPreset::setup()
                     commentEditor.setText(ctx.audioProcessor.presetComment);
 
                     // ファイル名表示のクリア
-                    ctx.editor.updateRhythmFileNames(emptyFilename);
-                    ctx.editor.updateAdpcmFileName(emptyFilename);
+                    ctx.editor.updateRhythmFileNames(Io::empty);
+                    ctx.editor.updateAdpcmFileName(Io::empty);
                 }
             }
         );
     };
 
     // --- Load Preset Info Button ---
-	loadButton.setup({ .parent = *this, .title = "Load Preset", .isReset = false });
+	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .isReset = false });
     loadButton.setEnabled(false);
     loadButton.onClick = [this] {
         auto file = getSelectedFile();
@@ -164,11 +167,11 @@ void GuiPreset::setup()
     };
 
     // --- Save Preset Button ---
-    saveButton.setup({ .parent = *this, .title = "Save Preset" });
+    saveButton.setup({ .parent = *this, .title = PresetKey::Button::savePreset });
     saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
 
     // --- Delete Preset Button ---
-	deleteButton.setup({ .parent = *this, .title = "Delete Preset", .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
+	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
     deleteButton.setEnabled(false);
     deleteButton.onClick = [this] {
         auto file = getSelectedFile();
@@ -192,11 +195,11 @@ void GuiPreset::setup()
     };
 
     // --- Reflesh Preset List Button ---
-	refreshButton.setup({ .parent = *this, .title = "Refresh Preset List" });
+	refreshButton.setup({ .parent = *this, .title = PresetKey::Button::refleshPresetList });
     refreshButton.onClick = [this] { ctx.editor.scanPresets(); };
 
     // --- Reflect Preset Info Button ---
-	reflectButton.setup({ .parent = *this, .title = "Reflect Preset Info", .isReset = false });
+	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .isReset = false });
     reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
@@ -212,17 +215,17 @@ void GuiPreset::setup()
     };
 
     // --- Copy Preset Info to Clipboard Button ---
-	copyButton.setup({ .parent = *this, .title = "Copy Preset Info to Clipboard", .isReset = false });
+	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .isReset = false });
     copyButton.setEnabled(false);
     copyButton.onClick = [this] {
         int row = table.getSelectedRow();
         if (row >= 0 && row < filteredItems.size()) {
             const auto& item = filteredItems[row];
-            juce::String info = presetCbName + item.name + "\n" +
-                presetCbAuther + item.author + "\n" +
-                presetCbVersion + item.version + "\n" +
-                presetCbComment + item.comment + "\n" +
-                presetCbMode + item.modeName;
+            juce::String info = PresetValue::MetaData::ClipBoardPrefix::name + item.name + "\n" +
+                PresetValue::MetaData::ClipBoardPrefix::auther + item.author + "\n" +
+                PresetValue::MetaData::ClipBoardPrefix::version + item.version + "\n" +
+                PresetValue::MetaData::ClipBoardPrefix::comment + item.comment + "\n" +
+                PresetValue::MetaData::ClipBoardPrefix::mode + item.modeName;
             juce::SystemClipboard::copyTextToClipboard(info);
         }
     };
@@ -233,13 +236,13 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     // Path Label (Top)
-    pathLabel.setBounds(pageArea.removeFromTop(PresetFileLabelHeight));
+    pathLabel.setBounds(pageArea.removeFromTop(GuiValue::Preset::FileLabelHeight));
 
     // Left: List
-    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetTableWidthRate);
+    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * GuiValue::Preset::Table::WidthRate);
 
     // リストのすぐ上に検索ボックスを配置する
-    auto searchArea = listArea.removeFromTop(PresetMetaHeight).reduced(PresetTablePaddingWidth, 0);
+    auto searchArea = listArea.removeFromTop(GuiValue::Preset::Meta::AreaHeight).reduced(GuiValue::Preset::Table::PaddingWidth, 0);
 
     searchBox.label.setBounds(searchArea.removeFromLeft(60)); // "Search" というラベルの幅
 
@@ -251,64 +254,78 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     listArea.removeFromTop(5); // 検索ボックスとリストの間の少しの余白
 
-    table.setBounds(listArea.reduced(PresetTablePaddingWidth, PresetTablePaddingHeight));
+    table.setBounds(listArea.reduced(GuiValue::Preset::Table::PaddingWidth, GuiValue::Preset::Table::PaddingHeight));
 
     // Right: Info & Buttons
     auto rightArea = pageArea;
 
     // Metadata Group
-    auto metaArea = rightArea.removeFromTop(PresetMetaAreaHeight);
+    auto metaArea = rightArea.removeFromTop(GuiValue::Preset::Meta::AreaHeight);
 
     metaGroup.setBounds(metaArea);
 
-    auto mRect = metaArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
+    auto mRect = metaArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
 
-    mRect.removeFromTop(TitlePaddingTop);
+    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
     // Name
-    auto row1 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
-    nameEditor.label.setBounds(row1.removeFromLeft(PresetMetaLabelWidth));
+    auto row1 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    nameEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
     nameEditor.setBounds(row1);
 
-    mRect.removeFromTop(PresetMetaPaddingHeight);
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Author
-    auto row2 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
-    authorEditor.label.setBounds(row2.removeFromLeft(PresetMetaLabelWidth));
+    auto row2 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    authorEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
     authorEditor.setBounds(row2);
 
-    mRect.removeFromTop(PresetMetaPaddingHeight);
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Version
-    auto row3 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
-    versionEditor.label.setBounds(row3.removeFromLeft(PresetMetaLabelWidth));
+    auto row3 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    versionEditor.label.setBounds(row3.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
     versionEditor.setBounds(row3);
 
-    mRect.removeFromTop(PresetMetaPaddingHeight);
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Comment
-    auto row4 = mRect.removeFromTop(PresetMetaHeight).reduced(PresetMetaPaddingWidth, 0);
+    auto row4 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
     commentEditor.label.setBounds(row4);
-    mRect.removeFromTop(PresetMetaPaddingHeight);
-    auto row5 = mRect.reduced(PresetMetaPaddingWidth, 0);
+
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+
+    auto row5 = mRect.reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
     commentEditor.setBounds(row5);
 
-    rightArea.removeFromTop(PresetButtonsPaddingTop);
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingTop);
 
     // Buttons
-    initButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    loadButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    saveButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    deleteButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    refreshButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    reflectButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
-    rightArea.removeFromTop(PresetButtonPaddingHeight);
-    copyButton.setBounds(rightArea.removeFromTop(PresetButtonHeight));
+    initButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    loadButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    saveButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    deleteButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    refreshButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    reflectButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    copyButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
 }
 
 void GuiPreset::setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment)

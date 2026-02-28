@@ -10,8 +10,8 @@
 #include "GuiStructs.h"
 #include "GuiHelpers.h"
 #include "GuiContext.h"
-#include "../core/GuiConstants.h"
-#include "../core/GuiLabels.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
 #include "../fm/SliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;

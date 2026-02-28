@@ -212,10 +212,10 @@ float FmOperator::calcWaveform(double phase, int wave)
 
     if (!m_useWaveSelect) return s; // Default Sine (OPN/OPNA/OPM)
 
-    // ★重要追加: 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
+    // 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
     float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
 
-    // ★修正: 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
+    // 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
     switch (wave) {
         // 0-7: OPZ / OPL3 Compatible Set
     case 0:  return s; // Sine

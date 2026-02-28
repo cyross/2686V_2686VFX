@@ -2,9 +2,13 @@
 #include "../editor/PluginEditor.h"
 #include "../gui/GuiColor.h"
 
-#include "../core/GuiConstants.h"
-#include "../core/GuiLabels.h"
-#include "../core/OpConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/GuiSelectItems.h"
+#include "../core/FileValues.h"
+#include "../core/PrKeys.h"
+#include "../core/SettingsKeys.h"
+#include "../core/SettingsValues.h"
 
 void GuiSettings::setup()
 {
@@ -19,7 +23,7 @@ void GuiSettings::setup()
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
 		lbl.setup({ .parent = *this, .title = title });
-		pathLbl.setup({ .parent = *this, .title = emptyFilename });
+		pathLbl.setup({ .parent = *this, .title = Io::empty });
         pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
         pathLbl.setJustificationType(juce::Justification::centredLeft);
 		btn.setup({ .parent = *this, .title = btnText, .isReset = false });
@@ -46,7 +50,7 @@ void GuiSettings::setup()
 	wallpaperClearBtn.setup({ .parent = *this, .title = "Clear", .isReset = false });
     wallpaperClearBtn.onClick = [this] {
         ctx.audioProcessor.wallpaperPath = "";
-        wallpaperPathLabel.setText(emptyFilename, juce::dontSendNotification);
+        wallpaperPathLabel.setText(Io::empty, juce::dontSendNotification);
         ctx.editor.loadWallpaperImage();
     };
 
@@ -143,7 +147,7 @@ void GuiSettings::setup()
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
             "Save Environment Settings",
-            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("2686V_Config.xml"),
+            juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile(SettingsValue::File::Name::initial),
             "*.xml",
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -167,7 +171,7 @@ void GuiSettings::setup()
                     ctx.audioProcessor.loadEnvironment(file);
 
                     // UI反映
-                    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty() ? emptyFilename : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
+                    wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(ctx.audioProcessor.wallpaperPath).getFileName(), juce::dontSendNotification);
                     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1);
                     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
                     presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
@@ -193,22 +197,25 @@ void GuiSettings::setup()
     saveStartupSettingsBtn.onClick = [this]
         {
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-            auto pluginDir = docDir.getChildFile(assetFolder);
+            auto pluginDir = docDir.getChildFile(Io::Folder::asset);
 
             // フォルダがなければ作る
             if (!pluginDir.exists()) pluginDir.createDirectory();
 
-            auto file = pluginDir.getChildFile(defaultSettingFilename);
+            // 初期設定ファイル名を指定
+            auto file = pluginDir.getChildFile(SettingsValue::File::Name::def);
 
             // 2. XMLデータの作成
-            juce::XmlElement xml(envCode);
+            juce::XmlElement xml(SettingsKey::envCode);
 
-            xml.setAttribute(settingWallpaperPath, ctx.audioProcessor.wallpaperPath);
-            xml.setAttribute(settingDefaultSampleDir, ctx.audioProcessor.defaultSampleDir);
-            xml.setAttribute(settingDefaultPresetDir, ctx.audioProcessor.defaultPresetDir);
-            xml.setAttribute(settingShowTooltips, ctx.audioProcessor.showTooltips);
-            xml.setAttribute(settingUseHeadroom, ctx.audioProcessor.useHeadroom);
-            xml.setAttribute(settingHeadroomGain, ctx.audioProcessor.headroomGain);
+            xml.setAttribute(SettingsKey::wallpaperPath, ctx.audioProcessor.wallpaperPath);
+            xml.setAttribute(SettingsKey::wallpaperMode, ctx.audioProcessor.wallpaperMode);
+            xml.setAttribute(SettingsKey::defaultSampleDir, ctx.audioProcessor.defaultSampleDir);
+            xml.setAttribute(SettingsKey::defaultPresetDir, ctx.audioProcessor.defaultPresetDir);
+            xml.setAttribute(SettingsKey::showTooltips, ctx.audioProcessor.showTooltips);
+            xml.setAttribute(SettingsKey::useHeadroom , ctx.audioProcessor.useHeadroom);
+            xml.setAttribute(SettingsKey::headroomGain, ctx.audioProcessor.headroomGain);
+            xml.setAttribute(SettingsKey::showVirtualKeyboard, ctx.audioProcessor.showVirtualKeyboard);
 
             // 3. 書き出し実行
             if (xml.writeTo(file))
@@ -240,73 +247,73 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     mainGroup.setBounds(pageArea);
 
-    auto sRect = pageArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    sRect.removeFromTop(TitlePaddingTop);
+    auto sRect = pageArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    sRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
     // 1. WallpaperPath
-    auto rowWpPath = sRect.removeFromTop(SettingsRowHeight);
-    wallpaperLabel.setBounds(rowWpPath.removeFromLeft(SettingsLabelWidth));
-    wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(SettingsClearButtonWidth));
-    wallpaperBrowseBtn.setBounds(rowWpPath.removeFromRight(SettingsBrowseButtonWidth));
+    auto rowWpPath = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    wallpaperLabel.setBounds(rowWpPath.removeFromLeft(GuiValue::Settings::LabelWidth));
+    wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(GuiValue::Settings::ClearButtonWidth));
+    wallpaperBrowseBtn.setBounds(rowWpPath.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
     wallpaperPathLabel.setBounds(rowWpPath);
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 2. WallpaperMode
-    auto rowWpMode = sRect.removeFromTop(SettingsRowHeight);
-    wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(SettingsLabelWidth));
-    wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(SettingsModeSelectorWidth));
+    auto rowWpMode = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(GuiValue::Settings::LabelWidth));
+    wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(GuiValue::Settings::ModeSelectorWidth));
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 3. ADPCM Dir
-    auto rowAdpcmDir = sRect.removeFromTop(SettingsRowHeight);
-    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsLabelWidth));
-    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsBrowseButtonWidth));
+    auto rowAdpcmDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(GuiValue::Settings::LabelWidth));
+    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
     sampleDirPathLabel.setBounds(rowAdpcmDir);
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 4. Preset Dir
-    auto rowPresetDir = sRect.removeFromTop(SettingsRowHeight);
-    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsLabelWidth));
-    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsBrowseButtonWidth));
+    auto rowPresetDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(GuiValue::Settings::LabelWidth));
+    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
     presetDirPathLabel.setBounds(rowPresetDir);
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 5. Tooltip Visible Row
-    auto rowTooltip = sRect.removeFromTop(SettingsRowHeight);
-    tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsToggleWidth));
+    auto rowTooltip = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    tooltipToggle.setBounds(rowTooltip.removeFromLeft(GuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 6. Headroom Row
-    auto rowHeadroom = sRect.removeFromTop(SettingsRowHeight);
-    useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsToggleWidth));
+    auto rowHeadroom = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(GuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
     // 7. Headroom Row
-    auto rowHeadroomGain = sRect.removeFromTop(SettingsRowHeight);
-    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsLabelWidth));
-    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsHeadroomGainSliderWidth));
+    auto rowHeadroomGain = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(GuiValue::Settings::LabelWidth));
+    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(GuiValue::Settings::HeadroomGainSliderWidth));
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
-    // 8. Headroom Row
-    auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsRowHeight);
-    virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsToggleWidth));
+    // 8. Virtual Keyboard Row
+    auto rowVirtualMidiKeyboard = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(GuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(SettingsPaddingHeight);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
-    // 8. Config IO Buttons (Fixed Layout)
-    auto rowIoBtns = sRect.removeFromTop(SettingsRowHeight);
+    // 9. Config IO Buttons (Fixed Layout)
+    auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
 
-    layoutComponentsLtoR(rowIoBtns, OpRowHeight, OpLastRowPaddingBottom, {
-        { &loadSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
-        { &saveSettingsBtn, { SettingsButtonWidth, SettingsButtonPaddingRight} },
-        { &saveStartupSettingsBtn, { SettingsButtonWidth, 0} }
+    layoutComponentsLtoR(rowIoBtns, GuiValue::Fm::Op::Row::height, 0, {
+        { &loadSettingsBtn, { GuiValue::Settings::ButtonWidth, GuiValue::Settings::ButtonPaddingRight} },
+        { &saveSettingsBtn, { GuiValue::Settings::ButtonWidth, GuiValue::Settings::ButtonPaddingRight} },
+        { &saveStartupSettingsBtn, { GuiValue::Settings::ButtonWidth, 0} }
         });
 }
 
