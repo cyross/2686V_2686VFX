@@ -15,8 +15,10 @@ void OpnaCore::prepare(double sampleRate) {
 void OpnaCore::setParameters(const SynthParams& params) {
     m_algorithm = params.algorithm;
     m_lfoFreq = params.lfoFreq;
-    m_pms = params.pms;
-    m_ams = params.ams;
+    m_am = params.amEnable;
+    m_pm = params.pmEnable;
+    m_pms = params.lfoPms;
+    m_ams = params.lfoAms;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -88,158 +90,192 @@ void OpnaCore::setModulationWheel(int wheelValue)
 float OpnaCore::getSample() {
     // --- Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
 
-        // --- Actual Synthesis (Run at Target Rate) ---
+        m_prevSample = m_lastSample;
 
-        // LFO Update (Using Target Rate)
+        // ========================================================
+        // 1. LFO 波形の生成（ここは残します！）
+        // ========================================================
         double lfoInc = m_lfoFreq / targetRate;
         m_lfoPhase += lfoInc;
         if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
+        // ★この lfoValue が m_operators[i].getSample() に渡されます
         float lfoValue = 0.0f;
         if (m_lfoPhase < 0.25)      lfoValue = (float)(m_lfoPhase * 4.0);
         else if (m_lfoPhase < 0.75) lfoValue = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
         else                        lfoValue = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
 
-        // AMS
-        float lfoAmpMod = 1.0f;
-        if (m_ams > 0) {
-            float depths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
-            lfoAmpMod = 1.0f - (std::abs(lfoValue) * depths[m_ams & 3]);
-        }
-
-        // PMS (Pitch Modulation Sensitivity)
-        // ★修正: モジュレーションホイールの効果を加算
-        // PMSが設定されていればその深さ、ホイールがあればさらに深く、
-        // PMSが0でもホイールを上げればビブラートがかかるようにする(0.05f = 約半音の半分程度の揺れ)
-        float pmDepth = 0.0f;
-        if (m_pms > 0) {
-            // 実機(YM2151/2608)の仕様に合わせた深度テーブル
-            // 0: 0
-            // 1: +/- 5 cents   (~0.003)
-            // 2: +/- 10 cents  (~0.006)
-            // 3: +/- 20 cents  (~0.012)
-            // 4: +/- 50 cents  (~0.03)
-            // 5: +/- 100 cents (~0.06)  -> 半音
-            // 6: +/- 400 cents (~0.26)  -> 長3度
-            // 7: +/- 700 cents (~0.50)  -> 完全5度 (かなり激しい)
-
-            float depths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-
-            // 旧コード（参考）: { 0.0f, 0.001f, 0.005f, 0.01f, 0.02f, 0.05f, 0.1f, 0.2f };
-
-            pmDepth = depths[m_pms & 7];
-        }
-
-        // ホイールによる追加深度 (最大 0.03 程度 = 30セント強)
-        float wheelDepth = m_modWheel * 0.03f;
-
-        float lfoPitchMod = 1.0f + (lfoValue * (pmDepth + wheelDepth));
-
-        // Routing
-        float out1, out2, out3, out4;
+        // ========================================================
+        // 2. オペレーターの処理とルーティング
+        // ========================================================
+        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
-        // Operators update their state here
-        m_operators[0].getSample(out1, 0.0f, lfoAmpMod, lfoPitchMod);
-
-        if (m_opMask[0]) out1 = 0.0f; // Mask
+        m_operators[0].getSample(out1, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        if (m_opMask[0]) out1 = 0.0f;
 
         switch (m_algorithm) {
         case 0:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4;
+
             break;
         case 1:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1 + out2, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out1 + out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4;
+
             break;
         case 2:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out2, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out3 + out1, lfoAmpMod, lfoPitchMod);
-            finalOut = out4;
-            break;
-        case 3: // 実機ALG 3: OP1->OP2->OP4, OP3->OP4 (出力は4のみ)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out2 + out3, lfoAmpMod, lfoPitchMod); // 2と3を足して4に入れる
+
+            m_operators[3].getSample(out4, out3 + out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4;
+
             break;
-        case 4: // 実機ALG 4: OP1->OP2, OP3->OP4 (出力は2と4)
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
+        case 3:
+            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[1]) out2 = 0.0f;
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
             if (m_opMask[2]) out3 = 0.0f;
-            m_operators[3].getSample(out4, out3, lfoAmpMod, lfoPitchMod);
+
+            m_operators[3].getSample(out4, out2 + out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out4;
+
+            break;
+        case 4:
+            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
 
             finalOut = out2 + out4;
+
             break;
         case 5:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, out1, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out2 + out3 + out4;
+
             break;
         case 6:
-            m_operators[1].getSample(out2, out1, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out2 + out3 + out4;
+
             break;
         default:
-            m_operators[1].getSample(out2, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[1]) out2 = 0.0f; // Mask
-            m_operators[2].getSample(out3, 0, lfoAmpMod, lfoPitchMod);
-            if (m_opMask[2]) out3 = 0.0f; // Mask
-            m_operators[3].getSample(out4, 0, lfoAmpMod, lfoPitchMod);
+            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out2 + out3 + out4;
+
             break;
         }
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
+        finalOut *= 0.25f;
+
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
-
             float norm = (finalOut + 1.0f) * 0.5f;
-            // ※ついでに floor ではなく round にしておくと波形が綺麗になります
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
             finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        // 出力を加算し、ステップ数をカウント
-        sumOut += finalOut;
-        steps++;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    // ループが回った場合は平均を取り、回らなかったら前回の値を維持(Sample&Hold)
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }

@@ -27,12 +27,17 @@ private:
     int m_rateIndex = 1;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+    float m_prevSample = 0.0f;
     float m_quantizeSteps = 0.0f;
 
     // OPM LFO
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
     int m_pms = 0; int m_ams = 0; int m_lfoWave = 2;
+    bool m_pm = false;
+    bool m_am = false;
+    int m_pmd = 0;
+    int m_amd = 0;
 
     // Noise LFSR Variables
     unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)

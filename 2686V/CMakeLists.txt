@@ -24,207 +24,222 @@ juce_add_binary_data(AppIconForAbout
 
 # 定義
 set(CORE_FILES
-    Source/core/FileConstants.h
-    Source/core/GlobalConstants.h
-    Source/core/GuiConstants.h
-    Source/core/LabelConstants.h
-    Source/core/MmlConstants.h
-    Source/core/OpConstants.h
-    Source/core/OpValueRange.h
-    Source/core/PrBase.h
-    Source/core/PrBase.cpp
-    Source/core/PresetConstants.h
+    "Source/core/Global.h"
+    "Source/core/FileValues.h"
+    "Source/core/GuiText.h"
+    "Source/core/GuiValues.h"
+    "Source/core/GuiSelectItems.h"
+    "Source/core/MmlKeys.h"
+    "Source/core/MmlValues.h"
+    "Source/core/PrKeys.h"
+    "Source/core/PrNames.h"
+    "Source/core/PrValues.h"
+    "Source/core/PresetKeys.h"
+    "Source/core/PresetValues.h"
+    "Source/core/SettingsKeys.h"
+    "Source/core/SettingsValues.h"
 )
 
 set(SYNTH_FILES
-    Source/synth/Mode.h
-    Source/synth/Mode.cpp
-    Source/synth/Pcm.h
-    Source/synth/Pcm.cpp
-    Source/synth/SynthHelpers.h
-    Source/synth/SynthHelpers.cpp
-    Source/synth/SynthParams.h
-    Source/synth/SynthVoice.h
-    Source/synth/SynthVoice.cpp
+    "Source/synth/Mode.h"
+    "Source/synth/Mode.cpp"
+    "Source/synth/Pcm.h"
+    "Source/synth/Pcm.cpp"
+    "Source/synth/SynthHelpers.h"
+    "Source/synth/SynthHelpers.cpp"
+    "Source/synth/SynthParams.h"
+    "Source/synth/SynthVoice.h"
+    "Source/synth/SynthVoice.cpp"
 )
 
 set(FM_FILES
-    Source/fm/FmCommon.h
-    Source/fm/FmCommon.cpp
-    Source/fm/RegisterType.h
-    Source/fm/RegisterConverter.h
-    Source/fm/RegisterConverter.cpp
-    Source/fm/SliderRegMap.h
-    Source/fm/SliderRegMap.cpp
+    "Source/fm/FmCommon.h"
+    "Source/fm/FmCommon.cpp"
+    "Source/fm/RegisterType.h"
+    "Source/fm/RegisterConverter.h"
+    "Source/fm/RegisterConverter.cpp"
+    "Source/fm/SliderRegMap.h"
+    "Source/fm/SliderRegMap.cpp"
 )
 
 set(GUI_FILES
-    Source/gui/GuiFile.h
-    Source/gui/GuiFile.cpp
-    Source/gui/GuiBase.h
-    Source/gui/GuiBase.cpp
-    Source/gui/GuiColor.h
-    Source/gui/GuiComponents.h
-    Source/gui/GuiComponents.cpp
-    Source/gui/GuiContext.h
-    Source/gui/GuiHelpers.h
-    Source/gui/GuiHelpers.cpp
-    Source/gui/GuiLF.h
-    Source/gui/GuiLF.cpp
-    Source/gui/GuiSelectItems.h
-    Source/gui/GuiStructs.h
-    Source/gui/GuiStateManager.h
-    Source/gui/GuiStateManager.cpp
+    "Source/gui/GuiFile.h"
+    "Source/gui/GuiFile.cpp"
+    "Source/gui/GuiBase.h"
+    "Source/gui/GuiBase.cpp"
+    "Source/gui/GuiColor.h"
+    "Source/gui/GuiComponents.h"
+    "Source/gui/GuiComponents.cpp"
+    "Source/gui/GuiContext.h"
+    "Source/gui/GuiHelpers.h"
+    "Source/gui/GuiHelpers.cpp"
+    "Source/gui/GuiLF.h"
+    "Source/gui/GuiLF.cpp"
+    "Source/gui/GuiStructs.h"
+    "Source/gui/GuiStateManager.h"
+    "Source/gui/GuiStateManager.cpp"
 )
 
 set(OPNA_FILES
-    Source/OPNA/GuiOpna.h
-    Source/OPNA/GuiOpna.cpp
-    Source/OPNA/OpnaCore.h
-    Source/OPNA/OpnaCore.cpp
-    Source/OPNA/PrOpna.h
-    Source/OPNA/PrOpna.cpp
+    "Source/OPNA/GuiOpna.h"
+    "Source/OPNA/GuiOpna.cpp"
+    "Source/OPNA/OpnaCore.h"
+    "Source/OPNA/OpnaCore.cpp"
+    "Source/OPNA/PrOpna.h"
+    "Source/OPNA/PrOpna.cpp"
 )
 
 set(OPN_FILES
-    Source/OPN/GuiOpn.h
-    Source/OPN/GuiOpn.cpp
-    Source/OPN/OpnCore.h
-    Source/OPN/OpnCore.cpp
-    Source/OPN/PrOpn.h
-    Source/OPN/PrOpn.cpp
+    "Source/OPN/GuiOpn.h"
+    "Source/OPN/GuiOpn.cpp"
+    "Source/OPN/OpnCore.h"
+    "Source/OPN/OpnCore.cpp"
+    "Source/OPN/PrOpn.h"
+    "Source/OPN/PrOpn.cpp"
 )
 
 set(OPL_FILES
-    Source/OPL/GuiOpl.h
-    Source/OPL/GuiOpl.cpp
-    Source/OPL/OplCore.h
-    Source/OPL/OplCore.cpp
-    Source/OPL/PrOpl.h
-    Source/OPL/PrOpl.cpp
+    "Source/OPL/GuiOpl.h"
+    "Source/OPL/GuiOpl.cpp"
+    "Source/OPL/OplCore.h"
+    "Source/OPL/OplCore.cpp"
+    "Source/OPL/PrOpl.h"
+    "Source/OPL/PrOpl.cpp"
 )
 
 set(OPL3_FILES
-    Source/OPL3/GuiOpl3.h
-    Source/OPL3/GuiOpl3.cpp
-    Source/OPL3/Opl3Core.h
-    Source/OPL3/Opl3Core.cpp
-    Source/OPL3/PrOpl3.h
-    Source/OPL3/PrOpl3.cpp
+    "Source/OPL3/GuiOpl3.h"
+    "Source/OPL3/GuiOpl3.cpp"
+    "Source/OPL3/Opl3Core.h"
+    "Source/OPL3/Opl3Core.cpp"
+    "Source/OPL3/PrOpl3.h"
+    "Source/OPL3/PrOpl3.cpp"
 )
 
 set(OPM_FILES
-    Source/OPM/GuiOpm.h
-    Source/OPM/GuiOpm.cpp
-    Source/OPM/OpmCore.h
-    Source/OPM/OpmCore.cpp
-    Source/OPM/PrOpm.h
-    Source/OPM/PrOpm.cpp
+    "Source/OPM/GuiOpm.h"
+    "Source/OPM/GuiOpm.cpp"
+    "Source/OPM/OpmCore.h"
+    "Source/OPM/OpmCore.cpp"
+    "Source/OPM/PrOpm.h"
+    "Source/OPM/PrOpm.cpp"
 )
 
 set(OPZX3_FILES
-    Source/OPZX3/GuiOpzx3.h
-    Source/OPZX3/GuiOpzx3.cpp
-    Source/OPZX3/Opzx3Core.h
-    Source/OPZX3/Opzx3Core.cpp
-    Source/OPZX3/PrOpzx3.h
-    Source/OPZX3/PrOpzx3.cpp
+    "Source/OPZX3/GuiOpzx3.h"
+    "Source/OPZX3/GuiOpzx3.cpp"
+    "Source/OPZX3/Opzx3Core.h"
+    "Source/OPZX3/Opzx3Core.cpp"
+    "Source/OPZX3/PrOpzx3.h"
+    "Source/OPZX3/PrOpzx3.cpp"
 )
 
 set(SSG_FILES
-    Source/SSG/GuiSsg.h
-    Source/SSG/GuiSsg.cpp
-    Source/SSG/PrSsg.h
-    Source/SSG/PrSsg.cpp
-    Source/SSG/SsgCore.h
-    Source/SSG/SsgCore.cpp
+    "Source/SSG/GuiSsg.h"
+    "Source/SSG/GuiSsg.cpp"
+    "Source/SSG/PrSsg.h"
+    "Source/SSG/PrSsg.cpp"
+    "Source/SSG/SsgCore.h"
+    "Source/SSG/SsgCore.cpp"
 )
 
 set(WT_FILES
-    Source/WT/GuiWt.h
-    Source/WT/GuiWt.cpp
-    Source/WT/PrWt.h
-    Source/WT/PrWt.cpp
-    Source/WT/WtCore.h
-    Source/WT/WtCore.cpp
+    "Source/WT/GuiWt.h"
+    "Source/WT/GuiWt.cpp"
+    "Source/WT/PrWt.h"
+    "Source/WT/PrWt.cpp"
+    "Source/WT/WtCore.h"
+    "Source/WT/WtCore.cpp"
 )
 
 set(RHYTHM_FILES
-    Source/RHYTHM/GuiRhythm.h
-    Source/RHYTHM/GuiRhythm.cpp
-    Source/RHYTHM/PrRhythm.h
-    Source/RHYTHM/PrRhythm.cpp
-    Source/RHYTHM/RhythmCore.h
-    Source/RHYTHM/RhythmCore.cpp
+    "Source/RHYTHM/GuiRhythm.h"
+    "Source/RHYTHM/GuiRhythm.cpp"
+    "Source/RHYTHM/PrRhythm.h"
+    "Source/RHYTHM/PrRhythm.cpp"
+    "Source/RHYTHM/RhythmCore.h"
+    "Source/RHYTHM/RhythmCore.cpp"
 )
 
 set(ADPCM_FILES
-    Source/ADPCM/AdpcmCore.h
-    Source/ADPCM/AdpcmCore.cpp
-    Source/ADPCM/GuiAdpcm.h
-    Source/ADPCM/GuiAdpcm.cpp
-    Source/ADPCM/PrAdpcm.h
-    Source/ADPCM/PrAdpcm.cpp
+    "Source/ADPCM/AdpcmCore.h"
+    "Source/ADPCM/AdpcmCore.cpp"
+    "Source/ADPCM/GuiAdpcm.h"
+    "Source/ADPCM/GuiAdpcm.cpp"
+    "Source/ADPCM/PrAdpcm.h"
+    "Source/ADPCM/PrAdpcm.cpp"
+)
+
+set(BEEP_FILES
+    "Source/BEEP/GuiBeep.h"
+    "Source/BEEP/GuiBeep.cpp"
+    "Source/BEEP/BeepCore.h"
+    "Source/BEEP/BeepCore.cpp"
+    "Source/BEEP/PrBeep.h"
+    "Source/BEEP/PrBeep.cpp"
 )
 
 set(FX_FILES
-    Source/FX/FxCore.h
-    Source/FX/FxCore.cpp
-    Source/FX/GuiFx.h
-    Source/FX/GuiFx.cpp
-    Source/FX/PrFx.h
-    Source/FX/PrFx.cpp
+    "Source/FX/FxCore.h"
+    "Source/FX/FxCore.cpp"
+    "Source/FX/GuiFx.h"
+    "Source/FX/GuiFx.cpp"
+    "Source/FX/PrFx.h"
+    "Source/FX/PrFx.cpp"
 )
 
 set(PRESET_FILES
-    Source/PRESET/GuiPreset.h
-    Source/PRESET/GuiPreset.cpp
+    "Source/PRESET/GuiPreset.h"
+    "Source/PRESET/GuiPreset.cpp"
 )
 
 set(SETTINGS_FILES
-    Source/SETTINGS/GuiSettings.h
-    Source/SETTINGS/GuiSettings.cpp
+    "Source/SETTINGS/GuiSettings.h"
+    "Source/SETTINGS/GuiSettings.cpp"
 )
 
 set(ABOUT_FILES
-    Source/ABOUT/GuiAbout.h
-    Source/ABOUT/GuiAbout.cpp
+    "Source/ABOUT/GuiAbout.h"
+    "Source/ABOUT/GuiAbout.cpp"
 )
 
 set(PROCESSOR_FILES
-    Source/processor/PluginProcessor.h
-    Source/processor/PluginProcessor.cpp
+    "Source/processor/PrBase.h"
+    "Source/processor/PrBase.cpp"
+    "Source/processor/PluginProcessor.h"
+    "Source/processor/PluginProcessor.cpp"
 )
 
 set(EDITOR_FILES
-    Source/editor/PluginEditor.h
-    Source/editor/PluginEditor.cpp
+    "Source/editor/PluginEditor.h"
+    "Source/editor/PluginEditor.cpp"
 )
 
-set(DOCUMENT_FILES ../readme.md)
+set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
-source_group("[Core]Main" FILES ${CORE_FILES})
-source_group("[Core]Synth" FILES ${SYNTH_FILES})
-source_group("[Core]FM" FILES ${FM_FILES})
-source_group("[Core]Gui" FILES ${GUI_FILES})
-source_group("[Core]Processor" FILES ${PROCESSOR_FILES})
-source_group("[Core]Editor" FILES ${EDITOR_FILES})
-source_group("[Core]Docs" FILES ${DOCUMENT_FILES})
-source_group("[TAB]OPNA" FILES ${OPNA_FILES})
-source_group("[TAB]OPN" FILES ${OPN_FILES})
-source_group("[TAB]OPL" FILES ${OPL_FILES})
-source_group("[TAB]OPL3" FILES ${OPL3_FILES})
-source_group("[TAB]OPM" FILES ${OPM_FILES})
-source_group("[TAB]OPZX3" FILES ${OPZX3_FILES})
-source_group("[TAB]SSG" FILES ${SSG_FILES})
-source_group("[TAB]WT" FILES ${WT_FILES})
-source_group("[TAB]RHYTHM" FILES ${RHYTHM_FILES})
-source_group("[TAB]ADPCM" FILES ${ADPCM_FILES})
-source_group("[TAB]FX" FILES ${FX_FILES})
-source_group("[TAB]PRESET" FILES ${PRESET_FILES})
-source_group("[TAB]SETTINGS" FILES ${SETTINGS_FILES})
-source_group("[TAB]ABOUT" FILES ${ABOUT_FILES})
+source_group("[Core01]Main" FILES ${CORE_FILES})
+source_group("[Core02]Synth" FILES ${SYNTH_FILES})
+source_group("[Core03]FM" FILES ${FM_FILES})
+source_group("[Core04]Gui" FILES ${GUI_FILES})
+source_group("[Core05]Processor" FILES ${PROCESSOR_FILES})
+source_group("[Core06]Editor" FILES ${EDITOR_FILES})
+source_group("[Core07]Docs" FILES ${DOCUMENT_FILES})
+source_group("[TAB 01]OPNA" FILES ${OPNA_FILES})
+source_group("[TAB 02]OPN" FILES ${OPN_FILES})
+source_group("[TAB 03]OPL" FILES ${OPL_FILES})
+source_group("[TAB 04]OPL3" FILES ${OPL3_FILES})
+source_group("[TAB 05]OPM" FILES ${OPM_FILES})
+source_group("[TAB 06]OPZX3" FILES ${OPZX3_FILES})
+source_group("[TAB 07]SSG" FILES ${SSG_FILES})
+source_group("[TAB 08]WT" FILES ${WT_FILES})
+source_group("[TAB 09]RHYTHM" FILES ${RHYTHM_FILES})
+source_group("[TAB 10]ADPCM" FILES ${ADPCM_FILES})
+source_group("[TAB 11]BEEP" FILES ${BEEP_FILES})
+source_group("[TAB 12]PRESET" FILES ${PRESET_FILES})
+source_group("[TAB 13]FX" FILES ${FX_FILES})
+source_group("[TAB 14]SETTINGS" FILES ${SETTINGS_FILES})
+source_group("[TAB 15]ABOUT" FILES ${ABOUT_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
@@ -285,6 +300,7 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
             ${WT_FILES}
             ${RHYTHM_FILES}
             ${ADPCM_FILES}
+            ${BEEP_FILES}
             ${FX_FILES}
             ${PRESET_FILES}
             ${SETTINGS_FILES}
@@ -298,6 +314,7 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
         VstLogoForAbout
         juce::juce_audio_utils
         juce::juce_recommended_config_flags
+        juce::juce_dsp
     )
 
     target_compile_definitions(${TARGET_NAME} PRIVATE JUCE_VST3_CAN_REPLACE_VST2=0)

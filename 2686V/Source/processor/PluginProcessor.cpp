@@ -1,4 +1,8 @@
 ﻿#include "PluginProcessor.h"
+#include "../core/GuiValues.h"
+#include "../core/PrNames.h"
+#include "../core/SettingsKeys.h"
+#include "../core/SettingsValues.h"
 
 // ============================================================================
 // Constructor
@@ -8,20 +12,20 @@ AudioPlugin2686V::AudioPlugin2686V()
     : AudioProcessor(BusesProperties()
 #if defined(BUILD_AS_FX_PLUGIN)
         // FXモード: ステレオ入力あり、ステレオ出力あり
-        .withInput(audioInputName, juce::AudioChannelSet::stereo(), true)
-        .withOutput(audioOutputName, juce::AudioChannelSet::stereo(), true)
+        .withInput(Global::Audio::input, juce::AudioChannelSet::stereo(), true)
+        .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
 #else
         // シンセモード: 入力なし、ステレオ出力あり
-        .withOutput(audioOutputName, juce::AudioChannelSet::stereo(), true)
+        .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
 #endif
     ),
     // Initialize APVTS (Parameters are created here)
-    apvts(*this, nullptr, pluginParametersName, createParameterLayout()) // APVTSの初期化
+    apvts(*this, nullptr, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
 #if !defined(BUILD_AS_FX_PLUGIN)
     m_synth.addSound(new SynthSound());
-    for (int i = 0; i < voices; i++) {
+    for (int i = 0; i < Global::voices; i++) {
         m_synth.addVoice(new SynthVoice());
     }
 
@@ -47,10 +51,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 
 #if defined(BUILD_AS_FX_PLUGIN)
     // Mode: 0:FX, 1:SETTING, 2:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(codeMode, modeLabel, 0, TabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
 #else
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX3 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(codeMode, modeLabel, 0, TabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
 	prOpn.createLayout(layout);
@@ -62,17 +66,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prWt.createLayout(layout);
 	prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
+    prBeep.createLayout(layout);
 #endif
 	prFx.createLayout(layout);
 
-    // ★マスターボリューム追加
+    // マスターボリューム追加
     // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
     // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        codeMasterVol,      // パラメータID
-        masterVolumeLabel,      // 表示名
-        juce::NormalisableRange<float>(masterVolumeMin, masterVolumeMax, masterVolumeInterval, masterVolumeSkew), // 範囲とステップ
-        masterVolumeDefault              // デフォルト値
+        PrKey::masterVol,      // パラメータID
+        PrName::master_vol,      // 表示名
+        juce::NormalisableRange<float>(PrValue::MasterVol::min, PrValue::MasterVol::max, PrValue::MasterVol::interval, PrValue::MasterVol::skew), // 範囲とステップ
+        PrValue::MasterVol::initial              // デフォルト値
     ));
 
     return layout;
@@ -131,7 +136,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     buffer.clear();
 
     // --- Global ---
-    int m = (int)*apvts.getRawParameterValue(codeMode);
+    int m = (int)*apvts.getRawParameterValue(PrKey::mode);
     params.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
     switch (params.mode)
@@ -166,6 +171,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     case OscMode::ADPCM:
 		prAdpcm.processBlock(params, apvts);
         break;
+    case OscMode::BEEP:
+        prBeep.processBlock(params, apvts);
+        break;
     }
 
     // Apply to each voice
@@ -189,7 +197,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
 	prFx.processBlock(buffer, params, apvts);
 
-    float dbValue = *apvts.getRawParameterValue(codeMasterVol);
+    float dbValue = *apvts.getRawParameterValue(PrKey::masterVol);
 
     // 2. dBをリニアな倍率(0.0 ～ 2.0くらい)に変換
     // -60dBなら 0.001, 0dBなら 1.0, +6dBなら 2.0
@@ -215,32 +223,26 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         }
     }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
+    // FX専用プラグインでもリアルタイム波形を取得できるようにする
     if (previewVisiblity)
     {
-        // リアルタイムプレビュー用の波形保存（常に最新の512サンプルを維持して流す）
         auto* finalOutL = buffer.getReadPointer(0);
         int numSamples = buffer.getNumSamples();
         int bufferSize = 512;
 
-        // 今回追加するサンプル数と、残しておく過去のサンプル数を計算
         int shiftAmount = juce::jmin(numSamples, bufferSize);
         int keepAmount = bufferSize - shiftAmount;
 
-        // 1. 既存の波形データを左にずらす（古いデータを押し出して捨てる）
         for (int i = 0; i < keepAmount; ++i) {
             float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
             realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
         }
 
-        // 2. 空いた右側のスペースに、今回の最新の波形データを繋げる
         for (int i = 0; i < shiftAmount; ++i) {
-            // DAWからのブロックサイズが512より大きい場合も考慮して末尾から取得
             float newVal = finalOutL[numSamples - shiftAmount + i];
             realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
         }
     }
-#endif
 }
 
 // ============================================================================
@@ -328,7 +330,7 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
 // Parameters / Settings Related
-const juce::String AudioPlugin2686V::getName() const { return pluginName; }
+const juce::String AudioPlugin2686V::getName() const { return Global::Plugin::name; }
 bool AudioPlugin2686V::acceptsMidi() const { return true; }
 bool AudioPlugin2686V::producesMidi() const { return false; }
 bool AudioPlugin2686V::isMidiEffect() const { return false; }
@@ -343,24 +345,24 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // メタデータとパスを属性として追加
-    xml->setAttribute(settingPresetName, sanitizeString(presetName, presetNameLength));
-    xml->setAttribute(settingPresetAuthor, sanitizeString(presetAuthor, presetAuthorLength));
-    xml->setAttribute(settingPresetVersion, sanitizeString(presetVersion, presetVersionLength));
-    xml->setAttribute(settingPresetComment, sanitizeString(presetComment, commentLength));
-    xml->setAttribute(settingActiveModeName, getModeName((OscMode)(int)*apvts.getRawParameterValue(codeMode)));
-    xml->setAttribute(settingPluginVersion, pluginVersion);
+    xml->setAttribute(PresetKey::name, sanitizeString(presetName, PresetValue::MetaData::Length::name));
+    xml->setAttribute(PresetKey::author, sanitizeString(presetAuthor, PresetValue::MetaData::Length::author));
+    xml->setAttribute(PresetKey::version, sanitizeString(presetVersion, PresetValue::MetaData::Length::version));
+    xml->setAttribute(PresetKey::comment, sanitizeString(presetComment, PresetValue::MetaData::Length::comment));
+    xml->setAttribute(PresetKey::mode, getModeName((OscMode)(int)*apvts.getRawParameterValue(PrKey::mode)));
+    xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
 
     // サンプルパス保存 (ADPCM)
-    xml->setAttribute(settingAdpcmPath, makePathRelative(juce::File(adpcmFilePath)));
+    xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
 
     // サンプルパス保存 (RHYTHM)
     for (int i = 0; i < 8; ++i) {
-        xml->setAttribute(settingRhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
+        xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
     }
 
     // サンプルパス保存 (OPZX3)
     for (int i = 0; i < 4; ++i) {
-        xml->setAttribute(settingOpzx3PathPrefix + juce::String(i), makePathRelative(juce::File(opzx3PcmFilePaths[i])));
+        xml->setAttribute(PresetKey::opzx3PathPrefix + juce::String(i), makePathRelative(juce::File(opzx3PcmFilePaths[i])));
     }
 };
 
@@ -372,14 +374,14 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 
         // メタデータ復帰
-        presetName = xmlState->getStringAttribute(settingPresetName, defaultPresetName);
-        presetAuthor = xmlState->getStringAttribute(settingPresetAuthor, defaultPresetAuthor);
-        presetVersion = xmlState->getStringAttribute(settingPresetVersion, defaultPresetVersion);
-        presetComment = xmlState->getStringAttribute(settingPresetComment, defaultPresetComment);
-        presetPluginVersion = xmlState->getStringAttribute(settingPluginVersion, pluginVersion);
+        presetName = xmlState->getStringAttribute(PresetKey::name, PresetValue::MetaData::Initial::name);
+        presetAuthor = xmlState->getStringAttribute(PresetKey::author, PresetValue::MetaData::Initial::author);
+        presetVersion = xmlState->getStringAttribute(PresetKey::version, PresetValue::MetaData::Initial::version);
+        presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
+        presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
 
         // サンプル復帰 (ADPCM)
-        juce::String storedAdpcm = xmlState->getStringAttribute(settingAdpcmPath);
+        juce::String storedAdpcm = xmlState->getStringAttribute(PresetKey::adpcmPath);
         juce::File adpcmFile = resolvePath(storedAdpcm);
         if (adpcmFile.existsAsFile()) {
             loadAdpcmFile(adpcmFile);
@@ -387,7 +389,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
         // サンプル復帰 (RHYTHM)
         for (int i = 0; i < 8; ++i) {
-            juce::String storedRhy = xmlState->getStringAttribute(defaultPresetComment + juce::String(i));
+            juce::String storedRhy = xmlState->getStringAttribute(PresetKey::rhythmPathPrefix + juce::String(i));
             juce::File rhyFile = resolvePath(storedRhy);
             if (rhyFile.existsAsFile()) {
                 loadRhythmFile(rhyFile, i);
@@ -396,7 +398,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
         // サンプル復帰 (OPZX3)
         for (int i = 0; i < 4; ++i) {
-            juce::String storedPath = xmlState->getStringAttribute(settingOpzx3PathPrefix + juce::String(i));
+            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx3PathPrefix + juce::String(i));
             juce::File file = resolvePath(storedPath);
             if (file.existsAsFile()) {
                 loadOpzx3PcmFile(i, file);
@@ -500,25 +502,25 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postAr, prefix + opPostArLabel, opArMin, opArMax, opArDefault));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postDr, prefix + opPostDrLabel, opDrMin, opDrMax, opDrDefault));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postSl, prefix + opPostSlLabel, opSlMin, opSlMax, opSlDefault));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + postRr, prefix + opPostRrLabel, opRrMin, opRrMax, opRrDefault));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::ar, prefix + PrKey::Post::Adsr::ar, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::dr, prefix + PrKey::Post::Adsr::dr, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::sl, prefix + PrKey::Post::Adsr::sl, PrValue::Adsr::Sl::min, PrValue::Adsr::Sl::max, PrValue::Adsr::Sl::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::rr, prefix + PrKey::Post::Adsr::rr, PrValue::Adsr::Rr::min, PrValue::Adsr::Rr::max, PrValue::Adsr::Rr::initial));
 }
 
 // 環境設定を保存
 void AudioPlugin2686V::saveEnvironment(const juce::File& file)
 {
-    juce::XmlElement xml(envCode);
+    juce::XmlElement xml(SettingsKey::envCode);
 
-    xml.setAttribute(settingWallpaperPath, wallpaperPath);
-    xml.setAttribute(settingWallpaperMode, wallpaperMode);
-    xml.setAttribute(settingDefaultSampleDir, defaultSampleDir);
-    xml.setAttribute(settingDefaultPresetDir, defaultPresetDir);
-    xml.setAttribute(settingShowTooltips, showTooltips);
-    xml.setAttribute(settingUseHeadroom, useHeadroom);
-    xml.setAttribute(settingHeadroomGain, headroomGain);
-    xml.setAttribute(settingShowVirtualKeyboard, showVirtualKeyboard);
+    xml.setAttribute(SettingsKey::wallpaperPath, wallpaperPath);
+    xml.setAttribute(SettingsKey::wallpaperMode, wallpaperMode);
+    xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
+    xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
+    xml.setAttribute(SettingsKey::showTooltips, showTooltips);
+    xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
+    xml.setAttribute(SettingsKey::headroomGain, headroomGain);
+    xml.setAttribute(SettingsKey::showVirtualKeyboard, showVirtualKeyboard);
 
     xml.writeTo(file);
 }
@@ -529,16 +531,16 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
     juce::XmlDocument xmlDoc(file);
     std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
 
-    if (xml.get() != nullptr && xml->hasTagName(envCode))
+    if (xml.get() != nullptr && xml->hasTagName(SettingsKey::envCode))
     {
-        wallpaperPath = xml->getStringAttribute(settingWallpaperPath);
-        wallpaperMode = xml->getIntAttribute(settingWallpaperMode);
-        defaultSampleDir = xml->getStringAttribute(settingDefaultSampleDir);
-        defaultPresetDir = xml->getStringAttribute(settingDefaultPresetDir);
-        showTooltips = xml->getBoolAttribute(settingShowTooltips, defaultShowTooltip);
-        useHeadroom = xml->getBoolAttribute(settingUseHeadroom, defaultUseHeadroom);
-        headroomGain = xml->getDoubleAttribute(settingHeadroomGain, defaultHeadroomGain);
-        showVirtualKeyboard = xml->getBoolAttribute(settingShowVirtualKeyboard, true);
+        wallpaperPath = xml->getStringAttribute(SettingsKey::wallpaperPath);
+        wallpaperMode = xml->getIntAttribute(SettingsKey::wallpaperMode);
+        defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
+        defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
+        showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
+        useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
+        headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
+        showVirtualKeyboard = xml->getBoolAttribute(SettingsKey::showVirtualKeyboard, SettingsValue::Initial::showVirtualKeyboard);
 #if !defined(BUILD_AS_FX_PLUGIN)
         // 内部変数の更新
         if (juce::File(defaultSampleDir).isDirectory()) {
@@ -553,8 +555,8 @@ void AudioPlugin2686V::loadStartupSettings()
     // 1. 読み込むディレクトリとファイル名を指定
     // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    auto pluginDir = docDir.getChildFile(assetFolder);
-    auto presetFile = pluginDir.getChildFile(defaultSettingFilename);
+    auto pluginDir = docDir.getChildFile(Io::Folder::asset);
+    auto presetFile = pluginDir.getChildFile(SettingsValue::File::Name::initial);
 
     if (!pluginDir.exists()) {
         pluginDir.createDirectory();
@@ -569,7 +571,7 @@ void AudioPlugin2686V::loadStartupSettings()
         std::unique_ptr<juce::XmlElement> xml = xmlDoc.getDocumentElement();
 
         // XMLとして不正、またはルートタグが期待するものでない場合は破損とみなす
-        if (xml == nullptr || !xml->hasTagName(envCode))
+        if (xml == nullptr || !xml->hasTagName(SettingsKey::envCode))
         {
             DBG("Startup settings file is corrupted. Deleting...");
             presetFile.deleteFile(); // 破損ファイルを削除
@@ -586,7 +588,7 @@ void AudioPlugin2686V::loadStartupSettings()
     // プリセットディレクトリ・ADPCMディレクトリが空の時は初期値を設定する
     if (defaultPresetDir.isEmpty() || !juce::File(defaultPresetDir).isDirectory())
     {
-        auto newPresetDir = pluginDir.getChildFile(presetFolder);
+        auto newPresetDir = pluginDir.getChildFile(Io::Folder::preset);
 
         // 存在していなければ作成
         if (!newPresetDir.exists()) {
@@ -598,7 +600,7 @@ void AudioPlugin2686V::loadStartupSettings()
 
     if (defaultSampleDir.isEmpty() || !juce::File(defaultSampleDir).isDirectory())
     {
-        auto newSampleDir = pluginDir.getChildFile(sampleFolder);
+        auto newSampleDir = pluginDir.getChildFile(Io::Folder::sample);
 
         // 存在していなければ作成
         if (!newSampleDir.exists()) {
@@ -667,9 +669,10 @@ juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
     if (targetFile == juce::File() || defaultSampleDir.isEmpty())
         return targetFile.getFullPathName();
 
-    std::filesystem::path fpath = std::filesystem::path(targetFile.getFullPathName().toStdString());
+    juce::File baseDir(defaultSampleDir);
 
-    return juce::String(fpath.lexically_relative(defaultSampleDir.toStdString()).generic_string());
+    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
+    return targetFile.getRelativePathFrom(baseDir);
 }
 
 // パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
@@ -677,31 +680,23 @@ juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
 {
     if (pathStr.isEmpty()) return juce::File();
 
-    std::string fpathStr = pathStr.toStdString();
-
-    std::filesystem::path fPath = fpathStr;
-
-    // すでに絶対パスであれば、そのまま使う (互換性維持のため)
-    if (fPath.is_absolute())
+    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
+    if (juce::File::isAbsolutePath(pathStr))
     {
-        juce::File file(pathStr);
-
-        return file;
+        return juce::File(pathStr);
     }
 
     // 相対パスの場合は defaultSampleDir と結合する
     if (defaultSampleDir.isNotEmpty())
     {
-        std::filesystem::path baseDir = defaultSampleDir.toStdString();
-        juce::String fullPath = juce::String(baseDir.append(fpathStr).generic_string());
+        juce::File baseDir(defaultSampleDir);
 
-        return juce::File(fullPath);
+        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
+        return baseDir.getChildFile(pathStr);
     }
 
-    // ベースディレクトリがない場合は解決不能だが、一応そのまま返す
-    juce::File file(pathStr);
-
-    return file;
+    // ベースディレクトリがない場合は一応そのまま返す
+    return juce::File(pathStr);
 }
 
 // コメントなどのサニタイズ (static)
@@ -721,7 +716,7 @@ juce::String AudioPlugin2686V::sanitizeString(const juce::String& input, int len
     for (auto t : clean)
     {
         // 印字可能文字、または許可された制御文字なら採用
-        if (juce::CharacterFunctions::isPrintable(t) || allowedControlChars.containsChar(t))
+        if (juce::CharacterFunctions::isPrintable(t) || Global::Plugin::allowedControlChars.containsChar(t))
         {
             sanitized += t;
         }
@@ -753,10 +748,10 @@ void AudioPlugin2686V::initPreset()
     }
 
     // 2. メタデータのリセット
-    presetName = defaultPresetName;
-    presetAuthor = defaultPresetAuthor;
-    presetVersion = defaultPresetVersion;
-    presetComment = defaultPresetComment;
+    presetName = PresetValue::MetaData::Initial::name;
+    presetAuthor = PresetValue::MetaData::Initial::author;
+    presetVersion = PresetValue::MetaData::Initial::version;
+    presetComment = PresetValue::MetaData::Initial::comment;
 
     // 3. サンプルのアンロードとパスクリア
     unloadAdpcmFile();
@@ -808,7 +803,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 {
     // 1. パラメータの取得と設定
     SynthParams currentParams;
-    int m = (int)*apvts.getRawParameterValue(codeMode);
+    int m = (int)*apvts.getRawParameterValue(PrKey::mode);
     currentParams.mode = (OscMode)m;
 
     switch (currentParams.mode) {
@@ -846,6 +841,23 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     juce::AudioBuffer<float> renderBuffer(2, renderSamples);
     renderBuffer.clear();
     previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
+
+    // 一時的なFXプロセッサを作成（現在の状態を汚さないため）
+    FxProcessor tempFx;
+    tempFx.prepare(44000.0);
+    // 現在のパラメータを適用してFX処理
+    tempFx.processBlock(renderBuffer, currentParams, apvts);
+
+    // マスターボリュームとソフトクリッパーの適用
+    float dbValue = *apvts.getRawParameterValue(PrKey::masterVol);
+    float linearGain = juce::Decibels::decibelsToGain(dbValue);
+
+    for (int ch = 0; ch < renderBuffer.getNumChannels(); ++ch) {
+        auto* data = renderBuffer.getWritePointer(ch);
+        for (int i = 0; i < renderSamples; ++i) {
+            data[i] = std::tanh(data[i] * linearGain);
+        }
+    }
 
     auto* readPtr = renderBuffer.getReadPointer(0);
 

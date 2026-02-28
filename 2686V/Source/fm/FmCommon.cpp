@@ -29,9 +29,34 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     m_currentLevel = 0.0f;
 
-    // Fixed Mode
+    // ========================================================
+    // Base Frequency Calculation (PCMのサンプラー挙動対応)
+    // ========================================================
     float baseFreq = frequency;
-    if (m_params.fixedMode) baseFreq = m_params.fixedFreq;
+
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        if (m_params.fixedMode) {
+            // FIXモード時: fixedFreq(1.0等) を「再生速度の倍率」として扱う
+            baseFreq = originalHz * m_params.fixedFreq;
+        }
+        else {
+            // キーボードモード時: C4 (Note 60, 約261.626Hz) を Root Key(等速) としてピッチを変化
+            float rootFreq = 261.625565f;
+            float pitchRatio = frequency / rootFreq;
+            baseFreq = originalHz * pitchRatio;
+        }
+    }
+    else
+    {
+        // --- 通常の波形（Sineなど）の場合 ---
+        if (m_params.fixedMode) {
+            baseFreq = m_params.fixedFreq;
+        }
+    }
 
     // Detune
     // Range: -3 to +3 (Derived from params.detune 0-7)
@@ -129,196 +154,265 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     updateIncrementsWithKeyScale();
 }
 
-// --- Processing ---
-// output: 結果書き込み先
-// modulator: FM変調入力
-// lfoAmp: AM変調 (1.0 = 変調なし)
-// lfoPitch: PM変調 (1.0 = 変調なし)
+// =====================================================================
+// ① 直接指定版 (OPL / OPL3 等用)
+// =====================================================================
 void FmOperator::getSample(float& output, float modulator, float lfoAmp, float lfoPitch)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
-    // 1. ADSR Update
     updateEnvelopeState();
-
-    // 2. Calculate Envelope Value
-    // ここではエンベロープの形状(0.0-1.0)のみを取得し、
-    // 最終的な音量は出力段で掛けます。
     float envVal = m_currentLevel;
 
-    // SSG-EG (OPNA Only)
     if (m_useSsgEg && m_params.ssgEg > 0) {
         envVal *= getSsgEnvelopeLevel(m_ssgPhase);
-
-        // 音程(m_phaseDelta)ではなく、設定した周波数(m_ssgEgFreq)で進める
-        // これにより、音程に関わらず一定の速度でシュワシュワします
         double phaseInc = (double)m_ssgEgFreq / m_sampleRate;
         m_ssgPhase += phaseInc;
     }
 
-    // LFO AM (OPNA Only)
-    if (m_params.amEnable) {
-        envVal *= lfoAmp;
-    }
+    // AM適用 (無条件。変調がない場合はコア側から 1.0 が渡ってくる)
+    envVal *= lfoAmp;
 
-    // 3. Phase & Waveform
-    // Feedback
     float feedbackMod = 0.0f;
     if (m_feedback > 0.0f) {
-        // 実機のFB(0〜7)の掛かり具合に近似させる
         float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    // LFO PM (OPNA Only)
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio;
+    // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
+    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitch;
 
-    currentPhaseDelta *= lfoPitch;
-
-    // YMチップ実機と同等のFM変調の深さ（モジュレーションインデックス）を設定
-    // Modulator に対して、FM変調の最大インデックスを実機のスケール(約4π)に設定
+    // --------------------------------------------------------
+    // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
+    // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    // 変調波(modulator)にインデックスを掛けてから足す
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 波形の長さから「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float scale = originalHz / 261.625565f;
+
+        // 極端に小さくなりすぎないよう、最低限の変調は残す
+        scale = std::max(scale, 0.005f);
+
+        // FM変調インデックスを波形の長さに合わせて縮小
+        fmModIndex *= scale;
+    }
+
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
-
-    // Wave Select (OPL Only / Standard Sine)
-    // ここで m_targetLevel (Velocity/TL) を適用します！
-    // これにより、Attackが1.0に張り付くスパイクノイズが解消されます。
     output = rawWave * envVal * m_targetLevel;
 
-    // 外部フィードバックモードでない場合のみ、自身の出力を格納する
     if (!m_isExternalFeedback) {
         m_fb2 = m_fb1;
         m_fb1 = output;
     }
 
-    // Phase Advance
     m_phase += currentPhaseDelta;
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
 
-// 29種類の波形生成ロジック
-// phase: 0.0 ～ 1.0 (正規化された位相)
-// wave: 0 ～ 28 (波形番号)
+// =====================================================================
+// ② ハイブリッドLFO版 (OPNA / OPM / OPZX3 / OPN 用)
+// =====================================================================
+void FmOperator::getSample(float& output, float modulator, float lfoVal,
+    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+{
+    if (m_state == State::Idle) { output = 0.0f; return; }
+
+    updateEnvelopeState();
+    float envVal = m_currentLevel;
+
+    if (m_useSsgEg && m_params.ssgEg > 0) {
+        envVal *= getSsgEnvelopeLevel(m_ssgPhase);
+        m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
+    }
+
+    // ========================================================
+    // 1. Amplitude Modulation (Tremolo / Wah) の計算
+    // ========================================================
+    float amsDepths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
+    float totalAmDepth = 0.0f;
+
+    // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
+    if (globalAm) {
+        float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
+        totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
+    }
+
+    // ② ローカルAM (このOP独自の揺れ深さ)
+    if (m_params.amEnable) {
+        totalAmDepth += amsDepths[std::clamp(m_params.ams, 0, 3)];
+    }
+
+    // 上限を1.0(100%)でクリップ
+    totalAmDepth = std::min(totalAmDepth, 1.0f);
+
+    if (totalAmDepth > 0.0f) {
+        float lfoAmpMod = 1.0f - (std::abs(lfoVal) * totalAmDepth);
+        envVal *= lfoAmpMod; // 音量に直接適用
+    }
+
+    // ========================================================
+    // 2. Pitch Modulation (Vibrato) の計算
+    // ========================================================
+    float pmsDepths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
+    float totalPmDepth = 0.0f;
+
+    // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
+    if (globalPm) {
+        float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
+        totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
+    }
+
+    // ② ローカルPM (このOP独自の揺れ深さ)
+    if (m_params.vibEnable) {
+        totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
+    }
+
+    // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
+    float wheelDepth = modWheel * 0.03f;
+    totalPmDepth += wheelDepth;
+
+    float lfoPitchMod = 1.0f + (lfoVal * totalPmDepth);
+
+    // ========================================================
+    // 3. 位相と波形の生成
+    // ========================================================
+    float feedbackMod = 0.0f;
+    if (m_feedback > 0.0f) {
+        float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
+        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
+    }
+
+    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+
+    // --------------------------------------------------------
+    // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
+    // --------------------------------------------------------
+    float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+
+    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    {
+        // 波形の長さから「本来の周波数（等速のHz）」を計算
+        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+
+        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float scale = originalHz / 261.625565f;
+
+        // 極端に小さくなりすぎないよう、最低限の変調は残す
+        scale = std::max(scale, 0.005f);
+
+        // FM変調インデックスを波形の長さに合わせて縮小
+        fmModIndex *= scale;
+    }
+
+    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
+
+    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
+
+    output = rawWave * envVal * m_targetLevel;
+
+    if (!m_isExternalFeedback) {
+        m_fb2 = m_fb1;
+        m_fb1 = output;
+    }
+
+    m_phase += currentPhaseDelta;
+    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+}
+
 float FmOperator::calcWaveform(double phase, int wave)
 {
-    float p = std::fmod(phase, 2.0f * juce::MathConstants<float>::pi);
+    // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
+    float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
     if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
+
+    // サイン波はラジアンで計算
     float s = std::sin(p);
 
-    if (!m_useWaveSelect) return s; // Default Sine
+    if (!m_useWaveSelect) return s; // Default Sine (OPN/OPNA/OPM)
 
+    // 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
+    float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
+
+    // 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
     switch (wave) {
         // 0-7: OPZ / OPL3 Compatible Set
-    case 0:  return (float)s; // Sine
-    case 1:  return (float)(phase < 0.5 ? s : 0.0); // Half Sine
-    case 2:  return (float)(std::abs(s)); // Abs Sine
+    case 0:  return s; // Sine
+    case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+    case 2:  return std::abs(s); // Abs Sine
     case 3:
-        if (m_useSsgEg)
-        {
-            return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-        }
-        else
-        {
-            return (float)(phase < 0.25 ? s : 0.0); // Quarter Sine (Pulse Sine)
-        }
-    // OPL3の Wave 4 (Alternating Sine)
-    // 2倍の速度でサイン波を1周期描くが、後半(phase >= 0.5)はゼロになる
-    case 4:
-        return (float)(phase < 0.5 ? std::sin(p * 2.0) : 0.0);
-
-        // ★修正: OPL3の Wave 5 (Alternating Abs Sine)
-        // 2倍の速度で全波整流を描くが、後半(phase >= 0.5)はゼロになる
-    case 5:
-        return (float)(phase < 0.5 ? std::abs(std::sin(p * 2.0)) : 0.0);
-
-    case 6:  return (float)(phase < 0.5 ? 1.0 : -1.0); // Square
-
-    // OPL3の Wave 7 (Derived Square / Exponentiated Sine)
-    // 実機は対数テーブルから生成された、頭が少し丸い特殊な矩形波。
-    // 近似として「サイン波を少し歪ませた形」に修正します。
+        if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
+        else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
+    case 4:  return (normPhase < 0.5f ? std::sin(p * 2.0f) : 0.0f);
+    case 5:  return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
+    case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
     case 7:
     {
-        float sign = (phase < 0.5) ? 1.0f : -1.0f;
-        // サイン波を指数関数的に持ち上げて矩形波に近づける(OPL3独特の硬い音)
+        float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
         return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
     }
-    // Or simple Saw approximation using Sine segments?
-    // SD-1 7 is "Exponentiated Sine" or "Derived Square".
-    // Let's use "Square-ish Sine" for now.
     // 8-12: Saw / Tri Variations
-    case 8:  return (float)(1.0 - phase * 2.0); // Saw Down
-    case 9:  return (float)(phase * 2.0 - 1.0); // Saw Up
+    case 8:  return (1.0f - normPhase * 2.0f); // Saw Down
+    case 9:  return (normPhase * 2.0f - 1.0f); // Saw Up
     case 10: // Triangle
-        return (float)(phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
-    case 11: // Saw + Sine combined (Hybrid)
-        return (float)((1.0 - phase * 2.0) * 0.5 + s * 0.5);
-    case 12: // Log Saw (Buzzy)
+        return (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+    case 11: // Saw + Sine combined
+        return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
+    case 12: // Log Saw
     {
-        double saw = 1.0 - phase * 2.0;
-        return (float)(saw * saw * saw); // Cubic curve
+        float saw = 1.0f - normPhase * 2.0f;
+        return saw * saw * saw;
     }
-    // 13-18: Pulse / Square Variations (Duty Cycles)
-    case 13: return (float)(phase < 0.25 ? 1.0 : -1.0); // Pulse 25%
-    case 14: return (float)(phase < 0.125 ? 1.0 : -1.0); // Pulse 12.5%
-    case 15: return (float)(phase < 0.0625 ? 1.0 : -1.0); // Pulse 6.25%
-    case 16: // Rounded Square (Soft Square)
-        return (float)(std::tanh(s * 5.0));
-    case 17: // Impulse train (approx)
-        return (float)(std::exp(-100.0 * std::pow(phase - 0.5, 2.0)) * 2.0 - 1.0);
-    case 18: // Comb / Multi-pulse
-        return (float)(std::sin(p * 1.0) + std::sin(p * 3.0) * 0.5 + std::sin(p * 5.0) * 0.25);
-        // 19-28: Resonant / Complex Waves (MA-5 Special)
-    case 19: // Resonant Saw (Low)
-        return (float)((1.0 - phase * 2.0) * std::sin(p * 4.0));
-    case 20: // Resonant Saw (High)
-        return (float)((1.0 - phase * 2.0) * std::sin(p * 8.0));
-    case 21: // Resonant Triangle
+    // 13-18: Pulse / Square Variations
+    case 13: return (normPhase < 0.25f ? 1.0f : -1.0f); // Pulse 25%
+    case 14: return (normPhase < 0.125f ? 1.0f : -1.0f); // Pulse 12.5%
+    case 15: return (normPhase < 0.0625f ? 1.0f : -1.0f); // Pulse 6.25%
+    case 16: // Rounded Square
+        return std::tanh(s * 5.0f);
+    case 17: // Impulse train
+        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+    case 18: // Comb
+        return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
+        // 19-28: Resonant / Complex Waves
+    case 19: return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
+    case 20: return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
+    case 21:
     {
-        double tri = (phase < 0.5 ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase));
-        return (float)(tri * std::sin(p * 3.0));
+        float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+        return tri * std::sin(p * 3.0f);
     }
-    case 22: // Bulb Sine (Narrow Sine)
-    {
-        double x = std::sin(p);
-        return (float)(x * x * x);
-    }
-    case 23: // Double Hump
-        return (float)(std::sin(p) * std::sin(p * 2.0));
-    case 24: // Pseudo Voice Formant 1
-        return (float)(s + 0.5 * std::sin(p * 2.0) + 0.25 * std::sin(p * 4.0));
-    case 25: // Pseudo Voice Formant 2
-        return (float)(s * std::cos(p * 2.5));
-    case 26: // Metallic 1
-        return (float)(std::sin(p) * std::sin(p * 1.414)); // FM Ring Mod simulation
-    case 27: // Metallic 2
-        return (float)(std::sin(p) * std::cos(p * 0.5));
-    case 28: // Noise-like (LFO Noiseとは別、周期的なノイズ波形)
-        // Pseudo-random but phase locked
-        return (float)(std::sin(p * 13.0) * std::cos(p * 7.0) * std::sin(p * 2.0));
+    case 22: return s * s * s; // Bulb Sine
+    case 23: return std::sin(p) * std::sin(p * 2.0f); // Double Hump
+    case 24: return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
+    case 25: return s * std::cos(p * 2.5f);
+    case 26: return std::sin(p) * std::sin(p * 1.414f);
+    case 27: return std::sin(p) * std::cos(p * 0.5f);
+    case 28: return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
     case 29: // 外部オーディオファイル (PCM)
         if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
         {
-            // 位相(0.0 ~ 2π)を、バッファのインデックス(0.0 ~ 1.0)に正規化
-            float phaseNorm = p / (2.0f * juce::MathConstants<float>::pi);
-
-            // バッファの長さに掛け合わせて、読み取る位置を計算
-            float floatIndex = phaseNorm * m_pcmBuffer->size();
-
-            // 整数部と小数部に分ける
+            // ここも normPhase を使って計算
+            float floatIndex = normPhase * m_pcmBuffer->size();
             int index1 = (int)floatIndex;
-            int index2 = (index1 + 1) % m_pcmBuffer->size(); // ループ処理
-            float frac = floatIndex - (float)index1;
 
-            // 線形補間（滑らかに波形をつなぐ）
+            // ==========================================================
+            // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
+            // ==========================================================
+            if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
+            if (index1 < 0) index1 = 0;
+
+            int index2 = (index1 + 1) % m_pcmBuffer->size();
+            float frac = floatIndex - (float)index1;
             return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
         }
-        return (float)s; // ファイルが読み込まれていない場合はSine波にフォールバック
-    default:
-        return (float)s; // Default Sine
+        return s;
+    default: return s;
     }
 }
 

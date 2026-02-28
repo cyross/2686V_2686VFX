@@ -1,5 +1,6 @@
 ﻿#include "GuiComponents.h"
 #include "../editor/PluginEditor.h"
+#include "../core/GuiText.h"
 
 // アイコンのパスを生成するヘルパー関数
 juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rectangle<float> area)
@@ -8,7 +9,7 @@ juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rec
     auto center = area.getCentre();
     float s = std::min(area.getWidth(), area.getHeight()) * 0.5f; // アイコンサイズ
 
-    if (name == fxTabName) // エフェクトを示すアイコン
+    if (name == GuiText::Tab::fx) // エフェクトを示すアイコン
     {
         // [FX] Icon
         juce::Path fPath;
@@ -35,7 +36,7 @@ juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rec
         p.addPath(bar1);
         p.addPath(bar2);
     }
-    else if (name == presetTabName) // プリセットブラウザタブはフォルダーアイコン
+    else if (name == GuiText::Tab::preset) // プリセットブラウザタブはフォルダーアイコン
     {
         // --- Folder / List Icon ---
         // フォルダーの形
@@ -52,7 +53,7 @@ juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rec
         p.startNewSubPath(center.x - w * 0.3f, center.y + h * 0.3f);
         p.lineTo(center.x + w * 0.3f, center.y + h * 0.3f);
     }
-    else if (name == settingsTabName) // 設定タブは歯車アイコン
+    else if (name == GuiText::Tab::settings) // 設定タブは歯車アイコン
     {
         // --- Gear Icon ---
         // 歯車
@@ -75,7 +76,7 @@ juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rec
         p.addEllipse(center.x - rHole, center.y - rHole, rHole * 2, rHole * 2);
         p.setUsingNonZeroWinding(false); // 穴を抜く設定
     }
-    else if (name == aboutTabName) // Aboutタブは丸囲みiアイコン
+    else if (name == GuiText::Tab::about) // Aboutタブは丸囲みiアイコン
     {
         // --- Info Icon (i) ---
         // 丸
@@ -135,7 +136,7 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
     // 3. 描画
     g.setColour(contentColour); // 色を確定
 
-    if (name == fxTabName || name == presetTabName || name == settingsTabName || name == aboutTabName)
+    if (name == GuiText::Tab::fx || name == GuiText::Tab::preset || name == GuiText::Tab::settings || name == GuiText::Tab::about)
     {
         // アイコン描画
         juce::Path icon = getIconPath(name, area);
@@ -268,6 +269,13 @@ void GuiComboBox::setup(const Config& c)
     if (c.isResized)
     {
         this->onChange = [this] { ctx.editor.resized(); };
+    }
+
+    if (c.regType != RegisterType::None)
+    {
+        ctx.sliderRegMap[this] = c.regType;
+
+        this->addMouseListener(&ctx.editor, false);
     }
 }
 
@@ -441,7 +449,7 @@ void GuiFbSlider::setup(const GuiSlider::Config& c)
 void GuiMasterVolumeSlider::setup(const GuiSlider::Config& c)
 {
     GuiSlider::setup(c);
-    GuiSlider::setTextValueSuffix(masterVolumeUnit); // 単位表示
+    GuiSlider::setTextValueSuffix(GuiText::MasterVol::unit); // 単位表示
 }
 
 void GuiMmlButton::setupMml(const MmlConfig& c)
@@ -468,6 +476,11 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
                     c.onMmlApplied(mmlText);
                 }
             }
-            }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
-        };
+        }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
+
+        if (auto* editor = w->getTextEditor("mmlInput"))
+        {
+            editor->grabKeyboardFocus();
+        }
+    };
 }

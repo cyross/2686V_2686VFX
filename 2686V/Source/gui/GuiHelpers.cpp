@@ -1,6 +1,6 @@
 ﻿#include "GuiHelpers.h"
 
-#include "../core/MmlConstants.h"
+#include "../core/MmlKeys.h"
 
 #include "../fm/RegisterType.h"
 #include "../fm/RegisterConverter.h"

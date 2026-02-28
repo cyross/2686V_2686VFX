@@ -78,14 +78,15 @@ void OplCore::setModulationWheel(int wheelValue)
 
 float OplCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        m_prevSample = m_lastSample;
 
         // LFO Logic (Run at Target Rate)
                 // AM Phase (Tremolo)
@@ -124,44 +125,49 @@ float OplCore::getSample() {
 
         // オペレーターのフラグ(amEnable / vibEnable)を見て、LFOを適用するか決める
         // FmOperator::getSample は引数で渡されたものをそのまま掛ける仕様なので、ここで1.0f(無効)か変調値かを渡す
-        float am1 = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
-        float pm1 = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
-        m_operators[0].getSample(out1, 0.0f, am1, pm1);
+        float finalAmVal = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
+        float finalPmVal = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
 
-        m_operators[0].getSample(out1, 0.0f, lfoAmpVal, lfoPitchVal);
+        m_operators[0].getSample(out1, 0.0f, finalAmVal, finalPmVal);
 
         if (m_opMask[0]) out1 = 0.0f;
 
         if (m_algorithm == 0) { // Serial (FM)
             // OP1 -> OP2
-            m_operators[1].getSample(out2, out1, lfoAmpVal, lfoPitchVal);
+            m_operators[1].getSample(out2, out1, finalAmVal, finalPmVal);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = out2;
         }
         else { // Parallel (AM)
-            m_operators[1].getSample(out2, 0.0f, lfoAmpVal, lfoPitchVal);
+            m_operators[1].getSample(out2, 0.0f, finalAmVal, finalPmVal);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = (out1 + out2) * 0.5f;
         }
 
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
+        finalOut *= 0.25f;
+
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
+
+        // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
-
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        // 出力を加算し、ステップ数をカウント
-        sumOut += finalOut;
-        steps++;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    // 平均を出力（アンチエイリアス）
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }

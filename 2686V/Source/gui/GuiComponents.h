@@ -10,8 +10,8 @@
 #include "GuiStructs.h"
 #include "GuiHelpers.h"
 #include "GuiContext.h"
-#include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
 #include "../fm/SliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -33,7 +33,6 @@ public:
     void paint(juce::Graphics& g) override;
 };
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 class GuiWaveformPreview : public juce::Component
 {
 public:
@@ -89,7 +88,6 @@ public:
 private:
     std::vector<float> m_displayBuffer;
 };
-#endif
 
 class GuiBaseComponent
 {
@@ -174,6 +172,7 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
+        RegisterType regType = RegisterType::None;
     };
 
     void setup(const Config& c);
@@ -290,6 +289,14 @@ public:
     void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
     void cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent& e) override;
     void selectedRowsChanged(int lastRowSelected) override;
+    std::function<void(int columnId, bool isForwards)> onSortOrderChanged;
+
+    void sortOrderChanged(int newSortColumnId, bool isForwards) override
+    {
+        if (onSortOrderChanged != nullptr) {
+            onSortOrderChanged(newSortColumnId, isForwards);
+        }
+    }
 };
 
 class GuiTextEditor : public juce::TextEditor, public GuiBaseComponent

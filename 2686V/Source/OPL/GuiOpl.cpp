@@ -1,31 +1,36 @@
 ﻿#include "GuiOpl.h"
 
-#include "../core/GuiConstants.h"
-#include "../core/LabelConstants.h"
-#include "../core/OpConstants.h"
-#include "../core/MmlConstants.h"
+#include "../core/GuiValues.h"
+#include "../core/GuiText.h"
+#include "../core/GuiSelectItems.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
+#include "../core/MmlKeys.h"
+#include "../core/MmlValues.h"
 
 #include "../fm/RegisterConverter.h"
 
 
 void GuiOpl::setup()
 {
-    const juce::String code = codeOpl;
+    const juce::String code = PrKey::Prefix::opl;
 
-    mainGroup.setup(*this, mGroupTitle);
-    bitSelector.setup({ .parent = *this, .id = code + postBit, .title = mBitTitle, .items = bdItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = code + postRate, .title = mRateTitle, .items = rateItems, .isReset = true });
+    mainGroup.setup(*this, GuiText::Group::mainGroup);
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::Group::Fm::bit, .items = bdItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::Group::Fm::rate, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = code + postAlg, .title = mAlgTitle, .items = oplAlgItems, .isReset = true });
-    feedbackSlider.setup({ .parent = *this, .id = code + postFb0, .title = mFb0Title, .isReset = true });
+    algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Group::Fm::alg, .items = oplAlgItems, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Group::Fm::fb0, .isReset = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = codeMasterVol, .title = masterVolumeLabel, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+
+    const juce::String opCode = code + PrKey::Innder::op;
 
     for (int i = 0; i < 2; ++i)
     {
-        opGroups[i].setup(*this, opGroupPrefix + juce::String(i + 1));
+        opGroups[i].setup(*this, GuiText::Group::opPrefix + juce::String(i + 1));
 
-        juce::String paramPrefix = code + codeOp + juce::String(i);
+        juce::String paramPrefix = opCode + juce::String(i);
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setupMml({
@@ -34,23 +39,23 @@ void GuiOpl::setup()
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
 
-        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postMul, .title = opMulLabel, .isReset = true, .regType = RegisterType::FmMul });
-        dt[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDt, .title = opDtLabel, .isReset = true, .regType = RegisterType::FmDt });
-        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postTl, .title = opTlLabel, .isReset = true, .regType = RegisterType::FmTl });
+        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Group::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        dt[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Group::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
+        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Group::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
 
-        ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postAr, .title = opArLabel, .isReset = true, .regType = RegisterType::FmAr });
-        dr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postDr, .title = opDrLabel, .isReset = true, .regType = RegisterType::FmDr });
-        sl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postSl, .title = opSlLabel, .isReset = true, .regType = RegisterType::FmSl });
-        rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + postRr, .title = mRrLabel, .isReset = true, .regType = RegisterType::FmRr });
+        ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ar, .title = GuiText::Group::Fm::Op::Ar, .isReset = true, .regType = RegisterType::FmAr });
+        dr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dr, .title = GuiText::Group::Fm::Op::Dr, .isReset = true, .regType = RegisterType::FmDr });
+        sl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::sl, .title = GuiText::Group::Fm::Op::Sl, .isReset = true, .regType = RegisterType::FmSl });
+        rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rr, .title = GuiText::Group::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
 
-        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postAm, .title = opVibLabel, .isReset = true });
-        vib[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postVib, .title = opEgTypeLabel, .isReset = true });
-        egType[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postEgType, .title = opAmLabel, .isReset = true });
-        ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postKsr, .title = opKsrLabel, .isReset = true });
-        ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postKsl, .title = opKslLabel, .items = kslItems, .isReset = true });
+        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::am, .title = GuiText::Group::Fm::Op::Am, .isReset = true });
+        vib[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::vib, .title = GuiText::Group::Fm::Op::Vib, .isReset = true });
+        egType[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::egType, .title = GuiText::Group::Fm::Op::EgType, .isReset = true });
+        ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksr, .title = GuiText::Group::Fm::Op::Ksr, .isReset = true });
+        ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksl, .title = GuiText::Group::Fm::Op::Ksl, .items = kslItems, .isReset = true });
 
-        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + postEg, .title = opEgLabel, .items = oplEgItems, .isReset = true });
-        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + postMask, .title = opMaskLabel, .isReset = true });
+        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::eg, .title = GuiText::Group::Fm::Op::Eg, .items = oplEgItems, .isReset = true });
+        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Group::Fm::Op::Mask, .isReset = true });
     }
 }
 
@@ -58,45 +63,44 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(MainWidth);
+    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GroupPaddingWidth, GroupPaddingHeight);
-    mRect.removeFromTop(TitlePaddingTop);
+    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &bitSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &bitSelector, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &rateSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &rateSelector, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &algSelector.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &algSelector, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainRowHeight, MainRowPaddingBottom, { { &feedbackSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &feedbackSlider, { MainRegValueWidth, 0} } });
-    layoutComponentsLtoR(mRect, MainVolHeight, MainLastRowPaddingBottom, { { &masterVolSlider.label, { MainRegLabelWidth, MainRegPaddingRight} }, { &masterVolSlider, { MainRegValueWidth, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &bitSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &bitSelector, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &rateSelector, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &algSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &algSelector, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &feedbackSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &feedbackSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
 
     // --- B. Operators Section ---
     for (int i = 0; i < 2; ++i)
     {
-        auto opArea = pageArea.removeFromLeft(FmOpWidth);
+        auto opArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
         opGroups[i].setBounds(opArea);
 
-        auto innerRect = opArea.reduced(OpGroupPaddingWidth, OpGroupPaddingHeight);
-        innerRect.removeFromTop(TitlePaddingTop);
+        auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
+        innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &mul[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &mul[i], { OpRegValueWidth, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &dt[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &dt[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &ar[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &ar[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &dr[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &dr[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &sl[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &sl[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &rr[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &rr[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &tl[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &tl[i], { OpRegValueWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &am[i], { OpRegButtonWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &vib[i], { OpRegButtonWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &egType[i], { OpRegButtonWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &ksr[i], { OpRegButtonWidth, 0}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &ksl[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &ksl[i], { OpRegValueWidth, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &eg[i].label, { OpRegLabelWidth, OpRegPaddingRight} }, { &eg[i], { OpRegValueWidth, 0} } });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpRowPaddingBottom, { { &mask[i], { OpRegButtonWidth, OpRegPaddingRight}} });
-        layoutComponentsLtoR(innerRect, OpRowHeight, OpLastRowPaddingBottom, { { &mml[i], { OpRegButtonWidth, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mul[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &mul[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dt[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dt[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ar[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &ar[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dr[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dr[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &sl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &sl[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rr[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rr[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &tl[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &am[i], { GuiValue::Fm::Op::Row::Button::wdth, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vib[i], { GuiValue::Fm::Op::Row::Button::wdth, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &egType[i], { GuiValue::Fm::Op::Row::Button::wdth, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ksr[i], { GuiValue::Fm::Op::Row::Button::wdth, 0}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ksl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &ksl[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &eg[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &eg[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mask[i], { GuiValue::Fm::Op::Row::Button::wdth, GuiValue::Fm::Op::Row::Padding::right}} });
+        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, 0, { { &mml[i], { GuiValue::Fm::Op::Row::Button::wdth, 0}} });
     }
 }
-
 
 // ==============================================================================
 // MML Parsing Logic (Template to handle different GuiSets)
@@ -104,58 +108,53 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
 {
     juce::String input = mml.toUpperCase();
-
-    auto getValue = [&](const juce::String& key, int maxVal) -> int {
-        int idx = input.indexOf(key);
-        if (idx < 0) return -1;
-        int valStart = idx + key.length();
-        int valEnd = valStart;
-        while (valEnd < input.length() && (juce::CharacterFunctions::isDigit(input[valEnd]))) {
-            valEnd++;
-        }
-        if (valStart == valEnd) return -1;
-        return input.substring(valStart, valEnd).getIntValue();
-        };
-
     int val;
 
     // MUL
-    val = getValue(mmlPrefixMul, 15);
-    if (val >= 0) mul[opIndex].setValue((double)RegisterConverter::convertFmMul(val), juce::sendNotification);
+    val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl::mul);
+    if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
+
+    // DT
+    val = RegisterConverter::getValue(input, mmlPrefixDt, mmlValues::opn::dt);
+    if (RegisterConverter::isValidVal(val)) {
+        int regVal = RegisterConverter::convertMmlDtToReg(val);
+
+        dt[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
+    }
 
     // TL
-    val = getValue(mmlPrefixTl, 127);
-    if (val >= 0) tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
+    val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl::tl);
+    if (RegisterConverter::isValidVal(val)) tl[opIndex].setValue(RegisterConverter::convertOplTl(val), juce::sendNotification);
 
     // AR(Reverse)
-    val = getValue(mmlPrefixRar, 31);
-    if (val >= 0) ar[opIndex].setValue(RegisterConverter::convertFmAr(31 - val), juce::sendNotification);
+    val = RegisterConverter::getValue(input, mmlPrefixRar, mmlValues::opl::ar);
+    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(mmlValues::opl::ar - val), juce::sendNotification);
     // AR
     else {
-        val = getValue(mmlPrefixAr, 31);
-        if (val >= 0) ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
+        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl::ar);
+        if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(val), juce::sendNotification);
     }
 
-    // RR(Reverse)
-    val = getValue(mmlPrefixRrr, 15);
-    if (val >= 0) rr[opIndex].setValue(RegisterConverter::convertFmRr(15 - val), juce::sendNotification);
-    // RR
-    else {
-        val = getValue(mmlPrefixRr, 15);
-        if (val >= 0) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
-    }
-
-    // DR
-    val = getValue(mmlPrefixRdr, 31);
-    if (val >= 0) dr[opIndex].setValue(RegisterConverter::convertFmDr(31 - val), juce::sendNotification);
+    // DR(Reverse)
+    val = RegisterConverter::getValue(input, mmlPrefixRdr, mmlValues::opl::dr);
+    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(mmlValues::opl::dr - val), juce::sendNotification);
     // DR
     else
     {
-        val = getValue(mmlPrefixDr, 31);
-        if (val >= 0) dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
+        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl::dr);
+        if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(val), juce::sendNotification);
     }
 
     // SL
-    val = getValue(mmlPrefixSl, 15);
-    if (val >= 0) sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
+    val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl::sl);
+    if (RegisterConverter::isValidVal(val)) sl[opIndex].setValue(RegisterConverter::convertOplSl(val), juce::sendNotification);
+
+    // RR(Reverse)
+    val = RegisterConverter::getValue(input, mmlPrefixRrr, mmlValues::opl::rr);
+    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(mmlValues::opl::rr - val), juce::sendNotification);
+    // RR
+    else {
+        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl::rr);
+        if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
+    }
 }

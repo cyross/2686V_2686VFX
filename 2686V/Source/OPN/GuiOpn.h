@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../core/GuiConstants.h"
+#include "../core/Global.h"
+#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -11,8 +12,8 @@
 class GuiOpn : public GuiBase
 {
     GuiGroup mainGroup;
-    std::array<GuiGroup, Fm4Ops> opGroups;
-    std::array<GuiGroup, Fm4Ops> freqBtnGroup;
+    std::array<GuiGroup, Global::Fm::Op4> opGroups;
+    std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
@@ -23,23 +24,23 @@ class GuiOpn : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    std::array<GuiSlider, Fm4Ops> mul;
-    std::array<GuiSlider, Fm4Ops> dt;
-    std::array<GuiSlider, Fm4Ops> ar;
-    std::array<GuiSlider, Fm4Ops> dr;
-    std::array<GuiSlider, Fm4Ops> sr;
-    std::array<GuiSlider, Fm4Ops> sl;
-    std::array<GuiSlider, Fm4Ops> rr;
-    std::array<GuiSlider, Fm4Ops> tl;  // Total Level
-    std::array<GuiComboBox, Fm4Ops> ks; // Key Scale (0-3)
-    std::array<GuiComboBox, Fm4Ops> se; // SSG-EG Shape Selector
-    std::array<GuiSlider, Fm4Ops> seFreq;
-    std::array<GuiToggleButton, Fm4Ops> fix;
-    std::array<GuiSlider, Fm4Ops> freq;
-    std::array<GuiTextButton, Fm4Ops> freqToZero;
-    std::array<GuiTextButton, Fm4Ops> freqTo440;
-    std::array<GuiToggleButton, Fm4Ops> mask; // Mask
-    std::array<GuiMmlButton, Fm4Ops> mml;
+    std::array<GuiSlider, Global::Fm::Op4> mul;
+    std::array<GuiComboBox, Global::Fm::Op4> dt;
+    std::array<GuiSlider, Global::Fm::Op4> ar;
+    std::array<GuiSlider, Global::Fm::Op4> dr;
+    std::array<GuiSlider, Global::Fm::Op4> sr;
+    std::array<GuiSlider, Global::Fm::Op4> sl;
+    std::array<GuiSlider, Global::Fm::Op4> rr;
+    std::array<GuiSlider, Global::Fm::Op4> tl;  // Total Level
+    std::array<GuiComboBox, Global::Fm::Op4> ks; // Key Scale (0-3)
+    std::array<GuiComboBox, Global::Fm::Op4> se; // SSG-EG Shape Selector
+    std::array<GuiSlider, Global::Fm::Op4> seFreq;
+    std::array<GuiToggleButton, Global::Fm::Op4> fix;
+    std::array<GuiSlider, Global::Fm::Op4> freq;
+    std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
+    std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
+    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
+    std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
@@ -55,7 +56,7 @@ public:
         rateSelector(context),
         masterVolSlider(context),
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         sr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

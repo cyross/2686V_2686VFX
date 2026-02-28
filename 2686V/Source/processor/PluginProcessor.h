@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include <JuceHeader.h>
-#include <filesystem>
-#include <fstream>
 #if !defined(BUILD_AS_FX_PLUGIN)
 #include "../synth/SynthVoice.h"
 #include "../OPNA/PrOpna.h"
@@ -14,14 +12,15 @@
 #include "../WT/PrWt.h"
 #include "../RHYTHM/PrRhythm.h"
 #include "../ADPCM/PrAdpcm.h"
+#include "../BEEP/PrBeep.h"
 #endif
-#include "../FX/FxCore.h"
-#include "../core/GlobalConstants.h"
-#include "../core/OpConstants.h"
-#include "../core/FileConstants.h"
-#include "../core/PresetConstants.h"
-#include "../core/LabelConstants.h"
-#include "../core/OpValueRange.h"
+#include "../core/Global.h"
+#include "../core/PrKeys.h"
+#include "../core/PrValues.h"
+#include "../core/FileValues.h"
+#include "../core/GuiText.h"
+#include "../core/PresetKeys.h"
+#include "../core/PresetValues.h"
 
 #include "../FX/PrFx.h"
 #include "../editor/PluginEditor.h"
@@ -68,11 +67,11 @@ public:
 
 #if !defined(BUILD_AS_FX_PLUGIN)
     // --- Metadata ---
-    juce::String presetName = defaultPresetName;
-    juce::String presetAuthor = defaultPresetAuthor;
-    juce::String presetVersion = defaultPresetVersion;
-    juce::String presetComment = defaultPresetComment;
-    juce::String presetPluginVersion = pluginVersion;
+    juce::String presetName = PresetValue::MetaData::Initial::name;
+    juce::String presetAuthor = PresetValue::MetaData::Initial::author;
+    juce::String presetVersion = PresetValue::MetaData::Initial::version;
+    juce::String presetComment = PresetValue::MetaData::Initial::comment;
+    juce::String presetPluginVersion = Global::Plugin::version;
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
@@ -90,14 +89,16 @@ public:
     void loadOpzx3PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx3PcmFile(int opIndex);
 
-    // --- Preview ---
-    bool previewVisiblity = false; // Editorとの同期用
+    // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>& destBuffer);
-    std::atomic<float> realTimeBuffer[512];
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
 #endif
+
+    // --- Preview ---
+    bool previewVisiblity = true; // Editorとの同期用
+    std::atomic<float> realTimeBuffer[512];
 
     // --- Settings Data ---
     juce::String wallpaperPath;
@@ -129,6 +130,7 @@ private:
     WtProcessor prWt;
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
+    BeepProcessor prBeep;
 #endif
     FxProcessor prFx;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

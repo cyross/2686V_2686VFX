@@ -77,15 +77,15 @@ void Opl3Core::setModulationWheel(int wheelValue)
 
 float Opl3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    // アンチエイリアスのための平均化変数
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        m_prevSample = m_lastSample;
 
         // LFO Logic
         m_amPhase += (3.7 / targetRate);
@@ -122,82 +122,116 @@ float Opl3Core::getSample() {
         auto getPm = [&](int i) { return m_operators[i].m_params.vibEnable ? lfoPitchVal : 1.0f; };
 
         m_operators[0].getSample(out1, 0.0f, getAm(0), getPm(0));
+
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
-            // [OP0] -> [OP1] -> [OP2] -> [OP3] (出力: 3)
         case 0:
             m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out4;
+
             break;
-            // [OP0] + ([OP1] -> [OP2] -> [OP3]) (出力: 0と3)
         case 1:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out4;
+
             break;
-            // ([OP0] -> [OP1]) + ([OP2] -> [OP3]) (出力: 1と3)
         case 2:
             m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
-            // out3 + out1 になっていたのを out3 単独に修正 (標準の2ペア構成)
+
             m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out2 + out4;
+
             break;
-            // [OP0] + ([OP1] -> [OP2]) + [OP3] (出力: 0と2と3)
         case 3:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out3 + out4;
+
             break;
-            // 並列 (出力: 0+1+2+3)
         default:
             m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+
             if (m_opMask[1]) out2 = 0.0f;
+
             m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+
             if (m_opMask[2]) out3 = 0.0f;
+
             m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+
             if (m_opMask[3]) out4 = 0.0f;
+
             finalOut = out1 + out2 + out3 + out4;
+
             break;
         }
 
-        // 4キャリア(最大音量4.0)が加算される可能性があるため、安全のためマスターゲインを絞る
-        finalOut *= 0.3f;
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
+        finalOut *= 0.25f;
+
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            // ★修正: std::round を使用
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
             finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        sumOut += finalOut;
-        steps++;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    // アンチエイリアス
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }
