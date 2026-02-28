@@ -77,15 +77,15 @@ void Opl3Core::setModulationWheel(int wheelValue)
 
 float Opl3Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    // アンチエイリアスのための平均化変数
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        m_prevSample = m_lastSample;
 
         // LFO Logic
         m_amPhase += (3.7 / targetRate);
@@ -208,29 +208,30 @@ float Opl3Core::getSample() {
             break;
         }
 
-        // 4つのキャリアがすべて最大音量(4.0)で加算されても1.0に収まるように 0.25倍(1/4) にする
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
         finalOut *= 0.25f;
 
-        // 予期せぬフィードバック等で1.0を超えた場合でも、DAWでのバリバリ音を防ぐ「絶対安全ガード」
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
         finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
             float norm = (finalOut + 1.0f) * 0.5f;
-            // ★修正: std::round を使用
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
             finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        sumOut += finalOut;
-        steps++;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    // アンチエイリアス
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }

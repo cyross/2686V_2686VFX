@@ -86,14 +86,15 @@ void OpnCore::setModulationWheel(int wheelValue)
 
 float OpnCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        m_prevSample = m_lastSample;
 
         // --- ソフトウェアLFO (ビブラート用) ---
         // OPNには本来ありませんが、ModWheel対応のために擬似的に計算します
@@ -246,26 +247,30 @@ float OpnCore::getSample() {
             break;
         }
 
-        finalOut *= 0.4f;
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
+        finalOut *= 0.25f;
+
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
             if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
-
             float norm = (finalOut + 1.0f) * 0.5f;
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
             finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        // 出力を加算し、ステップ数をカウント
-        sumOut += finalOut;
-        steps++;
-    }
- 
-    // 平均を出力（アンチエイリアス）
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    return m_lastSample;
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
+
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }

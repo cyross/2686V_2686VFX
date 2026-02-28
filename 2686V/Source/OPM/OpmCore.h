@@ -27,6 +27,7 @@ private:
     int m_rateIndex = 1;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+    float m_prevSample = 0.0f;
     float m_quantizeSteps = 0.0f;
 
     // OPM LFO

@@ -90,14 +90,15 @@ void OpnaCore::setModulationWheel(int wheelValue)
 float OpnaCore::getSample() {
     // --- Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);
-    m_rateAccumulator += targetRate / m_hostSampleRate;
 
-    int steps = 0;
-    float sumOut = 0.0f;
+    double stepSize = targetRate / m_hostSampleRate;
+    m_rateAccumulator += stepSize;
 
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        m_prevSample = m_lastSample;
 
         // ========================================================
         // 1. LFO 波形の生成（ここは残します！）
@@ -251,6 +252,13 @@ float OpnaCore::getSample() {
 
             break;
         }
+        // =======================================================
+        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // =======================================================
+        finalOut *= 0.25f;
+
+        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
+        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
 
         // Quantization
         if (m_quantizeSteps > 0.0f) {
@@ -260,13 +268,14 @@ float OpnaCore::getSample() {
             finalOut = (quantized * 2.0f) - 1.0f;
         }
 
-        sumOut += finalOut;
-        steps++;
+        // =======================================================
+        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
+        // =======================================================
+        m_lastSample = finalOut;
     }
 
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }
