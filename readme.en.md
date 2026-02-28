@@ -191,7 +191,7 @@ Trademarks: VST is a trademark of Steinberg Media Technologies GmbH.
 
 ## Contact & Socials
 
-Email: `cyross4github@gmail.com `
+Email: `cyross4github@gmail.com`
 
 - [X](https://x.com/cyross4fortnite)
 - [Youtube](https://www.youtube.com/@%E3%81%95%E3%81%84%E3%82%8D%E3%81%99)
@@ -200,7 +200,6 @@ Email: `cyross4github@gmail.com `
 - [Booth](https://cyross.booth.pm/)
 
 ## References
-
 
 - Machine Language Sound Programming by Manabu Aoyama / Toru Hidaka (ASCII, 1994)
 - PC-9801-86 Sound Board User's Manual (NEC, 1993)
@@ -224,5 +223,7 @@ Email: `cyross4github@gmail.com `
 - <2686V/VFX> Added "Filter" and "SoftClipper (tanH)" to the FX tab.
 - <2686VFX> Added waveform preview.
 - <2686V> Waveform preview is now visible on all tabs and enabled by default.
+- <2686V> Added `Last Modified` Column in PRESET table.
+- <2686VFX> Added `BEEP` tab.
 
 (Previous logs omitted for brevity in this display)
