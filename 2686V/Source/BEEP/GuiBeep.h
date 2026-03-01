@@ -7,6 +7,11 @@
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
     GuiSlider volSlider;
+
+    GuiToggleButton fixToggle;
+    GuiSlider freqSlider;
+    GuiTextButton freqTo2kBtn;
+
     GuiToggleButton bypassToggle;
     GuiSlider ar, dr, sl, rr;
 
@@ -14,7 +19,9 @@ class GuiBeep : public GuiBase {
     GuiMasterVolumeSlider masterVolSlider;
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context), mainGroup(context),
-        volSlider(context), bypassToggle(context),
+        volSlider(context),
+        fixToggle(context), freqSlider(context), freqTo2kBtn(context),
+        bypassToggle(context),
         ar(context), dr(context), sl(context), rr(context), masterVolSlider(context) {
     }
     void setup() override;

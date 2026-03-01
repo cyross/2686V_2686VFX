@@ -117,7 +117,7 @@ void GuiFx::setup()
     softClipperGroup.setup(*this, "Soft Clipper");
     const juce::String sclPrefix = code + PrKey::Innder::Fx::scl;
     scBypassBtn.setup({ .parent = *this, .id = sclPrefix + PrKey::Post::bypass, .title = "Bypass", .isReset = true });
-    scMixSlider.setup({ .parent = *this, .id = sclPrefix + PrKey::Post::Fx::mix, .isReset = true });
+    scMixSlider.setup({ .parent = *this, .id = sclPrefix + PrKey::Post::Fx::mix, .title = "Mix", .isReset = true });
     scDryBtn.setup({ .parent = *this, .title = "Dry" }); scDryBtn.onClick = [&] { scMixSlider.setValue(0.0f); };
     scHalfBtn.setup({ .parent = *this, .title = "50%" }); scHalfBtn.onClick = [&] { scMixSlider.setValue(0.5f); };
     scWetBtn.setup({ .parent = *this, .title = "Wet" }); scWetBtn.onClick = [&] { scMixSlider.setValue(1.0f); };

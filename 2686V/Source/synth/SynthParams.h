@@ -268,6 +268,10 @@ struct SynthParams
     // --- Level ---
     float beepLevel = 1.0f;
 
+    // --- Fix Freq ---
+    bool beepFixedMode = false;
+    float beepFixedFreq = 2000.0f;
+
     // --- ADSR Filter ---
 
     // Bypass
