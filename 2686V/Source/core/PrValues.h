@@ -1400,6 +1400,19 @@ namespace PrValue
 			inline constexpr float initial = 1.0f; // 初期値
 		}
 
+		namespace Fix
+		{
+			inline constexpr bool initial = false; // 初期値 (Fixed Frequency Switch)
+
+		}
+
+		namespace FixFreq
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 20000.0f;
+			inline constexpr float initial = 2000.0f; // 初期値
+		}
+
 		namespace Adsr
 		{
 			namespace Bypass

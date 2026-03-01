@@ -40,5 +40,8 @@ private:
     bool m_bypassAdsr = false;
     SimpleAdsr m_adsr;
 
+    bool m_fixedMode = false;
+    float m_fixedFreq = 2000.0f;
+
     void updateEnvelope();
 };

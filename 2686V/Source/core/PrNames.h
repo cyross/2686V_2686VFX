@@ -202,6 +202,8 @@ namespace PrName
 		namespace Post
 		{
 			static inline const juce::String level = " Level";
+			static inline const juce::String fix = " FIX";
+			static inline const juce::String fixFreq = " FREQ";
 
 			namespace Adsr
 			{

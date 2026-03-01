@@ -261,6 +261,20 @@ namespace GuiText
 
 		namespace Beep
 		{
+			static inline const juce::String Level = "LEVEL";
+			static inline const juce::String Fix = "FIX";
+			static inline const juce::String FFreq = "FFREQ";
+			static inline const juce::String To2k = "-> 2K";
+			
+			namespace Adsr
+			{
+				static inline const juce::String Bypass = "Bypass ADSR";
+				static inline const juce::String Ar = "AR";
+				static inline const juce::String Dr = "DR";
+				static inline const juce::String Sl = "SL";
+				static inline const juce::String Rr = "RR";
+			}
+
 			namespace Post
 			{
 				namespace Adsr
@@ -272,6 +286,8 @@ namespace GuiText
 				}
 
 				static inline const juce::String level = " Level";
+				static inline const juce::String fix = " FIX";
+				static inline const juce::String fixFreq = " FREQ";
 			}
 		}
 

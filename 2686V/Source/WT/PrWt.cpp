@@ -4,6 +4,29 @@
 #include "../core/PrNames.h"
 #include "../core/PrValues.h"
 
+void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int size, const juce::String& code, const juce::String& name)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        auto paramId = code + juce::String(i);
+        auto paramName = name + juce::String(i);
+        layout.add(std::make_unique<juce::AudioParameterFloat>(paramId, paramName, PrValue::Wt::Custom::min, PrValue::Wt::Custom::max, PrValue::Wt::Custom::initial));
+    }
+
+}
+
+template <int I>
+void WtProcessor::processCustomWaveBlock(std::array<float, I>& samples, juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+{
+    // Custom Wave params reading
+    for (int i = 0; i < I; ++i)
+    {
+        auto paramId = code + juce::String(i);
+        samples[i] = *apvts.getRawParameterValue(paramId);
+    }
+
+}
+
 void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     const juce::String code = PrKey::Prefix::wt;
@@ -20,21 +43,8 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // Waveform Preset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::wave, code + PrName::Wt::Post::waveform, PrValue::Wt::WaveForm::min, PrValue::Wt::WaveForm::max, PrValue::Wt::WaveForm::initial));
 
-    // Custom Waveform Sliders (32 params)
-    // Range: -1.0 to 1.0, Default: 0.0
-    for (int i = 0; i < PrValue::Wt::customSize1; ++i)
-    {
-        auto paramId = code + PrKey::Innder::custom32 + juce::String(i);
-        auto paramName = code + PrName::Wt::Key::custom32 + juce::String(i);
-        layout.add(std::make_unique<juce::AudioParameterFloat>(paramId, paramName, PrValue::Wt::Custom::min, PrValue::Wt::Custom::max, PrValue::Wt::Custom::initial));
-    }
-
-    for (int i = 0; i < PrValue::Wt::customSize2; ++i)
-    {
-        auto paramId = code + PrKey::Innder::custom64 + juce::String(i);
-        auto paramName = code + PrName::Wt::Key::custom64 + juce::String(i);
-        layout.add(std::make_unique<juce::AudioParameterFloat>(paramId, paramName, PrValue::Wt::Custom::min, PrValue::Wt::Custom::max, PrValue::Wt::Custom::initial));
-    }
+    createCustomWaveLayout(layout, PrValue::Wt::customSize1, code + PrKey::Innder::custom32, code + PrName::Wt::Key::custom32);
+    createCustomWaveLayout(layout, PrValue::Wt::customSize2, code + PrKey::Innder::custom64, code + PrName::Wt::Key::custom64);
 
     // Modulation
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Wt::Mod::enable, code + PrName::Wt::Post::Mod::enable, PrValue::Wt::Mod::Enable::initial));
@@ -56,19 +66,8 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wtTableSize = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::sampleSize);
     params.wtWaveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::wave);
 
-    // Custom Wave params reading
-    for (int i = 0; i < PrValue::Wt::customSize1; ++i)
-    {
-        auto paramId = code + PrKey::Innder::custom32 + juce::String(i);
-        params.wtCustomWave32[i] = *apvts.getRawParameterValue(paramId);
-    }
-
-    // Custom Wave params reading
-    for (int i = 0; i < PrValue::Wt::customSize1; ++i)
-    {
-        auto paramId = code + PrKey::Innder::custom32 + juce::String(i);
-        params.wtCustomWave64[i] = *apvts.getRawParameterValue(paramId);
-    }
+    processCustomWaveBlock(params.wtCustomWave32, apvts, code + PrKey::Innder::custom32);
+    processCustomWaveBlock(params.wtCustomWave64, apvts, code + PrKey::Innder::custom64);
 
     params.wtModEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::enable) > PrValue::boolThread);
     params.wtModDepth = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::depth);
