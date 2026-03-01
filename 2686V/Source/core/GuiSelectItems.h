@@ -246,3 +246,10 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+2", .value = 7 },
     {.name = "+3", .value = 8 }
 };
+
+static std::vector<SelectItem> rlfoWaves = {
+    {"Saw", 1},
+    {"Square", 2},
+    {"Triangle", 3},
+    {"Noise", 4}
+};

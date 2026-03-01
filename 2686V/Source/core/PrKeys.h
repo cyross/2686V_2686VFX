@@ -43,6 +43,7 @@ namespace PrKey
 			static inline const juce::String rbc = "_RBC";
 			static inline const juce::String fil = "_FIL";
 			static inline const juce::String scl = "_SCL";
+			static inline const juce::String rlfo = "_RLFO";
 		};
 	};
 
@@ -270,6 +271,16 @@ namespace PrKey
 				static inline const juce::String type = "_TYPE";
 				static inline const juce::String freq = "_FREQ";
 				static inline const juce::String q = "_Q";
+			};
+
+			namespace RLfo
+			{
+				static inline const juce::String wave = "_WAVE";
+				static inline const juce::String freq = "_FREQ";
+				static inline const juce::String ams = "_AMS";
+				static inline const juce::String pms = "_PMS";
+				static inline const juce::String amd = "_AMD";
+				static inline const juce::String pmd = "_PMD";
 			};
 		};
 	}

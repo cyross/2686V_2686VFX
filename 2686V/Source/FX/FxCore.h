@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 #include <algorithm>
+#include <vector>
 
 #include "../synth/SynthParams.h"
 #include "../synth/Pcm.h"
@@ -13,6 +14,7 @@
 enum class FxType
 {
     Filter = 0, // フィルターは最初にかけるのが一般的
+    RetroLfo,
     Tremolo,
     Vibrato,
     ModernBitCrusher,
@@ -40,6 +42,38 @@ protected:
     bool bypass = false; // バイパス管理
     float wetLevel = 0.0f;
     int order = 1; // エフェクト実行順
+};
+
+// ======================================================
+// Retro LFO (Global LFO Emulator)
+// ======================================================
+class FxRetroLfo : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+    void setParameters(int wave, float freq, float ams, float pms, float amd, float pmd, float mix);
+    void process(juce::AudioBuffer<float>& buffer) override;
+private:
+    juce::AudioBuffer<float> delayBuffer;
+    double fs = 44100.0;
+    int writePos = 0;
+    double lfoPhase = 0.0;
+    int currentWave = 2;
+    float currentFreq = 5.0f;
+    float currentAms = 0.0f;
+    float currentPms = 0.0f;
+    float currentAmd = 0.0f;
+    float currentPmd = 0.0f;
+
+    unsigned int lfsr = 0x1FFFF;
+    float noisePhase = 0.0f;
+    float currentNoise = 0.0f;
+
+    // PM用のスムーズLFO変数
+    float pmSmoothLfo = 0.0f;
+    float currentPmDelay = 0.0f;
+    float amSmoothLfo = 0.0f;
+    float pmNoiseInt = 0.0f;
 };
 
 // ======================================================
@@ -180,6 +214,7 @@ class EffectChain
 {
 public:
     EffectChain();
+    void setRetroLfoParams(int wave, float freq, float ams, float pms, float amd, float pmd, float mix);
     void setTremoloParams(float rate, float depth, float mix);
     void setVibratoParams(float rate, float depth, float mix);
     void setModernBitCrusherParams(float rate, float bits, float mix);
@@ -192,11 +227,12 @@ public:
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
     void reset();
-    void setBypasses(bool fl, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc);
+    void setBypasses(bool fl, bool rlfo, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc);
     void updateOrder(const std::array<int, NumEffects>& newOrders);
 private:
     // 各エフェクトオブジェクト
     FxFilter filter;
+    FxRetroLfo retroLfo;
     FxTremolo tremolo;
     FxVibrato vibrato;
     FxMBC modernBitCrusher;
@@ -206,9 +242,9 @@ private:
     FxSoftClipper softClipper;
 
     // エフェクトの適応順
-    int fxSize = 8;
-    std::array<int, 8> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7 } };
-    std::vector<FxCore*> fxs{ &filter, &tremolo, &vibrato, &modernBitCrusher, &retroBitCrusher, &delay, &reverb, &softClipper };
+    int fxSize = 9;
+    std::array<int, 9> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
+    std::vector<FxCore*> fxs{ &filter, &retroLfo, &tremolo, &vibrato, &modernBitCrusher, &retroBitCrusher, &delay, &reverb, &softClipper };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;

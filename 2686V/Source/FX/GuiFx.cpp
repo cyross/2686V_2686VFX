@@ -17,6 +17,23 @@ void GuiFx::setup()
 
 	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
+    // Retro LFO Group
+    rlfoGroup.setup(*this, "Retro LFO (OPNA)");
+    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
+    rlfoBypassBtn.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::bypass, .title = "Bypass", .isReset = true });
+
+    // Wave 選択用アイテム（Saw, Square, Tri, Noise）を直接生成してセット
+    rlfoWaveSelector.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::wave, .title = "Wave", .items = rlfoWaves, .isReset = true });
+    rlfoFreqSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::freq, .title = "Freq", .isReset = true });
+    rlfoAmsSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::ams, .title = "AMS", .isReset = true });
+    rlfoPmsSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::pms, .title = "PMS", .isReset = true });
+    rlfoAmdSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::amd, .title = "AMD", .isReset = true });
+    rlfoPmdSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::pmd, .title = "PMD", .isReset = true });
+    rlfoMixSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::mix, .title = "Mix", .isReset = true });
+    rlfoDryBtn.setup({ .parent = *this, .title = "Dry" }); rlfoDryBtn.onClick = [&] { rlfoMixSlider.setValue(0.0f); };
+    rlfoHalfBtn.setup({ .parent = *this, .title = "50%" }); rlfoHalfBtn.onClick = [&] { rlfoMixSlider.setValue(0.5f); };
+    rlfoWetBtn.setup({ .parent = *this, .title = "Wet" }); rlfoWetBtn.onClick = [&] { rlfoMixSlider.setValue(1.0f); };
+
     // Tremolo Group
 	tremGroup.setup(*this, "Tremolo");
     const juce::String trmPrefix = code + PrKey::Innder::Fx::trm;
@@ -142,6 +159,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
     auto topCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
+    auto centerCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
     auto bottomCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
 
     // Left
@@ -165,6 +183,29 @@ void GuiFx::layout(juce::Rectangle<int> content)
         { &flHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
         { &flWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
     });
+
+    // 2. Retro LFO
+    auto rlfoArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
+
+    rlfoGroup.setBounds(rlfoArea);
+
+    auto rlfoRect = rlfoArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+
+    rlfoRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoWaveSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoWaveSelector, { GuiValue::Fm::Op::Row::Value::width, 0} } });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoFreqSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoFreqSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoAmsSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoAmsSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoPmsSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoPmsSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoAmdSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoAmdSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoPmdSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoPmdSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, 0, {
+        { &rlfoDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
+        { &rlfoHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
+        { &rlfoWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
+        });
 
     // 2. Tremolo
     auto trmArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
@@ -205,7 +246,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
     // 4. Modern Bit Crusher
-    auto mbcArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
+    auto mbcArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     mbcGroup.setBounds(mbcArea);
 
@@ -224,7 +265,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
     // 5. Delay
-    auto dlyArea = bottomCol.removeFromLeft(GuiValue::Fm::Op::width);
+    auto dlyArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     delayGroup.setBounds(dlyArea);
 
@@ -243,7 +284,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
     // 6. Reverb
-    auto rvbArea = bottomCol.removeFromLeft(GuiValue::Fm::Op::width);
+    auto rvbArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     reverbGroup.setBounds(rvbArea);
 
@@ -262,7 +303,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
         });
 
     // 7. Retro Bit Crusher
-    auto rbcArea = bottomCol.removeFromLeft(GuiValue::Fm::Op::width);
+    auto rbcArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     rbcGroup.setBounds(rbcArea);
 

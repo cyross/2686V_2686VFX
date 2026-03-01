@@ -323,7 +323,7 @@ namespace GuiValue
 	{
 		static const int Width = 1000;
 		static const int Height = 720;
-		static const int AreaHeight = 160;
+		static const int AreaHeight = 240;
 		static const int GlobalBypassHeight = 120;
 		static const int BypassWidth = 120;
 		static const int GroupHeight = 200;
