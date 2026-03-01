@@ -18,7 +18,7 @@ void GuiFx::setup()
 	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
     // Retro LFO Group
-    rlfoGroup.setup(*this, "Retro LFO (OPNA)");
+    rlfoGroup.setup(*this, "Software LFO");
     const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
     rlfoBypassBtn.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::bypass, .title = "Bypass", .isReset = true });
 
