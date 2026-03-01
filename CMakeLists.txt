@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 # プロジェクト名 (ソリューション名)
-project(2686V_Bundle VERSION 0.5.0 LANGUAGES C CXX)
+project(2686V_Bundle VERSION 0.6.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

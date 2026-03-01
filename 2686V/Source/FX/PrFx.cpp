@@ -16,6 +16,18 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // --- Bypass ---
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::bypass, code + PrName::Fx::masterBypass, PrValue::Fx::MBypass::initial));
 
+    // --- Retro LFO ---
+    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
+    const juce::String rlfoLPrefix = code + PrName::Fx::Post::rlfo;
+    layout.add(std::make_unique<juce::AudioParameterBool>(rlfoPrefix + PrKey::Post::bypass, rlfoLPrefix + PrName::Fx::Post::RetroLfo::bypass, PrValue::Fx::RetroLfo::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(rlfoPrefix + PrKey::Post::Fx::RLfo::wave, rlfoLPrefix + PrName::Fx::Post::RetroLfo::wave, PrValue::Fx::RetroLfo::Wave::min, PrValue::Fx::RetroLfo::Wave::max, PrValue::Fx::RetroLfo::Wave::initial)); // 0:Saw, 1:Square, 2:Tri, 3:Noise
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::freq, rlfoLPrefix + PrName::Fx::Post::RetroLfo::freq, PrValue::Fx::RetroLfo::Freq::min, PrValue::Fx::RetroLfo::Freq::max, PrValue::Fx::RetroLfo::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::ams, rlfoLPrefix + PrName::Fx::Post::RetroLfo::ams, PrValue::Fx::RetroLfo::Ams::min, PrValue::Fx::RetroLfo::Ams::max, PrValue::Fx::RetroLfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::pms, rlfoLPrefix + PrName::Fx::Post::RetroLfo::pms, PrValue::Fx::RetroLfo::Pms::min, PrValue::Fx::RetroLfo::Pms::max, PrValue::Fx::RetroLfo::Pms::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::amd, rlfoLPrefix + PrName::Fx::Post::RetroLfo::amd, PrValue::Fx::RetroLfo::Amd::min, PrValue::Fx::RetroLfo::Amd::max, PrValue::Fx::RetroLfo::Amd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::pmd, rlfoLPrefix + PrName::Fx::Post::RetroLfo::pmd, PrValue::Fx::RetroLfo::Pmd::min, PrValue::Fx::RetroLfo::Pmd::max, PrValue::Fx::RetroLfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::mix, PrName::Fx::Post::RetroLfo::mix, PrValue::Fx::RetroLfo::Mix::min, PrValue::Fx::RetroLfo::Mix::max, PrValue::Fx::RetroLfo::Mix::initial));
+
     // --- Filter ---
     const juce::String filterPrefix = code + PrKey::Innder::Fx::fil;
     const juce::String filterLPrefix = code + PrName::Fx::Post::filter;
@@ -89,6 +101,18 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
         return;
     }
 
+    // Retro LFO
+    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
+    bool rlfoB = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::bypass) > PrValue::boolThread;
+    int rlfoWave = (int)*apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::wave);
+    float rlfoFreq = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::freq);
+    float rlfoAms = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::ams);
+    float rlfoPms = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::pms);
+    float rlfoAmd = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::amd);
+    float rlfoPmd = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::pmd);
+    float rlfoMix = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::mix);
+    effects.setRetroLfoParams(rlfoWave, rlfoFreq, rlfoAms, rlfoPms, rlfoAmd, rlfoPmd, rlfoMix);
+
     // Filter
     const juce::String filterPrefix = code + PrKey::Innder::Fx::fil;
     bool flB = *apvts.getRawParameterValue(filterPrefix + PrKey::Post::bypass) > PrValue::boolThread;
@@ -154,7 +178,7 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     effects.setSoftClipperParams(scMix);
 
     // バイパス設定
-    effects.setBypasses(flB, tB, vB, mcB, rcB, dB, rB, scB);
+    effects.setBypasses(flB, rlfoB, tB, vB, mcB, rcB, dB, rB, scB);
 
     // エフェクト処理実行
     effects.process(buffer);
