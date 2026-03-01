@@ -15,10 +15,13 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_attackInc = calcInc(m_adsr.a);
     m_decayDec = calcInc(m_adsr.d);
     m_releaseDec = calcInc(m_adsr.r);
+
+    m_fixedMode = params.beepFixedMode;
+    m_fixedFreq = params.beepFixedFreq;
 }
 
 void BeepCore::noteOn(float freq, float velocity) {
-    m_baseFreq = freq;
+    m_baseFreq = m_fixedMode ? m_fixedFreq : freq;
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 

@@ -214,6 +214,8 @@ namespace PrKey
 
 		namespace Beep {
 			static inline const juce::String level = "_LEVEL";
+			static inline const juce::String fix = "_FIX";
+			static inline const juce::String fixFreq = "_FREQ";
 
 			namespace Adsr
 			{
