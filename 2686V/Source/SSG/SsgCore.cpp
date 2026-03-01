@@ -102,11 +102,13 @@ void SsgCore::setModulationWheel(int wheelValue)
 void SsgCore::setPitchBendRatio(float ratio)
 { m_pitchBendRatio = ratio; }
 
+// --- SsgCore.cpp : getSample() を丸ごと差し替え ---
+
 float SsgCore::getSample()
 {
     if (m_state == State::Idle) return 0.0f;
 
-    // --- ADSR / Gate Logic (Host Rate for smooth envelope) ---
+    // --- ADSR / Gate Logic ---
     if (m_adsrBypass)
     {
         if (m_state == State::Release) {
@@ -140,8 +142,12 @@ float SsgCore::getSample()
 
     // --- Sample Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);
-    double step = targetRate / m_sampleRate;
-    m_rateAccumulator += step;
+    double stepSize = targetRate / m_sampleRate;
+    m_rateAccumulator += stepSize;
+
+    // ★修正: SSG（矩形波）の場合は、線形補間ではなく「平均化(アベレージング)」が正解
+    int steps = 0;
+    float sumOut = 0.0f;
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)
@@ -155,29 +161,36 @@ float SsgCore::getSample()
         m_lfoPhase += lfoInc;
         if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
-        // Triangle LFO
         float lfoVal = 0.0f;
         if (m_lfoPhase < 0.25)      lfoVal = (float)(m_lfoPhase * 4.0);
         else if (m_lfoPhase < 0.75) lfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
         else                        lfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
 
-        // Mod Depth (Max +/- 3%)
         float modDepth = m_modWheel * 0.03f;
         float lfoPitchMod = 1.0f + (lfoVal * modDepth);
-
-        // Total Frequency Multiplier
         float freqMult = m_pitchBendRatio * lfoPitchMod;
 
+        float phaseInc = 0.0f;
+        if (m_waveform == 1 && !m_triKeyTrack) {
+            phaseInc = (m_triFreq / (float)targetRate) * freqMult;
+        }
+        else {
+            phaseInc = m_phaseDelta * freqMult;
+        }
 
         // ==========================================
-        // 1. Hardware Envelope Update (Target Rate)
+        // 1. Hardware Envelope Update
         // ==========================================
-        // HW Env Freq is typically low, so delta is small
         float hwEnvDelta = m_envFreq / (float)targetRate;
         m_hwEnvPhase += hwEnvDelta;
 
-        float hwEnvGain = 1.0f;
+        // ★修正: 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
+        if (m_hwEnvPhase >= 2.0) {
+            if (m_envShape % 2 == 0) m_hwEnvPhase -= 2.0;
+            else m_hwEnvPhase = 2.0;
+        }
 
+        float hwEnvGain = 1.0f;
         if (m_useHwEnv)
         {
             double p = m_hwEnvPhase;
@@ -186,36 +199,36 @@ float SsgCore::getSample()
 
             switch (m_envShape)
             {
-            case 0: hwEnvGain = 1.0f - phaseNorm; break; // \___
-            case 1: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f; break; // \___ (One shot)
-            case 2: hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm; break; // \/\/
-            case 3: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 1.0f; break; // \"""
-            case 4: hwEnvGain = phaseNorm; break; // /|/|
-            case 5: hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f; break; // /"""
-            case 6: hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm); break; // /\/\ (Triangle)
-            case 7: hwEnvGain = (p < 1.0) ? phaseNorm : 0.0f; break; // /___
+            case 0: hwEnvGain = 1.0f - phaseNorm; break;
+            case 1: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f; break;
+            case 2: hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm; break;
+            case 3: hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 1.0f; break;
+            case 4: hwEnvGain = phaseNorm; break;
+            case 5: hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f; break;
+            case 6: hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm); break;
+            case 7: hwEnvGain = (p < 1.0) ? phaseNorm : 0.0f; break;
             }
         }
 
         // ==========================================
-        // 2. Waveform Generation (Target Rate)
+        // 2. Waveform Generation
         // ==========================================
         float toneSample = 0.0f;
 
         if (m_waveform == 0) // Pulse
         {
             float currentDuty = 0.5f;
-            if (m_dutyMode == 0) { // Preset
+            if (m_dutyMode == 0) {
                 switch (m_dutyPreset) {
-                case 0: currentDuty = 0.5f; break;      // 1:1
-                case 1: currentDuty = 0.4375f; break;   // 7:9
-                case 2: currentDuty = 0.375f; break;    // 3:5
-                case 3: currentDuty = 0.3125f; break;   // 5:11
-                case 4: currentDuty = 0.25f; break;     // 1:3
-                case 5: currentDuty = 0.20f; break;     // 1:4
-                case 6: currentDuty = 0.1875f; break;   // 3:13
-                case 7: currentDuty = 0.125f; break;    // 1:7
-                case 8: currentDuty = 0.0625f; break;   // 1:15
+                case 0: currentDuty = 0.5f; break;
+                case 1: currentDuty = 0.4375f; break;
+                case 2: currentDuty = 0.375f; break;
+                case 3: currentDuty = 0.3125f; break;
+                case 4: currentDuty = 0.25f; break;
+                case 5: currentDuty = 0.20f; break;
+                case 6: currentDuty = 0.1875f; break;
+                case 7: currentDuty = 0.125f; break;
+                case 8: currentDuty = 0.0625f; break;
                 default: currentDuty = 0.5f; break;
                 }
             }
@@ -224,12 +237,16 @@ float SsgCore::getSample()
             }
             if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
 
+            // 極端なデューティ比による波形消失を防ぐ最低保証
+            float minDuty = phaseInc;
+            if (currentDuty < minDuty) currentDuty = minDuty;
+            if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
+
             toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+
         }
         else // Triangle
         {
-            // Triangle Phase is driven either by note freq or fixed freq
-            // Already handled in Phase Update below, here just shape it
             float phaseNorm = m_phase;
             float k = m_triPeak;
             if (k < 0.001f) k = 0.001f;
@@ -239,86 +256,64 @@ float SsgCore::getSample()
             else                toneSample = 1.0f - 2.0f * ((phaseNorm - k) / (1.0f - k));
         }
 
-        // Phase Update
-        float phaseInc = 0.0f;
-        if (m_waveform == 1 && !m_triKeyTrack) {
-            // Fixed Frequency Triangle
-            // 基本的には固定ですが、ピッチベンド等を効かせたい場合は freqMult を掛けます
-            phaseInc = (m_triFreq / (float)targetRate) * freqMult;
-        }
-        else {
-            // Standard Note Frequency
-            // ピッチベンドとビブラートを適用
-            phaseInc = m_phaseDelta * freqMult;
-        }
         m_phase += phaseInc;
         if (m_phase >= 1.0f) m_phase -= 1.0f;
 
         // ==========================================
-        // 3. Noise Generator (Target Rate)
+        // 3. Noise Generator
         // ==========================================
         if (m_targetNoiseFreq > 0.001f)
         {
-            m_noisePhase += m_noiseDelta; // Noise usually doesn't track pitch
-
+            m_noisePhase += m_noiseDelta;
             while (m_noisePhase >= 1.0f)
             {
                 m_noisePhase -= 1.0f;
-                // LFSR Step
                 unsigned int bit0 = m_lfsr & 1;
                 unsigned int bit3 = (m_lfsr >> 3) & 1;
                 unsigned int nextBit = bit0 ^ bit3;
                 m_lfsr >>= 1;
                 if (nextBit) m_lfsr |= (1 << 16);
-
                 m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
             }
         }
-        else
-        {
+        else {
             m_currentNoiseSample = 0.0f;
         }
 
         // ==========================================
         // 4. Mixing
         // ==========================================
-        // Mix: 0.0=Tone, 1.0=Noise
-        // SSG mixer logic: Tone ON/OFF, Noise ON/OFF usually.
-        // Here using linear crossfade for flexibility.
         float toneGain = 1.0f - m_mix;
         float noiseGain = m_mix;
-
         float rawMixed = (toneSample * m_level * toneGain) + (m_currentNoiseSample * m_noiseLevel * noiseGain);
 
-        // Apply HW Env
         rawMixed *= hwEnvGain;
 
         // ==========================================
         // 5. Quantize (Bit Depth)
         // ==========================================
+        float finalOut = 0.0f;
         if (m_quantizeSteps > 0.0f) {
-            // Normalize to 0..1 for stepping
-            // Range is roughly -1 to 1 (ignoring overshoots from mix)
-            // Clamp to be safe
             if (rawMixed > 1.0f) rawMixed = 1.0f;
             if (rawMixed < -1.0f) rawMixed = -1.0f;
 
-            float dither = 0.0f;
-            if (std::abs(rawMixed) > 0.0001f) {
-                // 音が鳴っている時だけ、ブツ切れ防止のノイズを混ぜる
-                dither = ((float)std::rand() / RAND_MAX - 0.5f) * (1.0f / m_quantizeSteps);
-            }
-            float norm = (rawMixed + dither + 1.0f) * 0.5f;
+            // ★修正: ディザ(dither)を削除し、実機DACと同じ純粋な四捨五入にする(プレビューのゴミ解消)
+            float norm = (rawMixed + 1.0f) * 0.5f;
             float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
-
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            finalOut = (quantized * 2.0f) - 1.0f;
         }
         else {
-            m_lastSample = rawMixed;
+            finalOut = rawMixed;
         }
+
+        sumOut += finalOut;
+        steps++;
     }
 
-    // Output Sample (Sample & Hold) * ADSR Gain
+    if (steps > 0) {
+        m_lastSample = sumOut / (float)steps;
+    }
+
     return m_lastSample * m_currentLevel * 0.5f;
 }
 
