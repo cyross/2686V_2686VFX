@@ -128,16 +128,17 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     customWaveGroup.setEnabled(isCustomWave);
 
+    customSliders32.setVisible(false);
+    customSliders32.setCustomEnabled(false);
+    customSliders64.setVisible(false);
+    customSliders64.setCustomEnabled(false);
+
     if (isCustomWave) {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
             customSliders32.setCustomEnabled(true);
-            customSliders64.setVisible(false);
-            customSliders64.setCustomEnabled(false);
         }
         else {
-            customSliders32.setVisible(false);
-            customSliders32.setCustomEnabled(false);
             customSliders64.setVisible(true);
             customSliders64.setCustomEnabled(true);
         }
@@ -145,15 +146,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
     else {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
-            customSliders32.setCustomEnabled(false);
-            customSliders64.setVisible(false);
-            customSliders64.setCustomEnabled(false);
         }
         else {
-            customSliders32.setVisible(false);
-            customSliders32.setCustomEnabled(false);
             customSliders64.setVisible(true);
-            customSliders64.setCustomEnabled(false);
         }
     }
 

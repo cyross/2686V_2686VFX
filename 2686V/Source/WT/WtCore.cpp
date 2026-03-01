@@ -23,7 +23,16 @@ void WtCore::setParameters(const SynthParams& params)
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wtBitDepth);
     m_rateIndex = params.wtRateIndex;
-    m_tableSize = (params.wtTableSize == 0) ? 32 : 64;
+
+    // 波形・テーブルサイズ変更検知
+    int newTableSize = (params.wtTableSize == 0) ? 32 : 64;
+
+    bool waveformChanged = (m_waveform != params.wtWaveform);
+    bool sizeChanged = (m_prevTableSize != newTableSize);
+
+    m_tableSize = newTableSize;
+    m_prevTableSize = newTableSize;
+    m_waveform = params.wtWaveform;
 
     // 波形変更検知
     // カスタム波形データのコピー (値が変わっていれば更新するため)
@@ -35,9 +44,10 @@ void WtCore::setParameters(const SynthParams& params)
         // 強制的に再生成
         generateWaveform(8);
     }
-    else if (m_waveform != params.wtWaveform)
+    else if (waveformChanged || sizeChanged)
     {
         m_waveform = params.wtWaveform;
+
         generateWaveform(m_waveform);
     }
 
@@ -244,7 +254,6 @@ void WtCore::generateWaveform(int type)
             {
                 // 64サンプルを32ステップで埋める (index / 2)
                 int step = i / 2;
-                if (step >= 32) step = 31;
                 sample = m_customWaveCache32[step];
             }
         }
