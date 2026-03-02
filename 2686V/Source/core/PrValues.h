@@ -1429,6 +1429,63 @@ namespace PrValue
 			inline constexpr float initial = false; // 初期値
 		}
 
+		namespace RetroLfo
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = false; // 初期値
+			}
+
+			namespace Wave
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 2;
+			}
+
+			namespace Freq
+			{
+				inline constexpr float min = 0.1f;
+				inline constexpr float max = 100.0f;
+				inline constexpr float initial = 5.0f;
+			}
+
+			namespace Ams
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 0.0f;
+			}
+
+			namespace Pms
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 0.0f;
+			}
+
+			namespace Amd
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 255.0f;
+				inline constexpr float initial = 0.0f;
+			}
+
+			namespace Pmd
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 255.0f;
+				inline constexpr float initial = 0.0f;
+			}
+
+			namespace Mix
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 1.0f;
+				inline constexpr float initial = 0.0f;
+			}
+		}
+
 		namespace Tremolo
 		{
 			namespace Bypass

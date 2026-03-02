@@ -20,10 +20,19 @@ class GuiFx : public GuiBase
 
     GuiToggleButton bypassToggle;
 
+    GuiCategoryLabel mvolCat;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
     // 以降、エフェクトごとの設定
+
+    // レトロLFO(Retro LFO)
+    GuiGroup rlfoGroup;
+    GuiToggleButton rlfoBypassBtn;
+    GuiComboBox rlfoWaveSelector;
+    GuiSlider rlfoFreqSlider, rlfoAmsSlider, rlfoPmsSlider, rlfoAmdSlider, rlfoPmdSlider, rlfoMixSlider;
+    GuiTextButton rlfoDryBtn, rlfoHalfBtn, rlfoWetBtn;
 
     // トレモロ(Tremolo)
     GuiToggleButton tBypassBtn;
@@ -81,7 +90,20 @@ public:
         filterGroup(context),
         softClipperGroup(context),
         bypassToggle(context),
+        mvolCat(context),
         masterVolSlider(context),
+        rlfoGroup(context),
+        rlfoBypassBtn(context),
+        rlfoWaveSelector(context),
+        rlfoFreqSlider(context),
+        rlfoAmsSlider(context),
+        rlfoPmsSlider(context),
+        rlfoAmdSlider(context),
+        rlfoPmdSlider(context),
+        rlfoMixSlider(context),
+        rlfoDryBtn(context),
+        rlfoHalfBtn(context),
+        rlfoWetBtn(context),
         tBypassBtn(context),
         tRateSlider(context),
         tDepthSlider(context),

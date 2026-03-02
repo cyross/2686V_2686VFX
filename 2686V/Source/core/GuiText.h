@@ -33,6 +33,20 @@ namespace GuiText
 		static inline const juce::String about = "ABOUT";
 	}
 
+	namespace Category
+	{
+		static inline const juce::String quality = "--- QUALITY ---";
+		static inline const juce::String algFb = "--- ALGORITHM/FEEDBACK ---";
+		static inline const juce::String m = "--- MAIN ---";
+		static inline const juce::String lfo = "--- LFO ---";
+		static inline const juce::String adsr = "--- ADSR ---";
+		static inline const juce::String fix = "--- FIX ---";
+		static inline const juce::String mvol = "--- MASTER VOLUME ---";
+		static inline const juce::String shape = "--- SHAPE ---";
+		static inline const juce::String mask = "--- MASK ---";
+		static inline const juce::String mml = "--- MML ---";
+	}
+
 	namespace Group
 	{
 		static inline const juce::String mainGroup = "Main";

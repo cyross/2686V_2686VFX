@@ -439,7 +439,7 @@ void AudioPlugin2686VEditor::scanPresets()
     presetGui->clearTable();
 
     // XMLファイルを探す
-    auto files = presetGui->currentFolder.findChildFiles(juce::File::findFiles, false, PresetValue::File::glob);
+    auto files = presetGui->currentFolder.findChildFiles(juce::File::findFiles, true, PresetValue::File::glob);
 
     for (const auto& file : files)
     {

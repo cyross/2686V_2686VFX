@@ -222,6 +222,7 @@ namespace PrName
 
 		namespace Post
 		{
+			static inline const juce::String rlfo = " Retro LFO";
 			static inline const juce::String tremolo = " Tremolo";
 			static inline const juce::String vibrato = " Vibrato";
 			static inline const juce::String mbc = " Modern BC";
@@ -230,6 +231,18 @@ namespace PrName
 			static inline const juce::String rbc = " Retro BC";
 			static inline const juce::String filter = " Filter";
 			static inline const juce::String softClipper = " Soft Clipper";
+
+			namespace RetroLfo
+			{
+				static inline const juce::String bypass = " Bypass";
+				static inline const juce::String wave = " Wave";
+				static inline const juce::String freq = " Freq";
+				static inline const juce::String ams = " Ams";
+				static inline const juce::String pms = " Pms";
+				static inline const juce::String amd = " Amd";
+				static inline const juce::String pmd = " Pmd";
+				static inline const juce::String mix = " Mix";
+			}
 
 			namespace Tremolo
 			{
