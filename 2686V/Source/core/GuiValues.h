@@ -9,7 +9,7 @@ namespace GuiValue
 	namespace Window
 	{
 		static inline const int width = 1280;
-		static inline const int height = 660;
+		static inline const int height = 720;
 	}
 
 	namespace About
@@ -34,6 +34,30 @@ namespace GuiValue
 	{
 		static inline const int extraWidth = 288;
 		static inline const int drawSize = 280;
+	}
+
+	namespace MVol
+	{
+		static inline constexpr int paddingTop = 16;
+	}
+
+	namespace Category
+	{
+		static inline constexpr int paddingTop = 4;
+		static inline constexpr int paddingBotton = 4;
+	}
+
+	namespace PaddingTop
+	{
+		static inline constexpr int mask = 16;
+		static inline constexpr int mmlBtn = 20;
+	}
+
+	namespace PaddingBottom
+	{
+		static inline constexpr int block = 6;
+		static inline constexpr int mainRow = 3;
+		static inline constexpr int row = 3;
 	}
 
 	namespace Tab
@@ -88,6 +112,11 @@ namespace GuiValue
 		namespace Label
 		{
 			static inline const int width = 50;
+		}
+
+		namespace LabelOnly
+		{
+			static inline const int width = 240;
 		}
 
 		namespace Value
@@ -176,7 +205,12 @@ namespace GuiValue
 				{
 					static const int width = 50;
 				}
-				
+
+				namespace LabelOnly
+				{
+					static inline const int width = 240;
+				}
+
 				namespace Value
 				{
 					static const int width = 190;
@@ -215,6 +249,11 @@ namespace GuiValue
 					namespace TriPeak
 					{
 						static const int width = 80;
+					}
+
+					namespace LoadPcm
+					{
+						static const int width = 50;
 					}
 
 					namespace PcmFile
@@ -304,7 +343,7 @@ namespace GuiValue
 		namespace Pad
 		{
 			static const int width = 250;
-			static const int height = 240;
+			static const int height = 320;
 		}
 	}
 
@@ -323,7 +362,8 @@ namespace GuiValue
 	{
 		static const int Width = 1000;
 		static const int Height = 720;
-		static const int AreaHeight = 240;
+		static const int AreaHeightBig = 240;
+		static const int AreaHeight = 160;
 		static const int GlobalBypassHeight = 120;
 		static const int BypassWidth = 120;
 		static const int GroupHeight = 200;

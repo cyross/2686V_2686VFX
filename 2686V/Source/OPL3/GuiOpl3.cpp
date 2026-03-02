@@ -10,9 +10,14 @@
 
 #include "../fm/RegisterConverter.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiOpl3::setup()
 {
     const juce::String code = PrKey::Prefix::opl3;
+
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+    algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::Group::Fm::bit, .items = bdItems, .isReset = true });
@@ -21,6 +26,8 @@ void GuiOpl3::setup()
     algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Group::Fm::alg, .items = opl3AlgItems, .isReset = true });
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Group::Fm::fb0, .isReset = true });
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Group::Fm::fb2, .isReset = true });
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
@@ -39,6 +46,9 @@ void GuiOpl3::setup()
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
 
+        catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
+        catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
+
         mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Group::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
         tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Group::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
 
@@ -56,9 +66,15 @@ void GuiOpl3::setup()
         ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksr, .title = GuiText::Group::Fm::Op::Ksr, .isReset = true });
         ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksl, .title = GuiText::Group::Fm::Op::Ksl, .items = kslItems, .isReset = true });
 
+        catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
+
         eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::eg, .title = GuiText::Group::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
 
+        catMask[i].setup({ .parent = *this, .title = GuiText::Category::mask });
+
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Group::Fm::Op::Mask, .isReset = true });
+
+        catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
     }
 }
 
@@ -72,12 +88,15 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &bitSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &bitSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &rateSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &algSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &algSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &feedbackSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &feedbackSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &feedback2Slider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &feedback2Slider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     // --- Operators Section ---
     for (int i = 0; i < 4; ++i)
@@ -88,20 +107,25 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mul[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &mul[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ar[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &ar[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dr[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dr[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &sl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &sl[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rr[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rr[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &tl[i], { GuiValue::Fm::Op::Row::Value::width, 0}} });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &am[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vib[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &egType[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ksr[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &ksl[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &ksl[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &eg[i].label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &eg[i], { GuiValue::Fm::Op::Row::Value::width, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mask[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-        layoutComponentsLtoR(innerRect, GuiValue::Fm::Op::Row::height, 0, { { &mml[i], { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &egType[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &ksr[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &vib[i], .paddingBottom = GuiValue::PaddingTop::mask });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::PaddingTop::mmlBtn });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
 }
 

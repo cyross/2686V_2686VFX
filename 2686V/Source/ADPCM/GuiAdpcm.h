@@ -31,11 +31,17 @@ class GuiAdpcm : public GuiBase
     // Loop Button
     GuiToggleButton loopButton;
 
+    GuiCategoryLabel qualityCat;
+    GuiCategoryLabel mainCat;
+    GuiCategoryLabel adsrCat;
+
     GuiSlider attackSlider;
     GuiSlider decaySlider;
     GuiSlider sustainSlider;
     GuiSlider releaseSlider;
     GuiComboBox rateSelector;
+
+    GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
@@ -44,6 +50,7 @@ public:
         GuiBase(context),
         mainGroup(context),
         paramGroup(context),
+        mvolCat(context),
         masterVolSlider(context),
         modeSelector(context),
         loadButton(context),
@@ -55,6 +62,9 @@ public:
         btnPanC(context),
         btnPanR(context),
         loopButton(context),
+        qualityCat(context),
+        mainCat(context),
+        adsrCat(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),

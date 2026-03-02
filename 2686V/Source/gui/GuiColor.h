@@ -17,6 +17,7 @@ namespace GuiColor {
 	};
 	namespace Label {
 		static const juce::Colour Text = defaultFgColor;
+		static const juce::Colour CategoryText = juce::Colours::yellow;
 	};
 	namespace Slider {
 		static const juce::Colour Track = defaultFgColor;

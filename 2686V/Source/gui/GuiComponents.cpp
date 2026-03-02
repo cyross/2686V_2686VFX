@@ -187,6 +187,7 @@ void GuiLabel::setup(const Config& c)
     c.parent.addAndMakeVisible(*this);
 
     this->setText(c.title, juce::NotificationType::sendNotification);
+    this->setJustificationType(c.justification);
 
     if (!c.color.isTransparent())
     {
@@ -483,4 +484,9 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
             editor->grabKeyboardFocus();
         }
     };
+}
+
+void GuiCategoryLabel::setup(const Config& c)
+{
+    GuiLabel::setup({ .parent = c.parent, .title = c.title, .font = c.font, .justification = c.justification, .color = c.color });
 }

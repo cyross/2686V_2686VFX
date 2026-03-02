@@ -7,6 +7,8 @@
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiAdpcm::setup()
 {
     const juce::String code = PrKey::Prefix::adpcm;
@@ -14,6 +16,8 @@ void GuiAdpcm::setup()
     mainGroup.setup(*this, GuiText::Group::mainGroup);
     modeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::mode, .title = GuiText::Group::Adpcm::Post::quality, .items = qualityItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::rate, .title = GuiText::Group::Adpcm::Post::rate, .items = rateItems, .isReset = true });
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
@@ -52,6 +56,10 @@ void GuiAdpcm::setup()
         fileNameLabel.setText(Io::empty, juce::dontSendNotification);
     };
 
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+
     attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::ar, .title = GuiText::Group::Adpcm::Post::Adsr::ar, .isReset = true });
     decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::dr, .title = GuiText::Group::Adpcm::Post::Adsr::dr, .isReset = true });
     sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::sl, .title = GuiText::Group::Adpcm::Post::Adsr::sl, .isReset = true });
@@ -67,21 +75,21 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &modeSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &modeSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &rateSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &levelSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &levelSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &loopButton, { GuiValue::MainGroup::Button::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &panSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &panSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &btnPanL, { GuiValue::MainGroup::Button::Pan::width, GuiValue::MainGroup::Button::Pan::paddingHeight}},
-        { &btnPanC, { GuiValue::MainGroup::Button::Pan::width, GuiValue::MainGroup::Button::Pan::paddingHeight}},
-        { &btnPanR, { GuiValue::MainGroup::Button::Pan::width, 0}}
-        });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &attackSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &attackSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &decaySlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &decaySlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &sustainSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &sustainSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &releaseSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &releaseSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &loopButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
+    layoutComponentsLtoRAdpcmPanRow({ .rect = mRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto headerArea = pageArea.removeFromTop(GuiValue::Adpcm::File::height);
 

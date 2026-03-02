@@ -15,6 +15,13 @@ class GuiSsg : public GuiBase
     GuiGroup triGroup;
     GuiGroup envGroup;
 
+    GuiCategoryLabel qualityCat;
+    GuiCategoryLabel mainCat;
+    GuiCategoryLabel mainVoiceCat;
+    GuiCategoryLabel mainPulseCat;
+    GuiCategoryLabel mainTriCat;
+    GuiCategoryLabel mainHwEnvCat;
+
     GuiSlider levelSlider;
 
     GuiSlider noiseSlider;
@@ -36,6 +43,8 @@ class GuiSsg : public GuiBase
     GuiComboBox bitSelector;
 
     GuiComboBox rateSelector;
+
+    GuiCategoryLabel adsrCat;
 
     // SSG ADSR
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
@@ -77,6 +86,8 @@ class GuiSsg : public GuiBase
 
     GuiSlider periodSlider;
 
+    GuiCategoryLabel mvolCat;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 public:
@@ -87,6 +98,12 @@ public:
         dutyGroup(context),
         triGroup(context),
         envGroup(context),
+        qualityCat(context),
+        mainCat(context),
+        mainVoiceCat(context),
+        mainPulseCat(context),
+        mainTriCat(context),
+        mainHwEnvCat(context),
         levelSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
@@ -98,7 +115,7 @@ public:
         waveSelector(context),
         bitSelector(context),
         rateSelector(context),
-        masterVolSlider(context),
+        adsrCat(context),
         adsrBypassButton(context),
         attackSlider(context),
         decaySlider(context),
@@ -116,7 +133,9 @@ public:
         triSetSawUp(context),
         envEnableButton(context),
         shapeSelector(context),
-        periodSlider(context)
+        periodSlider(context),
+        mvolCat(context),
+        masterVolSlider(context)
     {}
 
     void setup() override;
