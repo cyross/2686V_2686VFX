@@ -6,6 +6,8 @@
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiFx::setup()
 {
     const juce::String code = PrKey::Prefix::fx;
@@ -152,19 +154,18 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &bypassToggle, { GuiValue::MainGroup::Button::width , 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, {
-        { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} }
-        });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &bypassToggle });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
-    auto topCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
+    auto topCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeightBig);
+    pageArea.removeFromTop(GuiValue::PaddingBottom::block);
     auto centerCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
+    pageArea.removeFromTop(GuiValue::PaddingBottom::block);
     auto bottomCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeight);
 
-    // Left
+    // 1st Row
 
-    // 1. Filter
+    // Filter
     auto flArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     filterGroup.setBounds(flArea);
@@ -173,18 +174,14 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     flRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &flBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &flTypeSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &flTypeSelector, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &flFreqSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &flFreqSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &flQSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &flQSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &flMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &flMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(flRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &flDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &flHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &flWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-    });
+    layoutComponentsLtoRRow({ .rowRect = flRect, .component = &flBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector });
+    layoutComponentsLtoRRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider });
+    layoutComponentsLtoRRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider });
+    layoutComponentsLtoRRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = flRect, .dryBtn = &flDryBtn, .HalfBtn = &flHalfBtn, .wetBtn = &flWetBtn, .paddingBottom = 0});
 
-    // 2. Retro LFO
+    // Retro LFO
     auto rlfoArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     rlfoGroup.setBounds(rlfoArea);
@@ -193,21 +190,17 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rlfoRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoWaveSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoWaveSelector, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoFreqSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoFreqSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoAmsSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoAmsSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoPmsSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoPmsSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoAmdSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoAmdSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoPmdSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoPmdSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rlfoMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rlfoMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rlfoRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &rlfoDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rlfoHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rlfoWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .component = &rlfoBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoWaveSelector.label, .component = &rlfoWaveSelector });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoFreqSlider.label, .component = &rlfoFreqSlider });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoAmsSlider.label, .component = &rlfoAmsSlider });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoPmsSlider.label, .component = &rlfoPmsSlider });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoAmdSlider.label, .component = &rlfoAmdSlider });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoPmdSlider.label, .component = &rlfoPmdSlider });
+    layoutComponentsLtoRRow({ .rowRect = rlfoRect, .label = &rlfoMixSlider.label, .component = &rlfoMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = rlfoRect, .dryBtn = &rlfoDryBtn, .HalfBtn = &rlfoHalfBtn, .wetBtn = &rlfoWetBtn, .paddingBottom = 0 });
 
-    // 2. Tremolo
+    // Tremolo
     auto trmArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     tremGroup.setBounds(trmArea);
@@ -216,17 +209,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     trmRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(trmRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(trmRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tRateSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &tRateSlider, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(trmRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tDepthSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &tDepthSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(trmRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &tMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &tMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(trmRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &tDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &tHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &tWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = trmRect, .component = &tBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider });
+    layoutComponentsLtoRRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider });
+    layoutComponentsLtoRRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = trmRect, .dryBtn = &tDryBtn, .HalfBtn = &tHalfBtn, .wetBtn = &tWetBtn, .paddingBottom = 0 });
 
-    // 3. Vibrato
+    // Vibrato
     auto vibArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     vibGroup.setBounds(vibArea);
@@ -235,17 +224,16 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     vibRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(vibRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(vibRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vRateSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &vRateSlider, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(vibRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vDepthSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &vDepthSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(vibRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &vMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &vMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(vibRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &vDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &vHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &vWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = vibRect, .component = &vBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider });
+    layoutComponentsLtoRRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider });
+    layoutComponentsLtoRRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = vibRect, .dryBtn = &vDryBtn, .HalfBtn = &vHalfBtn, .wetBtn = &vWetBtn, .paddingBottom = 0 });
 
-    // 4. Modern Bit Crusher
+
+    // 2nd Row
+
+    // Modern Bit Crusher
     auto mbcArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     mbcGroup.setBounds(mbcArea);
@@ -254,17 +242,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     mbcRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mbcBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(mbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mbcRateSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &mbcRateSlider, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(mbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mbcBitsSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &mbcBitsSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(mbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &mbcMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &mbcMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(mbcRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &mbcDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &mbcHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &mbcWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider });
+    layoutComponentsLtoRRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider });
+    layoutComponentsLtoRRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = mbcRect, .dryBtn = &mbcDryBtn, .HalfBtn = &mbcHalfBtn, .wetBtn = &mbcWetBtn, .paddingBottom = 0 });
 
-    // 5. Delay
+    // Delay
     auto dlyArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     delayGroup.setBounds(dlyArea);
@@ -273,17 +257,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     dlyRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(dlyRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(dlyRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dTimeSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dTimeSlider, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(dlyRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dFbSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dFbSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(dlyRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &dMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &dMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(dlyRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &dDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &dHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &dWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = dlyRect, .component = &dBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider });
+    layoutComponentsLtoRRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider });
+    layoutComponentsLtoRRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = dlyRect, .dryBtn = &dDryBtn, .HalfBtn = &dHalfBtn, .wetBtn = &dWetBtn, .paddingBottom = 0 });
 
-    // 6. Reverb
+    // Reverb
     auto rvbArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     reverbGroup.setBounds(rvbArea);
@@ -292,17 +272,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rvbRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(rvbRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(rvbRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rSizeSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rSizeSlider, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(rvbRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rDampSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rDampSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rvbRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rvbRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &rDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = rvbRect, .component = &rBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider });
+    layoutComponentsLtoRRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider });
+    layoutComponentsLtoRRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = rvbRect, .dryBtn = &rDryBtn, .HalfBtn = &rHalfBtn, .wetBtn = &rWetBtn, .paddingBottom = 0 });
 
-    // 7. Retro Bit Crusher
+    // Retro Bit Crusher
     auto rbcArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     rbcGroup.setBounds(rbcArea);
@@ -311,17 +287,16 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rbcRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(rbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rbcBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(rbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rbcBitsSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rbcBitsSelector, { GuiValue::Fm::Op::Row::Value::width, 0} } });
-    layoutComponentsLtoR(rbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rbcRateSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rbcRateSelector, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rbcRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rbcMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &rbcMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(rbcRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &rbcDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rbcHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &rbcWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-        });
+    layoutComponentsLtoRRow({ .rowRect = rbcRect, .component = &rbcBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = rbcRect, .label = &rbcBitsSelector.label, .component = &rbcBitsSelector });
+    layoutComponentsLtoRRow({ .rowRect = rbcRect, .label = &rbcRateSelector.label, .component = &rbcRateSelector });
+    layoutComponentsLtoRRow({ .rowRect = rbcRect, .label = &rbcMixSlider.label, .component = &rbcMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = rbcRect, .dryBtn = &rbcDryBtn, .HalfBtn = &rbcHalfBtn, .wetBtn = &rbcWetBtn, .paddingBottom = 0 });
 
-    // 8. Soft Clipper
+
+    // 3rd Row
+
+    // Soft Clipper
     auto scArea = bottomCol.removeFromLeft(GuiValue::Fm::Op::width);
 
     softClipperGroup.setBounds(scArea);
@@ -330,11 +305,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     scRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(scRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &scBypassBtn, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(scRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &scMixSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right} }, { &scMixSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(scRect, GuiValue::Fm::Op::Row::height, 0, {
-        { &scDryBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &scHalfBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, GuiValue::Fm::Op::Row::Button::Mix::Padding::height} },
-        { &scWetBtn, { GuiValue::Fm::Op::Row::Button::Mix::width, 0} }
-    });
+    layoutComponentsLtoRRow({ .rowRect = scRect, .component = &scBypassBtn });
+    layoutComponentsLtoRRow({ .rowRect = scRect, .label = &scMixSlider.label, .component = &scMixSlider });
+    layoutComponentsLtoRFxMixRow({ .rect = scRect, .dryBtn = &scDryBtn, .HalfBtn = &scHalfBtn, .wetBtn = &scWetBtn, .paddingBottom = 0 });
 }

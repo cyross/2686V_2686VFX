@@ -8,7 +8,6 @@
 #include <atomic>
 #include "GuiColor.h"
 #include "GuiStructs.h"
-#include "GuiHelpers.h"
 #include "GuiContext.h"
 #include "../core/GuiValues.h"
 #include "../core/GuiText.h"
@@ -357,4 +356,20 @@ public:
     };
 
     void setupMml(const MmlConfig& c);
+};
+
+class GuiCategoryLabel : public GuiLabel
+{
+public:
+    GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}
+
+    struct Config {
+        juce::Component& parent;
+        juce::String title;
+        std::optional<juce::Font> font = std::nullopt;
+        juce::Justification justification = juce::Justification::centred;
+        juce::Colour color = GuiColor::Label::CategoryText;
+    };
+
+    void setup(const Config& c);
 };

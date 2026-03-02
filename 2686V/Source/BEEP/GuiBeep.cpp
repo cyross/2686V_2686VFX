@@ -5,6 +5,8 @@
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiBeep::setup() {
     juce::String code = PrKey::Prefix::beep;
 
@@ -35,36 +37,16 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &volSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &volSlider, { GuiValue::MainGroup::Value::width, 0} } 
-        });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &fixToggle, { GuiValue::MainGroup::Button::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &freqSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &freqSlider, { GuiValue::MainGroup::Value::width, 0} }
-        });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &freqTo2kBtn, {  GuiValue::MainGroup::Button::width, 0 } }
-        });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &fixToggle });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider});
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &freqTo2kBtn });
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &bypassToggle, { GuiValue::MainGroup::Button::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &ar.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &ar, { GuiValue::MainGroup::Value::width, 0} }
-        });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &dr.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &dr, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &sl.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &sl, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, {
-        { &rr.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &rr, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, {
-        { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} },
-        { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} }
-        });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &bypassToggle });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0});
 }

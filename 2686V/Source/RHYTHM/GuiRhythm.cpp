@@ -8,6 +8,8 @@
 #include "../core/PrValues.h"
 #include "../core/FileValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
     fileNameLabel.setText(fileName, juce::dontSendNotification);
@@ -86,19 +88,15 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &loadButton, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &fileNameLabel, { 150, 0}},{ &clearButton, { 30, 0}}, });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &oneShotButton, { GuiValue::Fm::Op::Row::Button::wdth, 0} } });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &noteSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &noteSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &modeSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &modeSelector, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &rateSelector, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &panSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &panSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, {
-        { &btnPanL, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} },
-        { &btnPanC, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} },
-        { &btnPanR, { GuiValue::Fm::Op::Row::Button::Pan::width, 0} }
-        });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, GuiValue::Fm::Op::Row::Padding::bottom, { { &volSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &volSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
-    layoutComponentsLtoR(padRect, GuiValue::Fm::Op::Row::height, 0, { { &rrSlider.label, { GuiValue::Fm::Op::Row::Label::width, GuiValue::Fm::Op::Row::Padding::right}}, { &rrSlider, { GuiValue::Fm::Op::Row::Value::width, 0}} });
+    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider });
+    layoutComponentsLtoRRhythmPadPanRow({ .rect = padRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -153,8 +151,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &levelSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &levelSlider, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);

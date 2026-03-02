@@ -7,6 +7,8 @@
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiWt::setup()
 {
     const juce::String code = PrKey::Prefix::wt;
@@ -76,19 +78,19 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &bitSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &bitSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &rateSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &rateSelector, { GuiValue::MainGroup::Value::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &levelSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &levelSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &attackSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &attackSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &decaySlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &decaySlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &sustainSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &sustainSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &releaseSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &releaseSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &waveSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &waveSelector, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &sizeSelector.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &sizeSelector, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &modEnableButton, { GuiValue::MainGroup::Button::width, 0} } });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &modDepthSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &modDepthSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::height, GuiValue::MainGroup::Row::Padding::bottom, { { &modSpeedSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right}}, { &modSpeedSlider, { GuiValue::MainGroup::Value::width, 0}} });
-    layoutComponentsLtoR(mRect, GuiValue::MainGroup::Row::MainVol::height, 0, { { &masterVolSlider.label, { GuiValue::MainGroup::Label::width, GuiValue::MainGroup::Row::Padding::right} }, { &masterVolSlider, { GuiValue::MainGroup::Value::width, 0} } });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &modEnableButton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabled(isMod);
@@ -153,9 +155,5 @@ void GuiWt::layout(juce::Rectangle<int> content)
     }
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
-    layoutComponentsLtoR(cwRect, GuiValue::Wt::Custom::ResetBtn::Height, 0, {
-        { &customWaveResetTo0Btn, { GuiValue::Wt::Custom::ResetBtn::To0Width, GuiValue::Wt::Custom::ResetBtn::Padding::Right} },
-        { &customWaveResetTo1Btn, { GuiValue::Wt::Custom::ResetBtn::To1Width, GuiValue::Wt::Custom::ResetBtn::Padding::Right} },
-        { &customWaveResetToM1Btn, { GuiValue::Wt::Custom::ResetBtn::ToM1Width, 0} }
-    });
+    layoutComponentsLtoRWtWaveValueUpdateRow({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn =  &customWaveResetToM1Btn });
 }

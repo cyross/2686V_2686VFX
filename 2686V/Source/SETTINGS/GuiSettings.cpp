@@ -10,6 +10,8 @@
 #include "../core/SettingsKeys.h"
 #include "../core/SettingsValues.h"
 
+#include "../gui/GuiHelpers.h"
+
 void GuiSettings::setup()
 {
     std::vector<SelectItem> wpModeItems = {
@@ -310,11 +312,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 9. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
 
-    layoutComponentsLtoR(rowIoBtns, GuiValue::Fm::Op::Row::height, 0, {
-        { &loadSettingsBtn, { GuiValue::Settings::ButtonWidth, GuiValue::Settings::ButtonPaddingRight} },
-        { &saveSettingsBtn, { GuiValue::Settings::ButtonWidth, GuiValue::Settings::ButtonPaddingRight} },
-        { &saveStartupSettingsBtn, { GuiValue::Settings::ButtonWidth, 0} }
-        });
+    layoutComponentsLtoRSettingsIoRow({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn });
 }
 
 void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath)

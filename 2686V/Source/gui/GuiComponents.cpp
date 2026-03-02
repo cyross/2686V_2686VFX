@@ -484,3 +484,8 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         }
     };
 }
+
+void GuiCategoryLabel::setup(const Config& c)
+{
+    GuiLabel::setup({ .parent = c.parent, .title = c.title, .font = c.font, .justification = c.justification, .color = c.color });
+}
