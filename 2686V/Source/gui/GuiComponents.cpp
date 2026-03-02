@@ -187,6 +187,7 @@ void GuiLabel::setup(const Config& c)
     c.parent.addAndMakeVisible(*this);
 
     this->setText(c.title, juce::NotificationType::sendNotification);
+    this->setJustificationType(c.justification);
 
     if (!c.color.isTransparent())
     {

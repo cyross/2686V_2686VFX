@@ -19,6 +19,9 @@ class RhythmPadGui: public GuiBase
 
     GuiTextButton clearButton;
 
+    GuiCategoryLabel qualityCat;
+    GuiCategoryLabel mainCat;
+
     GuiSlider noteSlider;
 
     GuiComboBox modeSelector;
@@ -35,6 +38,8 @@ class RhythmPadGui: public GuiBase
 
     GuiToggleButton oneShotButton;
 
+    GuiCategoryLabel adsrCat;
+
     GuiSlider rrSlider;
 public:
     RhythmPadGui(const GuiContext& context) :
@@ -43,6 +48,8 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        qualityCat(context),
+        mainCat(context),
         noteSlider(context),
         modeSelector(context),
         rateSelector(context),
@@ -52,6 +59,7 @@ public:
         btnPanR(context),
         volSlider(context),
         oneShotButton(context),
+        adsrCat(context),
         rrSlider(context)
 	{
 	}
@@ -67,8 +75,12 @@ class GuiRhythm : public GuiBase
 {
     GuiGroup mainGroup;
 
+    GuiCategoryLabel mainCat;
+
     // Master Level
 	GuiSlider levelSlider;
+
+    GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
@@ -79,7 +91,9 @@ public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        mainCat(context),
         levelSlider(context),
+        mvolCat(context),
         masterVolSlider(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {}

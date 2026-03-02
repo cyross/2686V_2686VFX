@@ -14,14 +14,21 @@ class GuiOpl : public GuiBase
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op2> opGroups;
 
+    GuiCategoryLabel qualityCat;
+    GuiCategoryLabel algFbCat;
+
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    GuiCategoryLabel mvolCat;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catMain;
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catLfo;
     std::array<GuiSlider, Global::Fm::Op2> mul;
     std::array<GuiComboBox, Global::Fm::Op2> dt;
     std::array<GuiSlider, Global::Fm::Op2> ar;
@@ -34,8 +41,11 @@ class GuiOpl : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op2> egType;
     std::array<GuiToggleButton, Global::Fm::Op2> ksr;
     std::array<GuiComboBox, Global::Fm::Op2> ksl; // Key Scale Level
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catShape;
     std::array<GuiComboBox, Global::Fm::Op2> eg; // Envlope Generator
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catMask;
     std::array<GuiToggleButton, Global::Fm::Op2> mask; // Mask
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catMml;
     std::array<GuiMmlButton, Global::Fm::Op2> mml;
 
     void applyMmlString(const juce::String& mml, int opIndex);
@@ -44,11 +54,16 @@ public:
         GuiBase(context),
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context) },
+        qualityCat(context),
+        algFbCat(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        mvolCat(context),
         masterVolSlider(context),
+        catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiSlider(context), GuiSlider(context) },
         dt{ GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context) },
@@ -61,8 +76,11 @@ public:
         egType{ GuiToggleButton(context),GuiToggleButton(context) },
         ksr{ GuiToggleButton(context),GuiToggleButton(context) },
         ksl{ GuiComboBox(context), GuiComboBox(context) },
+        catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         eg{ GuiComboBox(context), GuiComboBox(context) },
+        catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context) },
+        catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context) }
     {
 	}

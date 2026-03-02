@@ -36,6 +36,23 @@ namespace GuiValue
 		static inline const int drawSize = 280;
 	}
 
+	namespace MVol
+	{
+		static inline constexpr int paddingTop = 16;
+	}
+
+	namespace Category
+	{
+		static inline constexpr int paddingTop = 4;
+		static inline constexpr int paddingBotton = 4;
+	}
+
+	namespace PaddingTop
+	{
+		static inline constexpr int mask = 16;
+		static inline constexpr int mmlBtn = 20;
+	}
+
 	namespace PaddingBottom
 	{
 		static inline constexpr int block = 6;
@@ -234,6 +251,11 @@ namespace GuiValue
 						static const int width = 80;
 					}
 
+					namespace LoadPcm
+					{
+						static const int width = 50;
+					}
+
 					namespace PcmFile
 					{
 						static const int width = 155;
@@ -321,7 +343,7 @@ namespace GuiValue
 		namespace Pad
 		{
 			static const int width = 250;
-			static const int height = 280;
+			static const int height = 320;
 		}
 	}
 

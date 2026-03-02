@@ -20,6 +20,8 @@ class GuiFx : public GuiBase
 
     GuiToggleButton bypassToggle;
 
+    GuiCategoryLabel mvolCat;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
@@ -88,6 +90,7 @@ public:
         filterGroup(context),
         softClipperGroup(context),
         bypassToggle(context),
+        mvolCat(context),
         masterVolSlider(context),
         rlfoGroup(context),
         rlfoBypassBtn(context),

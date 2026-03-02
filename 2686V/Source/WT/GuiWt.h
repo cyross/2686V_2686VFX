@@ -231,6 +231,10 @@ class GuiWt : public GuiBase
 
     GuiSlider levelSlider;
 
+    GuiCategoryLabel qualityCat;
+    GuiCategoryLabel mainCat;
+    GuiCategoryLabel adsrCat;
+
     // Filter (ADSR)
     GuiSlider attackSlider;
 
@@ -258,6 +262,8 @@ class GuiWt : public GuiBase
     GuiTextButton customWaveResetTo1Btn;
     GuiTextButton customWaveResetToM1Btn;
 
+    GuiCategoryLabel mvolCat;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 public:
@@ -268,12 +274,16 @@ public:
         customSliders32(context),
         customSliders64(context),
         levelSlider(context),
+        qualityCat(context),
+        mainCat(context),
+        adsrCat(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
         bitSelector(context),
         rateSelector(context),
+        mvolCat(context),
         masterVolSlider(context),
         sizeSelector(context),
         waveSelector(context),

@@ -101,7 +101,7 @@ struct LtoRConfigOpzx3PcmRow {
     juce::Component* clearPcmBtn;
     int rowHeight = GuiValue::Fm::Op::Row::height;
     int paddingBottom = GuiValue::PaddingBottom::row;
-    int loadPcmBtnWidth = GuiValue::Fm::Op::Row::Button::PcmFile::width;
+    int loadPcmBtnWidth = GuiValue::Fm::Op::Row::Button::LoadPcm::width;
     int pcmFileNameLabelWidth = GuiValue::Fm::Op::Row::Button::PcmFile::width;
     int clearPcmBtnWidth = GuiValue::Fm::Op::Row::Button::ClearPcm::width;
 };
