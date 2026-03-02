@@ -267,7 +267,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 
 ## 更新履歴
 
-### 2026.03.XX
+### 2026.03.02
 
 - v0.6.0
 - <2686V><2686VFX>FXタブに「Software LFO」を追加
