@@ -21,6 +21,7 @@ class RhythmPadGui: public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
+    GuiCategoryLabel panCat;
 
     GuiSlider noteSlider;
 
@@ -50,6 +51,7 @@ public:
         clearButton(context),
         qualityCat(context),
         mainCat(context),
+        panCat(context),
         noteSlider(context),
         modeSelector(context),
         rateSelector(context),

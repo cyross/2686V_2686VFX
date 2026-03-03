@@ -17,16 +17,17 @@ void GuiAbout::setup()
 
     // 1. Plugin Name
     pluginNameLabel.setup({ .parent = *this, .title = Global::Plugin::name });
-    pluginNameLabel.setFont(juce::Font(GuiValue::About::Logo::fontFamily, GuiValue::About::Logo::fontSize, juce::Font::bold | juce::Font::italic));
+    pluginNameLabel.setFont(juce::Font(GuiValue::About::PluginName::fontFamily, GuiValue::About::PluginName::fontSize, juce::Font::bold | juce::Font::italic));
     pluginNameLabel.setJustificationType(juce::Justification::centred);
 
     // 2. Version
     versionLabel.setup({ .parent = *this, .title = Global::Plugin::version });
-    versionLabel.setFont(juce::Font(24.0f));
+    versionLabel.setFont(juce::Font(GuiValue::About::PluginVerion::fontSize));
     versionLabel.setJustificationType(juce::Justification::centred);
 
     // 3. Copyright
     copyrightLabel.setup({ .parent = *this, .title = Global::Plugin::author });
+    copyrightLabel.setFont(juce::Font(GuiValue::About::PluginCioyright::fontSize));
     copyrightLabel.setJustificationType(juce::Justification::centred);
 
     // 4. Logo (BinaryDataから読み込み)
@@ -43,17 +44,18 @@ void GuiAbout::setup()
 
     // 5. VST Trademark Notice (必須表記)
     vstGuidelineLabel.setup({ .parent = *this, .title = Global::About::Vst::notice });
-    vstGuidelineLabel.setFont(juce::Font(14.0f)); // 小さめでOK
+    vstGuidelineLabel.setFont(juce::Font(GuiValue::About::VstNotice::fontSize));
     vstGuidelineLabel.setJustificationType(juce::Justification::centred);
 
     // --- GPLv3ライセンス表示 ---
     // 1. 通知テキスト
     gplNoticeLabel.setup({ .parent = *this, .title = Global::About::Gpl::notice });
-    gplNoticeLabel.setFont(juce::Font(14.0f));
+    gplNoticeLabel.setFont(juce::Font(GuiValue::About::GplNotice::fontSize));
     gplNoticeLabel.setJustificationType(juce::Justification::centred);
 
     // 2. リンクボタン
-    gplLinkButton.setup({ .parent = *this, .title = Global::About::Gpl::navigate, .url = juce::URL(Global::About::Gpl::linkUrl), .color = juce::Colours::lightblue }); // リンクっぽく青色にする
+    gplLinkButton.setup({ .parent = *this, .title = Global::About::Gpl::navigate, .url = juce::URL(Global::About::Gpl::linkUrl), .color = juce::Colours::lightblue });
+    gplLinkButton.setFont(juce::Font(GuiValue::About::GplLink::fontSize), false, juce::Justification::centred);
 }
 
 void GuiAbout::layout(juce::Rectangle<int> content)
@@ -65,28 +67,26 @@ void GuiAbout::layout(juce::Rectangle<int> content)
 
     mainGroup.setBounds(pageArea);
 
-    auto iconArea = mainArea.removeFromTop(160); 
-    iconImage.setBounds(iconArea.withSizeKeepingCentre(128, 128));
+    auto iconArea = mainArea.removeFromTop(GuiValue::About::LogoImage::areaHeight); 
+    iconImage.setBounds(iconArea.withSizeKeepingCentre(GuiValue::About::LogoImage::imageSize, GuiValue::About::LogoImage::imageSize));
 
     // Name & Ver
-    pluginNameLabel.setBounds(mainArea.removeFromTop(80));
-    versionLabel.setBounds(mainArea.removeFromTop(40));
-    copyrightLabel.setBounds(mainArea.removeFromTop(30));
+    pluginNameLabel.setBounds(mainArea.removeFromTop(GuiValue::About::PluginName::areaHeight));
+    versionLabel.setBounds(mainArea.removeFromTop(GuiValue::About::PluginVerion::areaHeight));
+    copyrightLabel.setBounds(mainArea.removeFromTop(GuiValue::About::PluginCioyright::areaHeight));
 
-    // Logo Row
-    // ロゴの元サイズ比率を維持して中央配置
-    auto logoArea = mainArea.removeFromTop(80);
-    vst3Logo.setBounds(logoArea.withSizeKeepingCentre(150, 60)); // 枠内で最大150x60に収める等の調整
+    // VST Logo Row
+    auto vstLogoArea = mainArea.removeFromTop(GuiValue::About::VstLogo::areaHeight);
+    vst3Logo.setBounds(vstLogoArea.withSizeKeepingCentre(GuiValue::About::VstLogo::width, GuiValue::About::VstLogo::height));
 
     // VST Guideline Text
-    vstGuidelineLabel.setBounds(mainArea.removeFromTop(20));
+    vstGuidelineLabel.setBounds(mainArea.removeFromTop(GuiValue::About::VstNotice::areaHeight));
 
-    auto gplNoticeArea = mainArea.removeFromTop(40);
+    auto gplNoticeArea = mainArea.removeFromTop(GuiValue::About::GplNotice::areaHeight);
 
     gplNoticeLabel.setBounds(gplNoticeArea);
 
-    auto gplLinkArea = mainArea.removeFromTop(40);
+    auto gplLinkArea = mainArea.removeFromTop(GuiValue::About::GplLink::areaHeight);
 
     gplLinkButton.setBounds(gplLinkArea);
-
 }

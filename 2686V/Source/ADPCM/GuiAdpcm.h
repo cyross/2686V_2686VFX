@@ -33,6 +33,7 @@ class GuiAdpcm : public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
+    GuiCategoryLabel panCat;
     GuiCategoryLabel adsrCat;
 
     GuiSlider attackSlider;
@@ -64,6 +65,7 @@ public:
         loopButton(context),
         qualityCat(context),
         mainCat(context),
+        panCat(context),
         adsrCat(context),
         attackSlider(context),
         decaySlider(context),
