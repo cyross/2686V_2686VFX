@@ -233,6 +233,7 @@ class GuiWt : public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
+    GuiCategoryLabel modCat;
     GuiCategoryLabel adsrCat;
 
     // Filter (ADSR)
@@ -276,6 +277,7 @@ public:
         levelSlider(context),
         qualityCat(context),
         mainCat(context),
+        modCat(context),
         adsrCat(context),
         attackSlider(context),
         decaySlider(context),

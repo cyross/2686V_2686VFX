@@ -25,7 +25,8 @@ void GuiAdpcm::setup()
 	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::level, .title = "Vol", .isReset = true });
 
     // パンポット設定
-	panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::pan, .title = "Pan", .isReset = true });
+    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
+    panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::pan, .title = "Pan", .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     addAndMakeVisible(btnPanL); btnPanL.setButtonText("L"); btnPanL.addListener(&ctx.editor);
     addAndMakeVisible(btnPanC); btnPanC.setButtonText("C"); btnPanC.addListener(&ctx.editor);
@@ -77,12 +78,13 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutComponentsLtoRMain({ .mainRect = mRect, .component = &loopButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
-    layoutComponentsLtoRAdpcmPanRow({ .rect = mRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR });
+    layoutComponentsLtoRAdpcmPanRow({ .rect = mRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });

@@ -37,7 +37,7 @@ namespace GuiText
 	{
 		static inline const juce::String quality = "--- QUALITY ---";
 		static inline const juce::String algFb = "--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String m = "--- MAIN ---";
+		static inline const juce::String m = "--- PARAMETERS ---";
 		static inline const juce::String lfo = "--- LFO ---";
 		static inline const juce::String adsr = "--- ADSR ---";
 		static inline const juce::String fix = "--- FIX ---";
@@ -45,6 +45,14 @@ namespace GuiText
 		static inline const juce::String shape = "--- SHAPE ---";
 		static inline const juce::String mask = "--- MASK ---";
 		static inline const juce::String mml = "--- MML ---";
+		static inline const juce::String bypass = "--- BYPASS ---";
+		static inline const juce::String pan = "--- PAN ---";
+		static inline const juce::String mix = "--- MIX ---";
+		static inline const juce::String mod = "--- MODULATION ---";
+		static inline const juce::String ssgTone = "--- TOME ---";
+		static inline const juce::String ssgNoise = "--- NOISE ---";
+		static inline const juce::String invert = "--- INVERT ---";
+		static inline const juce::String peak = "--- PEAK ---";
 	}
 
 	namespace Group

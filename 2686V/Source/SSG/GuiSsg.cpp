@@ -25,11 +25,15 @@ void GuiSsg::setup()
 	noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseOnNote, .title = "Noise On Note", .isReset = true });
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainVoiceCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainPulseCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainTriCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainHwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    shapeCat.setup({ .parent = *this, .title = GuiText::Category::shape });
+    toneCat.setup({ .parent = *this, .title = GuiText::Category::ssgTone });
+    noiseCat.setup({ .parent = *this, .title = GuiText::Category::ssgNoise });
+    mixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
+    pulseDutyCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    pulseInvCat.setup({ .parent = *this, .title = GuiText::Category::invert });
+    triCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    triPeakCat.setup({ .parent = *this, .title = GuiText::Category::peak });
+    hwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
     // 初期状態反映
@@ -108,12 +112,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     vRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mainVoiceCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &shapeCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &toneCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
     layoutComponentsLtoRSsgMixRow({ .rect = vRect, .toneBtn = &mixSetTone, .mixBtn =  &mixSetMix, .noizeBtn = &mixSetNoise, .paddingBottom = 0 });
 
@@ -127,7 +134,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(true);
         triGroup.setVisible(false);
 
+        triCat.setVisible(false);
         triKeyTrackButton.setVisible(false);
+        triPeakCat.setVisible(false);
         triPeakSlider.setVisible(false);
         triPeakSlider.label.setVisible(false);
         triFreqSlider.setVisible(false);
@@ -136,6 +145,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
+        pulseDutyCat.setVisible(true);
+        pulseInvCat.setVisible(true);
         dutyModeSelector.setVisible(true);
         dutyModeSelector.label.setVisible(true);
         dutyVarSlider.setValue(true);
@@ -147,9 +158,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &mainPulseCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseDutyCat, .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
-        layoutComponentsLtoRRow({ .rowRect = dRect, .component = &dutyInvertButton });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
@@ -157,21 +167,26 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             dutyPresetSelector.label.setVisible(true);
             dutyVarSlider.setVisible(false);
             dutyVarSlider.label.setVisible(false);
-            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, .paddingBottom = 0 });
+            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, .paddingBottom = GuiValue::Category::paddingTop });
         }
         else {
             dutyPresetSelector.setVisible(false);
             dutyPresetSelector.label.setVisible(false);
             dutyVarSlider.setVisible(true);
             dutyVarSlider.label.setVisible(true);
-            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, .paddingBottom = 0 });
+            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, .paddingBottom = GuiValue::Category::paddingTop });
         }
+
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseInvCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
     else // Triangle
     {
         dutyGroup.setVisible(false);
         triGroup.setVisible(true);
 
+        pulseDutyCat.setVisible(false);
+        pulseInvCat.setVisible(false);
         dutyModeSelector.setVisible(false);
         dutyModeSelector.label.setVisible(false);
         dutyInvertButton.setVisible(false);
@@ -180,9 +195,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyVarSlider.setVisible(false);
         dutyVarSlider.label.setVisible(false);
 
+        triCat.setVisible(true);
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisible(true);
         triFreqSlider.label.setVisible(true);
+        triPeakCat.setVisible(true);
         triPeakSlider.setVisible(true);
         triPeakSlider.label.setVisible(true);
         triSetSawDown.setVisible(true);
@@ -194,7 +211,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &mainTriCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triCat, .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
@@ -202,13 +219,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triFreqSlider.label.setVisible(!isKeyTrack);
 
         if (!isKeyTrack) {
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider });
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider, .paddingBottom = GuiValue::Category::paddingTop });
         }
-        else {
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+        else
+        {
+            tRect.removeFromTop(GuiValue::Category::paddingTop);
         }
 
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutComponentsLtoRSsgTriPosRow({ .rect = tRect, .sawDownBtn = &triSetSawDown, .triBtn = &triSetTri, .sawUpBtn = &triSetSawUp, .paddingBottom = 0 });
     }
 
@@ -219,7 +238,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &mainHwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &hwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });

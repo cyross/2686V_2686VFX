@@ -23,6 +23,7 @@ void GuiWt::setup()
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+    modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
 
     attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Group::Ssg::Post::Adsr::ar, .isReset = true });
     decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Group::Ssg::Post::Adsr::dr, .isReset = true });
@@ -86,14 +87,15 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .component = &modEnableButton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
