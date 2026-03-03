@@ -42,6 +42,7 @@ void GuiPreset::setup()
     *********************/
 
     pathLabel.setup({ .parent = *this, .title = currentFolder.getFullPathName()});
+    pathLabel.setJustificationType(juce::Justification::left);
 
     /********************
     *

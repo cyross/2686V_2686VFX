@@ -327,7 +327,7 @@ void AudioPlugin2686VEditor::setupLogo()
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
-    logoLabel.setFont(juce::Font(GuiValue::About::Logo::fontFamily, GuiValue::About::Logo::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(GuiValue::About::PluginName::fontFamily, GuiValue::About::PluginName::fontSize, juce::Font::bold | juce::Font::italic));
 
     // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);

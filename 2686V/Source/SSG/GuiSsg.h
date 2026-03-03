@@ -16,11 +16,15 @@ class GuiSsg : public GuiBase
     GuiGroup envGroup;
 
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel mainCat;
-    GuiCategoryLabel mainVoiceCat;
-    GuiCategoryLabel mainPulseCat;
-    GuiCategoryLabel mainTriCat;
-    GuiCategoryLabel mainHwEnvCat;
+    GuiCategoryLabel shapeCat;
+    GuiCategoryLabel toneCat;
+    GuiCategoryLabel noiseCat;
+    GuiCategoryLabel mixCat;
+    GuiCategoryLabel pulseDutyCat;
+    GuiCategoryLabel pulseInvCat;
+    GuiCategoryLabel triCat;
+    GuiCategoryLabel triPeakCat;
+    GuiCategoryLabel hwEnvCat;
 
     GuiSlider levelSlider;
 
@@ -99,11 +103,15 @@ public:
         triGroup(context),
         envGroup(context),
         qualityCat(context),
-        mainCat(context),
-        mainVoiceCat(context),
-        mainPulseCat(context),
-        mainTriCat(context),
-        mainHwEnvCat(context),
+        shapeCat(context),
+        toneCat(context),
+        noiseCat(context),
+        mixCat(context),
+        pulseDutyCat(context),
+        pulseInvCat(context),
+        triCat(context),
+        triPeakCat(context),
+        hwEnvCat(context),
         levelSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
