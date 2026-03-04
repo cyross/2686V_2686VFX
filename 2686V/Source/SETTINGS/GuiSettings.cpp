@@ -21,7 +21,7 @@ void GuiSettings::setup()
         {.name = "Original",   .value = 4 },
     };
 
-    mainGroup.setup(*this, "Environment Settings");
+    mainGroup.setup(*this, GuiText::Group::settingEnv);
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
 		lbl.setup({ .parent = *this, .title = title });

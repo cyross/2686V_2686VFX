@@ -14,23 +14,23 @@ void GuiBeep::setup() {
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Group::Beep::Level, .isReset = true });
+    volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Beep::Level, .isReset = true });
 
     catFix.setup({ .parent = *this, .title = GuiText::Category::fix });
 
-    fixToggle.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fix, .title = GuiText::Group::Beep::Fix, .isReset = true });
-    freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Group::Beep::FFreq, .isReset = true });
+    fixToggle.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fix, .title = GuiText::Beep::Fix, .isReset = true });
+    freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
 
-    freqTo2kBtn.setup({ .parent = *this, .title = GuiText::Group::Beep::To2k, .isReset = false, .isResized = false });
+    freqTo2kBtn.setup({ .parent = *this, .title = GuiText::Beep::To2k, .isReset = false, .isResized = false });
     freqTo2kBtn.onClick = [this] { freqSlider.setValue(2000.0, juce::sendNotification); };
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
-    bypassToggle.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Group::Beep::Adsr::Bypass, .isReset = true });
-    ar.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Group::Beep::Adsr::Ar, .isReset = true });
-    dr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Group::Beep::Adsr::Dr, .isReset = true });
-    sl.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Group::Beep::Adsr::Sl, .isReset = true });
-    rr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Group::Beep::Adsr::Rr, .isReset = true });
+    bypassToggle.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Beep::Adsr::Bypass, .isReset = true });
+    ar.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Beep::Adsr::Ar, .isReset = true });
+    dr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Beep::Adsr::Dr, .isReset = true });
+    sl.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Beep::Adsr::Sl, .isReset = true });
+    rr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Beep::Adsr::Rr, .isReset = true });
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
