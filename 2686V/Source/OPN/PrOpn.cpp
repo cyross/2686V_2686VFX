@@ -74,6 +74,10 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.fmOp[op].pms = 0.0f;
         params.fmOp[op].amEnable = false; // OPNにはAMは無い
         params.fmOp[op].ams = 0.0f;
+        params.fmOp[op].oplAms = 0.0f;
+        params.fmOp[op].oplAmd = 0.0f;
+        params.fmOp[op].oplPms = 0.0f;
+        params.fmOp[op].oplPmd = 0.0f;
         params.fmOp[op].egType = true;
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }

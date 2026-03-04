@@ -47,6 +47,16 @@ class GuiOpl3 : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
+    std::array<GuiSlider, Global::Fm::Op4> ams;
+    std::array<GuiSlider, Global::Fm::Op4> amd;
+    std::array<GuiSlider, Global::Fm::Op4> pms;
+    std::array<GuiSlider, Global::Fm::Op4> pmd;
+    std::array<GuiTextButton, Global::Fm::Op4> amsTo37;
+    std::array<GuiTextButton, Global::Fm::Op4> amdTo1;
+    std::array<GuiTextButton, Global::Fm::Op4> amdTo48;
+    std::array<GuiTextButton, Global::Fm::Op4> pmsTo64;
+    std::array<GuiTextButton, Global::Fm::Op4> pmdTo7;
+    std::array<GuiTextButton, Global::Fm::Op4> pmdTo14;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
@@ -81,7 +91,17 @@ public:
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) }
+        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
+        ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pmd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        amsTo37{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        amdTo1{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        amdTo48{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        pmsTo64{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        pmdTo7{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        pmdTo14{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) }
     {
 	}
 

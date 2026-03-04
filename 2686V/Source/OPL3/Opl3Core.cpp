@@ -84,33 +84,43 @@ float Opl3Core::getSample() {
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
-
         m_prevSample = m_lastSample;
 
-        // LFO Logic
-        m_amPhase += (3.7 / targetRate);
-        if (m_amPhase >= 1.0) m_amPhase -= 1.0;
+        float opAmpMod[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float opPitchMod[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-        float amVal = 0.0f;
-        if (m_amPhase < 0.25)           amVal = (float)(m_amPhase * 4.0);
-        else if (m_amPhase < 0.75)      amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
-        else                            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
+        for (int i = 0; i < 4; ++i)
+        {
+            // --- AM (Tremolo) ---
+            if (m_operators[i].m_params.amEnable) {
+                m_amPhases[i] += (m_operators[i].m_params.oplAms / targetRate);
+                if (m_amPhases[i] >= 1.0) m_amPhases[i] -= 1.0;
 
-        // OPL3のトレモロ深度(-4.8dB)に合わせる
-        float normAm = (amVal + 1.0f) * 0.5f;
-        float lfoAmpVal = 1.0f - (normAm * 0.425f);
+                float amVal = 0.0f;
+                if (m_amPhases[i] < 0.25)           amVal = (float)(m_amPhases[i] * 4.0);
+                else if (m_amPhases[i] < 0.75)      amVal = (float)(1.0 - (m_amPhases[i] - 0.25) * 4.0);
+                else                                amVal = (float)(-1.0 + (m_amPhases[i] - 0.75) * 4.0);
 
-        m_vibPhase += (6.4 / targetRate);
-        if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
+                float normAm = (amVal + 1.0f) * 0.5f;
+                float amDepthRatio = 1.0f - std::pow(10.0f, -m_operators[i].m_params.oplAmd / 20.0f);
+                opAmpMod[i] = 1.0f - (normAm * amDepthRatio);
+            }
 
-        float vibVal = 0.0f;
-        if (m_vibPhase < 0.25)          vibVal = (float)(m_vibPhase * 4.0);
-        else if (m_vibPhase < 0.75)     vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
-        else                            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
+            // --- VIB (Vibrato) ---
+            if (m_operators[i].m_params.vibEnable) {
+                m_vibPhases[i] += (m_operators[i].m_params.oplPms / targetRate);
+                if (m_vibPhases[i] >= 1.0) m_vibPhases[i] -= 1.0;
 
-        float pmDepth = 0.03f * m_modWheel;
-        // OPL3内蔵ビブラート(約14セント)を加算
-        float lfoPitchVal = 1.0f + (vibVal * (0.008f + pmDepth));
+                float vibVal = 0.0f;
+                if (m_vibPhases[i] < 0.25)          vibVal = (float)(m_vibPhases[i] * 4.0);
+                else if (m_vibPhases[i] < 0.75)     vibVal = (float)(1.0 - (m_vibPhases[i] - 0.25) * 4.0);
+                else                                vibVal = (float)(-1.0 + (m_vibPhases[i] - 0.75) * 4.0);
+
+                float pmDepthRatio = std::pow(2.0f, m_operators[i].m_params.oplPmd / 1200.0f) - 1.0f;
+                float modWheelDepth = 0.03f * m_modWheel;
+                opPitchMod[i] = 1.0f + (vibVal * (pmDepthRatio + modWheelDepth));
+            }
+        }
 
         // -------------------------------
 
@@ -118,24 +128,21 @@ float Opl3Core::getSample() {
         float finalOut = 0.0f;
 
         // 各オペレーターの AM/VIB 有効フラグを個別に判定する
-        auto getAm = [&](int i) { return m_operators[i].m_params.amEnable ? lfoAmpVal : 1.0f; };
-        auto getPm = [&](int i) { return m_operators[i].m_params.vibEnable ? lfoPitchVal : 1.0f; };
-
-        m_operators[0].getSample(out1, 0.0f, getAm(0), getPm(0));
+        m_operators[0].getSample(out1, 0.0f, opAmpMod[0], opPitchMod[0]);
 
         if (m_opMask[0]) out1 = 0.0f; // Mask
 
         switch (m_algorithm) {
         case 0:
-            m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+            m_operators[1].getSample(out2, out1, opAmpMod[1], opPitchMod[1]);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -143,15 +150,15 @@ float Opl3Core::getSample() {
 
             break;
         case 1:
-            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -159,15 +166,15 @@ float Opl3Core::getSample() {
 
             break;
         case 2:
-            m_operators[1].getSample(out2, out1, getAm(1), getPm(1));
+            m_operators[1].getSample(out2, out1, opAmpMod[1], opPitchMod[1]);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+            m_operators[2].getSample(out3, 0.0f, opAmpMod[2], opPitchMod[2]);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, getAm(3), getPm(3));
+            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -175,15 +182,15 @@ float Opl3Core::getSample() {
 
             break;
         case 3:
-            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, getAm(2), getPm(2));
+            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+            m_operators[3].getSample(out4, 0.0f, opAmpMod[3], opPitchMod[3]);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -191,15 +198,15 @@ float Opl3Core::getSample() {
 
             break;
         default:
-            m_operators[1].getSample(out2, 0.0f, getAm(1), getPm(1));
+            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, getAm(2), getPm(2));
+            m_operators[2].getSample(out3, 0.0f, opAmpMod[2], opPitchMod[2]);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, 0.0f, getAm(3), getPm(3));
+            m_operators[3].getSample(out4, 0.0f, opAmpMod[3], opPitchMod[3]);
 
             if (m_opMask[3]) out4 = 0.0f;
 

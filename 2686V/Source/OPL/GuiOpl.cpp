@@ -63,6 +63,24 @@ void GuiOpl::setup()
         ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksr, .title = GuiText::Fm::Op::Ksr, .isReset = true });
         ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksl, .title = GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
 
+        ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
+        amd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::amd, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        pms[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .isReset = true });
+        pmd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pmd, .title = GuiText::Fm::Op::Pmd, .isReset = true });
+
+        amsTo37[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->3.7Hz", .isReset = false, .isResized = false });
+        amsTo37[i].onClick = [this, index = i] { ams[index].setValue(3.7, juce::sendNotification); };
+        amdTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->1dB", .isReset = false, .isResized = false});
+        amdTo1[i].onClick = [this, index = i] { amd[index].setValue(1.0, juce::sendNotification); };
+        amdTo48[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->4.8dB", .isReset = false, .isResized = false});
+        amdTo48[i].onClick = [this, index = i] { amd[index].setValue(4.8, juce::sendNotification); };
+        pmsTo64[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.4Hz", .isReset = false, .isResized = false});
+        pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
+        pmdTo7[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->7cent", .isReset = false, .isResized = false});
+        pmdTo7[i].onClick = [this, index = i] { pmd[index].setValue(7.0, juce::sendNotification); };
+        pmdTo14[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->14cent", .isReset = false, .isResized = false });
+        pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
+
         catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
 
         eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::eg, .title = GuiText::Fm::Op::Eg, .items = oplEgItems, .isReset = true });
@@ -118,7 +136,15 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &vib[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &amsTo37[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
+        layoutComponentsLtoRFixFreqBtns({ .rect = innerRect, .to0Btn = &amdTo1[i], .to440Btn = &amdTo48[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &vib[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pmsTo64[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i] });
+        layoutComponentsLtoRFixFreqBtns({ .rect = innerRect, .to0Btn = &pmdTo7[i], .to440Btn = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });

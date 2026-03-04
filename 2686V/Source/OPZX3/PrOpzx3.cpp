@@ -91,6 +91,10 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.fmOp[op].pms = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
         params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
         params.fmOp[op].ams = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
+        params.fmOp[op].oplAms = 0.0f;
+        params.fmOp[op].oplAmd = 0.0f;
+        params.fmOp[op].oplPms = 0.0f;
+        params.fmOp[op].oplPmd = 0.0f;
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }
 }

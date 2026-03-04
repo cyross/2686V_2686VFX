@@ -72,6 +72,8 @@ namespace PrName
 				static inline const juce::String vib = " VIB";
 				static inline const juce::String pms = " PMS";
 				static inline const juce::String ams = " AMS";
+				static inline const juce::String pmd = " PMD";
+				static inline const juce::String amd = " AMD";
 				static inline const juce::String egType = " EG TYPE";
 				static inline const juce::String eg = " EG";
 

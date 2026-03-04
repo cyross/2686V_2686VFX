@@ -88,61 +88,55 @@ float OplCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        // LFO Logic (Run at Target Rate)
-                // AM Phase (Tremolo)
-        m_amPhase += (3.7 / targetRate);
-        if (m_amPhase >= 1.0) m_amPhase -= 1.0;
+        float opAmpMod[2] = { 1.0f, 1.0f };
+        float opPitchMod[2] = { 1.0f, 1.0f };
 
-        float amVal = 0.0f;
-        if (m_amPhase < 0.25)           amVal = (float)(m_amPhase * 4.0);
-        else if (m_amPhase < 0.75)      amVal = (float)(1.0 - (m_amPhase - 0.25) * 4.0);
-        else                            amVal = (float)(-1.0 + (m_amPhase - 0.75) * 4.0);
+        for (int i = 0; i < 2; ++i)
+        {
+            // --- AM (Tremolo) ---
+            if (m_operators[i].m_params.amEnable) {
+                m_amPhases[i] += (m_operators[i].m_params.oplAms / targetRate);
+                if (m_amPhases[i] >= 1.0) m_amPhases[i] -= 1.0;
 
-        // 実機OPLのトレモロ深度(-4.8dB = 音量比 約0.575)に合わせる
-        // amVal(-1.0 ~ 1.0) を 0.0 ~ 1.0 に正規化
-        float normAm = (amVal + 1.0f) * 0.5f;
-        // 最大で 0.425 (約42.5%) だけ音量が減るようにする
-        float lfoAmpVal = 1.0f - (normAm * 0.425f);
+                float amVal = 0.0f;
+                if (m_amPhases[i] < 0.25)           amVal = (float)(m_amPhases[i] * 4.0);
+                else if (m_amPhases[i] < 0.75)      amVal = (float)(1.0 - (m_amPhases[i] - 0.25) * 4.0);
+                else                                amVal = (float)(-1.0 + (m_amPhases[i] - 0.75) * 4.0);
 
-        // VIB Phase (Vibrato)
-        m_vibPhase += (6.4 / targetRate);
-        if (m_vibPhase >= 1.0) m_vibPhase -= 1.0;
+                float normAm = (amVal + 1.0f) * 0.5f;
+                float amDepthRatio = 1.0f - std::pow(10.0f, -m_operators[i].m_params.oplAmd / 20.0f);
+                opAmpMod[i] = 1.0f - (normAm * amDepthRatio);
+            }
 
-        float vibVal = 0.0f;
-        if (m_vibPhase < 0.25)          vibVal = (float)(m_vibPhase * 4.0);
-        else if (m_vibPhase < 0.75)     vibVal = (float)(1.0 - (m_vibPhase - 0.25) * 4.0);
-        else                            vibVal = (float)(-1.0 + (m_vibPhase - 0.75) * 4.0);
+            // --- VIB (Vibrato) ---
+            if (m_operators[i].m_params.vibEnable) {
+                m_vibPhases[i] += (m_operators[i].m_params.oplPms / targetRate);
+                if (m_vibPhases[i] >= 1.0) m_vibPhases[i] -= 1.0;
 
-        // ModWheelによる手動ビブラート(最大50セント)と、OPL内蔵ビブラート(約14セント)の合成
-        float pmDepth = 0.03f * m_modWheel;
-        // OPL内蔵ビブラート(約14セント = 0.008)を加算
-        float lfoPitchVal = 1.0f + (vibVal * (0.008f + pmDepth));
+                float vibVal = 0.0f;
+                if (m_vibPhases[i] < 0.25)          vibVal = (float)(m_vibPhases[i] * 4.0);
+                else if (m_vibPhases[i] < 0.75)     vibVal = (float)(1.0 - (m_vibPhases[i] - 0.25) * 4.0);
+                else                                vibVal = (float)(-1.0 + (m_vibPhases[i] - 0.75) * 4.0);
 
-        // -------------------------------
+                float pmDepthRatio = std::pow(2.0f, m_operators[i].m_params.oplPmd / 1200.0f) - 1.0f;
+                float modWheelDepth = 0.03f * m_modWheel;
+                opPitchMod[i] = 1.0f + (vibVal * (pmDepthRatio + modWheelDepth));
+            }
+        }
 
         float out1, out2;
         float finalOut = 0.0f;
 
-        // オペレーターのフラグ(amEnable / vibEnable)を見て、LFOを適用するか決める
-        // FmOperator::getSample は引数で渡されたものをそのまま掛ける仕様なので、ここで1.0f(無効)か変調値かを渡す
-        float op1AmpMod = m_operators[0].m_params.amEnable ? lfoAmpVal : 1.0f;
-        float op1PitchMod = m_operators[0].m_params.vibEnable ? lfoPitchVal : 1.0f;
-
-        float op2AmpMod = m_operators[1].m_params.amEnable ? lfoAmpVal : 1.0f;
-        float op2PitchMod = m_operators[1].m_params.vibEnable ? lfoPitchVal : 1.0f;
-
-        m_operators[0].getSample(out1, 0.0f, op1AmpMod, op1PitchMod);
-
+        m_operators[0].getSample(out1, 0.0f, opAmpMod[0], opPitchMod[0]);
         if (m_opMask[0]) out1 = 0.0f;
 
         if (m_algorithm == 0) { // Serial (FM)
-            // OP1 -> OP2
-            m_operators[1].getSample(out2, out1, op2AmpMod, op2PitchMod);
+            m_operators[1].getSample(out2, out1, opAmpMod[1], opPitchMod[1]);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = out2;
         }
         else { // Parallel (AM)
-            m_operators[1].getSample(out2, 0.0f, op2AmpMod, op2PitchMod);
+            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
             if (m_opMask[1]) out2 = 0.0f;
             finalOut = (out1 + out2) * 0.5f;
         }
