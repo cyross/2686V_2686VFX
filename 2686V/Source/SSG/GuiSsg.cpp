@@ -14,67 +14,71 @@ void GuiSsg::setup()
     const juce::String code = PrKey::Prefix::ssg;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::bit, .title = GuiText::Group::Fm::bit, .items = bdItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::rate, .title = GuiText::Group::Fm::alg, .items = rateItems, .isReset = true });
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
 
-	voiceGroup.setup(*this, "Voice");
-	waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::wveform, .title = "Form", .items = ssgWsItems, .isReset = true, .isResized = true });
-	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::tone, .title = "Tone", .isReset = true, .regType = RegisterType::SsgVol });
-    noiseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noise, .title = "Noise", .isReset = true, .regType = RegisterType::SsgVol });
-	noiseFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseFreq, .title = "Freq", .isReset = true });
-	noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseOnNote, .title = "Noise On Note", .isReset = true });
+	voiceGroup.setup(*this, GuiText::Group::voice);
+	waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::wveform, .title = GuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
+	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::tone, .title = GuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noise, .title = GuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+	noiseFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseFreq, .title = GuiText::Ssg::Voice::noiseFreq, .isReset = true });
+	noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseOnNote, .title = GuiText::Ssg::Voice::noiseOnNote, .isReset = true });
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainVoiceCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainPulseCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainTriCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    mainHwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    shapeCat.setup({ .parent = *this, .title = GuiText::Category::shape });
+    toneCat.setup({ .parent = *this, .title = GuiText::Category::ssgTone });
+    noiseCat.setup({ .parent = *this, .title = GuiText::Category::ssgNoise });
+    mixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
+    pulseDutyCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    pulseInvCat.setup({ .parent = *this, .title = GuiText::Category::invert });
+    triCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    triPeakCat.setup({ .parent = *this, .title = GuiText::Category::peak });
+    hwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
     // 初期状態反映
-    mixSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::mix , .title = "Mix", .isReset = true });
-	mixSetTone.setup({ .parent = *this, .title = "Tone", .isReset = false, .isResized = false });
+    mixSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::mix , .title = GuiText::Ssg::Voice::mix, .isReset = true });
+	mixSetTone.setup({ .parent = *this, .title = GuiText::Ssg::Voice::tone, .isReset = false, .isResized = false });
     mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
-    mixSetMix.setup({ .parent = *this, .title = "Mix", .isReset = false, .isResized = false });
+    mixSetMix.setup({ .parent = *this, .title = GuiText::Ssg::Voice::mix, .isReset = false, .isResized = false });
     mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
-    mixSetNoise.setup({ .parent = *this, .title = "Noise", .isReset = false, .isResized = false });
+    mixSetNoise.setup({ .parent = *this, .title = GuiText::Ssg::Voice::noise, .isReset = false, .isResized = false });
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-	adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = "Bypass ADSR", .isReset = true });
+	adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Group::Ssg::Post::Adsr::ar, .isReset = true });
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr , .title = GuiText::Group::Ssg::Post::Adsr::dr, .isReset = true });
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Group::Ssg::Post::Adsr::sl, .isReset = true });
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Group::Ssg::Post::Adsr::rr, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr , .title = GuiText::Adsr::dr, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
 
     // Duty Controls Setup
-	dutyGroup.setup(*this, "Pulse Width (Duty)");
-	dutyModeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::mode, .title = "Mode", .items = ssgDmItems, .isReset = true, .isResized = true });
-	dutyPresetSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::preset, .title = "Preset", .items = ssgPrItems, .isReset = true, .isResized = true });
-	dutyVarSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::var, .title = "Ratio", .isReset = true });
-	dutyInvertButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::inv, .title = "Invert Phase", .isReset = true, .isResized = true });
+	dutyGroup.setup(*this, GuiText::Group::ssgDuty);
+	dutyModeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::mode, .title = GuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+	dutyPresetSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::preset, .title = GuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+	dutyVarSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::var, .title = GuiText::Ssg::Duty::var, .isReset = true });
+	dutyInvertButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::inv, .title = GuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
 
-	triGroup.setup(*this, "Triangle Property");
-	triKeyTrackButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::keyTrk, .title = "Key Track (Pitch)", .isReset = true, .isResized = true });
-	triFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::freq, .title = "Freq", .isReset = true });
-	triPeakSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::peak, .title = "Peak", .isReset = true });
-	triSetSawDown.setup({ .parent = *this, .title = "0.0 (Down)", .isReset = false, .isResized = false });
+	triGroup.setup(*this, GuiText::Group::ssgTri);
+	triKeyTrackButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::keyTrk, .title = GuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+	triFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::freq, .title = GuiText::Ssg::Tri::manualFreq, .isReset = true });
+	triPeakSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::peak, .title = GuiText::Ssg::Tri::peak, .isReset = true });
+	triSetSawDown.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
     triSetSawDown.onClick = [this] { triPeakSlider.setValue(0.0, juce::sendNotification); };
-	triSetTri.setup({ .parent = *this, .title = "0.5 (Tri)", .isReset = false, .isResized = false });
+	triSetTri.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
     triSetTri.onClick = [this] { triPeakSlider.setValue(0.5, juce::sendNotification); };
-	triSetSawUp.setup({ .parent = *this, .title = "1.0 (Up)", .isReset = false, .isResized = false });
+	triSetSawUp.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
 
     // HW Env Group
-	envGroup.setup(*this, "Hardware Envelope");
-	envEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::enable, .title = "Enable HW Env", .isReset = true });
-	shapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::shape, .title = "Shape", .items = ssgEnvItems, .isReset = true });
-	periodSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::period, .title = "Period", .isReset = true, .regType = RegisterType::SsgEnv });
+	envGroup.setup(*this, GuiText::Group::ssgHwEnv);
+	envEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::enable, .title = GuiText::Ssg::HwEnv::enable, .isReset = true });
+	shapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::shape, .title = GuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+	periodSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::period, .title = GuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)
@@ -108,12 +112,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     vRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mainVoiceCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &shapeCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &toneCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
     layoutComponentsLtoRSsgMixRow({ .rect = vRect, .toneBtn = &mixSetTone, .mixBtn =  &mixSetMix, .noizeBtn = &mixSetNoise, .paddingBottom = 0 });
 
@@ -127,7 +134,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(true);
         triGroup.setVisible(false);
 
+        triCat.setVisible(false);
         triKeyTrackButton.setVisible(false);
+        triPeakCat.setVisible(false);
         triPeakSlider.setVisible(false);
         triPeakSlider.label.setVisible(false);
         triFreqSlider.setVisible(false);
@@ -136,6 +145,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
+        pulseDutyCat.setVisible(true);
+        pulseInvCat.setVisible(true);
         dutyModeSelector.setVisible(true);
         dutyModeSelector.label.setVisible(true);
         dutyVarSlider.setValue(true);
@@ -147,9 +158,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &mainPulseCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseDutyCat, .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
-        layoutComponentsLtoRRow({ .rowRect = dRect, .component = &dutyInvertButton });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
@@ -157,21 +167,26 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             dutyPresetSelector.label.setVisible(true);
             dutyVarSlider.setVisible(false);
             dutyVarSlider.label.setVisible(false);
-            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, .paddingBottom = 0 });
+            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, .paddingBottom = GuiValue::Category::paddingTop });
         }
         else {
             dutyPresetSelector.setVisible(false);
             dutyPresetSelector.label.setVisible(false);
             dutyVarSlider.setVisible(true);
             dutyVarSlider.label.setVisible(true);
-            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, .paddingBottom = 0 });
+            layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, .paddingBottom = GuiValue::Category::paddingTop });
         }
+
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseInvCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
     else // Triangle
     {
         dutyGroup.setVisible(false);
         triGroup.setVisible(true);
 
+        pulseDutyCat.setVisible(false);
+        pulseInvCat.setVisible(false);
         dutyModeSelector.setVisible(false);
         dutyModeSelector.label.setVisible(false);
         dutyInvertButton.setVisible(false);
@@ -180,9 +195,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyVarSlider.setVisible(false);
         dutyVarSlider.label.setVisible(false);
 
+        triCat.setVisible(true);
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisible(true);
         triFreqSlider.label.setVisible(true);
+        triPeakCat.setVisible(true);
         triPeakSlider.setVisible(true);
         triPeakSlider.label.setVisible(true);
         triSetSawDown.setVisible(true);
@@ -194,7 +211,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &mainTriCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triCat, .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
@@ -202,13 +219,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triFreqSlider.label.setVisible(!isKeyTrack);
 
         if (!isKeyTrack) {
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider });
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider, .paddingBottom = GuiValue::Category::paddingTop });
         }
-        else {
-            layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+        else
+        {
+            tRect.removeFromTop(GuiValue::Category::paddingTop);
         }
 
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutComponentsLtoRSsgTriPosRow({ .rect = tRect, .sawDownBtn = &triSetSawDown, .triBtn = &triSetTri, .sawUpBtn = &triSetSawUp, .paddingBottom = 0 });
     }
 
@@ -219,7 +238,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &mainHwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &hwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });

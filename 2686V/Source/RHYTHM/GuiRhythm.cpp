@@ -26,7 +26,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     mainGroup.setup(*this, padTitle);
 
     // 音声ファイルロードボタン
-    loadButton.setup({ .parent = *this, .title = "Load", .isReset = false });
+    loadButton.setup({ .parent = *this, .title = GuiText::File::load, .isReset = false });
     loadButton.addListener(&ctx.editor);
 
     // ロードしている音声ファイル名
@@ -35,7 +35,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // パッド音声アンロード
-    clearButton.setup({ .parent = *this, .title = "X", .isReset = false });
+    clearButton.setup({ .parent = *this, .title = GuiText::File::clear, .isReset = false });
     clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
     clearButton.onClick = [this, index]
         {
@@ -48,41 +48,42 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
 
     // ワンショット機能トグル
-    oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::oneShot, .title = GuiText::Group::Rhythm::Pad::Post::oneShot, .isReset = true });
+    oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::oneShot, .title = GuiText::Rhythm::Pad::oneShot, .isReset = true });
 
     // 割り当てキーノート番号
-    noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::note, .title = GuiText::Group::Rhythm::Pad::Post::note, .isReset = true });
+    noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::note, .title = GuiText::Rhythm::Pad::note, .isReset = true });
     noteSlider.setRange(0, 127, 1);
     noteSlider.textFromValueFunction = [](double value) {
         return getNoteName((int)value);
         };
     noteSlider.updateText();
 
-    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Group::Rhythm::Pad::Post::quality, .items = qualityItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Group::Rhythm::Pad::Post::rate, .items = rateItems, .isReset = true });
+    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
 
     // パンポット
-    panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pan, .title = GuiText::Group::Rhythm::Pad::Post::pan, .isReset = true });
+    panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pan, .title = GuiText::Rhythm::Pad::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
 
-    btnPanL.setup({ .parent = *this, .title = "L", .isReset = false });
+    btnPanL.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::l, .isReset = false });
     btnPanL.addListener(&ctx.editor);
 
-    btnPanC.setup({ .parent = *this, .title = "C", .isReset = false });
+    btnPanC.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::c, .isReset = false });
     btnPanC.addListener(&ctx.editor);
 
-    btnPanR.setup({ .parent = *this, .title = "R", .isReset = false });
+    btnPanR.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::r, .isReset = false });
     btnPanR.addListener(&ctx.editor);
 
     // Vol
-    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Group::Rhythm::Pad::Post::vol, .isReset = true });
+    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Rhythm::Pad::vol, .isReset = true });
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
     // RR
-    rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Group::Rhythm::Pad::Post::rr, .isReset = true });
+    rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Rhythm::Pad::rr, .isReset = true });
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -95,12 +96,13 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutComponentsLtoRMain({ .mainRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
     layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider });
     layoutComponentsLtoRRhythmPadPanRow({ .rect = padRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
@@ -132,7 +134,7 @@ void GuiRhythm::setup()
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = "Vol", .isReset = true });
+	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = GuiText::Rhythm::vol, .isReset = true });
 
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
