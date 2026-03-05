@@ -1,4 +1,5 @@
 ﻿#include "FmCommon.h"
+#include "../core/PrValues.h"
 
 void FmOperator::setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg, float ssgEgFreq)
 {
@@ -34,7 +35,7 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     // ========================================================
     float baseFreq = frequency;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -187,7 +188,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 波形の長さから「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -296,7 +297,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 波形の長さから「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -507,16 +508,16 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
         case 17: return (normPhase < 0.5f ? triangle(normPhase) : 0.0f); // Half Triangle
         case 18: return std::abs(triangle(normPhase)); // Abs Triangle
         case 19: return isOddQuad(normPhase) ? std::abs(triangle(normPhase)) : 0.0f; // Quad Abs Triangle
-        case 20: return (normPhase < 0.5f ? dsTriangle(normPhase) : 0.0f); // Double Speed Triangle
-        case 21: return (normPhase < 0.5f ? std::abs(dsTriangle(normPhase)) : 0.0f); // Double Speed Triangle
+        case 20: return (normPhase < 0.5f ? dsTriangle(normPhase) : 0.0f); // Alt Triangle
+        case 21: return (normPhase < 0.5f ? std::abs(dsTriangle(normPhase)) : 0.0f); // Alt Abs Triangle
         case 22: return isOddQuad(normPhase) ? 1.0 : 0.0; // Quad Half Square
         case 23: return 0.0f; // None(Wavetable)
         case 24: return diagram(normPhase); // Diagram
         case 25: return (normPhase < 0.5f ? diagram(normPhase) : 0.0f); // Half Diagram
         case 26: return absHalfSawUp(normPhase); // Abs Half Saw Up
         case 27: return isOddQuad(normPhase) ? absHalfSawUp(normPhase) : 0.0f; // Quad Abs Half Saw Up
-        case 28: return (normPhase < 0.5f ? dsDiagram(normPhase) : 0.0f); // Double Speed Diagram
-        case 29: return (normPhase < 0.5f ? dsAbsHalfSawUp(normPhase) : 0.0f); // Double Speed Diagram
+        case 28: return (normPhase < 0.5f ? dsDiagram(normPhase) : 0.0f); // Alt Diagram
+        case 29: return (normPhase < 0.5f ? dsAbsHalfSawUp(normPhase) : 0.0f); // Alt Quad Abs Half Saw Up
         case 30: return (normPhase < 0.25f ? 1.0f : 0.0f); // Quad Square
         case 31: // 外部オーディオファイル (PCM)
             if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())

@@ -272,6 +272,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 - v0.7.0
 - <2686V><2686VFX>UIの修正
 - <2686V>OPL/OPL3のOP毎のLFO設定にPMS/PMD/AMS/AMDを追加
+- <2686V>OPZX3の波形がMA-3のものとはかけ離れていたため、正しい波形に見直し
 
 ### 2026.03.02
 
