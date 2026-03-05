@@ -59,7 +59,7 @@ private:
     // OPZX3 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
 
-    float calcWaveform(double phase, int wave);
+    float calcWaveform(double phase, int wave, bool isOpl);
     float getSsgEnvelopeLevel(double p);
     void updateEnvelopeState();
     void updateIncrementsWithKeyScale();
