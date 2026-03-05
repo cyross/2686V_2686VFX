@@ -1,4 +1,5 @@
 ﻿#include "FmCommon.h"
+#include "../core/PrValues.h"
 
 void FmOperator::setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg, float ssgEgFreq)
 {
@@ -34,7 +35,7 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     // ========================================================
     float baseFreq = frequency;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -187,7 +188,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 波形の長さから「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -204,7 +205,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
-    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
+    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect, true);
     output = rawWave * envVal * m_targetLevel;
 
     if (!m_isExternalFeedback) {
@@ -296,7 +297,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_useWaveSelect && m_params.waveSelect == 29 && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // 波形の長さから「本来の周波数（等速のHz）」を計算
         float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
@@ -313,7 +314,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
 
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
-    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
+    float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect, false);
 
     output = rawWave * envVal * m_targetLevel;
 
@@ -326,8 +327,112 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
 
-float FmOperator::calcWaveform(double phase, int wave)
+float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
 {
+    auto isOddQuad = [](float phase)
+        {
+            return phase < 0.25f || (phase >= 0.5f && phase < 0.75f);
+        };
+
+    auto doubleSine = [](float p)
+        {
+            return std::sin(p * 2.0f);
+        };
+
+    auto halfLevelSign = [](float sine)
+        {
+            if (sine > 0.5f) return 0.5f;
+
+            if (sine < -0.5f) return -0.5f;
+
+            return sine;
+        };
+
+    auto triangle = [](float phase)
+        {
+            float value = phase * 4.0f;
+
+            if (phase < 0.25f) // - 1.0f
+            {
+                return value;
+            }
+
+            if (phase < 0.75f) // - 3.0f
+            {
+                return 2.0f - value;
+            }
+
+            return value - 4.0f; // - 4.0f
+        };
+
+    auto dsTriangle = [](float phase)
+        {
+            float position = phase >= 0.5f ? phase - 0.5f : phase;
+            float value = position * 8.0f;
+
+            if (position < 0.125f) // - 1.0f
+            {
+                return value;
+            }
+
+            if (position < 0.375f) // - 3.0f
+            {
+                return 2.0f - value;
+            }
+
+            return value - 4.0f; // - 4.0f
+        };
+
+    auto diagram = [](float phase)
+        {
+            float value = phase * 2.0f;
+
+            if (phase < 0.5f)
+            {
+                return value;
+            }
+
+            return value - 2.0f;
+        };
+
+    auto dsDiagram = [](float phase)
+        {
+            float position = phase >= 0.5f ? phase - 0.5f : phase;
+            float value = position * 4.0f;
+
+            if (position < 0.25f)
+            {
+                return value;
+            }
+
+            return value - 2.0f;
+        };
+
+    auto absHalfSawUp = [](float phase)
+        {
+            float value = phase * 2.0f;
+
+            if (phase < 0.5f)
+            {
+                return value;
+            }
+
+            return value - 1.0f;
+        };
+
+    auto dsAbsHalfSawUp = [](float phase)
+        {
+            float position = phase >= 0.5f ? phase - 0.5f : phase;
+            float value = phase * 4.0f;
+
+            if (phase < 0.25f)
+            {
+                return value;
+            }
+
+            return value - 1.0f;
+        };
+
     // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
     float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
     if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
@@ -341,78 +446,99 @@ float FmOperator::calcWaveform(double phase, int wave)
     float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
 
     // 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
-    switch (wave) {
-        // 0-7: OPZ / OPL3 Compatible Set
-    case 0:  return s; // Sine
-    case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
-    case 2:  return std::abs(s); // Abs Sine
-    case 3:
-        if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-        else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
-    case 4:  return (normPhase < 0.5f ? std::sin(p * 2.0f) : 0.0f);
-    case 5:  return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
-    case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
-    case 7:
+    if (isOpl)
     {
-        float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
-        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
-    }
-    // 8-12: Saw / Tri Variations
-    case 8:  return (1.0f - normPhase * 2.0f); // Saw Down
-    case 9:  return (normPhase * 2.0f - 1.0f); // Saw Up
-    case 10: // Triangle
-        return (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
-    case 11: // Saw + Sine combined
-        return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
-    case 12: // Log Saw
-    {
-        float saw = 1.0f - normPhase * 2.0f;
-        return saw * saw * saw;
-    }
-    // 13-18: Pulse / Square Variations
-    case 13: return (normPhase < 0.25f ? 1.0f : -1.0f); // Pulse 25%
-    case 14: return (normPhase < 0.125f ? 1.0f : -1.0f); // Pulse 12.5%
-    case 15: return (normPhase < 0.0625f ? 1.0f : -1.0f); // Pulse 6.25%
-    case 16: // Rounded Square
-        return std::tanh(s * 5.0f);
-    case 17: // Impulse train
-        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
-    case 18: // Comb
-        return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
-        // 19-28: Resonant / Complex Waves
-    case 19: return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
-    case 20: return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
-    case 21:
-    {
-        float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
-        return tri * std::sin(p * 3.0f);
-    }
-    case 22: return s * s * s; // Bulb Sine
-    case 23: return std::sin(p) * std::sin(p * 2.0f); // Double Hump
-    case 24: return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
-    case 25: return s * std::cos(p * 2.5f);
-    case 26: return std::sin(p) * std::sin(p * 1.414f);
-    case 27: return std::sin(p) * std::cos(p * 0.5f);
-    case 28: return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
-    case 29: // 外部オーディオファイル (PCM)
-        if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+        // OPL/OPL3
+        switch (wave) {
+            // 0-7: OPZ / OPL3 Compatible Set
+        case 0:  return s; // Sine
+        case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+        case 2:  return std::abs(s); // Abs Sine
+        case 3:
+            if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
+            else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
+        case 4:  return (normPhase < 0.5f ? doubleSine(p) : 0.0f);
+        case 5:  return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f);
+        case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
+        case 7:
         {
-            // ここも normPhase を使って計算
-            float floatIndex = normPhase * m_pcmBuffer->size();
-            int index1 = (int)floatIndex;
-
-            // ==========================================================
-            // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
-            // ==========================================================
-            if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
-            if (index1 < 0) index1 = 0;
-
-            int index2 = (index1 + 1) % m_pcmBuffer->size();
-            float frac = floatIndex - (float)index1;
-            return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
+            float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+            return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
         }
-        return s;
-    default: return s;
+        default: return s;
+        }
+    }
+    else
+    {
+        // OPZX3
+        switch (wave) {
+        case 0:  return s; // Sine
+        case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+        case 2:  return std::abs(s); // Abs Sine
+        case 3:  return (isOddQuad(normPhase) ? std::abs(s) : 0.0f); // Quadra Abs Half Sine
+        case 4:  return (normPhase < 0.5f ? doubleSine(p) : 0.0f); // Alt Sine
+        case 5:  return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f); // Alt Abs Sine
+        case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
+        case 7: // Log Saw
+        {
+            float saw = 1.0f - normPhase * 2.0f;
+            return saw * saw * saw;
+        }
+        case 8: // Pudding Sine
+        {
+            return halfLevelSign(s);
+        }
+        case 9: // Half Pudding Sine
+        {
+            return normPhase < 0.5f ? halfLevelSign(s) : 0.0f;
+        }
+        case 10: // Abs Pudding Sine
+        {
+            return std::abs(halfLevelSign(s));
+        }
+        case 11: // Quad Abs Pudding Sine
+        {
+            return isOddQuad(normPhase) ? std::abs(halfLevelSign(s)) : 0.0f;
+        }
+        case 12: return (normPhase < 0.5f ? std::sin(p * 2.0f) * 0.5f : 0.0f); // Mini Alt Sine
+        case 13: return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f); // Mini Alt Abs Sine
+        case 14: return (normPhase < 0.5f ? 1.0f : 0.0f); // Half Square
+        case 15: return 0.0f; // None(Wavetable)
+        case 16: return triangle(normPhase); // Triangle
+        case 17: return (normPhase < 0.5f ? triangle(normPhase) : 0.0f); // Half Triangle
+        case 18: return std::abs(triangle(normPhase)); // Abs Triangle
+        case 19: return isOddQuad(normPhase) ? std::abs(triangle(normPhase)) : 0.0f; // Quad Abs Triangle
+        case 20: return (normPhase < 0.5f ? dsTriangle(normPhase) : 0.0f); // Alt Triangle
+        case 21: return (normPhase < 0.5f ? std::abs(dsTriangle(normPhase)) : 0.0f); // Alt Abs Triangle
+        case 22: return isOddQuad(normPhase) ? 1.0 : 0.0; // Quad Half Square
+        case 23: return 0.0f; // None(Wavetable)
+        case 24: return diagram(normPhase); // Diagram
+        case 25: return (normPhase < 0.5f ? diagram(normPhase) : 0.0f); // Half Diagram
+        case 26: return absHalfSawUp(normPhase); // Abs Half Saw Up
+        case 27: return isOddQuad(normPhase) ? absHalfSawUp(normPhase) : 0.0f; // Quad Abs Half Saw Up
+        case 28: return (normPhase < 0.5f ? dsDiagram(normPhase) : 0.0f); // Alt Diagram
+        case 29: return (normPhase < 0.5f ? dsAbsHalfSawUp(normPhase) : 0.0f); // Alt Quad Abs Half Saw Up
+        case 30: return (normPhase < 0.25f ? 1.0f : 0.0f); // Quad Square
+        case 31: // 外部オーディオファイル (PCM)
+            if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+            {
+                // ここも normPhase を使って計算
+                float floatIndex = normPhase * m_pcmBuffer->size();
+                int index1 = (int)floatIndex;
+
+                // ==========================================================
+                // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
+                // ==========================================================
+                if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
+                if (index1 < 0) index1 = 0;
+
+                int index2 = (index1 + 1) % m_pcmBuffer->size();
+                float frac = floatIndex - (float)index1;
+                return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
+            }
+            return s;
+        default: return s;
+        }
     }
 }
 
