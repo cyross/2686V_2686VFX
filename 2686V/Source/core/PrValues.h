@@ -863,6 +863,7 @@ namespace PrValue
 	namespace Opzx3
 	{
 		inline constexpr int ops = 4;
+		inline constexpr int pcmIndex = 31;
 
 		namespace Alg
 		{
@@ -1032,7 +1033,7 @@ namespace PrValue
 			namespace Ws
 			{
 				inline constexpr int min = 0;
-				inline constexpr int max = 29;
+				inline constexpr int max = 31;
 				inline constexpr int initial = 0;
 			}
 
