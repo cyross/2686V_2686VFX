@@ -18,6 +18,8 @@ public:
     FmOpParams m_params;
 
     void setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
+    double m_hostSampleRate = 44100.0;
+    void setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false, float ssgEgFreq = 1.0f);
     void noteOn(float frequency, float velocity, int noteNumber);
     void noteOff() { m_state = State::Release; }

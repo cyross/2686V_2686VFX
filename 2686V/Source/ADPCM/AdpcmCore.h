@@ -43,6 +43,10 @@ private:
     // Params
     float m_level = 1.0f;
     float m_pan = 0.5f;
+
+    float m_pcmOffset = 0.0f;
+    float m_pcmRatio = 1.0f;
+
     SimpleAdsr m_adsr;
     float m_currentLevel = 0.0f;
     float m_attackInc = 0.0f;

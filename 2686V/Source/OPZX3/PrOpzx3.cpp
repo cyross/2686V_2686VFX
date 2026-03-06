@@ -47,6 +47,8 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::pms, namePrefix + PrName::Fm::Op::Post::pms, PrValue::Opzx3::Op::Pms::min, PrValue::Opzx3::Op::Pms::max, PrValue::Opzx3::Op::Pms::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::ams, namePrefix + PrName::Fm::Op::Post::ams, PrValue::Opzx3::Op::Ams::min, PrValue::Opzx3::Op::Ams::max, PrValue::Opzx3::Op::Ams::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::mask, namePrefix + PrName::Fm::Op::Post::mask, PrValue::Opzx3::Op::Mask::initial)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::pcmOffset, namePrefix + PrName::Fm::Op::Post::pcmOffset, PrValue::Opzx3::Op::PcmOffset::min, PrValue::Opzx3::Op::PcmOffset::max, PrValue::Opzx3::Op::PcmOffset::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::pcmRatio, namePrefix + PrName::Fm::Op::Post::pcmRatio, PrValue::Opzx3::Op::PcmRatio::min, PrValue::Opzx3::Op::PcmRatio::max, PrValue::Opzx3::Op::PcmRatio::initial));
     }
 }
 
@@ -91,6 +93,8 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.fmOp[op].pms = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
         params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
         params.fmOp[op].ams = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
+        params.fmOp[op].pcmOffset = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pcmOffset);
+        params.fmOp[op].pcmRatio = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pcmRatio);
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }
 }

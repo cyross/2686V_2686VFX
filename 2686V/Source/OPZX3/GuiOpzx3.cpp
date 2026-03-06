@@ -121,6 +121,9 @@ void GuiOpzx3::setup()
             updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx3PcmFilePaths[i]).getFileName());
         }
 
+        pcmOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmOffset, .title = GuiText::Fm::Op::PcmOffset, .isReset = true });
+        pcmRatio[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmRatio, .title = GuiText::Fm::Op::PcmRatio, .isReset = true });
+
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
 
         pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .items = pmsItems, .isReset = true });
@@ -189,7 +192,9 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        layoutComponentsLtoROpzx3PcmRow({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoROpzx3PcmRow({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pm[i] });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });

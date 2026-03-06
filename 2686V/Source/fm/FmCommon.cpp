@@ -37,15 +37,21 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        // オフセットとレシオを考慮した再生区間の計算
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
+
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
 
         if (m_params.fixedMode) {
-            // FIXモード時: fixedFreq(1.0等) を「再生速度の倍率」として扱う
             baseFreq = originalHz * m_params.fixedFreq;
         }
         else {
-            // キーボードモード時: C4 (Note 60, 約261.626Hz) を Root Key(等速) としてピッチを変化
             float rootFreq = 261.625565f;
             float pitchRatio = frequency / rootFreq;
             baseFreq = originalHz * pitchRatio;
@@ -190,16 +196,17 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 波形の長さから「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
 
-        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
+
         float scale = originalHz / 261.625565f;
-
-        // 極端に小さくなりすぎないよう、最低限の変調は残す
         scale = std::max(scale, 0.005f);
-
-        // FM変調インデックスを波形の長さに合わせて縮小
         fmModIndex *= scale;
     }
 
@@ -299,16 +306,17 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 波形の長さから「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
 
-        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
+
         float scale = originalHz / 261.625565f;
-
-        // 極端に小さくなりすぎないよう、最低限の変調は残す
         scale = std::max(scale, 0.005f);
-
-        // FM変調インデックスを波形の長さに合わせて縮小
         fmModIndex *= scale;
     }
 
@@ -522,17 +530,27 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
         case 31: // 外部オーディオファイル (PCM)
             if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
             {
-                // ここも normPhase を使って計算
-                float floatIndex = normPhase * m_pcmBuffer->size();
+                // OffsetとRatioを適用して切り出す
+                size_t totalSize = m_pcmBuffer->size();
+                size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+                if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+                size_t remainingSize = totalSize - offsetSamples;
+                size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+                if (playSize < 1) playSize = 1;
+
+                // normPhase (0.0 ~ 1.0) を playSize にマッピングし、offsetを足す
+                float floatIndex = (float)offsetSamples + normPhase * (float)playSize;
+
                 int index1 = (int)floatIndex;
+                if (index1 >= totalSize) index1 = totalSize - 1;
 
-                // ==========================================================
-                // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
-                // ==========================================================
-                if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
-                if (index1 < 0) index1 = 0;
+                int index2 = index1 + 1;
+                // ループの終端に達したら、offset位置（先頭）に戻す
+                if (index2 >= offsetSamples + playSize || index2 >= totalSize) {
+                    index2 = offsetSamples;
+                }
 
-                int index2 = (index1 + 1) % m_pcmBuffer->size();
                 float frac = floatIndex - (float)index1;
                 return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
             }
