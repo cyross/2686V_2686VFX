@@ -111,6 +111,8 @@ namespace PrKey
 
 				static inline const juce::String pms = "_PMS";
 				static inline const juce::String ams = "_AMS";
+				static inline const juce::String pmd = "_PMD";
+				static inline const juce::String amd = "_AMD";
 
 				static inline const juce::String ws = "_WS";
 

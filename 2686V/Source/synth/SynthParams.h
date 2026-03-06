@@ -37,6 +37,12 @@ struct FmOpParams
     int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
     int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
 
+    // --- OPL/OPL3 LFO Settings ---
+    float oplAms = 3.7f;  // AM Speed (Hz)
+    float oplAmd = 4.8f;  // AM Depth (dB)
+    float oplPms = 6.4f;  // PM Speed (Hz)
+    float oplPmd = 14.0f; // PM Depth (Cent)
+
     // CSM/Fix Mode
     bool fixedMode = false;
     float fixedFreq = 440.0f;
@@ -128,7 +134,6 @@ struct SynthParams
 
     // Parameters for Operator
     std::array<FmOpParams, MaxFmOperators> fmOp;
-
 
     // [[ SSG Parameters ]]
 

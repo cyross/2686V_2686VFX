@@ -494,9 +494,37 @@ namespace PrValue
 				inline constexpr bool initial = false; // 初期値
 			}
 
+			namespace Ams
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 3.7f;
+			}
+
+			namespace Amd
+			{
+				inline constexpr float min = 0.1f;
+				inline constexpr float max = 10.0f;
+				inline constexpr float initial = 1.0f;
+			}
+
 			namespace Vib
 			{
 				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Pms
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 6.4f;
+			}
+
+			namespace Pmd
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 100.0f;
+				inline constexpr float initial = 7.0f;
 			}
 
 			namespace EgType
@@ -620,9 +648,37 @@ namespace PrValue
 				inline constexpr bool initial = false; // 初期値
 			}
 
+			namespace Ams
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 3.7f;
+			}
+
+			namespace Amd
+			{
+				inline constexpr float min = 0.1f;
+				inline constexpr float max = 10.0f;
+				inline constexpr float initial = 1.0f;
+			}
+
 			namespace Vib
 			{
 				inline constexpr bool initial = false; // 初期値
+			}
+
+			namespace Pms
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 20.0f;
+				inline constexpr float initial = 6.4f;
+			}
+
+			namespace Pmd
+			{
+				inline constexpr float min = 1.0f;
+				inline constexpr float max = 100.0f;
+				inline constexpr float initial = 7.0f;
 			}
 
 			namespace EgType

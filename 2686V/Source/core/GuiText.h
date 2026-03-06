@@ -141,6 +141,8 @@ namespace GuiText
 			static inline const juce::String Vib = "VIB";
 			static inline const juce::String Ams = "AMS";
 			static inline const juce::String Pms = "PMS";
+			static inline const juce::String Amd = "AMD";
+			static inline const juce::String Pmd = "PMD";
 			static inline const juce::String EgType = "EGTYPE";
 			static inline const juce::String Eg = "EG";
 			static inline const juce::String Ws = "WS";
