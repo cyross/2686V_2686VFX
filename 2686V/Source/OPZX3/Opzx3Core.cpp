@@ -7,6 +7,7 @@ void Opzx3Core::prepare(double sampleRate) {
     for (auto& op : m_operators) op.setSampleRate(target);
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
+
     updateNoiseDelta(target);
 }
 
@@ -38,18 +39,24 @@ void Opzx3Core::setParameters(const SynthParams& params) {
             fb = params.feedback;
         }
 
+        if (i == 2) // OP2
+        {
+            fb = params.feedback2;
+        }
+
         // WaveSelect=True, SSG-EG=False, OpmEg=True
         m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);
         m_opMask[i] = params.fmOp[i].mask;
     }
 
-    // OPX特有の外部フィードバックアルゴリズムの場合、OP0の自己FBをオフにする
+    // OPX特有の外部フィードバックアルゴリズムの場合、OP0/OP2の自己FBをオフにする
     bool useExtFb = false;
     if (m_algorithm == 1 || m_algorithm == 5 || m_algorithm == 7 || m_algorithm == 11) useExtFb = true; // 4OP: OP1->OP0 FB
     if (m_algorithm == 17 || m_algorithm == 21) useExtFb = true; // 3OP: OP2->OP0 FB
     if (m_algorithm == 25) useExtFb = true; // 2OP: OP1->OP0 FB
 
     m_operators[0].setExternalFeedbackMode(useExtFb);
+    m_operators[2].setExternalFeedbackMode(useExtFb);
 }
 
 void Opzx3Core::noteOn(float freq, float velocity) {
@@ -150,7 +157,7 @@ float Opzx3Core::getSample() {
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
-        // OPX (YMF271) Algorithm Routing (0-27)
+        // Algorithm : OPX (0-27) + MA-3 (28-35)
         // =================================================================
         switch (m_algorithm) {
         case 0:
@@ -550,6 +557,122 @@ float Opzx3Core::getSample() {
             if (m_opMask[1]) out2 = 0.0f;
 
             finalOut = out1 + out2;
+
+            break;
+        case 28:
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            finalOut = out2;
+
+            break;
+        case 29:
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            finalOut = out1 + out2;
+
+            break;
+        case 30:
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out1 + out2 + out3 + out4;
+
+            break;
+        case 31:
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[0].pushFeedback(out2);
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out1 + out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out4;
+
+            break;
+        case 32:
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out4;
+
+            break;
+        case 33:
+            m_operators[1].getSample(out2, out1, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out2 + out4;
+
+            break;
+        case 34:
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, out3, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out1 + out4;
+
+            break;
+        case 35:
+            m_operators[1].getSample(out2, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[0].pushFeedback(out2);
+
+            m_operators[2].getSample(out3, out2, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            m_operators[3].getSample(out4, 0.0f, lfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[3]) out4 = 0.0f;
+
+            finalOut = out1 + out3 + out4;
 
             break;
         default:

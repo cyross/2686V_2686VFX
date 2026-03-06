@@ -664,6 +664,14 @@ namespace PrValue
 
 		}
 
+		namespace Fb2
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 7.0f; // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+
+		}
+
 		namespace Bit
 		{
 			inline constexpr int min = 1; // 最小値
@@ -868,7 +876,7 @@ namespace PrValue
 		namespace Alg
 		{
 			inline constexpr int min = 0; // 最小値
-			inline constexpr int max = 27; // 最大値
+			inline constexpr int max = 35; // 最大値
 			inline constexpr int initial = 15; // 初期値
 		}
 
@@ -878,6 +886,14 @@ namespace PrValue
 			inline constexpr float min = 0.0f; // 最小値
 			inline constexpr float max = 7.0f; // 最大値
 			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace Fb2
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 7.0f; // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+
 		}
 
 		namespace Bit

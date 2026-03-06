@@ -13,6 +13,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::alg, code + PrName::Fm::Post::alg, PrValue::Opm::Alg::min, PrValue::Opm::Alg::max, PrValue::Opm::Alg::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::fb0, code + PrName::Fm::Post::fb0, PrValue::Opm::Fb0::min, PrValue::Opm::Fb0::max, PrValue::Opm::Fb0::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::fb2, code + PrName::Fm::Post::fb2, PrValue::Opm::Fb2::min, PrValue::Opm::Fb2::max, PrValue::Opm::Fb2::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::bit, code + PrName::Fm::Post::bit, PrValue::Opm::Bit::min, PrValue::Opm::Bit::max, PrValue::Opm::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::rate, code + PrName::Fm::Post::rate, PrValue::Opl3::Rate::min, PrValue::Opl3::Rate::max, PrValue::Opl3::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::freq, code + PrName::Fm::Post::Lfo::freq, PrValue::Opm::Lfo::Freq::min, PrValue::Opm::Lfo::Freq::max, PrValue::Opm::Lfo::Freq::initial));
@@ -55,6 +56,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 
     params.algorithm = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::alg);
     params.feedback = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb0);
+    params.feedback2 = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb2);
     params.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
     params.lfoFreq = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::freq);
