@@ -199,6 +199,7 @@ void GuiPreset::setup()
                     // ファイル名表示のクリア
                     ctx.editor.updateRhythmFileNames(Io::empty);
                     ctx.editor.updateAdpcmFileName(Io::empty);
+                    ctx.editor.updateOpzx3FileNames(Io::empty);
                 }
             }
         );
