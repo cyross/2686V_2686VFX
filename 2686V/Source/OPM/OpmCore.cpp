@@ -39,6 +39,11 @@ void OpmCore::setParameters(const SynthParams& params) {
             fb = params.feedback;
         }
 
+        if (i == 2) // OP2
+        {
+            fb = params.feedback2;
+        }
+
         // OPM: SSG-EG=False, WaveSelect=False
         m_operators[i].setParameters(params.fmOp[i], fb, false, false, true);
         m_opMask[i] = params.fmOp[i].mask;
