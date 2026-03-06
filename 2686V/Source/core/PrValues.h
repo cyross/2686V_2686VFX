@@ -1145,6 +1145,13 @@ namespace PrValue
 				inline constexpr int initial = 0;
 			}
 
+			namespace Se
+			{
+				inline constexpr int min = 0; // 最小値
+				inline constexpr int max = 15; // 最大値
+				inline constexpr int initial = 0; // 最大値
+			}
+
 			namespace SeFreq
 			{
 				inline constexpr float min = 0.1f; // 最小値

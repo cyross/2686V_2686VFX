@@ -50,8 +50,8 @@ void Opzx3Core::setParameters(const SynthParams& params) {
             fb = params.feedback2;
         }
 
-        // WaveSelect=True, SSG-EG=False, OpmEg=True
-        m_operators[i].setParameters(params.fmOp[i], fb, false, true, true);
+        // WaveSelect=True, SSG-EG=True, OpmEg=True
+        m_operators[i].setParameters(params.fmOp[i], fb, true, true, true);
         m_opMask[i] = params.fmOp[i].mask;
     }
 
