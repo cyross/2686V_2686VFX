@@ -57,6 +57,9 @@ void GuiAdpcm::setup()
         fileNameLabel.setText(Io::empty, juce::dontSendNotification);
     };
 
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmOffset, .title = GuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmRatio, .title = GuiText::Adpcm::pcmRatio, .isReset = true });
+
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
@@ -81,7 +84,9 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &loopButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &loopButton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
     layoutComponentsLtoRAdpcmPanRow({ .rect = mRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });

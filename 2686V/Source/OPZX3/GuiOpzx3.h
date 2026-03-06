@@ -19,7 +19,8 @@ class GuiOpzx3 : public GuiBase
 
     // Global
     GuiComboBox algSelector;
-    GuiSlider feedbackSlider;
+    GuiFbSlider feedbackSlider;
+    GuiFbSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
@@ -66,6 +67,8 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
     std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
     std::array<GuiLabel, Global::Fm::Op4> pcmFileNameLabel;
+    std::array<GuiSlider, Global::Fm::Op4> pcmOffset;
+    std::array<GuiSlider, Global::Fm::Op4> pcmRatio;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
     std::array<GuiComboBox, Global::Fm::Op4> pms;
@@ -86,6 +89,7 @@ public:
         algFbCat(context),
         algSelector(context),
         feedbackSlider(context),
+        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoCat(context),
@@ -123,6 +127,8 @@ public:
         loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },

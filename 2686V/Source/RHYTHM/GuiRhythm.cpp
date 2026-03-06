@@ -46,6 +46,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmOffset, .title = GuiText::Rhythm::Pad::pcmOffset, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
+
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
     panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
@@ -98,7 +101,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
     layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });

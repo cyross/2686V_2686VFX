@@ -10,6 +10,10 @@ void OpnaCore::prepare(double sampleRate) {
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0; // Ready to render
+
+    updateNoiseDelta(target);
+
+    m_amSmooth = 0.0f;
 }
 
 void OpnaCore::setParameters(const SynthParams& params) {
@@ -19,11 +23,14 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_pm = params.pmEnable;
     m_pms = params.lfoPms;
     m_ams = params.lfoAms;
+    m_lfoWave = params.lfoWave;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
+
+        updateNoiseDelta(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
@@ -100,18 +107,51 @@ float OpnaCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        // ========================================================
-        // 1. LFO 波形の生成（ここは残します！）
-        // ========================================================
         double lfoInc = m_lfoFreq / targetRate;
         m_lfoPhase += lfoInc;
-        if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
-        // ★この lfoValue が m_operators[i].getSample() に渡されます
-        float lfoValue = 0.0f;
-        if (m_lfoPhase < 0.25)      lfoValue = (float)(m_lfoPhase * 4.0);
-        else if (m_lfoPhase < 0.75) lfoValue = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-        else                        lfoValue = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
+        // ノイズの更新処理
+        if (m_lfoPhase >= 1.0) {
+            m_lfoPhase -= 1.0;
+            unsigned int bit0 = m_lfsr & 1;
+            unsigned int bit3 = (m_lfsr >> 3) & 1;
+            unsigned int nextBit = bit0 ^ bit3;
+            m_lfsr >>= 1;
+            if (nextBit) m_lfsr |= (1 << 16);
+            m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+        }
+
+        float amLfoVal = 0.0f;
+        float pmLfoVal = 0.0f;
+
+        switch (m_lfoWave) {
+        case 0: // Sine
+            pmLfoVal = (float)std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
+            amLfoVal = (pmLfoVal + 1.0f) * 0.5f;
+            break;
+        case 1: // Saw Down
+            pmLfoVal = (float)(1.0 - m_lfoPhase * 2.0);
+            amLfoVal = (float)(1.0 - m_lfoPhase);
+            break;
+        case 2: // Square
+            pmLfoVal = (m_lfoPhase < 0.5) ? 1.0f : -1.0f;
+            amLfoVal = (m_lfoPhase < 0.5) ? 1.0f : 0.0f;
+            break;
+        case 3: // Triangle
+            if (m_lfoPhase < 0.25)       pmLfoVal = (float)(m_lfoPhase * 4.0);
+            else if (m_lfoPhase < 0.75)  pmLfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
+            else                         pmLfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
+
+            if (m_lfoPhase < 0.5)        amLfoVal = (float)(m_lfoPhase * 2.0);
+            else                         amLfoVal = (float)(1.0 - (m_lfoPhase - 0.5) * 2.0);
+            break;
+        case 4: // Noise
+            pmLfoVal = m_currentNoiseSample;
+            amLfoVal = (m_currentNoiseSample + 1.0f) * 0.5f;
+            break;
+        }
+
+        m_amSmooth += (amLfoVal - m_amSmooth) * 0.05f;
 
         // ========================================================
         // 2. オペレーターの処理とルーティング
@@ -119,20 +159,20 @@ float OpnaCore::getSample() {
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
-        m_operators[0].getSample(out1, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         switch (m_algorithm) {
         case 0:
-            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -140,15 +180,15 @@ float OpnaCore::getSample() {
 
             break;
         case 1:
-            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out1 + out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -156,15 +196,15 @@ float OpnaCore::getSample() {
 
             break;
         case 2:
-            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3 + out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out3 + out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -172,15 +212,15 @@ float OpnaCore::getSample() {
 
             break;
         case 3:
-            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out2 + out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -188,15 +228,15 @@ float OpnaCore::getSample() {
 
             break;
         case 4:
-            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out3, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -204,15 +244,15 @@ float OpnaCore::getSample() {
 
             break;
         case 5:
-            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -220,15 +260,15 @@ float OpnaCore::getSample() {
 
             break;
         case 6:
-            m_operators[1].getSample(out2, out1, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 
@@ -236,15 +276,15 @@ float OpnaCore::getSample() {
 
             break;
         default:
-            m_operators[1].getSample(out2, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[3].getSample(out4, 0.0f, lfoValue, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
 
             if (m_opMask[3]) out4 = 0.0f;
 

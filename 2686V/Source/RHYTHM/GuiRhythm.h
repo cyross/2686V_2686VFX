@@ -14,10 +14,10 @@ class RhythmPadGui: public GuiBase
     GuiGroup mainGroup;
 
     GuiLabel fileNameLabel;
-
     GuiTextButton loadButton;
-
     GuiTextButton clearButton;
+    GuiSlider pcmOffsetSlider;
+    GuiSlider pcmRatioSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
@@ -49,6 +49,8 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        pcmOffsetSlider(context),
+        pcmRatioSlider(context),
         qualityCat(context),
         mainCat(context),
         panCat(context),

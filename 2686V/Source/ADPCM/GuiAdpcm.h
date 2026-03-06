@@ -20,6 +20,8 @@ class GuiAdpcm : public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
     GuiLabel fileNameLabel;
+    GuiSlider pcmOffsetSlider;
+    GuiSlider pcmRatioSlider;
 
     GuiSlider levelSlider;
     GuiSlider panSlider;
@@ -57,6 +59,8 @@ public:
         loadButton(context),
         clearButton(context),
         fileNameLabel(context),
+        pcmOffsetSlider(context),
+        pcmRatioSlider(context),
         levelSlider(context),
         panSlider(context),
         btnPanL(context),

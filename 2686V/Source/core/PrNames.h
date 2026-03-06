@@ -76,6 +76,8 @@ namespace PrName
 				static inline const juce::String amd = " AMD";
 				static inline const juce::String egType = " EG TYPE";
 				static inline const juce::String eg = " EG";
+				static inline const juce::String pcmOffset = " PCM Offset";
+				static inline const juce::String pcmRatio = " PCM Ratio";
 
 				static inline const juce::String mask = " MASK";
 			}
@@ -175,6 +177,8 @@ namespace PrName
 				static inline const juce::String oneShot = " One Shot";
 				static inline const juce::String pan = " Pan";
 				static inline const juce::String rr = " RR";
+				static inline const juce::String pcmOffset = " PCM Offset";
+				static inline const juce::String pcmRatio = " PCM Ratio";
 			}
 		}
 	}
@@ -196,6 +200,8 @@ namespace PrName
 			static inline const juce::String level = " Level";
 			static inline const juce::String loop = " Loop";
 			static inline const juce::String bit = " Bit";
+			static inline const juce::String pcmOffset = " PCM Offset";
+			static inline const juce::String pcmRatio = " PCM Ratio";
 		}
 	}
 

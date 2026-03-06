@@ -36,6 +36,9 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         // Release Parameter
         // 範囲: 0.03秒 ～ 5.0秒, 初期値: 0.1秒
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Rhythm::Pad::rr, namePrefix + PrName::Rhythm::Pad::Post::rr, PrValue::Rhythm::Pad::Rr::min, PrValue::Rhythm::Pad::Rr::max, PrValue::Rhythm::Pad::Rr::initial));
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Rhythm::Pad::pcmOffset, namePrefix + PrName::Rhythm::Pad::Post::pcmOffset, PrValue::Rhythm::Pad::PcmOffset::min, PrValue::Rhythm::Pad::PcmOffset::max, PrValue::Rhythm::Pad::PcmOffset::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Rhythm::Pad::pcmRatio, namePrefix + PrName::Rhythm::Pad::Post::pcmRatio, PrValue::Rhythm::Pad::PcmRatio::min, PrValue::Rhythm::Pad::PcmRatio::max, PrValue::Rhythm::Pad::PcmRatio::initial));
     }
 }
 
@@ -56,5 +59,7 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.rateIndex = (int)*apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::rate);
         pad.isOneShot = (bool)*apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::oneShot);
         pad.release = *apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::rr);
+        pad.pcmOffset = *apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::pcmOffset);
+        pad.pcmRatio = *apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::pcmRatio);
     }
 }
