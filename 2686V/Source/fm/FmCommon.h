@@ -27,7 +27,7 @@ public:
     float getCurrentEnvelope() const { return m_currentLevel; }
     void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
     void getSample(float& output, float modulator, float lfoAmp, float lfoPitch);
-    void getSample(float& output, float modulator, float lfoVal, bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f);
+    void getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f);
     void setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
     // OPZX3 の外部 PCM データ用

@@ -227,7 +227,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 // =====================================================================
 // ② ハイブリッドLFO版 (OPNA / OPM / OPZX3 / OPN 用)
 // =====================================================================
-void FmOperator::getSample(float& output, float modulator, float lfoVal,
+void FmOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
     bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
@@ -261,7 +261,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     totalAmDepth = std::min(totalAmDepth, 1.0f);
 
     if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (std::abs(lfoVal) * totalAmDepth);
+        float lfoAmpMod = 1.0f - (amLfoVal * totalAmDepth);
         envVal *= lfoAmpMod; // 音量に直接適用
     }
 
@@ -282,11 +282,14 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
         totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
     }
 
+    // PMがONの時だけ、その深さをLFO波形に掛ける
+    float currentPitchMod = pmLfoVal * totalPmDepth;
+
     // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
     float wheelDepth = modWheel * 0.03f;
-    totalPmDepth += wheelDepth;
+    currentPitchMod += (pmLfoVal * wheelDepth);
 
-    float lfoPitchMod = 1.0f + (lfoVal * totalPmDepth);
+    float lfoPitchMod = 1.0f + currentPitchMod;
 
     // ========================================================
     // 3. 位相と波形の生成
