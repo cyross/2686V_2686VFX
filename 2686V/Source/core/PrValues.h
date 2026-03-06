@@ -1084,6 +1084,20 @@ namespace PrValue
 				inline constexpr int initial = 0;
 			}
 
+			namespace PcmOffset
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 2000.0f;
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace PcmRatio
+			{
+				inline constexpr float min = 0.05f;
+				inline constexpr float max = 1.0f;
+				inline constexpr float initial = 1.0f; // 初期値
+			}
+
 			namespace Mask
 			{
 				inline constexpr bool initial = false;
@@ -1366,6 +1380,20 @@ namespace PrValue
 				inline constexpr float max = 5.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
+
+			namespace PcmOffset
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 2000.0f;
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace PcmRatio
+			{
+				inline constexpr float min = 0.05f;
+				inline constexpr float max = 1.0f;
+				inline constexpr float initial = 1.0f; // 初期値
+			}
 		}
 	}
 
@@ -1405,6 +1433,20 @@ namespace PrValue
 			inline constexpr int min = 1; // 最小値
 			inline constexpr int max = 7; // 最大値
 			inline constexpr int initial = 4; // 初期値
+		}
+
+		namespace PcmOffset
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 2000.0f;
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace PcmRatio
+		{
+			inline constexpr float min = 0.05f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f; // 初期値
 		}
 	}
 

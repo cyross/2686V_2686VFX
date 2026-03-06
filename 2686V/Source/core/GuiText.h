@@ -151,6 +151,8 @@ namespace GuiText
 			static inline const juce::String Opzx3FreqTo1 = "->1";
 			static inline const juce::String Opzx3FreqTo2 = "->2";
 			static inline const juce::String Opzx3FreqTo440 = "->440";
+			static inline const juce::String PcmOffset = "OFFSET";
+			static inline const juce::String PcmRatio = "RATIO";
 		}
 	}
 
@@ -231,6 +233,8 @@ namespace GuiText
 			static inline const juce::String oneShot = "One Shot";
 			static inline const juce::String pan = "Pan";
 			static inline const juce::String rr = "RR";
+			static inline const juce::String pcmOffset = "OFFSET";
+			static inline const juce::String pcmRatio = "RATIO";
 
 			namespace Pan
 			{
@@ -248,6 +252,8 @@ namespace GuiText
 		static inline const juce::String quality = "Bit";
 		static inline const juce::String rate = "Rate";
 		static inline const juce::String loop = "Loop";
+		static inline const juce::String pcmOffset = "OFFSET";
+		static inline const juce::String pcmRatio = "RATIO";
 
 		namespace Pan
 		{

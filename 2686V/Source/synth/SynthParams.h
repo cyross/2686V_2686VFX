@@ -43,6 +43,9 @@ struct FmOpParams
 
     // Wave Select (0:Sine, 1:Half, 2:Abs, 3:Quarter)
     int waveSelect = 0;
+
+    float pcmOffset = 0.0f; // ms
+    float pcmRatio = 1.0f;
 };
 
 struct RhythmPadParams
@@ -59,6 +62,9 @@ struct RhythmPadParams
     bool isOneShot = true;
 
     float release = 0.1f;
+
+    float pcmOffset = 0.0f; // ms
+    float pcmRatio = 1.0f;
 };
 
 struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
@@ -254,6 +260,9 @@ struct SynthParams
     int adpcmRootNote = 60; // Root Key (Middle C)
     int adpcmQualityMode = 6; // Default: ADPCM
     int adpcmRateIndex = 3;   // Default: 16kHz
+
+    float adpcmPcmOffset = 0.0f; // ms
+    float adpcmPcmRatio = 1.0f;
 
     // --- ADSR Filter ---
 

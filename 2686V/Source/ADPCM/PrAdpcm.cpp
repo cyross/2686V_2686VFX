@@ -16,6 +16,8 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Adpcm::loop, code + PrName::Adpcm::Post::loop, PrValue::Adpcm::Loop::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Adpcm::mode, code + PrName::Adpcm::Post::bit, PrValue::Adpcm::Bit::min, PrValue::Adpcm::Bit::max, PrValue::Adpcm::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Adpcm::rate, code + PrName::Adpcm::Post::rate, PrValue::Adpcm::Rate::min, PrValue::Adpcm::Rate::max, PrValue::Adpcm::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Adpcm::pcmOffset, code + PrName::Adpcm::Post::pcmOffset, PrValue::Adpcm::PcmOffset::min, PrValue::Adpcm::PcmOffset::max, PrValue::Adpcm::PcmOffset::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Adpcm::pcmRatio, code + PrName::Adpcm::Post::pcmRatio, PrValue::Adpcm::PcmRatio::min, PrValue::Adpcm::PcmRatio::max, PrValue::Adpcm::PcmRatio::initial));
 
     addEnvParameters(layout, code);
 }
@@ -31,6 +33,8 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcmLoop = (*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::loop) > PrValue::boolThread);
     params.adpcmQualityMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::mode);
     params.adpcmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::rate);
+    params.adpcmPcmOffset = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmOffset);
+    params.adpcmPcmRatio = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmRatio);
 
     params.adpcmAdsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
     params.adpcmAdsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);

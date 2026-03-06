@@ -30,6 +30,9 @@ public:
     int m_rateIndex = 5;   // 16kHz
     bool m_isOneShot = true;
 
+    float m_pcmOffset = 0.0f;
+    float m_pcmRatio = 1.0f;
+
     float m_releaseParam = 0.1f; // パラメータ設定値
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
     float m_releaseDec = 0.0f;   // 1サンプルあたりの減衰量

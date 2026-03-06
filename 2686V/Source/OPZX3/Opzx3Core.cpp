@@ -4,7 +4,10 @@
 void Opzx3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
     double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+    for (auto& op : m_operators) {
+        op.setSampleRate(target);
+        op.setHostSampleRate(m_hostSampleRate);
+    }
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
 

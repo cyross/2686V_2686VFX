@@ -244,7 +244,7 @@ namespace GuiValue
 
 			namespace Row
 			{
-				static inline constexpr int height = 20;
+				static inline constexpr int height = 15;
 
 				namespace Label
 				{
