@@ -70,6 +70,7 @@ namespace PrKey
 			namespace Lfo
 			{
 				static inline const juce::String freq = "_LFO_FREQ";
+				static inline const juce::String shape = "_LFO_SHAPE";
 				static inline const juce::String am = "_LFO_AM";
 				static inline const juce::String pm = "_LFO_PM";
 				static inline const juce::String pms = "_LFO_PMS";

@@ -752,6 +752,14 @@ namespace PrValue
 				inline constexpr float initial = 5.0f;
 			}
 
+			namespace Shape
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 4;
+				inline constexpr int initial = 1;
+
+			}
+
 			namespace Pm
 			{
 				inline constexpr bool initial = false;
@@ -974,6 +982,13 @@ namespace PrValue
 				inline constexpr float min = 0.1f;
 				inline constexpr float max = 200.0f;
 				inline constexpr float initial = 5.0f;
+			}
+
+			namespace Shape
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 4;
+				inline constexpr int initial = 1;
 			}
 
 			namespace Pm

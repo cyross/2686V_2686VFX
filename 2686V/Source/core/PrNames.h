@@ -32,6 +32,7 @@ namespace PrName
 			namespace Lfo
 			{
 				static inline const juce::String freq = " L.FREQ";
+				static inline const juce::String shape = " L.SHAPE";
 				static inline const juce::String am = " LFO.AM";
 				static inline const juce::String pm = " LFO.PM";
 				static inline const juce::String ams = " L.AMS";

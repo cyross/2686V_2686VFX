@@ -28,6 +28,7 @@ class GuiOpm : public GuiBase
 
     // OPM LFO
     GuiSlider lfoFreqSlider;
+    GuiComboBox lfoShapeSelector;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
     GuiComboBox lfoPmsSelector;
@@ -83,6 +84,7 @@ public:
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
+        lfoShapeSelector(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
         lfoPmsSelector(context),

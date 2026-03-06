@@ -263,3 +263,11 @@ static std::vector<SelectItem> rlfoWaves = {
     {"Triangle", 3},
     {"Noise", 4}
 };
+
+static std::vector<SelectItem> lfoShapeItems = {
+    {.name = "0: Sine",     .value = 1 },
+    {.name = "1: Saw Down", .value = 2 },
+    {.name = "2: Square",   .value = 3 },
+    {.name = "3: Triangle", .value = 4 },
+    {.name = "4: Noise",    .value = 5 },
+};
