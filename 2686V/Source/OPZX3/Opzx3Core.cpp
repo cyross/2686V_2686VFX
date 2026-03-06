@@ -7,6 +7,7 @@ void Opzx3Core::prepare(double sampleRate) {
     for (auto& op : m_operators) op.setSampleRate(target);
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
+
     updateNoiseDelta(target);
 }
 

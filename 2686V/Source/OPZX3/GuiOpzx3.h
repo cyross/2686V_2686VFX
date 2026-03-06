@@ -19,8 +19,8 @@ class GuiOpzx3 : public GuiBase
 
     // Global
     GuiComboBox algSelector;
-    GuiSlider feedbackSlider;
-    GuiSlider feedback2Slider;
+    GuiFbSlider feedbackSlider;
+    GuiFbSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
