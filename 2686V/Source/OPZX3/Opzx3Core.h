@@ -55,6 +55,7 @@ private:
     float m_noiseDelta = 0.0f;
     float m_currentNoiseSample = 0.0f;
     float m_targetNoiseFreq = 12000.0f;
+    float m_amSmooth = 0.0f;
 
     float m_modWheel = 0.0f;
 
