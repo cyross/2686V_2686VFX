@@ -146,4 +146,10 @@ public:
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
+    void updateAllPcmFileName(const juce::String& fileName) {
+        for (int i = 0; i < 4; i++)
+        {
+            pcmFileNameLabel[i].setText(fileName, juce::dontSendNotification);
+        }
+    }
 };

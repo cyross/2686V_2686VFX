@@ -12,6 +12,7 @@
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
+    juce::Logger::getCurrentLogger()->writeToLog(fileName);
     fileNameLabel.setText(fileName, juce::dontSendNotification);
 }
 

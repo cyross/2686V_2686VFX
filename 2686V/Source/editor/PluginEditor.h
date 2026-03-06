@@ -43,6 +43,7 @@ public:
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileName(const juce::String finename);
+    void updateOpzx3FileNames(const juce::String finename);
     void setupLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);

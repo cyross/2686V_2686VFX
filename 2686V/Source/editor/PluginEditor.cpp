@@ -740,6 +740,34 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
     }
 }
 
+void AudioPlugin2686VEditor::updateOpzx3FileNames(const juce::String filename)
+{
+    if (filename == Io::empty) {
+        for (int i = 0; i < 4; ++i)
+        {
+            opzx3Gui->updatePcmFileName(i, filename);
+        }
+
+    }
+    else {
+        for (int i = 0; i < 4; ++i)
+        {
+            juce::String path = audioProcessor.opzx3PcmFilePaths[i];
+            juce::String text = Io::empty;
+
+            if (path.isNotEmpty())
+            {
+                // パスが存在すればファイル名を取得
+                // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
+                juce::File f = audioProcessor.resolvePath(path);
+                text = f.getFileName();
+            }
+
+            opzx3Gui->updatePcmFileName(i, text);
+        }
+    }
+}
+
 void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
 {
     if (filename == Io::empty) {
