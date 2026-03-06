@@ -77,6 +77,7 @@ namespace PrKey
 				static inline const juce::String ams = "_LFO_AMS";
 				static inline const juce::String pmd = "_LFO_PMD";
 				static inline const juce::String amd = "_LFO_AMD";
+				static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
 			};
 
 			namespace Op

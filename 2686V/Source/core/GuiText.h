@@ -109,6 +109,7 @@ namespace GuiText
 		static inline const juce::String pms = "L.PMS";
 		static inline const juce::String amd = "L.AMD";
 		static inline const juce::String pmd = "L.PMD";
+		static inline const juce::String amSmoothRatio = "L.ASMRT";
 
 		namespace Op
 		{

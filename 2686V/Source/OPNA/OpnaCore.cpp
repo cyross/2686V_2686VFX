@@ -24,6 +24,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_pms = params.lfoPms;
     m_ams = params.lfoAms;
     m_lfoWave = params.lfoWave;
+    m_amSmoothRate = params.lfoAmSmRt;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -151,7 +152,7 @@ float OpnaCore::getSample() {
             break;
         }
 
-        m_amSmooth += (amLfoVal - m_amSmooth) * 0.05f;
+        m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
         // ========================================================
         // 2. オペレーターの処理とルーティング

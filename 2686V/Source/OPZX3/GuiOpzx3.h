@@ -28,6 +28,7 @@ class GuiOpzx3 : public GuiBase
 
     // LFO
     GuiSlider lfoFreqSlider;
+    GuiSlider lfoAmSmRtSlider;
     GuiComboBox lfoShapeSelector;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
@@ -94,6 +95,7 @@ public:
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
+        lfoAmSmRtSlider(context),
         lfoShapeSelector(context),
         lfoPmToggle(context),
         lfoAmToggle(context),

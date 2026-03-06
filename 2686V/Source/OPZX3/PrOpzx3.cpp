@@ -22,8 +22,9 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Fm::Lfo::pm, code + PrName::Fm::Post::Lfo::pm, PrValue::Opzx3::Lfo::Pm::initial)); // PM Enable (Switch)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pms, code + PrName::Fm::Post::Lfo::pms, PrValue::Opzx3::Lfo::Pms::min, PrValue::Opzx3::Lfo::Pms::max, PrValue::Opzx3::Lfo::Pms::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::ams, code + PrName::Fm::Post::Lfo::ams, PrValue::Opzx3::Lfo::Ams::min, PrValue::Opzx3::Lfo::Ams::max, PrValue::Opzx3::Lfo::Ams::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Opna::Lfo::Pmd::min, PrValue::Opna::Lfo::Pmd::max, PrValue::Opna::Lfo::Pmd::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Opna::Lfo::Amd::min, PrValue::Opna::Lfo::Amd::max, PrValue::Opna::Lfo::Amd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Opzx3::Lfo::Pmd::min, PrValue::Opzx3::Lfo::Pmd::max, PrValue::Opzx3::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Opzx3::Lfo::Amd::min, PrValue::Opzx3::Lfo::Amd::max, PrValue::Opzx3::Lfo::Amd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::amSmoothRatio, code + PrName::Fm::Post::Lfo::amSmoothRatio, PrValue::Opzx3::Lfo::AmSmRt::min, PrValue::Opzx3::Lfo::AmSmRt::max, PrValue::Opzx3::Lfo::AmSmRt::initial));
 
     for (int op = 0; op < PrValue::Opzx3::ops; ++op)
     {
@@ -65,6 +66,7 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
     params.lfoFreq = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::freq);
     params.lfoWave = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::shape);
+    params.lfoAmSmRt = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::amSmoothRatio);
     params.amEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::am) > PrValue::boolThread);
     params.pmEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pm) > PrValue::boolThread);
     params.lfoPms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pms);

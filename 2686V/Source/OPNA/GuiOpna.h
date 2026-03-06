@@ -27,6 +27,7 @@ class GuiOpna : public GuiBase
     GuiCategoryLabel lfoCat;
 
     GuiSlider lfoFreqSlider;
+    GuiSlider lfoAmSmRtSlider;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
     GuiComboBox lfoPmsSelector;
@@ -82,6 +83,7 @@ public:
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
+        lfoAmSmRtSlider(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
         lfoPmsSelector(context),

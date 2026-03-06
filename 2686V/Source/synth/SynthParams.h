@@ -129,6 +129,9 @@ struct SynthParams
     // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     int lfoWave = 2;
 
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index
 

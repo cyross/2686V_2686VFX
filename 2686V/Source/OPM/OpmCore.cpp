@@ -23,6 +23,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_pmd = params.lfoPmd;
     m_amd = params.lfoAmd;
     m_lfoWave = params.lfoWave; // OPM LFO Wave
+    m_amSmoothRate = params.lfoAmSmRt;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -146,7 +147,7 @@ float OpmCore::getSample() {
             break;
         }
 
-        m_amSmooth += (amLfoVal - m_amSmooth) * 0.05f;
+        m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
         float out1, out2, out3, out4;
         float finalOut = 0.0f;

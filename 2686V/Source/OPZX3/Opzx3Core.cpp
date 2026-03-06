@@ -26,6 +26,7 @@ void Opzx3Core::setParameters(const SynthParams& params) {
     m_pmd = params.lfoPmd;
     m_amd = params.lfoAmd;
     m_lfoWave = params.lfoWave;
+    m_amSmoothRate = params.lfoAmSmRt;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -154,7 +155,7 @@ float Opzx3Core::getSample() {
             break;
         }
 
-        m_amSmooth += (amLfoVal - m_amSmooth) * 0.05f;
+        m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
         // Outputs
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;

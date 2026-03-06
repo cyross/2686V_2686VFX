@@ -136,6 +136,13 @@ namespace PrValue
 				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
 			}
+
+			namespace AmSmRt
+			{
+				inline constexpr float min = 0.005f;
+				inline constexpr float max = 0.5f;
+				inline constexpr float initial = 0.005f;
+			}
 		}
 
 		namespace Op
@@ -799,6 +806,13 @@ namespace PrValue
 				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
 			}
+
+			namespace AmSmRt
+			{
+				inline constexpr float min = 0.005f;
+				inline constexpr float max = 0.5f;
+				inline constexpr float initial = 0.005f;
+			}
 		}
 
 		namespace Op
@@ -1029,6 +1043,13 @@ namespace PrValue
 				inline constexpr int min = 0;
 				inline constexpr int max = 127;
 				inline constexpr int initial = 0;
+			}
+
+			namespace AmSmRt
+			{
+				inline constexpr float min = 0.005f;
+				inline constexpr float max = 0.5f;
+				inline constexpr float initial = 0.005f;
 			}
 		}
 
