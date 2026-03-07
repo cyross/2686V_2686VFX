@@ -105,8 +105,8 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 ## 操作マニュアル
 
-- Google ドキュメントにて提供いたします
-  - [2686V オペレーションマニュアル](https://docs.google.com/document/d/15j-xlIXjTfTPhNDFNUibMSHOStxEhvXMIdExFLiXkAw/edit?usp=sharing)
+- `GitHub Wiki` にて提供いたします
+  - [2686V オペレーションマニュアル](https://github.com/cyross/2686V_2686VFX/wiki/2686V-2686VFX-%E3%82%AA%E3%83%9A%E3%83%AC%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB)
   - **但し、ほとんど出来上がっておりませんので、気長にお待ちください…(ごめんなさい!)**
   - とはいえ、UIをご覧いただければ直感でお判りいただけるかと…
 
@@ -278,8 +278,8 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 ### 2026.03.07
 
 - v1.0.0
-- <2686V><2686VFX>パラメータ間の間隔を調整
-- <2686V><2686VFX>パラメータ間の高さを変更
+- <2686V><2686VFX>GUI:パラメータ間の間隔を調整
+- <2686V><2686VFX>GUI:パラメータ間の高さを変更
 - <2686V>OPZX3のアルゴリズムとして、MA-3のアルゴリズムを追加
 - <2686V>OPM/OPZX3にFB2を追加
 - <2686V>OPZX3/RYTHM/ADPCMに再生オフセットと再生長の割合設定を追加
