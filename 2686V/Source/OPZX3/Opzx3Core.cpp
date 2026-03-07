@@ -171,6 +171,7 @@ float Opzx3Core::getSample() {
         // =================================================================
         switch (m_algorithm) {
         case 0:
+            //	{{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},       // 00: <OPX-00>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -187,6 +188,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 1:
+            //	{{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])"}},      // 01: <OPX-01>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -205,6 +207,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 2:
+            //	{{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}},       // 02: <OPX-02>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -221,6 +224,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 3:
+            //	{{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}},       // 03: <OPX-03>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -237,6 +241,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 4:
+            //	{{"([M:FB->2])", "([M->4])", "([M->4])", "([C])"}},       // 04: <OPX-04>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -253,6 +258,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 5:
+            //	{{"([M:FB->2])", "([M:FB1->4])", "([M->4])", "([C])"}},   // 05: <OPX-05>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -271,6 +277,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 6:
+            //	{{"([M:FB->2])", "([C])", "([M->4])", "([C])"}},          // 06: <OPX-06>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -287,6 +294,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 7:
+            //	{{"([M->2])", "([C:FB1])", "([M->4])", "([C])"}},         // 07: <OPX-07>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -305,6 +313,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 8:
+            //	{{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},          // 08: <OPX-08>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -321,6 +330,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 9:
+            //	{{"([C:FB])", "([M->4])", "([M->4])", "([C])"}},          // 09: <OPX-09>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -337,6 +347,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 10:
+            //	{{"([M:FB->2])", "([C])", "([C])", "([C])"}},             // 10: <OPX-10>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -353,6 +364,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 11:
+            //	{{"([M->2])", "([C:FB1])", "([C])", "([C])"}},            // 11: <OPX-11>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -371,6 +383,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 12:
+            //	{{"([M:FB->2/3/4])", "([C])", "([C])", "([C])"}},         // 12: <OPX-12>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -387,6 +400,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 13:
+            //	{{"([C:FB])", "([M->3])", "([C])", "([C])"}},             // 13: <OPX-13>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -403,6 +417,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 14:
+            //	{{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])"}},    // 14: <OPX-14>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
@@ -420,6 +435,7 @@ float Opzx3Core::getSample() {
             finalOut = out1 + out2 + out4;
             break;
         case 15:
+            //	{{"([C:FB])", "([C])", "([C])", "([C])"}},                // 15: <OPX-15>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -436,106 +452,115 @@ float Opzx3Core::getSample() {
 
             break;
         case 16:
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[1].getSample(out2, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([M:FB->2])", "([M->3])", "([C])", "(--)"}},           // 16: <OPX-16>
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            finalOut = out2;
+            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            finalOut = out3;
 
             break;
         case 17:
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[0].pushFeedback(out3);
-
-            m_operators[1].getSample(out2, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([M->2])", "([M:FB1->3])", "([C])", "(--)"}},          // 17: <OPX-17>
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            finalOut = out2;
+            m_operators[0].pushFeedback(out2);
+
+            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            finalOut = out3;
 
             break;
         case 18:
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[1].getSample(out2, out1 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([M:FB->3])", "([M->3])", "([C])", "(--)"}},           // 18: <OPX-18>
+            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            finalOut = out2;
+            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            finalOut = out3;
 
             break;
         case 19:
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[1].getSample(out2, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([C:FB])", "([M->3])", "([C])", "(--)"}},              // 19: <OPX-19>
+            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
 
             finalOut = out1 + out2;
 
             break;
         case 20:
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([M:FB->2])", "([C])", "([C])", "(--)"}},              // 20: <OPX-20>
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            finalOut = out3 + out2;
-
-            break;
-        case 21:
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[0].pushFeedback(out3);
-
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            finalOut = out3 + out2;
-
-            break;
-        case 22:
             m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
 
+            finalOut = out2 + out3;
+
+            break;
+        case 21:
+            //	{{"([M->2])", "([C:FB1])", "([C])", "(--)"}},             // 21: <OPX-21>
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[0].pushFeedback(out2);
+
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            finalOut = out2 + out3;
+
+            break;
+        case 22:
+            //	{{"([C:FB])", "([C])", "([C])", "(--)"}},                 // 22: <OPX-22>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
 
             finalOut = out1 + out2 + out3;
 
             break;
         case 23:
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            //	{{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)"}},        // 23: <OPX-23>
+            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            finalOut = out1 + out3 + out2;
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+
+            if (m_opMask[2]) out3 = 0.0f;
+
+            finalOut = out1 + out2 + out3;
 
             break;
         case 24:
+            //	{{"([M:FB->2])", "([C])", "(--)", "(--)"}},               // 24: <OPX-24>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -544,6 +569,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 25:
+            //	{{"([M->2])", "([C:FB1])", "(--)", "(--)"}},              // 25: <OPX-25>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -554,6 +580,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 26:
+            //	{{"([C:FB])", "([C])", "([--])", "([--])"}},              // 26: <OPX-26>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -562,6 +589,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 27:
+            //	{{"([C:FB][M->2])", "([C])", "([--])", "([--])"}},        // 27: <OPX-27>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -570,6 +598,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 28:
+            //	{{"([M:FB->2])", "([C])", "([--])", "([--])"}},           // 28: <MA3-00>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -578,6 +607,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 29:
+            //	{{"([C:FB])", "([C])", "([--])", "([--])"}},              // 29: <MA3-01>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -586,6 +616,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 30:
+            //	{{"([C:FB])", "([C])", "([C:FB])", "([C])"}},             // 30: <MA3-02>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -602,6 +633,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 31:
+            //	{{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}}, // 31: <MA3-03>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -620,6 +652,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 32:
+            //	{{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},       // 32: <MA3-04>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -636,6 +669,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 33:
+            //	{{"([M:FB->2])", "([C])", "([M:FB->4])", "([C])"}},       // 33: <MA3-05>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -652,6 +686,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 34:
+            //	{{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},          // 34: <MA3-06>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -668,6 +703,7 @@ float Opzx3Core::getSample() {
 
             break;
         case 35:
+            //	{{"([C:FB])", "([M->3])", "([C])", "([C])"}}              // 35: <MA3-07>
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
@@ -696,7 +732,7 @@ float Opzx3Core::getSample() {
             // 3OPモード: OP3を空回し
             m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
         }
-        else if (m_algorithm >= 24) {
+        else if (m_algorithm >= 24 && m_algorithm <= 29) {
             // 2OPモード: OP2, OP3を空回し
             m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
             m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);

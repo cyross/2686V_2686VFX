@@ -260,20 +260,35 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
   - ソフトバンク
   - 1992年
 
+- 「MA-5 オーサリングツール ユーザーマニュアル(ATS-SMAFPhraseL2版)」
+  - ヤマハ株式会社 編
+  - ヤマハ株式会社
+  - 2006年
+
 - [Wikipedia: YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
 - [YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
 - [MAMEのFM271部分](https://git.libretro.com/libretro/mame/-/blob/f3218cc336813f24adf720e7c48b544e7bfc2d0e/src/devices/sound/ymf271.cpp)
 - [OPL3解析ドキュメント](https://moddingwiki.shikadi.net/wiki/OPL_chip)
+- [YAMAHA V50の取扱説明書](https://jp.yamaha.com/support/manuals/index.html?l=ja&k=V50)
 
 ## 更新履歴
 
 
 ### 2026.03.XX
 
-- v0.8.0
-- <2686V><2686VFX>UIの修正
-- <2686V><2686VFX>OPMにFB2を追加
-- <2686V>OPZX3/RHYTHM/ADPCMにPCM再生のオフセットと再成長の割合の指定を追加
+- <2686V><2686VFX>パラメータ間の間隔を調整
+- <2686V><2686VFX>パラメータ間の高さを変更
+- <2686V>OPZX3のアルゴリズムとして、MA-3のアルゴリズムを追加
+- <2686V>OPM/OPZX3にFB2を追加
+- <2686V>OPZX3/RYTHM/ADPCMに再生オフセットと再生長の割合設定を追加
+- <2686V>OPNA/OPN/OPL/OPL3/OPM/OPZX3のアルゴリズム表記を変更
+- <2686V>OPZX3で、アルゴリズムに依る未使用OPを非活性化
+- <2686V> **※破壊的変更** 各FM音源のアルゴリズムのオートメーション名の末尾を `_ALGORITHM` から、 `_ALG` に変更
+- <2686V> **※破壊的変更** 各FM音源のフィードバックのオートメーション名の末尾を `_FEEDBACK` / `_FEEDBACK2` から、 `_FB1` / `_FB3` に変更
+- <2686V>OPNA/OPN/OPL/OPL3/OPM/OPZX3のフィードバック表記を `FB1`、`FB1/2`、`FB3` に変更
+- <2686V>OPZX3で、MA-3系アルゴリズムを使用した時に想定外の波形になっていた問題を修正
+- Wikiをマニュアルとして利用開始
+- 他、細かな修正
 
 ### 2026.03.05
 
