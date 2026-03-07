@@ -135,7 +135,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
         // ウィンドウの幅を動的に変更
         int newWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
-        setSize(newWidth, GuiValue::Window::height); // 高さは固定、幅を伸縮
+        int height = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
+        setSize(newWidth, height); // 高さは固定、幅を伸縮
 
         // タイマーのON/OFFを切り替え
         updateTimerState();
