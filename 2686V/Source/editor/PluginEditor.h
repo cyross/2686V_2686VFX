@@ -3,6 +3,10 @@
 #include <array>
 #include <vector>
 #include <span>
+#include "../processor/PluginProcessor.h"
+#include "../fm/SliderRegMap.h"
+#include "../gui/GuiLF.h"
+#if !defined(BUILD_AS_FX_PLUGIN)
 #include "../OPNA/GuiOpna.h"
 #include "../OPN/GuiOpn.h"
 #include "../OPL/GuiOpl.h"
@@ -14,12 +18,11 @@
 #include "../RHYTHM/GuiRhythm.h"
 #include "../ADPCM/GuiAdpcm.h"
 #include "../BEEP/GuiBeep.h"
-#include "../FX/GuiFx.h"
 #include "../PRESET/GuiPreset.h"
+#endif
+#include "../FX/GuiFx.h"
 #include "../SETTINGS/GuiSettings.h"
 #include "../ABOUT/GuiAbout.h"
-#include "../processor/PluginProcessor.h"
-#include "../fm/SliderRegMap.h"
 
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,

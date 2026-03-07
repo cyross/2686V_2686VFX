@@ -4,16 +4,20 @@
 #include <utility>
 
 #include "PluginEditor.h"
+
 #include "../processor/PluginProcessor.h"
-#include "../core/GuiText.h"
-#include "../core/GuiValues.h"
+
 #include "../core/PrKeys.h"
 #include "../core/FileValues.h"
 #include "../core/PresetKeys.h"
-#include "../gui/GuiColor.h"
-#include "../gui/GuiContext.h"
+
 #include "../fm/SliderRegMap.h"
 #include "../fm/RegisterConverter.h"
+
+#include "../gui/GuiText.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiColor.h"
+#include "../gui/GuiContext.h"
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)

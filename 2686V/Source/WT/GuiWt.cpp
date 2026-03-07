@@ -1,13 +1,51 @@
 ﻿#include "GuiWt.h"
+
+#include <vector>
+
 #include "../processor/PluginProcessor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> wtWsItems = {
+    {.name = "0: Sine",          .value = 1 },
+    {.name = "1: Triangle",      .value = 2 },
+    {.name = "2: Saw Up",        .value = 3 },
+    {.name = "3: Saw Down",      .value = 4 },
+    {.name = "4: Square (50%)",  .value = 5 },
+    {.name = "5: Pulse (25%)",   .value = 6 },
+    {.name = "6: Pulse (12.5%)", .value = 7 },
+    {.name = "7: Digital Noise", .value = 8 },
+    {.name = "8: Custom(Draw)",  .value = 9 },
+};
+
+static std::vector<SelectItem> wtTsItems = {
+    {.name = "0: 32 Samples",  .value = 1 },
+    {.name = "1: 64 Samples",  .value = 2 },
+};
 
 void GuiWt::setup()
 {

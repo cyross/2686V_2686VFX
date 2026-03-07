@@ -1,8 +1,10 @@
 ﻿#include "PluginProcessor.h"
-#include "../core/GuiValues.h"
+
 #include "../core/PrNames.h"
 #include "../core/SettingsKeys.h"
 #include "../core/SettingsValues.h"
+
+#include "../gui/GuiValues.h"
 
 // ============================================================================
 // Constructor

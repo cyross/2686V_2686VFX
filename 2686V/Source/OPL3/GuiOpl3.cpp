@@ -1,8 +1,7 @@
 ﻿#include "GuiOpl3.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
+#include <vector>
+
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -11,6 +10,52 @@
 #include "../fm/RegisterConverter.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> opl3AlgItems = {
+    {.name = "00: <OPL3-00>", .value = 1 },
+    {.name = "01: <OPL3-01>", .value = 2 },
+    {.name = "02: <OPL3-02>", .value = 3 },
+    {.name = "03: <OPL3-03>", .value = 4 },
+};
+
+static std::vector<SelectItem> kslItems = {
+    {.name = "KSL: 0", .value = 1},
+    {.name = "KSL: 1", .value = 2},
+    {.name = "KSL: 2", .value = 3},
+    {.name = "KSL: 3", .value = 4}
+};
+
+static std::vector<SelectItem> opl3EgItems = {
+    {.name = "0: Sine",                 .value = 1},
+    {.name = "1: Half Sine",            .value = 2},
+    {.name = "2: Abs Sine",             .value = 3},
+    {.name = "3: Pulse",                .value = 4},
+    {.name = "4: Alternative Sine",     .value = 5},
+    {.name = "5: Alternative Abs Sine", .value = 6},
+    {.name = "6: Square",               .value = 7},
+    {.name = "7: Derived Square",       .value = 8},
+};
 
 void GuiOpl3::setup()
 {

@@ -4,7 +4,6 @@
 #include <array>
 
 #include "../core/Global.h"
-#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
