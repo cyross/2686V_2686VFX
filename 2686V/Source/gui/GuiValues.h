@@ -95,8 +95,8 @@ namespace GuiValue
 
 	namespace Category
 	{
-		static inline constexpr int paddingTop = 2;
-		static inline constexpr int paddingBotton = 2;
+		static inline constexpr int paddingTop = 4;
+		static inline constexpr int paddingBotton = 3;
 	}
 
 	namespace PaddingTop
@@ -236,6 +236,14 @@ namespace GuiValue
 		static inline constexpr int height = 20;
 	}
 
+	namespace ParamGroup
+	{
+		namespace Row
+		{
+			static inline constexpr int paddingTop = 2;
+		}
+	}
+
 	namespace Fm
 	{
 		namespace Op
@@ -361,17 +369,23 @@ namespace GuiValue
 		static constexpr int samples32 = 32;
 		static constexpr int samples64 = 64;
 
-		static constexpr int Height = 640;
+		static constexpr int Height = 680;
 
 		static constexpr int RightWidth = 1000;
-		static constexpr int RightHeight = 560;
+		static constexpr int RightHeight = 660;
 
 		namespace Custom
 		{
 			namespace Slider
 			{
 				static constexpr int Width = 30;
-				static constexpr int Height = 480;
+				static constexpr int Height = 600;
+			}
+
+			namespace SetBtn
+			{
+				static constexpr int height = 10;
+				static constexpr int paddingBottom = 2;
 			}
 
 			namespace ResetBtn

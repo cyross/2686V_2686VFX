@@ -6,6 +6,7 @@
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
+#include "../gui/GuiValues.h"
 
 // ==========================================================
 // Waveform Drawing Container
@@ -105,8 +106,8 @@ public:
 
         sliderWidth = (float)getWidth() / tableSize;
 
-        int btnHeight = 10;
-        int sliderHeight = getHeight() - (btnHeight * 5);
+        int btnHeight = GuiValue::Wt::Custom::SetBtn::height;
+        int sliderHeight = getHeight() - ((btnHeight + +GuiValue::Wt::Custom::SetBtn::paddingBottom) * 5);
 
         for (size_t i = 0; i < tableSize; ++i)
         {
@@ -115,10 +116,10 @@ public:
 
             wts[i]->setBounds(x, 0, w, sliderHeight);
             maxBtns[i]->setBounds(x, sliderHeight, w, btnHeight);
-            halfMaxBtns[i]->setBounds(x, sliderHeight + btnHeight, w, btnHeight);
-            zeroBtns[i]->setBounds(x, sliderHeight + btnHeight * 2, w, btnHeight);
-            halfMinBtns[i]->setBounds(x, sliderHeight + btnHeight * 3, w, btnHeight);
-            minBtns[i]->setBounds(x, sliderHeight + btnHeight * 4, w, btnHeight);
+            halfMaxBtns[i]->setBounds(x, sliderHeight + btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom, w, btnHeight);
+            zeroBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 2, w, btnHeight);
+            halfMinBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 3, w, btnHeight);
+            minBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 4, w, btnHeight);
         }
     }
 
