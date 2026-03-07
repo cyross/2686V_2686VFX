@@ -258,7 +258,7 @@ namespace PrValue
 			namespace SeFreq
 			{
 				inline constexpr float min = 0.1f; // 最小値
-				inline constexpr float max = 20.0f; // 最大値
+				inline constexpr float max = 30.0f; // 最大値
 				inline constexpr float initial = 1.0f; // 初期値
 			}
 
@@ -910,7 +910,7 @@ namespace PrValue
 			namespace SeFreq
 			{
 				inline constexpr float min = 0.1f; // 最小値
-				inline constexpr float max = 20.0f; // 最大値
+				inline constexpr float max = 30.0f; // 最大値
 				inline constexpr float initial = 1.0f; // 初期値
 			}
 
@@ -1141,7 +1141,7 @@ namespace PrValue
 			namespace Ws
 			{
 				inline constexpr int min = 0;
-				inline constexpr int max = 31;
+				inline constexpr int max = 62;
 				inline constexpr int initial = 0;
 			}
 
@@ -1155,7 +1155,7 @@ namespace PrValue
 			namespace SeFreq
 			{
 				inline constexpr float min = 0.1f; // 最小値
-				inline constexpr float max = 20.0f; // 最大値
+				inline constexpr float max = 30.0f; // 最大値
 				inline constexpr float initial = 1.0f; // 初期値
 			}
 

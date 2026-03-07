@@ -558,6 +558,93 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
                 return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
             }
             return s;
+        case 32:
+            return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
+        case 33:
+        {
+            float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+            return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        }
+        case 34:
+            return (1.0f - normPhase * 2.0f);
+        case 35:
+            return (normPhase * 2.0f - 1.0f);
+        case 36:
+            return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
+        case 37:
+            return (normPhase < 0.25f ? 1.0f : -1.0f);
+        case 38:
+            return (normPhase < 0.125f ? 1.0f : -1.0f);
+        case 39:
+            return (normPhase < 0.0625f ? 1.0f : -1.0f);
+        case 40:
+            return std::tanh(s * 5.0f);
+        case 41:
+            return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+        case 42:
+            return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
+        case 43:
+            return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
+        case 44:
+            return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
+        case 45:
+        {
+            float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+            return tri * std::sin(p * 3.0f);
+        }
+        case 46:
+            return s * s * s;
+        case 47:
+            return std::sin(p) * std::sin(p * 2.0f);
+        case 48:
+            return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
+        case 49:
+            return s * std::cos(p * 2.5f);
+        case 50:
+            return std::sin(p) * std::sin(p * 1.414f);
+        case 51:
+            return std::sin(p) * std::cos(p * 0.5f);
+        case 52:
+            return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
+        case 53: // PD Resonance (Casio CZ Style)
+            return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f;
+        case 54: // PD Resonance High
+        return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f;
+        case 55: // 4-Step Sine (Super Lo-Fi)
+            return std::round(s * 2.0f) / 2.0f;
+        case 56: // 8-Step Sine (Slightly Lo-Fi)
+        return std::round(s * 4.0f) / 4.0f;
+        case 57: // Wavefolded Sine (Soft)
+        {
+            float fs = s * 1.5f; // 1.5倍に増幅
+            // 1.0を超えたら折り返す、-1.0を下回っても折り返す
+            if (fs > 1.0f) return 2.0f - fs;
+            if (fs < -1.0f) return -2.0f - fs;
+            return fs;
+        }
+        case 58: // Wavefolded Sine (Hard / Double fold)
+        {
+            float fs = s * 2.5f; // さらに増幅して2回折り返す
+            return std::sin(fs * juce::MathConstants<float>::halfPi); // サイン関数を使うと滑らかに何度も折り返せます
+        }
+        case 59: // Bitwise XOR Fractal
+        {
+            uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
+            // 位相と「位相を1ビットずらした値」をXOR合成
+            uint8_t xorVal = phaseInt ^ (phaseInt >> 1);
+            // 0.0 ~ 1.0 に戻して -1.0 ~ 1.0 にスケール
+            return ((float)xorVal / 255.0f) * 2.0f - 1.0f;
+        }
+        case 60: // Bitwise AND Texture
+        {
+            uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
+            uint8_t andVal = phaseInt & (phaseInt << 1);
+            return ((float)andVal / 255.0f) * 2.0f - 1.0f;
+        }
+        case 61: // Self-Modulated Sine (Feedback = 1)
+            return std::sin(p + 1.0f * std::sin(p));
+        case 62: // Self-Modulated Sine (Feedback = 2, slightly harsh)
+            return std::sin(p + 2.0f * std::sin(p));
         default: return s;
         }
     }
