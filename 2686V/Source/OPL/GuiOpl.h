@@ -11,6 +11,24 @@
 
 class GuiOpl : public GuiBase
 {
+    /*
+     * アルゴリズムのオペレータ表記凡例
+     * 2026.3.7 CYROSS
+     *
+     * [C] : キャリアー(出力はオーディオ出力)
+     * [M->n] : n番オペレータへ出力するモジュレーター
+     * [C:FB] : 自身へフィードバックもするキャリアー
+     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
+     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
+     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
+     */
+    static inline const std::array<std::array<juce::String, 2>, 2> algOpPrefix = { {
+        {{"([M:FB->2])", "([C])"}}, // 00
+        {{"([C:FB])", "([C])"}}     // 01
+    } };
+
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op2> opGroups;
 
@@ -107,4 +125,6 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void updateOpEnable(int idx, bool enable);
+    void updateAlgorithmDisplay();
 };

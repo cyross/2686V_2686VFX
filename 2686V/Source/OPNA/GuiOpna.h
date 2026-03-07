@@ -10,6 +10,30 @@
 
 class GuiOpna : public GuiBase
 {
+    /*
+     * アルゴリズムのオペレータ表記凡例
+     * 2026.3.7 CYROSS
+     *
+     * [C] : キャリアー(出力はオーディオ出力)
+     * [M->n] : n番オペレータへ出力するモジュレーター
+     * [C:FB] : 自身へフィードバックもするキャリアー
+     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
+     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
+     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
+     */
+    static inline const std::array<std::array<juce::String, 4>, 8> algOpPrefix = {{
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}}, // 00
+        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}}, // 01
+        {{"([M->2])", "([M->4])", "([M:FB->4])", "([C])"}}, // 02
+        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])"}}, // 03
+        {{"([M:FB->2])", "([C])", "([M->4])", "([C])"}},    // 04
+        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])"}},   // 05
+        {{"([M:FB->2])", "([C])", "([C])", "([C])"}},       // 06
+        {{"([C:FB])", "([C])", "([C])", "([C])"}}           // 07
+    }};
+
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
     std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
@@ -122,4 +146,6 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void updateOpEnable(int idx, bool enable);
+    void updateAlgorithmDisplay();
 };

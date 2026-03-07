@@ -68,7 +68,7 @@ namespace GuiText
 	namespace Group
 	{
 		static inline const juce::String mainGroup = "Main";
-		static inline const juce::String opPrefix = "Operator ";
+		static inline const juce::String opPrefix = "OP";
 		static inline const juce::String voice = "Voice";
 		static inline const juce::String ssgDuty = "Pulse Width (Duty)";
 		static inline const juce::String ssgTri = "Triangle Property";

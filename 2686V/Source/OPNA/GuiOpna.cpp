@@ -24,6 +24,9 @@ void GuiOpna::setup()
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
 
     algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opnaAlgItems, .isReset = true });
+    algSelector.onChange = [this] {
+        updateAlgorithmDisplay();
+    };
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
 
@@ -163,6 +166,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
+
+    updateAlgorithmDisplay();
 }
 
 
@@ -229,5 +234,64 @@ void GuiOpna::applyMmlString(const juce::String& mml, int opIndex)
     else {
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opna::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
+    }
+}
+
+void GuiOpna::updateOpEnable(int idx, bool enable)
+{
+    catMain[idx].setEnabled(enable);
+    mul[idx].setEnabled(enable);
+    mul[idx].label.setEnabled(enable);
+    dt[idx].setEnabled(enable);
+    dt[idx].label.setEnabled(enable);
+    ar[idx].setEnabled(enable);
+    ar[idx].label.setEnabled(enable);
+    dr[idx].setEnabled(enable);
+    dr[idx].label.setEnabled(enable);
+    sl[idx].setEnabled(enable);
+    sl[idx].label.setEnabled(enable);
+    rr[idx].setEnabled(enable);
+    rr[idx].label.setEnabled(enable);
+    sr[idx].setEnabled(enable);
+    sr[idx].label.setEnabled(enable);
+    tl[idx].setEnabled(enable);
+    tl[idx].label.setEnabled(enable);
+    ks[idx].setEnabled(enable);
+    ks[idx].label.setEnabled(enable);
+    catShape[idx].setEnabled(enable);
+    se[idx].setEnabled(enable);
+    se[idx].label.setEnabled(enable);
+    seFreq[idx].setEnabled(enable);
+    seFreq[idx].label.setEnabled(enable);
+    cafFix[idx].setEnabled(enable);
+    fix[idx].setEnabled(enable);
+    freq[idx].setEnabled(enable);
+    freq[idx].label.setEnabled(enable);
+    freqToZero[idx].setEnabled(enable);
+    freqTo440[idx].setEnabled(enable);
+    catLfo[idx].setEnabled(enable);
+    pm[idx].setEnabled(enable);
+    pms[idx].setEnabled(enable);
+    pms[idx].label.setEnabled(enable);
+    am[idx].setEnabled(enable);
+    ams[idx].setEnabled(enable);
+    ams[idx].label.setEnabled(enable);
+    catMask[idx].setEnabled(enable);
+    mask[idx].setEnabled(enable);
+    catMml[idx].setEnabled(enable);
+    mml[idx].setEnabled(enable);
+}
+
+void GuiOpna::updateAlgorithmDisplay()
+{
+    int algIndex = algSelector.getSelectedItemIndex();
+
+    if (algIndex < 0 || algIndex > 7) return;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
+
+        opGroups[i].setText(newTitle);
     }
 }
