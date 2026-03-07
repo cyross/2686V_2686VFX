@@ -99,8 +99,9 @@ namespace GuiText
 	namespace Fm
 	{
 		static inline const juce::String alg = "ALG";
-		static inline const juce::String fb0 = "FB0";
-		static inline const juce::String fb2 = "FB2";
+		static inline const juce::String fb0 = "FB1";
+		static inline const juce::String fb01 = "FB1/2";
+		static inline const juce::String fb2 = "FB3";
 		static inline const juce::String lfoFreq = "L.FREQ";
 		static inline const juce::String lfoShape = "L.SHAPE";
 		static inline const juce::String amEn = "L.AM-EN";

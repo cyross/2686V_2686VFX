@@ -29,7 +29,7 @@ void GuiOpzx3::setup()
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
-    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb01, .isReset = true });
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
@@ -147,6 +147,7 @@ void GuiOpzx3::setup()
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
     }
 }
+
 void GuiOpzx3::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
