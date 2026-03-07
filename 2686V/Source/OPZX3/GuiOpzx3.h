@@ -64,6 +64,46 @@ class GuiOpzx3 : public GuiBase
         {{"([C:FB])", "([M->3])", "([C])", "([C])"}}              // 35: <MA3-07>
     }};
 
+    // アルゴリズムごとに利用可能なオペレーターを制限
+    static inline const std::array<std::array<bool, 4>, 36> opEnableOnAlg = { {
+    {{true, true, true, true}},   // 00: <OPX-00>
+    {{true, true, true, true}},   // 01: <OPX-01>
+    {{true, true, true, true}},   // 02: <OPX-02>
+    {{true, true, true, true}},   // 03: <OPX-03>
+    {{true, true, true, true}},   // 04: <OPX-04>
+    {{true, true, true, true}},   // 05: <OPX-05>
+    {{true, true, true, true}},   // 06: <OPX-06>
+    {{true, true, true, true}},   // 07: <OPX-07>
+    {{true, true, true, true}},   // 08: <OPX-08>
+    {{true, true, true, true}},   // 09: <OPX-09>
+    {{true, true, true, true}},   // 10: <OPX-10>
+    {{true, true, true, true}},   // 11: <OPX-11>
+    {{true, true, true, true}},   // 12: <OPX-12>
+    {{true, true, true, true}},   // 13: <OPX-13>
+    {{true, true, true, true}},   // 14: <OPX-14>
+    {{true, true, true, true}},   // 15: <OPX-15>
+    {{true, true, true, false}},  // 16: <OPX-16>
+    {{true, true, true, false}},  // 17: <OPX-17>
+    {{true, true, true, false}},  // 18: <OPX-18>
+    {{true, true, true, false}},  // 19: <OPX-19>
+    {{true, true, true, false}},  // 20: <OPX-20>
+    {{true, true, true, false}},  // 21: <OPX-21>
+    {{true, true, true, false}},  // 22: <OPX-22>
+    {{true, true, true, false}},  // 23: <OPX-23>
+    {{true, true, false, false}}, // 24: <OPX-24>
+    {{true, true, false, false}}, // 25: <OPX-25>
+    {{true, true, false, false}}, // 26: <OPX-26>
+    {{true, true, false, false}}, // 27: <OPX-27>
+    {{true, true, false, false}}, // 28: <MA3-00>
+    {{true, true, false, false}}, // 29: <MA3-01>
+    {{true, true, true, true}},   // 30: <MA3-02>
+    {{true, true, true, true}},   // 31: <MA3-03>
+    {{true, true, true, true}},   // 32: <MA3-04>
+    {{true, true, true, true}},   // 33: <MA3-05>
+    {{true, true, true, true}},   // 34: <MA3-06>
+    {{true, true, true, true}}    // 35: <MA3-07>
+} };
+
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
