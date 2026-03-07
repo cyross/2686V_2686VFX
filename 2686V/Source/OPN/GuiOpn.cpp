@@ -167,18 +167,18 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sr[i].label, .component = &sr[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sr[i].label, .component = &sr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &cafFix[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRFixFreqBtns({ .rect = innerRect, .to0Btn = &freqToZero[i], .to440Btn = &freqTo440[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });

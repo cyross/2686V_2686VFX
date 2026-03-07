@@ -331,13 +331,13 @@ void AudioPlugin2686VEditor::setupLogo()
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
-    logoLabel.setFont(juce::Font(GuiValue::About::PluginName::fontFamily, GuiValue::About::PluginName::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(GuiValue::WaterMarkLogo::fontFamily, GuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
 
     // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
 
     // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(0.3f)); // 0.3fで透かし風
+    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(GuiValue::WaterMarkLogo::fontAlpha));
 
     addAndMakeVisible(logoLabel);
 

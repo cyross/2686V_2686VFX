@@ -170,11 +170,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &toneCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRSsgMixRow({ .rect = vRect, .toneBtn = &mixSetTone, .mixBtn =  &mixSetMix, .noizeBtn = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
@@ -212,7 +212,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseDutyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
@@ -265,7 +265,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
         triFreqSlider.setVisible(!isKeyTrack);
@@ -280,7 +280,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         }
 
         layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRSsgTriPosRow({ .rect = tRect, .sawDownBtn = &triSetSawDown, .triBtn = &triSetTri, .sawUpBtn = &triSetSawUp, .paddingBottom = 0 });
     }
 
@@ -292,7 +292,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &hwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton });
-    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
 }
