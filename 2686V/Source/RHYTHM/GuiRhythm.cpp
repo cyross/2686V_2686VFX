@@ -1,17 +1,41 @@
 ﻿#include "GuiRhythm.h"
+
+#include <vector>
+
 #include "../editor/PluginEditor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/FileValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> qualityItems = {
+    {.name = "1: Raw (32bit)", .value = 1 },
+    {.name = "2: 24-bit PCM",  .value = 2 },
+    {.name = "3: 16-bit PCM",  .value = 3 },
+    {.name = "4: 8-bit PCM",   .value = 4 },
+    {.name = "5: 5-bit PCM",   .value = 5 },
+    {.name = "6: 4-bit PCM",   .value = 6 },
+    {.name = "7: 4-bit ADPCM", .value = 7 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
+    juce::Logger::getCurrentLogger()->writeToLog(fileName);
     fileNameLabel.setText(fileName, juce::dontSendNotification);
 }
 
@@ -45,6 +69,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             // 2. ファイル名表示を更新
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
+
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmOffset, .title = GuiText::Rhythm::Pad::pcmOffset, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
@@ -94,18 +121,20 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRMain({ .mainRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRhythmPadPanRow({ .rect = padRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
 }
 

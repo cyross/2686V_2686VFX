@@ -1,6 +1,9 @@
 ﻿#include "FxCore.h"
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
+
+#include <vector>
+
+//#include "../gui/GuiValues.h"
+//#include "../gui/GuiText.h"
 #include "../core/PrKeys.h"
 
 void FxRetroLfo::prepare(double sampleRate) {

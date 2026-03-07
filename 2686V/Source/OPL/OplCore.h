@@ -36,4 +36,7 @@ private:
     float m_modWheel = 0.0f;
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
+
+    std::array<double, 2> m_amPhases{ 0.0, 0.0 };
+    std::array<double, 2> m_vibPhases{ 0.0, 0.0 };
 };

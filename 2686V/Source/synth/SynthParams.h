@@ -37,12 +37,21 @@ struct FmOpParams
     int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
     int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
 
+    // --- OPL/OPL3 LFO Settings ---
+    float oplAms = 3.7f;  // AM Speed (Hz)
+    float oplAmd = 4.8f;  // AM Depth (dB)
+    float oplPms = 6.4f;  // PM Speed (Hz)
+    float oplPmd = 14.0f; // PM Depth (Cent)
+
     // CSM/Fix Mode
     bool fixedMode = false;
     float fixedFreq = 440.0f;
 
     // Wave Select (0:Sine, 1:Half, 2:Abs, 3:Quarter)
     int waveSelect = 0;
+
+    float pcmOffset = 0.0f; // ms
+    float pcmRatio = 1.0f;
 };
 
 struct RhythmPadParams
@@ -59,6 +68,9 @@ struct RhythmPadParams
     bool isOneShot = true;
 
     float release = 0.1f;
+
+    float pcmOffset = 0.0f; // ms
+    float pcmRatio = 1.0f;
 };
 
 struct SimpleAdsr { float a = 0.01f, d = 0.0f, s = 1.0f, r = 0.2f; };
@@ -117,12 +129,14 @@ struct SynthParams
     // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     int lfoWave = 2;
 
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index
 
     // Parameters for Operator
     std::array<FmOpParams, MaxFmOperators> fmOp;
-
 
     // [[ SSG Parameters ]]
 
@@ -254,6 +268,9 @@ struct SynthParams
     int adpcmRootNote = 60; // Root Key (Middle C)
     int adpcmQualityMode = 6; // Default: ADPCM
     int adpcmRateIndex = 3;   // Default: 16kHz
+
+    float adpcmPcmOffset = 0.0f; // ms
+    float adpcmPcmRatio = 1.0f;
 
     // --- ADSR Filter ---
 

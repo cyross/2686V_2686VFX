@@ -21,6 +21,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Fm::Lfo::pm, code + PrName::Fm::Post::Lfo::pm, PrValue::Opna::Lfo::Pm::initial)); // PM Enable (Switch)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pms, code + PrName::Fm::Post::Lfo::pms, PrValue::Opna::Lfo::Pms::min, PrValue::Opna::Lfo::Pms::max, PrValue::Opna::Lfo::Pms::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::ams, code + PrName::Fm::Post::Lfo::ams, PrValue::Opna::Lfo::Ams::min, PrValue::Opna::Lfo::Ams::max, PrValue::Opna::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::amSmoothRatio, code + PrName::Fm::Post::Lfo::amSmoothRatio, PrValue::Opna::Lfo::AmSmRt::min, PrValue::Opna::Lfo::AmSmRt::max, PrValue::Opna::Lfo::AmSmRt::initial));
 
     for (int op = 0; op < PrValue::Opna::ops; ++op)
     {
@@ -58,6 +59,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
     params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
     params.lfoFreq = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::freq);
+    params.lfoAmSmRt = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::amSmoothRatio);
     params.amEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::am) > PrValue::boolThread);
     params.pmEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pm) > PrValue::boolThread);
     params.lfoPms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pms);
@@ -89,6 +91,10 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
         params.fmOp[op].ams = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
         params.fmOp[op].egType = true;
+        params.fmOp[op].oplAms = 0.0f;
+        params.fmOp[op].oplAmd = 0.0f;
+        params.fmOp[op].oplPms = 0.0f;
+        params.fmOp[op].oplPmd = 0.0f;
         params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
     }
 }

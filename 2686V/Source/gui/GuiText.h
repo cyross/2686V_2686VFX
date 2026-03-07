@@ -68,7 +68,7 @@ namespace GuiText
 	namespace Group
 	{
 		static inline const juce::String mainGroup = "Main";
-		static inline const juce::String opPrefix = "Operator ";
+		static inline const juce::String opPrefix = "OP";
 		static inline const juce::String voice = "Voice";
 		static inline const juce::String ssgDuty = "Pulse Width (Duty)";
 		static inline const juce::String ssgTri = "Triangle Property";
@@ -99,15 +99,18 @@ namespace GuiText
 	namespace Fm
 	{
 		static inline const juce::String alg = "ALG";
-		static inline const juce::String fb0 = "FB0";
-		static inline const juce::String fb2 = "FB2";
+		static inline const juce::String fb0 = "FB1";
+		static inline const juce::String fb01 = "FB1/2";
+		static inline const juce::String fb2 = "FB3";
 		static inline const juce::String lfoFreq = "L.FREQ";
+		static inline const juce::String lfoShape = "L.SHAPE";
 		static inline const juce::String amEn = "L.AM-EN";
 		static inline const juce::String pmEn = "L.PM-EN";
 		static inline const juce::String ams = "L.AMS";
 		static inline const juce::String pms = "L.PMS";
 		static inline const juce::String amd = "L.AMD";
 		static inline const juce::String pmd = "L.PMD";
+		static inline const juce::String amSmoothRatio = "L.ASMRT";
 
 		namespace Op
 		{
@@ -141,6 +144,8 @@ namespace GuiText
 			static inline const juce::String Vib = "VIB";
 			static inline const juce::String Ams = "AMS";
 			static inline const juce::String Pms = "PMS";
+			static inline const juce::String Amd = "AMD";
+			static inline const juce::String Pmd = "PMD";
 			static inline const juce::String EgType = "EGTYPE";
 			static inline const juce::String Eg = "EG";
 			static inline const juce::String Ws = "WS";
@@ -151,6 +156,8 @@ namespace GuiText
 			static inline const juce::String Opzx3FreqTo1 = "->1";
 			static inline const juce::String Opzx3FreqTo2 = "->2";
 			static inline const juce::String Opzx3FreqTo440 = "->440";
+			static inline const juce::String PcmOffset = "OFFSET";
+			static inline const juce::String PcmRatio = "RATIO";
 		}
 	}
 
@@ -231,6 +238,8 @@ namespace GuiText
 			static inline const juce::String oneShot = "One Shot";
 			static inline const juce::String pan = "Pan";
 			static inline const juce::String rr = "RR";
+			static inline const juce::String pcmOffset = "OFFSET";
+			static inline const juce::String pcmRatio = "RATIO";
 
 			namespace Pan
 			{
@@ -248,6 +257,8 @@ namespace GuiText
 		static inline const juce::String quality = "Bit";
 		static inline const juce::String rate = "Rate";
 		static inline const juce::String loop = "Loop";
+		static inline const juce::String pcmOffset = "OFFSET";
+		static inline const juce::String pcmRatio = "RATIO";
 
 		namespace Pan
 		{

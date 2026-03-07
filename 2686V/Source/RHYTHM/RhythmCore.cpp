@@ -20,6 +20,9 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_isOneShot = params.isOneShot;
     m_releaseParam = params.release;
 
+    m_pcmOffset = params.pcmOffset;
+    m_pcmRatio = params.pcmRatio;
+
     bool needRefresh = false;
     if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
     if (m_rateIndex != params.rateIndex) {
@@ -45,9 +48,11 @@ void RhythmPad::triggerRelease(double hostSampleRate)
 
 void RhythmPad::start()
 {
-    m_position = 0.0;
-    m_state = State::Playing; // 再生状態へ
-    m_currentEnv = 1.0f;      // 音量は最大から
+    double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
+    m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
+
+    m_state = State::Playing;
+    m_currentEnv = 1.0f;
 }
 
 void RhythmPad::stop()
@@ -79,48 +84,57 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     // ---------------------------
 
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
-
-    // 再生速度にピッチ比率を掛ける
     double increment = (currentBufferRate / hostSampleRate) * pitchRatio;
 
+    // 総サイズと再生終了位置の計算
+    size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
+    if (totalSize == 0) return 0.0f;
+
+    double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
+    if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+    double remainingSize = totalSize - offsetSamples;
+    double playSize = remainingSize * m_pcmRatio;
+    if (playSize < 1.0) playSize = 1.0;
+
+    double endPosition = offsetSamples + playSize;
+
     float output = 0.0f;
-    size_t bufferSize = 0;
 
-    if (m_qualityMode == adpcmMode) // ADPCM Playback
+    // ループと終端の判定を endPosition に基づいて行う
+    if (m_qualityMode == adpcmMode)
     {
-        bufferSize = m_adpcmBuffer.size();
-        if (m_adpcmBuffer.empty()) return 0.0f;
-
-        if (m_position >= bufferSize) {
+        if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle; // Stop
+                m_state = State::Idle;
                 return 0.0f;
             }
-            else { m_position = std::fmod(m_position, (double)bufferSize); }
+            else {
+                // ループ時はオフセット位置に戻る
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+            }
         }
 
         int idx = (int)m_position;
-        if (idx >= bufferSize) idx = 0;
+        if (idx >= totalSize) idx = offsetSamples; // 安全ガード
         output = m_adpcmBuffer[idx] / 32768.0f;
     }
     else // Raw / PCM Playback
     {
-        bufferSize = m_rawBuffer.size();
-        if (m_rawBuffer.empty()) return 0.0f;
-
-
-        if (m_position >= bufferSize) {
+        if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle; // Stop
+                m_state = State::Idle;
                 return 0.0f;
             }
-            else { m_position = std::fmod(m_position, (double)bufferSize); }
+            else {
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+            }
         }
 
-        // Linear Interpolation
         int idx0 = (int)m_position;
         int idx1 = idx0 + 1;
-        if (idx1 >= bufferSize) idx1 = 0;
+        // ループ端の処理
+        if (idx1 >= endPosition || idx1 >= totalSize) idx1 = offsetSamples;
 
         float frac = (float)(m_position - idx0);
         output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
@@ -129,7 +143,6 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     }
 
     m_position += increment;
-
     return output * m_level * m_currentEnv;
 }
 

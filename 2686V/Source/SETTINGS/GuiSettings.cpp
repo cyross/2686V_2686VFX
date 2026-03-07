@@ -1,16 +1,19 @@
 ﻿#include "GuiSettings.h"
+
+#include <vector>
+
 #include "../editor/PluginEditor.h"
 #include "../gui/GuiColor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/FileValues.h"
 #include "../core/PrKeys.h"
 #include "../core/SettingsKeys.h"
 #include "../core/SettingsValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
 
 void GuiSettings::setup()
 {

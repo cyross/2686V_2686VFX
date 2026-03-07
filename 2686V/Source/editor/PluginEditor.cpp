@@ -4,16 +4,20 @@
 #include <utility>
 
 #include "PluginEditor.h"
+
 #include "../processor/PluginProcessor.h"
-#include "../core/GuiText.h"
-#include "../core/GuiValues.h"
+
 #include "../core/PrKeys.h"
 #include "../core/FileValues.h"
 #include "../core/PresetKeys.h"
-#include "../gui/GuiColor.h"
-#include "../gui/GuiContext.h"
+
 #include "../fm/SliderRegMap.h"
 #include "../fm/RegisterConverter.h"
+
+#include "../gui/GuiText.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiColor.h"
+#include "../gui/GuiContext.h"
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
@@ -131,7 +135,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
         // ウィンドウの幅を動的に変更
         int newWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
-        setSize(newWidth, GuiValue::Window::height); // 高さは固定、幅を伸縮
+        int height = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
+        setSize(newWidth, height); // 高さは固定、幅を伸縮
 
         // タイマーのON/OFFを切り替え
         updateTimerState();
@@ -327,13 +332,13 @@ void AudioPlugin2686VEditor::setupLogo()
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
-    logoLabel.setFont(juce::Font(GuiValue::About::PluginName::fontFamily, GuiValue::About::PluginName::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(GuiValue::WaterMarkLogo::fontFamily, GuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
 
     // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
 
     // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(0.3f)); // 0.3fで透かし風
+    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(GuiValue::WaterMarkLogo::fontAlpha));
 
     addAndMakeVisible(logoLabel);
 
@@ -736,6 +741,34 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
             }
 
             rhythmGui->updatePadFileName(i, text);
+        }
+    }
+}
+
+void AudioPlugin2686VEditor::updateOpzx3FileNames(const juce::String filename)
+{
+    if (filename == Io::empty) {
+        for (int i = 0; i < 4; ++i)
+        {
+            opzx3Gui->updatePcmFileName(i, filename);
+        }
+
+    }
+    else {
+        for (int i = 0; i < 4; ++i)
+        {
+            juce::String path = audioProcessor.opzx3PcmFilePaths[i];
+            juce::String text = Io::empty;
+
+            if (path.isNotEmpty())
+            {
+                // パスが存在すればファイル名を取得
+                // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
+                juce::File f = audioProcessor.resolvePath(path);
+                text = f.getFileName();
+            }
+
+            opzx3Gui->updatePcmFileName(i, text);
         }
     }
 }

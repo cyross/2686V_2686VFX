@@ -40,5 +40,18 @@ private:
     bool m_pm = false;
     bool m_am = false;
 
+    int m_lfoWave = 0; // 0:Sine, 1:Saw, 2:Square, 3:Tri, 4:Noise
+    unsigned int m_lfsr = 0x1FFFF;
+    float m_noisePhase = 0.0f;
+    float m_noiseDelta = 0.0f;
+    float m_currentNoiseSample = 0.0f;
+    float m_targetNoiseFreq = 12000.0f;
+    float m_amSmooth = 0.0f;
+    float m_amSmoothRate = 0.005f;
+
     float m_modWheel = 0.0f;
+
+    void updateNoiseDelta(double targetRate) {
+        if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
+    }
 };

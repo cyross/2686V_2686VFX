@@ -1,13 +1,66 @@
 ﻿#include "GuiSsg.h"
+
+#include <vector>
+
 #include "../processor/PluginProcessor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> ssgEnvItems = {
+    {.name = "0: Saw Down",                    .value = 1 },
+    {.name = "1: Saw Down & Hold",             .value = 2 },
+    {.name = "2: Triangle",                    .value = 3 },
+    {.name = "3: Alternative Saw Down & Hold", .value = 4 },
+    {.name = "4: Saw Up",                      .value = 5 },
+    {.name = "5: Saw Up & Hold",               .value = 6 },
+    {.name = "6: Triangle Invert",             .value = 7 },
+    {.name = "7: Alternative Saw Up & Hold",   .value = 8 },
+};
+
+static std::vector<SelectItem> ssgPrItems = {
+    {.name = "0: 1:1 (50%)",     .value = 1 },
+    {.name = "1: 3:5 (37.5%)",   .value = 2 },
+    {.name = "2: 5:11 (31.25%)", .value = 3 },
+    {.name = "3: 1:3 (25%)",     .value = 4 },
+    {.name = "4: 1:4 (20%)",     .value = 5 },
+    {.name = "5: 3:13 (18.75%)", .value = 6 },
+    {.name = "6: 1:7 (12.5%)",   .value = 7 },
+    {.name = "7: 1:15 (6.25%)",  .value = 8 },
+};
+
+static std::vector<SelectItem> ssgWsItems = {
+    {.name = "0: Pulse(Rect)",    .value = 1 },
+    {.name = "1: Triangle / Saw", .value = 2 },
+};
+
+static std::vector<SelectItem> ssgDmItems = {
+    {.name = "0: Preset Ratio",      .value = 1 },
+    {.name = "1: Variable (Slider)", .value = 2 },
+};
 
 void GuiSsg::setup()
 {
@@ -117,11 +170,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &toneCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .component = &noiseOnNoteButton, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
+    layoutComponentsLtoRRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRSsgMixRow({ .rect = vRect, .toneBtn = &mixSetTone, .mixBtn =  &mixSetMix, .noizeBtn = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
@@ -159,7 +212,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = dRect, .label = &pulseDutyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
+        layoutComponentsLtoRRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
@@ -212,7 +265,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .component = &triKeyTrackButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
         triFreqSlider.setVisible(!isKeyTrack);
@@ -227,7 +280,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         }
 
         layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
+        layoutComponentsLtoRRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRSsgTriPosRow({ .rect = tRect, .sawDownBtn = &triSetSawDown, .triBtn = &triSetTri, .sawUpBtn = &triSetSawUp, .paddingBottom = 0 });
     }
 
@@ -239,7 +292,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &hwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton });
-    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .component = &envEnableButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutComponentsLtoRRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
     layoutComponentsLtoRRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
 }

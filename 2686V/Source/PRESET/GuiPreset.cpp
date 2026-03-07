@@ -2,14 +2,15 @@
 #include "../processor/PluginProcessor.h"
 
 #include "../core/Global.h"
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/FileValues.h"
 #include "../core/PresetKeys.h"
 #include "../core/PresetValues.h"
+
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
 
 juce::File GuiPreset::getSelectedFile() const
 {
@@ -199,6 +200,7 @@ void GuiPreset::setup()
                     // ファイル名表示のクリア
                     ctx.editor.updateRhythmFileNames(Io::empty);
                     ctx.editor.updateAdpcmFileName(Io::empty);
+                    ctx.editor.updateOpzx3FileNames(Io::empty);
                 }
             }
         );

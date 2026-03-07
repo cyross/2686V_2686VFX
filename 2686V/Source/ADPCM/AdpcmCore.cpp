@@ -1,7 +1,9 @@
 ﻿#include "AdpcmCore.h"
+
 #include <vector>
 #include <cmath>
 #include <array>
+
 #include "../synth/Mode.h"
 #include "../synth/Pcm.h"
 #include "../synth/SynthHelpers.h"
@@ -18,6 +20,9 @@ void AdpcmCore::setParameters(const SynthParams& params)
 {
     m_level = params.adpcmLevel;
     m_pan = params.adpcmPan;
+
+    m_pcmOffset = params.adpcmPcmOffset;
+    m_pcmRatio = params.adpcmPcmRatio;
 
     bool newLoopState = params.adpcmLoop;
     if (m_isLooping != newLoopState) {
@@ -90,8 +95,7 @@ void AdpcmCore::noteOn(float frequency)
     m_position = 0.0;
 
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
-
-    double currentBufferRate;
+    double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
 
     if (m_qualityMode == adpcmMode) // ADPCM Mode
     {
@@ -101,6 +105,8 @@ void AdpcmCore::noteOn(float frequency)
     {
         currentBufferRate = m_sourceRate;
     }
+
+    m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
 
     // ホストDAWのレートとの比率
     double rateRatio = currentBufferRate / m_sampleRate;
@@ -187,15 +193,28 @@ float AdpcmCore::getSample()
 
     float output = 0.0f;
 
+    double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
+    size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
+
+    // ★追加: 終端位置の計算
+    double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
+    if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+    double remainingSize = totalSize - offsetSamples;
+    double playSize = remainingSize * m_pcmRatio;
+    if (playSize < 1.0) playSize = 1.0;
+
+    double endPosition = offsetSamples + playSize;
+
     // --- Mode Switching ---
     if (m_qualityMode == adpcmMode) // 4-bit ADPCM (OPNA Style)
     {
         size_t bufSize = m_adpcmBuffer.size();
 
         // ループ・終了判定
-        if (m_position >= bufSize) {
+        if (m_position >= endPosition) {
             if (m_isLooping) {
-                m_position = std::fmod(m_position, (double)bufSize);
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
             }
             else {
                 m_hasFinished = true;
@@ -204,19 +223,15 @@ float AdpcmCore::getSample()
         }
 
         int index = (int)m_position;
-        // Boundary check
         if (index < m_adpcmBuffer.size()) {
             output = m_adpcmBuffer[index] / 32768.0f;
         }
     }
     else // PCM Modes (Bit Crushing)
     {
-        size_t bufSize = m_rawBuffer.size();
-
-        // ループ・終了判定
-        if (m_position >= bufSize) {
+        if (m_position >= endPosition) {
             if (m_isLooping) {
-                m_position = std::fmod(m_position, (double)bufSize);
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
             }
             else {
                 m_hasFinished = true;
@@ -224,20 +239,21 @@ float AdpcmCore::getSample()
             }
         }
 
-        // Linear Interpolation
         int idx0 = (int)m_position;
         int idx1 = idx0 + 1;
-        if (idx1 >= m_rawBuffer.size()) idx1 = m_isLooping ? 0 : idx0;
+        // ループ端の処理
+        if (idx1 >= endPosition || idx1 >= m_rawBuffer.size()) {
+            idx1 = m_isLooping ? offsetSamples : idx0;
+        }
 
         float frac = (float)(m_position - idx0);
 
-        if (idx0 < bufSize && idx1 < bufSize) {
+        if (idx0 < totalSize && idx1 < totalSize) {
             float s0 = m_rawBuffer[idx0];
             float s1 = m_rawBuffer[idx1];
             output = s0 * (1.0f - frac) + s1 * frac;
         }
 
-        // Bit Reduction
         output = bitReduction(output, m_qualityMode);
     }
 

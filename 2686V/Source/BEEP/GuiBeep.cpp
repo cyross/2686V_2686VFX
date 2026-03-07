@@ -1,11 +1,11 @@
 ﻿#include "GuiBeep.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
 
 void GuiBeep::setup() {
     juce::String code = PrKey::Prefix::beep;

@@ -26,9 +26,6 @@ juce_add_binary_data(AppIconForAbout
 set(CORE_FILES
     "Source/core/Global.h"
     "Source/core/FileValues.h"
-    "Source/core/GuiText.h"
-    "Source/core/GuiValues.h"
-    "Source/core/GuiSelectItems.h"
     "Source/core/MmlKeys.h"
     "Source/core/MmlValues.h"
     "Source/core/PrKeys.h"
@@ -63,8 +60,6 @@ set(FM_FILES
 )
 
 set(GUI_FILES
-    "Source/gui/GuiFile.h"
-    "Source/gui/GuiFile.cpp"
     "Source/gui/GuiBase.h"
     "Source/gui/GuiBase.cpp"
     "Source/gui/GuiColor.h"
@@ -76,8 +71,8 @@ set(GUI_FILES
     "Source/gui/GuiLF.h"
     "Source/gui/GuiLF.cpp"
     "Source/gui/GuiStructs.h"
-    "Source/gui/GuiStateManager.h"
-    "Source/gui/GuiStateManager.cpp"
+    "Source/gui/GuiText.h"
+    "Source/gui/GuiValues.h"
 )
 
 set(OPNA_FILES

@@ -1,10 +1,9 @@
 ﻿#include "GuiOpzx3.h"
 
+#include <vector>
+
 #include "../processor/PluginProcessor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -13,6 +12,190 @@
 #include "../fm/RegisterConverter.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> opzx3AlgItems = {
+    {.name = "00: <OPX-00>", .value = 1 },
+    {.name = "01: <OPX-01>", .value = 2 },
+    {.name = "02: <OPX-02>", .value = 3 },
+    {.name = "03: <OPX-03>", .value = 4 },
+    {.name = "04: <OPX-04>", .value = 5 },
+    {.name = "05: <OPX-05>", .value = 6 },
+    {.name = "06: <OPX-06>", .value = 7 },
+    {.name = "07: <OPX-07>", .value = 8 },
+    {.name = "08: <OPX-08>", .value = 9 },
+    {.name = "09: <OPX-09>", .value = 10 },
+    {.name = "10: <OPX-10>", .value = 11 },
+    {.name = "11: <OPX-11>", .value = 12 },
+    {.name = "12: <OPX-12>", .value = 13 },
+    {.name = "13: <OPX-13>", .value = 14 },
+    {.name = "14: <OPX-14>", .value = 15 },
+    {.name = "15: <OPX-15>", .value = 16 },
+    {.name = "16: <OPX-16>", .value = 17 },
+    {.name = "17: <OPX-17>", .value = 18 },
+    {.name = "18: <OPX-18>", .value = 19 },
+    {.name = "19: <OPX-19>", .value = 20 },
+    {.name = "20: <OPX-20>", .value = 21 },
+    {.name = "21: <OPX-21>", .value = 22 },
+    {.name = "22: <OPX-22>", .value = 23 },
+    {.name = "23: <OPX-23>", .value = 24 },
+    {.name = "24: <OPX-24>", .value = 25 },
+    {.name = "25: <OPX-25>", .value = 26 },
+    {.name = "26: <OPX-26>", .value = 27 },
+    {.name = "27: <OPX-27>", .value = 28 },
+    {.name = "28: <MA3-00>", .value = 29 },
+    {.name = "29: <MA3-01>", .value = 30 },
+    {.name = "30: <MA3-02>", .value = 31 },
+    {.name = "31: <MA3-03>", .value = 32 },
+    {.name = "32: <MA3-04>", .value = 33 },
+    {.name = "33: <MA3-05>", .value = 34 },
+    {.name = "34: <MA3-06>", .value = 35 },
+    {.name = "35: <MA3-07>", .value = 36 },
+};
+
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
+};
+
+static std::vector<SelectItem> ksItems = {
+    {.name = "0 OFF",      .value = 1},
+    {.name = "1 (Weak)",   .value = 2},
+    {.name = "2 (Mid)",    .value = 3},
+    {.name = "3 (Strong)", .value = 4}
+};
+
+static std::vector<SelectItem> lfoShapeItems = {
+    {.name = "0: Sine",     .value = 1 },
+    {.name = "1: Saw Down", .value = 2 },
+    {.name = "2: Square",   .value = 3 },
+    {.name = "3: Triangle", .value = 4 },
+    {.name = "4: Noise",    .value = 5 },
+};
+
+static std::vector<SelectItem> pmsItems = {
+    {.name = "1: Pms 0", .value = 1 },
+    {.name = "2: Pms 1", .value = 2 },
+    {.name = "3: Pms 2", .value = 3 },
+    {.name = "4: Pms 3", .value = 4 },
+    {.name = "5: Pms 4", .value = 5 },
+    {.name = "6: Pms 5", .value = 6 },
+    {.name = "7: Pms 6", .value = 7 },
+    {.name = "8: Pms 7", .value = 8 },
+};
+
+static std::vector<SelectItem> amsItems = {
+    {.name = "1: Ams 0", .value = 1 },
+    {.name = "2: Ams 1", .value = 2 },
+    {.name = "3: Ams 2", .value = 3 },
+    {.name = "4: Ams 3", .value = 4 },
+};
+
+static std::vector<SelectItem> opnaSeItems = {
+    {.name = "0: Normal",                      .value = 1 },
+    {.name = "1: Saw Down",                    .value = 2 },
+    {.name = "2: Saw Down & Hold",             .value = 3 },
+    {.name = "3: Triangle",                    .value = 4 },
+    {.name = "4: Alternative Saw Down & Hold", .value = 5 },
+    {.name = "5: Saw Up",                      .value = 6 },
+    {.name = "6: Saw Up & Hold",               .value = 7 },
+    {.name = "7: Triangle Invert",             .value = 8 },
+    {.name = "8: Alternative Saw Up & Hold",   .value = 9 },
+};
+
+static std::vector<SelectItem> opzx3WsItems = {
+    {.name = "00 Sine",                             .value = 1},
+    {.name = "01 Half Sine",                        .value = 2},
+    {.name = "02 Abs Sine",                         .value = 3},
+    {.name = "03 Quadra Abs Half Sin",              .value = 4},
+    {.name = "04 Alt Sine",                         .value = 5},
+    {.name = "05 Alt Abs Sine",                     .value = 6},
+    {.name = "06 Square",                           .value = 7},
+    {.name = "07 Log Saw",                          .value = 8},
+    {.name = "08 Pudding Sine",                     .value = 9},
+    {.name = "09 Half Pudding Sine",                .value = 10},
+    {.name = "10 Abs Pudding Sine",                 .value = 11},
+    {.name = "11 Quad Abs Pudding Sine",            .value = 12},
+    {.name = "12 Mini Alt Sine",                    .value = 13},
+    {.name = "13 Mini Alt Abs Sine",                .value = 14},
+    {.name = "14 Half Square",                      .value = 15},
+    {.name = "15 ---",                              .value = 16},
+    {.name = "16 Triangle",                         .value = 17},
+    {.name = "17 Half Triangle",                    .value = 18},
+    {.name = "18 Abs Triangle",                     .value = 19},
+    {.name = "19 Quad Abs Triangle",                .value = 20},
+    {.name = "20 Alt Triangle",                     .value = 21},
+    {.name = "21 Alt Abs Triangle",                 .value = 22},
+    {.name = "22 Quad Half Square",                 .value = 23},
+    {.name = "23 ---",                              .value = 24},
+    {.name = "24 Diagram",                          .value = 25},
+    {.name = "25 Half Diagram",                     .value = 26},
+    {.name = "26 Abs Half Saw Up",                  .value = 27},
+    {.name = "27 Quad Abs Half Saw Up",             .value = 28},
+    {.name = "28 Alt Diagram",                      .value = 29},
+    {.name = "29 Alt Quad Abs Half Saw Up",         .value = 30},
+    {.name = "30 Quad Square",                      .value = 31},
+    {.name = "31 PCM(Audio) File",                  .value = 32},
+    {.name = "32 [EX000]Alternating Abs Sine",      .value = 33},
+    {.name = "33 [EX001]Derived Square",            .value = 34},
+    {.name = "34 [EX002]Saw Down",                  .value = 35},
+    {.name = "35 [EX003]Saw Up",                    .value = 36},
+    {.name = "36 [EX004]Saw + Sine",                .value = 37},
+    {.name = "37 [EX005]Pulse 25%",                 .value = 38},
+    {.name = "38 [EX006]Pulse 12.5%",               .value = 39},
+    {.name = "39 [EX007]Pulse 6.25%",               .value = 40},
+    {.name = "40 [EX008]Round Square",              .value = 41},
+    {.name = "41 [EX009]Impulse Train",             .value = 42},
+    {.name = "42 [EX010]Comb / Multi-pulse",        .value = 43},
+    {.name = "43 [EX011]Resonant Saw (Low)",        .value = 44},
+    {.name = "44 [EX012]Resonant Saw (High)",       .value = 45},
+    {.name = "45 [EX013]Resonant Triangle",         .value = 46},
+    {.name = "46 [EX014]Bulb Sine",                 .value = 47},
+    {.name = "47 [EX015]Double Hump",               .value = 48},
+    {.name = "48 [EX016]Pseudo Voice Formant 1",    .value = 49},
+    {.name = "49 [EX017]Pseudo Voice Formant 2",    .value = 50},
+    {.name = "50 [EX018]Metallic 1",                .value = 51},
+    {.name = "51 [EX019]Metallic 2",                .value = 52},
+    {.name = "52 [EX020]Noise-Like",                .value = 53},
+    {.name = "53 [EX021]PD Resonance",              .value = 54},
+    {.name = "54 [EX022]PD Resonance High",         .value = 55},
+    {.name = "55 [EX023]4-Step Sine",               .value = 56},
+    {.name = "56 [EX024]8-Step Sine",               .value = 57},
+    {.name = "57 [EX025]Wavefolded Sine (Soft)",    .value = 58},
+    {.name = "58 [EX026]Wavefolded Sine (Hard)",    .value = 59},
+    {.name = "59 [EX027]Bitwise XOR Fractal",       .value = 60},
+    {.name = "60 [EX028]Bitwise AND Texture",       .value = 61},
+    {.name = "61 [EX029]Self-Modulated Sine(FB=1)", .value = 62},
+    {.name = "62 [EX030]Self-Modulated Sine(FB=2)", .value = 63},
+};
 
 void GuiOpzx3::setup()
 {
@@ -26,11 +209,17 @@ void GuiOpzx3::setup()
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
 
     algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opzx3AlgItems, .isReset = true });
-    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
+    algSelector.onChange = [this] {
+        updateAlgorithmDisplay();
+        };
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb01, .isReset = true });
+    feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
+    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
     lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
     lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
     lfoPmsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .items = pmsItems, .isReset = true });
@@ -121,6 +310,12 @@ void GuiOpzx3::setup()
             updatePcmFileName(i, juce::File(ctx.audioProcessor.opzx3PcmFilePaths[i]).getFileName());
         }
 
+        pcmOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmOffset, .title = GuiText::Fm::Op::PcmOffset, .isReset = true });
+        pcmRatio[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmRatio, .title = GuiText::Fm::Op::PcmRatio, .isReset = true });
+
+        se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::se, .title = GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
+        seFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::seFreq, .title = GuiText::Fm::Op::SFreq, .isReset = true });
+
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
 
         pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .items = pmsItems, .isReset = true });
@@ -135,6 +330,7 @@ void GuiOpzx3::setup()
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
     }
 }
+
 void GuiOpzx3::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
@@ -150,11 +346,14 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, .paddingBottom = GuiValue::Category::paddingTop });
 
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoCat, .paddingBottom = GuiValue::Category::paddingBotton });
 
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
     layoutComponentsLtoRMain({ .mainRect = mRect, .component = &lfoPmToggle });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
@@ -177,33 +376,39 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        layoutComponentsLtoROpzx3PcmRow({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoROpzx3PcmRow({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pm[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pm[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &cafFix[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoROpzx3FixFreqBtns({ .rect = innerRect, .to0Btn = &freqToZero[i], .to05Btn = &freqTo05[i], .to1Btn = &freqTo1[i], .to2Btn = &freqTo2[i], .to440Btn = &freqTo440[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
+
+    updateAlgorithmDisplay();
 }
 
 // ==============================================================================
@@ -272,5 +477,83 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
     else {
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opzx3::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
+    }
+}
+
+void GuiOpzx3::updateOpEnable(int idx, bool enable)
+{
+    opGroups[idx].setEnabled(enable);
+    catMain[idx].setEnabled(enable);
+    mul[idx].setEnabled(enable);
+    mul[idx].label.setEnabled(enable);
+    dt1[idx].setEnabled(enable);
+    dt1[idx].label.setEnabled(enable);
+    dt2[idx].setEnabled(enable);
+    dt2[idx].label.setEnabled(enable);
+    ar[idx].setEnabled(enable);
+    ar[idx].label.setEnabled(enable);
+    d1r[idx].setEnabled(enable);
+    d1r[idx].label.setEnabled(enable);
+    d1l[idx].setEnabled(enable);
+    d1l[idx].label.setEnabled(enable);
+    rr[idx].setEnabled(enable);
+    rr[idx].label.setEnabled(enable);
+    d2r[idx].setEnabled(enable);
+    d2r[idx].label.setEnabled(enable);
+    tl[idx].setEnabled(enable);
+    tl[idx].label.setEnabled(enable);
+    ks[idx].setEnabled(enable);
+    ks[idx].label.setEnabled(enable);
+    catShape[idx].setEnabled(enable);
+    se[idx].setEnabled(enable);
+    se[idx].label.setEnabled(enable);
+    seFreq[idx].setEnabled(enable);
+    seFreq[idx].label.setEnabled(enable);
+    cafFix[idx].setEnabled(enable);
+    fix[idx].setEnabled(enable);
+    freq[idx].setEnabled(enable);
+    freq[idx].label.setEnabled(enable);
+    freqToZero[idx].setEnabled(enable);
+    freqTo05[idx].setEnabled(enable);
+    freqTo1[idx].setEnabled(enable);
+    freqTo2[idx].setEnabled(enable);
+    freqTo440[idx].setEnabled(enable);
+    catLfo[idx].setEnabled(enable);
+    pm[idx].setEnabled(enable);
+    pms[idx].setEnabled(enable);
+    pms[idx].label.setEnabled(enable);
+    am[idx].setEnabled(enable);
+    ams[idx].setEnabled(enable);
+    ams[idx].label.setEnabled(enable);
+    ws[idx].setEnabled(enable);
+    ws[idx].label.setEnabled(enable);
+    loadPcmBtn[idx].setEnabled(enable);
+    clearPcmBtn[idx].setEnabled(enable);
+    pcmFileNameLabel[idx].setEnabled(enable);
+    pcmOffset[idx].setEnabled(enable);
+    pcmOffset[idx].label.setEnabled(enable);
+    pcmRatio[idx].setEnabled(enable);
+    pcmRatio[idx].label.setEnabled(enable);
+    catMask[idx].setEnabled(enable);
+    mask[idx].setEnabled(enable);
+    catMml[idx].setEnabled(enable);
+    mml[idx].setEnabled(enable);
+}
+
+void GuiOpzx3::updateAlgorithmDisplay()
+{
+    int algIndex = algSelector.getSelectedItemIndex();
+
+    if (algIndex < 0 || algIndex > 35) return;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
+
+        opGroups[i].setText(newTitle);
+
+        bool enable = opEnableOnAlg[algIndex][i];
+
+        updateOpEnable(i, enable);
     }
 }

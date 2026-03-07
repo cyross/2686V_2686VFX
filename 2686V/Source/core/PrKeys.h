@@ -61,21 +61,23 @@ namespace PrKey
 
 		namespace Fm
 		{
-			static inline const juce::String alg = "_ALGORITHM";
-			static inline const juce::String fb0 = "_FEEDBACK";
-			static inline const juce::String fb2 = "_FEEDBACK2";
+			static inline const juce::String alg = "_ALG";
+			static inline const juce::String fb0 = "_FB1";
+			static inline const juce::String fb2 = "_FB3";
 			static inline const juce::String bit = "_BIT";
 			static inline const juce::String rate = "_RATE";
 
 			namespace Lfo
 			{
 				static inline const juce::String freq = "_LFO_FREQ";
+				static inline const juce::String shape = "_LFO_SHAPE";
 				static inline const juce::String am = "_LFO_AM";
 				static inline const juce::String pm = "_LFO_PM";
 				static inline const juce::String pms = "_LFO_PMS";
 				static inline const juce::String ams = "_LFO_AMS";
 				static inline const juce::String pmd = "_LFO_PMD";
 				static inline const juce::String amd = "_LFO_AMD";
+				static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
 			};
 
 			namespace Op
@@ -111,6 +113,8 @@ namespace PrKey
 
 				static inline const juce::String pms = "_PMS";
 				static inline const juce::String ams = "_AMS";
+				static inline const juce::String pmd = "_PMD";
+				static inline const juce::String amd = "_AMD";
 
 				static inline const juce::String ws = "_WS";
 
@@ -121,6 +125,9 @@ namespace PrKey
 				static inline const juce::String fixFreq = "_FREQ";
 				static inline const juce::String fixFreqTo0 = "_FREQ_TO_0";
 				static inline const juce::String fixFreqTo440 = "_FREQ_TO_440";
+
+				static inline const juce::String pcmOffset = "_PCM_OFFSET";
+				static inline const juce::String pcmRatio = "_PCM_RATIO";
 
 				static inline const juce::String mask = "_MASK";
 			};
@@ -193,6 +200,8 @@ namespace PrKey
 				static inline const juce::String note = "_NOTE";
 				static inline const juce::String oneShot = "_ONESHOT";
 				static inline const juce::String rr = "_RR";
+				static inline const juce::String pcmOffset = "_PCM_OFFSET";
+				static inline const juce::String pcmRatio = "_PCM_RATIO";
 			};
 		};
 
@@ -203,6 +212,8 @@ namespace PrKey
 			static inline const juce::String mode = "_MODE";
 			static inline const juce::String rate = "_RATE";
 			static inline const juce::String loop = "_LOOP";
+			static inline const juce::String pcmOffset = "_PCM_OFFSET";
+			static inline const juce::String pcmRatio = "_PCM_RATIO";
 
 			namespace Adsr
 			{

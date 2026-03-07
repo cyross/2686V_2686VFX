@@ -26,18 +26,20 @@ namespace PrName
 			static inline const juce::String bit = " BIT";
 			static inline const juce::String rate = " RATE";
 			static inline const juce::String alg = " ALG";
-			static inline const juce::String fb0 = " FB0";
-			static inline const juce::String fb2 = " FB2";
+			static inline const juce::String fb0 = " FB1";
+			static inline const juce::String fb2 = " FB3";
 
 			namespace Lfo
 			{
 				static inline const juce::String freq = " L.FREQ";
+				static inline const juce::String shape = " L.SHAPE";
 				static inline const juce::String am = " LFO.AM";
 				static inline const juce::String pm = " LFO.PM";
 				static inline const juce::String ams = " L.AMS";
 				static inline const juce::String pms = " L.PMS";
 				static inline const juce::String pmd = " L.PMD";
 				static inline const juce::String amd = " L.AMD";
+				static inline const juce::String amSmoothRatio = " L.ASMRT";
 			}
 		}
 
@@ -72,8 +74,12 @@ namespace PrName
 				static inline const juce::String vib = " VIB";
 				static inline const juce::String pms = " PMS";
 				static inline const juce::String ams = " AMS";
+				static inline const juce::String pmd = " PMD";
+				static inline const juce::String amd = " AMD";
 				static inline const juce::String egType = " EG TYPE";
 				static inline const juce::String eg = " EG";
+				static inline const juce::String pcmOffset = " PCM Offset";
+				static inline const juce::String pcmRatio = " PCM Ratio";
 
 				static inline const juce::String mask = " MASK";
 			}
@@ -173,6 +179,8 @@ namespace PrName
 				static inline const juce::String oneShot = " One Shot";
 				static inline const juce::String pan = " Pan";
 				static inline const juce::String rr = " RR";
+				static inline const juce::String pcmOffset = " PCM Offset";
+				static inline const juce::String pcmRatio = " PCM Ratio";
 			}
 		}
 	}
@@ -194,6 +202,8 @@ namespace PrName
 			static inline const juce::String level = " Level";
 			static inline const juce::String loop = " Loop";
 			static inline const juce::String bit = " Bit";
+			static inline const juce::String pcmOffset = " PCM Offset";
+			static inline const juce::String pcmRatio = " PCM Ratio";
 		}
 	}
 

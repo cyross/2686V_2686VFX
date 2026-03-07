@@ -4,13 +4,106 @@
 #include <array>
 
 #include "../core/Global.h"
-#include "../core/GuiValues.h"
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
+#include "../gui/GuiValues.h"
 
 class GuiOpzx3 : public GuiBase
 {
+    /*
+     * アルゴリズムのオペレータ表記凡例
+     * 2026.3.7 CYROSS
+     *
+     * [C] : キャリアー(出力はオーディオ出力)
+     * [M->n] : n番オペレータへ出力するモジュレーター
+     * [C:FB] : 自身へフィードバックもするキャリアー
+     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
+     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
+     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
+     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
+     * -- : 未使用
+     */
+    static inline const std::array<std::array<juce::String, 4>, 36> algOpPrefix = { {
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},     // 00: <OPX-00>
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])"}},    // 01: <OPX-01>
+        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}},     // 02: <OPX-02>
+        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}},     // 03: <OPX-03>
+        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])"}},     // 04: <OPX-04>
+        {{"([M:FB->2])", "([M:FB1->4])", "([M->4])", "([C])"}}, // 05: <OPX-05>
+        {{"([M:FB->2])", "([C])", "([M->4])", "([C])"}},        // 06: <OPX-06>
+        {{"([M->2])", "([C:FB1])", "([M->4])", "([C])"}},       // 07: <OPX-07>
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},        // 08: <OPX-08>
+        {{"([C:FB])", "([M->4])", "([M->4])", "([C])"}},        // 09: <OPX-09>
+        {{"([M:FB->2])", "([C])", "([C])", "([C])"}},           // 10: <OPX-10>
+        {{"([M->2])", "([C:FB1])", "([C])", "([C])"}},          // 11: <OPX-11>
+        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])"}},       // 12: <OPX-12>
+        {{"([C:FB])", "([M->3])", "([C])", "([C])"}},           // 13: <OPX-13>
+        {{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])"}},  // 14: <OPX-14>
+        {{"([C:FB])", "([C])", "([C])", "([C])"}},              // 15: <OPX-15>
+        {{"([M:FB->2])", "([M->3])", "([C])", "(--)"}},         // 16: <OPX-16>
+        {{"([M->2])", "([M:FB1->3])", "([C])", "(--)"}},        // 17: <OPX-17>
+        {{"([M:FB->3])", "([M->3])", "([C])", "(--)"}},         // 18: <OPX-18>
+        {{"([C:FB])", "([M->3])", "([C])", "(--)"}},            // 19: <OPX-19>
+        {{"([M:FB->2])", "([C])", "([C])", "(--)"}},            // 20: <OPX-20>
+        {{"([M->2])", "([C:FB1])", "([C])", "(--)"}},           // 21: <OPX-21>
+        {{"([C:FB])", "([C])", "([C])", "(--)"}},               // 22: <OPX-22>
+        {{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)"}},      // 23: <OPX-23>
+        {{"([M:FB->2])", "([C])", "(--)", "(--)"}},             // 24: <OPX-24>
+        {{"([M->2])", "([C:FB1])", "(--)", "(--)"}},            // 25: <OPX-25>
+        {{"([C:FB])", "([C])", "([--])", "([--])"}},            // 26: <OPX-26>
+        {{"([C:FB][M->2])", "([C])", "([--])", "([--])"}},      // 27: <OPX-27>
+        {{"([M:FB->2])", "([C])", "([--])", "([--])"}},         // 28: <MA3-00>
+        {{"([C:FB])", "([C])", "([--])", "([--])"}},            // 29: <MA3-01>
+        {{"([C:FB])", "([C])", "([C:FB])", "([C])"}},           // 30: <MA3-02>
+        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}},     // 31: <MA3-03>
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},     // 32: <MA3-04>
+        {{"([M:FB->2])", "([C])", "([M:FB->4])", "([C])"}},     // 33: <MA3-05>
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},        // 34: <MA3-06>
+        {{"([C:FB])", "([M->3])", "([C])", "([C])"}}            // 35: <MA3-07>
+    }};
+
+    // アルゴリズムごとに利用可能なオペレーターを制限
+    static inline const std::array<std::array<bool, 4>, 36> opEnableOnAlg = { {
+    {{true, true, true, true}},   // 00: <OPX-00>
+    {{true, true, true, true}},   // 01: <OPX-01>
+    {{true, true, true, true}},   // 02: <OPX-02>
+    {{true, true, true, true}},   // 03: <OPX-03>
+    {{true, true, true, true}},   // 04: <OPX-04>
+    {{true, true, true, true}},   // 05: <OPX-05>
+    {{true, true, true, true}},   // 06: <OPX-06>
+    {{true, true, true, true}},   // 07: <OPX-07>
+    {{true, true, true, true}},   // 08: <OPX-08>
+    {{true, true, true, true}},   // 09: <OPX-09>
+    {{true, true, true, true}},   // 10: <OPX-10>
+    {{true, true, true, true}},   // 11: <OPX-11>
+    {{true, true, true, true}},   // 12: <OPX-12>
+    {{true, true, true, true}},   // 13: <OPX-13>
+    {{true, true, true, true}},   // 14: <OPX-14>
+    {{true, true, true, true}},   // 15: <OPX-15>
+    {{true, true, true, false}},  // 16: <OPX-16>
+    {{true, true, true, false}},  // 17: <OPX-17>
+    {{true, true, true, false}},  // 18: <OPX-18>
+    {{true, true, true, false}},  // 19: <OPX-19>
+    {{true, true, true, false}},  // 20: <OPX-20>
+    {{true, true, true, false}},  // 21: <OPX-21>
+    {{true, true, true, false}},  // 22: <OPX-22>
+    {{true, true, true, false}},  // 23: <OPX-23>
+    {{true, true, false, false}}, // 24: <OPX-24>
+    {{true, true, false, false}}, // 25: <OPX-25>
+    {{true, true, false, false}}, // 26: <OPX-26>
+    {{true, true, false, false}}, // 27: <OPX-27>
+    {{true, true, false, false}}, // 28: <MA3-00>
+    {{true, true, false, false}}, // 29: <MA3-01>
+    {{true, true, true, true}},   // 30: <MA3-02>
+    {{true, true, true, true}},   // 31: <MA3-03>
+    {{true, true, true, true}},   // 32: <MA3-04>
+    {{true, true, true, true}},   // 33: <MA3-05>
+    {{true, true, true, true}},   // 34: <MA3-06>
+    {{true, true, true, true}}    // 35: <MA3-07>
+} };
+
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
@@ -19,7 +112,8 @@ class GuiOpzx3 : public GuiBase
 
     // Global
     GuiComboBox algSelector;
-    GuiSlider feedbackSlider;
+    GuiFbSlider feedbackSlider;
+    GuiFbSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
@@ -27,7 +121,8 @@ class GuiOpzx3 : public GuiBase
 
     // LFO
     GuiSlider lfoFreqSlider;
-    GuiComboBox lfoWaveSelector;
+    GuiSlider lfoAmSmRtSlider;
+    GuiComboBox lfoShapeSelector;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
     GuiComboBox lfoPmsSelector;
@@ -66,6 +161,10 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
     std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
     std::array<GuiLabel, Global::Fm::Op4> pcmFileNameLabel;
+    std::array<GuiSlider, Global::Fm::Op4> pcmOffset;
+    std::array<GuiSlider, Global::Fm::Op4> pcmRatio;
+    std::array<GuiComboBox, Global::Fm::Op4> se;
+    std::array<GuiSlider, Global::Fm::Op4> seFreq;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
     std::array<GuiComboBox, Global::Fm::Op4> pms;
@@ -86,11 +185,13 @@ public:
         algFbCat(context),
         algSelector(context),
         feedbackSlider(context),
+        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
-        lfoWaveSelector(context),
+        lfoAmSmRtSlider(context),
+        lfoShapeSelector(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
         lfoPmsSelector(context),
@@ -123,6 +224,10 @@ public:
         loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -140,4 +245,12 @@ public:
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
+    void updateAllPcmFileName(const juce::String& fileName) {
+        for (int i = 0; i < 4; i++)
+        {
+            pcmFileNameLabel[i].setText(fileName, juce::dontSendNotification);
+        }
+    }
+    void updateOpEnable(int idx, bool enable);
+    void updateAlgorithmDisplay();
 };

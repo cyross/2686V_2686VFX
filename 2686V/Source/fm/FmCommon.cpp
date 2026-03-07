@@ -37,15 +37,21 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 1回ループするのに必要な「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        // オフセットとレシオを考慮した再生区間の計算
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
+
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
 
         if (m_params.fixedMode) {
-            // FIXモード時: fixedFreq(1.0等) を「再生速度の倍率」として扱う
             baseFreq = originalHz * m_params.fixedFreq;
         }
         else {
-            // キーボードモード時: C4 (Note 60, 約261.626Hz) を Root Key(等速) としてピッチを変化
             float rootFreq = 261.625565f;
             float pitchRatio = frequency / rootFreq;
             baseFreq = originalHz * pitchRatio;
@@ -190,16 +196,17 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 波形の長さから「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
 
-        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
+
         float scale = originalHz / 261.625565f;
-
-        // 極端に小さくなりすぎないよう、最低限の変調は残す
         scale = std::max(scale, 0.005f);
-
-        // FM変調インデックスを波形の長さに合わせて縮小
         fmModIndex *= scale;
     }
 
@@ -220,7 +227,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoAmp, float l
 // =====================================================================
 // ② ハイブリッドLFO版 (OPNA / OPM / OPZX3 / OPN 用)
 // =====================================================================
-void FmOperator::getSample(float& output, float modulator, float lfoVal,
+void FmOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
     bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
@@ -254,7 +261,7 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
     totalAmDepth = std::min(totalAmDepth, 1.0f);
 
     if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (std::abs(lfoVal) * totalAmDepth);
+        float lfoAmpMod = 1.0f - (amLfoVal * totalAmDepth);
         envVal *= lfoAmpMod; // 音量に直接適用
     }
 
@@ -275,11 +282,14 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
         totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
     }
 
+    // PMがONの時だけ、その深さをLFO波形に掛ける
+    float currentPitchMod = pmLfoVal * totalPmDepth;
+
     // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
     float wheelDepth = modWheel * 0.03f;
-    totalPmDepth += wheelDepth;
+    currentPitchMod += (pmLfoVal * wheelDepth);
 
-    float lfoPitchMod = 1.0f + (lfoVal * totalPmDepth);
+    float lfoPitchMod = 1.0f + currentPitchMod;
 
     // ========================================================
     // 3. 位相と波形の生成
@@ -299,16 +309,17 @@ void FmOperator::getSample(float& output, float modulator, float lfoVal,
 
     if (m_useWaveSelect && m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
-        // 波形の長さから「本来の周波数（等速のHz）」を計算
-        float originalHz = (float)m_sampleRate / (float)m_pcmBuffer->size();
+        size_t totalSize = m_pcmBuffer->size();
+        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+        size_t remainingSize = totalSize - offsetSamples;
+        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        if (playSize < 1) playSize = 1;
 
-        // 基準となる中音域(C4 = 約261.6Hz)に対して、波形がどれくらい長いかでスケールダウンする
+        float originalHz = (float)m_hostSampleRate / (float)playSize;
+
         float scale = originalHz / 261.625565f;
-
-        // 極端に小さくなりすぎないよう、最低限の変調は残す
         scale = std::max(scale, 0.005f);
-
-        // FM変調インデックスを波形の長さに合わせて縮小
         fmModIndex *= scale;
     }
 
@@ -522,21 +533,118 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
         case 31: // 外部オーディオファイル (PCM)
             if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
             {
-                // ここも normPhase を使って計算
-                float floatIndex = normPhase * m_pcmBuffer->size();
+                // OffsetとRatioを適用して切り出す
+                size_t totalSize = m_pcmBuffer->size();
+                size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+                if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+                size_t remainingSize = totalSize - offsetSamples;
+                size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+                if (playSize < 1) playSize = 1;
+
+                // normPhase (0.0 ~ 1.0) を playSize にマッピングし、offsetを足す
+                float floatIndex = (float)offsetSamples + normPhase * (float)playSize;
+
                 int index1 = (int)floatIndex;
+                if (index1 >= totalSize) index1 = totalSize - 1;
 
-                // ==========================================================
-                // 浮動小数点の誤差や変調による範囲外アクセスを防ぐ絶対安全ガード
-                // ==========================================================
-                if (index1 >= m_pcmBuffer->size()) index1 = (int)m_pcmBuffer->size() - 1;
-                if (index1 < 0) index1 = 0;
+                int index2 = index1 + 1;
+                // ループの終端に達したら、offset位置（先頭）に戻す
+                if (index2 >= offsetSamples + playSize || index2 >= totalSize) {
+                    index2 = offsetSamples;
+                }
 
-                int index2 = (index1 + 1) % m_pcmBuffer->size();
                 float frac = floatIndex - (float)index1;
                 return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
             }
             return s;
+        case 32:
+            return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
+        case 33:
+        {
+            float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+            return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        }
+        case 34:
+            return (1.0f - normPhase * 2.0f);
+        case 35:
+            return (normPhase * 2.0f - 1.0f);
+        case 36:
+            return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
+        case 37:
+            return (normPhase < 0.25f ? 1.0f : -1.0f);
+        case 38:
+            return (normPhase < 0.125f ? 1.0f : -1.0f);
+        case 39:
+            return (normPhase < 0.0625f ? 1.0f : -1.0f);
+        case 40:
+            return std::tanh(s * 5.0f);
+        case 41:
+            return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+        case 42:
+            return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
+        case 43:
+            return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
+        case 44:
+            return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
+        case 45:
+        {
+            float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+            return tri * std::sin(p * 3.0f);
+        }
+        case 46:
+            return s * s * s;
+        case 47:
+            return std::sin(p) * std::sin(p * 2.0f);
+        case 48:
+            return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
+        case 49:
+            return s * std::cos(p * 2.5f);
+        case 50:
+            return std::sin(p) * std::sin(p * 1.414f);
+        case 51:
+            return std::sin(p) * std::cos(p * 0.5f);
+        case 52:
+            return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
+        case 53: // PD Resonance (Casio CZ Style)
+            return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f;
+        case 54: // PD Resonance High
+        return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f;
+        case 55: // 4-Step Sine (Super Lo-Fi)
+            return std::round(s * 2.0f) / 2.0f;
+        case 56: // 8-Step Sine (Slightly Lo-Fi)
+        return std::round(s * 4.0f) / 4.0f;
+        case 57: // Wavefolded Sine (Soft)
+        {
+            float fs = s * 1.5f; // 1.5倍に増幅
+            // 1.0を超えたら折り返す、-1.0を下回っても折り返す
+            if (fs > 1.0f) return 2.0f - fs;
+            if (fs < -1.0f) return -2.0f - fs;
+            return fs;
+        }
+        case 58: // Wavefolded Sine (Hard / Double fold)
+        {
+            float fs = s * 2.5f; // さらに増幅して2回折り返す
+            return std::sin(fs * juce::MathConstants<float>::halfPi); // サイン関数を使うと滑らかに何度も折り返せます
+        }
+        case 59: // Bitwise XOR Fractal
+        {
+            uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
+            // 位相と「位相を1ビットずらした値」をXOR合成
+            uint8_t xorVal = phaseInt ^ (phaseInt >> 1);
+            // 0.0 ~ 1.0 に戻して -1.0 ~ 1.0 にスケール
+            return ((float)xorVal / 255.0f) * 2.0f - 1.0f;
+        }
+        case 60: // Bitwise AND Texture
+        {
+            uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
+            uint8_t andVal = phaseInt & (phaseInt << 1);
+            return ((float)andVal / 255.0f) * 2.0f - 1.0f;
+        }
+        case 61: // Self-Modulated Sine (Feedback = 1)
+            return std::sin(p + 1.0f * std::sin(p));
+        case 62: // Self-Modulated Sine (Feedback = 2, slightly harsh)
+            return std::sin(p + 2.0f * std::sin(p));
         default: return s;
         }
     }
