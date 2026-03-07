@@ -61,9 +61,9 @@ namespace PrKey
 
 		namespace Fm
 		{
-			static inline const juce::String alg = "_ALGORITHM";
-			static inline const juce::String fb0 = "_FEEDBACK";
-			static inline const juce::String fb2 = "_FEEDBACK2";
+			static inline const juce::String alg = "_ALG";
+			static inline const juce::String fb0 = "_FB1";
+			static inline const juce::String fb2 = "_FB3";
 			static inline const juce::String bit = "_BIT";
 			static inline const juce::String rate = "_RATE";
 

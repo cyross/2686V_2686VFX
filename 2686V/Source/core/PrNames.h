@@ -26,8 +26,8 @@ namespace PrName
 			static inline const juce::String bit = " BIT";
 			static inline const juce::String rate = " RATE";
 			static inline const juce::String alg = " ALG";
-			static inline const juce::String fb0 = " FB0";
-			static inline const juce::String fb2 = " FB2";
+			static inline const juce::String fb0 = " FB1";
+			static inline const juce::String fb2 = " FB3";
 
 			namespace Lfo
 			{
