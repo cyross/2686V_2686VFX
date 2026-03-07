@@ -253,6 +253,14 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opn::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
+
+    // KS
+    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opn::ks);
+    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opn::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpn::updateOpEnable(int idx, bool enable)

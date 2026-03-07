@@ -478,6 +478,14 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opzx3::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
+
+    // KS
+    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opzx3::ks);
+    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opzx3::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpzx3::updateOpEnable(int idx, bool enable)

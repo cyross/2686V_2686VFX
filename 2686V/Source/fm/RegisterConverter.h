@@ -14,6 +14,8 @@ public:
     static float convertFmDr(int regValue);
     static float convertFmSl(int regValue);
     static float convertFmTl(int regValue);
+    static int convertFmKs(int regValue);
+    static bool convertFmMask(int regValue);
 
     // --- For Common / OPNA / OPN
     static float convertFmSr(int regValue);
@@ -30,6 +32,11 @@ public:
     static float convertOplTl(int regValue);
     static int convertOplMul(int regValue);
     static int convertOplDt(int regValue);
+    static bool convertOplAm(int regValue);
+    static bool convertOplVib(int regValue);
+    static bool convertOplEgType(int regValue);
+    static bool convertOplKsr(int regValue);
+    static int convertOplKsl(int regValue);
 
     // --- For SSG ---
     static float convertSsgVol(int regValue);

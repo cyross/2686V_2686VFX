@@ -252,6 +252,30 @@ void GuiOpl3::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl3::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
     }
+
+    // AM
+    val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl3::am);
+    if (RegisterConverter::isValidVal(val)) am[opIndex].setToggleState(RegisterConverter::convertOplAm(val), juce::sendNotification);
+
+    // VIB
+    val = RegisterConverter::getValue(input, mmlPrefixVib, mmlValues::opl3::vib);
+    if (RegisterConverter::isValidVal(val)) vib[opIndex].setToggleState(RegisterConverter::convertOplVib(val), juce::sendNotification);
+
+    // EGTYPE
+    val = RegisterConverter::getValue(input, mmlPrefixEgType, mmlValues::opl3::egtype);
+    if (RegisterConverter::isValidVal(val)) egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(val), juce::sendNotification);
+
+    // KSR
+    val = RegisterConverter::getValue(input, mmlPrefixKsr, mmlValues::opl3::ksr);
+    if (RegisterConverter::isValidVal(val)) ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(val), juce::sendNotification);
+
+    // KSL
+    val = RegisterConverter::getValue(input, mmlPrefixKsl, mmlValues::opl3::ksl);
+    if (RegisterConverter::isValidVal(val)) ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opl3::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpl3::updateOpEnable(int idx, bool enable)
