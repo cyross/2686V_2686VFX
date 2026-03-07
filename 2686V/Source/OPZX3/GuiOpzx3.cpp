@@ -26,6 +26,9 @@ void GuiOpzx3::setup()
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
 
     algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opzx3AlgItems, .isReset = true });
+    algSelector.onChange = [this] {
+        updateAlgorithmDisplay();
+        };
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
 
@@ -220,6 +223,8 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
+
+    updateAlgorithmDisplay();
 }
 
 // ==============================================================================
@@ -288,5 +293,78 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
     else {
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opzx3::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
+    }
+}
+
+void GuiOpzx3::updateOpEnable(int idx, bool enable)
+{
+    catMain[idx].setEnabled(enable);
+    mul[idx].setEnabled(enable);
+    mul[idx].label.setEnabled(enable);
+    dt1[idx].setEnabled(enable);
+    dt1[idx].label.setEnabled(enable);
+    dt2[idx].setEnabled(enable);
+    dt2[idx].label.setEnabled(enable);
+    ar[idx].setEnabled(enable);
+    ar[idx].label.setEnabled(enable);
+    d1r[idx].setEnabled(enable);
+    d1r[idx].label.setEnabled(enable);
+    d1l[idx].setEnabled(enable);
+    d1l[idx].label.setEnabled(enable);
+    rr[idx].setEnabled(enable);
+    rr[idx].label.setEnabled(enable);
+    d2r[idx].setEnabled(enable);
+    d2r[idx].label.setEnabled(enable);
+    tl[idx].setEnabled(enable);
+    tl[idx].label.setEnabled(enable);
+    ks[idx].setEnabled(enable);
+    ks[idx].label.setEnabled(enable);
+    catShape[idx].setEnabled(enable);
+    se[idx].setEnabled(enable);
+    se[idx].label.setEnabled(enable);
+    seFreq[idx].setEnabled(enable);
+    seFreq[idx].label.setEnabled(enable);
+    cafFix[idx].setEnabled(enable);
+    fix[idx].setEnabled(enable);
+    freq[idx].setEnabled(enable);
+    freq[idx].label.setEnabled(enable);
+    freqToZero[idx].setEnabled(enable);
+    freqTo05[idx].setEnabled(enable);
+    freqTo1[idx].setEnabled(enable);
+    freqTo2[idx].setEnabled(enable);
+    freqTo440[idx].setEnabled(enable);
+    catLfo[idx].setEnabled(enable);
+    pm[idx].setEnabled(enable);
+    pms[idx].setEnabled(enable);
+    pms[idx].label.setEnabled(enable);
+    am[idx].setEnabled(enable);
+    ams[idx].setEnabled(enable);
+    ams[idx].label.setEnabled(enable);
+    ws[idx].setEnabled(enable);
+    ws[idx].label.setEnabled(enable);
+    loadPcmBtn[idx].setEnabled(enable);
+    clearPcmBtn[idx].setEnabled(enable);
+    pcmFileNameLabel[idx].setEnabled(enable);
+    pcmOffset[idx].setEnabled(enable);
+    pcmOffset[idx].label.setEnabled(enable);
+    pcmRatio[idx].setEnabled(enable);
+    pcmRatio[idx].label.setEnabled(enable);
+    catMask[idx].setEnabled(enable);
+    mask[idx].setEnabled(enable);
+    catMml[idx].setEnabled(enable);
+    mml[idx].setEnabled(enable);
+}
+
+void GuiOpzx3::updateAlgorithmDisplay()
+{
+    int algIndex = algSelector.getSelectedItemIndex();
+
+    if (algIndex < 0 || algIndex > 35) return;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
+
+        opGroups[i].setText(newTitle);
     }
 }
