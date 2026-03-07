@@ -6,23 +6,18 @@
 #include <span>
 #include <vector>
 #include <atomic>
+
 #include "GuiColor.h"
 #include "GuiStructs.h"
 #include "GuiContext.h"
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
+#include "GuiValues.h"
+#include "GuiText.h"
+
 #include "../fm/SliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
-
-class CustomTabLookAndFeel : public juce::LookAndFeel_V4
-{
-public:
-    juce::Path getIconPath(const juce::String& name, juce::Rectangle<float> area);
-    void drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
-};
 
 class ColoredGroupComponent : public juce::GroupComponent
 {

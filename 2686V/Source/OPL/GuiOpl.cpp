@@ -1,8 +1,7 @@
 ﻿#include "GuiOpl.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
+#include <vector>
+
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -11,6 +10,59 @@
 #include "../fm/RegisterConverter.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> oplAlgItems = {
+    {.name = "00: <OPL-00>", .value = 1 },
+    {.name = "01: <OPL-01>", .value = 2 },
+};
+
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
+};
+
+static std::vector<SelectItem> kslItems = {
+    {.name = "KSL: 0", .value = 1},
+    {.name = "KSL: 1", .value = 2},
+    {.name = "KSL: 2", .value = 3},
+    {.name = "KSL: 3", .value = 4}
+};
+
+static std::vector<SelectItem> oplEgItems = {
+    {.name = "0: Sine",  .value = 1},
+    {.name = "1: Half",  .value = 2},
+    {.name = "2: Abs",   .value = 3},
+    {.name = "3: Pulse", .value = 4}
+};
 
 void GuiOpl::setup()
 {

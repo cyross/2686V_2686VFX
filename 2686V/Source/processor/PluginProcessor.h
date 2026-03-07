@@ -18,7 +18,7 @@
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/FileValues.h"
-#include "../core/GuiText.h"
+//#include "../gui/GuiText.h"
 #include "../core/PresetKeys.h"
 #include "../core/PresetValues.h"
 

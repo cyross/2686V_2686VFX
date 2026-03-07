@@ -1,7 +1,9 @@
 ﻿#include "AdpcmCore.h"
+
 #include <vector>
 #include <cmath>
 #include <array>
+
 #include "../synth/Mode.h"
 #include "../synth/Pcm.h"
 #include "../synth/SynthHelpers.h"

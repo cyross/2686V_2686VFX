@@ -1,14 +1,37 @@
 ﻿#include "GuiRhythm.h"
+
+#include <vector>
+
 #include "../editor/PluginEditor.h"
 
-#include "../core/GuiValues.h"
-#include "../core/GuiText.h"
-#include "../core/GuiSelectItems.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/FileValues.h"
 
 #include "../gui/GuiHelpers.h"
+#include "../gui/GuiValues.h"
+#include "../gui/GuiText.h"
+#include "../gui/GuiStructs.h"
+
+static std::vector<SelectItem> qualityItems = {
+    {.name = "1: Raw (32bit)", .value = 1 },
+    {.name = "2: 24-bit PCM",  .value = 2 },
+    {.name = "3: 16-bit PCM",  .value = 3 },
+    {.name = "4: 8-bit PCM",   .value = 4 },
+    {.name = "5: 5-bit PCM",   .value = 5 },
+    {.name = "6: 4-bit PCM",   .value = 6 },
+    {.name = "7: 4-bit ADPCM", .value = 7 },
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {

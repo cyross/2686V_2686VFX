@@ -1,7 +1,8 @@
 ﻿#pragma once
 
-#include "../synth/SynthParams.h"
 #include <cmath>
+
+#include "../synth/SynthParams.h"
 
 class BeepCore
 {
