@@ -12,6 +12,13 @@ namespace GuiValue
 		static inline constexpr int height = 720;
 	}
 
+	namespace WaterMarkLogo
+	{
+		static inline const juce::String fontFamily = "Times New Roman";
+		static inline constexpr float fontSize = 96.0f;
+		static inline constexpr float fontAlpha = 0.3f;
+	}
+
 	namespace About
 	{
 		namespace LogoImage
