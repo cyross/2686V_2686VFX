@@ -239,6 +239,7 @@ void GuiOpna::applyMmlString(const juce::String& mml, int opIndex)
 
 void GuiOpna::updateOpEnable(int idx, bool enable)
 {
+    opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
     mul[idx].setEnabled(enable);
     mul[idx].label.setEnabled(enable);

@@ -298,6 +298,7 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
 
 void GuiOpzx3::updateOpEnable(int idx, bool enable)
 {
+    opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
     mul[idx].setEnabled(enable);
     mul[idx].label.setEnabled(enable);
@@ -366,5 +367,9 @@ void GuiOpzx3::updateAlgorithmDisplay()
         juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 
         opGroups[i].setText(newTitle);
+
+        bool enable = opEnableOnAlg[algIndex][i];
+
+        updateOpEnable(i, enable);
     }
 }

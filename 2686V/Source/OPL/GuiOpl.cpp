@@ -216,6 +216,7 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
 
 void GuiOpl::updateOpEnable(int idx, bool enable)
 {
+    opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
     mul[idx].setEnabled(enable);
     mul[idx].label.setEnabled(enable);
