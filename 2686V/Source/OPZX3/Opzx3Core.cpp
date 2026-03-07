@@ -420,8 +420,6 @@ float Opzx3Core::getSample() {
             //	{{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])"}},    // 14: <OPX-14>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
             if (m_opMask[1]) out2 = 0.0f;
 
             m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
