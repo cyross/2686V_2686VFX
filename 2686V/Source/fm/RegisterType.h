@@ -13,5 +13,12 @@ enum class RegisterType
     FmDt,   // DT (0-7)
     FmDt2,  // DT2 (0-3)
     SsgVol, // Level (0-15)
-    SsgEnv  // Env Period (0-65535)
+    SsgEnv,  // Env Period (0-65535)
+    FmKs,
+    FmKsr,
+    FmKsl,
+    FmAm,
+    FmVib,
+    FmEgType,
+    FmMask
 };

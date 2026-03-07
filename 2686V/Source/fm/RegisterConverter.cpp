@@ -333,3 +333,38 @@ bool RegisterConverter::isValidVal(int val)
 {
     return val != -1000;
 }
+
+int RegisterConverter::convertFmKs(int regValue)
+{
+    return std::clamp(regValue, 0, 3);
+}
+
+bool RegisterConverter::convertFmMask(int regValue)
+{
+    return std::clamp(regValue, 0, 1) == 0;
+}
+
+bool RegisterConverter::convertOplAm(int regValue)
+{
+    return std::clamp(regValue, 0, 1) == 1;
+}
+
+bool RegisterConverter::convertOplVib(int regValue)
+{
+    return std::clamp(regValue, 0, 1) == 1;
+}
+
+bool RegisterConverter::convertOplEgType(int regValue)
+{
+    return std::clamp(regValue, 0, 1) == 1;
+}
+
+bool RegisterConverter::convertOplKsr(int regValue)
+{
+    return std::clamp(regValue, 0, 1) == 1;
+}
+
+int RegisterConverter::convertOplKsl(int regValue)
+{
+    return std::clamp(regValue, 0, 3);
+}

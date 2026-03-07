@@ -15,6 +15,8 @@ namespace mmlValues
 		static inline constexpr int sl = 15;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 127;
+		static inline constexpr int ks = 3;
+		static inline constexpr int mask = 1;
 	};
 	namespace opn
 	{
@@ -26,6 +28,8 @@ namespace mmlValues
 		static inline constexpr int sl = 15;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 127;
+		static inline constexpr int ks = 3;
+		static inline constexpr int mask = 1;
 	};
 	namespace opl
 	{
@@ -37,6 +41,12 @@ namespace mmlValues
 		static inline constexpr int sl = 15;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 63;
+		static inline constexpr int ksr = 1;
+		static inline constexpr int ksl = 3;
+		static inline constexpr int am = 1;
+		static inline constexpr int vib = 1;
+		static inline constexpr int egtype = 1;
+		static inline constexpr int mask = 1;
 	};
 	namespace opl3
 	{
@@ -47,6 +57,12 @@ namespace mmlValues
 		static inline constexpr int sl = 15;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 63;
+		static inline constexpr int ksr = 1;
+		static inline constexpr int ksl = 3;
+		static inline constexpr int am = 1;
+		static inline constexpr int vib = 1;
+		static inline constexpr int egtype = 1;
+		static inline constexpr int mask = 1;
 	};
 	namespace opm
 	{
@@ -59,6 +75,8 @@ namespace mmlValues
 		static inline constexpr int d2r = 31;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 127;
+		static inline constexpr int ks = 3;
+		static inline constexpr int mask = 1;
 	};
 	namespace opzx3
 	{
@@ -71,5 +89,7 @@ namespace mmlValues
 		static inline constexpr int d2r = 31;
 		static inline constexpr int rr = 15;
 		static inline constexpr int tl = 127;
+		static inline constexpr int ks = 3;
+		static inline constexpr int mask = 1;
 	};
 };
