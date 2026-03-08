@@ -19,6 +19,10 @@ public:
 
     // --- For Common / OPNA / OPN
     static float convertFmSr(int regValue);
+    static int convertFmRg15(int regValue);
+    static int convertFmRg31(int regValue);
+    static int convertFmRg63(int regValue);
+    static int convertFmRg127(int regValue);
 
     // --- For OPM / OPZX3 ---
     static int convertFmDt2(int regValue);

@@ -130,6 +130,17 @@ namespace PrKey
 				static inline const juce::String pcmRatio = "_PCM_RATIO";
 
 				static inline const juce::String mask = "_MASK";
+
+				static inline const juce::String rgEn = "_R_EN";
+				static inline const juce::String rgAr = "_R_AR";
+				static inline const juce::String rgDr = "_R_DR";
+				static inline const juce::String rgSl = "_R_SL";
+				static inline const juce::String rgSr = "_R_SR";
+				static inline const juce::String rgRr = "_R_RR";
+				static inline const juce::String rgTl = "_R_TL";
+				static inline const juce::String rgD1r = "_R_D1R";
+				static inline const juce::String rgD1l = "_R_D1L";
+				static inline const juce::String rgD2r = "_R_D2R";
 			};
 		};
 

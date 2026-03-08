@@ -20,14 +20,14 @@ namespace PrValue
 		namespace Ar
 		{
 			inline constexpr float min = 0.03f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float max = 10.0f;  // 最大値（秒）
 			inline constexpr float initial = 0.03f; // 初期値（秒）
 		}
 
 		namespace Dr
 		{
 			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float max = 100.0f;  // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
@@ -41,7 +41,7 @@ namespace PrValue
 		namespace Rr
 		{
 			inline constexpr float min = 0.03f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float max = 100.0f;  // 最大値（秒）
 			inline constexpr float initial = 0.03f; // 初期値（秒）
 		}
 	}
@@ -165,28 +165,28 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace Dr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Sr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 10.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -267,6 +267,54 @@ namespace PrValue
 				inline constexpr bool initial = false;
 
 			}
+
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace RgDr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgSl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgSr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
+			}
 		}
 	}
 
@@ -330,28 +378,28 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace Dr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Sr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 10.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -392,7 +440,54 @@ namespace PrValue
 			namespace Mask
 			{
 				inline constexpr bool initial = false;
+			}
 
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace RgDr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgSl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgSr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
 			}
 		}
 
@@ -452,21 +547,21 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace Dr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -551,6 +646,47 @@ namespace PrValue
 				inline constexpr bool initial = false;
 
 			}
+
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgDr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgSl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 63;
+				inline constexpr int initial = 0;
+			}
 		}
 	}
 
@@ -606,14 +742,14 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace Dr
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
@@ -627,7 +763,7 @@ namespace PrValue
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -704,6 +840,47 @@ namespace PrValue
 			{
 				inline constexpr bool initial = false;
 
+			}
+
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgDr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgSl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 63;
+				inline constexpr int initial = 0;
 			}
 		}
 	}
@@ -841,14 +1018,14 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace D1r
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f; // 最大値（秒）
+				inline constexpr float max = 100.0f; // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
@@ -862,14 +1039,14 @@ namespace PrValue
 			namespace D2r
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 10.0f; // 最大値（秒）
+				inline constexpr float max = 100.0f; // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -942,6 +1119,54 @@ namespace PrValue
 			{
 				inline constexpr bool initial = false;
 
+			}
+
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace RgD1r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgD1l
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgD2r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
 			}
 		}
 	}
@@ -1079,14 +1304,14 @@ namespace PrValue
 			namespace Ar
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 10.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
 			namespace D1r
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f; // 最大値（秒）
+				inline constexpr float max = 100.0f; // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
@@ -1100,14 +1325,14 @@ namespace PrValue
 			namespace D2r
 			{
 				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 10.0f; // 最大値（秒）
+				inline constexpr float max = 100.0f; // 最大値（秒）
 				inline constexpr float initial = 0.0f; // 初期値（秒）
 			}
 
 			namespace Rr
 			{
 				inline constexpr float min = 0.03f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float max = 100.0f;  // 最大値（秒）
 				inline constexpr float initial = 0.03f; // 初期値（秒）
 			}
 
@@ -1201,6 +1426,54 @@ namespace PrValue
 			{
 				inline constexpr bool initial = false;
 
+			}
+
+
+			namespace RgEn
+			{
+				inline constexpr bool initial = true;
+			}
+
+			namespace RgAr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace RgD1r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgD1l
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgD2r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace RgRr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace RgTl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 127;
+				inline constexpr int initial = 0;
 			}
 		}
 	}

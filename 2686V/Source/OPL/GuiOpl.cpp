@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "../processor/PluginProcessor.h"
+
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -145,6 +147,16 @@ void GuiOpl::setup()
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
 
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
+
+        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
+        rgEn[i].onStateChange = [this, i] {
+            ctx.editor.resized();
+            };
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgDr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgDr, .title = GuiText::Fm::Op::Dr, .isReset = true });
+        rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
     }
 }
 
@@ -176,14 +188,29 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+        bool rgMode = rgEn[i].getToggleState();
+
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        updateRgDisplayAsOp(i, rgMode);
+        if (rgMode)
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
+        else
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &egType[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &ksr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i], .paddingBottom = GuiValue::Category::paddingTop });
@@ -217,6 +244,8 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
     juce::String input = mml.toUpperCase();
     int val;
 
+    bool rgMode = rgEn[opIndex].getToggleState();
+
     // MUL
     val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl::mul);
     if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
@@ -227,6 +256,55 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
         int regVal = RegisterConverter::convertMmlDtToReg(val);
 
         dt[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
+    }
+
+    // AM
+    val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl::am);
+    if (RegisterConverter::isValidVal(val)) am[opIndex].setToggleState(RegisterConverter::convertOplAm(val), juce::sendNotification);
+
+    // VIB
+    val = RegisterConverter::getValue(input, mmlPrefixVib, mmlValues::opl::vib);
+    if (RegisterConverter::isValidVal(val)) vib[opIndex].setToggleState(RegisterConverter::convertOplVib(val), juce::sendNotification);
+
+    // EGTYPE
+    val = RegisterConverter::getValue(input, mmlPrefixEgType, mmlValues::opl::egtype);
+    if (RegisterConverter::isValidVal(val)) egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(val), juce::sendNotification);
+
+    // KSR
+    val = RegisterConverter::getValue(input, mmlPrefixKsr, mmlValues::opl::ksr);
+    if (RegisterConverter::isValidVal(val)) ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(val), juce::sendNotification);
+
+    // KSL
+    val = RegisterConverter::getValue(input, mmlPrefixKsl, mmlValues::opl::ksl);
+    if (RegisterConverter::isValidVal(val)) ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opl::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
+
+    if (rgMode)
+    {
+        // TL
+        val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl::tl);
+        if (RegisterConverter::isValidVal(val)) rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(val), juce::sendNotification);
+
+        // AR
+        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl::ar);
+        if (RegisterConverter::isValidVal(val)) rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        // DR
+        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl::dr);
+        if (RegisterConverter::isValidVal(val)) rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        // SL
+        val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl::sl);
+        if (RegisterConverter::isValidVal(val)) rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        // RR
+        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl::rr);
+        if (RegisterConverter::isValidVal(val)) rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        return;
     }
 
     // TL
@@ -264,30 +342,6 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
     }
-
-    // AM
-    val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl::am);
-    if (RegisterConverter::isValidVal(val)) am[opIndex].setToggleState(RegisterConverter::convertOplAm(val), juce::sendNotification);
-
-    // VIB
-    val = RegisterConverter::getValue(input, mmlPrefixVib, mmlValues::opl::vib);
-    if (RegisterConverter::isValidVal(val)) vib[opIndex].setToggleState(RegisterConverter::convertOplVib(val), juce::sendNotification);
-
-    // EGTYPE
-    val = RegisterConverter::getValue(input, mmlPrefixEgType, mmlValues::opl::egtype);
-    if (RegisterConverter::isValidVal(val)) egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(val), juce::sendNotification);
-
-    // KSR
-    val = RegisterConverter::getValue(input, mmlPrefixKsr, mmlValues::opl::ksr);
-    if (RegisterConverter::isValidVal(val)) ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(val), juce::sendNotification);
-
-    // KSL
-    val = RegisterConverter::getValue(input, mmlPrefixKsl, mmlValues::opl::ksl);
-    if (RegisterConverter::isValidVal(val)) ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(val), juce::sendNotification);
-
-    // MASK
-    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opl::mask);
-    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpl::updateOpEnable(int idx, bool enable)
@@ -350,4 +404,29 @@ void GuiOpl::updateAlgorithmDisplay()
 
         opGroups[i].setText(newTitle);
     }
+}
+
+void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
+{
+    rgAr[idx].label.setVisible(rgMode);
+    rgAr[idx].setVisible(rgMode);
+    rgDr[idx].label.setVisible(rgMode);
+    rgDr[idx].setVisible(rgMode);
+    rgSl[idx].label.setVisible(rgMode);
+    rgSl[idx].setVisible(rgMode);
+    rgRr[idx].label.setVisible(rgMode);
+    rgRr[idx].setVisible(rgMode);
+    rgTl[idx].label.setVisible(rgMode);
+    rgTl[idx].setVisible(rgMode);
+
+    ar[idx].label.setVisible(!rgMode);
+    ar[idx].setVisible(!rgMode);
+    dr[idx].label.setVisible(!rgMode);
+    dr[idx].setVisible(!rgMode);
+    sl[idx].label.setVisible(!rgMode);
+    sl[idx].setVisible(!rgMode);
+    rr[idx].label.setVisible(!rgMode);
+    rr[idx].setVisible(!rgMode);
+    tl[idx].label.setVisible(!rgMode);
+    tl[idx].setVisible(!rgMode);
 }
