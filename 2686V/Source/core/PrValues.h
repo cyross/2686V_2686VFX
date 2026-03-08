@@ -278,7 +278,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 31;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 31;
 			}
 
 			namespace RgDr
@@ -292,7 +292,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgSr
@@ -306,7 +306,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl
@@ -452,7 +452,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 31;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 31;
 			}
 
 			namespace RgDr
@@ -466,7 +466,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgSr
@@ -480,7 +480,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl
@@ -657,7 +657,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgDr
@@ -671,14 +671,14 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgRr
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl
@@ -852,7 +852,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgDr
@@ -866,14 +866,14 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgRr
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl
@@ -1131,7 +1131,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 31;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 31;
 			}
 
 			namespace RgD1r
@@ -1145,7 +1145,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgD2r
@@ -1159,7 +1159,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl
@@ -1438,7 +1438,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 31;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 31;
 			}
 
 			namespace RgD1r
@@ -1452,7 +1452,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgD2r
@@ -1466,7 +1466,7 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 15;
 			}
 
 			namespace RgTl

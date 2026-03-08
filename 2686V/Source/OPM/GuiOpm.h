@@ -94,6 +94,14 @@ class GuiOpm : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
+    std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
+    std::array<GuiSlider, Global::Fm::Op4> rgAr;
+    std::array<GuiSlider, Global::Fm::Op4> rgD1r;
+    std::array<GuiSlider, Global::Fm::Op4> rgD2r;
+    std::array<GuiSlider, Global::Fm::Op4> rgD1l;
+    std::array<GuiSlider, Global::Fm::Op4> rgRr;
+    std::array<GuiSlider, Global::Fm::Op4> rgTl;
+
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
     GuiOpm(const GuiContext& context) :
@@ -143,7 +151,14 @@ public:
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) }
+        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
+        rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgD2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgD1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) }
     {
 	}
 
@@ -151,4 +166,5 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
+    void updateRgDisplayAsOp(int idx, bool rgMode);
 };

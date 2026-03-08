@@ -328,6 +328,17 @@ void GuiOpzx3::setup()
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
 
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
+
+        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
+        rgEn[i].onStateChange = [this, i] {
+            ctx.editor.resized();
+        };
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgD1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1r, .title = GuiText::Fm::Op::D1r, .isReset = true });
+        rgD1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1l, .title = GuiText::Fm::Op::D1l, .isReset = true });
+        rgD2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD2r, .title = GuiText::Fm::Op::D2r, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
     }
 }
 
@@ -375,16 +386,32 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+        bool rgMode = rgEn[i].getToggleState();
+
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        updateRgDisplayAsOp(i, rgMode);
+        if (rgMode)
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
+        else
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
@@ -427,13 +454,52 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
     val = RegisterConverter::getValue(input, mmlPrefixDt1, mmlValues::opzx3::dt1);
     if (RegisterConverter::isValidVal(val)) {
         int regVal = RegisterConverter::convertMmlDtToReg(val);
- 
+
         dt1[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
     }
 
     // DT2
     val = RegisterConverter::getValue(input, mmlPrefixDt2, mmlValues::opzx3::dt2);
     if (RegisterConverter::isValidVal(val)) dt2[opIndex].setValue((double)val, juce::sendNotification);
+
+    // KS
+    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opzx3::ks);
+    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opzx3::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
+
+    bool rgMode = rgEn[opIndex].getToggleState();
+
+    if (rgMode)
+    {
+        // TL
+        val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opzx3::tl);
+        if (RegisterConverter::isValidVal(val)) rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(val), juce::sendNotification);
+
+        // AR
+        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opzx3::ar);
+        if (RegisterConverter::isValidVal(val)) rgAr[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // DR
+        val = RegisterConverter::getValue(input, mmlPrefixD1r, mmlValues::opzx3::d1r);
+        if (RegisterConverter::isValidVal(val)) rgD1r[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // SR
+        val = RegisterConverter::getValue(input, mmlPrefixD2r, mmlValues::opzx3::d2r);
+        if (RegisterConverter::isValidVal(val)) rgD2r[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // SL
+        val = RegisterConverter::getValue(input, mmlPrefixD1l, mmlValues::opzx3::d1l);
+        if (RegisterConverter::isValidVal(val)) rgD1l[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        // RR
+        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opzx3::rr);
+        if (RegisterConverter::isValidVal(val)) rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        return;
+    }
 
     // TL
     val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opzx3::tl);
@@ -478,14 +544,6 @@ void GuiOpzx3::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opzx3::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
-
-    // KS
-    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opzx3::ks);
-    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
-
-    // MASK
-    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opzx3::mask);
-    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpzx3::updateOpEnable(int idx, bool enable)
@@ -564,4 +622,33 @@ void GuiOpzx3::updateAlgorithmDisplay()
 
         updateOpEnable(i, enable);
     }
+}
+
+void GuiOpzx3::updateRgDisplayAsOp(int idx, bool rgMode)
+{
+    rgAr[idx].label.setVisible(rgMode);
+    rgAr[idx].setVisible(rgMode);
+    rgD1r[idx].label.setVisible(rgMode);
+    rgD1r[idx].setVisible(rgMode);
+    rgD1l[idx].label.setVisible(rgMode);
+    rgD1l[idx].setVisible(rgMode);
+    rgD2r[idx].label.setVisible(rgMode);
+    rgD2r[idx].setVisible(rgMode);
+    rgRr[idx].label.setVisible(rgMode);
+    rgRr[idx].setVisible(rgMode);
+    rgTl[idx].label.setVisible(rgMode);
+    rgTl[idx].setVisible(rgMode);
+
+    ar[idx].label.setVisible(!rgMode);
+    ar[idx].setVisible(!rgMode);
+    d1r[idx].label.setVisible(!rgMode);
+    d1r[idx].setVisible(!rgMode);
+    d1l[idx].label.setVisible(!rgMode);
+    d1l[idx].setVisible(!rgMode);
+    d2r[idx].label.setVisible(!rgMode);
+    d2r[idx].setVisible(!rgMode);
+    rr[idx].label.setVisible(!rgMode);
+    rr[idx].setVisible(!rgMode);
+    tl[idx].label.setVisible(!rgMode);
+    tl[idx].setVisible(!rgMode);
 }
