@@ -76,6 +76,13 @@ class GuiOpl : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo7;
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo14;
 
+    std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
+    std::array<GuiSlider, Global::Fm::Op4> rgAr;
+    std::array<GuiSlider, Global::Fm::Op4> rgDr;
+    std::array<GuiSlider, Global::Fm::Op4> rgSl;
+    std::array<GuiSlider, Global::Fm::Op4> rgRr;
+    std::array<GuiSlider, Global::Fm::Op4> rgTl;
+
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
     GuiOpl(const GuiContext& context) :
@@ -119,7 +126,13 @@ public:
         amdTo48{ GuiTextButton(context), GuiTextButton(context) },
         pmsTo64{ GuiTextButton(context), GuiTextButton(context) },
         pmdTo7{ GuiTextButton(context), GuiTextButton(context) },
-        pmdTo14{ GuiTextButton(context), GuiTextButton(context) }
+        pmdTo14{ GuiTextButton(context), GuiTextButton(context) },
+        rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) }
     {
 	}
 
@@ -127,4 +140,5 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
+    void updateRgDisplayAsOp(int idx, bool rgMode);
 };

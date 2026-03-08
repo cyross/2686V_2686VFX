@@ -158,6 +158,7 @@ namespace GuiText
 			static inline const juce::String Opzx3FreqTo440 = "->440";
 			static inline const juce::String PcmOffset = "OFFSET";
 			static inline const juce::String PcmRatio = "RATIO";
+			static inline const juce::String RgEn = "RG-EN";
 		}
 	}
 

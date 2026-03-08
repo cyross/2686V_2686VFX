@@ -157,6 +157,30 @@ int RegisterConverter::convertFmDt2(int regValue)
     return std::clamp(regValue, 0, 3);
 }
 
+// --- 0-15 ---
+int RegisterConverter::convertFmRg15(int regValue)
+{
+    return std::clamp(regValue, 0, 15);
+}
+
+// --- 0-31 ---
+int RegisterConverter::convertFmRg31(int regValue)
+{
+    return std::clamp(regValue, 0, 31);
+}
+
+// --- 0-63 ---
+int RegisterConverter::convertFmRg63(int regValue)
+{
+    return std::clamp(regValue, 0, 63);
+}
+
+// --- 0-127 ---
+int RegisterConverter::convertFmRg127(int regValue)
+{
+    return std::clamp(regValue, 0, 127);
+}
+
 // ==============================================================================
 // OPL / OPL3 Parameters (YM3812 / YMF262 Standard)
 // ==============================================================================

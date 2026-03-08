@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "../processor/PluginProcessor.h"
+
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -130,6 +132,17 @@ void GuiOpn::setup()
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
 
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
+
+        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
+        rgEn[i].onStateChange = [this, i] {
+            ctx.editor.resized();
+            };
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgDr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgDr, .title = GuiText::Fm::Op::Dr, .isReset = true });
+        rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
+        rgSr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSr, .title = GuiText::Fm::Op::Sr, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
     }
 }
 
@@ -166,15 +179,31 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+        bool rgMode = rgEn[i].getToggleState();
+
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sr[i].label, .component = &sr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        updateRgDisplayAsOp(i, rgMode);
+        if (rgMode)
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgSr[i].label, .component = &rgSr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
+        else
+        {
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sr[i].label, .component = &sr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        }
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &cafFix[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
@@ -207,6 +236,45 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
         int regVal = RegisterConverter::convertMmlDtToReg(val);
 
         dt[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
+    }
+
+    // KS
+    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opn::ks);
+    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
+
+    // MASK
+    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opn::mask);
+    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
+
+    bool rgMode = rgEn[opIndex].getToggleState();
+
+    if (rgMode)
+    {
+        // TL
+        val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opn::tl);
+        if (RegisterConverter::isValidVal(val)) rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(val), juce::sendNotification);
+
+        // AR
+        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opn::ar);
+        if (RegisterConverter::isValidVal(val)) rgAr[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // DR
+        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opn::dr);
+        if (RegisterConverter::isValidVal(val)) rgDr[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // SR
+        val = RegisterConverter::getValue(input, mmlPrefixSr, mmlValues::opn::sr);
+        if (RegisterConverter::isValidVal(val)) rgSr[opIndex].setValue(RegisterConverter::convertFmRg31(val), juce::sendNotification);
+
+        // SL
+        val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opn::sl);
+        if (RegisterConverter::isValidVal(val)) rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        // RR
+        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opn::rr);
+        if (RegisterConverter::isValidVal(val)) rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
+
+        return;
     }
 
     // TL
@@ -253,14 +321,6 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
         val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opn::rr);
         if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
     }
-
-    // KS
-    val = RegisterConverter::getValue(input, mmlPrefixKs, mmlValues::opn::ks);
-    if (RegisterConverter::isValidVal(val)) ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(val), juce::sendNotification);
-
-    // MASK
-    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opn::mask);
-    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
 }
 
 void GuiOpn::updateOpEnable(int idx, bool enable)
@@ -309,4 +369,33 @@ void GuiOpn::updateAlgorithmDisplay()
 
         opGroups[i].setText(newTitle);
     }
+}
+
+void GuiOpn::updateRgDisplayAsOp(int idx, bool rgMode)
+{
+    rgAr[idx].label.setVisible(rgMode);
+    rgAr[idx].setVisible(rgMode);
+    rgDr[idx].label.setVisible(rgMode);
+    rgDr[idx].setVisible(rgMode);
+    rgSl[idx].label.setVisible(rgMode);
+    rgSl[idx].setVisible(rgMode);
+    rgSr[idx].label.setVisible(rgMode);
+    rgSr[idx].setVisible(rgMode);
+    rgRr[idx].label.setVisible(rgMode);
+    rgRr[idx].setVisible(rgMode);
+    rgTl[idx].label.setVisible(rgMode);
+    rgTl[idx].setVisible(rgMode);
+
+    ar[idx].label.setVisible(!rgMode);
+    ar[idx].setVisible(!rgMode);
+    dr[idx].label.setVisible(!rgMode);
+    dr[idx].setVisible(!rgMode);
+    sl[idx].label.setVisible(!rgMode);
+    sl[idx].setVisible(!rgMode);
+    sr[idx].label.setVisible(!rgMode);
+    sr[idx].setVisible(!rgMode);
+    rr[idx].label.setVisible(!rgMode);
+    rr[idx].setVisible(!rgMode);
+    tl[idx].label.setVisible(!rgMode);
+    tl[idx].setVisible(!rgMode);
 }
