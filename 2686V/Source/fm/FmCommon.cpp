@@ -133,10 +133,23 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     // TL Calculation
     float tlGain = 0.0f;
-    if (m_params.totalLevel < 0.99f) {
-        // totalLevel(0.0〜1.0) を 0dB 〜 -96dB に変換
-        float attenuationDb = m_params.totalLevel * 96.0f;
+    if (m_params.regEnable)
+    {
+        // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
+        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+        float attenuationDb = m_params.rtl * 0.75f;
         tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    }
+    else
+    {
+        // 従来モード: 0.0〜1.0 を 0dB〜-96dB にマッピング
+        if (m_params.totalLevel < 0.99f) {
+            float attenuationDb = m_params.totalLevel * 96.0f;
+            tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+        }
+        else {
+            tlGain = 0.0f;
+        }
     }
 
     float kslAttenuation = 1.0f;
@@ -719,25 +732,104 @@ void FmOperator::updateEnvelopeState()
 void FmOperator::updateIncrementsWithKeyScale()
 {
     if (m_sampleRate <= 0.0) return;
-    float rateScale = 1.0f;
-    if (m_params.keyScale > 0) {
-        float noteFactor = (float)(m_noteNumber) / 128.0f;
-        rateScale = 1.0f + ((float)m_params.keyScale * noteFactor * 2.0f);
-    }
-    auto calcInc = [&](float param) { return 1.0f / (float)(std::max(0.001f, param / rateScale) * m_sampleRate); };
-    m_attackInc = calcInc(m_params.attack);
-    m_decayDec = calcInc(m_params.decay);
-    m_releaseDec = calcInc(m_params.release);
 
-    if (m_params.sustainRate <= 0.001f)
+    // ====================================================================
+    // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
+    // ====================================================================
+    if (m_params.regEnable)
     {
-        m_sustainRateDec = 0.0f;
+        // 1. キースケールレート (KSR) の算出
+        int ksrValue = 0;
+
+        // C4(Note 60) を基準とした大まかなオクターブ計算
+        int octave = (m_noteNumber / 12) - 1;
+        if (octave < 0) octave = 0;
+        if (octave > 7) octave = 7;
+
+        if (m_params.isOplMode)
+        {
+            // --- OPL系の KSR 計算 ---
+            // OPLは KSビットが0か1(KSR)
+            int noteOffset = m_noteNumber % 12;
+            int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+            ksrValue = m_params.keyScale > 0 ? keyRate : (keyRate >> 2);
+        }
+        else
+        {
+            // --- OPN系の KSR 計算 ---
+            // OPNは KSが 0〜3
+            int noteOffset = m_noteNumber % 12;
+            int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+            ksrValue = keyRate >> (3 - std::clamp(m_params.keyScale, 0, 3));
+        }
+
+        // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換するラムダ関数
+        auto calcRegRate = [&](int regVal, bool isAttack) -> float {
+            if (regVal == 0) return 0.0f; // Rate 0 は停止
+
+            // OPL系はレジスタが 0-15 なので OPN系(0-31)のスケールに合わせるために2倍する
+            int baseRate = m_params.isOplMode ? (regVal * 2) : regVal;
+
+            // 実効レート = 基本レート * 2 + KSR
+            int effectiveRate = (baseRate * 2) + ksrValue;
+            if (effectiveRate > 63) effectiveRate = 63;
+
+            // 実効レートから「目標到達までの秒数」を近似計算
+            // Effective Rate 63 で約 1ms、レートが4下がるごとに時間が約倍になる
+            float timeInSeconds = 0.0f;
+            if (effectiveRate >= 60) {
+                timeInSeconds = 0.001f;
+            }
+            else {
+                float powFactor = (60.0f - (float)effectiveRate) / 4.0f;
+                timeInSeconds = 0.002f * std::pow(2.0f, powFactor);
+            }
+
+            // Attackは 0->1、Decay系は 1->0 なので単純な逆数にする
+            return 1.0f / (timeInSeconds * (float)m_sampleRate);
+            };
+
+        // 各レートの計算
+        m_attackInc = calcRegRate(m_params.rar, true);
+        m_decayDec = calcRegRate(m_params.rdr, false);
+
+        // OPNA等では SR が 0 の時は維持、OPLの RR は常に減衰
+        m_sustainRateDec = (m_params.rsr == 0) ? 0.0f : calcRegRate(m_params.rsr, false);
+        m_releaseDec = calcRegRate(m_params.rrr, false);
+
+        // 3. サステインレベル (SL) の計算
+        if (m_params.rsl == 15) {
+            m_params.sustain = 0.0f; // SL=15 は一気に0まで落ちる
+        }
+        else {
+            // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
+            float slDb = m_params.rsl * 3.0f;
+            m_params.sustain = std::pow(10.0f, -slDb / 20.0f);
+        }
     }
+    // ====================================================================
+    // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
+    // ====================================================================
     else
     {
-        // 値が大きいほど速く減衰する
-        // 簡易計算: 0.001(param) -> 5.0s, 1.0(param) -> 0.005s
-        float srTime = std::max(0.001f, 5.0f * (1.0f - m_params.sustainRate));
-        m_sustainRateDec = 1.0f / (float)((srTime / rateScale) * m_sampleRate);
+        float rateScale = 1.0f;
+        if (m_params.keyScale > 0) {
+            float noteFactor = (float)(m_noteNumber) / 128.0f;
+            rateScale = 1.0f + ((float)m_params.keyScale * noteFactor * 2.0f);
+        }
+
+        auto calcInc = [&](float param) { return 1.0f / (float)(std::max(0.001f, param / rateScale) * m_sampleRate); };
+
+        m_attackInc = calcInc(m_params.attack);
+        m_decayDec = calcInc(m_params.decay);
+        m_releaseDec = calcInc(m_params.release);
+
+        if (m_params.sustainRate <= 0.001f) {
+            m_sustainRateDec = 0.0f;
+        }
+        else {
+            float srTime = std::max(0.001f, 5.0f * (1.0f - m_params.sustainRate));
+            m_sustainRateDec = 1.0f / (float)((srTime / rateScale) * m_sampleRate);
+        }
     }
 }

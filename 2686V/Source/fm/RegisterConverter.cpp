@@ -166,15 +166,15 @@ int RegisterConverter::convertFmDt2(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertOplAr(int regValue)
 {
-    if (regValue <= 0) return 0.03f; // Slowest
-    if (regValue >= 15) return 5.0f; // Fastest
+    if (regValue <= 0) return 5.0f; // Slowest
+    if (regValue >= 15) return 0.03f; // Fastest
 
     float r = (float)std::clamp(regValue, 0, 15);
     float inv = 15.0f - r;
 
     // 15の2乗=225 をベースに係数を調整。 5.0sを目指す。
     // 5.0 = 0.03 + (Coef * 225) -> Coef = 4.97 / 225 ≈ 0.022f
-    return 5.0f - (0.022f * std::pow(inv, 2.0f));
+    return 0.03f + (0.022f * std::pow(inv, 2.0f));
 }
 
 // --- OPL: Decay Rate (DR) ---
@@ -182,13 +182,13 @@ float RegisterConverter::convertOplAr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertOplDr(int regValue)
 {
-    if (regValue >= 15) return 5.0f; // Fastest (Instant decay)
+    if (regValue >= 15) return 0.0f; // Fastest (Instant decay)
 
     float r = (float)std::clamp(regValue, 0, 15);
     float inv = 15.0f - r;
 
     // 5.0 = Coef * 225 -> Coef = 5.0 / 225 ≈ 0.0222f
-    return 5.0f - 0.0222f * std::pow(inv, 2.0f);
+    return 0.0222f * std::pow(inv, 2.0f);
 }
 
 // --- OPL: Release Rate (RR) ---
@@ -197,13 +197,13 @@ float RegisterConverter::convertOplDr(int regValue)
 float RegisterConverter::convertOplRr(int regValue)
 {
     // OPLのRRは0〜15で、DRと同じようなカーブを描きます。
-    if (regValue <= 0) return 0.03f; // Fastest
-    if (regValue >= 15) return 5.0f; // Slowest
+    if (regValue <= 0) return 5.0f; // Slowest
+    if (regValue >= 15) return 0.03f; // Fastest
 
     float r = (float)std::clamp(regValue, 0, 15);
     float inv = 15.0f - r;
 
-    return 5.0f - (0.022f * std::pow(inv, 2.0f));
+    return 0.03f + (0.022f * std::pow(inv, 2.0f));
 }
 
 // --- OPL: Sustain Level (SL) ---
@@ -212,10 +212,10 @@ float RegisterConverter::convertOplRr(int regValue)
 float RegisterConverter::convertOplSl(int regValue)
 {
     int v = std::clamp(regValue, 0, 15);
-    if (v == 15) return 1.0f; // Silent
+    if (v == 15) return 0.0f; // Silent
 
     // 線形での簡易変換 (0->1.0, 15->0.0)
-    return (float)v / 15.0f;
+    return 1.0f - ((float)v / 15.0f);
 }
 
 // --- OPL: Total Level (TL) ---

@@ -82,6 +82,17 @@ namespace PrName
 				static inline const juce::String pcmRatio = " PCM Ratio";
 
 				static inline const juce::String mask = " MASK";
+
+				static inline const juce::String rgEn = " R_EN";
+				static inline const juce::String rgAr = " R_AR";
+				static inline const juce::String rgDr = " R_DR";
+				static inline const juce::String rgSl = " R_SL";
+				static inline const juce::String rgSr = " R_SR";
+				static inline const juce::String rgRr = " R_RR";
+				static inline const juce::String rgTl = " R_TL";
+				static inline const juce::String rgD1r = " R_D1R";
+				static inline const juce::String rgD1l = " R_D1L";
+				static inline const juce::String rgD2r = " R_D2R";
 			}
 		}
 	}

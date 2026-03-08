@@ -52,6 +52,16 @@ struct FmOpParams
 
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
+
+    bool isOplMode = false; // 内部でOPL系かOPN系かを判定するフラグ
+    bool regEnable = false; // RG-EN
+
+    int rar = 31;  // AR Register (0-31 / OPL: 0-15)
+    int rdr = 0;   // DR Register (0-31 / OPL: 0-15)
+    int rsr = 0;   // SR / D2R Register (0-31)
+    int rrr = 15;  // RR Register (0-15)
+    int rsl = 0;   // SL Register (0-15)
+    int rtl = 0;   // TL Register (0-127 / OPL: 0-63)
 };
 
 struct RhythmPadParams
