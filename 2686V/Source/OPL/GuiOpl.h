@@ -70,8 +70,11 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, Global::Fm::Op2> pms;
     std::array<GuiSlider, Global::Fm::Op2> pmd;
     std::array<GuiTextButton, Global::Fm::Op2> amsTo37;
+    std::array<GuiTextButton, Global::Fm::Op2> amsTo606;
     std::array<GuiTextButton, Global::Fm::Op2> amdTo1;
+    std::array<GuiTextButton, Global::Fm::Op2> amdTo12;
     std::array<GuiTextButton, Global::Fm::Op2> amdTo48;
+    std::array<GuiTextButton, Global::Fm::Op2> pmsTo606;
     std::array<GuiTextButton, Global::Fm::Op2> pmsTo64;
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo7;
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo14;
@@ -125,8 +128,11 @@ public:
         pms{ GuiSlider(context), GuiSlider(context) },
         pmd{ GuiSlider(context), GuiSlider(context) },
         amsTo37{ GuiTextButton(context), GuiTextButton(context) },
+        amsTo606{ GuiTextButton(context), GuiTextButton(context) },
         amdTo1{ GuiTextButton(context), GuiTextButton(context) },
+        amdTo12{ GuiTextButton(context), GuiTextButton(context) },
         amdTo48{ GuiTextButton(context), GuiTextButton(context) },
+        pmsTo606{ GuiTextButton(context), GuiTextButton(context) },
         pmsTo64{ GuiTextButton(context), GuiTextButton(context) },
         pmdTo7{ GuiTextButton(context), GuiTextButton(context) },
         pmdTo14{ GuiTextButton(context), GuiTextButton(context) },
