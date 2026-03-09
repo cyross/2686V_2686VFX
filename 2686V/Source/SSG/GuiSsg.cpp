@@ -18,6 +18,7 @@ static std::vector<SelectItem> bdItems = {
     {.name = "3: 6-bit (64 steps)",  .value = 3 },
     {.name = "4: 8-bit (256 steps)", .value = 4 },
     {.name = "5: Raw",               .value = 5 },
+    {.name = "6: 7-bit (OPLL/128 steps)", .value = 6 }
 };
 
 static std::vector<SelectItem> rateItems = {

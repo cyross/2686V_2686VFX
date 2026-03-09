@@ -141,6 +141,8 @@ namespace PrKey
 				static inline const juce::String rgD1r = "_R_D1R";
 				static inline const juce::String rgD1l = "_R_D1L";
 				static inline const juce::String rgD2r = "_R_D2R";
+
+				static inline const juce::String sus = "_SUS";
 			};
 		};
 

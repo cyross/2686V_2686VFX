@@ -83,6 +83,9 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgRr;
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
 
+    std::array<GuiCategoryLabel, Global::Fm::Op2> adsrCat;
+    std::array<GuiToggleButton, Global::Fm::Op2> sus;
+
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
     GuiOpl(const GuiContext& context) :
@@ -132,7 +135,9 @@ public:
         rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) }
+        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        adsrCat{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        sus{ GuiToggleButton(context),GuiToggleButton(context) }
     {
 	}
 

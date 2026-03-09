@@ -1,6 +1,8 @@
 ﻿#include <cmath>
 #include <vector>
 
+#include <JuceHeader.h>
+
 #include "SynthHelpers.h"
 
 double getTargetRate(int index, double defaultValue) {
@@ -37,6 +39,8 @@ float getTargetBitDepth(int index)
             return 255.0f;
         case 5:
             return 0.0f;
+        case 6:
+            return 127.0f;  // 7-bit (OPLL / 128 steps)
     }
 
     return 255.0f;
