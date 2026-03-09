@@ -34,11 +34,15 @@ class GuiOpl : public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
+    GuiCategoryLabel initCat;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
+
+    GuiTextButton initLfoToOplBtn;
+    GuiTextButton initLfoToOpllBtn;
 
     GuiCategoryLabel mvolCat;
 
@@ -77,6 +81,7 @@ class GuiOpl : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op2> pmsTo606;
     std::array<GuiTextButton, Global::Fm::Op2> pmsTo64;
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo7;
+    std::array<GuiTextButton, Global::Fm::Op2> pmdTo137;
     std::array<GuiTextButton, Global::Fm::Op2> pmdTo14;
 
     std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
@@ -97,10 +102,13 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context) },
         qualityCat(context),
         algFbCat(context),
+        initCat(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        initLfoToOplBtn(context),
+        initLfoToOpllBtn(context),
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -135,6 +143,7 @@ public:
         pmsTo606{ GuiTextButton(context), GuiTextButton(context) },
         pmsTo64{ GuiTextButton(context), GuiTextButton(context) },
         pmdTo7{ GuiTextButton(context), GuiTextButton(context) },
+        pmdTo137{ GuiTextButton(context), GuiTextButton(context) },
         pmdTo14{ GuiTextButton(context), GuiTextButton(context) },
         rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

@@ -73,6 +73,7 @@ void GuiOpl::setup()
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
+    initCat.setup({ .parent = *this, .title = GuiText::Category::initialize });
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
@@ -83,6 +84,29 @@ void GuiOpl::setup()
         updateAlgorithmDisplay();
         };
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
+
+    initLfoToOplBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpl });
+    initLfoToOplBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(3.7, juce::sendNotification);
+            amd[i].setValue(4.8, juce::sendNotification);
+
+            pms[i].setValue(6.4, juce::sendNotification);
+            pmd[i].setValue(14.0, juce::sendNotification);
+        }
+        };
+    initLfoToOpllBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpll });
+    initLfoToOpllBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(6.06, juce::sendNotification);
+            amd[i].setValue(1.2, juce::sendNotification);
+
+            pms[i].setValue(6.06, juce::sendNotification);
+            pmd[i].setValue(13.7, juce::sendNotification);
+        }
+        };
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
@@ -142,6 +166,8 @@ void GuiOpl::setup()
         pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
         pmdTo7[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->7cent", .isReset = false, .isResized = false});
         pmdTo7[i].onClick = [this, index = i] { pmd[index].setValue(7.0, juce::sendNotification); };
+        pmdTo137[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->13.7cent", .isReset = false, .isResized = false });
+        pmdTo137[i].onClick = [this, index = i] { pmd[index].setValue(13.7, juce::sendNotification); };
         pmdTo14[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->14cent", .isReset = false, .isResized = false });
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
@@ -186,7 +212,10 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &initCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
@@ -239,7 +268,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRTwoBtnsRow({ .rect = innerRect, .btn1 = &pmsTo606[i], .btn2 = &pmsTo64[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRTwoBtnsRow({ .rect = innerRect, .btn1 = &pmdTo7[i], .btn2 = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoRThreeBtnsRow({ .rect = innerRect, .btn1 = &pmdTo7[i], .btn2 = &pmdTo137[i], .btn3 = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
