@@ -39,6 +39,8 @@ namespace PresetKey
 			static inline const juce::String version = "Ver: ";
 			static inline const juce::String comment = "Comment: ";
 			static inline const juce::String mode = "Mode: ";
+			static inline const juce::String genre = "Genre: ";
+			static inline const juce::String filePath = "Path: ";
 		};
 	}
 
@@ -47,6 +49,7 @@ namespace PresetKey
 		static inline const juce::String initPreset = "Init Preset";
 		static inline const juce::String loadPreset = "Load Preset";
 		static inline const juce::String savePreset = "Save Preset";
+		static inline const juce::String savePresetAs = "Save Preset As...";
 		static inline const juce::String deletePreset = "Delete Preset";
 		static inline const juce::String refleshPresetList = "Refresh Preset List";
 		static inline const juce::String reflectPresetInfo = "Reflect Preset Info";

@@ -149,12 +149,13 @@ void GuiPreset::setup()
 
 	metaGroup.setup(*this, PresetKey::MetaData::title);
 
-    genreEditor.setup({ .parent = *this, .title = "Genre", .isMultiLine = false });
+    genreEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::genre, .isMultiLine = false });
     genreEditor.setText(ctx.audioProcessor.presetGenre);
     genreEditor.onTextChange = [this] { ctx.audioProcessor.presetGenre = genreEditor.getText(); };
 
-    filePathEditor.setup({ .parent = *this, .title = "File Path", .isMultiLine = false });
+    filePathEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::filePath, .isMultiLine = false });
     filePathEditor.setText(ctx.audioProcessor.presetFilePath);
+    filePathEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.withAlpha(0.3f));
     filePathEditor.setReadOnly(true); // ユーザーには手打ちさせない
 
     // Name
@@ -230,7 +231,7 @@ void GuiPreset::setup()
     saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
 
     // --- Save Preset As Button ---
-    saveAsButton.setup({ .parent = *this, .title = "Save Preset As...", .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
+    saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
     saveAsButton.onClick = [this] { ctx.editor.saveCurrentPresetAs(); };
 
     // --- Delete Preset Button ---
@@ -335,17 +336,17 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    // Genre
-    auto row1 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    genreEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
-    genreEditor.setBounds(row1);
-
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
-
     // File Path
+    auto row1 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    filePathEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    filePathEditor.setBounds(row1);
+
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight2);
+
+    // Genre
     auto row2 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    filePathEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
-    filePathEditor.setBounds(row2);
+    genreEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    genreEditor.setBounds(row2);
 
     mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 

@@ -530,6 +530,7 @@ namespace GuiValue
 			static inline constexpr int LabelWidth = 50;
 			static inline constexpr int PaddingWidth = 4;
 			static inline constexpr int PaddingHeight = 4;
+			static inline constexpr int PaddingHeight2 = 12;
 		}
 
 		namespace Button
