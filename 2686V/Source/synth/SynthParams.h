@@ -54,6 +54,9 @@ struct FmOpParams
     float pcmRatio = 1.0f;
 
     bool isOplMode = false; // 内部でOPL系かOPN系かを判定するフラグ
+
+    bool susEnable = false;
+
     bool regEnable = false; // RG-EN
 
     int rar = 31;  // AR Register (0-31 / OPL: 0-15)
@@ -91,6 +94,8 @@ struct SynthParams
 
     // --- Synth Mode ---
     OscMode mode = OscMode::OPNA;
+
+    bool monoMode = false;
 
     // [[ FM Parameters ]]
 

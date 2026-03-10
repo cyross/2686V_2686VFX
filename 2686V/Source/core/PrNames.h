@@ -7,6 +7,7 @@ namespace PrName
 {
 	static inline const juce::String mode = "Mode";
 	static inline const juce::String master_vol = "Master Vol";
+	static inline const juce::String monoMode = "Monopnony Mode";
 
 	namespace Adsr
 	{
@@ -93,6 +94,8 @@ namespace PrName
 				static inline const juce::String rgD1r = " R_D1R";
 				static inline const juce::String rgD1l = " R_D1L";
 				static inline const juce::String rgD2r = " R_D2R";
+
+				static inline const juce::String sus = " SUS";
 			}
 		}
 	}

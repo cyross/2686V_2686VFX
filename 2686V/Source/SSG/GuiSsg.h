@@ -15,6 +15,8 @@ class GuiSsg : public GuiBase
     GuiGroup triGroup;
     GuiGroup envGroup;
 
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel shapeCat;
     GuiCategoryLabel toneCat;
@@ -94,6 +96,12 @@ class GuiSsg : public GuiBase
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
+
+    // Mono/Poly切り替えスイッチ
+    GuiToggleButton monoModeToggle;
+
+    // プリセット名ラベル
+    GuiLabel presetNameLabel;
 public:
 	GuiSsg(const GuiContext& context) :
         GuiBase(context), 
@@ -102,6 +110,8 @@ public:
         dutyGroup(context),
         triGroup(context),
         envGroup(context),
+        monoPolyCat(context),
+        presetNameCat(context),
         qualityCat(context),
         shapeCat(context),
         toneCat(context),
@@ -143,9 +153,12 @@ public:
         shapeSelector(context),
         periodSlider(context),
         mvolCat(context),
-        masterVolSlider(context)
+        masterVolSlider(context),
+        monoModeToggle(context),
+        presetNameLabel(context)
     {}
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void updatePresetName(const juce::String& presetName);
 };

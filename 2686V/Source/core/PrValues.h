@@ -15,6 +15,11 @@ namespace PrValue
 		inline constexpr float initial = -3.0f; // デフォルト値（dB）
 	}
 
+	namespace MonoMode
+	{
+		inline constexpr bool initial = true;
+	}
+
 	namespace Adsr
 	{
 		namespace Ar
@@ -76,7 +81,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 5; // 最大値
+			inline constexpr int max = 6; // 最大値
 			inline constexpr int initial = 5; // 初期値
 
 		}
@@ -346,7 +351,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 5;
+			inline constexpr int max = 6;
 			inline constexpr int initial = 5;
 
 		}
@@ -515,7 +520,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 5; // 最大値
+			inline constexpr int max = 6; // 最大値
 			inline constexpr int initial = 5; // 初期値
 
 		}
@@ -687,6 +692,11 @@ namespace PrValue
 				inline constexpr int max = 63;
 				inline constexpr int initial = 0;
 			}
+
+			namespace Sus
+			{
+				inline constexpr bool initial = false;
+			}
 		}
 	}
 
@@ -718,7 +728,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 5; // 最大値
+			inline constexpr int max = 6; // 最大値
 			inline constexpr int initial = 5; // 初期値
 
 		}
@@ -915,7 +925,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 5; // 最大値
+			inline constexpr int max = 6; // 最大値
 			inline constexpr int initial = 5; // 初期値
 
 		}
@@ -1202,7 +1212,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 5;
+			inline constexpr int max = 6;
 			inline constexpr int initial = 5;
 
 		}
@@ -1483,7 +1493,7 @@ namespace PrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 5;
+			inline constexpr int max = 6;
 			inline constexpr int initial = 3; // 初期値
 
 		}
@@ -1631,7 +1641,7 @@ namespace PrValue
 		namespace BIt
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 5;
+			inline constexpr int max = 6;
 			inline constexpr int initial = 3; // 初期値
 		}
 

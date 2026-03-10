@@ -79,6 +79,8 @@ class GuiRhythm : public GuiBase
 {
     GuiGroup mainGroup;
 
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel mainCat;
 
     // Master Level
@@ -89,16 +91,26 @@ class GuiRhythm : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
+    // Mono/Poly切り替えスイッチ
+    GuiToggleButton monoModeToggle;
+
+    // プリセット名ラベル
+    GuiLabel presetNameLabel;
+
     // 8 Pads
     std::array<RhythmPadGui, 8> pads;
 public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        monoPolyCat(context),
+        presetNameCat(context),
         mainCat(context),
         levelSlider(context),
         mvolCat(context),
         masterVolSlider(context),
+        monoModeToggle(context),
+        presetNameLabel(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {}
                      
@@ -108,4 +120,5 @@ public:
     void buttonClicked(juce::Button* button, juce::AudioFormatManager &formatManager, std::unique_ptr<juce::FileChooser>& fileChooser);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
+    void updatePresetName(const juce::String& presetName);
 };

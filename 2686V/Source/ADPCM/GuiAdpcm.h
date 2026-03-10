@@ -33,6 +33,8 @@ class GuiAdpcm : public GuiBase
     // Loop Button
     GuiToggleButton loopButton;
 
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
     GuiCategoryLabel panCat;
@@ -48,6 +50,12 @@ class GuiAdpcm : public GuiBase
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
+
+    // Mono/Poly切り替えスイッチ
+    GuiToggleButton monoModeToggle;
+
+    // プリセット名ラベル
+    GuiLabel presetNameLabel;
 public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
@@ -67,6 +75,8 @@ public:
         btnPanC(context),
         btnPanR(context),
         loopButton(context),
+        monoPolyCat(context),
+        presetNameCat(context),
         qualityCat(context),
         mainCat(context),
         panCat(context),
@@ -75,8 +85,10 @@ public:
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
-        rateSelector(context)
-	{
+        rateSelector(context),
+        monoModeToggle(context),
+        presetNameLabel(context)
+    {
 	}
 
     void setup() override;
@@ -88,4 +100,5 @@ public:
     bool isBtnPanR(juce::Button* button);
     void setPan(float pan);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
+    void updatePresetName(const juce::String& presetName);
 };

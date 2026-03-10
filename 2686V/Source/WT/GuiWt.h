@@ -232,6 +232,8 @@ class GuiWt : public GuiBase
 
     GuiSlider levelSlider;
 
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
     GuiCategoryLabel modCat;
@@ -268,6 +270,12 @@ class GuiWt : public GuiBase
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
+
+    // Mono/Poly切り替えスイッチ
+    GuiToggleButton monoModeToggle;
+
+    // プリセット名ラベル
+    GuiLabel presetNameLabel;
 public:
 	GuiWt(const GuiContext& context) :
         GuiBase(context),
@@ -276,6 +284,8 @@ public:
         customSliders32(context),
         customSliders64(context),
         levelSlider(context),
+        monoPolyCat(context),
+        presetNameCat(context),
         qualityCat(context),
         mainCat(context),
         modCat(context),
@@ -295,10 +305,13 @@ public:
         modSpeedSlider(context),
         customWaveResetTo0Btn(context),
         customWaveResetTo1Btn(context),
-        customWaveResetToM1Btn(context)
+        customWaveResetToM1Btn(context),
+        monoModeToggle(context),
+        presetNameLabel(context)
     {
     }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void updatePresetName(const juce::String& presetName);
 };

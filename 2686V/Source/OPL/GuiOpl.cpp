@@ -22,6 +22,7 @@ static std::vector<SelectItem> bdItems = {
     {.name = "3: 6-bit (64 steps)",  .value = 3 },
     {.name = "4: 8-bit (256 steps)", .value = 4 },
     {.name = "5: Raw",               .value = 5 },
+    {.name = "6: 7-bit (OPLL/128 steps)", .value = 6 }
 };
 
 static std::vector<SelectItem> rateItems = {
@@ -70,8 +71,11 @@ void GuiOpl::setup()
 {
     const juce::String code = PrKey::Prefix::opl;
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
+    initCat.setup({ .parent = *this, .title = GuiText::Category::initialize });
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
@@ -83,9 +87,53 @@ void GuiOpl::setup()
         };
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
 
+    initLfoToOplBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpl });
+    initLfoToOplBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(3.7, juce::sendNotification);
+            amd[i].setValue(4.8, juce::sendNotification);
+
+            pms[i].setValue(6.4, juce::sendNotification);
+            pmd[i].setValue(14.0, juce::sendNotification);
+        }
+        };
+    initLfoToOpllBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpll });
+    initLfoToOpllBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(6.06, juce::sendNotification);
+            amd[i].setValue(1.2, juce::sendNotification);
+
+            pms[i].setValue(6.06, juce::sendNotification);
+            pmd[i].setValue(13.7, juce::sendNotification);
+        }
+        };
+
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL_%02d.png", i);
+        auto imgFile = docDir.getChildFile(fileName);
+
+        if (imgFile.existsAsFile()) {
+            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
+        }
+    }
+
+    // 画像コンポーネントを画面に追加
+    addAndMakeVisible(algImageComp);
 
     const juce::String opCode = code + PrKey::Innder::op;
 
@@ -127,14 +175,22 @@ void GuiOpl::setup()
 
         amsTo37[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->3.7Hz", .isReset = false, .isResized = false });
         amsTo37[i].onClick = [this, index = i] { ams[index].setValue(3.7, juce::sendNotification); };
+        amsTo606[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.06Hz", .isReset = false, .isResized = false });
+        amsTo606[i].onClick = [this, index = i] { ams[index].setValue(6.06, juce::sendNotification); };
         amdTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->1dB", .isReset = false, .isResized = false});
         amdTo1[i].onClick = [this, index = i] { amd[index].setValue(1.0, juce::sendNotification); };
+        amdTo12[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->1.2dB", .isReset = false, .isResized = false });
+        amdTo12[i].onClick = [this, index = i] { amd[index].setValue(1.2, juce::sendNotification); };
         amdTo48[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->4.8dB", .isReset = false, .isResized = false});
         amdTo48[i].onClick = [this, index = i] { amd[index].setValue(4.8, juce::sendNotification); };
+        pmsTo606[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.06Hz", .isReset = false, .isResized = false });
+        pmsTo606[i].onClick = [this, index = i] { pms[index].setValue(6.06, juce::sendNotification); };
         pmsTo64[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.4Hz", .isReset = false, .isResized = false});
         pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
         pmdTo7[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->7cent", .isReset = false, .isResized = false});
         pmdTo7[i].onClick = [this, index = i] { pmd[index].setValue(7.0, juce::sendNotification); };
+        pmdTo137[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->13.7cent", .isReset = false, .isResized = false });
+        pmdTo137[i].onClick = [this, index = i] { pmd[index].setValue(13.7, juce::sendNotification); };
         pmdTo14[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->14cent", .isReset = false, .isResized = false });
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
@@ -157,6 +213,10 @@ void GuiOpl::setup()
         rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
         rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
         rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
+
+        adsrCat[i].setup({ .parent = *this, .title = GuiText::Category::adsr });
+
+        sus[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::sus, .title = GuiText::Fm::Op::sus, .isReset = true });
     }
 }
 
@@ -170,14 +230,25 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &initCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+
+    auto imgArea = mRect.removeFromBottom(100);
+    algImageComp.setBounds(imgArea);
+    mRect.removeFromTop(GuiValue::Category::paddingTop);
 
     // --- B. Operators Section ---
     for (int i = 0; i < 2; ++i)
@@ -216,17 +287,19 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &adsrCat[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &sus[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &amsTo37[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRTwoBtnsRow({ .rect = innerRect, .btn1 = &amsTo37[i], .btn2 = &amsTo606[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRFixFreqBtns({ .rect = innerRect, .to0Btn = &amdTo1[i], .to440Btn = &amdTo48[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRThreeBtnsRow({ .rect = innerRect, .btn1 = &amdTo1[i], .btn2 = &amdTo12[i], .btn3 = &amdTo48[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &vib[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pmsTo64[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutComponentsLtoRTwoBtnsRow({ .rect = innerRect, .btn1 = &pmsTo606[i], .btn2 = &pmsTo64[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRFixFreqBtns({ .rect = innerRect, .to0Btn = &pmdTo7[i], .to440Btn = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutComponentsLtoRThreeBtnsRow({ .rect = innerRect, .btn1 = &pmdTo7[i], .btn2 = &pmdTo137[i], .btn3 = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop});
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
@@ -404,6 +477,21 @@ void GuiOpl::updateAlgorithmDisplay()
 
         opGroups[i].setText(newTitle);
     }
+
+    // ==========================================================
+    // 画像の切り替え
+    // ==========================================================
+    if (algImages[algIndex].isValid())
+    {
+        // 読み込めている場合はその画像をセット
+        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
+        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
+    }
+    else
+    {
+        // 画像がない場合（ファイルが見つからなかった時など）はクリア
+        algImageComp.setImage(juce::Image());
+    }
 }
 
 void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
@@ -429,4 +517,9 @@ void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
     rr[idx].setVisible(!rgMode);
     tl[idx].label.setVisible(!rgMode);
     tl[idx].setVisible(!rgMode);
+}
+
+void GuiOpl::updatePresetName(const juce::String& presetName)
+{
+    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
 }

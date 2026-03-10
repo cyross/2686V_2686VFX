@@ -377,8 +377,9 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 {
     audioProcessor.loadPreset(file);
+    audioProcessor.presetFilePath = file.getFullPathName();
 
-    presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment);
+    presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment, audioProcessor.presetGenre, audioProcessor.presetFilePath);
 
     // 1. リズム音源のファイル名を復元
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
@@ -400,6 +401,19 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
         opzx3Gui->updatePcmFileName(i, text);
     }
+
+    // 4. 各タブのプリセット名を更新
+    opnaGui->updatePresetName(audioProcessor.presetName);
+    opnGui->updatePresetName(audioProcessor.presetName);
+    oplGui->updatePresetName(audioProcessor.presetName);
+    opl3Gui->updatePresetName(audioProcessor.presetName);
+    opmGui->updatePresetName(audioProcessor.presetName);
+    opzx3Gui->updatePresetName(audioProcessor.presetName);
+    ssgGui->updatePresetName(audioProcessor.presetName);
+    wtGui->updatePresetName(audioProcessor.presetName);
+    rhythmGui->updatePresetName(audioProcessor.presetName);
+    adpcmGui->updatePresetName(audioProcessor.presetName);
+    beepGui->updatePresetName(audioProcessor.presetName);
 }
 #endif
 
@@ -451,6 +465,7 @@ void AudioPlugin2686VEditor::scanPresets()
         PresetItem item;
         item.file = file;
         item.fileName = file.getFileName();
+        item.fullPath = file.getFullPathName();
         item.lastModificationTime = file.getLastModificationTime();
 
         // XMLをパースしてメタデータを取得
@@ -462,7 +477,8 @@ void AudioPlugin2686VEditor::scanPresets()
             item.author = xml->getStringAttribute(PresetKey::author, audioProcessor.presetAuthor);
             item.version = xml->getStringAttribute(PresetKey::version, audioProcessor.presetVersion);
             item.comment = xml->getStringAttribute(PresetKey::comment, audioProcessor.presetComment);
-            item.modeName = xml->getStringAttribute(PresetKey::mode, "-");
+            item.modeName = xml->getStringAttribute(PresetKey::mode, PresetValue::MetaData::Initial::mode);
+            item.genre = xml->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         }
         else
         {
@@ -479,31 +495,51 @@ void AudioPlugin2686VEditor::scanPresets()
 
 void AudioPlugin2686VEditor::saveCurrentPreset()
 {
-    juce::String filename = audioProcessor.presetName.trim();
-    if (filename.isEmpty()) filename = PresetValue::File::def;
-    filename = filename + PresetValue::File::ext;
+    // パスが設定されているなら上書き
+    if (audioProcessor.presetFilePath.isNotEmpty()) {
+        juce::File saveFile(audioProcessor.presetFilePath);
 
-    juce::File saveFile = presetGui->currentFolder.getChildFile(filename);
-
-    if (saveFile.existsAsFile()) {
-        // 上書き確認
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::WarningIcon)
             .withTitle("Overwrite Preset")
-            .withMessage("File exists. Overwrite?")
+            .withMessage("Overwrite existing preset file?\n\n" + saveFile.getFileName())
             .withButton("Overwrite")
             .withButton("Cancel"),
             [this, saveFile](int result) {
                 if (result == 1) {
                     audioProcessor.savePreset(saveFile);
-                    scanPresets(); // リスト更新
+                    scanPresets();
                 }
             });
     }
+    // パスが未設定（Init後や新規作成時）ならSave Asの挙動へ流す
     else {
-        audioProcessor.savePreset(saveFile);
-        scanPresets(); // リスト更新
+        saveCurrentPresetAs();
     }
+}
+
+void AudioPlugin2686VEditor::saveCurrentPresetAs()
+{
+    juce::String filename = audioProcessor.presetName.trim();
+    if (filename.isEmpty()) filename = PresetValue::File::def;
+
+    // ファイル名として使えない文字を安全に置換
+    filename = filename.replaceCharacter(':', '_').replaceCharacter('/', '_').replaceCharacter('\\', '_');
+    filename = filename + PresetValue::File::ext;
+
+    juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
+
+    openWriteFileChooser("Save Preset As", defaultFile, "*.xml", [this](const juce::FileChooser& fc) {
+        auto file = fc.getResult();
+        if (file != juce::File{}) {
+            // 保存したファイルパスを記録
+            audioProcessor.presetFilePath = file.getFullPathName();
+            presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment, audioProcessor.presetGenre, audioProcessor.presetFilePath);
+
+            audioProcessor.savePreset(file);
+            scanPresets();
+        }
+        });
 }
 #endif
 
@@ -851,8 +887,16 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
 {
     if (parameterID == PrKey::mode)
     {
+        int idx = (int)newValue;
+
+#if !defined(BUILD_AS_FX_PLUGIN)
+        if (idx >= 0 && idx <= (int)OscMode::BEEP) {
+            audioProcessor.lastActiveSynthMode = (OscMode)idx;
+        }
+#endif
+
         // UIスレッドで実行するために callAsync を使用
-        juce::MessageManager::callAsync([this, idx = (int)newValue]() {
+        juce::MessageManager::callAsync([this, idx]() {
             // 現在のタブと違えば切り替える（ループ防止）
             if (tabs.getCurrentTabIndex() != idx) {
                 tabs.setCurrentTabIndex(idx);

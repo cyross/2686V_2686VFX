@@ -318,3 +318,33 @@ void layoutComponentsLtoRSettingsIoRow(const LtoRConfigSettingsIoRow& c)
 
     c.rect.removeFromTop(c.paddingBottom);
 }
+
+void layoutComponentsLtoRTwoBtnsRow(const LtoRConfigTwoBtnsRow& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.btn1->setBounds(area.removeFromLeft(c.btnWidth));
+
+    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+
+    c.btn2->setBounds(area.removeFromLeft(c.btnWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+void layoutComponentsLtoRThreeBtnsRow(const LtoRConfigThreeBtnsRow& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.btn1->setBounds(area.removeFromLeft(c.btnWidth));
+
+    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+
+    c.btn2->setBounds(area.removeFromLeft(c.btnWidth));
+
+    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+
+    c.btn3->setBounds(area.removeFromLeft(c.btnWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}

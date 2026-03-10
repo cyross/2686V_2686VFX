@@ -203,3 +203,26 @@ struct LtoRConfigSettingsIoRow {
 };
 
 void layoutComponentsLtoRSettingsIoRow(const LtoRConfigSettingsIoRow& c);
+
+struct LtoRConfigTwoBtnsRow {
+    juce::Rectangle<int>& rect;
+    juce::Component* btn1;
+    juce::Component* btn2;
+    int rowHeight = GuiValue::Fm::Op::Row::height;
+    int paddingBottom = GuiValue::PaddingBottom::row;
+    int btnWidth = GuiValue::Fm::Op::Row::Button::Two::width;
+};
+
+void layoutComponentsLtoRTwoBtnsRow(const LtoRConfigTwoBtnsRow& c);
+
+struct LtoRConfigThreeBtnsRow {
+    juce::Rectangle<int>& rect;
+    juce::Component* btn1;
+    juce::Component* btn2;
+    juce::Component* btn3;
+    int rowHeight = GuiValue::Fm::Op::Row::height;
+    int paddingBottom = GuiValue::PaddingBottom::row;
+    int btnWidth = GuiValue::Fm::Op::Row::Button::Three::width;
+};
+
+void layoutComponentsLtoRThreeBtnsRow(const LtoRConfigThreeBtnsRow& c);

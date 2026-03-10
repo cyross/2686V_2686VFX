@@ -28,7 +28,7 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_phase = 0.0;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    m_currentLevel = 0.0f;
+    //m_currentLevel = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -172,6 +172,21 @@ void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
     updateIncrementsWithKeyScale();
+
+    m_currentReleaseDec = m_releaseDec;
+}
+
+void FmOperator::noteOff()
+{
+    m_state = State::Release;
+
+    // ★追加: キーを離した瞬間、SUSがONならリリースレートをゆっくり(RR=5)にする
+    if (m_params.susEnable) {
+        m_currentReleaseDec = m_susReleaseDec;
+    }
+    else {
+        m_currentReleaseDec = m_releaseDec;
+    }
 }
 
 // =====================================================================
@@ -723,7 +738,7 @@ void FmOperator::updateEnvelopeState()
         }
     }
     else if (m_state == State::Release) {
-        m_currentLevel -= m_releaseDec;
+        m_currentLevel -= m_currentReleaseDec;
         if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
     }
 }
@@ -799,8 +814,10 @@ void FmOperator::updateIncrementsWithKeyScale()
         m_decayDec = calcRegRate(m_params.rdr, false);
         m_sustainRateDec = (m_params.rsr == 0) ? 0.0f : calcRegRate(m_params.rsr, false);
 
-        // ★修正: Release Rate の計算時のみ isRR を true にする
+        // Release Rate の計算時のみ isRR を true にする
         m_releaseDec = calcRegRate(m_params.rrr, true);
+
+        m_susReleaseDec = calcRegRate(5, true);
 
         // 3. サステインレベル (SL) の計算
         if (m_params.rsl == 15) {
@@ -840,6 +857,8 @@ void FmOperator::updateIncrementsWithKeyScale()
         m_attackInc = calcInc(m_params.attack);
         m_decayDec = calcInc(m_params.decay);
         m_releaseDec = calcInc(m_params.release);
+
+        m_susReleaseDec = calcInc(1.5f);
 
         if (m_params.sustainRate <= 0.001f) {
             m_sustainRateDec = 0.0f;

@@ -113,7 +113,7 @@ void AdpcmCore::noteOn(float frequency)
 
     m_pitchRatio = (frequency / rootFreq) * rateRatio;
 
-    m_currentLevel = 0.0f;
+    //m_currentLevel = 0.0f;
     m_state = State::Attack;
     m_hasFinished = false;
 }

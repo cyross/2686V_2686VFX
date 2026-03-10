@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include <array>
+
 #include "../gui/GuiComponents.h"
 #include "../gui/GuiBase.h"
 #include "../gui/GuiContext.h"
@@ -23,11 +24,15 @@ class GuiPreset : public GuiBase
     GuiTextEditor authorEditor;
     GuiTextEditor versionEditor;
     GuiTextEditor commentEditor;
+    GuiTextEditor genreEditor;
+    GuiTextEditor filePathEditor;
 
     // Buttons
     GuiTextButton initButton;
 
     GuiTextButton saveButton;
+
+    GuiTextButton saveAsButton;
 
     GuiTextButton loadButton;
 
@@ -52,9 +57,20 @@ public:
         searchBox(context),
         clearSearchButton(context),
         table(context),
-        nameEditor(context), authorEditor(context), versionEditor(context), commentEditor(context),
-        initButton(context), saveButton(context), loadButton(context), deleteButton(context), refreshButton(context),
-        reflectButton(context), copyButton(context)
+        nameEditor(context),
+        authorEditor(context),
+        versionEditor(context),
+        commentEditor(context),
+        genreEditor(context),
+        filePathEditor(context),
+        initButton(context),
+        saveButton(context),
+        saveAsButton(context),
+        loadButton(context),
+        deleteButton(context),
+        refreshButton(context),
+        reflectButton(context),
+        copyButton(context)
     {
     }
 
@@ -65,8 +81,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-	void setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment);
-    void clearTable();
+    void setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment, const juce::String& genre, const juce::String& filePath);    void clearTable();
 	void updateTableContent();
 	void repaintTable();
     void updatePresetPath();

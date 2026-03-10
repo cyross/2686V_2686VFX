@@ -46,6 +46,8 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::rgSl, namePrefix + PrName::Fm::Op::Post::rgSl, PrValue::Opl::Op::RgSl::min, PrValue::Opl::Op::RgSl::max, PrValue::Opl::Op::RgSl::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::rgRr, namePrefix + PrName::Fm::Op::Post::rgRr, PrValue::Opl::Op::RgRr::min, PrValue::Opl::Op::RgRr::max, PrValue::Opl::Op::RgRr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::rgTl, namePrefix + PrName::Fm::Op::Post::rgTl, PrValue::Opl::Op::RgTl::min, PrValue::Opl::Op::RgTl::max, PrValue::Opl::Op::RgTl::initial));
+
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::sus, namePrefix + PrName::Fm::Op::Post::sus, PrValue::Opl::Op::Sus::initial));
     }
 }
 
@@ -103,5 +105,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.fmOp[op].rsl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgSl);
         params.fmOp[op].rrr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgRr);
         params.fmOp[op].rtl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgTl);
+
+        params.fmOp[op].susEnable = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sus) > PrValue::boolThread;
     }
 }

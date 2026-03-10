@@ -4,6 +4,7 @@
 
 #include "../processor/PluginProcessor.h"
 
+#include "../core/FileValues.h"
 #include "../core/PrKeys.h"
 #include "../core/PrValues.h"
 #include "../core/MmlKeys.h"
@@ -22,6 +23,7 @@ static std::vector<SelectItem> bdItems = {
     {.name = "3: 6-bit (64 steps)",  .value = 3 },
     {.name = "4: 8-bit (256 steps)", .value = 4 },
     {.name = "5: Raw",               .value = 5 },
+    {.name = "6: 7-bit (OPLL/128 steps)", .value = 6 }
 };
 
 static std::vector<SelectItem> rateItems = {
@@ -122,6 +124,8 @@ void GuiOpna::setup()
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
 
@@ -144,6 +148,28 @@ void GuiOpna::setup()
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+
+    for (int i = 0; i < 8; ++i)
+    {
+        // "%02d" で i が 0〜7 のときに "00" 〜 "07" という文字列を作ります
+        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPNA_OPN_OPM_%02d.png", i);
+        auto imgFile = docDir.getChildFile(fileName);
+
+        if (imgFile.existsAsFile()) {
+            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
+        }
+    }
+
+    // 画像コンポーネントを画面に追加
+    addAndMakeVisible(algImageComp);
 
     const juce::String opCode = code + PrKey::Innder::op;
 
@@ -225,6 +251,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
@@ -240,7 +268,13 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .component = &lfoAmToggle });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector, .paddingBottom = GuiValue::MVol::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+
+    auto imgArea = mRect.removeFromBottom(100);
+    algImageComp.setBounds(imgArea);
+    mRect.removeFromTop(GuiValue::Category::paddingTop);
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -452,20 +486,6 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
     mml[idx].setEnabled(enable);
 }
 
-void GuiOpna::updateAlgorithmDisplay()
-{
-    int algIndex = algSelector.getSelectedItemIndex();
-
-    if (algIndex < 0 || algIndex > 7) return;
-
-    for (int i = 0; i < 4; ++i)
-    {
-        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
-
-        opGroups[i].setText(newTitle);
-    }
-}
-
 void GuiOpna::updateRgDisplayAsOp(int idx, bool rgMode)
 {
     rgAr[idx].label.setVisible(rgMode);
@@ -493,4 +513,38 @@ void GuiOpna::updateRgDisplayAsOp(int idx, bool rgMode)
     rr[idx].setVisible(!rgMode);
     tl[idx].label.setVisible(!rgMode);
     tl[idx].setVisible(!rgMode);
+}
+
+void GuiOpna::updatePresetName(const juce::String& presetName)
+{
+    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+void GuiOpna::updateAlgorithmDisplay()
+{
+    int algIndex = algSelector.getSelectedItemIndex();
+
+    if (algIndex < 0 || algIndex > 7) return;
+
+    // 1. 文字列の更新（既存）
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
+        opGroups[i].setText(newTitle);
+    }
+
+    // ==========================================================
+    // 画像の切り替え
+    // ==========================================================
+    if (algImages[algIndex].isValid())
+    {
+        // 読み込めている場合はその画像をセット
+        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
+        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
+    }
+    else
+    {
+        // 画像がない場合（ファイルが見つからなかった時など）はクリア
+        algImageComp.setImage(juce::Image());
+    }
 }

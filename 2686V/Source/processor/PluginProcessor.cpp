@@ -82,6 +82,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         PrValue::MasterVol::initial              // デフォルト値
     ));
 
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        PrKey::monoMode,
+        PrName::monoMode,
+        PrValue::MonoMode::initial
+    ));
+
     return layout;
 }
 
@@ -177,6 +183,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         prBeep.processBlock(params, apvts);
         break;
     }
+
+    bool isMono = (*apvts.getRawParameterValue(PrKey::monoMode) > 0.5f);
+
+    m_synth.isMonoMode = isMono;
+    params.monoMode = isMono;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
@@ -351,7 +362,8 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::author, sanitizeString(presetAuthor, PresetValue::MetaData::Length::author));
     xml->setAttribute(PresetKey::version, sanitizeString(presetVersion, PresetValue::MetaData::Length::version));
     xml->setAttribute(PresetKey::comment, sanitizeString(presetComment, PresetValue::MetaData::Length::comment));
-    xml->setAttribute(PresetKey::mode, getModeName((OscMode)(int)*apvts.getRawParameterValue(PrKey::mode)));
+    xml->setAttribute(PresetKey::genre, sanitizeString(presetGenre, PresetValue::MetaData::Length::genre));
+    xml->setAttribute(PresetKey::mode, getModeName(lastActiveSynthMode));
     xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
 
     // サンプルパス保存 (ADPCM)
@@ -380,6 +392,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetAuthor = xmlState->getStringAttribute(PresetKey::author, PresetValue::MetaData::Initial::author);
         presetVersion = xmlState->getStringAttribute(PresetKey::version, PresetValue::MetaData::Initial::version);
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
+        presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
 
         // サンプル復帰 (ADPCM)
@@ -754,6 +767,8 @@ void AudioPlugin2686V::initPreset()
     presetAuthor = PresetValue::MetaData::Initial::author;
     presetVersion = PresetValue::MetaData::Initial::version;
     presetComment = PresetValue::MetaData::Initial::comment;
+    presetGenre = PresetValue::MetaData::Initial::genre;
+    presetFilePath = "";
 
     // 3. サンプルのアンロードとパスクリア
     unloadAdpcmFile();

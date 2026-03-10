@@ -93,6 +93,16 @@ namespace GuiValue
 		static inline constexpr int paddingTop = 16;
 	}
 
+	namespace MonoMode
+	{
+		static inline constexpr int paddingTop = 20;
+	}
+
+	namespace PresetName
+	{
+		static inline constexpr int paddingBottom = 20;
+	}
+
 	namespace Category
 	{
 		static inline constexpr int paddingTop = 4;
@@ -279,6 +289,26 @@ namespace GuiValue
 				namespace Button
 				{
 					static inline constexpr int wdth = 240;
+
+					namespace Two
+					{
+						static constexpr int width = 120;
+
+						namespace Padding
+						{
+							static constexpr int height = 2;
+						}
+					}
+
+					namespace Three
+					{
+						static constexpr int width = 64;
+
+						namespace Padding
+						{
+							static constexpr int height = 2;
+						}
+					}
 
 					namespace Freq
 					{
@@ -483,11 +513,13 @@ namespace GuiValue
 
 			namespace ColWidth
 			{
+				static inline constexpr int Genre = 80;
 				static inline constexpr int FileName = 150;
 				static inline constexpr int Mode = 80;
 				static inline constexpr int PresetName = 150;
 				static inline constexpr int Author = 100;
 				static inline constexpr int Version = 50;
+				static inline constexpr int LastModified = 120;
 			}
 		}
 
@@ -498,6 +530,7 @@ namespace GuiValue
 			static inline constexpr int LabelWidth = 50;
 			static inline constexpr int PaddingWidth = 4;
 			static inline constexpr int PaddingHeight = 4;
+			static inline constexpr int PaddingHeight2 = 12;
 		}
 
 		namespace Button
