@@ -146,6 +146,9 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 
 * Windows 10 (x64) or later
 * Mac is... sorry! (Not supported yet)
+  * We recently received a report that the plugin was successfully built on macOS using `clang++` with just a few minor modifications. Huge thanks!
+    * A special shout-out and thank you to `atsushieno`!
+  * The suggested fixes have been incorporated into the v1.2.0 source code.
 
 ## Plugin Format & Version
 
