@@ -116,7 +116,11 @@ public:
     juce::String presetAuthor = PresetValue::MetaData::Initial::author;
     juce::String presetVersion = PresetValue::MetaData::Initial::version;
     juce::String presetComment = PresetValue::MetaData::Initial::comment;
+    juce::String presetGenre = PresetValue::MetaData::Initial::genre;
+    juce::String presetFilePath = "";
     juce::String presetPluginVersion = Global::Plugin::version;
+
+    OscMode lastActiveSynthMode = OscMode::OPNA;
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;

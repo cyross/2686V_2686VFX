@@ -375,4 +375,22 @@ namespace GuiText
 		static inline const juce::String show = ">>";
 		static inline const juce::String hide = "<<";
 	}
+
+	namespace Preset
+	{
+		namespace Dialog
+		{
+			static inline const juce::String initPreset = "Initialize Preset";
+			static inline const juce::String initPresetNotice = "Are you sure you want to initialize all parameters and unload samples?";
+			static inline const juce::String initPresetSuccedBtn = "Initialize";
+			static inline const juce::String initPresetCancelBtn = "Cancel";
+
+			static inline const juce::String deletePreset = "Delete Preset";
+			static inline const juce::String deletePresetNotice = "Are you sure you want to delete ";
+			static inline const juce::String deletePresetSuccedBtn = "Delete";
+			static inline const juce::String deletePresetCancelBtn = "Cancel";
+
+			static inline const juce::String reflectPresetToolTipMessage = "Reflect selected preset info to text editors without loading";
+		}
+	}
 }

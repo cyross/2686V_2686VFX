@@ -15,7 +15,9 @@ namespace PresetValue
 			static inline const juce::String author = "Anonymous User";
 			static inline const juce::String version = "1.0.0";
 			static inline const juce::String comment = "";
-		} 
+			static inline const juce::String mode = "-";
+			static inline const juce::String genre = "";
+		}
 
 		// メタデータの最大長
 		namespace Length
@@ -24,6 +26,7 @@ namespace PresetValue
 			static inline const int author = 128;
 			static inline const int version = 64;
 			static inline const int comment = 2048;
+			static inline const int genre = 128;
 		}
 
 		// メタデータをクリップボードに貼り付ける際の前置詞
@@ -34,6 +37,8 @@ namespace PresetValue
 			static inline const juce::String version = "Ver: ";
 			static inline const juce::String comment = "Comment: ";
 			static inline const juce::String mode = "Mode: ";
+			static inline const juce::String genre = "Genre: ";
+			static inline const juce::String filePath = "File Path: ";
 		};
 	}
 

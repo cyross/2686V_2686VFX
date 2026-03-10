@@ -18,11 +18,13 @@ namespace PresetKey
 
 		namespace ColName
 		{
+			static inline const juce::String genre = "Genre";
 			static inline const juce::String fileName = "File Name";
 			static inline const juce::String mode = "Mode";
 			static inline const juce::String name = "Preset Name";
 			static inline const juce::String author = "Author";
 			static inline const juce::String version = "Version";
+			static inline const juce::String lastModified = "Last Modified";
 		}
 	}
 
@@ -55,6 +57,7 @@ namespace PresetKey
 	static inline const juce::String author = "presetAuthor";
 	static inline const juce::String version = "presetVersion";
 	static inline const juce::String comment = "presetComment";
+	static inline const juce::String genre = "presetGenre";
 	static inline const juce::String mode = "activeModeName";
 	static inline const juce::String puginVersion = "pluginVersion";
 	static inline const juce::String adpcmPath = "adpcmPath";

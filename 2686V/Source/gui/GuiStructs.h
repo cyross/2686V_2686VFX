@@ -18,5 +18,7 @@ struct PresetItem
     juce::String version;
     juce::String comment;
     juce::String modeName;
+    juce::String genre;
+    juce::String fullPath;
     juce::Time lastModificationTime;
 };

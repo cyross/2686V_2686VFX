@@ -513,11 +513,13 @@ namespace GuiValue
 
 			namespace ColWidth
 			{
+				static inline constexpr int Genre = 80;
 				static inline constexpr int FileName = 150;
 				static inline constexpr int Mode = 80;
 				static inline constexpr int PresetName = 150;
 				static inline constexpr int Author = 100;
 				static inline constexpr int Version = 50;
+				static inline constexpr int LastModified = 120;
 			}
 		}
 
