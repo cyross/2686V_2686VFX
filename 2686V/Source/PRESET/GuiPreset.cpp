@@ -61,12 +61,12 @@ void GuiPreset::setup()
     };
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
-    table.addColumn(PresetKey::Table::ColName::fileName, 1, GuiValue::Preset::Table::ColWidth::FileName);
+    table.addColumn(PresetKey::Table::ColName::genre, 1, GuiValue::Preset::Table::ColWidth::Genre);
     table.addColumn(PresetKey::Table::ColName::name, 2, GuiValue::Preset::Table::ColWidth::PresetName);
     table.addColumn(PresetKey::Table::ColName::author, 3, GuiValue::Preset::Table::ColWidth::Author);
     table.addColumn(PresetKey::Table::ColName::version, 4, GuiValue::Preset::Table::ColWidth::Version);
     table.addColumn(PresetKey::Table::ColName::mode, 5, GuiValue::Preset::Table::ColWidth::Mode);
-    table.addColumn("Last Modified", 6, 120);
+    table.addColumn(PresetKey::Table::ColName::lastModified, 6, GuiValue::Preset::Table::ColWidth::LastModified);
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
         };
@@ -74,7 +74,7 @@ void GuiPreset::setup()
         if (row >= filteredItems.size()) return juce::String();
         const auto& item = filteredItems[row];
         switch (columnId) {
-        case 1: return item.fileName;
+        case 1: return item.genre;
         case 2: return item.name;
         case 3: return item.author;
         case 4: return item.version;
@@ -149,6 +149,14 @@ void GuiPreset::setup()
 
 	metaGroup.setup(*this, PresetKey::MetaData::title);
 
+    genreEditor.setup({ .parent = *this, .title = "Genre", .isMultiLine = false });
+    genreEditor.setText(ctx.audioProcessor.presetGenre);
+    genreEditor.onTextChange = [this] { ctx.audioProcessor.presetGenre = genreEditor.getText(); };
+
+    filePathEditor.setup({ .parent = *this, .title = "File Path", .isMultiLine = false });
+    filePathEditor.setText(ctx.audioProcessor.presetFilePath);
+    filePathEditor.setReadOnly(true); // ユーザーには手打ちさせない
+
     // Name
 	nameEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::name, .isMultiLine = false });
     nameEditor.setText(ctx.audioProcessor.presetName);
@@ -181,10 +189,10 @@ void GuiPreset::setup()
         // 確認ダイアログを表示
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle("Initialize Preset")
-            .withMessage("Are you sure you want to initialize all parameters and unload samples?")
-            .withButton("Initialize")
-            .withButton("Cancel"),
+            .withTitle(GuiText::Preset::Dialog::initPreset)
+            .withMessage(GuiText::Preset::Dialog::initPresetNotice)
+            .withButton(GuiText::Preset::Dialog::initPresetSuccedBtn)
+            .withButton(GuiText::Preset::Dialog::initPresetCancelBtn),
             [this](int result) {
                 if (result == 1) { // Initializeボタンが押された
                     // 1. プロセッサ側の初期化実行
@@ -196,6 +204,8 @@ void GuiPreset::setup()
                     authorEditor.setText(ctx.audioProcessor.presetAuthor);
                     versionEditor.setText(ctx.audioProcessor.presetVersion);
                     commentEditor.setText(ctx.audioProcessor.presetComment);
+                    genreEditor.setText(ctx.audioProcessor.presetGenre);
+                    filePathEditor.setText(ctx.audioProcessor.presetFilePath);
 
                     // ファイル名表示のクリア
                     ctx.editor.updateRhythmFileNames(Io::empty);
@@ -219,6 +229,10 @@ void GuiPreset::setup()
     saveButton.setup({ .parent = *this, .title = PresetKey::Button::savePreset });
     saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
 
+    // --- Save Preset As Button ---
+    saveAsButton.setup({ .parent = *this, .title = "Save Preset As...", .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
+    saveAsButton.onClick = [this] { ctx.editor.saveCurrentPresetAs(); };
+
     // --- Delete Preset Button ---
 	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
     deleteButton.setEnabled(false);
@@ -229,10 +243,10 @@ void GuiPreset::setup()
             // 確認ダイアログ
             juce::AlertWindow::showAsync(juce::MessageBoxOptions()
                 .withIconType(juce::MessageBoxIconType::WarningIcon)
-                .withTitle("Delete Preset")
-                .withMessage("Are you sure you want to delete " + file.getFileName() + "?")
-                .withButton("Delete")
-                .withButton("Cancel"),
+                .withTitle(GuiText::Preset::Dialog::deletePreset)
+                .withMessage(GuiText::Preset::Dialog::deletePresetNotice + file.getFileName() + "?")
+                .withButton(GuiText::Preset::Dialog::deletePresetSuccedBtn)
+                .withButton(GuiText::Preset::Dialog::deletePresetCancelBtn),
                 [this, file](int result) {
                     if (result == 1) { // Delete
                         file.deleteFile();
@@ -249,7 +263,7 @@ void GuiPreset::setup()
 
     // --- Reflect Preset Info Button ---
 	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .isReset = false });
-    reflectButton.setTooltip("Reflect selected preset info to text editors without loading");
+    reflectButton.setTooltip(GuiText::Preset::Dialog::reflectPresetToolTipMessage);
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
 
@@ -260,6 +274,8 @@ void GuiPreset::setup()
             authorEditor.setText(item.author);
             versionEditor.setText(item.version);
             commentEditor.setText(item.comment);
+            genreEditor.setText(item.genre);
+            filePathEditor.setText(item.fullPath);
         }
     };
 
@@ -271,10 +287,12 @@ void GuiPreset::setup()
         if (row >= 0 && row < filteredItems.size()) {
             const auto& item = filteredItems[row];
             juce::String info = PresetValue::MetaData::ClipBoardPrefix::name + item.name + "\n" +
+                PresetValue::MetaData::ClipBoardPrefix::genre + item.genre + "\n" +
                 PresetValue::MetaData::ClipBoardPrefix::auther + item.author + "\n" +
                 PresetValue::MetaData::ClipBoardPrefix::version + item.version + "\n" +
                 PresetValue::MetaData::ClipBoardPrefix::comment + item.comment + "\n" +
-                PresetValue::MetaData::ClipBoardPrefix::mode + item.modeName;
+                PresetValue::MetaData::ClipBoardPrefix::mode + item.modeName +
+                PresetValue::MetaData::ClipBoardPrefix::filePath + item.fullPath;
             juce::SystemClipboard::copyTextToClipboard(info);
         }
     };
@@ -317,35 +335,49 @@ void GuiPreset::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    // Name
+    // Genre
     auto row1 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    nameEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
-    nameEditor.setBounds(row1);
+    genreEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    genreEditor.setBounds(row1);
+
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+
+    // File Path
+    auto row2 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    filePathEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    filePathEditor.setBounds(row2);
+
+    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+
+    // Name
+    auto row3 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    nameEditor.label.setBounds(row3.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    nameEditor.setBounds(row3);
 
     mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Author
-    auto row2 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    authorEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
-    authorEditor.setBounds(row2);
+    auto row4 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    authorEditor.label.setBounds(row4.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    authorEditor.setBounds(row4);
 
     mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Version
-    auto row3 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    versionEditor.label.setBounds(row3.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
-    versionEditor.setBounds(row3);
+    auto row5 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    versionEditor.label.setBounds(row5.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    versionEditor.setBounds(row5);
 
     mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
     // Comment
-    auto row4 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    commentEditor.label.setBounds(row4);
+    auto row6 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    commentEditor.label.setBounds(row6);
 
     mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
 
-    auto row5 = mRect.reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    commentEditor.setBounds(row5);
+    auto row7 = mRect.reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    commentEditor.setBounds(row7);
 
     rightArea.removeFromTop(GuiValue::Preset::Button::PaddingTop);
 
@@ -359,6 +391,10 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
 
     saveButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+
+    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+
+    saveAsButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
 
     rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
 
@@ -377,12 +413,14 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     copyButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
 }
 
-void GuiPreset::setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment)
+void GuiPreset::setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment, const juce::String& genre, const juce::String& filePath)
 {
     nameEditor.setText(name);
     authorEditor.setText(author);
     versionEditor.setText(version);
-	commentEditor.setText(comment);
+    commentEditor.setText(comment);
+    genreEditor.setText(genre);
+    filePathEditor.setText(filePath);
 }
 
 void GuiPreset::clearTable()
@@ -420,7 +458,7 @@ void GuiPreset::applyFilter()
         // ファイル名、プリセット名、作者名、コメント、モード名のどれかに合致したら表示
         for (const auto& item : items) {
             if (item.name.toLowerCase().contains(query) ||
-                item.fileName.toLowerCase().contains(query) ||
+                item.genre.toLowerCase().contains(query) ||
                 item.author.toLowerCase().contains(query) ||
                 item.comment.toLowerCase().contains(query) ||
                 item.modeName.toLowerCase().contains(query))

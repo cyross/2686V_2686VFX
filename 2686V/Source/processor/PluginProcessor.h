@@ -25,6 +25,51 @@
 #include "../FX/PrFx.h"
 #include "../editor/PluginEditor.h"
 
+class RetroSynthesiser : public juce::Synthesiser
+{
+public:
+    bool isMonoMode = false;
+
+    // 新しい音が鳴る時、どのボイス(回路)を使うかを決める関数をハックする
+    juce::SynthesiserVoice* findFreeVoice(juce::SynthesiserSound* soundToPlay,
+        int midiChannel,
+        int midiNoteNumber,
+        bool stealIfNoneAvailable) const override
+    {
+        if (isMonoMode)
+        {
+            // モノフォニック時は、和音が弾かれても「強制的にVoice 0（最初の回路）」だけを返す
+            if (auto* voice = getVoice(0))
+            {
+                return voice; // 現在鳴っていても、容赦なく奪い取る(Steal)
+            }
+        }
+        // ポリフォニック時(OFF)は、通常のJUCEの和音割り当て機能を使う
+        return juce::Synthesiser::findFreeVoice(soundToPlay, midiChannel, midiNoteNumber, stealIfNoneAvailable);
+    }
+
+    // 鍵盤を離した時の挙動をハックする
+    void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
+    {
+        if (isMonoMode)
+        {
+            // モノフォニック時特有のバグ(後から押した鍵盤が、前の鍵盤を離したせいで消える)を防ぐ
+            if (auto* voice = getVoice(0))
+            {
+                // 「現在Voice0で鳴っているノート」と「離されたノート」が一致した時だけ音を消す
+                if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
+                {
+                    voice->stopNote(velocity, allowTailOff);
+                }
+            }
+        }
+        else
+        {
+            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, velocity, allowTailOff);
+        }
+    }
+};
+
 class AudioPlugin2686V : public juce::AudioProcessor
 {
 public:
@@ -71,7 +116,11 @@ public:
     juce::String presetAuthor = PresetValue::MetaData::Initial::author;
     juce::String presetVersion = PresetValue::MetaData::Initial::version;
     juce::String presetComment = PresetValue::MetaData::Initial::comment;
+    juce::String presetGenre = PresetValue::MetaData::Initial::genre;
+    juce::String presetFilePath = "";
     juce::String presetPluginVersion = Global::Plugin::version;
+
+    OscMode lastActiveSynthMode = OscMode::OPNA;
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
@@ -137,7 +186,7 @@ private:
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
 
 #if !defined(BUILD_AS_FX_PLUGIN)
-    juce::Synthesiser m_synth;
+    RetroSynthesiser m_synth;
 
     // 波形プレビュー用
     juce::Synthesiser previewSynth;
