@@ -15,7 +15,7 @@ void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::Par
 
 }
 
-template <int I>
+template <size_t I>
 void WtProcessor::processCustomWaveBlock(std::array<float, I>& samples, juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
 {
     // Custom Wave params reading
