@@ -60,6 +60,9 @@ class GuiOpn : public GuiBase
     // プリセット名ラベル
     GuiLabel presetNameLabel;
 
+    juce::ImageComponent algImageComp;
+    std::array<juce::Image, 8> algImages;
+
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiSlider, Global::Fm::Op4> mul;
     std::array<GuiComboBox, Global::Fm::Op4> dt;

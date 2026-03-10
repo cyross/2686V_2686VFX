@@ -74,6 +74,9 @@ class GuiOpm : public GuiBase
     // プリセット名ラベル
     GuiLabel presetNameLabel;
 
+    juce::ImageComponent algImageComp;
+    std::array<juce::Image, 8> algImages;
+
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
