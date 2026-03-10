@@ -56,6 +56,7 @@ namespace GuiText
 		static inline const juce::String ssgNoise = "--- NOISE ---";
 		static inline const juce::String invert = "--- INVERT ---";
 		static inline const juce::String peak = "--- PEAK ---";
+		static inline const juce::String initialize = "--- INITIALIZE ---";
 	}
 
 	namespace File
@@ -111,6 +112,8 @@ namespace GuiText
 		static inline const juce::String amd = "L.AMD";
 		static inline const juce::String pmd = "L.PMD";
 		static inline const juce::String amSmoothRatio = "L.ASMRT";
+		static inline const juce::String initLfoToOpl = "Init Lfo: OPL";
+		static inline const juce::String initLfoToOpll = "Init Lfo: OPLL";
 
 		namespace Op
 		{
@@ -159,6 +162,8 @@ namespace GuiText
 			static inline const juce::String PcmOffset = "OFFSET";
 			static inline const juce::String PcmRatio = "RATIO";
 			static inline const juce::String RgEn = "RG-EN";
+
+			static inline const juce::String sus = "SUS";
 		}
 	}
 

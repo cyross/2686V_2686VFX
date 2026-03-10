@@ -280,6 +280,26 @@ namespace GuiValue
 				{
 					static inline constexpr int wdth = 240;
 
+					namespace Two
+					{
+						static constexpr int width = 120;
+
+						namespace Padding
+						{
+							static constexpr int height = 2;
+						}
+					}
+
+					namespace Three
+					{
+						static constexpr int width = 64;
+
+						namespace Padding
+						{
+							static constexpr int height = 2;
+						}
+					}
+
 					namespace Freq
 					{
 						static constexpr int width = 120;

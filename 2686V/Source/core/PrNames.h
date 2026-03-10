@@ -93,6 +93,8 @@ namespace PrName
 				static inline const juce::String rgD1r = " R_D1R";
 				static inline const juce::String rgD1l = " R_D1L";
 				static inline const juce::String rgD2r = " R_D2R";
+
+				static inline const juce::String sus = " SUS";
 			}
 		}
 	}

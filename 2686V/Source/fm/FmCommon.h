@@ -22,7 +22,7 @@ public:
     void setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void setParameters(const FmOpParams& params, float feedback, bool useSsgEg, bool useWaveSelect, bool useOpmEg = false, float ssgEgFreq = 1.0f);
     void noteOn(float frequency, float velocity, int noteNumber);
-    void noteOff() { m_state = State::Release; }
+    void noteOff();
     bool isPlaying() const { return m_state != State::Idle; }
     float getCurrentEnvelope() const { return m_currentLevel; }
     void setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
@@ -57,6 +57,9 @@ private:
     float m_fb1 = 0.0f; float m_fb2 = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
+
+    float m_susReleaseDec = 0.0f;
+    float m_currentReleaseDec = 0.0f;
 
     // OPZX3 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
