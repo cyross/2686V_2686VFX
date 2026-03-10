@@ -459,6 +459,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[2]) out3 = 0.0f;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out3;
 
             break;
@@ -474,6 +477,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[2]) out3 = 0.0f;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out3;
 
             break;
@@ -486,6 +492,9 @@ float Opzx3Core::getSample() {
             m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
+
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
 
             finalOut = out3;
 
@@ -500,6 +509,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[2]) out3 = 0.0f;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out1 + out2;
 
             break;
@@ -512,6 +524,9 @@ float Opzx3Core::getSample() {
             m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[2]) out3 = 0.0f;
+
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
 
             finalOut = out2 + out3;
 
@@ -528,6 +543,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[2]) out3 = 0.0f;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out2 + out3;
 
             break;
@@ -543,6 +561,9 @@ float Opzx3Core::getSample() {
 
             finalOut = out1 + out2 + out3;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             break;
         case 23:
             //	{{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)"}},        // 23: <OPX-23>
@@ -556,12 +577,18 @@ float Opzx3Core::getSample() {
 
             finalOut = out1 + out2 + out3;
 
+            // OP3を空回し
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             break;
         case 24:
             //	{{"([M:FB->2])", "([C])", "(--)", "(--)"}},               // 24: <OPX-24>
             m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
 
             finalOut = out2;
 
@@ -574,6 +601,9 @@ float Opzx3Core::getSample() {
 
             m_operators[0].pushFeedback(out2);
 
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out2;
 
             break;
@@ -582,6 +612,9 @@ float Opzx3Core::getSample() {
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
 
             finalOut = out1 + out2;
 
@@ -592,6 +625,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out1 + out2;
 
             break;
@@ -601,6 +637,9 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+
             finalOut = out2;
 
             break;
@@ -609,6 +648,9 @@ float Opzx3Core::getSample() {
             m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             if (m_opMask[1]) out2 = 0.0f;
+
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
 
             finalOut = out1 + out2;
 
@@ -725,36 +767,22 @@ float Opzx3Core::getSample() {
             break;
         }
 
-        // --- 出力に使われないOPのエンベロープ/位相を空回しして同期を保つ ---
-        if (m_algorithm >= 16 && m_algorithm <= 23) {
-            // 3OPモード: OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
-        }
-        else if (m_algorithm >= 24 && m_algorithm <= 29) {
-            // 2OPモード: OP2, OP3を空回し
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
-        }
-
         // =======================================================
-        // ★対策2: 複数のキャリアが加算されても1.0を超えないように音量を調整
+        // 複数のキャリアが加算されても1.0を超えないように音量を調整
         // =======================================================
         finalOut *= 0.25f;
 
-        // 絶対安全ガード (万が一1.0を超えてもDAWを破壊しない)
-        finalOut = std::clamp(finalOut, -1.0f, 1.0f);
-
-        // Quantization
+        // =======================================================
+        // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
+        // =======================================================
         if (m_quantizeSteps > 0.0f) {
-            if (finalOut > 1.0f) finalOut = 1.0f; else if (finalOut < -1.0f) finalOut = -1.0f;
-            float norm = (finalOut + 1.0f) * 0.5f;
-            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
-            finalOut = (quantized * 2.0f) - 1.0f;
+            // 単純に掛け算して丸め、割り算で戻すだけでゼロクロスが保証されます
+            finalOut = std::round(finalOut * m_quantizeSteps) / m_quantizeSteps;
+
+            // 安全のためのクリップ
+            finalOut = std::clamp(finalOut, -1.0f, 1.0f);
         }
 
-        // =======================================================
-        // ★対策1: 平均化(sumOut/steps)をやめ、最後に計算した値を保持する(Sample & Hold)
-        // =======================================================
         m_lastSample = finalOut;
     }
 

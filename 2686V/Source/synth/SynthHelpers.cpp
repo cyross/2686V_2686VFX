@@ -28,22 +28,17 @@ double getTargetRate(int index, double defaultValue) {
 
 float getTargetBitDepth(int index)
 {
+    // ±の解像度を設定。これにより 0.0 が必ず中央ステップに配置されます。
     switch (index) {
-        case 1:
-            return 15.0f;
-        case 2:
-            return 31.0f;
-        case 3:
-            return 63.0f;
-        case 4:
-            return 255.0f;
-        case 5:
-            return 0.0f;
-        case 6:
-            return 127.0f;  // 7-bit (OPLL / 128 steps)
+    case 1: return 7.0f;    // 4-bit (-7 ~ 0 ~ +7 の15段階)
+    case 2: return 15.0f;   // 5-bit (-15 ~ 0 ~ +15 の31段階)
+    case 3: return 31.0f;   // 6-bit (-31 ~ 0 ~ +31 の63段階)
+    case 4: return 127.0f;  // 8-bit (-127 ~ 0 ~ +127 の255段階)
+    case 5: return 0.0f;    // Raw (32-bit float / 量子化なし)
+    case 6: return 63.0f;   // ★追加した 7-bit (OPLL)
     }
 
-    return 255.0f;
+    return 127.0f;
 }
 
 float getTargetMaxVal(int index)
