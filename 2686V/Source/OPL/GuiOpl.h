@@ -57,6 +57,9 @@ class GuiOpl : public GuiBase
     // プリセット名ラベル
     GuiLabel presetNameLabel;
 
+    juce::ImageComponent algImageComp;
+    std::array<juce::Image, 2> algImages;
+
     std::array<GuiCategoryLabel, Global::Fm::Op2> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op2> catLfo;
     std::array<GuiSlider, Global::Fm::Op2> mul;

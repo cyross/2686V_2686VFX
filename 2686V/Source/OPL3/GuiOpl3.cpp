@@ -90,6 +90,21 @@ void GuiOpl3::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
+    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL3_%02d.png", i);
+        auto imgFile = docDir.getChildFile(fileName);
+
+        if (imgFile.existsAsFile()) {
+            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
+        }
+    }
+
+    // 画像コンポーネントを画面に追加
+    addAndMakeVisible(algImageComp);
+
     const juce::String opCode = code + PrKey::Innder::op;
 
     for (int i = 0; i < 4; ++i)
@@ -188,6 +203,10 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+
+    auto imgArea = mRect.removeFromBottom(100);
+    algImageComp.setBounds(imgArea);
+    mRect.removeFromTop(GuiValue::Category::paddingTop);
 
     // --- Operators Section ---
     for (int i = 0; i < 4; ++i)
@@ -402,6 +421,21 @@ void GuiOpl3::updateAlgorithmDisplay()
         juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 
         opGroups[i].setText(newTitle);
+    }
+
+    // ==========================================================
+    // 画像の切り替え
+    // ==========================================================
+    if (algImages[algIndex].isValid())
+    {
+        // 読み込めている場合はその画像をセット
+        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
+        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
+    }
+    else
+    {
+        // 画像がない場合（ファイルが見つからなかった時など）はクリア
+        algImageComp.setImage(juce::Image());
     }
 }
 
