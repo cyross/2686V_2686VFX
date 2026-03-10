@@ -403,17 +403,7 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     }
 
     // 4. 各タブのプリセット名を更新
-    opnaGui->updatePresetName(audioProcessor.presetName);
-    opnGui->updatePresetName(audioProcessor.presetName);
-    oplGui->updatePresetName(audioProcessor.presetName);
-    opl3Gui->updatePresetName(audioProcessor.presetName);
-    opmGui->updatePresetName(audioProcessor.presetName);
-    opzx3Gui->updatePresetName(audioProcessor.presetName);
-    ssgGui->updatePresetName(audioProcessor.presetName);
-    wtGui->updatePresetName(audioProcessor.presetName);
-    rhythmGui->updatePresetName(audioProcessor.presetName);
-    adpcmGui->updatePresetName(audioProcessor.presetName);
-    beepGui->updatePresetName(audioProcessor.presetName);
+    updatePresetNameToTabs(audioProcessor.presetName);
 }
 #endif
 
@@ -540,6 +530,21 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
             scanPresets();
         }
         });
+}
+
+void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
+    // 4. 各タブのプリセット名を更新
+    opnaGui->updatePresetName(pName);
+    opnGui->updatePresetName(pName);
+    oplGui->updatePresetName(pName);
+    opl3Gui->updatePresetName(pName);
+    opmGui->updatePresetName(pName);
+    opzx3Gui->updatePresetName(pName);
+    ssgGui->updatePresetName(pName);
+    wtGui->updatePresetName(pName);
+    rhythmGui->updatePresetName(pName);
+    adpcmGui->updatePresetName(pName);
+    beepGui->updatePresetName(pName);
 }
 #endif
 
