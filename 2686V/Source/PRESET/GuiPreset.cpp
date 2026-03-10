@@ -212,6 +212,9 @@ void GuiPreset::setup()
                     ctx.editor.updateRhythmFileNames(Io::empty);
                     ctx.editor.updateAdpcmFileName(Io::empty);
                     ctx.editor.updateOpzx3FileNames(Io::empty);
+
+                    // 各タブのプリセット名をリセット
+                    ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);
                 }
             }
         );

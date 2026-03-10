@@ -56,6 +56,7 @@ public:
     void scanPresets();
     void saveCurrentPreset();
     void saveCurrentPresetAs();
+    void updatePresetNameToTabs(const juce::String& pName);
 #endif
     void loadWallpaperImage();
     void openFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
