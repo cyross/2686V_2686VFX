@@ -11,6 +11,8 @@ namespace GuiText
 	static inline const juce::String bit = "BIT";
 	static inline const juce::String rate = "RATE";
 
+	static inline const juce::String monoPoly = "MonoPhonic";
+
 	namespace MasterVol
 	{
 		static inline const juce::String title = "M.Vol";
@@ -57,6 +59,8 @@ namespace GuiText
 		static inline const juce::String invert = "--- INVERT ---";
 		static inline const juce::String peak = "--- PEAK ---";
 		static inline const juce::String initialize = "--- INITIALIZE ---";
+		static inline const juce::String monoMode = "--- MONO/POLY ---";
+		static inline const juce::String preset = "--- PRESET ---";
 	}
 
 	namespace File

@@ -400,6 +400,19 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
         opzx3Gui->updatePcmFileName(i, text);
     }
+
+    // 4. 各タブのプリセット名を更新
+    opnaGui->updatePresetName(audioProcessor.presetName);
+    opnGui->updatePresetName(audioProcessor.presetName);
+    oplGui->updatePresetName(audioProcessor.presetName);
+    opl3Gui->updatePresetName(audioProcessor.presetName);
+    opmGui->updatePresetName(audioProcessor.presetName);
+    opzx3Gui->updatePresetName(audioProcessor.presetName);
+    ssgGui->updatePresetName(audioProcessor.presetName);
+    wtGui->updatePresetName(audioProcessor.presetName);
+    rhythmGui->updatePresetName(audioProcessor.presetName);
+    adpcmGui->updatePresetName(audioProcessor.presetName);
+    beepGui->updatePresetName(audioProcessor.presetName);
 }
 #endif
 

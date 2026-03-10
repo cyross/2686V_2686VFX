@@ -95,6 +95,8 @@ struct SynthParams
     // --- Synth Mode ---
     OscMode mode = OscMode::OPNA;
 
+    bool monoMode = false;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---

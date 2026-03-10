@@ -93,6 +93,16 @@ namespace GuiValue
 		static inline constexpr int paddingTop = 16;
 	}
 
+	namespace MonoMode
+	{
+		static inline constexpr int paddingTop = 20;
+	}
+
+	namespace PresetName
+	{
+		static inline constexpr int paddingBottom = 20;
+	}
+
 	namespace Category
 	{
 		static inline constexpr int paddingTop = 4;

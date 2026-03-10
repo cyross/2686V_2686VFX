@@ -15,6 +15,11 @@ namespace PrValue
 		inline constexpr float initial = -3.0f; // デフォルト値（dB）
 	}
 
+	namespace MonoMode
+	{
+		inline constexpr bool initial = true;
+	}
+
 	namespace Adsr
 	{
 		namespace Ar

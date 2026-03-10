@@ -8,6 +8,7 @@ namespace PrKey
 {
 	static inline const juce::String mode = "MODE";
 	static inline const juce::String masterVol = "MASTER_VOL";
+	static inline const juce::String monoMode = "MONO_MODE";
 
 	namespace Prefix
 	{

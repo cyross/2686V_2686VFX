@@ -34,6 +34,8 @@ class GuiOpl3 : public GuiBase
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -47,6 +49,12 @@ class GuiOpl3 : public GuiBase
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
+
+    // Mono/Poly切り替えスイッチ
+    GuiToggleButton monoModeToggle;
+
+    // プリセット名ラベル
+    GuiLabel presetNameLabel;
 
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
@@ -91,6 +99,8 @@ public:
         GuiBase(context),
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
+        monoPolyCat(context),
+        presetNameCat(context),
         qualityCat(context),
         algFbCat(context),
         algSelector(context),
@@ -134,7 +144,9 @@ public:
         rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) }
+        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        monoModeToggle(context),
+        presetNameLabel(context)
     {
 	}
 
@@ -143,4 +155,5 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
+    void updatePresetName(const juce::String& presetName);
 };

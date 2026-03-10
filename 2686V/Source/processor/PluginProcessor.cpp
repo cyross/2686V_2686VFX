@@ -82,6 +82,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         PrValue::MasterVol::initial              // デフォルト値
     ));
 
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        PrKey::monoMode,
+        PrName::monoMode,
+        PrValue::MonoMode::initial
+    ));
+
     return layout;
 }
 
@@ -177,6 +183,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         prBeep.processBlock(params, apvts);
         break;
     }
+
+    bool isMono = (*apvts.getRawParameterValue(PrKey::monoMode) > 0.5f);
+
+    m_synth.isMonoMode = isMono;
+    params.monoMode = isMono;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)

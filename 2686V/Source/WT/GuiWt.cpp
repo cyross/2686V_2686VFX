@@ -59,6 +59,8 @@ void GuiWt::setup()
 
     levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::level, .title = GuiText::Wt::level, .isReset = true });
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
@@ -84,6 +86,12 @@ void GuiWt::setup()
 
     // Master Volume
 	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, GuiText::Group::wtCustom);
@@ -124,6 +132,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
@@ -141,7 +151,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider, .paddingBottom = GuiValue::MVol::paddingTop });
     layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabled(isMod);
@@ -207,4 +219,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutComponentsLtoRWtWaveValueUpdateRow({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn =  &customWaveResetToM1Btn });
+}
+
+void GuiWt::updatePresetName(const juce::String& presetName)
+{
+    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
 }
