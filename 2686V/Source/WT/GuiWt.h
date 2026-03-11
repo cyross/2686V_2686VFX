@@ -32,6 +32,8 @@ class WaveformContainer :
 public:
     WaveformContainer(const GuiContext& context) : GuiBaseComponent(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+
         for (size_t i = 0; i < tableSize; ++i)
         {
             wts.push_back(std::make_unique<GuiSlider>(context));
@@ -78,24 +80,30 @@ public:
                 .labelColor = juce::Colours::white
 				});
             // バーグラフ風の見た目にする
+            slider->setWantsKeyboardFocus(false);
             slider->setSliderStyle(juce::Slider::LinearBarVertical);
             slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
             slider->setRange(-1.0, 1.0);
 
             // 5つのボタンの色設定と、押された時の動作
             maxBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To1 });
+            maxBtns[i]->setWantsKeyboardFocus(false);
             maxBtns[i]->onClick = [this, i] { wts[i]->setValue(1.0f, juce::sendNotification); };
 
             halfMaxBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To05 });
+            halfMaxBtns[i]->setWantsKeyboardFocus(false);
             halfMaxBtns[i]->onClick = [this, i] { wts[i]->setValue(0.5f, juce::sendNotification); };
 
             zeroBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To0 });
+            zeroBtns[i]->setWantsKeyboardFocus(false);
             zeroBtns[i]->onClick = [this, i] { wts[i]->setValue(0.0f, juce::sendNotification); };
 
             halfMinBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM05 });
+            halfMinBtns[i]->setWantsKeyboardFocus(false);
             halfMinBtns[i]->onClick = [this, i] { wts[i]->setValue(-0.5f, juce::sendNotification); };
 
             minBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1 });
+            minBtns[i]->setWantsKeyboardFocus(false);
             minBtns[i]->onClick = [this, i] { wts[i]->setValue(-1.0f, juce::sendNotification); };
         }
     }
@@ -309,6 +317,7 @@ public:
         monoModeToggle(context),
         presetNameLabel(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     void setup() override;

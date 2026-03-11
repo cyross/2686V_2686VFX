@@ -24,6 +24,8 @@ void GuiSettings::setup()
         {.name = "Original",   .value = 4 },
     };
 
+    int tabOrder = 1;
+
     mainGroup.setup(*this, GuiText::Group::settingEnv);
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
@@ -37,6 +39,9 @@ void GuiSettings::setup()
     // --- Wallpaper Path ---
     setupRow(wallpaperLabel, "Wallpaper:", wallpaperPathLabel, wallpaperBrowseBtn);
     wallpaperPathLabel.setText(ctx.audioProcessor.wallpaperPath, juce::dontSendNotification);
+    wallpaperPathLabel.setWantsKeyboardFocus(false);
+    wallpaperBrowseBtn.setWantsKeyboardFocus(true);
+    wallpaperBrowseBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             "Select Wallpaper Image",
@@ -52,7 +57,9 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = "Clear", .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = "X", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+    wallpaperClearBtn.setWantsKeyboardFocus(true);
+    wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
         ctx.audioProcessor.wallpaperPath = "";
         wallpaperPathLabel.setText(Io::empty, juce::dontSendNotification);
@@ -62,6 +69,8 @@ void GuiSettings::setup()
     // --- Wallpaper Mode ---
     wallpaperModeSelector.setup({ .parent = *this, .title = "Mode:", .items = wpModeItems, .isReset = false });
     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1, juce::dontSendNotification);
+    wallpaperModeSelector.setWantsKeyboardFocus(true);
+    wallpaperModeSelector.setExplicitFocusOrder(++tabOrder);
     wallpaperModeSelector.onChange = [this] {
         ctx.audioProcessor.wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
         ctx.editor.repaint(); // Editor全体の再描画を呼び出す
@@ -71,6 +80,9 @@ void GuiSettings::setup()
     // --- ADPCM Dir ---
     setupRow(sampleDirLabel, "Sample Dir:", sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
+    sampleDirPathLabel.setWantsKeyboardFocus(false);
+    sampleDirBrowseBtn.setWantsKeyboardFocus(true);
+    sampleDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     sampleDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             "Select Default Sample Directory",
@@ -89,7 +101,10 @@ void GuiSettings::setup()
     // --- Preset Dir ---
     setupRow(presetDirLabel, "Preset Dir:", presetDirPathLabel, presetDirBrowseBtn);
     presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
+    presetDirPathLabel.setWantsKeyboardFocus(false);
 
+    presetDirBrowseBtn.setWantsKeyboardFocus(true);
+    presetDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     presetDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             "Select Default Preset Directory",
@@ -111,6 +126,8 @@ void GuiSettings::setup()
     // --- Toggle Tooltip Visible Toggle Button ---
 	tooltipToggle.setup({ .parent = *this, .title = "Show Parameter Range", .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
+    tooltipToggle.setWantsKeyboardFocus(true);
+    tooltipToggle.setExplicitFocusOrder(++tabOrder);
     tooltipToggle.onClick = [this] {
         bool newState = tooltipToggle.getToggleState();
         ctx.audioProcessor.showTooltips = newState;
@@ -119,6 +136,8 @@ void GuiSettings::setup()
 
 	useHeadroomToggle.setup({ .parent = *this, .title = "Use Headroom Settings", .isReset = false });
     useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
+    useHeadroomToggle.setWantsKeyboardFocus(true);
+    useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
     useHeadroomToggle.onClick = [this] {
         bool state = useHeadroomToggle.getToggleState();
         ctx.audioProcessor.useHeadroom = state;
@@ -127,6 +146,8 @@ void GuiSettings::setup()
 
     // --- Headroom Gain Slider---
 	headroomGainSlider.setup({ .parent = *this, .title = "Headroom Gain", .isReset = false });
+    headroomGainSlider.setWantsKeyboardFocus(true);
+    headroomGainSlider.setExplicitFocusOrder(++tabOrder);
     headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
     headroomGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
     headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
@@ -139,6 +160,8 @@ void GuiSettings::setup()
     };
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = "Show Virtual Midi Keyboard", .isReset = false });
+    virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
+    virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
     virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
     virtualMidiKeyboardToggle.onClick = [this] {
         ctx.audioProcessor.showVirtualKeyboard = !ctx.audioProcessor.showVirtualKeyboard;
@@ -149,6 +172,8 @@ void GuiSettings::setup()
 
     // --- Save Preference Button ---
 	saveSettingsBtn.setup({ .parent = *this, .title = "Save Settings", .isReset = false });
+    saveSettingsBtn.setWantsKeyboardFocus(true);
+    saveSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveSettingsBtn.onClick = [this] {
         ctx.editor.openWriteFileChooser(
             "Save Environment Settings",
@@ -165,6 +190,8 @@ void GuiSettings::setup()
 
     // --- Load Preference Button ---
 	loadSettingsBtn.setup({ .parent = *this, .title = "Load Settings", .isReset = false });
+    loadSettingsBtn.setWantsKeyboardFocus(true);
+    loadSettingsBtn.setExplicitFocusOrder(++tabOrder);
     loadSettingsBtn.onClick = [this] {
         ctx.editor.openFileChooser(
             "Load Environment Settings",
@@ -199,6 +226,8 @@ void GuiSettings::setup()
     };
 
     saveStartupSettingsBtn.setup({ .parent = *this, .title = "Save Current Settings as Default", .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
+    saveStartupSettingsBtn.setWantsKeyboardFocus(true);
+    saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
         {
             auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);

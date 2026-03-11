@@ -51,47 +51,87 @@ static std::vector<SelectItem> wtTsItems = {
 void GuiWt::setup()
 {
     const juce::String code = PrKey::Prefix::wt;
+    int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
 
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setWantsKeyboardFocus(true);
+    bitSelector.setExplicitFocusOrder(++tabOrder);
+
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setWantsKeyboardFocus(true);
+    rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
     levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::level, .title = GuiText::Wt::level, .isReset = true });
-
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
-    modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
-
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Adsr::dr, .isReset = true });
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
+    levelSlider.setWantsKeyboardFocus(true);
+    levelSlider.setExplicitFocusOrder(++tabOrder);
 
     // Waveform
-	waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::wave, .title = GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::wave, .title = GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setWantsKeyboardFocus(true);
+    waveSelector.setExplicitFocusOrder(++tabOrder);
 
     // Custom Wave Size
     sizeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::sampleSize, .title = GuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
+    sizeSelector.setWantsKeyboardFocus(true);
+    sizeSelector.setExplicitFocusOrder(++tabOrder);
+
+    modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
 
     // Modulation
     modEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::enable, .title = GuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
-	modDepthSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::depth, .title = GuiText::Wt::Mod::depth, .isReset = true });
-	modSpeedSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::speed, .title = GuiText::Wt::Mod::speed, .isReset = true });
+    modEnableButton.setWantsKeyboardFocus(true);
+    modEnableButton.setExplicitFocusOrder(++tabOrder);
+
+    modDepthSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::depth, .title = GuiText::Wt::Mod::depth, .isReset = true });
+    modDepthSlider.setWantsKeyboardFocus(true);
+    modDepthSlider.setExplicitFocusOrder(++tabOrder);
+
+    modSpeedSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::speed, .title = GuiText::Wt::Mod::speed, .isReset = true });
+    modSpeedSlider.setWantsKeyboardFocus(true);
+    modSpeedSlider.setExplicitFocusOrder(++tabOrder);
+
+    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+
+    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
+    attackSlider.setWantsKeyboardFocus(true);
+    attackSlider.setExplicitFocusOrder(++tabOrder);
+
+    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Adsr::dr, .isReset = true });
+    decaySlider.setWantsKeyboardFocus(true);
+    decaySlider.setExplicitFocusOrder(++tabOrder);
+
+    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
+    sustainSlider.setWantsKeyboardFocus(true);
+    sustainSlider.setExplicitFocusOrder(++tabOrder);
+
+    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
+    releaseSlider.setWantsKeyboardFocus(true);
+    releaseSlider.setExplicitFocusOrder(++tabOrder);
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     // Master Volume
 	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
+
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
-
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, GuiText::Group::wtCustom);
@@ -101,6 +141,8 @@ void GuiWt::setup()
     customSliders64.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom64 });
 
 	customWaveResetTo0Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
+    customWaveResetTo0Btn.setWantsKeyboardFocus(true);
+    customWaveResetTo0Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo0Btn.onClick = [this] {
         customSliders32.setAllValues(0.0f);
         customSliders64.setAllValues(0.0f);
@@ -108,6 +150,8 @@ void GuiWt::setup()
     };
 
     customWaveResetTo1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to1, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
+    customWaveResetTo1Btn.setWantsKeyboardFocus(true);
+    customWaveResetTo1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo1Btn.onClick = [this] {
         customSliders32.setAllValues(1.0f);
         customSliders64.setAllValues(1.0f);
@@ -115,6 +159,8 @@ void GuiWt::setup()
         };
 
     customWaveResetToM1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::toM1, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
+    customWaveResetToM1Btn.setWantsKeyboardFocus(true);
+    customWaveResetToM1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetToM1Btn.onClick = [this] {
         customSliders32.setAllValues(-1.0f);
         customSliders64.setAllValues(-1.0f);

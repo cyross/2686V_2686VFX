@@ -23,6 +23,8 @@ juce::File GuiPreset::getSelectedFile() const
 
 void GuiPreset::setup()
 {
+    int tabOrder = 1;
+
     /********************
     *
     * 1. Folder
@@ -44,6 +46,8 @@ void GuiPreset::setup()
 
     pathLabel.setup({ .parent = *this, .title = currentFolder.getFullPathName()});
     pathLabel.setJustificationType(juce::Justification::left);
+    pathLabel.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack.withAlpha(0.2f));
+    pathLabel.setWantsKeyboardFocus(false);
 
     /********************
     *
@@ -52,15 +56,20 @@ void GuiPreset::setup()
     *********************/
 
     searchBox.setup({ .parent = *this, .title = PresetKey::Search::title, .isMultiLine = false });
+    searchBox.setWantsKeyboardFocus(true);
+    searchBox.setExplicitFocusOrder(++tabOrder);
     searchBox.onTextChange = [this] { applyFilter(); };
 
     clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
+    clearSearchButton.setWantsKeyboardFocus(true);
+    clearSearchButton.setExplicitFocusOrder(++tabOrder);
     clearSearchButton.onClick = [this] {
         searchBox.setText(""); // テキストボックスを空にする
         applyFilter();         // リストの絞り込みをリセット（全件表示）する
     };
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
+    table.setWantsKeyboardFocus(false);
     table.addColumn(PresetKey::Table::ColName::genre, 1, GuiValue::Preset::Table::ColWidth::Genre);
     table.addColumn(PresetKey::Table::ColName::name, 2, GuiValue::Preset::Table::ColWidth::PresetName);
     table.addColumn(PresetKey::Table::ColName::author, 3, GuiValue::Preset::Table::ColWidth::Author);
@@ -151,31 +160,42 @@ void GuiPreset::setup()
 
     genreEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::genre, .isMultiLine = false });
     genreEditor.setText(ctx.audioProcessor.presetGenre);
+    genreEditor.setWantsKeyboardFocus(true);
+    genreEditor.setExplicitFocusOrder(++tabOrder);
     genreEditor.onTextChange = [this] { ctx.audioProcessor.presetGenre = genreEditor.getText(); };
 
     filePathEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::filePath, .isMultiLine = false });
     filePathEditor.setText(ctx.audioProcessor.presetFilePath);
     filePathEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.withAlpha(0.3f));
     filePathEditor.setReadOnly(true); // ユーザーには手打ちさせない
+    filePathEditor.setWantsKeyboardFocus(false);
 
     // Name
 	nameEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::name, .isMultiLine = false });
     nameEditor.setText(ctx.audioProcessor.presetName);
+    nameEditor.setWantsKeyboardFocus(true);
+    nameEditor.setExplicitFocusOrder(++tabOrder);
     nameEditor.onTextChange = [this] { ctx.audioProcessor.presetName = nameEditor.getText(); };
 
     // Author
     authorEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::auther, .isMultiLine = false });
     authorEditor.setText(ctx.audioProcessor.presetAuthor);
+    authorEditor.setWantsKeyboardFocus(true);
+    authorEditor.setExplicitFocusOrder(++tabOrder);
     authorEditor.onTextChange = [this] { ctx.audioProcessor.presetAuthor = authorEditor.getText(); };
 
     // Version
     versionEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::version, .isMultiLine = false });
     versionEditor.setText(ctx.audioProcessor.presetVersion);
+    versionEditor.setWantsKeyboardFocus(true);
+    versionEditor.setExplicitFocusOrder(++tabOrder);
     versionEditor.onTextChange = [this] { ctx.audioProcessor.presetVersion = versionEditor.getText(); };
 
     // Comment
     commentEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::comment, .isMultiLine = true, .isReturnKeyStartsNewLine = true });
     commentEditor.setText(ctx.audioProcessor.presetComment);
+    commentEditor.setWantsKeyboardFocus(true);
+    commentEditor.setExplicitFocusOrder(++tabOrder);
     commentEditor.onTextChange = [this] { ctx.audioProcessor.presetComment = commentEditor.getText(); };
 
     /********************
@@ -186,6 +206,8 @@ void GuiPreset::setup()
 
     // --- Init Preset Button ---
 	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .bgColor = juce::Colours::darkblue.withAlpha(0.7f) });
+    initButton.setWantsKeyboardFocus(true);
+    initButton.setExplicitFocusOrder(++tabOrder);
     initButton.onClick = [this] {
         // 確認ダイアログを表示
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
@@ -223,6 +245,8 @@ void GuiPreset::setup()
     // --- Load Preset Info Button ---
 	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .isReset = false });
     loadButton.setEnabled(false);
+    loadButton.setWantsKeyboardFocus(true);
+    loadButton.setExplicitFocusOrder(++tabOrder);
     loadButton.onClick = [this] {
         auto file = getSelectedFile();
 
@@ -231,14 +255,20 @@ void GuiPreset::setup()
 
     // --- Save Preset Button ---
     saveButton.setup({ .parent = *this, .title = PresetKey::Button::savePreset });
+    saveButton.setWantsKeyboardFocus(true);
+    saveButton.setExplicitFocusOrder(++tabOrder);
     saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
 
     // --- Save Preset As Button ---
     saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
+    saveAsButton.setWantsKeyboardFocus(true);
+    saveAsButton.setExplicitFocusOrder(++tabOrder);
     saveAsButton.onClick = [this] { ctx.editor.saveCurrentPresetAs(); };
 
     // --- Delete Preset Button ---
 	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
+    deleteButton.setWantsKeyboardFocus(true);
+    deleteButton.setExplicitFocusOrder(++tabOrder);
     deleteButton.setEnabled(false);
     deleteButton.onClick = [this] {
         auto file = getSelectedFile();
@@ -263,10 +293,14 @@ void GuiPreset::setup()
 
     // --- Reflesh Preset List Button ---
 	refreshButton.setup({ .parent = *this, .title = PresetKey::Button::refleshPresetList });
+    refreshButton.setWantsKeyboardFocus(true);
+    refreshButton.setExplicitFocusOrder(++tabOrder);
     refreshButton.onClick = [this] { ctx.editor.scanPresets(); };
 
     // --- Reflect Preset Info Button ---
 	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .isReset = false });
+    reflectButton.setWantsKeyboardFocus(true);
+    reflectButton.setExplicitFocusOrder(++tabOrder);
     reflectButton.setTooltip(GuiText::Preset::Dialog::reflectPresetToolTipMessage);
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
@@ -285,6 +319,8 @@ void GuiPreset::setup()
 
     // --- Copy Preset Info to Clipboard Button ---
 	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .isReset = false });
+    copyButton.setWantsKeyboardFocus(true);
+    copyButton.setExplicitFocusOrder(++tabOrder);
     copyButton.setEnabled(false);
     copyButton.onClick = [this] {
         int row = table.getSelectedRow();

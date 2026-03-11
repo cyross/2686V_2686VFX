@@ -69,7 +69,8 @@ public:
         useHeadroomToggle(context),
         headroomGainSlider(context)
     {
-	}
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
