@@ -79,7 +79,6 @@ class GuiRhythm : public GuiBase
 {
     GuiGroup mainGroup;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel presetNameCat;
     GuiCategoryLabel mainCat;
 
@@ -91,9 +90,6 @@ class GuiRhythm : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
-
     // プリセット名ラベル
     GuiLabel presetNameLabel;
 
@@ -103,13 +99,11 @@ public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        monoPolyCat(context),
         presetNameCat(context),
         mainCat(context),
         levelSlider(context),
         mvolCat(context),
         masterVolSlider(context),
-        monoModeToggle(context),
         presetNameLabel(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {}

@@ -33,7 +33,6 @@ class GuiAdpcm : public GuiBase
     // Loop Button
     GuiToggleButton loopButton;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel mainCat;
@@ -50,9 +49,6 @@ class GuiAdpcm : public GuiBase
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
-
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -75,7 +71,6 @@ public:
         btnPanC(context),
         btnPanR(context),
         loopButton(context),
-        monoPolyCat(context),
         presetNameCat(context),
         qualityCat(context),
         mainCat(context),
@@ -86,7 +81,6 @@ public:
         sustainSlider(context),
         releaseSlider(context),
         rateSelector(context),
-        monoModeToggle(context),
         presetNameLabel(context)
     {
 	}
