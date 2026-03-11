@@ -154,10 +154,14 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> dt2;
     std::array<GuiSlider, Global::Fm::Op4> tl;
     std::array<GuiSlider, Global::Fm::Op4> ar;
+    std::array<GuiTextButton, Global::Fm::Op4> arTo000;
+    std::array<GuiTextButton, Global::Fm::Op4> arTo003;
     std::array<GuiSlider, Global::Fm::Op4> d1r;
     std::array<GuiSlider, Global::Fm::Op4> d1l;
     std::array<GuiSlider, Global::Fm::Op4> d2r;
     std::array<GuiSlider, Global::Fm::Op4> rr;
+    std::array<GuiTextButton, Global::Fm::Op4> rrTo000;
+    std::array<GuiTextButton, Global::Fm::Op4> rrTo003;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
@@ -227,10 +231,14 @@ public:
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        arTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        arTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        rrTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        rrTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },

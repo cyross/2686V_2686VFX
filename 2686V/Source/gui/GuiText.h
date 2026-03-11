@@ -99,6 +99,10 @@ namespace GuiText
 		static inline const juce::String dr = " DR";
 		static inline const juce::String sl = " SL";
 		static inline const juce::String rr = " RR";
+		static inline const juce::String ArTo000 = "-> 0.00";
+		static inline const juce::String ArTo003 = "-> 0.03";
+		static inline const juce::String RrTo000 = "-> 0.00";
+		static inline const juce::String RrTo003 = "-> 0.03";
 	}
 
 	namespace Fm
@@ -163,6 +167,10 @@ namespace GuiText
 			static inline const juce::String Opzx3FreqTo1 = "->1";
 			static inline const juce::String Opzx3FreqTo2 = "->2";
 			static inline const juce::String Opzx3FreqTo440 = "->440";
+			static inline const juce::String ArTo000 = "-> 0.00";
+			static inline const juce::String ArTo003 = "-> 0.03";
+			static inline const juce::String RrTo000 = "-> 0.00";
+			static inline const juce::String RrTo003 = "-> 0.03";
 			static inline const juce::String PcmOffset = "OFFSET";
 			static inline const juce::String PcmRatio = "RATIO";
 			static inline const juce::String RgEn = "RG-EN";

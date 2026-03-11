@@ -65,9 +65,13 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, Global::Fm::Op2> mul;
     std::array<GuiComboBox, Global::Fm::Op2> dt;
     std::array<GuiSlider, Global::Fm::Op2> ar;
+    std::array<GuiTextButton, Global::Fm::Op2> arTo000;
+    std::array<GuiTextButton, Global::Fm::Op2> arTo003;
     std::array<GuiSlider, Global::Fm::Op2> dr;
     std::array<GuiSlider, Global::Fm::Op2> sl;
     std::array<GuiSlider, Global::Fm::Op2> rr;
+    std::array<GuiTextButton, Global::Fm::Op4> rrTo000;
+    std::array<GuiTextButton, Global::Fm::Op4> rrTo003;
     std::array<GuiSlider, Global::Fm::Op2> tl;
     std::array<GuiToggleButton, Global::Fm::Op2> am;
     std::array<GuiToggleButton, Global::Fm::Op2> vib;
@@ -129,9 +133,13 @@ public:
         mul{ GuiSlider(context), GuiSlider(context) },
         dt{ GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context) },
+        arTo000{ GuiTextButton(context),GuiTextButton(context) },
+        arTo003{ GuiTextButton(context),GuiTextButton(context) },
         dr{ GuiSlider(context), GuiSlider(context) },
         sl{ GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context) },
+        rrTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        rrTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         tl{ GuiSlider(context), GuiSlider(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context) },

@@ -57,11 +57,17 @@ class GuiSsg : public GuiBase
 
     GuiSlider attackSlider;
 
+    GuiTextButton arTo000Button;
+    GuiTextButton arTo003Button;
+
     GuiSlider decaySlider;
 
     GuiSlider sustainSlider;
 
     GuiSlider releaseSlider;
+
+    GuiTextButton rrTo000Button;
+    GuiTextButton rrTo003Button;
 
     GuiComboBox dutyModeSelector; // Preset / Variable
 
@@ -136,9 +142,13 @@ public:
         adsrCat(context),
         adsrBypassButton(context),
         attackSlider(context),
+        arTo000Button(context),
+        arTo003Button(context),
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
+        rrTo000Button(context),
+        rrTo003Button(context),
         dutyModeSelector(context),
         dutyPresetSelector(context),
         dutyVarSlider(context),

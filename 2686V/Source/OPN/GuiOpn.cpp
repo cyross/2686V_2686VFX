@@ -135,10 +135,18 @@ void GuiOpn::setup()
         tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
 
         ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ar, .title = GuiText::Fm::Op::Ar, .isReset = true, .regType = RegisterType::FmAr });
+        arTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+        arTo000[i].onClick = [this, index = i] { ar[index].setValue(0.00, juce::sendNotification); };
+        arTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+        arTo003[i].onClick = [this, index = i] { ar[index].setValue(0.03, juce::sendNotification); };
         dr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dr, .title = GuiText::Fm::Op::Dr, .isReset = true, .regType = RegisterType::FmDr });
         sl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::sl, .title = GuiText::Fm::Op::Sl, .isReset = true, .regType = RegisterType::FmSl });
         sr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::sr, .title = GuiText::Fm::Op::Sr, .isReset = true, .regType = RegisterType::FmSr });
         rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rr, .title = GuiText::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
+        rrTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo000, .isReset = false, .isResized = false });
+        rrTo000[i].onClick = [this, index = i] { rr[index].setValue(0.00, juce::sendNotification); };
+        rrTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo003, .isReset = false, .isResized = false });
+        rrTo003[i].onClick = [this, index = i] { rr[index].setValue(0.03, juce::sendNotification); };
 
         ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ks, .title = GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
 
@@ -230,10 +238,12 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         else
         {
             layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &sr[i].label, .component = &sr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         }
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
@@ -365,12 +375,16 @@ void GuiOpn::updateOpEnable(int idx, bool enable)
     dt[idx].label.setEnabled(enable);
     ar[idx].setEnabled(enable);
     ar[idx].label.setEnabled(enable);
+    arTo000[idx].setEnabled(enable);
+    arTo003[idx].setEnabled(enable);
     dr[idx].setEnabled(enable);
     dr[idx].label.setEnabled(enable);
     sl[idx].setEnabled(enable);
     sl[idx].label.setEnabled(enable);
     rr[idx].setEnabled(enable);
     rr[idx].label.setEnabled(enable);
+    rrTo000[idx].setEnabled(enable);
+    rrTo003[idx].setEnabled(enable);
     sr[idx].setEnabled(enable);
     sr[idx].label.setEnabled(enable);
     tl[idx].setEnabled(enable);
@@ -435,6 +449,8 @@ void GuiOpn::updateRgDisplayAsOp(int idx, bool rgMode)
 
     ar[idx].label.setVisible(!rgMode);
     ar[idx].setVisible(!rgMode);
+    arTo000[idx].setVisible(!rgMode);
+    arTo003[idx].setVisible(!rgMode);
     dr[idx].label.setVisible(!rgMode);
     dr[idx].setVisible(!rgMode);
     sl[idx].label.setVisible(!rgMode);
@@ -443,6 +459,8 @@ void GuiOpn::updateRgDisplayAsOp(int idx, bool rgMode)
     sr[idx].setVisible(!rgMode);
     rr[idx].label.setVisible(!rgMode);
     rr[idx].setVisible(!rgMode);
+    rrTo000[idx].setVisible(!rgMode);
+    rrTo003[idx].setVisible(!rgMode);
     tl[idx].label.setVisible(!rgMode);
     tl[idx].setVisible(!rgMode);
 }

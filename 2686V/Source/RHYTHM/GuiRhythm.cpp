@@ -111,6 +111,10 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     // RR
     rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Rhythm::Pad::rr, .isReset = true });
+    rrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+    rrTo000Button.onClick = [this] { rrSlider.setValue(0.00, juce::sendNotification); };
+    rrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+    rrTo003Button.onClick = [this] { rrSlider.setValue(0.03, juce::sendNotification); };
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -142,6 +146,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     });
     layoutRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
     layoutRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+    layoutRowTwoComps({ .rect = padRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
