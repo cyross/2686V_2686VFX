@@ -39,7 +39,7 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
     fileNameLabel.setText(fileName, juce::dontSendNotification);
 }
 
-void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName)
+void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
 {
     parent.addAndMakeVisible(this);
 
@@ -49,9 +49,23 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // メイングループ
     mainGroup.setup(*this, padTitle);
 
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+
+    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
+    modeSelector.setWantsKeyboardFocus(true);
+    modeSelector.setExplicitFocusOrder(++tabOrder);
+
+    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
+    rateSelector.setWantsKeyboardFocus(true);
+    rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = *this, .title = GuiText::File::load, .isReset = false });
     loadButton.addListener(&ctx.editor);
+    loadButton.setWantsKeyboardFocus(true);
+    loadButton.setExplicitFocusOrder(++tabOrder);
 
     // ロードしている音声ファイル名
     fileNameLabel.setup({ .parent = *this, .title = Io::empty });
@@ -61,6 +75,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // パッド音声アンロード
     clearButton.setup({ .parent = *this, .title = GuiText::File::clear, .isReset = false });
     clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
+    clearButton.setWantsKeyboardFocus(true);
+    clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this, index]
         {
             // 1. 特定のパッドをアンロード
@@ -71,46 +87,72 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
         };
 
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmOffset, .title = GuiText::Rhythm::Pad::pcmOffset, .isReset = true });
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
+    pcmOffsetSlider.setWantsKeyboardFocus(true);
+    pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
+    pcmRatioSlider.setWantsKeyboardFocus(true);
+    pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
+
+    // Vol
+    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Rhythm::Pad::vol, .isReset = true });
+    volSlider.setWantsKeyboardFocus(true);
+    volSlider.setExplicitFocusOrder(++tabOrder);
 
     // ワンショット機能トグル
     oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::oneShot, .title = GuiText::Rhythm::Pad::oneShot, .isReset = true });
+    oneShotButton.setWantsKeyboardFocus(true);
+    oneShotButton.setExplicitFocusOrder(++tabOrder);
 
     // 割り当てキーノート番号
     noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::note, .title = GuiText::Rhythm::Pad::note, .isReset = true });
     noteSlider.setRange(0, 127, 1);
+    noteSlider.setWantsKeyboardFocus(true);
+    noteSlider.setExplicitFocusOrder(++tabOrder);
     noteSlider.textFromValueFunction = [](double value) {
         return getNoteName((int)value);
         };
     noteSlider.updateText();
 
-    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
+    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
 
     // パンポット
     panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pan, .title = GuiText::Rhythm::Pad::pan, .isReset = true });
+    panSlider.setWantsKeyboardFocus(true);
+    panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
 
     btnPanL.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::l, .isReset = false });
+    btnPanL.setWantsKeyboardFocus(true);
+    btnPanL.setExplicitFocusOrder(++tabOrder);
     btnPanL.addListener(&ctx.editor);
 
     btnPanC.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::c, .isReset = false });
+    btnPanC.setWantsKeyboardFocus(true);
+    btnPanC.setExplicitFocusOrder(++tabOrder);
     btnPanC.addListener(&ctx.editor);
 
     btnPanR.setup({ .parent = *this, .title = GuiText::Rhythm::Pad::Pan::r, .isReset = false });
+    btnPanR.setWantsKeyboardFocus(true);
+    btnPanR.setExplicitFocusOrder(++tabOrder);
     btnPanR.addListener(&ctx.editor);
-
-    // Vol
-    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Rhythm::Pad::vol, .isReset = true });
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
     // RR
     rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Rhythm::Pad::rr, .isReset = true });
+    rrSlider.setWantsKeyboardFocus(true);
+    rrSlider.setExplicitFocusOrder(++tabOrder);
+
+    rrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+    rrTo000Button.setWantsKeyboardFocus(true);
+    rrTo000Button.setExplicitFocusOrder(++tabOrder);
+    rrTo000Button.onClick = [this] { rrSlider.setValue(0.00, juce::sendNotification); };
+
+    rrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+    rrTo003Button.setWantsKeyboardFocus(true);
+    rrTo003Button.setExplicitFocusOrder(++tabOrder);
+    rrTo003Button.onClick = [this] { rrSlider.setValue(0.03, juce::sendNotification); };
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -121,21 +163,28 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRhythmPadPanRow({ .rect = padRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+    layoutRow({ .rowRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .component = &oneShotButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowThreeComps({
+        .rect = padRect,
+        .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR,
+        .paddingBottom = GuiValue::Category::paddingTop,
+        .compWidth = GuiValue::ParamGroup::RhythmPan::width,
+        .compPaddingRight = GuiValue::ParamGroup::RhythmPan::paddingRight
+    });
+    layoutRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+    layoutRowTwoComps({ .rect = padRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -151,20 +200,14 @@ bool RhythmPadGui::isThis(juce::Button* button)
 void GuiRhythm::setup()
 {
     const juce::String code = PrKey::Prefix::rhythm;
+    int tabOrder = 1;
 
     // パッド名定義
     const std::array<juce::String, 8> padNames = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
 
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
     presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
-
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
-
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
@@ -172,12 +215,20 @@ void GuiRhythm::setup()
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = GuiText::Rhythm::vol, .isReset = true });
+    levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = GuiText::Rhythm::vol, .isReset = true });
+    levelSlider.setWantsKeyboardFocus(true);
+    levelSlider.setExplicitFocusOrder(++tabOrder);
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
     {
-        pads[i].setup(*this, i, padNames[i]);
+        pads[i].setup(*this, i, padNames[i], tabOrder);
     }
 }
 
@@ -203,14 +254,12 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);

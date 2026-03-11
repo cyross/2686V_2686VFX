@@ -220,7 +220,9 @@ public:
         scDryBtn(context),
         scHalfBtn(context),
         scWetBtn(context)
-    {}
+    {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

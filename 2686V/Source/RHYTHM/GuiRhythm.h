@@ -42,6 +42,8 @@ class RhythmPadGui: public GuiBase
     GuiCategoryLabel adsrCat;
 
     GuiSlider rrSlider;
+    GuiTextButton rrTo000Button;
+    GuiTextButton rrTo003Button;
 public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
@@ -64,12 +66,14 @@ public:
         volSlider(context),
         oneShotButton(context),
         adsrCat(context),
-        rrSlider(context)
-	{
+        rrSlider(context),
+        rrTo000Button(context),
+        rrTo003Button(context)
+    {
 	}
 
     void updatePadFileName(const juce::String& fileName);
-    void setup(juce::Component& parent, int index, juce::String padName);
+    void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
@@ -79,7 +83,6 @@ class GuiRhythm : public GuiBase
 {
     GuiGroup mainGroup;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel presetNameCat;
     GuiCategoryLabel mainCat;
 
@@ -91,9 +94,6 @@ class GuiRhythm : public GuiBase
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
-
     // プリセット名ラベル
     GuiLabel presetNameLabel;
 
@@ -103,16 +103,16 @@ public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        monoPolyCat(context),
         presetNameCat(context),
         mainCat(context),
         levelSlider(context),
         mvolCat(context),
         masterVolSlider(context),
-        monoModeToggle(context),
         presetNameLabel(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
-    {}
+    {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

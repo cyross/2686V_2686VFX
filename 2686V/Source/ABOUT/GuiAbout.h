@@ -40,7 +40,9 @@ public:
         gplNoticeLabel(context),
 		vst3Logo(context),
 		gplLinkButton(context)
-    {}
+    {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

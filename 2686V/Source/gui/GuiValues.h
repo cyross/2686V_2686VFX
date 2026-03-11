@@ -118,8 +118,6 @@ namespace GuiValue
 	namespace PaddingBottom
 	{
 		static inline constexpr int block = 6;
-		static inline constexpr int mainRow = 3;
-		static inline constexpr int row = 3;
 	}
 
 	namespace Tab
@@ -144,11 +142,12 @@ namespace GuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 280;
+		static inline constexpr int width = 260;
 
 		namespace Row
 		{
-			static inline constexpr int height = 20;
+			static inline constexpr int height = 18;
+			static inline constexpr int paddingBottom = 3;
 
 			namespace Padding
 			{
@@ -173,37 +172,37 @@ namespace GuiValue
 
 		namespace Label
 		{
-			static inline constexpr int width = 50;
+			static inline constexpr int width = 60;
 		}
 
 		namespace LabelOnly
 		{
-			static inline constexpr int width = 240;
+			static inline constexpr int width = 280;
 		}
 
 		namespace Value
 		{
-			static inline constexpr int width = 190;
+			static inline constexpr int width = 220;
 		}
 
-		namespace Button
+		namespace Comps
 		{
-			static inline constexpr int width = 240;
-
-			namespace Freq
+			namespace One
 			{
-				static inline constexpr int width = 120;
+				static inline constexpr int width = 260;
+				static inline constexpr int paddingRight = 0;
 			}
 
-			namespace Mix
+			namespace Two
 			{
-				static inline constexpr int width = 64;
+				static inline constexpr int width = 128;
+				static inline constexpr int paddingRight = 4;
 			}
 
-			namespace Pan
+			namespace Three
 			{
-				static inline constexpr int width = 64;
-				static inline constexpr int paddingHeight = 2;
+				static inline constexpr int width = 85;
+				static inline constexpr int paddingRight = 2;
 			}
 		}
 	}
@@ -250,7 +249,101 @@ namespace GuiValue
 	{
 		namespace Row
 		{
+			static inline constexpr int width = 226;
+			static inline constexpr int height = 15;
 			static inline constexpr int paddingTop = 2;
+			static inline constexpr int paddingBottom = 3;
+			static inline constexpr int paddingRight = 0;
+		}
+
+		namespace Comps
+		{
+			namespace One
+			{
+				static inline constexpr int width = 226;
+				static inline constexpr int paddingRight = 0;
+			}
+
+			namespace Two
+			{
+				static inline constexpr int width = 111;
+				static inline constexpr int paddingRight = 4;
+			}
+
+			namespace Three
+			{
+				static inline constexpr int width = 74;
+				static inline constexpr int paddingRight = 2;
+			}
+
+			namespace Four
+			{
+				static inline constexpr int width = 54;
+				static inline constexpr int paddingRight = 3;
+			}
+
+			namespace Five
+			{
+				static inline constexpr int width = 42;
+				static inline constexpr int paddingRight = 4;
+			}
+		}
+
+		namespace Opzx3Pcm
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 50;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 20;
+			}
+		}
+
+		namespace RhythmPcm
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 50;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 20;
+			}
+		}
+
+		namespace RhythmPan
+		{
+			static inline constexpr int width = 74;
+			static inline constexpr int paddingRight = 4;
+		}
+
+		namespace Label
+		{
+			static inline constexpr int width = 50;
+		}
+
+		namespace LabelOnly
+		{
+			static inline constexpr int width = 240;
+		}
+
+		namespace Value
+		{
+			static inline constexpr int width = 190;
 		}
 	}
 
@@ -415,15 +508,15 @@ namespace GuiValue
 			namespace SetBtn
 			{
 				static constexpr int height = 10;
-				static constexpr int paddingBottom = 2;
+				static constexpr int paddingBottom = 1;
 			}
 
 			namespace ResetBtn
 			{
-				static constexpr int Height = 36;
-				static constexpr int To0Width = 120;
-				static constexpr int To1Width = 120;
-				static constexpr int ToM1Width = 120;
+				static constexpr int height = 36;
+				static constexpr int to0Width = 120;
+				static constexpr int to1Width = 120;
+				static constexpr int toM1Width = 120;
 
 				namespace Padding
 				{
@@ -438,7 +531,7 @@ namespace GuiValue
 	{
 		namespace Pad
 		{
-			static constexpr int width = 250;
+			static constexpr int width = 230;
 			static constexpr int height = 340;
 		}
 	}

@@ -30,7 +30,7 @@ juce::String getNoteName(int noteNumber)
     return juce::String(noteNames[noteIndex]) + juce::String(octave);
 }
 
-void layoutComponentsOneSide(
+void layoutRowOneSide(
     juce::Rectangle<int>& rect,
     int height,
     int paddingBottom,
@@ -48,7 +48,7 @@ void layoutComponentsOneSide(
     rect.removeFromTop(paddingBottom);
 }
 
-void layoutComponentsBoth(
+void layoutRowBoth(
     juce::Rectangle<int>& rect,
     int height,
     int paddingBottom,
@@ -73,7 +73,7 @@ void layoutComponentsBoth(
     rect.removeFromTop(paddingBottom);
 }
 
-void layoutComponentsLtoR(
+void layoutRow(
     juce::Rectangle<int>& rect,
     GuiLabel *label,
     juce::Component *component,
@@ -93,18 +93,18 @@ void layoutComponentsLtoR(
     // ラベルのみ配置
     if (component == nullptr)
     {
-        int newLabelWidth = labelWidth == -1 ? GuiValue::MainGroup::LabelOnly::width : labelWidth;
+        int newLabelWidth = labelWidth == -1 ? GuiValue::MainGroup::Comps::One::width : labelWidth;
         int newLabelPaddingRight = labelPaddingRight == -1 ? 0 : labelPaddingRight;
 
-        layoutComponentsOneSide(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
+        layoutRowOneSide(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
     }
     // コンポーネントのみ配置
     else if (label == nullptr)
     {
-        int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Button::width : compWidth;
+        int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Comps::One::width : compWidth;
         int newCompPaddingRight = compPaddingRight == -1 ? 0 : compPaddingRight;
 
-        layoutComponentsOneSide(rect, rowHeight, paddingBottom, component, newCompWidth, newCompPaddingRight);
+        layoutRowOneSide(rect, rowHeight, paddingBottom, component, newCompWidth, newCompPaddingRight);
     }
     // 両方配置
     else
@@ -113,238 +113,220 @@ void layoutComponentsLtoR(
         int newLabelPaddingRight = labelPaddingRight == -1 ? GuiValue::MainGroup::Row::Padding::right : labelPaddingRight;
         int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Value::width : compWidth;
 
-        layoutComponentsBoth(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight, component, newCompWidth, compPaddingRight);
+        layoutRowBoth(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight, component, newCompWidth, compPaddingRight);
     }
 
 }
 
-void layoutComponentsLtoRMain(const LtoRConfigMain& c)
+void layoutMain(const MainConfig& c)
 {
-    layoutComponentsLtoR(c.mainRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+    layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
-void layoutComponentsLtoRRow(const LtoRConfigRow& c)
+void layoutRow(const RowConfig& c)
 {
-    layoutComponentsLtoR(c.rowRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+    layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
-void layoutComponentsLtoRFixFreqBtns(const LtoRConfigFixFreqBtns& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.to0Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.to440Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-void layoutComponentsLtoROpzx3FixFreqBtns(const LtoRConfigOpzx3FixFreqBtns& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.to0Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.to05Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.to1Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.to2Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.to440Btn->setBounds(area.removeFromLeft(c.buttonWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-void layoutComponentsLtoROpzx3PcmRow(const LtoRConfigOpzx3PcmRow& c)
+void layoutRowOpzx3Pcm(const RowConfigOpzx3Pcm& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
     c.loadPcmBtn->setBounds(area.removeFromLeft(c.loadPcmBtnWidth));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
     c.pcmFileNameLabel->setBounds(area.removeFromLeft(c.pcmFileNameLabelWidth));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
     c.clearPcmBtn->setBounds(area.removeFromLeft(c.clearPcmBtnWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRSsgMixRow(const LtoRConfigSsgMixRow& c)
+void layoutRowWtWaveValueUpdate(const RowConfigWtWaveValueUpdate& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.toneBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.resetTo0Btn->setBounds(area.removeFromLeft(c.resetTo0BtnWidth));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.mixBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.resetTo1Btn->setBounds(area.removeFromLeft(c.resetTo1Width));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.noizeBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.resetToM1Btn->setBounds(area.removeFromLeft(c.resetToM1Width));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRSsgTriPosRow(const LtoRConfigSsgTriPosRow& c)
+void layoutRowRhythmPadPcmFile(const RowConfigRhythmPadPcmFile& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.sawDownBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.loadBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.triBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.filenameLabel->setBounds(area.removeFromLeft(c.filenameLabelWidth));
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.sawUpBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRWtWaveValueUpdateRow(const LtoRConfigWtWaveValueUpdateRow& c)
+void layoutRowSettingsIo(const RowConfigSettingsIo& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.resetTo0Btn->setBounds(area.removeFromLeft(GuiValue::Wt::Custom::ResetBtn::To0Width));
+    c.loadSettingsBtn->setBounds(area.removeFromLeft(c.loadSettingsBtnWidth));
 
-    area.removeFromLeft(GuiValue::Wt::Custom::ResetBtn::Padding::Right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.resetTo1Btn->setBounds(area.removeFromLeft(GuiValue::Wt::Custom::ResetBtn::To1Width));
+    c.saveSettingsBtn->setBounds(area.removeFromLeft(c.saveSettingsBtnWidth));
 
-    area.removeFromLeft(GuiValue::Wt::Custom::ResetBtn::Padding::Right);
+    area.removeFromLeft(c.paddingRight);
 
-    c.resetToM1Btn->setBounds(area.removeFromLeft(GuiValue::Wt::Custom::ResetBtn::ToM1Width));
+    c.saveStartupSettingsBtn->setBounds(area.removeFromLeft(c.saveStartupSettingsBtnWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRRhythmPadPcmFileRow(const LtoRConfigRhythmPadPcmFileRow& c)
+void layoutRowOneComp(const RowConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.loadBtn->setBounds(area.removeFromLeft(50));
+    c.comp->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(0);
-
-    c.filenameLabel->setBounds(area.removeFromLeft(150));
-
-    area.removeFromLeft(0);
-
-    c.clearBtn->setBounds(area.removeFromLeft(30));
+    area.removeFromLeft(c.compPaddingRight);
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRRhythmPadPanRow(const LtoRConfigRhythmPadPanRow& c)
+void layoutRowTwoComps(const RowConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.lBtn->setBounds(area.removeFromLeft(GuiValue::Fm::Op::Row::Button::Pan::width));
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(0);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.cBtn->setBounds(area.removeFromLeft(GuiValue::Fm::Op::Row::Button::Pan::width));
-
-    area.removeFromLeft(0);
-
-    c.rBtn->setBounds(area.removeFromLeft(GuiValue::Fm::Op::Row::Button::Pan::width));
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRAdpcmPanRow(const LtoRConfigAdpcmPanRow& c)
+void layoutRowThreeComps(const RowConfigThreeComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.lBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.cBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.rBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRFxMixRow(const LtoRConfigFxMixRow& c)
+void layoutRowFourComps(const RowConfigFourComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.dryBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.HalfBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.wetBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRSettingsIoRow(const LtoRConfigSettingsIoRow& c)
+void layoutRowFiveComps(const RowConfigFiveComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.loadSettingsBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.saveSettingsBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
 
-    area.removeFromLeft(GuiValue::MainGroup::Button::Pan::paddingHeight);
+    area.removeFromLeft(c.compPaddingRight);
 
-    c.saveStartupSettingsBtn->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRTwoBtnsRow(const LtoRConfigTwoBtnsRow& c)
+// メイングループに1つのコンポーネントを貼り付け
+void layoutMainOneComp(const MainConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.btn1->setBounds(area.removeFromLeft(c.btnWidth));
+    area.removeFromLeft(c.paddingLeft);
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
-
-    c.btn2->setBounds(area.removeFromLeft(c.btnWidth));
+    c.comp->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
 
-void layoutComponentsLtoRThreeBtnsRow(const LtoRConfigThreeBtnsRow& c)
+// メイングループに2つのコンポーネントを均等に貼り付け
+void layoutMainTwoComps(const MainConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
-    c.btn1->setBounds(area.removeFromLeft(c.btnWidth));
+    area.removeFromLeft(c.paddingLeft);
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
-    c.btn2->setBounds(area.removeFromLeft(c.btnWidth));
+    area.removeFromLeft(c.compPaddingRight);
 
-    area.removeFromLeft(GuiValue::Fm::Op::Row::Padding::right);
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
 
-    c.btn3->setBounds(area.removeFromLeft(c.btnWidth));
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+// メイングループに3つのコンポーネントを均等に貼り付け
+void layoutMainThreeComps(const MainConfigThreeComps& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    area.removeFromLeft(c.paddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }

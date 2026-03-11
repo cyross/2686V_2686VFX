@@ -17,11 +17,15 @@ class WaveformContainer :
     public GuiBaseComponent
 {
     std::vector<std::unique_ptr<GuiSlider>> wts;
+    std::vector<std::unique_ptr<GuiTextButton>> p01Btns;     // +0.1
+    std::vector<std::unique_ptr<GuiTextButton>> p001Btns;     // +0.01
     std::vector<std::unique_ptr<GuiTextButton>> maxBtns;     // 1.0
     std::vector<std::unique_ptr<GuiTextButton>> halfMaxBtns; // 0.5
     std::vector<std::unique_ptr<GuiTextButton>> zeroBtns;    // 0.0
     std::vector<std::unique_ptr<GuiTextButton>> halfMinBtns; // -0.5
     std::vector<std::unique_ptr<GuiTextButton>> minBtns;     // -1.0
+    std::vector<std::unique_ptr<GuiTextButton>> m001Btns;     // -0.01
+    std::vector<std::unique_ptr<GuiTextButton>> m01Btns;     // -0.1
 
     bool isEnabledState = false;
     float sliderWidth = 0.0f;
@@ -32,22 +36,32 @@ class WaveformContainer :
 public:
     WaveformContainer(const GuiContext& context) : GuiBaseComponent(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+
         for (size_t i = 0; i < tableSize; ++i)
         {
             wts.push_back(std::make_unique<GuiSlider>(context));
+            p01Btns.push_back(std::make_unique<GuiTextButton>(context));
+            p001Btns.push_back(std::make_unique<GuiTextButton>(context));
             maxBtns.push_back(std::make_unique<GuiTextButton>(context));
             halfMaxBtns.push_back(std::make_unique<GuiTextButton>(context));
             zeroBtns.push_back(std::make_unique<GuiTextButton>(context));
             halfMinBtns.push_back(std::make_unique<GuiTextButton>(context));
             minBtns.push_back(std::make_unique<GuiTextButton>(context));
+            m001Btns.push_back(std::make_unique<GuiTextButton>(context));
+            m01Btns.push_back(std::make_unique<GuiTextButton>(context));
 
             // このコンテナの子にする
             addAndMakeVisible(wts.back().get());
+            addAndMakeVisible(p01Btns.back().get());
+            addAndMakeVisible(p001Btns.back().get());
             addAndMakeVisible(maxBtns.back().get());
             addAndMakeVisible(halfMaxBtns.back().get());
             addAndMakeVisible(zeroBtns.back().get());
             addAndMakeVisible(halfMinBtns.back().get());
             addAndMakeVisible(minBtns.back().get());
+            addAndMakeVisible(m001Btns.back().get());
+            addAndMakeVisible(m01Btns.back().get());
 
             // スライダー個別の操作を無効化し、親（このコンテナ）でマウス入力をまとめて受け取る
             wts.back()->setInterceptsMouseClicks(false, false);
@@ -78,25 +92,47 @@ public:
                 .labelColor = juce::Colours::white
 				});
             // バーグラフ風の見た目にする
+            slider->setWantsKeyboardFocus(false);
             slider->setSliderStyle(juce::Slider::LinearBarVertical);
             slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
             slider->setRange(-1.0, 1.0);
 
-            // 5つのボタンの色設定と、押された時の動作
+            // 9つのボタンの色設定と、押された時の動作
+            p01Btns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::P01 });
+            p01Btns[i]->setWantsKeyboardFocus(false);
+            p01Btns[i]->onClick = [this, i] { wts[i]->setValue(wts[i]->getValue() + 0.1f, juce::sendNotification); };
+
+            p001Btns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::P001 });
+            p001Btns[i]->setWantsKeyboardFocus(false);
+            p001Btns[i]->onClick = [this, i] { wts[i]->setValue(wts[i]->getValue() + 0.01f, juce::sendNotification); };
+
             maxBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To1 });
+            maxBtns[i]->setWantsKeyboardFocus(false);
             maxBtns[i]->onClick = [this, i] { wts[i]->setValue(1.0f, juce::sendNotification); };
 
             halfMaxBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To05 });
+            halfMaxBtns[i]->setWantsKeyboardFocus(false);
             halfMaxBtns[i]->onClick = [this, i] { wts[i]->setValue(0.5f, juce::sendNotification); };
 
             zeroBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::To0 });
+            zeroBtns[i]->setWantsKeyboardFocus(false);
             zeroBtns[i]->onClick = [this, i] { wts[i]->setValue(0.0f, juce::sendNotification); };
 
             halfMinBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM05 });
+            halfMinBtns[i]->setWantsKeyboardFocus(false);
             halfMinBtns[i]->onClick = [this, i] { wts[i]->setValue(-0.5f, juce::sendNotification); };
 
             minBtns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1 });
+            minBtns[i]->setWantsKeyboardFocus(false);
             minBtns[i]->onClick = [this, i] { wts[i]->setValue(-1.0f, juce::sendNotification); };
+
+            m001Btns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::M001 });
+            m001Btns[i]->setWantsKeyboardFocus(false);
+            m001Btns[i]->onClick = [this, i] { wts[i]->setValue(wts[i]->getValue() - 0.01f, juce::sendNotification); };
+
+            m01Btns[i]->setup({ .parent = *this, .title = "", .bgColor = GuiColor::WaveformContainer::ResetBtn::M01 });
+            m01Btns[i]->setWantsKeyboardFocus(false);
+            m01Btns[i]->onClick = [this, i] { wts[i]->setValue(wts[i]->getValue() - 0.1f, juce::sendNotification); };
         }
     }
 
@@ -107,7 +143,7 @@ public:
         sliderWidth = (float)getWidth() / tableSize;
 
         int btnHeight = GuiValue::Wt::Custom::SetBtn::height;
-        int sliderHeight = getHeight() - ((btnHeight + +GuiValue::Wt::Custom::SetBtn::paddingBottom) * 5);
+        int sliderHeight = getHeight() - ((btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 9 + 8);
 
         for (size_t i = 0; i < tableSize; ++i)
         {
@@ -115,11 +151,18 @@ public:
             int w = (int)((i + 1) * sliderWidth) - x;
 
             wts[i]->setBounds(x, 0, w, sliderHeight);
-            maxBtns[i]->setBounds(x, sliderHeight, w, btnHeight);
-            halfMaxBtns[i]->setBounds(x, sliderHeight + btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom, w, btnHeight);
-            zeroBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 2, w, btnHeight);
-            halfMinBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 3, w, btnHeight);
-            minBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 4, w, btnHeight);
+
+            p01Btns[i]->setBounds(x, sliderHeight, w, btnHeight);
+            p001Btns[i]->setBounds(x, sliderHeight + btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom, w, btnHeight);
+
+            maxBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 2 + 4, w, btnHeight);
+            halfMaxBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 3 + 4, w, btnHeight);
+            zeroBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 4 + 4, w, btnHeight);
+            halfMinBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 5 + 4, w, btnHeight);
+            minBtns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 6 + 4, w, btnHeight);
+
+            m001Btns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 7 + 8, w, btnHeight);
+            m01Btns[i]->setBounds(x, sliderHeight + (btnHeight + GuiValue::Wt::Custom::SetBtn::paddingBottom) * 8 + 8, w, btnHeight);
         }
     }
 
@@ -242,11 +285,19 @@ class GuiWt : public GuiBase
     // Filter (ADSR)
     GuiSlider attackSlider;
 
+    GuiTextButton arTo000Button;
+
+    GuiTextButton arTo003Button;
+
     GuiSlider decaySlider;
 
     GuiSlider sustainSlider;
 
     GuiSlider releaseSlider;
+
+    GuiTextButton rrTo000Button;
+
+    GuiTextButton rrTo003Button;
 
 	GuiComboBox bitSelector;
 
@@ -291,9 +342,13 @@ public:
         modCat(context),
         adsrCat(context),
         attackSlider(context),
+        arTo000Button(context),
+        arTo003Button(context),
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
+        rrTo000Button(context),
+        rrTo003Button(context),
         bitSelector(context),
         rateSelector(context),
         mvolCat(context),
@@ -309,6 +364,7 @@ public:
         monoModeToggle(context),
         presetNameLabel(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     void setup() override;

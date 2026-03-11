@@ -201,44 +201,92 @@ static std::vector<SelectItem> opzx3WsItems = {
 void GuiOpzx3::setup()
 {
     const juce::String code = PrKey::Prefix::opzx3;
-
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-    algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
+    int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
 
-    algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opzx3AlgItems, .isReset = true });
-    algSelector.onChange = [this] {
-        updateAlgorithmDisplay();
-        };
-    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb01, .isReset = true });
-    feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
-
-    lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
-
-    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
-    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
-    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
-    lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
-    lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
-    lfoPmsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .items = pmsItems, .isReset = true });
-    lfoAmsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::ams, .title = GuiText::Fm::ams, .items = amsItems, .isReset = true });
-    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
-    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
-
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
-
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setWantsKeyboardFocus(true);
+    bitSelector.setExplicitFocusOrder(++tabOrder);
+
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setWantsKeyboardFocus(true);
+    rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
+
+    algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opzx3AlgItems, .isReset = true });
+    algSelector.setWantsKeyboardFocus(true);
+    algSelector.setExplicitFocusOrder(++tabOrder);
+    algSelector.onChange = [this] {
+        updateAlgorithmDisplay();
+        };
+
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb01, .isReset = true });
+    feedbackSlider.setWantsKeyboardFocus(true);
+    feedbackSlider.setExplicitFocusOrder(++tabOrder);
+
+    feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
+    feedback2Slider.setWantsKeyboardFocus(true);
+    feedback2Slider.setExplicitFocusOrder(++tabOrder);
+
+    lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
+
+    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setWantsKeyboardFocus(true);
+    lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
+    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
+    lfoShapeSelector.setWantsKeyboardFocus(true);
+    lfoShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
+    lfoPmToggle.setWantsKeyboardFocus(true);
+    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .items = pmsItems, .isReset = true });
+    lfoPmsSelector.setWantsKeyboardFocus(true);
+    lfoPmsSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
+    lfoPmdSlider.setWantsKeyboardFocus(true);
+    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
+    lfoAmToggle.setWantsKeyboardFocus(true);
+    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::ams, .title = GuiText::Fm::ams, .items = amsItems, .isReset = true });
+    lfoAmsSelector.setWantsKeyboardFocus(true);
+    lfoAmsSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
+    lfoAmdSlider.setWantsKeyboardFocus(true);
+    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
+
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -264,48 +312,108 @@ void GuiOpzx3::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
-        mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
-        mml[i].setupMml({
-            .opIndex = i,
-            .hintMessage = "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT1:0 DT2:0",
-            .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
-            });
-
         catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
 
         mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setWantsKeyboardFocus(true);
+        mul[i].setExplicitFocusOrder(++tabOrder);
+
         dt1[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
+        dt1[i].setWantsKeyboardFocus(true);
+        dt1[i].setExplicitFocusOrder(++tabOrder);
+
         dt2[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true, .regType = RegisterType::FmDt2 });
-        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
+        dt2[i].setWantsKeyboardFocus(true);
+        dt2[i].setExplicitFocusOrder(++tabOrder);
+
+        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
+        rgEn[i].setWantsKeyboardFocus(true);
+        rgEn[i].setExplicitFocusOrder(++tabOrder);
+        rgEn[i].onStateChange = [this, i] {
+            ctx.editor.resized();
+            };
+
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgAr[i].setWantsKeyboardFocus(true);
+        rgAr[i].setExplicitFocusOrder(++tabOrder);
+
+        rgD1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1r, .title = GuiText::Fm::Op::D1r, .isReset = true });
+        rgD1r[i].setWantsKeyboardFocus(true);
+        rgD1r[i].setExplicitFocusOrder(++tabOrder);
+
+        rgD1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1l, .title = GuiText::Fm::Op::D1l, .isReset = true });
+        rgD1l[i].setWantsKeyboardFocus(true);
+        rgD1l[i].setExplicitFocusOrder(++tabOrder);
+
+        rgD2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD2r, .title = GuiText::Fm::Op::D2r, .isReset = true });
+        rgD2r[i].setWantsKeyboardFocus(true);
+        rgD2r[i].setExplicitFocusOrder(++tabOrder);
+
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgRr[i].setWantsKeyboardFocus(true);
+        rgRr[i].setExplicitFocusOrder(++tabOrder);
+
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
+        rgTl[i].setWantsKeyboardFocus(true);
+        rgTl[i].setExplicitFocusOrder(++tabOrder);
 
         ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ar, .title = GuiText::Fm::Op::Ar, .isReset = true, .regType = RegisterType::FmAr });
+        ar[i].setWantsKeyboardFocus(true);
+        ar[i].setExplicitFocusOrder(++tabOrder);
+
+        arTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+        arTo000[i].setWantsKeyboardFocus(true);
+        arTo000[i].setExplicitFocusOrder(++tabOrder);
+        arTo000[i].onClick = [this, index = i] { ar[index].setValue(0.00, juce::sendNotification); };
+
+        arTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+        arTo003[i].setWantsKeyboardFocus(true);
+        arTo003[i].setExplicitFocusOrder(++tabOrder);
+        arTo003[i].onClick = [this, index = i] { ar[index].setValue(0.03, juce::sendNotification); };
+
         d1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d1r, .title = GuiText::Fm::Op::D1r, .isReset = true, .regType = RegisterType::FmDr });
+        d1r[i].setWantsKeyboardFocus(true);
+        d1r[i].setExplicitFocusOrder(++tabOrder);
+
         d1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d1l, .title = GuiText::Fm::Op::D1l, .isReset = true, .regType = RegisterType::FmSl });
+        d1l[i].setWantsKeyboardFocus(true);
+        d1l[i].setExplicitFocusOrder(++tabOrder);
+
         d2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d2r, .title = GuiText::Fm::Op::D2r, .isReset = true, .regType = RegisterType::FmSr });
+        d2r[i].setWantsKeyboardFocus(true);
+        d2r[i].setExplicitFocusOrder(++tabOrder);
+
         rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rr, .title = GuiText::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
+        rr[i].setWantsKeyboardFocus(true);
+        rr[i].setExplicitFocusOrder(++tabOrder);
+
+        rrTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo000, .isReset = false, .isResized = false });
+        rrTo000[i].setWantsKeyboardFocus(true);
+        rrTo000[i].setExplicitFocusOrder(++tabOrder);
+        rrTo000[i].onClick = [this, index = i] { rr[index].setValue(0.00, juce::sendNotification); };
+
+        rrTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo003, .isReset = false, .isResized = false });
+        rrTo003[i].setWantsKeyboardFocus(true);
+        rrTo003[i].setExplicitFocusOrder(++tabOrder);
+        rrTo003[i].onClick = [this, index = i] { rr[index].setValue(0.03, juce::sendNotification); };
+
+        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
+        tl[i].setWantsKeyboardFocus(true);
+        tl[i].setExplicitFocusOrder(++tabOrder);
 
         ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ks, .title = GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
-
-        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
-
-        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
-        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
-        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo0, .isReset = false, .isResized = false });
-        freqToZero[i].onClick = [this, index = i] { freq[index].setValue(0, juce::sendNotification); };
-        freqTo05[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo05, .isReset = false, .isResized = false });
-        freqTo05[i].onClick = [this, index = i] { freq[index].setValue(0.5, juce::sendNotification); };
-        freqTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo1, .isReset = false, .isResized = false });
-        freqTo1[i].onClick = [this, index = i] { freq[index].setValue(1, juce::sendNotification); };
-        freqTo2[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo2, .isReset = false, .isResized = false });
-        freqTo2[i].onClick = [this, index = i] { freq[index].setValue(2, juce::sendNotification); };
-        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo440, .isReset = false, .isResized = false });
-        freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
+        ks[i].setWantsKeyboardFocus(true);
+        ks[i].setExplicitFocusOrder(++tabOrder);
 
         catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ws, .title = GuiText::Fm::Op::Ws, .items = opzx3WsItems, .isReset = true });
+        ws[i].setWantsKeyboardFocus(true);
+        ws[i].setExplicitFocusOrder(++tabOrder);
 
         loadPcmBtn[i].setup({ .parent = *this, .title = GuiText::File::Pcm, .isReset = false, .isResized = false });
+        loadPcmBtn[i].setWantsKeyboardFocus(true);
+        loadPcmBtn[i].setExplicitFocusOrder(++tabOrder);
         loadPcmBtn[i].onClick = [this, i] {
             auto fileFilter = ctx.audioProcessor.formatManager.getWildcardForAllFormats();
             ctx.editor.openFileChooser(
@@ -321,13 +429,15 @@ void GuiOpzx3::setup()
                     }
                 }
             );
-        };
+            };
 
         clearPcmBtn[i].setup({ .parent = *this, .title = GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearPcmBtn[i].setWantsKeyboardFocus(true);
+        clearPcmBtn[i].setExplicitFocusOrder(++tabOrder);
         clearPcmBtn[i].onClick = [this, i] {
             ctx.audioProcessor.unloadOpzx3PcmFile(i);
             updatePcmFileName(i, Io::empty);
-        };
+            };
 
         pcmFileNameLabel[i].setup({ .parent = *this, .title = Io::empty });
         if (ctx.audioProcessor.opzx3PcmFilePaths[i].isNotEmpty()) {
@@ -335,34 +445,90 @@ void GuiOpzx3::setup()
         }
 
         pcmOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmOffset, .title = GuiText::Fm::Op::PcmOffset, .isReset = true });
+        pcmOffset[i].setWantsKeyboardFocus(true);
+        pcmOffset[i].setExplicitFocusOrder(++tabOrder);
+
         pcmRatio[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pcmRatio, .title = GuiText::Fm::Op::PcmRatio, .isReset = true });
+        pcmRatio[i].setWantsKeyboardFocus(true);
+        pcmRatio[i].setExplicitFocusOrder(++tabOrder);
 
         se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::se, .title = GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
+        se[i].setWantsKeyboardFocus(true);
+        se[i].setExplicitFocusOrder(++tabOrder);
+
         seFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::seFreq, .title = GuiText::Fm::Op::SFreq, .isReset = true });
+        seFreq[i].setWantsKeyboardFocus(true);
+        seFreq[i].setExplicitFocusOrder(++tabOrder);
 
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
 
-        pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .items = pmsItems, .isReset = true });
         pm[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::vib, .title = GuiText::Fm::Op::PmEn, .isReset = true });
-        ams[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ams, .title = GuiText::Fm::Op::Ams, .items = amsItems, .isReset = true });
+        pm[i].setWantsKeyboardFocus(true);
+        pm[i].setExplicitFocusOrder(++tabOrder);
+
+        pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .items = pmsItems, .isReset = true });
+        pms[i].setWantsKeyboardFocus(true);
+        pms[i].setExplicitFocusOrder(++tabOrder);
+
         am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::am, .title = GuiText::Fm::Op::AmEn, .isReset = true });
+        am[i].setWantsKeyboardFocus(true);
+        am[i].setExplicitFocusOrder(++tabOrder);
+
+        ams[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ams, .title = GuiText::Fm::Op::Ams, .items = amsItems, .isReset = true });
+        ams[i].setWantsKeyboardFocus(true);
+        ams[i].setExplicitFocusOrder(++tabOrder);
+
+        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
+
+        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
+        fix[i].setWantsKeyboardFocus(true);
+        fix[i].setExplicitFocusOrder(++tabOrder);
+
+        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
+        freq[i].setWantsKeyboardFocus(true);
+        freq[i].setExplicitFocusOrder(++tabOrder);
+
+        freqToZero[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo0, .isReset = false, .isResized = false });
+        freqToZero[i].setWantsKeyboardFocus(true);
+        freqToZero[i].setExplicitFocusOrder(++tabOrder);
+        freqToZero[i].onClick = [this, index = i] { freq[index].setValue(0, juce::sendNotification); };
+
+        freqTo05[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo05, .isReset = false, .isResized = false });
+        freqTo05[i].setWantsKeyboardFocus(true);
+        freqTo05[i].setExplicitFocusOrder(++tabOrder);
+        freqTo05[i].onClick = [this, index = i] { freq[index].setValue(0.5, juce::sendNotification); };
+
+        freqTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo1, .isReset = false, .isResized = false });
+        freqTo1[i].setWantsKeyboardFocus(true);
+        freqTo1[i].setExplicitFocusOrder(++tabOrder);
+        freqTo1[i].onClick = [this, index = i] { freq[index].setValue(1, juce::sendNotification); };
+
+        freqTo2[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo2, .isReset = false, .isResized = false });
+        freqTo2[i].setWantsKeyboardFocus(true);
+        freqTo2[i].setExplicitFocusOrder(++tabOrder);
+        freqTo2[i].onClick = [this, index = i] { freq[index].setValue(2, juce::sendNotification); };
+
+        freqTo440[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::Opzx3FreqTo440, .isReset = false, .isResized = false });
+        freqTo440[i].setWantsKeyboardFocus(true);
+        freqTo440[i].setExplicitFocusOrder(++tabOrder);
+        freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
         catMask[i].setup({ .parent = *this, .title = GuiText::Category::mask });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
+        mask[i].setWantsKeyboardFocus(true);
+        mask[i].setExplicitFocusOrder(++tabOrder);
 
         catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
 
-        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
-        rgEn[i].onStateChange = [this, i] {
-            ctx.editor.resized();
-        };
-        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
-        rgD1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1r, .title = GuiText::Fm::Op::D1r, .isReset = true });
-        rgD1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD1l, .title = GuiText::Fm::Op::D1l, .isReset = true });
-        rgD2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgD2r, .title = GuiText::Fm::Op::D2r, .isReset = true });
-        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
-        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
+        mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
+        mml[i].setWantsKeyboardFocus(true);
+        mml[i].setExplicitFocusOrder(++tabOrder);
+        mml[i].setupMml({
+            .opIndex = i,
+            .hintMessage = "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT1:0 DT2:0",
+            .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
+            });
     }
 }
 
@@ -376,31 +542,31 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+    layoutMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, .paddingBottom = GuiValue::Category::paddingTop });
 
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &lfoCat, .paddingBottom = GuiValue::Category::paddingBotton });
 
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &lfoPmToggle });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &lfoAmToggle });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
+    layoutMain({ .mainRect = mRect, .component = &lfoPmToggle });
+    layoutMain({ .mainRect = mRect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
+    layoutMain({ .mainRect = mRect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+    layoutMain({ .mainRect = mRect, .component = &lfoAmToggle });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
 
     auto imgArea = mRect.removeFromBottom(100);
     algImageComp.setBounds(imgArea);
@@ -420,51 +586,53 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
 
         bool rgMode = rgEn[i].getToggleState();
 
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         updateRgDisplayAsOp(i, rgMode);
         if (rgMode)
         {
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         }
         else
         {
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         }
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoROpzx3PcmRow({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &pm[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &am[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &cafFix[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &fix[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutComponentsLtoROpzx3FixFreqBtns({ .rect = innerRect, .to0Btn = &freqToZero[i], .to05Btn = &freqTo05[i], .to1Btn = &freqTo1[i], .to2Btn = &freqTo2[i], .to440Btn = &freqTo440[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutComponentsLtoRRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
+        layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .component = &pm[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &am[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &cafFix[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .component = &fix[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowFiveComps({ .rect = innerRect, .comp1 = &freqToZero[i], .comp2 = &freqTo05[i], .comp3 = &freqTo1[i], .comp4 = &freqTo2[i], .comp5 = &freqTo440[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
 
     updateAlgorithmDisplay();
@@ -590,12 +758,16 @@ void GuiOpzx3::updateOpEnable(int idx, bool enable)
     dt2[idx].label.setEnabled(enable);
     ar[idx].setEnabled(enable);
     ar[idx].label.setEnabled(enable);
+    arTo000[idx].setEnabled(enable);
+    arTo003[idx].setEnabled(enable);
     d1r[idx].setEnabled(enable);
     d1r[idx].label.setEnabled(enable);
     d1l[idx].setEnabled(enable);
     d1l[idx].label.setEnabled(enable);
     rr[idx].setEnabled(enable);
     rr[idx].label.setEnabled(enable);
+    rrTo000[idx].setEnabled(enable);
+    rrTo003[idx].setEnabled(enable);
     d2r[idx].setEnabled(enable);
     d2r[idx].label.setEnabled(enable);
     tl[idx].setEnabled(enable);
@@ -688,6 +860,8 @@ void GuiOpzx3::updateRgDisplayAsOp(int idx, bool rgMode)
 
     ar[idx].label.setVisible(!rgMode);
     ar[idx].setVisible(!rgMode);
+    arTo000[idx].setVisible(!rgMode);
+    arTo003[idx].setVisible(!rgMode);
     d1r[idx].label.setVisible(!rgMode);
     d1r[idx].setVisible(!rgMode);
     d1l[idx].label.setVisible(!rgMode);
@@ -696,6 +870,8 @@ void GuiOpzx3::updateRgDisplayAsOp(int idx, bool rgMode)
     d2r[idx].setVisible(!rgMode);
     rr[idx].label.setVisible(!rgMode);
     rr[idx].setVisible(!rgMode);
+    rrTo000[idx].setVisible(!rgMode);
+    rrTo003[idx].setVisible(!rgMode);
     tl[idx].label.setVisible(!rgMode);
     tl[idx].setVisible(!rgMode);
 }

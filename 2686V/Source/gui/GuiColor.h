@@ -58,11 +58,15 @@ namespace GuiColor {
 		static inline const juce::Colour Track = juce::Colours::white.withAlpha(0.5f);
 		static inline const juce::Colour Thumb = juce::Colour::fromRGB(0x8, 0x8, 0xB3);
 		namespace ResetBtn {
+			static inline const juce::Colour P01 = juce::Colours::white.withAlpha(0.7f);
+			static inline const juce::Colour P001 = juce::Colours::grey.withAlpha(0.7f);
 			static inline const juce::Colour To1 = juce::Colours::red.withAlpha(0.7f);
 			static inline const juce::Colour To05 = juce::Colours::yellow.withAlpha(0.7f);
 			static inline const juce::Colour To0 = juce::Colours::green.withAlpha(0.7f);
 			static inline const juce::Colour ToM05 = juce::Colours::cyan.withAlpha(0.7f);
 			static inline const juce::Colour ToM1 = juce::Colours::blue.withAlpha(0.7f);
+			static inline const juce::Colour M001 = juce::Colours::grey.withAlpha(0.7f);
+			static inline const juce::Colour M01 = juce::Colours::black.withAlpha(0.7f);
 		}
 	};
 	namespace Settings {
