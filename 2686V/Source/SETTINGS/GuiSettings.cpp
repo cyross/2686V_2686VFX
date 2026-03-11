@@ -315,7 +315,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 9. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
 
-    layoutComponentsLtoRSettingsIoRow({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn });
+    layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn });
 }
 
 void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath)

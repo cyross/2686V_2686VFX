@@ -121,21 +121,27 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRhythmPadPcmFileRow({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .component = &oneShotButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutComponentsLtoRRhythmPadPanRow({ .rect = padRect, .lBtn = &btnPanL, .cBtn = &btnPanC, .rBtn = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+    layoutRow({ .rowRect = padRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .component = &oneShotButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutRow({ .rowRect = padRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowThreeComps({
+        .rect = padRect,
+        .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR,
+        .paddingBottom = GuiValue::Category::paddingTop,
+        .compWidth = GuiValue::ParamGroup::RhythmPan::width,
+        .compPaddingRight = GuiValue::ParamGroup::RhythmPan::paddingRight
+    });
+    layoutRow({ .rowRect = padRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -200,12 +206,12 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutComponentsLtoRMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::MVol::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
