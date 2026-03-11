@@ -148,7 +148,7 @@ namespace GuiValue
 
 		namespace Row
 		{
-			static inline constexpr int height = 20;
+			static inline constexpr int height = 18;
 
 			namespace Padding
 			{
