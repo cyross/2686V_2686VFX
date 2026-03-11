@@ -72,6 +72,7 @@ public:
         reflectButton(context),
         copyButton(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     // Data

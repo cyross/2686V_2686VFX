@@ -92,7 +92,8 @@ public:
         rateSelector(context),
         presetNameLabel(context)
     {
-	}
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

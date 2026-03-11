@@ -73,7 +73,7 @@ public:
 	}
 
     void updatePadFileName(const juce::String& fileName);
-    void setup(juce::Component& parent, int index, juce::String padName);
+    void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
@@ -110,7 +110,9 @@ public:
         masterVolSlider(context),
         presetNameLabel(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
-    {}
+    {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

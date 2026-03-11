@@ -152,6 +152,7 @@ public:
         monoModeToggle(context),
         presetNameLabel(context)
     {
+        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
     void setup() override;
