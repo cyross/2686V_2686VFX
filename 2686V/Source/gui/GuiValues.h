@@ -508,7 +508,7 @@ namespace GuiValue
 			namespace SetBtn
 			{
 				static constexpr int height = 10;
-				static constexpr int paddingBottom = 2;
+				static constexpr int paddingBottom = 1;
 			}
 
 			namespace ResetBtn
