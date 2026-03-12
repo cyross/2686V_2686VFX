@@ -144,6 +144,8 @@ namespace PrKey
 				static inline const juce::String rgD2r = "_R_D2R";
 
 				static inline const juce::String sus = "_SUS";
+
+				static inline const juce::String phaseOffset = "_PHASE_OFFSET";
 			};
 		};
 

@@ -1373,6 +1373,13 @@ namespace PrValue
 				inline constexpr float initial = 440.0f; // 初期値
 			}
 
+			namespace PhaseOffset
+			{
+				inline constexpr float min = 0.00;
+				inline constexpr float max = 360.00;
+				inline constexpr float initial = 0.00;
+			}
+
 			namespace Ws
 			{
 				inline constexpr int min = 0;
