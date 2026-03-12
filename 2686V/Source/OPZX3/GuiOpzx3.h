@@ -163,6 +163,7 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> rrTo000;
     std::array<GuiTextButton, Global::Fm::Op4> rrTo003;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiSlider, Global::Fm::Op4> phaseOffset;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
     std::array<GuiSlider, Global::Fm::Op4> freq;
@@ -240,6 +241,7 @@ public:
         rrTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         rrTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        phaseOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

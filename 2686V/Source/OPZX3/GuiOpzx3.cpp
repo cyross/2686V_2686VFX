@@ -405,6 +405,10 @@ void GuiOpzx3::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
+        phaseOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::phaseOffset, .title = GuiText::Fm::Op::phaseOffset, .isReset = true });
+        phaseOffset[i].setWantsKeyboardFocus(true);
+        phaseOffset[i].setExplicitFocusOrder(++tabOrder);
+
         catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ws, .title = GuiText::Fm::Op::Ws, .items = opzx3WsItems, .isReset = true });
@@ -612,7 +616,8 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
             layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         }
-        layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::Category::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRow({ .rowRect = innerRect, .label = &phaseOffset[i].label, .component = &phaseOffset[i], .paddingBottom = GuiValue::Category::paddingTop });
         layoutRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
@@ -774,6 +779,8 @@ void GuiOpzx3::updateOpEnable(int idx, bool enable)
     tl[idx].label.setEnabled(enable);
     ks[idx].setEnabled(enable);
     ks[idx].label.setEnabled(enable);
+    phaseOffset[idx].setEnabled(enable);
+    phaseOffset[idx].label.setEnabled(enable);
     catShape[idx].setEnabled(enable);
     se[idx].setEnabled(enable);
     se[idx].label.setEnabled(enable);

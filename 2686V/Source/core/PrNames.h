@@ -96,6 +96,8 @@ namespace PrName
 				static inline const juce::String rgD2r = " R_D2R";
 
 				static inline const juce::String sus = " SUS";
+
+				static inline const juce::String phaseOffset = "PHASE OFFSET";
 			}
 		}
 	}

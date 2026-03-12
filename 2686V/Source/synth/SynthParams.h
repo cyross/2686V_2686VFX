@@ -53,6 +53,8 @@ struct FmOpParams
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
 
+    float phaseOffset = 0.0f; // OPZX3-PHASE-OFFSET
+
     bool isOplMode = false; // 内部でOPL系かOPN系かを判定するフラグ
 
     bool susEnable = false;
