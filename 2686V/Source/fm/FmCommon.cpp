@@ -489,20 +489,31 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
     {
         // OPL/OPL3
         switch (wave) {
-            // 0-7: OPZ / OPL3 Compatible Set
-        case 0:  return s; // Sine
-        case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
-        case 2:  return std::abs(s); // Abs Sine
-        case 3:
-            if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-            else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
-        case 4:  return (normPhase < 0.5f ? doubleSine(p) : 0.0f);
-        case 5:  return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f);
-        case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
-        case 7:
+        // 0-3: OPL Compatible Set
+        case 0: return s; // Sine
+        case 1: return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+        case 2: return std::abs(s); // Abs Sine
+        case 3: return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
+        case 4: return (normPhase < 0.5f ? doubleSine(p) : 0.0f);
+        case 5: return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f);
+        case 6: return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
+        case 7: // Derived Square
+        {
+            float newP = p / 2.0f + 0.5f * juce::MathConstants<float>::pi;
+
+            return std::sin(newP);
+        }
+        // EX1
+        case 8: // Rounded Square
         {
             float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
             return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        }
+        // EX2
+        case 9: // Log Saw
+        {
+            float saw = 1.0f - normPhase * 2.0f;
+            return saw * saw * saw;
         }
         default: return s;
         }
@@ -511,6 +522,7 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
     {
         // OPZX3
         switch (wave) {
+        // 0-7: OPZ Compatible Set
         case 0:  return s; // Sine
         case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
         case 2:  return std::abs(s); // Abs Sine

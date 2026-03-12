@@ -53,11 +53,13 @@ static std::vector<SelectItem> opl3EgItems = {
     {.name = "0: Sine",                 .value = 1},
     {.name = "1: Half Sine",            .value = 2},
     {.name = "2: Abs Sine",             .value = 3},
-    {.name = "3: Pulse",                .value = 4},
+    {.name = "3: Pulse Sine",           .value = 4},
     {.name = "4: Alternative Sine",     .value = 5},
     {.name = "5: Alternative Abs Sine", .value = 6},
     {.name = "6: Square",               .value = 7},
     {.name = "7: Derived Square",       .value = 8},
+    {.name = "8: [EX01]Round Square",    .value = 9},
+    {.name = "9: [EX02]Log Saw",         .value = 10},
 };
 
 void GuiOpl3::setup()
