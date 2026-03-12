@@ -1383,7 +1383,7 @@ namespace PrValue
 			namespace Ws
 			{
 				inline constexpr int min = 0;
-				inline constexpr int max = 62;
+				inline constexpr int max = 72;
 				inline constexpr int initial = 0;
 			}
 
