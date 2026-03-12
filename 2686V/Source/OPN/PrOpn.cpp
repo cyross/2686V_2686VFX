@@ -73,6 +73,7 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.fmOp[op].keyScaleLevel = 0;
         params.fmOp[op].totalLevel = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::tl);
         params.fmOp[op].sustainRate = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sr);
+        params.fmOp[op].phaseOffset = 0.0f;
         params.fmOp[op].ssgEg = 0;
         params.fmOp[op].fmSsgEgFreq = 0.0f;
         params.fmOp[op].fixedMode = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::fix) > PrValue::boolThread);

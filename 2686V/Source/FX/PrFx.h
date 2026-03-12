@@ -12,4 +12,5 @@ public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);
     void processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts);
     void prepare(double sampleRate);
+    void clear();
 };

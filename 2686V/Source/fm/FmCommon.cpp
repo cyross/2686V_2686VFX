@@ -25,7 +25,7 @@ void FmOperator::setParameters(const FmOpParams& params, float feedback, bool us
 
 void FmOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0;
+    m_phase = m_params.phaseOffset;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
@@ -472,6 +472,37 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
             return value - 1.0f;
         };
 
+    auto reverseSign = [](float phase, float nP)
+        {
+            // 90度(1/2π)進める
+            float s2 = std::sin(phase + 0.5f * juce::MathConstants<float>::pi);
+
+            if (nP < 0.25f) return 1.0f - s2;
+
+            if (nP < 0.5f) return 1.0f + s2;
+
+            if (nP < 0.75f) return -1.0f - s2;
+
+            return s2 - 1.0f;
+        };
+
+    auto doubleReverseSine = [](float phase, float nP)
+        {
+            // 45度(1/4π)進める
+            float s2 = std::sin((phase + 0.75 * juce::MathConstants<float>::pi) * 2.0f);
+
+            if (nP < 0.125f)
+                return 1.0f + s2;
+
+            if (nP < 0.25f)
+                return 1.0f - s2;
+
+            if (nP < 0.375f)
+                return s2 - 1.0f;
+
+            return -1.0f - s2;
+        };
+
     // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
     float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
     if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
@@ -489,20 +520,31 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
     {
         // OPL/OPL3
         switch (wave) {
-            // 0-7: OPZ / OPL3 Compatible Set
-        case 0:  return s; // Sine
-        case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
-        case 2:  return std::abs(s); // Abs Sine
-        case 3:
-            if (m_useSsgEg) return (p < 0.5f * juce::MathConstants<float>::pi) ? s : 0.0f; // Pulse
-            else return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
-        case 4:  return (normPhase < 0.5f ? doubleSine(p) : 0.0f);
-        case 5:  return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f);
-        case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
-        case 7:
+        // 0-3: OPL Compatible Set
+        case 0: return s; // Sine
+        case 1: return (normPhase < 0.5f ? s : 0.0f); // Half Sine
+        case 2: return std::abs(s); // Abs Sine
+        case 3: return (normPhase < 0.25f ? s : 0.0f); // Quarter Sine
+        case 4: return (normPhase < 0.5f ? doubleSine(p) : 0.0f);
+        case 5: return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f);
+        case 6: return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
+        case 7: // Derived Square
+        {
+            float newP = p / 2.0f + 0.5f * juce::MathConstants<float>::pi;
+
+            return std::sin(newP);
+        }
+        // EX1
+        case 8: // Rounded Square
         {
             float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
             return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+        }
+        // EX2
+        case 9: // Log Saw
+        {
+            float saw = 1.0f - normPhase * 2.0f;
+            return saw * saw * saw;
         }
         default: return s;
         }
@@ -511,6 +553,7 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
     {
         // OPZX3
         switch (wave) {
+        // 0-7: OPZ Compatible Set
         case 0:  return s; // Sine
         case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
         case 2:  return std::abs(s); // Abs Sine
@@ -673,6 +716,42 @@ float FmOperator::calcWaveform(double phase, int wave, bool isOpl)
             return std::sin(p + 1.0f * std::sin(p));
         case 62: // Self-Modulated Sine (Feedback = 2, slightly harsh)
             return std::sin(p + 2.0f * std::sin(p));
+        case 63: // OPZ(TX81Z) W2
+            return reverseSign(p, normPhase); // Reverse Sine
+        case 64: // OPZ(TX81Z) W3
+            return normPhase < 0.5f ? s : 0.0f; // Half Sine;
+        case 65: // OPZ(TX81Z) W4
+            return normPhase < 0.5f ? reverseSign(p, normPhase) : 0.0f; // Half Reverse Sine
+        case 66: // OPZ(TX81Z) W5
+            return normPhase < 0.5f ? doubleSine(p) : 0.0f; // Alt Sine
+        case 67: // OPZ(TX81Z) W6
+            return normPhase < 0.5f ? doubleReverseSine(p, normPhase) : 0.0f; // Alt Reverse Sine
+        case 68: // OPZ(TX81Z) W7
+            return normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f; // Abs Alt Sine
+        case 69: // OPZ(TX81Z) W8
+            return normPhase < 0.5f ? std::abs(doubleReverseSine(p, normPhase)) : 0.0f; // Abs Alt Reverse Sine
+        case 70: // Cubic Triangle
+        {
+            float tri = triangle(normPhase);
+            return tri * tri * tri; // 3乗することで凹型の鋭い針になる
+        }
+        case 71: // Inverse Circle
+        {
+            float tri = triangle(normPhase);
+            float absTri = std::abs(tri);
+            float sign = (tri >= 0.0f) ? 1.0f : -1.0f;
+            // 1.0 - sqrt(1.0 - x^2) で、頂点が限界まで尖ったカーブを作る
+            return sign * (1.0f - std::sqrt(std::max(0.0f, 1.0f - absTri * absTri)));
+        }
+        case 72: // Exponential Spike
+        {
+            // 前半(0.0~0.5)と後半(0.5~1.0)でローカルな位相(0.0~1.0)を作る
+            float localPhase = std::fmod(normPhase * 2.0f, 1.0f);
+            float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+
+            // exp(-x) で一気に減衰させる。8.0fは尖り具合（大きいほど細い針になる）
+            return sign * std::exp(-localPhase * 8.0f);
+        }
         default: return s;
         }
     }

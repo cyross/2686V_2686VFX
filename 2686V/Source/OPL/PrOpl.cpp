@@ -82,6 +82,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.fmOp[op].keyScaleLevel = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ksl);
         params.fmOp[op].totalLevel = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::tl);
         params.fmOp[op].sustainRate = 0.0f;
+        params.fmOp[op].phaseOffset = 0.0f;
         params.fmOp[op].ssgEg = 0; // OPLにはSSG-EGは無い
         params.fmOp[op].fmSsgEgFreq = 0.0f;
         params.fmOp[op].fixedMode = false; // OPLにはFixed Modeは無い

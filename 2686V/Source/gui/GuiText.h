@@ -176,6 +176,8 @@ namespace GuiText
 			static inline const juce::String RgEn = "RG-EN";
 
 			static inline const juce::String sus = "SUS";
+
+			static inline const juce::String phaseOffset = "P.OFFSET";
 		}
 	}
 
