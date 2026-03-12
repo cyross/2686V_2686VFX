@@ -183,3 +183,8 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     // エフェクト処理実行
     effects.process(buffer);
 }
+
+void FxProcessor::clear()
+{
+    effects.clear();
+}

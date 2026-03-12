@@ -162,6 +162,8 @@ public:
     void saveEnvironment(const juce::File& file);
     void loadEnvironment(const juce::File& file); 
 
+    void panic();
+
     juce::String makePathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
     juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
 

@@ -63,7 +63,7 @@ void FxRetroLfo::process(juce::AudioBuffer<float>& buffer) {
     float amDepthTarget = interpolateDepth(currentAms, amsDepths, 3) * (currentAmd / 127.0f);
     float pmDepthTarget = interpolateDepth(currentPms, pmsDepths, 7) * (currentPmd / 127.0f);
 
-    // ★数学的アプローチ: LFOの速度に反比例させてディレイ振幅を決定し、ピッチ変化量を一定に保つ
+    // 数学的アプローチ: LFOの速度に反比例させてディレイ振幅を決定し、ピッチ変化量を一定に保つ
     float swing = (pmDepthTarget * fs * 0.02f) / std::max(0.1f, currentFreq);
     if (swing > fs * 0.04f) swing = fs * 0.04f; // 最大40msの振幅制限（バッファ外アクセス防止）
 
@@ -102,7 +102,7 @@ void FxRetroLfo::process(juce::AudioBuffer<float>& buffer) {
             break;
         }
 
-        // ★ AMクリックノイズ防止用 1-pole LPF (約2msの超高速グライド)
+        // AMクリックノイズ防止用 1-pole LPF (約2msの超高速グライド)
         amSmoothLfo += (amLfoVal - amSmoothLfo) * 0.01f;
 
         // AMは負の方向のみ音量を下げる (OPNAの仕様準拠)
@@ -165,6 +165,15 @@ void FxRetroLfo::process(juce::AudioBuffer<float>& buffer) {
 
     writePos += numSamples;
     while (writePos >= delayBufLen) writePos -= delayBufLen;
+}
+
+void FxRetroLfo::clear()
+{
+    delayBuffer.clear();
+    writePos = 0;
+    lfoPhase = 0.0;
+    amSmoothLfo = 0.0f;
+    pmNoiseInt = 0.0f;
 }
 
 void FxTremolo::prepare(double sampleRate)
@@ -306,6 +315,13 @@ void FxVibrato::process(juce::AudioBuffer<float>& buffer)
         phase -= juce::MathConstants<double>::twoPi;
 }
 
+void FxVibrato::clear()
+{
+    delayBuffer.clear();
+    writePos = 0;
+    phase = 0.0;
+}
+
 void FxMBC::prepare(double sampleRate)
 {
     // 状態のリセット
@@ -368,6 +384,14 @@ void FxMBC::process(juce::AudioBuffer<float>& buffer)
             // Mix (Dry/Wet)
             data[i] = (dry * (1.0f - wetLevel)) + (processed * wetLevel);
         }
+    }
+}
+
+void FxMBC::clear()
+{
+    for (int i = 0; i < 2; ++i) {
+        counter[i] = 0;
+        heldSample[i] = 0.0f;
     }
 }
 
@@ -442,6 +466,12 @@ void FxDelay::process(juce::AudioBuffer<float>& buffer)
     while (writePos >= delayBufLen) writePos -= delayBufLen;
 }
 
+void FxDelay::clear()
+{
+    delayBuffer.clear();
+    writePos = 0;
+}
+
 void FxReverb::prepare(double sampleRate)
 {
     reverb.setSampleRate(sampleRate);
@@ -465,7 +495,7 @@ void FxReverb::process(juce::AudioBuffer<float>& buffer)
     else reverb.processMono(buffer.getWritePointer(0), buffer.getNumSamples());
 }
 
-void FxReverb::reset()
+void FxReverb::clear()
 {
     reverb.reset();
 }
@@ -562,6 +592,15 @@ void FxRBC::process(juce::AudioBuffer<float>& buffer)
     }
 }
 
+void FxRBC::clear()
+{
+    for (int i = 0; i < 2; ++i) {
+        counter[i] = 0;
+        heldSample[i] = 0.0f;
+        codec[i].reset();
+    }
+}
+
 // --- Filter ---
 void FxFilter::prepare(double sampleRate)
 {
@@ -616,6 +655,13 @@ void FxFilter::process(juce::AudioBuffer<float>& buffer)
             outR[i] = (dryR * (1.0f - wetLevel)) + (wetR * wetLevel);
         }
     }
+}
+
+// --- Filter ---
+void FxFilter::clear()
+{
+    filterL.reset();
+    filterR.reset();
 }
 
 // --- Soft Clipper ---
@@ -691,14 +737,6 @@ void EffectChain::process(juce::AudioBuffer<float>& buffer)
     }
 }
 
-void EffectChain::reset()
-{
-    // 簡易リセット
-    modernBitCrusher.prepare(44100);
-    retroBitCrusher.prepare(44100);
-    reverb.reset();
-}
-
 // バイパス状態のセット
 void EffectChain::setBypasses(bool fl, bool rlfo, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc)
 {
@@ -722,5 +760,14 @@ void EffectChain::updateOrder(const std::array<int, NumEffects>& newOrders)
         {
             processChain[i] = fxMap[newOrders[i]];
         }
+    }
+}
+
+// バッファクリア
+void EffectChain::clear()
+{
+    for (auto* fx : fxMap)
+    {
+        fx->clear();
     }
 }

@@ -110,6 +110,7 @@ private:
 
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
+    juce::TextButton panicButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 

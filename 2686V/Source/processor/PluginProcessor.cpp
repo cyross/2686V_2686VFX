@@ -916,3 +916,18 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     previewSynth.noteOff(1, 69, 0.0f, false);
 }
 #endif
+
+void AudioPlugin2686V::panic()
+{
+#if !defined(BUILD_AS_FX_PLUGIN)
+    // 1. 全てのボイス（回路）の音を強制的に停止（切り離し）します
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = m_synth.getVoice(i)) {
+            // clearCurrentNote() を呼ぶと、JUCE側で即座にそのボイスの計算がスキップされます
+            voice->stopNote(0.0f, false);
+        }
+    }
+#endif
+
+    prFx.clear();
+}

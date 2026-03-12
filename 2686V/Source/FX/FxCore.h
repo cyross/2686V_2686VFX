@@ -38,6 +38,7 @@ public:
     virtual int getOrder(){ return order; }
     virtual void setBypass(bool bp) { bypass = bp; }
     virtual bool isBypass() { return bypass; }
+    virtual void clear() {}
 protected:
     bool bypass = false; // バイパス管理
     float wetLevel = 0.0f;
@@ -53,6 +54,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(int wave, float freq, float ams, float pms, float amd, float pmd, float mix);
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     juce::AudioBuffer<float> delayBuffer;
     double fs = 44100.0;
@@ -101,6 +103,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(float rate, float depth, float mix) override;
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     juce::AudioBuffer<float> delayBuffer;
     double fs = 44100.0;
@@ -119,6 +122,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(float rateReduction, float bitDepth, float mix) override;
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     int stepSize = 1;
     float quantizeStep = 65536.0f;
@@ -137,6 +141,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(float timeMs, float feedback, float mix) override;
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     juce::AudioBuffer<float> delayBuffer;
     double fs = 44100.0;
@@ -155,7 +160,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(float size, float damp, float width, float mix);
     void process(juce::AudioBuffer<float>& buffer);
-    void reset();
+    void clear() override;
 private:
     juce::Reverb reverb;
 };
@@ -169,6 +174,7 @@ public:
     void prepare(double sampleRate) override;
     void setParameters(int rateIdx, int mode, float mix);
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     double fs = 44100.0;
     int bitsMode = 6;
@@ -190,6 +196,7 @@ public:
     // mode=Type(0:LPF, 1:HPF, 2:BPF, 3:BSF), rate=Freq, mix=Q, wetLevel=Mix (引数を流用)
     void setParameters(float type, float freq, float q, float mix);
     void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
 private:
     juce::dsp::StateVariableTPTFilter<float> filterL;
     juce::dsp::StateVariableTPTFilter<float> filterR;
@@ -226,9 +233,9 @@ public:
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
-    void reset();
     void setBypasses(bool fl, bool rlfo, bool t, bool v, bool mc, bool rc, bool d, bool r, bool sc);
     void updateOrder(const std::array<int, NumEffects>& newOrders);
+    void clear();
 private:
     // 各エフェクトオブジェクト
     FxFilter filter;
