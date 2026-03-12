@@ -196,6 +196,16 @@ static std::vector<SelectItem> opzx3WsItems = {
     {.name = "60 [EX028]Bitwise AND Texture",       .value = 61},
     {.name = "61 [EX029]Self-Modulated Sine(FB=1)", .value = 62},
     {.name = "62 [EX030]Self-Modulated Sine(FB=2)", .value = 63},
+    {.name = "63 [EX031]OPZ(TX81Z) W2",             .value = 64},
+    {.name = "64 [EX032]OPZ(TX81Z) W3",             .value = 65},
+    {.name = "65 [EX033]OPZ(TX81Z) W4",             .value = 66},
+    {.name = "66 [EX034]OPZ(TX81Z) W5",             .value = 67},
+    {.name = "67 [EX035]OPZ(TX81Z) W6",             .value = 68},
+    {.name = "68 [EX036]OPZ(TX81Z) W7",             .value = 69},
+    {.name = "69 [EX037]OPZ(TX81Z) W8",             .value = 70},
+    {.name = "70 [EX038]Cubic Triangle",            .value = 71},
+    {.name = "71 [EX039]Inverse Circle",            .value = 72},
+    {.name = "72 [EX040]Exponential Spike",         .value = 73},
 };
 
 void GuiOpzx3::setup()
