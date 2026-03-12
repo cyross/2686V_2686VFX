@@ -142,6 +142,16 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         updateTimerState();
     };
 
+    // パニックボタン
+    addAndMakeVisible(panicButton);
+    panicButton.setVisible(true);
+    panicButton.setButtonText("!");
+    panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.7f));
+    panicButton.onClick = [this] {
+        audioProcessor.panic();
+        };
+
     midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
 
     // 鍵盤を画面に追加し、PCキーボードのフォーカスを受け取れるようにする
@@ -149,6 +159,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     midiKeyboard->setWantsKeyboardFocus(true);
 
     midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+
     int initialHeight = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
     setSize(GuiValue::Window::width, initialHeight);
 #endif
@@ -240,6 +251,8 @@ void AudioPlugin2686VEditor::resized()
         realtimePreview.setBounds(rightArea.getX() + 4, 330, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
 #endif
     }
+
+    panicButton.setBounds(getWidth() - 60, 5, 20, 20);
 
     logoLabel.setBounds(area.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height));
 
