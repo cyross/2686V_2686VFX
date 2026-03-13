@@ -61,10 +61,10 @@ static std::vector<SelectItem> kslItems = {
 };
 
 static std::vector<SelectItem> oplEgItems = {
-    {.name = "0: Sine",  .value = 1},
-    {.name = "1: Half",  .value = 2},
-    {.name = "2: Abs",   .value = 3},
-    {.name = "3: Pulse", .value = 4}
+    {.name = "0: Sine",       .value = 1},
+    {.name = "1: Half Sine",  .value = 2},
+    {.name = "2: Abs Sine",   .value = 3},
+    {.name = "3: Pulse Sine", .value = 4}
 };
 
 void GuiOpl::setup()
