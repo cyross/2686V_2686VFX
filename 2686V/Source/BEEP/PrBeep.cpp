@@ -8,10 +8,10 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 {
     juce::String code = PrKey::Prefix::beep;
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Beep::level, code + PrName::Beep::Post::level, PrValue::Beep::Level::min, PrValue::Beep::Level::max, PrValue::Beep::Level::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Beep::fix, code + PrName::Beep::Post::fix, PrValue::Beep::Fix::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Beep::fixFreq, code + PrName::Beep::Post::fix, PrValue::Beep::FixFreq::min, PrValue::Beep::FixFreq::max, PrValue::Beep::FixFreq::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Beep::Post::Adsr::bypass, PrValue::Beep::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Beep::level, code + PrName::Beep::Post::level, PrValue::Level::min, PrValue::Level::max, PrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Beep::fix, code + PrName::Beep::Post::fix, PrValue::Fix::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Beep::fixFreq, code + PrName::Beep::Post::fix, PrValue::Fix::Freq::min, PrValue::Fix::Freq::max, PrValue::Fix::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Beep::Post::Adsr::bypass, PrValue::Adsr::Bypass::initial));
 
     addEnvParameters(layout, code);
 }

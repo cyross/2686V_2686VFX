@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../synth/SynthParams.h"
+#include "../synth/SynthCore.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -48,22 +49,25 @@ private:
     void refreshAdpcmBuffer();
 };
 
-class RhythmCore
+class RhythmCore : public SynthCore
 {
 public:
+    RhythmCore() : SynthCore() {}
+
     std::array<RhythmPad, MaxRhythmPads> pads;
     double m_sampleRate = 44100.0;
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
     void setSampleData(int padIndex, const std::vector<float>& data, double rate);
-    void noteOn(int midiNote, float velocity);
+    void noteOn(float freq, float velocity, int midiNote);
     void noteOff();
     bool isPlaying() const;
     void setPitchBend(int pitchWheelValue);
     void setModulationWheel(int wheelValue);
     void setPitchBendRatio(float ratio);
     void getSampleStereo(float& outL, float& outR);
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;

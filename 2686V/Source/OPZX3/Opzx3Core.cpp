@@ -51,7 +51,7 @@ void Opzx3Core::setParameters(const SynthParams& params) {
         }
 
         // WaveSelect=True, SSG-EG=True, OpmEg=True
-        m_operators[i].setParameters(params.fmOp[i], fb, true, true, true, params.fmOp[i].fmSsgEgFreq);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 
@@ -65,7 +65,7 @@ void Opzx3Core::setParameters(const SynthParams& params) {
     m_operators[2].setExternalFeedbackMode(useExtFb);
 }
 
-void Opzx3Core::noteOn(float freq, float velocity) {
+void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
     m_rateAccumulator = 1.0;
@@ -460,7 +460,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out3;
 
@@ -478,7 +478,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out3;
 
@@ -494,7 +494,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out3;
 
@@ -510,7 +510,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out1 + out2;
 
@@ -526,7 +526,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out2 + out3;
 
@@ -544,7 +544,7 @@ float Opzx3Core::getSample() {
             if (m_opMask[2]) out3 = 0.0f;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out2 + out3;
 
@@ -562,7 +562,7 @@ float Opzx3Core::getSample() {
             finalOut = out1 + out2 + out3;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             break;
         case 23:
@@ -578,7 +578,7 @@ float Opzx3Core::getSample() {
             finalOut = out1 + out2 + out3;
 
             // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             break;
         case 24:
@@ -587,8 +587,8 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out2;
 
@@ -601,8 +601,8 @@ float Opzx3Core::getSample() {
 
             m_operators[0].pushFeedback(out2);
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out2;
 
@@ -613,8 +613,8 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out1 + out2;
 
@@ -625,8 +625,8 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out1 + out2;
 
@@ -637,8 +637,8 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out2;
 
@@ -649,8 +649,8 @@ float Opzx3Core::getSample() {
 
             if (m_opMask[1]) out2 = 0.0f;
 
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal);
+            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
 
             finalOut = out1 + out2;
 
@@ -801,4 +801,14 @@ void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
     if (opIndex >= 0 && opIndex < 4) {
         m_operators[opIndex].setPcmBuffer(pcmData);
     }
+}
+
+void Opzx3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

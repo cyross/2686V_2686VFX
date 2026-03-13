@@ -5,29 +5,31 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../fm/FmCommon.h"
+#include "../fm/FmCore.h"
+#include "Opzx3Operator.h"
 
 // ==========================================================
 // OPZX3 Core
 // Base: OPM (YM2151) / OPZ (YM2414)
 // Extension: OPX (YMF271) Algorithms & MA-5 Waveforms
 // ==========================================================
-class Opzx3Core
+class Opzx3Core : public FmCore
 {
 public:
-    Opzx3Core() {}
+    Opzx3Core() : FmCore() {}
 
-    void prepare(double sampleRate);
+    void prepare(double sampleRate) override;
     void setParameters(const SynthParams& params);
-    void noteOn(float freq, float velocity);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    void setModulationWheel(int wheelValue);
-    float getSample();
+    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    float getSample() override;
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    std::array<FmOperator, 4> m_operators;
+    std::array<Opzx3Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
     double m_hostSampleRate = 44100.0;

@@ -26,13 +26,13 @@ void OplCore::setParameters(const SynthParams& params) {
         FmOpParams opParams = params.fmOp[i];
         opParams.totalLevel *= 0.5f;
 
-        m_operators[i].setParameters(params.fmOp[i], fb, false, true);
+        m_operators[i].setParameters(params.fmOp[i], fb);
 
         m_opMask[i] = params.fmOp[i].mask;
     }
 }
 
-void OplCore::noteOn(float freq, float velocity) {
+void OplCore::noteOn(float freq, float velocity, int midiNote) {
     float gain = std::max(0.01f, velocity);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     m_operators[0].noteOn(freq, gain, noteNum);
@@ -164,4 +164,14 @@ float OplCore::getSample() {
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+}
+
+void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

@@ -1,7 +1,7 @@
 ﻿#include "WtCore.h"
 #include "../synth/SynthHelpers.h"
 
-WtCore::WtCore()
+WtCore::WtCore() : SynthCore()
 {
     // 初期波形: サイン波
     m_sourceWave.resize(64);
@@ -58,14 +58,14 @@ void WtCore::setParameters(const SynthParams& params)
     updateIncrements();
 }
 
-void WtCore::noteOn(float frequency)
+void WtCore::noteOn(float freq, float velocity, int midiNote)
 {
     m_phase = 0.0f;
     m_modPhase = 0.0f;
 
     double targetRate = getTargetRate(m_rateIndex);
     if (targetRate > 0.0) {
-        m_phaseDelta = frequency / targetRate;
+        m_phaseDelta = freq / targetRate;
     }
     else {
         m_phaseDelta = 0.0;
@@ -277,4 +277,14 @@ void WtCore::updatePhaseDelta()
     if (targetRate > 0.0) {
         m_phaseDelta = m_currentFrequency / targetRate;
     }
+}
+
+void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

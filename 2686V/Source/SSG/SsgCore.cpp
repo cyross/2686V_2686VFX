@@ -1,7 +1,7 @@
 ﻿#include "SsgCore.h"
 #include "../synth/SynthHelpers.h"
 
-SsgCore::SsgCore() {
+SsgCore::SsgCore() : SynthCore() {
     m_lfsr = 0x1FFFF;
 }
 
@@ -51,9 +51,9 @@ void SsgCore::setParameters(const SynthParams& params)
     updatePhaseDelta();
 }
 
-void SsgCore::noteOn(float frequency)
+void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
-    m_currentFrequency = frequency; // Save for recalculation
+    m_currentFrequency = freq; // Save for recalculation
     m_phase = 0.0f;
 
     updateNoiseFrequency();
@@ -343,4 +343,14 @@ void SsgCore::updatePhaseDelta() {
         m_phaseDelta = m_currentFrequency / targetRate;
         m_noiseDelta = m_targetNoiseFreq / targetRate;
     }
+}
+
+void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

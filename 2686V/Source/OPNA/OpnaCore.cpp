@@ -51,12 +51,12 @@ void OpnaCore::setParameters(const SynthParams& params) {
         // OPNA: SSG-EG=True, WaveSelect=False
         // params.fmSsgEgFreq を渡す (第6引数)
         // 第5引数(useOpmEg)は false
-        m_operators[i].setParameters(params.fmOp[i], fb, true, false, false, params.fmOp[i].fmSsgEgFreq);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }
 
-void OpnaCore::noteOn(float freq, float velocity) {
+void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
     float gain = std::max(0.01f, velocity);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
@@ -317,4 +317,14 @@ float OpnaCore::getSample() {
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+}
+
+void OpnaCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }
