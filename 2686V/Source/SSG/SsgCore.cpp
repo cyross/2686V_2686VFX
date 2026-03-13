@@ -4,10 +4,6 @@
 const std::array<float, 9> SsgCore::dutyPresets = { 0.5f, 0.4375f, 0.375f, 0.3125f, 0.25f, 0.20f, 0.1875f, 0.125f, 0.0625f };
 
 namespace {
-    inline float doubleSine(float p) {
-        return std::sin(p * 2.0f);
-    }
-
     // =================================================================
     // 波形ストラテジー配列の定義
     // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
