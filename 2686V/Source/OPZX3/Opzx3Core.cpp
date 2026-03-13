@@ -1,6 +1,46 @@
 ﻿#include "Opzx3Core.h"
 #include "../synth/SynthHelpers.h"
 
+const std::array<Opzx3Core::AlgRouting, 36> Opzx3Core::routings = { {
+    // in2_1, fb2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4
+    { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 00
+    { 1.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 01
+    { 0.0f, false, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 02
+    { 0.0f, false, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 03
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 04
+    { 1.0f, true,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 05
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 06
+    { 1.0f, true,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 07
+    { 0.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 08
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 09
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 1.0f }, // 10
+    { 1.0f, true,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 1.0f }, // 11
+    { 1.0f, false, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 1.0f }, // 12
+    { 0.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }, // 13
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 0.0f, 1.0f }, // 14
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }, // 15
+    { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f }, // 16
+    { 1.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f }, // 17
+    { 0.0f, false, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f }, // 18
+    { 0.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f }, // 19
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 0.0f }, // 20
+    { 1.0f, true,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 0.0f }, // 21
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 0.0f }, // 22
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 0.0f }, // 23
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f }, // 24
+    { 1.0f, true,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f }, // 25
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f }, // 26
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f }, // 27
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f }, // 28
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f }, // 29
+    { 0.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }, // 30
+    { 0.0f, true,  0.0f, 1.0f, 1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 31
+    { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 32
+    { 1.0f, false, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 33
+    { 0.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 34
+    { 0.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }  // 35
+} };
+
 void Opzx3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
     double target = getTargetRate(m_rateIndex);
@@ -123,37 +163,14 @@ float Opzx3Core::getSample() {
             m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f; // -1.0 ~ 1.0
         }
 
-        float amLfoVal = 0.0f;
-        float pmLfoVal = 0.0f;
+        // =================================================================
+        // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
+        // =================================================================
+        int waveIdx = std::clamp(m_lfoWave, 0, 4);
+        FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
 
-        switch (m_lfoWave) {
-        case 0: // Sine (従来用)
-            pmLfoVal = (float)std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
-            amLfoVal = (pmLfoVal + 1.0f) * 0.5f;
-            break;
-        case 1: // Saw Down (実機のノコギリ波)
-            pmLfoVal = (float)(1.0 - m_lfoPhase * 2.0); // 1.0 -> -1.0
-            amLfoVal = (float)(1.0 - m_lfoPhase);       // 1.0 -> 0.0
-            break;
-        case 2: // Square
-            pmLfoVal = (m_lfoPhase < 0.5) ? 1.0f : -1.0f;
-            amLfoVal = (m_lfoPhase < 0.5) ? 1.0f : 0.0f;
-            break;
-        case 3: // Triangle
-            // PM: 0 -> 1 -> -1 -> 0
-            if (m_lfoPhase < 0.25)       pmLfoVal = (float)(m_lfoPhase * 4.0);
-            else if (m_lfoPhase < 0.75)  pmLfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-            else                         pmLfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
-
-            // AM: 0 -> 1 -> 0 (PMの半分の速度で折り返す)
-            if (m_lfoPhase < 0.5)        amLfoVal = (float)(m_lfoPhase * 2.0);
-            else                         amLfoVal = (float)(1.0 - (m_lfoPhase - 0.5) * 2.0);
-            break;
-        case 4: // Noise (Sample & Hold)
-            pmLfoVal = m_currentNoiseSample;
-            amLfoVal = (m_currentNoiseSample + 1.0f) * 0.5f;
-            break;
-        }
+        float pmLfoVal = lfoVal.pm;
+        float amLfoVal = lfoVal.am;
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
@@ -161,616 +178,45 @@ float Opzx3Core::getSample() {
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
-        // Op1 is Feedback Source
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        int algIndex = std::clamp(m_algorithm, 0, 35);
+        const auto& r = routings[algIndex];
 
+        // =================================================================
+        // 1. OP1 (入力は常に0.0)
+        // =================================================================
+        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
-        // Algorithm : OPX (0-27) + MA-3 (28-35)
+        // 2. OP2 (入力: OP1)
         // =================================================================
-        switch (m_algorithm) {
-        case 0:
-            //	{{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},       // 00: <OPX-00>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        float in2 = out1 * r.in2_1;
+        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[1]) out2 = 0.0f;
 
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 1:
-            //	{{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])"}},      // 01: <OPX-01>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
+        // フィードバック指定があれば OP2->OP1 にフィードバックをプッシュ
+        if (r.fb2_1) {
             m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 2:
-            //	{{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}},       // 02: <OPX-02>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 3:
-            //	{{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}},       // 03: <OPX-03>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out1 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 4:
-            //	{{"([M:FB->2])", "([M->4])", "([M->4])", "([C])"}},       // 04: <OPX-04>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 5:
-            //	{{"([M:FB->2])", "([M:FB1->4])", "([M->4])", "([C])"}},   // 05: <OPX-05>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 6:
-            //	{{"([M:FB->2])", "([C])", "([M->4])", "([C])"}},          // 06: <OPX-06>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 7:
-            //	{{"([M->2])", "([C:FB1])", "([M->4])", "([C])"}},         // 07: <OPX-07>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 8:
-            //	{{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},          // 08: <OPX-08>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out4;
-
-            break;
-        case 9:
-            //	{{"([C:FB])", "([M->4])", "([M->4])", "([C])"}},          // 09: <OPX-09>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out4;
-
-            break;
-        case 10:
-            //	{{"([M:FB->2])", "([C])", "([C])", "([C])"}},             // 10: <OPX-10>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        case 11:
-            //	{{"([M->2])", "([C:FB1])", "([C])", "([C])"}},            // 11: <OPX-11>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        case 12:
-            //	{{"([M:FB->2/3/4])", "([C])", "([C])", "([C])"}},         // 12: <OPX-12>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        case 13:
-            //	{{"([C:FB])", "([M->3])", "([C])", "([C])"}},             // 13: <OPX-13>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out3 + out4;
-
-            break;
-        case 14:
-            //	{{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])"}},    // 14: <OPX-14>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out4;
-            break;
-        case 15:
-            //	{{"([C:FB])", "([C])", "([C])", "([C])"}},                // 15: <OPX-15>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out3 + out4;
-
-            break;
-        case 16:
-            //	{{"([M:FB->2])", "([M->3])", "([C])", "(--)"}},           // 16: <OPX-16>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out3;
-
-            break;
-        case 17:
-            //	{{"([M->2])", "([M:FB1->3])", "([C])", "(--)"}},          // 17: <OPX-17>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out3;
-
-            break;
-        case 18:
-            //	{{"([M:FB->3])", "([M->3])", "([C])", "(--)"}},           // 18: <OPX-18>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out3;
-
-            break;
-        case 19:
-            //	{{"([C:FB])", "([M->3])", "([C])", "(--)"}},              // 19: <OPX-19>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out1 + out2;
-
-            break;
-        case 20:
-            //	{{"([M:FB->2])", "([C])", "([C])", "(--)"}},              // 20: <OPX-20>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out2 + out3;
-
-            break;
-        case 21:
-            //	{{"([M->2])", "([C:FB1])", "([C])", "(--)"}},             // 21: <OPX-21>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out2 + out3;
-
-            break;
-        case 22:
-            //	{{"([C:FB])", "([C])", "([C])", "(--)"}},                 // 22: <OPX-22>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            finalOut = out1 + out2 + out3;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            break;
-        case 23:
-            //	{{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)"}},        // 23: <OPX-23>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            finalOut = out1 + out2 + out3;
-
-            // OP3を空回し
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            break;
-        case 24:
-            //	{{"([M:FB->2])", "([C])", "(--)", "(--)"}},               // 24: <OPX-24>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out2;
-
-            break;
-        case 25:
-            //	{{"([M->2])", "([C:FB1])", "(--)", "(--)"}},              // 25: <OPX-25>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out2;
-
-            break;
-        case 26:
-            //	{{"([C:FB])", "([C])", "([--])", "([--])"}},              // 26: <OPX-26>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out1 + out2;
-
-            break;
-        case 27:
-            //	{{"([C:FB][M->2])", "([C])", "([--])", "([--])"}},        // 27: <OPX-27>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out1 + out2;
-
-            break;
-        case 28:
-            //	{{"([M:FB->2])", "([C])", "([--])", "([--])"}},           // 28: <MA3-00>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out2;
-
-            break;
-        case 29:
-            //	{{"([C:FB])", "([C])", "([--])", "([--])"}},              // 29: <MA3-01>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            finalOut = out1 + out2;
-
-            break;
-        case 30:
-            //	{{"([C:FB])", "([C])", "([C:FB])", "([C])"}},             // 30: <MA3-02>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out3 + out4;
-
-            break;
-        case 31:
-            //	{{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}}, // 31: <MA3-03>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out1 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 32:
-            //	{{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},       // 32: <MA3-04>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 33:
-            //	{{"([M:FB->2])", "([C])", "([M:FB->4])", "([C])"}},       // 33: <MA3-05>
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 34:
-            //	{{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},          // 34: <MA3-06>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out4;
-
-            break;
-        case 35:
-            //	{{"([C:FB])", "([M->3])", "([C])", "([C])"}}              // 35: <MA3-07>
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[0].pushFeedback(out2);
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out3 + out4;
-
-            break;
-        default:
-            finalOut = 0.0f;
-
-            break;
         }
 
-        // =======================================================
-        // 複数のキャリアが加算されても1.0を超えないように音量を調整
-        // =======================================================
-        finalOut *= 0.25f;
+        // =================================================================
+        // 3. OP3 (入力: OP1, OP2)
+        // =================================================================
+        float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
+        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[2]) out3 = 0.0f;
+
+        // =================================================================
+        // 4. OP4 (入力: OP1, OP2, OP3)
+        // =================================================================
+        float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
+        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[3]) out4 = 0.0f;
+
+        // =================================================================
+        // 5. Final Output (各OPからマスターアウトへの加算)
+        // =================================================================
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 0.25f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化

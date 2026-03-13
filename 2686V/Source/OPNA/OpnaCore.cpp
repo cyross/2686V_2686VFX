@@ -122,35 +122,13 @@ float OpnaCore::getSample() {
             m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
         }
 
-        float amLfoVal = 0.0f;
-        float pmLfoVal = 0.0f;
+        // =================================================================
+        // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
+        // =================================================================
+        FmCore::LfoResult lfoVal = FmCore::lfoStrategies[0](m_lfoPhase, m_currentNoiseSample);
 
-        switch (m_lfoWave) {
-        case 0: // Sine
-            pmLfoVal = (float)std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
-            amLfoVal = (pmLfoVal + 1.0f) * 0.5f;
-            break;
-        case 1: // Saw Down
-            pmLfoVal = (float)(1.0 - m_lfoPhase * 2.0);
-            amLfoVal = (float)(1.0 - m_lfoPhase);
-            break;
-        case 2: // Square
-            pmLfoVal = (m_lfoPhase < 0.5) ? 1.0f : -1.0f;
-            amLfoVal = (m_lfoPhase < 0.5) ? 1.0f : 0.0f;
-            break;
-        case 3: // Triangle
-            if (m_lfoPhase < 0.25)       pmLfoVal = (float)(m_lfoPhase * 4.0);
-            else if (m_lfoPhase < 0.75)  pmLfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-            else                         pmLfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
-
-            if (m_lfoPhase < 0.5)        amLfoVal = (float)(m_lfoPhase * 2.0);
-            else                         amLfoVal = (float)(1.0 - (m_lfoPhase - 0.5) * 2.0);
-            break;
-        case 4: // Noise
-            pmLfoVal = m_currentNoiseSample;
-            amLfoVal = (m_currentNoiseSample + 1.0f) * 0.5f;
-            break;
-        }
+        float pmLfoVal = lfoVal.pm;
+        float amLfoVal = lfoVal.am;
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
@@ -160,144 +138,41 @@ float OpnaCore::getSample() {
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
+        // 安全のため 0〜7 の範囲に丸める
+        int algIndex = std::clamp(m_algorithm, 0, 7);
+        const auto& r = baseRoutings[algIndex];
+
+        // =================================================================
+        // OP1 (入力なし。フィードバックは内部で解決される)
+        // =================================================================
         m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
-        switch (m_algorithm) {
-        case 0:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        // =================================================================
+        // OP2 (入力: OP1)
+        // =================================================================
+        float in2 = out1 * r.in2_1;
+        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        if (m_opMask[1]) out2 = 0.0f;
 
-            if (m_opMask[1]) out2 = 0.0f;
+        // =================================================================
+        // OP3 (入力: OP1, OP2)
+        // =================================================================
+        float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
+        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        // =================================================================
+        // OP4 (入力: OP1, OP2, OP3)
+        // =================================================================
+        float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
+        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        if (m_opMask[3]) out4 = 0.0f;
 
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 1:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 2:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3 + out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 3:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 4:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 5:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        case 6:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        default:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out3 + out4;
-
-            break;
-        }
-
-        // =======================================================
-        // 複数のキャリアが加算されても1.0を超えないように音量を調整
-        // =======================================================
-        finalOut *= 0.25f;
+        // =================================================================
+        // Final Output
+        // =================================================================
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 0.25f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化

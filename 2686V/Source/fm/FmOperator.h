@@ -15,10 +15,18 @@ class FmOperator
 public:
     FmOperator() {}
 
+    double m_hostSampleRate = 44100.0;
+
     FmOpParams m_params;
 
+    static const std::array<float, 8> dtScales; // DT(DT1)値のリスト
+    static const std::array<float, 4> dt2Scales; // DT2値のリスト
+
+    using SsgWaveCalculator = float(*)(double p);
+
+    static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
+
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
-    double m_hostSampleRate = 44100.0;
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void virtual setParameters(const FmOpParams& params, float feedback);
     void virtual noteOn(float frequency, float velocity, int noteNumber) {};
@@ -33,6 +41,7 @@ public:
     // OPZX3 の外部 PCM データ用
     void virtual setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
     float virtual calcWaveform(double phase, int wave);
+    void virtual updateIncrementsWithKeyScale();
 protected:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
@@ -62,7 +71,5 @@ protected:
     // OPZX3 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
 
-    float getSsgEnvelopeLevel(double p);
     void updateEnvelopeState();
-    void updateIncrementsWithKeyScale();
 };

@@ -11,6 +11,9 @@ class SsgCore : public SynthCore
 {
 public:
     SsgCore();
+
+    static const std::array<float, 9> dutyPresets;
+
     void prepare(double sampleRate) override;
     void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;

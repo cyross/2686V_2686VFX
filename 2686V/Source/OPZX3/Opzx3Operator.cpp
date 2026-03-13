@@ -1,6 +1,237 @@
 ﻿#include "Opzx3Operator.h"
 #include "../core/PrValues.h"
 
+namespace {
+    // =================================================================
+    // 波形生成用のユーティリティ関数群
+    // =================================================================
+    inline bool isOddQuad(float phase) {
+        return phase < 0.25f || (phase >= 0.5f && phase < 0.75f);
+    }
+
+    inline float doubleSine(float p) {
+        return std::sin(p * 2.0f);
+    }
+
+    inline float halfLevelSign(float sine) {
+        if (sine > 0.5f) return 0.5f;
+        if (sine < -0.5f) return -0.5f;
+        return sine;
+    }
+
+    inline float triangle(float phase) {
+        float value = phase * 4.0f;
+        if (phase < 0.25f) return value;
+        if (phase < 0.75f) return 2.0f - value;
+        return value - 4.0f;
+    }
+
+    inline float dsTriangle(float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 8.0f;
+        if (position < 0.125f) return value;
+        if (position < 0.375f) return 2.0f - value;
+        return value - 4.0f;
+    }
+
+    inline float diagram(float phase) {
+        float value = phase * 2.0f;
+        if (phase < 0.5f) return value;
+        return value - 2.0f;
+    }
+
+    inline float dsDiagram(float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 4.0f;
+        if (position < 0.25f) return value;
+        return value - 2.0f;
+    }
+
+    inline float absHalfSawUp(float phase) {
+        float value = phase * 2.0f;
+        if (phase < 0.5f) return value;
+        return value - 1.0f;
+    }
+
+    inline float dsAbsHalfSawUp(float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 4.0f;
+        if (position < 0.25f) return value;
+        return value - 1.0f;
+    }
+
+    inline float reverseSign(float phase, float nP) {
+        float s2 = std::sin(phase + 0.5f * juce::MathConstants<float>::pi);
+        if (nP < 0.25f) return 1.0f - s2;
+        if (nP < 0.5f) return 1.0f + s2;
+        if (nP < 0.75f) return -1.0f - s2;
+        return s2 - 1.0f;
+    }
+
+    inline float doubleReverseSine(float phase, float nP) {
+        float s2 = std::sin((phase + 0.75f * juce::MathConstants<float>::pi) * 2.0f);
+        if (nP < 0.125f) return 1.0f + s2;
+        if (nP < 0.25f) return 1.0f - s2;
+        if (nP < 0.375f) return s2 - 1.0f;
+        return -1.0f - s2;
+    }
+
+    // =================================================================
+    // 波形ストラテジー配列の定義
+    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
+    // =================================================================
+    using WaveCalculator = float(*)(float p, float n, float s);
+
+    const std::array<WaveCalculator, 73> waveStrategies = { {
+        // 0: Sine
+        [](float p, float n, float s) { return s; },
+        // 1: Half Sine
+        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
+        // 2: Abs Sine
+        [](float p, float n, float s) { return std::abs(s); },
+        // 3: Quadra Abs Half Sine
+        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(s) : 0.0f; },
+        // 4: Alt Sine
+        [](float p, float n, float s) { return n < 0.5f ? doubleSine(p) : 0.0f; },
+        // 5: Alt Abs Sine
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleSine(p)) : 0.0f; },
+        // 6: Square
+        [](float p, float n, float s) { return n < 0.5f ? 1.0f : -1.0f; },
+        // 7: Log Saw
+        [](float p, float n, float s) { float saw = 1.0f - n * 2.0f; return saw * saw * saw; },
+        // 8: Pudding Sine
+        [](float p, float n, float s) { return halfLevelSign(s); },
+        // 9: Half Pudding Sine
+        [](float p, float n, float s) { return n < 0.5f ? halfLevelSign(s) : 0.0f; },
+        // 10: Abs Pudding Sine
+        [](float p, float n, float s) { return std::abs(halfLevelSign(s)); },
+        // 11: Quad Abs Pudding Sine
+        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(halfLevelSign(s)) : 0.0f; },
+        // 12: Mini Alt Sine
+        [](float p, float n, float s) { return n < 0.5f ? std::sin(p * 2.0f) * 0.5f : 0.0f; },
+        // 13: Mini Alt Abs Sine
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f; },
+        // 14: Half Square
+        [](float p, float n, float s) { return n < 0.5f ? 1.0f : 0.0f; },
+        // 15: None
+        [](float p, float n, float s) { return 0.0f; },
+        // 16: Triangle
+        [](float p, float n, float s) { return triangle(n); },
+        // 17: Half Triangle
+        [](float p, float n, float s) { return n < 0.5f ? triangle(n) : 0.0f; },
+        // 18: Abs Triangle
+        [](float p, float n, float s) { return std::abs(triangle(n)); },
+        // 19: Quad Abs Triangle
+        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(triangle(n)) : 0.0f; },
+        // 20: Alt Triangle
+        [](float p, float n, float s) { return n < 0.5f ? dsTriangle(n) : 0.0f; },
+        // 21: Alt Abs Triangle
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(dsTriangle(n)) : 0.0f; },
+        // 22: Quad Half Square
+        [](float p, float n, float s) { return isOddQuad(n) ? 1.0f : 0.0f; },
+        // 23: None
+        [](float p, float n, float s) { return 0.0f; },
+        // 24: Diagram
+        [](float p, float n, float s) { return diagram(n); },
+        // 25: Half Diagram
+        [](float p, float n, float s) { return n < 0.5f ? diagram(n) : 0.0f; },
+        // 26: Abs Half Saw Up
+        [](float p, float n, float s) { return absHalfSawUp(n); },
+        // 27: Quad Abs Half Saw Up
+        [](float p, float n, float s) { return isOddQuad(n) ? absHalfSawUp(n) : 0.0f; },
+        // 28: Alt Diagram
+        [](float p, float n, float s) { return n < 0.5f ? dsDiagram(n) : 0.0f; },
+        // 29: Alt Quad Abs Half Saw Up
+        [](float p, float n, float s) { return n < 0.5f ? dsAbsHalfSawUp(n) : 0.0f; },
+        // 30: Quad Square
+        [](float p, float n, float s) { return n < 0.25f ? 1.0f : 0.0f; },
+        // 31: PCM (Dummy: 実際の処理はメソッド内で分岐)
+        [](float p, float n, float s) { return 0.0f; },
+        // 32: 
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f; },
+        // 33:
+        [](float p, float n, float s) { float sign = (n < 0.5f) ? 1.0f : -1.0f; return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f)); },
+        // 34:
+        [](float p, float n, float s) { return 1.0f - n * 2.0f; },
+        // 35:
+        [](float p, float n, float s) { return n * 2.0f - 1.0f; },
+        // 36:
+        [](float p, float n, float s) { return (1.0f - n * 2.0f) * 0.5f + s * 0.5f; },
+        // 37:
+        [](float p, float n, float s) { return n < 0.25f ? 1.0f : -1.0f; },
+        // 38:
+        [](float p, float n, float s) { return n < 0.125f ? 1.0f : -1.0f; },
+        // 39:
+        [](float p, float n, float s) { return n < 0.0625f ? 1.0f : -1.0f; },
+        // 40:
+        [](float p, float n, float s) { return std::tanh(s * 5.0f); },
+        // 41:
+        [](float p, float n, float s) { return std::exp(-100.0f * std::pow(n - 0.5f, 2.0f)) * 2.0f - 1.0f; },
+        // 42:
+        [](float p, float n, float s) { return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f; },
+        // 43:
+        [](float p, float n, float s) { return (1.0f - n * 2.0f) * std::sin(p * 4.0f); },
+        // 44:
+        [](float p, float n, float s) { return (1.0f - n * 2.0f) * std::sin(p * 8.0f); },
+        // 45:
+        [](float p, float n, float s) { float tri = (n < 0.5f ? (4.0f * n - 1.0f) : (3.0f - 4.0f * n)); return tri * std::sin(p * 3.0f); },
+        // 46:
+        [](float p, float n, float s) { return s * s * s; },
+        // 47:
+        [](float p, float n, float s) { return std::sin(p) * std::sin(p * 2.0f); },
+        // 48:
+        [](float p, float n, float s) { return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f); },
+        // 49:
+        [](float p, float n, float s) { return s * std::cos(p * 2.5f); },
+        // 50:
+        [](float p, float n, float s) { return std::sin(p) * std::sin(p * 1.414f); },
+        // 51:
+        [](float p, float n, float s) { return std::sin(p) * std::cos(p * 0.5f); },
+        // 52:
+        [](float p, float n, float s) { return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f); },
+        // 53: PD Resonance (Casio CZ Style)
+        [](float p, float n, float s) { return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f; },
+        // 54: PD Resonance High
+        [](float p, float n, float s) { return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f; },
+        // 55: 4-Step Sine
+        [](float p, float n, float s) { return std::round(s * 2.0f) / 2.0f; },
+        // 56: 8-Step Sine
+        [](float p, float n, float s) { return std::round(s * 4.0f) / 4.0f; },
+        // 57: Wavefolded Sine (Soft)
+        [](float p, float n, float s) { float fs = s * 1.5f; if (fs > 1.0f) return 2.0f - fs; if (fs < -1.0f) return -2.0f - fs; return fs; },
+        // 58: Wavefolded Sine (Hard)
+        [](float p, float n, float s) { float fs = s * 2.5f; return std::sin(fs * juce::MathConstants<float>::halfPi); },
+        // 59: Bitwise XOR Fractal
+        [](float p, float n, float s) { uint8_t pi = (uint8_t)(n * 255.0f); uint8_t xv = pi ^ (pi >> 1); return ((float)xv / 255.0f) * 2.0f - 1.0f; },
+        // 60: Bitwise AND Texture
+        [](float p, float n, float s) { uint8_t pi = (uint8_t)(n * 255.0f); uint8_t av = pi & (pi << 1); return ((float)av / 255.0f) * 2.0f - 1.0f; },
+        // 61: Self-Modulated Sine (FB=1)
+        [](float p, float n, float s) { return std::sin(p + 1.0f * std::sin(p)); },
+        // 62: Self-Modulated Sine (FB=2)
+        [](float p, float n, float s) { return std::sin(p + 2.0f * std::sin(p)); },
+        // 63: OPZ(TX81Z) W2
+        [](float p, float n, float s) { return reverseSign(p, n); },
+        // 64: OPZ(TX81Z) W3
+        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
+        // 65: OPZ(TX81Z) W4
+        [](float p, float n, float s) { return n < 0.5f ? reverseSign(p, n) : 0.0f; },
+        // 66: OPZ(TX81Z) W5
+        [](float p, float n, float s) { return n < 0.5f ? doubleSine(p) : 0.0f; },
+        // 67: OPZ(TX81Z) W6
+        [](float p, float n, float s) { return n < 0.5f ? doubleReverseSine(p, n) : 0.0f; },
+        // 68: OPZ(TX81Z) W7
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleSine(p)) : 0.0f; },
+        // 69: OPZ(TX81Z) W8
+        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleReverseSine(p, n)) : 0.0f; },
+        // 70: Cubic Triangle
+        [](float p, float n, float s) { float tri = triangle(n); return tri * tri * tri; },
+        // 71: Inverse Circle
+        [](float p, float n, float s) { float tri = triangle(n); float absTri = std::abs(tri); float sign = (tri >= 0.0f) ? 1.0f : -1.0f; return sign * (1.0f - std::sqrt(std::max(0.0f, 1.0f - absTri * absTri))); },
+        // 72: Exponential Spike
+        [](float p, float n, float s) { float lp = std::fmod(n * 2.0f, 1.0f); float sign = (n < 0.5f) ? 1.0f : -1.0f; return sign * std::exp(-lp * 8.0f); }
+    } };
+}
+
 void Opzx3Operator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
@@ -48,69 +279,14 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
         baseFreq = m_params.fixedFreq;
     }
 
-    // Detune
-    // Range: -3 to +3 (Derived from params.detune 0-7)
-    // 0-3: Positive (0, +1, +2, +3)
-    // 4-7: Negative (0, -1, -2, -3)
-    int dtReg = m_params.detune & 7;
-    float dtSign = 0.0f;
-
-    // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
-    // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
-    // 値は実機の数値を参考に調整した近似値です。
-    // 0: 0
-    // 1: +/- 0.1% (approx)
-    // 2: +/- 0.25%
-    // 3: +/- 0.45%
-    switch (dtReg)
-    {
-    case 0: // 0
-        // dtSign = 0.0f
-        break;
-    case 1: // -3
-        dtSign = -0.0045f;
-        break;
-    case 2: // -2
-        dtSign = -0.0025f;
-        break;
-    case 3: // -1
-        dtSign = -0.001f;
-        break;
-    case 4: // 0
-        // dtSign = 0.0f
-        break;
-    case 5: // 1
-        dtSign = 0.001f;
-        break;
-    case 6: // 2
-        dtSign = 0.0025f;
-        break;
-    case 7: // 3
-        dtSign = 0.0045f;
-    }
-
     // 基本周波数にデチューン成分を加算
-    float detunedBaseFreq = baseFreq + baseFreq * dtSign;
+    float detunedBaseFreq = baseFreq + baseFreq * dtScales[m_params.detune & 7];
 
     // Multi & Detune
     float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
 
-    // DT2 (OPM Coarse Detune)
-    // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
-    // 0: x1.0
-    // 1: x1.41 (600 cent up)
-    // 2: x1.58 (780 cent up)
-    // 3: x1.78 (950 cent up)
-    float dt2Scale = 1.0f;
-    switch (m_params.detune2 & 3) {
-    case 0: dt2Scale = 1.0f; break;
-    case 1: dt2Scale = 1.414f; break;
-    case 2: dt2Scale = 1.581f; break;
-    case 3: dt2Scale = 1.781f; break;
-    }
-
     // Final Frequency = (Base + DT1) * MUL * DT2
-    float finalFreq = detunedBaseFreq * mul * dt2Scale;
+    float finalFreq = detunedBaseFreq * mul * dt2Scales[m_params.detune2 & 3];
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
@@ -135,21 +311,7 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
         }
     }
 
-    float kslAttenuation = 1.0f;
-    if (m_params.keyScaleLevel > 0)
-    {
-        float octaveDiff = (float)(noteNumber - 48) / 12.0f;
-        if (octaveDiff < 0) octaveDiff = 0;
-        float dbPerOct = 0.0f;
-        switch (m_params.keyScaleLevel) {
-        case 1: dbPerOct = 1.5f; break;
-        case 2: dbPerOct = 3.0f; break;
-        case 3: dbPerOct = 6.0f; break;
-        }
-        float totalDb = dbPerOct * octaveDiff;
-        kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
-    }
-    m_targetLevel = velocity * tlGain * kslAttenuation;
+    m_targetLevel = velocity * tlGain;
     m_state = State::Attack;
 
     m_fb1 = 0.0f; m_fb2 = 0.0f;
@@ -168,7 +330,9 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
     float envVal = m_currentLevel;
 
     if (m_params.ssgEg > 0) {
-        envVal *= getSsgEnvelopeLevel(m_ssgPhase);
+        int safeWave = std::clamp(m_params.ssgEg, 0, 15);
+
+        envVal *= ssgWaveStrategies[safeWave](m_ssgPhase);
         m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
     }
 
@@ -272,352 +436,58 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
 
 float Opzx3Operator::calcWaveform(double phase, int wave)
 {
-    auto isOddQuad = [](float phase)
-        {
-            return phase < 0.25f || (phase >= 0.5f && phase < 0.75f);
-        };
-
-    auto doubleSine = [](float p)
-        {
-            return std::sin(p * 2.0f);
-        };
-
-    auto halfLevelSign = [](float sine)
-        {
-            if (sine > 0.5f) return 0.5f;
-
-            if (sine < -0.5f) return -0.5f;
-
-            return sine;
-        };
-
-    auto triangle = [](float phase)
-        {
-            float value = phase * 4.0f;
-
-            if (phase < 0.25f) // - 1.0f
-            {
-                return value;
-            }
-
-            if (phase < 0.75f) // - 3.0f
-            {
-                return 2.0f - value;
-            }
-
-            return value - 4.0f; // - 4.0f
-        };
-
-    auto dsTriangle = [](float phase)
-        {
-            float position = phase >= 0.5f ? phase - 0.5f : phase;
-            float value = position * 8.0f;
-
-            if (position < 0.125f) // - 1.0f
-            {
-                return value;
-            }
-
-            if (position < 0.375f) // - 3.0f
-            {
-                return 2.0f - value;
-            }
-
-            return value - 4.0f; // - 4.0f
-        };
-
-    auto diagram = [](float phase)
-        {
-            float value = phase * 2.0f;
-
-            if (phase < 0.5f)
-            {
-                return value;
-            }
-
-            return value - 2.0f;
-        };
-
-    auto dsDiagram = [](float phase)
-        {
-            float position = phase >= 0.5f ? phase - 0.5f : phase;
-            float value = position * 4.0f;
-
-            if (position < 0.25f)
-            {
-                return value;
-            }
-
-            return value - 2.0f;
-        };
-
-    auto absHalfSawUp = [](float phase)
-        {
-            float value = phase * 2.0f;
-
-            if (phase < 0.5f)
-            {
-                return value;
-            }
-
-            return value - 1.0f;
-        };
-
-    auto dsAbsHalfSawUp = [](float phase)
-        {
-            float position = phase >= 0.5f ? phase - 0.5f : phase;
-            float value = phase * 4.0f;
-
-            if (phase < 0.25f)
-            {
-                return value;
-            }
-
-            return value - 1.0f;
-        };
-
-    auto reverseSign = [](float phase, float nP)
-        {
-            // 90度(1/2π)進める
-            float s2 = std::sin(phase + 0.5f * juce::MathConstants<float>::pi);
-
-            if (nP < 0.25f) return 1.0f - s2;
-
-            if (nP < 0.5f) return 1.0f + s2;
-
-            if (nP < 0.75f) return -1.0f - s2;
-
-            return s2 - 1.0f;
-        };
-
-    auto doubleReverseSine = [](float phase, float nP)
-        {
-            // 45度(1/4π)進める
-            float s2 = std::sin((phase + 0.75 * juce::MathConstants<float>::pi) * 2.0f);
-
-            if (nP < 0.125f)
-                return 1.0f + s2;
-
-            if (nP < 0.25f)
-                return 1.0f - s2;
-
-            if (nP < 0.375f)
-                return s2 - 1.0f;
-
-            return -1.0f - s2;
-        };
-
     // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
     float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
+
     if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
 
-    // サイン波はラジアンで計算
+    // サイン波と正規化位相を計算
     float s = std::sin(p);
-
-    // 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
     float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
 
-    // 以降の計算はすべて、生ラジアンの phase ではなく、normPhase を使う
-    switch (wave) {
-        // 0-7: OPZ Compatible Set
-    case 0:  return s; // Sine
-    case 1:  return (normPhase < 0.5f ? s : 0.0f); // Half Sine
-    case 2:  return std::abs(s); // Abs Sine
-    case 3:  return (isOddQuad(normPhase) ? std::abs(s) : 0.0f); // Quadra Abs Half Sine
-    case 4:  return (normPhase < 0.5f ? doubleSine(p) : 0.0f); // Alt Sine
-    case 5:  return (normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f); // Alt Abs Sine
-    case 6:  return (normPhase < 0.5f ? 1.0f : -1.0f); // Square
-    case 7: // Log Saw
+    // =================================================================
+    // PCM波形の特別処理 (メンバ変数へのアクセスが必要なため分離)
+    // =================================================================
+    if (wave == 31)
     {
-        float saw = 1.0f - normPhase * 2.0f;
-        return saw * saw * saw;
-    }
-    case 8: // Pudding Sine
-    {
-        return halfLevelSign(s);
-    }
-    case 9: // Half Pudding Sine
-    {
-        return normPhase < 0.5f ? halfLevelSign(s) : 0.0f;
-    }
-    case 10: // Abs Pudding Sine
-    {
-        return std::abs(halfLevelSign(s));
-    }
-    case 11: // Quad Abs Pudding Sine
-    {
-        return isOddQuad(normPhase) ? std::abs(halfLevelSign(s)) : 0.0f;
-    }
-    case 12: return (normPhase < 0.5f ? std::sin(p * 2.0f) * 0.5f : 0.0f); // Mini Alt Sine
-    case 13: return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f); // Mini Alt Abs Sine
-    case 14: return (normPhase < 0.5f ? 1.0f : 0.0f); // Half Square
-    case 15: return 0.0f; // None(Wavetable)
-    case 16: return triangle(normPhase); // Triangle
-    case 17: return (normPhase < 0.5f ? triangle(normPhase) : 0.0f); // Half Triangle
-    case 18: return std::abs(triangle(normPhase)); // Abs Triangle
-    case 19: return isOddQuad(normPhase) ? std::abs(triangle(normPhase)) : 0.0f; // Quad Abs Triangle
-    case 20: return (normPhase < 0.5f ? dsTriangle(normPhase) : 0.0f); // Alt Triangle
-    case 21: return (normPhase < 0.5f ? std::abs(dsTriangle(normPhase)) : 0.0f); // Alt Abs Triangle
-    case 22: return isOddQuad(normPhase) ? 1.0 : 0.0; // Quad Half Square
-    case 23: return 0.0f; // None(Wavetable)
-    case 24: return diagram(normPhase); // Diagram
-    case 25: return (normPhase < 0.5f ? diagram(normPhase) : 0.0f); // Half Diagram
-    case 26: return absHalfSawUp(normPhase); // Abs Half Saw Up
-    case 27: return isOddQuad(normPhase) ? absHalfSawUp(normPhase) : 0.0f; // Quad Abs Half Saw Up
-    case 28: return (normPhase < 0.5f ? dsDiagram(normPhase) : 0.0f); // Alt Diagram
-    case 29: return (normPhase < 0.5f ? dsAbsHalfSawUp(normPhase) : 0.0f); // Alt Quad Abs Half Saw Up
-    case 30: return (normPhase < 0.25f ? 1.0f : 0.0f); // Quad Square
-    case 31: // 外部オーディオファイル (PCM)
         if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
         {
             // OffsetとRatioを適用して切り出す
             size_t totalSize = m_pcmBuffer->size();
             size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+
             if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
 
             size_t remainingSize = totalSize - offsetSamples;
             size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+
             if (playSize < 1) playSize = 1;
 
             // normPhase (0.0 ~ 1.0) を playSize にマッピングし、offsetを足す
             float floatIndex = (float)offsetSamples + normPhase * (float)playSize;
-
             int index1 = (int)floatIndex;
+
             if (index1 >= totalSize) index1 = totalSize - 1;
 
             int index2 = index1 + 1;
+
             // ループの終端に達したら、offset位置（先頭）に戻す
             if (index2 >= offsetSamples + playSize || index2 >= totalSize) {
                 index2 = offsetSamples;
             }
 
             float frac = floatIndex - (float)index1;
+
             return (*m_pcmBuffer)[index1] * (1.0f - frac) + (*m_pcmBuffer)[index2] * frac;
         }
-        return s;
-    case 32:
-        return (normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f);
-    case 33:
-    {
-        float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
-        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
-    }
-    case 34:
-        return (1.0f - normPhase * 2.0f);
-    case 35:
-        return (normPhase * 2.0f - 1.0f);
-    case 36:
-        return ((1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f);
-    case 37:
-        return (normPhase < 0.25f ? 1.0f : -1.0f);
-    case 38:
-        return (normPhase < 0.125f ? 1.0f : -1.0f);
-    case 39:
-        return (normPhase < 0.0625f ? 1.0f : -1.0f);
-    case 40:
-        return std::tanh(s * 5.0f);
-    case 41:
-        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
-    case 42:
-        return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
-    case 43:
-        return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
-    case 44:
-        return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
-    case 45:
-    {
-        float tri = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
-        return tri * std::sin(p * 3.0f);
-    }
-    case 46:
-        return s * s * s;
-    case 47:
-        return std::sin(p) * std::sin(p * 2.0f);
-    case 48:
-        return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
-    case 49:
-        return s * std::cos(p * 2.5f);
-    case 50:
-        return std::sin(p) * std::sin(p * 1.414f);
-    case 51:
-        return std::sin(p) * std::cos(p * 0.5f);
-    case 52:
-        return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
-    case 53: // PD Resonance (Casio CZ Style)
-        return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f;
-    case 54: // PD Resonance High
-        return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f;
-    case 55: // 4-Step Sine (Super Lo-Fi)
-        return std::round(s * 2.0f) / 2.0f;
-    case 56: // 8-Step Sine (Slightly Lo-Fi)
-        return std::round(s * 4.0f) / 4.0f;
-    case 57: // Wavefolded Sine (Soft)
-    {
-        float fs = s * 1.5f; // 1.5倍に増幅
-        // 1.0を超えたら折り返す、-1.0を下回っても折り返す
-        if (fs > 1.0f) return 2.0f - fs;
-        if (fs < -1.0f) return -2.0f - fs;
-        return fs;
-    }
-    case 58: // Wavefolded Sine (Hard / Double fold)
-    {
-        float fs = s * 2.5f; // さらに増幅して2回折り返す
-        return std::sin(fs * juce::MathConstants<float>::halfPi); // サイン関数を使うと滑らかに何度も折り返せます
-    }
-    case 59: // Bitwise XOR Fractal
-    {
-        uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
-        // 位相と「位相を1ビットずらした値」をXOR合成
-        uint8_t xorVal = phaseInt ^ (phaseInt >> 1);
-        // 0.0 ~ 1.0 に戻して -1.0 ~ 1.0 にスケール
-        return ((float)xorVal / 255.0f) * 2.0f - 1.0f;
-    }
-    case 60: // Bitwise AND Texture
-    {
-        uint8_t phaseInt = (uint8_t)(normPhase * 255.0f);
-        uint8_t andVal = phaseInt & (phaseInt << 1);
-        return ((float)andVal / 255.0f) * 2.0f - 1.0f;
-    }
-    case 61: // Self-Modulated Sine (Feedback = 1)
-        return std::sin(p + 1.0f * std::sin(p));
-    case 62: // Self-Modulated Sine (Feedback = 2, slightly harsh)
-        return std::sin(p + 2.0f * std::sin(p));
-    case 63: // OPZ(TX81Z) W2
-        return reverseSign(p, normPhase); // Reverse Sine
-    case 64: // OPZ(TX81Z) W3
-        return normPhase < 0.5f ? s : 0.0f; // Half Sine;
-    case 65: // OPZ(TX81Z) W4
-        return normPhase < 0.5f ? reverseSign(p, normPhase) : 0.0f; // Half Reverse Sine
-    case 66: // OPZ(TX81Z) W5
-        return normPhase < 0.5f ? doubleSine(p) : 0.0f; // Alt Sine
-    case 67: // OPZ(TX81Z) W6
-        return normPhase < 0.5f ? doubleReverseSine(p, normPhase) : 0.0f; // Alt Reverse Sine
-    case 68: // OPZ(TX81Z) W7
-        return normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f; // Abs Alt Sine
-    case 69: // OPZ(TX81Z) W8
-        return normPhase < 0.5f ? std::abs(doubleReverseSine(p, normPhase)) : 0.0f; // Abs Alt Reverse Sine
-    case 70: // Cubic Triangle
-    {
-        float tri = triangle(normPhase);
-        return tri * tri * tri; // 3乗することで凹型の鋭い針になる
-    }
-    case 71: // Inverse Circle
-    {
-        float tri = triangle(normPhase);
-        float absTri = std::abs(tri);
-        float sign = (tri >= 0.0f) ? 1.0f : -1.0f;
-        // 1.0 - sqrt(1.0 - x^2) で、頂点が限界まで尖ったカーブを作る
-        return sign * (1.0f - std::sqrt(std::max(0.0f, 1.0f - absTri * absTri)));
-    }
-    case 72: // Exponential Spike
-    {
-        // 前半(0.0~0.5)と後半(0.5~1.0)でローカルな位相(0.0~1.0)を作る
-        float localPhase = std::fmod(normPhase * 2.0f, 1.0f);
-        float sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
 
-        // exp(-x) で一気に減衰させる。8.0fは尖り具合（大きいほど細い針になる）
-        return sign * std::exp(-localPhase * 8.0f);
+        return s; // PCMバッファが無い場合はサイン波を返す
     }
-    default: return s;
-    }
+
+    // =================================================================
+    // ストラテジー配列による高速な波形計算
+    // =================================================================
+    int safeWave = std::clamp(wave, 0, 72);
+
+    return waveStrategies[safeWave](p, normPhase, s);
 }

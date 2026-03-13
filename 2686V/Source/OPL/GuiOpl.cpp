@@ -61,10 +61,10 @@ static std::vector<SelectItem> kslItems = {
 };
 
 static std::vector<SelectItem> oplEgItems = {
-    {.name = "0: Sine",  .value = 1},
-    {.name = "1: Half",  .value = 2},
-    {.name = "2: Abs",   .value = 3},
-    {.name = "3: Pulse", .value = 4}
+    {.name = "0: Sine",       .value = 1},
+    {.name = "1: Half Sine",  .value = 2},
+    {.name = "2: Abs Sine",   .value = 3},
+    {.name = "3: Pulse Sine", .value = 4}
 };
 
 void GuiOpl::setup()
@@ -173,10 +173,6 @@ void GuiOpl::setup()
         mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
-
-        dt[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
-        dt[i].setWantsKeyboardFocus(true);
-        dt[i].setExplicitFocusOrder(++tabOrder);
 
         rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
@@ -403,7 +399,6 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         layoutRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         layoutRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
         updateRgDisplayAsOp(i, rgMode);
         if (rgMode)
@@ -464,14 +459,6 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
     // MUL
     val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl::mul);
     if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
-
-    // DT
-    val = RegisterConverter::getValue(input, mmlPrefixDt, mmlValues::opn::dt);
-    if (RegisterConverter::isValidVal(val)) {
-        int regVal = RegisterConverter::convertMmlDtToReg(val);
-
-        dt[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
-    }
 
     // AM
     val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl::am);
@@ -565,8 +552,6 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
     catMain[idx].setEnabled(enable);
     mul[idx].setEnabled(enable);
     mul[idx].label.setEnabled(enable);
-    dt[idx].setEnabled(enable);
-    dt[idx].label.setEnabled(enable);
     ar[idx].setEnabled(enable);
     ar[idx].label.setEnabled(enable);
     arTo000[idx].setEnabled(enable);
