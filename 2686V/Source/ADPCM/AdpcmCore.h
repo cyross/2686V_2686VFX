@@ -4,13 +4,14 @@
 
 #include "../synth/SynthParams.h"
 #include "../synth/Pcm.h"
+#include "../synth/SynthCore.h"
 
 // --- Core Class ---
 
-class AdpcmCore
+class AdpcmCore : SynthCore
 {
 public:
-    AdpcmCore() {}
+    AdpcmCore(): SynthCore() {}
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);

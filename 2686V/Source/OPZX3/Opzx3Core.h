@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
 // ==========================================================
@@ -12,10 +13,10 @@
 // Base: OPM (YM2151) / OPZ (YM2414)
 // Extension: OPX (YMF271) Algorithms & MA-5 Waveforms
 // ==========================================================
-class Opzx3Core
+class Opzx3Core : FmCore
 {
 public:
-    Opzx3Core() {}
+    Opzx3Core() : FmCore() {}
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);

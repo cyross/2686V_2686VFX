@@ -5,9 +5,10 @@
 #include <vector>
 #include <cmath>
 
+#include "../synth/SynthCore.h"
 #include "../synth/SynthParams.h"
 
-class WtCore
+class WtCore : SynthCore
 {
 public:
     WtCore();

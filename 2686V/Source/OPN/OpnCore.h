@@ -1,15 +1,16 @@
 ﻿#pragma once
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
 // ==========================================================
 // OPN (YM2203) Core
 // Features: 4 Operators, 8 Algorithms, No SSG-EG, No HW LFO
 // ==========================================================
-class OpnCore
+class OpnCore : FmCore
 {
 public:
-    OpnCore() {}
+    OpnCore() : FmCore() {}
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);

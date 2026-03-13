@@ -1,15 +1,16 @@
 ﻿#pragma once
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
 // ==========================================================
 // OPL (YM3526/3812) Core
 // Features: 2 Operators, 2 Algorithms (FM/AM), Wave Select
 // ==========================================================
-class OplCore
+class OplCore : FmCore
 {
 public:
-    OplCore() {}
+    OplCore() : FmCore() {}
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);

@@ -1,15 +1,16 @@
 ﻿#pragma once
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
 // ==========================================================
 // OPL3 (YMF262) Core
 // Features: 4 Operators, Wave Select (8 types), 4-Op algorithms
 // ==========================================================
-class Opl3Core
+class Opl3Core : FmCore
 {
 public:
-    Opl3Core() {}
+    Opl3Core() : FmCore() {}
 
     std::array<FmOperator, 4> m_operators;
 

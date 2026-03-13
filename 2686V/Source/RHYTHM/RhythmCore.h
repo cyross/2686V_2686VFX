@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "../synth/SynthParams.h"
+#include "../synth/SynthCore.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -48,9 +49,11 @@ private:
     void refreshAdpcmBuffer();
 };
 
-class RhythmCore
+class RhythmCore : SynthCore
 {
 public:
+    RhythmCore() : SynthCore() {}
+
     std::array<RhythmPad, MaxRhythmPads> pads;
     double m_sampleRate = 44100.0;
 

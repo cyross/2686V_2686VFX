@@ -1,7 +1,7 @@
 ﻿#include "SsgCore.h"
 #include "../synth/SynthHelpers.h"
 
-SsgCore::SsgCore() {
+SsgCore::SsgCore() : SynthCore() {
     m_lfsr = 0x1FFFF;
 }
 

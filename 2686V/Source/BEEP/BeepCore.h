@@ -3,10 +3,13 @@
 #include <cmath>
 
 #include "../synth/SynthParams.h"
+#include "../synth/SynthCore.h"
 
-class BeepCore
+class BeepCore : SynthCore
 {
 public:
+    BeepCore() : SynthCore() {}
+
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
     void noteOn(float freq, float velocity);

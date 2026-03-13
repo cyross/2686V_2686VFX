@@ -1,7 +1,7 @@
 ﻿#include "WtCore.h"
 #include "../synth/SynthHelpers.h"
 
-WtCore::WtCore()
+WtCore::WtCore() : SynthCore()
 {
     // 初期波形: サイン波
     m_sourceWave.resize(64);

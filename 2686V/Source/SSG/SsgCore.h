@@ -5,8 +5,9 @@
 #include <cstdlib>
 
 #include "../synth/SynthParams.h"
+#include "../synth/SynthCore.h"
 
-class SsgCore
+class SsgCore : SynthCore
 {
 public:
     SsgCore();

@@ -2,12 +2,13 @@
 
 #include <random>
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
-class OpmCore
+class OpmCore : FmCore
 {
 public:
-    OpmCore() {}
+    OpmCore() : FmCore() {}
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
     void noteOn(float freq, float velocity);

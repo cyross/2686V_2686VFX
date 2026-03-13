@@ -42,14 +42,18 @@ set(SYNTH_FILES
     "Source/synth/Mode.cpp"
     "Source/synth/Pcm.h"
     "Source/synth/Pcm.cpp"
-    "Source/synth/SynthHelpers.h"
-    "Source/synth/SynthHelpers.cpp"
+    "Source/synth/SynthCore.h"
+    "Source/synth/SynthCore.cpp"
     "Source/synth/SynthParams.h"
     "Source/synth/SynthVoice.h"
     "Source/synth/SynthVoice.cpp"
+    "Source/synth/SynthHelpers.h"
+    "Source/synth/SynthHelpers.cpp"
 )
 
 set(FM_FILES
+    "Source/fm/FmCore.h"
+    "Source/fm/FmCore.cpp"
     "Source/fm/FmCommon.h"
     "Source/fm/FmCommon.cpp"
     "Source/fm/RegisterType.h"

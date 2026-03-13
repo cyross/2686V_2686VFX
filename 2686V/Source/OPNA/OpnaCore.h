@@ -1,15 +1,16 @@
 ﻿#pragma once
 
+#include "../fm/FmCore.h"
 #include "../fm/FmCommon.h"
 
 // ==========================================================
 // OPNA (YM2608) Core
 // Features: 4 Operators, 8 Algorithms, SSG-EG, Hardware LFO
 // ==========================================================
-class OpnaCore
+class OpnaCore : FmCore
 {
 public:
-    OpnaCore() {}
+    OpnaCore() : FmCore() {}
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
