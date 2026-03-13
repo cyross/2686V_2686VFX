@@ -71,7 +71,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         juce::String p = code + PrKey::Innder::op + juce::String(op);
 
         params.fmOp[op].multiple = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mul);
-        params.fmOp[op].detune = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dt);
+        params.fmOp[op].detune = 0;
         params.fmOp[op].attack = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ar);
         params.fmOp[op].decay = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dr);
         params.fmOp[op].sustain = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sl);
