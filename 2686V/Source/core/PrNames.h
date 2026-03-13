@@ -159,6 +159,7 @@ namespace PrName
 		{
 			static inline const juce::String custom32 = " Custom32 ";
 			static inline const juce::String custom64 = " Custom64 ";
+			static inline const juce::String custom128 = " Custom128 ";
 		}
 
 		namespace Post

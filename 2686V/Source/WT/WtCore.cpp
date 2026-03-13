@@ -4,7 +4,7 @@
 WtCore::WtCore() : SynthCore()
 {
     // 初期波形: サイン波
-    m_sourceWave.resize(64);
+    m_sourceWave.resize(128);
     generateWaveform(0); // Default Sine
 }
 
@@ -25,7 +25,20 @@ void WtCore::setParameters(const SynthParams& params)
     m_rateIndex = params.wtRateIndex;
 
     // 波形・テーブルサイズ変更検知
-    int newTableSize = (params.wtTableSize == 0) ? 32 : 64;
+    int newTableSize = 0;
+
+    switch (params.wtTableSize)
+    {
+    case 0:
+        newTableSize = 32;
+        break;
+    case 1:
+        newTableSize = 64;
+        break;
+    case 2:
+        newTableSize = 128;
+        break;
+    }
 
     bool waveformChanged = (m_waveform != params.wtWaveform);
     bool sizeChanged = (m_prevTableSize != newTableSize);
@@ -41,6 +54,7 @@ void WtCore::setParameters(const SynthParams& params)
         // パラメータ配列をメンバに保存
         m_customWaveCache32 = params.wtCustomWave32;
         m_customWaveCache64 = params.wtCustomWave64;
+        m_customWaveCache128 = params.wtCustomWave128;
         // 強制的に再生成
         generateWaveform(8);
     }
@@ -183,8 +197,8 @@ float WtCore::getSample()
         int idx = (int)readIndex;
         if (idx >= m_tableSize) idx = m_tableSize - 1;
 
-        int sourceIdx = (m_tableSize == 32) ? (idx * 2) : idx;
-        if (sourceIdx >= 64) sourceIdx = 63;
+        int sourceIdx = (m_tableSize == 32) ? (idx * 4) : (m_tableSize == 64) ? (idx * 2) : idx;
+        if (sourceIdx >= 128) sourceIdx = 127;
 
         float rawSample = m_sourceWave[sourceIdx];
 
@@ -209,7 +223,7 @@ float WtCore::getSample()
 // 波形データ生成
 void WtCore::generateWaveform(int type)
 {
-    const int N = 64;
+    const int N = 128;
     const double PI = juce::MathConstants<double>::pi;
 
     for (int i = 0; i < N; ++i)
@@ -245,15 +259,21 @@ void WtCore::generateWaveform(int type)
             break;
         case 8: // Custom
         {
-            if (m_tableSize == 64)
+            if (m_tableSize == 128)
             {
-                // 64サンプルをそのまま使う
-                sample = m_customWaveCache64[i];
+                // 128サンプルをそのまま使う
+                sample = m_customWaveCache128[i];
+            }
+            else if (m_tableSize == 64)
+            {
+                // 128サンプルを64ステップで埋める (index / 2)
+                int step = i / 2;
+                sample = m_customWaveCache64[step];
             }
             else
             {
-                // 64サンプルを32ステップで埋める (index / 2)
-                int step = i / 2;
+                // 128サンプルを32ステップで埋める (index / 4)
+                int step = i / 4;
                 sample = m_customWaveCache32[step];
             }
         }

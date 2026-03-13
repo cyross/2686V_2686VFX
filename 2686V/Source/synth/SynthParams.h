@@ -252,6 +252,8 @@ struct SynthParams
     std::array<float, 32> wtCustomWave32 = { 0.0f };
     // Custom Waveform Data (64 steps)
     std::array<float, 64> wtCustomWave64 = { 0.0f };
+    // Custom Waveform Data (128 steps)
+    std::array<float, 128> wtCustomWave128 = { 0.0f };
     bool wtModEnable = false;
     float wtModDepth = 0.0f;
     float wtModSpeed = 1.0f; // Ratio or Hz

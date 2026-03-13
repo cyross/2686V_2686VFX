@@ -738,11 +738,12 @@ namespace PrValue
 	{
 		inline constexpr int customSize1 = 32; // 最大値
 		inline constexpr int customSize2 = 64; // 最大値
+		inline constexpr int customSize3 = 128; // 最大値
 
 		namespace SammpleSize
 		{
 			inline constexpr int min = 0; // 最小値
-			inline constexpr int max = 1; // 最大値
+			inline constexpr int max = 2; // 最大値
 			inline constexpr int initial = 0; // 最大値
 		}
 
