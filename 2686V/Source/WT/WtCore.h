@@ -8,20 +8,21 @@
 #include "../synth/SynthCore.h"
 #include "../synth/SynthParams.h"
 
-class WtCore : SynthCore
+class WtCore : public SynthCore
 {
 public:
     WtCore();
 
-    void prepare(double sampleRate);
-    void setParameters(const SynthParams& params);
-    void noteOn(float frequency);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    void setModulationWheel(int wheelValue);
-    void setPitchBendRatio(float ratio);
-    float getSample();
+    void prepare(double sampleRate) override;
+    void setParameters(const SynthParams& params) override;
+    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    void setPitchBendRatio(float ratio) override;
+    float getSample() override;
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     void generateWaveform(int type);
     void updateIncrements();

@@ -7,21 +7,22 @@
 // OPL3 (YMF262) Core
 // Features: 4 Operators, Wave Select (8 types), 4-Op algorithms
 // ==========================================================
-class Opl3Core : FmCore
+class Opl3Core : public FmCore
 {
 public:
     Opl3Core() : FmCore() {}
 
     std::array<FmOperator, 4> m_operators;
 
-    void prepare(double sampleRate);
-    void setParameters(const SynthParams& params);
-    void noteOn(float freq, float velocity);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    void setModulationWheel(int wheelValue);
-    float getSample();
+    void prepare(double sampleRate) override;
+    void setParameters(const SynthParams& params) override;
+    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    float getSample() override;
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     std::array<bool, 4> m_opMask{ false, false, false, false };
 

@@ -20,7 +20,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_fixedFreq = params.beepFixedFreq;
 }
 
-void BeepCore::noteOn(float freq, float velocity) {
+void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     m_baseFreq = m_fixedMode ? m_fixedFreq : freq;
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
@@ -95,4 +95,14 @@ void BeepCore::setModulationWheel(int wheelValue)
 void BeepCore::setPitchBendRatio(float ratio)
 {
     m_pitchBendRatio = ratio;
+}
+
+void BeepCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

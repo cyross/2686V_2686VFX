@@ -47,7 +47,7 @@ void OpnCore::setParameters(const SynthParams& params)
     }
 }
 
-void OpnCore::noteOn(float freq, float velocity)
+void OpnCore::noteOn(float freq, float velocity, int midiNote)
 {
     float gain = std::max(0.01f, velocity);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
@@ -309,4 +309,14 @@ float OpnCore::getSample() {
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+}
+
+void OpnCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

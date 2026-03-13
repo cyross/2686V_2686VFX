@@ -30,8 +30,8 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::mul, namePrefix + PrName::Fm::Op::Post::mul, PrValue::Opna::Op::Mul::min, PrValue::Opna::Op::Mul::max, PrValue::Opna::Op::Mul::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::dt, namePrefix + PrName::Fm::Op::Post::dt, PrValue::Opna::Op::Dt::min, PrValue::Opna::Op::Dt::max, PrValue::Opna::Op::Dt::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::ar, namePrefix + PrName::Fm::Op::Post::ar, PrValue::Opna::Op::Ar::min, PrValue::Opna::Op::Ar::max, PrValue::Opna::Op::Ar::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::dr, namePrefix + PrName::Fm::Op::Post::dr, PrValue::Opna::Op::Dr::min, PrValue::Opna::Op::Dr::max, PrValue::Opna::Op::Dr::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::ar, namePrefix + PrName::Fm::Op::Post::ar, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::dr, namePrefix + PrName::Fm::Op::Post::dr, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::sr, namePrefix + PrName::Fm::Op::Post::sr, PrValue::Opna::Op::Sr::min, PrValue::Opna::Op::Sr::max, PrValue::Opna::Op::Sr::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::sl, namePrefix + PrName::Fm::Op::Post::sl, PrValue::Opna::Op::Sl::min, PrValue::Opna::Op::Sl::max, PrValue::Opna::Op::Sl::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::rr, namePrefix + PrName::Fm::Op::Post::rr, PrValue::Opna::Op::Rr::min, PrValue::Opna::Op::Rr::max, PrValue::Opna::Op::Rr::initial));

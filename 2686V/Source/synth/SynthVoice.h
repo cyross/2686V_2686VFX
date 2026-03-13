@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "Mode.h"
 #include "SynthParams.h"
+#include "SynthCore.h"
 #include "../OPN/OpnCore.h"
 #include "../OPNA/OpnaCore.h"
 #include "../OPL/OplCore.h"
@@ -25,7 +26,7 @@ public:
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice() {}
+    SynthVoice();
 
     void setParameters(const SynthParams& params);
 
@@ -52,6 +53,8 @@ public:
     void controllerMoved(int controllerNumber, int newControllerValue) override;
 
     void setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
+
+    std::map<OscMode, SynthCore *> coreMap;
 private:
     OscMode m_mode = OscMode::OPNA;
     OpnaCore m_opnaCore;

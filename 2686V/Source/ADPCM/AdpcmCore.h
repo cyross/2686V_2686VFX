@@ -8,22 +8,23 @@
 
 // --- Core Class ---
 
-class AdpcmCore : SynthCore
+class AdpcmCore : public SynthCore
 {
 public:
     AdpcmCore(): SynthCore() {}
 
-    void prepare(double sampleRate);
-    void setParameters(const SynthParams& params);
+    void prepare(double sampleRate) override;
+    void setParameters(const SynthParams& params) override;
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
-    void noteOn(float frequency);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    void setModulationWheel(int wheelValue);
+    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
     float getCurrentPan() const;
-    void setPitchBendRatio(float ratio);
-    float getSample();
+    void setPitchBendRatio(float ratio) override;
+    float getSample() override;
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;

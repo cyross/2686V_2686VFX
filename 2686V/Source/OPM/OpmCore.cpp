@@ -53,7 +53,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     }
 }
 
-void OpmCore::noteOn(float freq, float velocity) {
+void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
     m_rateAccumulator = 1.0;
@@ -314,4 +314,14 @@ float OpmCore::getSample() {
 
 void OpmCore::updateNoiseDelta(double targetRate) {
     if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
+}
+
+void OpmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

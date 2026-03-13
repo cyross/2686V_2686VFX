@@ -2,7 +2,8 @@
 
 #include "../synth/synthCore.h"
 
-class FmCore : SynthCore
+class FmCore : public SynthCore
 {
-
+public:
+    FmCore() : SynthCore() {}
 };

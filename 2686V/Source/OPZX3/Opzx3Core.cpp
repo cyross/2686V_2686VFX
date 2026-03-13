@@ -65,7 +65,7 @@ void Opzx3Core::setParameters(const SynthParams& params) {
     m_operators[2].setExternalFeedbackMode(useExtFb);
 }
 
-void Opzx3Core::noteOn(float freq, float velocity) {
+void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
     m_rateAccumulator = 1.0;
@@ -801,4 +801,14 @@ void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
     if (opIndex >= 0 && opIndex < 4) {
         m_operators[opIndex].setPcmBuffer(pcmData);
     }
+}
+
+void Opzx3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

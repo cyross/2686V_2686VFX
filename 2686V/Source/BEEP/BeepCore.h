@@ -5,21 +5,21 @@
 #include "../synth/SynthParams.h"
 #include "../synth/SynthCore.h"
 
-class BeepCore : SynthCore
+class BeepCore : public SynthCore
 {
 public:
     BeepCore() : SynthCore() {}
 
-    void prepare(double sampleRate);
-    void setParameters(const SynthParams& params);
-    void noteOn(float freq, float velocity);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    float getSample();
-    void setModulationWheel(int wheelValue);
-    void setPitchBendRatio(float ratio);
-
+    void prepare(double sampleRate) override;
+    void setParameters(const SynthParams& params) override;
+    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    void setPitchBendRatio(float ratio) override;
+    float getSample() override;
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
