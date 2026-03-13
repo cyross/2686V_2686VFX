@@ -42,6 +42,3 @@
 
 /.vs
 /build
-/buildFx
-/external/JUCE
-/external/vst3sdk
