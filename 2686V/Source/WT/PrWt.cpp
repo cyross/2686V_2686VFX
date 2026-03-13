@@ -34,10 +34,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // WAVETABLE Parameters
     // ==========================================
     // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::bit, code + PrName::Wt::Post::bit, PrValue::Wt::BIt::min, PrValue::Wt::BIt::max, PrValue::Wt::BIt::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::bit, code + PrName::Wt::Post::bit, PrValue::Quality::Bit::min, PrValue::Quality::Bit::max, PrValue::Quality::Bit::initial));
     // ADD: Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::rate, code + PrName::Fm::Post::rate, PrValue::Wt::Rate::min, PrValue::Wt::Rate::max, PrValue::Wt::Rate::initial)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::rate, code + PrName::Fm::Post::rate, PrValue::Quality::Rate::min, PrValue::Quality::Rate::max, PrValue::Quality::Rate::initial)); // Default 6 (16kHz)
     // Size: 0:32, 1:64
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::sampleSize, code + PrName::Wt::Post::sampleSize, PrValue::Wt::SammpleSize::min, PrValue::Wt::SammpleSize::max, PrValue::Wt::SammpleSize::initial));
     // Waveform Preset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
@@ -52,7 +52,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Wt::Mod::speed, code + PrName::Wt::Post::Mod::speed, PrValue::Wt::Mod::Speed::min, PrValue::Wt::Mod::Speed::max, PrValue::Wt::Mod::Speed::initial));
 
     // Common
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Wt::level, code + PrName::Wt::Post::level, PrValue::Wt::Level::min, PrValue::Wt::Level::max, PrValue::Wt::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Wt::level, code + PrName::Wt::Post::level, PrValue::Level::min, PrValue::Level::max, PrValue::Level::initial));
 
     addEnvParameters(layout, code);
 }
