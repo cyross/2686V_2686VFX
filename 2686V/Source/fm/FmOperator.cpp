@@ -1,5 +1,111 @@
-﻿#include "FmOperator.h"
+﻿#include <array>
+
+#include "FmOperator.h"
 #include "../core/PrValues.h"
+
+// 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
+// これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
+// 値は実機の数値を参考に調整した近似値です。
+// 0: 0
+// 1: -0.45%
+// 2: -0.25%
+// 3: -0.1% (approx)
+// 4: 0
+// 5: +0.1% (approx)
+// 6: +0.25%
+// 7: +0.45%
+const std::array<float, 8> FmOperator::dtScales = {0.0f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f };
+
+// DT2 (OPM Coarse Detune)
+// YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
+// 0: x1.0
+// 1: x1.41 (600 cent up)
+// 2: x1.58 (780 cent up)
+// 3: x1.78 (950 cent up)
+const std::array<float, 4> FmOperator::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
+
+const std::array<FmOperator::SsgWaveCalculator, 16> FmOperator::ssgWaveStrategies = { {
+    [](double p) { // 00: normal
+        return 1.0f;
+    },
+    [](double p) { // 01
+        return 1.0f;
+    },
+    [](double p) { // 02: Saw Down
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return 1.0f - (float)subPos;
+    },
+    [](double p) { // 03
+        return 1.0f;
+    },
+    [](double p) { // 04: Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 05
+        return 1.0f;
+    },
+    [](double p) { // 06: Triangle
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (1.0f - (float)subPos) : (float)subPos;
+    },
+    [](double p) { // 07
+        return 1.0f;
+    },
+    [](double p) { // 08: Alt Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 09: Saw Up
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (float)subPos;
+    },
+    [](double p) { // 10
+        return 1.0f;
+    },
+    [](double p) { // 11: Saw Up & Hopd
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+    [](double p) { // 12
+        return 1.0f;
+    },
+    [](double p) { // 13: Triangle & Invert
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (float)subPos : (1.0f - (float)subPos);
+    },
+    [](double p) { // 14
+        return 1.0f;
+    },
+    [](double p) { // 15: Alt Saw Up & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+} };
 
 void FmOperator::setParameters(const FmOpParams& params, float feedback)
 {
@@ -27,24 +133,6 @@ float FmOperator::calcWaveform(double phase, int wave)
     float s = std::sin(p);
 
     return s; // Default Sine
-}
-
-float FmOperator::getSsgEnvelopeLevel(double p)
-{
-    int cycle = (int)p;
-    double subPos = p - cycle;
-    bool isEven = (cycle % 2 == 0);
-    switch (m_params.ssgEg) {
-    case 2:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    case 4:  return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    case 6: return isEven ? (1.0f - (float)subPos) : (float)subPos;
-    case 8: return (cycle == 0) ? (1.0f - (float)subPos) : 1.0f;
-    case 9: return (cycle == 0) ? (float)subPos : 0.0f;
-    case 11: return (cycle == 0) ? (float)subPos : 1.0f;
-    case 13: return isEven ? (float)subPos : (1.0f - (float)subPos);
-    case 15: return (cycle == 0) ? (float)subPos : 0.0f;
-    default: return 1.0f;
-    }
 }
 
 void FmOperator::updateEnvelopeState()

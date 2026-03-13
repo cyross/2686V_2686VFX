@@ -1,6 +1,15 @@
 ﻿#include "Opl3Core.h"
 #include "../synth/SynthHelpers.h"
 
+const std::array<Opl3Core::AlgRouting, 5> Opl3Core::routings = { {
+    // in2_1, in3_2, in4_3, out_1, out_2, out_3, out_4
+    { 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 0: 1 -> 2 -> 3 -> 4
+    { 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 1: 1 + (2 -> 3 -> 4)
+    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 2: (1 -> 2) + (3 -> 4)
+    { 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }, // 3: 1 + (2 -> 3) + 4
+    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }  // 4: Default (All Parallel)
+} };
+
 void Opl3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
     double target = getTargetRate(m_rateIndex);
@@ -127,98 +136,41 @@ float Opl3Core::getSample() {
         float out1, out2, out3, out4;
         float finalOut = 0.0f;
 
-        // 各オペレーターの AM/VIB 有効フラグを個別に判定する
+        // 安全のため 0〜4 の範囲に丸める (4はデフォルトの全並列)
+        int algIndex = std::clamp(m_algorithm, 0, 4);
+        const auto& r = routings[algIndex];
+
+        // =================================================================
+        // OP1 (入力なし)
+        // =================================================================
         m_operators[0].getSample(out1, 0.0f, opAmpMod[0], opPitchMod[0]);
+        if (m_opMask[0]) out1 = 0.0f;
 
-        if (m_opMask[0]) out1 = 0.0f; // Mask
+        // =================================================================
+        // OP2 (入力: OP1)
+        // =================================================================
+        float in2 = out1 * r.in2_1;
+        m_operators[1].getSample(out2, in2, opAmpMod[1], opPitchMod[1]);
+        if (m_opMask[1]) out2 = 0.0f;
 
-        switch (m_algorithm) {
-        case 0:
-            m_operators[1].getSample(out2, out1, opAmpMod[1], opPitchMod[1]);
+        // =================================================================
+        // OP3 (入力: OP2)
+        // =================================================================
+        float in3 = out2 * r.in3_2;
+        m_operators[2].getSample(out3, in3, opAmpMod[2], opPitchMod[2]);
+        if (m_opMask[2]) out3 = 0.0f;
 
-            if (m_opMask[1]) out2 = 0.0f;
+        // =================================================================
+        // OP4 (入力: OP3)
+        // =================================================================
+        float in4 = out3 * r.in4_3;
+        m_operators[3].getSample(out4, in4, opAmpMod[3], opPitchMod[3]);
+        if (m_opMask[3]) out4 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 1:
-            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out4;
-
-            break;
-        case 2:
-            m_operators[1].getSample(out2, out1, opAmpMod[1], opPitchMod[1]);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, opAmpMod[2], opPitchMod[2]);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, opAmpMod[3], opPitchMod[3]);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 3:
-            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, opAmpMod[2], opPitchMod[2]);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, opAmpMod[3], opPitchMod[3]);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out3 + out4;
-
-            break;
-        default:
-            m_operators[1].getSample(out2, 0.0f, opAmpMod[1], opPitchMod[1]);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, opAmpMod[2], opPitchMod[2]);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, opAmpMod[3], opPitchMod[3]);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out3 + out4;
-
-            break;
-        }
-
-        // =======================================================
-        // 複数のキャリアが加算されても1.0を超えないように音量を調整
-        // =======================================================
-        finalOut *= 0.25f;
+        // =================================================================
+        // Final Output
+        // =================================================================
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 0.25f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
