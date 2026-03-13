@@ -45,6 +45,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
 
     createCustomWaveLayout(layout, PrValue::Wt::customSize1, code + PrKey::Innder::custom32, code + PrName::Wt::Key::custom32);
     createCustomWaveLayout(layout, PrValue::Wt::customSize2, code + PrKey::Innder::custom64, code + PrName::Wt::Key::custom64);
+    createCustomWaveLayout(layout, PrValue::Wt::customSize3, code + PrKey::Innder::custom128, code + PrName::Wt::Key::custom128);
 
     // Modulation
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Wt::Mod::enable, code + PrName::Wt::Post::Mod::enable, PrValue::Wt::Mod::Enable::initial));
@@ -68,6 +69,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
 
     processCustomWaveBlock(params.wtCustomWave32, apvts, code + PrKey::Innder::custom32);
     processCustomWaveBlock(params.wtCustomWave64, apvts, code + PrKey::Innder::custom64);
+    processCustomWaveBlock(params.wtCustomWave128, apvts, code + PrKey::Innder::custom128);
 
     params.wtModEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::enable) > PrValue::boolThread);
     params.wtModDepth = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::depth);

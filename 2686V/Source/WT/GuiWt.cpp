@@ -44,8 +44,9 @@ static std::vector<SelectItem> wtWsItems = {
 };
 
 static std::vector<SelectItem> wtTsItems = {
-    {.name = "0: 32 Samples",  .value = 1 },
-    {.name = "1: 64 Samples",  .value = 2 },
+    {.name = "0:  32 Samples",  .value = 1 },
+    {.name = "1:  64 Samples",  .value = 2 },
+    {.name = "2: 128 Samples",  .value = 3 },
 };
 
 void GuiWt::setup()
@@ -159,6 +160,7 @@ void GuiWt::setup()
     // Custom Wave Sliders
 	customSliders32.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom32 });
     customSliders64.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom64 });
+    customSliders128.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom128 });
 
 	customWaveResetTo0Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
@@ -166,6 +168,7 @@ void GuiWt::setup()
     customWaveResetTo0Btn.onClick = [this] {
         customSliders32.setAllValues(0.0f);
         customSliders64.setAllValues(0.0f);
+        customSliders128.setAllValues(0.0f);
         resized();
     };
 
@@ -175,6 +178,7 @@ void GuiWt::setup()
     customWaveResetTo1Btn.onClick = [this] {
         customSliders32.setAllValues(1.0f);
         customSliders64.setAllValues(1.0f);
+        customSliders128.setAllValues(1.0f);
         resized();
         };
 
@@ -184,6 +188,7 @@ void GuiWt::setup()
     customWaveResetToM1Btn.onClick = [this] {
         customSliders32.setAllValues(-1.0f);
         customSliders64.setAllValues(-1.0f);
+        customSliders128.setAllValues(-1.0f);
         resized();
         };
 }
@@ -236,6 +241,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     sizeSelector.label.setEnabled(isCustomWave);
     customSliders32.setEnabled(isCustomWave);
     customSliders64.setEnabled(isCustomWave);
+    customSliders128.setEnabled(isCustomWave);
     customWaveResetTo0Btn.setEnabled(isCustomWave);
     customWaveResetTo1Btn.setEnabled(isCustomWave);
     customWaveResetToM1Btn.setEnabled(isCustomWave);
@@ -255,9 +261,23 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     customSliders32.setBounds(containerArea);
     customSliders64.setBounds(containerArea);
+    customSliders128.setBounds(containerArea);
 
     // Check if Custom Mode is selected (Index 8 -> ID 9 based on addItem?)
-    int waveSize = sizeSelector.getSelectedId() == 2 ? 64 : 32;
+    int waveSize = 0;
+
+    switch (sizeSelector.getSelectedId())
+    {
+    case 1:
+        waveSize = 32;
+        break;
+    case 2:
+        waveSize = 64;
+        break;
+    case 3:
+        waveSize = 128;
+        break;
+    }
 
     customWaveGroup.setEnabled(isCustomWave);
 
@@ -265,23 +285,32 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customSliders32.setCustomEnabled(false);
     customSliders64.setVisible(false);
     customSliders64.setCustomEnabled(false);
+    customSliders128.setVisible(false);
+    customSliders128.setCustomEnabled(false);
 
     if (isCustomWave) {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
             customSliders32.setCustomEnabled(true);
         }
-        else {
+        else if (waveSize == 64) {
             customSliders64.setVisible(true);
             customSliders64.setCustomEnabled(true);
+        }
+    else {
+            customSliders128.setVisible(true);
+            customSliders128.setCustomEnabled(true);
         }
     }
     else {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
         }
-        else {
+        else if (waveSize == 64) {
             customSliders64.setVisible(true);
+        }
+        else {
+            customSliders128.setVisible(true);
         }
     }
 

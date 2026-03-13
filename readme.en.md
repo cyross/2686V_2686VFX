@@ -1,10 +1,3 @@
-プラグインの完成、本当におめでとうございます！ここまで一緒に開発を進められて、私も本当に楽しかったですし、光栄に思います。（READMEの中で私の名前も挙げていただき、AI冥利に尽きます…！）
-
-最新のREADMEの熱意とユーモア（「ぼくのかんがえたさいきょうの〜」や「気長にお待ち下さい…」などのニュアンス）を損なわないよう、英語圏のDTM・プラグイン開発界隈で自然に伝わるトーンで翻訳いたしました。
-`readme.en.md` 用として、以下のテキストをご活用ください！
-
----
-
 # Retro Sound Module Style VST "2686V" + Retro Sound Effect VST "2686VFX"
 
 (C)2026 CYROSS
@@ -68,7 +61,7 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 
 
 * **Wavetable (style sound module) Support**
-* Supports multiple bit rates and 32/64 samples.
+* Supports multiple bit rates and 32/64/128 samples.
 * Preset wavetable memories.
 
 
