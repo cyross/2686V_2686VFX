@@ -167,14 +167,10 @@ git switch -d vx.y.z # 指定のバージョンのソースに置き換える
 - ターミナルで以下のコマンドを入力する
 
 ```bash
-cd ./external
-mkdir JUCE
-cd JUCE
+cd ./external/JUCE
 git submodule update --init --recursive
 git switch -d [JUCEの最新バージョン番号 例: "8.0.12"]
-cd ..
-mkdir vst3sdk
-cd vst3sdk
+cd ../vst3sdk
 git submodule update --init --recursive
 git switch -d [vst3sdkの最新バージョン番号 例: "v3.8.0_build_66"]
 cd base
