@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../fm/FmCore.h"
-#include "../fm/FmCommon.h"
+#include "Opl3Operator.h"
 
 // ==========================================================
 // OPL3 (YMF262) Core
@@ -12,7 +12,7 @@ class Opl3Core : public FmCore
 public:
     Opl3Core() : FmCore() {}
 
-    std::array<FmOperator, 4> m_operators;
+    std::array<Opl3Operator, 4> m_operators;
 
     void prepare(double sampleRate) override;
     void setParameters(const SynthParams& params) override;

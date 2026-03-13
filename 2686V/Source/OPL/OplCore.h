@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../fm/FmCore.h"
-#include "../fm/FmCommon.h"
+#include "OplOperator.h"
 
 // ==========================================================
 // OPL (YM3526/3812) Core
@@ -22,7 +22,7 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    std::array<FmOperator, 2> m_operators;
+    std::array<OplOperator, 2> m_operators;
     std::array<bool, 2> m_opMask{ false, false };
 
     int m_algorithm = 0;

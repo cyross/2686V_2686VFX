@@ -48,7 +48,7 @@ void OpmCore::setParameters(const SynthParams& params) {
         }
 
         // OPM: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.fmOp[i], fb, false, false, true);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }

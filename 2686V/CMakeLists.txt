@@ -54,8 +54,8 @@ set(SYNTH_FILES
 set(FM_FILES
     "Source/fm/FmCore.h"
     "Source/fm/FmCore.cpp"
-    "Source/fm/FmCommon.h"
-    "Source/fm/FmCommon.cpp"
+    "Source/fm/FmOperator.h"
+    "Source/fm/FmOperator.cpp"
     "Source/fm/RegisterType.h"
     "Source/fm/RegisterConverter.h"
     "Source/fm/RegisterConverter.cpp"
@@ -84,6 +84,8 @@ set(OPNA_FILES
     "Source/OPNA/GuiOpna.cpp"
     "Source/OPNA/OpnaCore.h"
     "Source/OPNA/OpnaCore.cpp"
+    "Source/OPNA/OpnaOperator.h"
+    "Source/OPNA/OpnaOperator.cpp"
     "Source/OPNA/PrOpna.h"
     "Source/OPNA/PrOpna.cpp"
 )
@@ -93,6 +95,8 @@ set(OPN_FILES
     "Source/OPN/GuiOpn.cpp"
     "Source/OPN/OpnCore.h"
     "Source/OPN/OpnCore.cpp"
+    "Source/OPN/OpnOperator.h"
+    "Source/OPN/OpnOperator.cpp"
     "Source/OPN/PrOpn.h"
     "Source/OPN/PrOpn.cpp"
 )
@@ -102,6 +106,8 @@ set(OPL_FILES
     "Source/OPL/GuiOpl.cpp"
     "Source/OPL/OplCore.h"
     "Source/OPL/OplCore.cpp"
+    "Source/OPL/OplOperator.h"
+    "Source/OPL/OplOperator.cpp"
     "Source/OPL/PrOpl.h"
     "Source/OPL/PrOpl.cpp"
 )
@@ -111,6 +117,8 @@ set(OPL3_FILES
     "Source/OPL3/GuiOpl3.cpp"
     "Source/OPL3/Opl3Core.h"
     "Source/OPL3/Opl3Core.cpp"
+    "Source/OPL3/Opl3Operator.h"
+    "Source/OPL3/Opl3Operator.cpp"
     "Source/OPL3/PrOpl3.h"
     "Source/OPL3/PrOpl3.cpp"
 )
@@ -120,6 +128,8 @@ set(OPM_FILES
     "Source/OPM/GuiOpm.cpp"
     "Source/OPM/OpmCore.h"
     "Source/OPM/OpmCore.cpp"
+    "Source/OPM/OpmOperator.h"
+    "Source/OPM/OpmOperator.cpp"
     "Source/OPM/PrOpm.h"
     "Source/OPM/PrOpm.cpp"
 )
@@ -129,6 +139,8 @@ set(OPZX3_FILES
     "Source/OPZX3/GuiOpzx3.cpp"
     "Source/OPZX3/Opzx3Core.h"
     "Source/OPZX3/Opzx3Core.cpp"
+    "Source/OPZX3/Opzx3Operator.h"
+    "Source/OPZX3/Opzx3Operator.cpp"
     "Source/OPZX3/PrOpzx3.h"
     "Source/OPZX3/PrOpzx3.cpp"
 )

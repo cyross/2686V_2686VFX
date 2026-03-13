@@ -26,7 +26,7 @@ void OplCore::setParameters(const SynthParams& params) {
         FmOpParams opParams = params.fmOp[i];
         opParams.totalLevel *= 0.5f;
 
-        m_operators[i].setParameters(params.fmOp[i], fb, false, true);
+        m_operators[i].setParameters(params.fmOp[i], fb);
 
         m_opMask[i] = params.fmOp[i].mask;
     }

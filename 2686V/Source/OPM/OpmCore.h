@@ -3,7 +3,7 @@
 #include <random>
 
 #include "../fm/FmCore.h"
-#include "../fm/FmCommon.h"
+#include "OpmOperator.h"
 
 class OpmCore : public FmCore
 {
@@ -19,7 +19,7 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    std::array<FmOperator, 4> m_operators;
+    std::array<OpmOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
     double m_hostSampleRate = 44100.0;

@@ -42,7 +42,7 @@ void OpnCore::setParameters(const SynthParams& params)
         }
 
         // OPN: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.fmOp[i], fb, false, false);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }

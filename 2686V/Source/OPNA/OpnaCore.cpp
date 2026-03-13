@@ -51,7 +51,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
         // OPNA: SSG-EG=True, WaveSelect=False
         // params.fmSsgEgFreq を渡す (第6引数)
         // 第5引数(useOpmEg)は false
-        m_operators[i].setParameters(params.fmOp[i], fb, true, false, false, params.fmOp[i].fmSsgEgFreq);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }

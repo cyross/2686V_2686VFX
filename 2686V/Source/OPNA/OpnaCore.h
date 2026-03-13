@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../fm/FmCore.h"
-#include "../fm/FmCommon.h"
+#include "OpnaOperator.h"
 
 // ==========================================================
 // OPNA (YM2608) Core
@@ -22,7 +22,7 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    std::array<FmOperator, 4> m_operators;
+    std::array<OpnaOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
     double m_hostSampleRate = 44100.0;

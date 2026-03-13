@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "../fm/FmCore.h"
-#include "../fm/FmCommon.h"
+#include "Opzx3Operator.h"
 
 // ==========================================================
 // OPZX3 Core
@@ -29,7 +29,7 @@ public:
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    std::array<FmOperator, 4> m_operators;
+    std::array<Opzx3Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
     double m_hostSampleRate = 44100.0;
