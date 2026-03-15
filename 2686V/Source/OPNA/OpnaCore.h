@@ -58,6 +58,7 @@ private:
     // LFO Sync Delay とカウンター
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
+    uint32_t m_lfoCycleCount = 0;
 
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;

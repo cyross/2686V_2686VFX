@@ -71,6 +71,7 @@ protected:
     // LFO Sync Delay とカウンター
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
+    uint32_t m_lfoCycleCount = 0;
     double m_lfoPhase = 0.0;
     float  m_amSmooth = 0.0f;
 

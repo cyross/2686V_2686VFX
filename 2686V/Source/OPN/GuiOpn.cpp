@@ -66,11 +66,13 @@ static std::vector<SelectItem> ksItems = {
     {.name = "3 (Strong)", .value = 4}
 };
 
-static std::vector<SelectItem> opnLfoShapeItems = {
-    {.name = "0: Saw Up",        .value = 1 },
-    {.name = "1: Square",        .value = 2 },
-    {.name = "2: Triangle",      .value = 3 },
-    {.name = "3: Sample & Hold", .value = 4 },
+static std::vector<SelectItem> lfoShapeItems = {
+    {.name = "0: Saw Up",              .value = 1 },
+    {.name = "1: Square",              .value = 2 },
+    {.name = "2: Triangle",            .value = 3 },
+    {.name = "3: Sample & Hold",       .value = 4 },
+    {.name = "4: Saw Up & One Shot",   .value = 5 },
+    {.name = "5: Triangle & One Shot", .value = 6 },
 };
 
 void GuiOpn::setup()
@@ -120,7 +122,7 @@ void GuiOpn::setup()
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = opnLfoShapeItems, .isReset = true });
+    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
     lfoShapeSelector.setWantsKeyboardFocus(true);
     lfoShapeSelector.setExplicitFocusOrder(++tabOrder);
 

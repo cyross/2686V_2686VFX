@@ -19,9 +19,8 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
 
-    // ========================================================
-    // Base Frequency Calculation (PCMのサンプラー挙動対応)
-    // ========================================================
+    m_lfoCycleCount = 0;
+
     float baseFreq = frequency;
 
     if (m_params.fixedMode) {
@@ -104,7 +103,11 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
             float currentLfoFreq = lfoFreqs[std::clamp(m_params.lfoFreqIndex, 0, 7)]; // パラメータから取得
 
             m_lfoPhase += (double)currentLfoFreq / m_hostSampleRate;
-            if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+            if (m_lfoPhase >= 1.0)
+            {
+                m_lfoPhase -= 1.0;
+                m_lfoCycleCount++;
+            }
 
             // FmCore の波形ストラテジーを利用 (例: 三角波=3)
             // ノイズはオペレーター単位では持たずダミー(0.0)を渡すか、必要な場合は実装します

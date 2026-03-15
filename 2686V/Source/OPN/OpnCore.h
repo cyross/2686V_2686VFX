@@ -51,6 +51,7 @@ private:
     // LFO Sync Delay とカウンター
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
+    uint32_t m_lfoCycleCount = 0;
 
     bool m_pm = false;
     bool m_am = false;

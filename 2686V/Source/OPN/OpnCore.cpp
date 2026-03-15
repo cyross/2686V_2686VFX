@@ -69,6 +69,8 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
     else {
         m_lfoDelayCounter = 0.0f; // フリーラン継続
     }
+
+    m_lfoCycleCount = 0;
 }
 
 void OpnCore::noteOff()
@@ -120,24 +122,11 @@ float OpnCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        // ノイズの更新処理
-        if (m_lfoPhase >= 1.0) {
-            m_lfoPhase -= 1.0;
-            unsigned int bit0 = m_lfsr & 1;
-            unsigned int bit3 = (m_lfsr >> 3) & 1;
-            unsigned int nextBit = bit0 ^ bit3;
-            m_lfsr >>= 1;
-            if (nextBit) m_lfsr |= (1 << 16);
-            m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
-        }
-
         float pmLfoVal = 0.0f;
         float amLfoVal = 0.0f;
 
         if (m_lfoDelayCounter > 0.0f) {
-            // カウントダウン (stepSize / targetRate は 1.0/m_hostSampleRate と等価)
-            m_lfoDelayCounter -= 1.0f / (float)m_hostSampleRate;
-
+            m_lfoDelayCounter -= 1.0f / (float)targetRate;
             if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
 
             // ディレイ中は pm=0, am=0 となるため何もしない
@@ -145,10 +134,28 @@ float OpnCore::getSample() {
         else {
             double lfoInc = m_lfoFreq / targetRate;
             m_lfoPhase += lfoInc;
-            if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
-            int waveIdx = std::clamp(m_lfoWave, 0, 6);
+            // ノイズの更新処理
+            if (m_lfoPhase >= 1.0) {
+                m_lfoPhase -= 1.0;
+
+                m_lfoCycleCount++;
+
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+                m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+            }
+
+            int waveIdx = std::clamp(m_lfoWave, 0, 5);
             FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+
+            if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
+                lfoVal.pm = 0.0f;
+                lfoVal.am = 0.0f;
+            }
 
             pmLfoVal = lfoVal.pm;
             amLfoVal = lfoVal.am;

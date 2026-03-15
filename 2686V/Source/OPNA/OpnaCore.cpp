@@ -73,6 +73,8 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
     else {
         m_lfoDelayCounter = 0.0f; // フリーラン継続
     }
+
+    m_lfoCycleCount = 0;
 }
 
 void OpnaCore::noteOff() { for (auto& op : m_operators) op.noteOff(); }
@@ -135,6 +137,9 @@ float OpnaCore::getSample() {
             // ノイズの更新処理
             if (m_lfoPhase >= 1.0) {
                 m_lfoPhase -= 1.0;
+
+                m_lfoCycleCount++;
+
                 unsigned int bit0 = m_lfsr & 1;
                 unsigned int bit3 = (m_lfsr >> 3) & 1;
                 unsigned int nextBit = bit0 ^ bit3;
@@ -143,8 +148,13 @@ float OpnaCore::getSample() {
                 m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
             }
 
-            int waveIdx = std::clamp(m_lfoWave, 0, 6);
+            int waveIdx = std::clamp(m_lfoWave, 0, 5);
             FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+
+            if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
+                lfoVal.pm = 0.0f;
+                lfoVal.am = 0.0f;
+            }
 
             pmLfoVal = lfoVal.pm;
             amLfoVal = lfoVal.am;

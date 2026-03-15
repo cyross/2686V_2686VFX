@@ -9,6 +9,8 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
 
+    m_lfoCycleCount = 0;
+
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
