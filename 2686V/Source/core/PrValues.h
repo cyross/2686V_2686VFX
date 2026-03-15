@@ -576,6 +576,13 @@ namespace PrValue
 			inline constexpr int max = 7; // 最大値
 			inline constexpr int initial = 7; // 初期値
 		}
+
+		namespace LfoShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 5;
+			inline constexpr int initial = 0;
+		}
 	}
 
 	namespace Opn
@@ -587,6 +594,13 @@ namespace PrValue
 			inline constexpr int min = 0;
 			inline constexpr int max = 7;
 			inline constexpr int initial = 7;
+		}
+
+		namespace LfoShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 5;
+			inline constexpr int initial = 0;
 		}
 	}
 

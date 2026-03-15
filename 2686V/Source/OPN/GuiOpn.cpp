@@ -67,10 +67,10 @@ static std::vector<SelectItem> ksItems = {
 };
 
 static std::vector<SelectItem> opnLfoShapeItems = {
-    {.name = "0: Saw Up",   .value = 1 },
-    {.name = "1: Square",   .value = 2 },
-    {.name = "2: Triangle", .value = 3 },
-    {.name = "3: Noise",    .value = 4 },
+    {.name = "0: Saw Up",        .value = 1 },
+    {.name = "1: Square",        .value = 2 },
+    {.name = "2: Triangle",      .value = 3 },
+    {.name = "3: Sample & Hold", .value = 4 },
 };
 
 void GuiOpn::setup()
@@ -115,7 +115,7 @@ void GuiOpn::setup()
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
@@ -137,11 +137,11 @@ void GuiOpn::setup()
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pms, .isReset = true });
+    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
     lfoPmdSlider.setWantsKeyboardFocus(true);
     lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pmd, .isReset = true });
+    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
     lfoPmsSlider.setWantsKeyboardFocus(true);
     lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -149,7 +149,7 @@ void GuiOpn::setup()
     lfoAmToggle.setWantsKeyboardFocus(true);
     lfoAmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::ams, .isReset = true });
+    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -281,7 +281,7 @@ void GuiOpn::setup()
 
         catN88Lfo[i].setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 

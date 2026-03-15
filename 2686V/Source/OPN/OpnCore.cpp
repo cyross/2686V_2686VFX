@@ -147,8 +147,8 @@ float OpnCore::getSample() {
             m_lfoPhase += lfoInc;
             if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
-            int waveIdx = std::clamp(m_lfoWave, 0, 4);
-            FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+            int waveIdx = std::clamp(m_lfoWave, 0, 6);
+            FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
 
             pmLfoVal = lfoVal.pm;
             amLfoVal = lfoVal.am;

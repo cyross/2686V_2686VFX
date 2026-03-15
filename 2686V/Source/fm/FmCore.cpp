@@ -67,8 +67,51 @@ const std::array<FmCore::LfoCalculator, 4> FmCore::lfoN88Strategies = { {
         float am = (phase < 0.5) ? (float)(phase * 2.0) : (float)(1.0 - (phase - 0.5) * 2.0);
         return { pm, am };
     },
-    // 3: Noise
+    // 3: Sample & Hold
     [](double /*phase*/, float noise) -> FmCore::LfoResult {
         return { noise, (noise + 1.0f) * 0.5f };
+    }
+} };
+
+
+// -----------------------------------------------------------
+// LFO 波形算出アルゴリズム (OPNA, OPN, OPM, OPZX3 共通)
+// -----------------------------------------------------------
+const std::array<FmCore::LfoCalculator, 6> FmCore::lfoN8886Strategies = { {
+    // 0: Saw Up
+    [](double phase, float /*noise*/) -> FmCore::LfoResult {
+        return { (float)(phase * 2.0), (float)(phase) };
+    },
+    // 1: Square
+    [](double phase, float /*noise*/) -> FmCore::LfoResult {
+        return { (phase < 0.5) ? 1.0f : -1.0f, (phase < 0.5) ? 1.0f : 0.0f };
+    },
+    // 2: Triangle
+    [](double phase, float /*noise*/) -> FmCore::LfoResult {
+        float pm = 0.0f;
+        if (phase < 0.25)       pm = (float)(phase * 4.0);
+        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
+        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
+
+        float am = (phase < 0.5) ? (float)(phase * 2.0) : (float)(1.0 - (phase - 0.5) * 2.0);
+        return { pm, am };
+    },
+    // 3: Sample & Hold
+    [](double /*phase*/, float noise) -> FmCore::LfoResult {
+        return { noise, (noise + 1.0f) * 0.5f };
+    },
+    // 4: Saw Up & One Shot
+    [](double phase, float /*noise*/) -> FmCore::LfoResult {
+        return { (float)(phase < 0.5 ? phase * 2.0: 0.0), (float)(phase < 0.5 ? phase : 0.0) };
+    },
+    // 5: Triangle & One Shot
+    [](double phase, float /*noise*/) -> FmCore::LfoResult {
+        float pm = 0.0f;
+        if (phase < 0.25)       pm = (float)(phase * 4.0);
+        else if (phase < 0.5)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
+        else                    pm = 0.0;
+
+        float am = (phase < 0.5) ? (float)(phase * 2.0) : 0.0f;
+        return { pm, am };
     }
 } };

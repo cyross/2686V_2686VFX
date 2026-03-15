@@ -116,11 +116,12 @@ static std::vector<SelectItem> dtItems = {
 };
 
 static std::vector<SelectItem> lfoShapeItems = {
-    {.name = "0: Sine",     .value = 1 },
-    {.name = "1: Saw Down", .value = 2 },
-    {.name = "2: Square",   .value = 3 },
-    {.name = "3: Triangle", .value = 4 },
-    {.name = "4: Noise",    .value = 5 },
+    {.name = "0: Saw Up",              .value = 1 },
+    {.name = "1: Square",              .value = 2 },
+    {.name = "2: Triangle",            .value = 3 },
+    {.name = "3: Sample & Hold",       .value = 4 },
+    {.name = "4: Saw Up & One Shot",   .value = 5 },
+    {.name = "5: Triangle & One Shot", .value = 6 },
 };
 
 static std::vector<SelectItem> lfoFreqsItems = {
@@ -194,7 +195,7 @@ void GuiOpna::setup()
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
@@ -393,7 +394,7 @@ void GuiOpna::setup()
 
         catN88Lfo[i].setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
