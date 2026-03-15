@@ -66,6 +66,13 @@ static std::vector<SelectItem> ksItems = {
     {.name = "3 (Strong)", .value = 4}
 };
 
+static std::vector<SelectItem> opnLfoShapeItems = {
+    {.name = "0: Saw Up",   .value = 1 },
+    {.name = "1: Square",   .value = 2 },
+    {.name = "2: Triangle", .value = 3 },
+    {.name = "3: Noise",    .value = 4 },
+};
+
 void GuiOpn::setup()
 {
     const juce::String code = PrKey::Prefix::opn;
@@ -106,9 +113,50 @@ void GuiOpn::setup()
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
+    lfoCat.setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
+
+    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoFreqSlider.setWantsKeyboardFocus(true);
+    lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = opnLfoShapeItems, .isReset = true });
+    lfoShapeSelector.setWantsKeyboardFocus(true);
+    lfoShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
+    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::syncDelay, .title = GuiText::Fm::lfoSyncDelay, .isReset = true });
+    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
+    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
+    lfoPmToggle.setWantsKeyboardFocus(true);
+    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
+    lfoPmsSlider.setWantsKeyboardFocus(true);
+    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
+    lfoPmdSlider.setWantsKeyboardFocus(true);
+    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
+    lfoAmToggle.setWantsKeyboardFocus(true);
+    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::ams, .title = GuiText::Fm::ams, .isReset = true });
+    lfoAmsSlider.setWantsKeyboardFocus(true);
+    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -231,6 +279,12 @@ void GuiOpn::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
+        catN88Lfo[i].setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
+
+        amd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::amd, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        amd[i].setWantsKeyboardFocus(true);
+        amd[i].setExplicitFocusOrder(++tabOrder);
+
         cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
@@ -238,6 +292,7 @@ void GuiOpn::setup()
         fix[i].setExplicitFocusOrder(++tabOrder);
 
         freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
+        freq[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         freq[i].setWantsKeyboardFocus(true);
         freq[i].setExplicitFocusOrder(++tabOrder);
 
@@ -291,6 +346,16 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
     layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider });
+    layoutMainCategory({ .mainRect = mRect, .label = &lfoCat });
+    layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
+    layoutMain({ .mainRect = mRect, .component = &lfoPmToggle });
+    layoutMain({ .mainRect = mRect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+    layoutMain({ .mainRect = mRect, .component = &lfoAmToggle });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
@@ -340,6 +405,8 @@ void GuiOpn::layout(juce::Rectangle<int> content)
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
         }
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catN88Lfo[i] });
+        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
         layoutRow({ .rowRect = innerRect, .component = &fix[i] });
         layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });

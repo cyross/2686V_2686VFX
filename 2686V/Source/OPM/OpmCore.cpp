@@ -1,6 +1,64 @@
 ﻿#include "OpmCore.h"
 #include "../synth/SynthHelpers.h"
 
+// -----------------------------------------------------------
+// LFO 波形算出アルゴリズム (OPM PG)
+// -----------------------------------------------------------
+const std::array<OpmCore::OpmLfoCalculator, 4> OpmCore::lfoHwPgStrategies = { {
+    // 0: Saw Up
+    [](double phase, float /*noise*/) -> float {
+        float pm = 0.0f;
+        if (phase < 0.5) pm = (float)(phase * 2.0);
+        else             pm = (float)(-1.0 + (phase - 0.5) * 2.0);
+
+        return pm;
+    },
+    // 1: Square
+    [](double phase, float /*noise*/) -> float {
+        return (phase < 0.5) ? 1.0f : -1.0f;
+    },
+    // 2: Triangle
+    [](double phase, float /*noise*/) -> float {
+        float pm = 0.0f;
+        if (phase < 0.25)       pm = (float)(phase * 4.0);
+        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
+        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
+
+        return pm;
+    },
+    // 3: Noise
+    [](double /*phase*/, float noise) -> float {
+        return noise;
+    }
+} };
+
+// -----------------------------------------------------------
+// LFO 波形算出アルゴリズム (OPM EG)
+// -----------------------------------------------------------
+const std::array<OpmCore::OpmLfoCalculator, 4> OpmCore::lfoHwEgStrategies = { {
+    // 0: Saw Down
+    [](double phase, float /*noise*/) -> float {
+        return (float)(1.0 - phase);
+    },
+    // 1: Square
+    [](double phase, float /*noise*/) -> float {
+        return (phase < 0.5) ? 1.0f : 0.0f;
+    },
+    // 2: Triangle
+    [](double phase, float /*noise*/) -> float {
+        float am = 0.0f;
+
+        if (phase < 0.5) am = (float)(1.0 - phase * 2.0);
+        else             am = (float)((phase - 0.5) * 2.0);
+
+        return am;
+    },
+    // 3: Noise
+    [](double /*phase*/, float noise) -> float {
+        return (noise + 1.0f) * 0.5f;
+    }
+} };
+
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
     double target = getTargetRate(m_rateIndex);
@@ -22,7 +80,8 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_ams = params.lfoAms;
     m_pmd = params.lfoPmd;
     m_amd = params.lfoAmd;
-    m_lfoWave = params.lfoWave; // OPM LFO Wave
+    m_lfoPgWave = params.pgLfoWave;
+    m_lfoEgWave = params.egLfoWave;
     m_amSmoothRate = params.lfoAmSmRt;
 
     if (m_rateIndex != params.fmRateIndex) {
@@ -118,11 +177,11 @@ float OpmCore::getSample() {
         // =================================================================
         // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
         // =================================================================
-        int waveIdx = std::clamp(m_lfoWave, 0, 4);
-        FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+        int pgWaveIdx = std::clamp(m_lfoPgWave, 0, 4);
+        float pmLfoVal = lfoHwPgStrategies[pgWaveIdx](m_lfoPhase, m_currentNoiseSample);
 
-        float pmLfoVal = lfoVal.pm;
-        float amLfoVal = lfoVal.am;
+        int egWaveIdx = std::clamp(m_lfoEgWave, 0, 4);
+        float amLfoVal = lfoHwEgStrategies[egWaveIdx](m_lfoPhase, m_currentNoiseSample);
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 

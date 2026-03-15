@@ -7,6 +7,8 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
+    m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
+
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
@@ -68,56 +70,55 @@ void OpnOperator::getSample(float& output, float modulator, float amLfoVal, floa
     updateEnvelopeState();
     float envVal = m_currentLevel;
 
+    // Sync Delay 更新
+    if (m_lfoDelayCounter > 0.0f) {
+        m_lfoDelayCounter -= 1.0f / (float)m_hostSampleRate;
+        if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
+    }
+
     // ========================================================
     // 1. Amplitude Modulation (Tremolo / Wah) の計算
     // ========================================================
-    float amsDepths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
-    float totalAmDepth = 0.0f;
+    float totalAmpMod = 1.0f;
 
-    // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
     if (globalAm) {
-        float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
-        totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
+        // グローバルAMS (-127〜127) と OP毎のAMD (0〜15) を合成
+        float amSign = (globalAms < 0) ? -1.0f : 1.0f;
+        float amDepthNorm = (std::abs((float)globalAms) / 127.0f) * ((float)m_params.amd / 15.0f);
+
+        // amLfoVal は 0.0 ~ 1.0。AMSがマイナスの場合は波形を反転(1.0 - x)させる
+        float unipolarLfo = (amSign > 0.0f) ? amLfoVal : (1.0f - amLfoVal);
+
+        // 最大減衰量を 95.25dB (TLレジスタの最大値 127 * 0.75dB) として計算
+        float attenuationDb = unipolarLfo * amDepthNorm * 95.25f;
+
+        // デシベルをリニアな音量倍率に変換
+        totalAmpMod = std::pow(10.0f, -attenuationDb / 20.0f);
     }
 
-    // ② ローカルAM (このOP独自の揺れ深さ)
-    if (m_params.amEnable) {
-        totalAmDepth += amsDepths[std::clamp(m_params.ams, 0, 3)];
-    }
-
-    // 上限を1.0(100%)でクリップ
-    totalAmDepth = std::min(totalAmDepth, 1.0f);
-
-    if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (amLfoVal * totalAmDepth);
-        envVal *= lfoAmpMod; // 音量に直接適用
-    }
+    envVal *= totalAmpMod;
 
     // ========================================================
     // 2. Pitch Modulation (Vibrato) の計算
     // ========================================================
-    float pmsDepths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-    float totalPmDepth = 0.0f;
+    float lfoPitchMod = 1.0f;
 
-    // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
     if (globalPm) {
-        float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
-        totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
+        // グローバルPMS (-127〜127) と グローバルPMD (0〜15) を合成
+        // PMSがマイナスならそのまま掛け算結果もマイナスになり、位相が反転する
+        float pmDepthNorm = ((float)globalPms / 127.0f) * (globalPmd / 15.0f);
+
+        // 最大で ±1オクターブ (1200セント) の揺れ幅と定義する
+        float pitchCentDeviation = pmLfoVal * pmDepthNorm * 1200.0f;
+
+        // セント値を周波数の倍率に変換 (2 ^ (cent / 1200))
+        lfoPitchMod = std::pow(2.0f, pitchCentDeviation / 1200.0f);
     }
 
-    // ② ローカルPM (このOP独自の揺れ深さ)
-    if (m_params.vibEnable) {
-        totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
-    }
+    // モジュレーションホイール分を足し込む (最大200セントの揺れ)
+    float wheelCent = pmLfoVal * (modWheel * 200.0f);
 
-    // PMがONの時だけ、その深さをLFO波形に掛ける
-    float currentPitchMod = pmLfoVal * totalPmDepth;
-
-    // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
-    float wheelDepth = modWheel * 0.03f;
-    currentPitchMod += (pmLfoVal * wheelDepth);
-
-    float lfoPitchMod = 1.0f + currentPitchMod;
+    lfoPitchMod *= std::pow(2.0f, wheelCent / 1200.0f);
 
     // ========================================================
     // 3. 位相と波形の生成

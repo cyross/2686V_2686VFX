@@ -39,6 +39,8 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
+    m_lfoDelayCounter = 0.0f;
+
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================

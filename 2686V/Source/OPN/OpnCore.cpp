@@ -18,6 +18,13 @@ void OpnCore::setParameters(const SynthParams& params)
     m_algorithm = params.algorithm;
     m_lfoWave = params.lfoWave;
     m_amSmoothRate = params.lfoAmSmRt;
+    m_lfoSyncDelay = params.lfoSyncDelay;
+    m_lfoFreq = params.lfoFreq;
+    m_pm = params.pmEnable;
+    m_am = params.amEnable;
+    m_pms = params.lfoPms;
+    m_ams = params.lfoAms;
+    m_pmd = params.lfoPmd;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -53,6 +60,15 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
     m_rateAccumulator = 1.0;
+
+    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
+    if (m_lfoSyncDelay > 0.0f) {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+    }
+    else {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
 }
 
 void OpnCore::noteOff()
@@ -115,14 +131,28 @@ float OpnCore::getSample() {
             m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
         }
 
-        // =================================================================
-        // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
-        // =================================================================
-        int waveIdx = std::clamp(m_lfoWave, 0, 4);
-        FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+        float pmLfoVal = 0.0f;
+        float amLfoVal = 0.0f;
 
-        float pmLfoVal = lfoVal.pm;
-        float amLfoVal = lfoVal.am;
+        if (m_lfoDelayCounter > 0.0f) {
+            // カウントダウン (stepSize / targetRate は 1.0/m_hostSampleRate と等価)
+            m_lfoDelayCounter -= 1.0f / (float)m_hostSampleRate;
+
+            if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
+
+            // ディレイ中は pm=0, am=0 となるため何もしない
+        }
+        else {
+            double lfoInc = m_lfoFreq / targetRate;
+            m_lfoPhase += lfoInc;
+            if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
+
+            int waveIdx = std::clamp(m_lfoWave, 0, 4);
+            FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+
+            pmLfoVal = lfoVal.pm;
+            amLfoVal = lfoVal.am;
+        }
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 
@@ -136,28 +166,28 @@ float OpnCore::getSample() {
         // =================================================================
         // OP1 (入力なし。フィードバックは内部で解決される)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
         // OP2 (入力: OP1)
         // =================================================================
         float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
         if (m_opMask[1]) out2 = 0.0f;
 
         // =================================================================
         // OP3 (入力: OP1, OP2)
         // =================================================================
         float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
-        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
         if (m_opMask[2]) out3 = 0.0f;
 
         // =================================================================
         // OP4 (入力: OP1, OP2, OP3)
         // =================================================================
         float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
-        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, false, false, 0, 0, -1.0f, -1.0f, m_modWheel);
+        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
         if (m_opMask[3]) out4 = 0.0f;
 
         // =================================================================

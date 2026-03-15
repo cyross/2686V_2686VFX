@@ -62,6 +62,10 @@ private:
 
     float m_modWheel = 0.0f;
 
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
+
     struct AlgRouting {
         float in2_1;             // OP2への入力 (1からの割合)
         bool  fb2_1;             // OP2からOP1へのフィードバック有無

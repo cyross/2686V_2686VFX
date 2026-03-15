@@ -39,6 +39,7 @@ private:
     float m_lfoFreq = 5.0f;
     int m_pms = 0;
     int m_ams = 0;
+    int m_pmd = 0;
     bool m_pm = false;
     bool m_am = false;
 
@@ -52,6 +53,10 @@ private:
     float m_amSmoothRate = 0.005f;
 
     float m_modWheel = 0.0f;
+
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
 
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;

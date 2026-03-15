@@ -73,6 +73,8 @@ namespace PrKey
 			{
 				static inline const juce::String freq = "_LFO_FREQ";
 				static inline const juce::String shape = "_LFO_SHAPE";
+				static inline const juce::String pgShape = "_LFO_PG_SHAPE";
+				static inline const juce::String egShape = "_LFO_EG_SHAPE";
 				static inline const juce::String am = "_LFO_AM";
 				static inline const juce::String pm = "_LFO_PM";
 				static inline const juce::String pms = "_LFO_PMS";
@@ -80,6 +82,7 @@ namespace PrKey
 				static inline const juce::String pmd = "_LFO_PMD";
 				static inline const juce::String amd = "_LFO_AMD";
 				static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
+				static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
 			};
 
 			namespace Op
@@ -110,6 +113,7 @@ namespace PrKey
 				static inline const juce::String se = "_SE";
 				static inline const juce::String seFreq = "_SEFREQ";
 
+				static inline const juce::String freqs = "_LFO_FREQS";
 				static inline const juce::String am = "_AM";
 				static inline const juce::String vib = "_VIB";
 
@@ -117,6 +121,8 @@ namespace PrKey
 				static inline const juce::String ams = "_AMS";
 				static inline const juce::String pmd = "_PMD";
 				static inline const juce::String amd = "_AMD";
+
+				static inline const juce::String syncDelay = "_SYNC_DELAY";
 
 				static inline const juce::String ws = "_WS";
 

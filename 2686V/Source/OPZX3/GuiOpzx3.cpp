@@ -251,6 +251,7 @@ void GuiOpzx3::setup()
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -289,6 +290,7 @@ void GuiOpzx3::setup()
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -499,6 +501,7 @@ void GuiOpzx3::setup()
         fix[i].setExplicitFocusOrder(++tabOrder);
 
         freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
+        freq[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         freq[i].setWantsKeyboardFocus(true);
         freq[i].setExplicitFocusOrder(++tabOrder);
 

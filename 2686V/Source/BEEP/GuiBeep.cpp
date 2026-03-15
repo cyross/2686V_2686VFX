@@ -30,6 +30,7 @@ void GuiBeep::setup() {
     fixToggle.setExplicitFocusOrder(++tabOrder);
 
     freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
+    freqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freqSlider.setWantsKeyboardFocus(true);
     freqSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -66,6 +67,7 @@ void GuiBeep::setup() {
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 

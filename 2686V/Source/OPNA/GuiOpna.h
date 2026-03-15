@@ -53,11 +53,14 @@ class GuiOpna : public GuiBase
     GuiCategoryLabel lfoCat;
 
     GuiSlider lfoFreqSlider;
+    GuiComboBox lfoShapeSelector;
     GuiSlider lfoAmSmRtSlider;
+    GuiSlider lfoSyncDelaySlider;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
-    GuiComboBox lfoPmsSelector;
-	GuiComboBox lfoAmsSelector;
+    GuiSlider lfoPmsSlider;
+    GuiSlider lfoPmdSlider;
+    GuiSlider lfoAmsSlider;
 
     GuiCategoryLabel mvolCat;
 
@@ -96,10 +99,14 @@ class GuiOpna : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
+    std::array<GuiComboBox, Global::Fm::Op4> freqs;
+    std::array<GuiSlider, Global::Fm::Op4> syncDelay;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
     std::array<GuiComboBox, Global::Fm::Op4> pms;
     std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
     std::array<GuiComboBox, Global::Fm::Op4> ams;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catN88Lfo;
+    std::array<GuiSlider, Global::Fm::Op4> amd;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -132,11 +139,14 @@ public:
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
+        lfoShapeSelector(context),
         lfoAmSmRtSlider(context),
+        lfoSyncDelaySlider(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
-        lfoPmsSelector(context),
-        lfoAmsSelector(context),
+        lfoPmsSlider(context),
+        lfoPmdSlider(context),
+        lfoAmsSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -162,10 +172,14 @@ public:
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        freqs{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        catN88Lfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
