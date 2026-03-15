@@ -113,6 +113,8 @@ namespace GuiText
 		static inline const juce::String fb2 = "FB3";
 		static inline const juce::String lfoFreq = "L.FREQ";
 		static inline const juce::String lfoShape = "L.SHAPE";
+		static inline const juce::String lfoPgShape = "L.P.SHAPE";
+		static inline const juce::String lfoEgShape = "L.A.SHAPE";
 		static inline const juce::String amEn = "L.AM-EN";
 		static inline const juce::String pmEn = "L.PM-EN";
 		static inline const juce::String ams = "L.AMS";

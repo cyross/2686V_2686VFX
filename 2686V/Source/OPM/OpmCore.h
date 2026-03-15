@@ -35,7 +35,10 @@ private:
     // OPM LFO
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
-    int m_pms = 0; int m_ams = 0; int m_lfoWave = 2;
+    int m_pms = 0;
+    int m_ams = 0;
+    int m_lfoPgWave = 2;
+    int m_lfoEgWave = 2;
     bool m_pm = false;
     bool m_am = false;
     int m_pmd = 0;
@@ -53,4 +56,12 @@ private:
     float m_modWheel = 0.0f;
 
     void updateNoiseDelta(double targetRate);
+
+    using OpmLfoCalculator = float(*)(double phase, float noise);
+
+    // OPM/PG-LFO波形の計算アルゴリズム配列
+    static const std::array<OpmLfoCalculator, 4> lfoHwPgStrategies;
+
+    // OPM/EG-LFO波形の計算アルゴリズム配列
+    static const std::array<OpmLfoCalculator, 4> lfoHwEgStrategies;
 };

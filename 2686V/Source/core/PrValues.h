@@ -223,6 +223,27 @@ namespace PrValue
 			inline constexpr int max = 127;
 			inline constexpr int initial = 0;
 		}
+
+		namespace SyncDelay
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 5000.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace PgShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
+
+		namespace EgShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
 	}
 
 	namespace Op
@@ -444,6 +465,13 @@ namespace PrValue
 			inline constexpr int min = 0;
 			inline constexpr int max = 7;
 			inline constexpr int initial = 0;
+		}
+
+		namespace SyncDelay
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 5000.0f;
+			inline constexpr float initial = 0.0f;
 		}
 	}
 
