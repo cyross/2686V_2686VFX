@@ -143,8 +143,8 @@ float OpnaCore::getSample() {
                 m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
             }
 
-            int waveIdx = std::clamp(m_lfoWave, 0, 4);
-            FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+            int waveIdx = std::clamp(m_lfoWave, 0, 6);
+            FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
 
             pmLfoVal = lfoVal.pm;
             amLfoVal = lfoVal.am;
