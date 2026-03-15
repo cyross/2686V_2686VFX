@@ -49,6 +49,18 @@ class GuiOpn : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    GuiCategoryLabel lfoCat;
+
+    GuiSlider lfoFreqSlider;
+    GuiComboBox lfoShapeSelector;
+    GuiSlider lfoAmSmRtSlider;
+    GuiSlider lfoSyncDelaySlider;
+    GuiToggleButton lfoPmToggle;
+    GuiToggleButton lfoAmToggle;
+    GuiSlider lfoPmsSlider;
+    GuiSlider lfoPmdSlider;
+    GuiSlider lfoAmsSlider;
+
     GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
@@ -85,6 +97,8 @@ class GuiOpn : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> freq;
     std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catN88Lfo;
+    std::array<GuiSlider, Global::Fm::Op4> amd;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -114,6 +128,16 @@ public:
         feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
+        lfoCat(context),
+        lfoFreqSlider(context),
+        lfoShapeSelector(context),
+        lfoAmSmRtSlider(context),
+        lfoSyncDelaySlider(context),
+        lfoPmToggle(context),
+        lfoAmToggle(context),
+        lfoPmsSlider(context),
+        lfoPmdSlider(context),
+        lfoAmsSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -138,6 +162,8 @@ public:
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        catN88Lfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

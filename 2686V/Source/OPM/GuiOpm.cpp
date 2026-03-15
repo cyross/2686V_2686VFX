@@ -89,21 +89,21 @@ static std::vector<SelectItem> lfoEgShapeItems = {
 };
 
 static std::vector<SelectItem> pmsItems = {
-    {.name = "1: Pms 0", .value = 1 },
-    {.name = "2: Pms 1", .value = 2 },
-    {.name = "3: Pms 2", .value = 3 },
-    {.name = "4: Pms 3", .value = 4 },
-    {.name = "5: Pms 4", .value = 5 },
-    {.name = "6: Pms 5", .value = 6 },
-    {.name = "7: Pms 6", .value = 7 },
-    {.name = "8: Pms 7", .value = 8 },
+    {.name = "0: 0cent", .value = 1 },
+    {.name = "1: +-5cent", .value = 2 },
+    {.name = "2: +-10cent", .value = 3 },
+    {.name = "3: +-20cent", .value = 4 },
+    {.name = "4: +-50cent", .value = 5 },
+    {.name = "5: +-100cent", .value = 6 },
+    {.name = "6: +-400cent", .value = 7 },
+    {.name = "7: +-700cent", .value = 8 },
 };
 
 static std::vector<SelectItem> amsItems = {
-    {.name = "1: Ams 0", .value = 1 },
-    {.name = "2: Ams 1", .value = 2 },
-    {.name = "3: Ams 2", .value = 3 },
-    {.name = "4: Ams 3", .value = 4 },
+    {.name = "1: 0dB", .value = 1 },
+    {.name = "2: 23.9dB", .value = 2 },
+    {.name = "3: 47.8dB", .value = 3 },
+    {.name = "4: 95.6dB", .value = 4 },
 };
 
 void GuiOpm::setup()
@@ -146,9 +146,10 @@ void GuiOpm::setup()
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
+    lfoCat.setup({ .parent = *this, .title = GuiText::Category::hwLfo });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -191,6 +192,7 @@ void GuiOpm::setup()
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -324,6 +326,7 @@ void GuiOpm::setup()
         fix[i].setExplicitFocusOrder(++tabOrder);
 
         freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
+        freq[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         freq[i].setWantsKeyboardFocus(true);
         freq[i].setExplicitFocusOrder(++tabOrder);
 

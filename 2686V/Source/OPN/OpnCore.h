@@ -48,6 +48,16 @@ private:
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f; // Default ~5Hz
 
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
+
+    bool m_pm = false;
+    bool m_am = false;
+    int m_pms = 0;
+    int m_ams = 0;
+    int m_pmd = 0;
+
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
     }

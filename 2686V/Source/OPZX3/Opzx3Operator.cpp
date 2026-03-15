@@ -247,6 +247,8 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
+    m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
+
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
@@ -336,6 +338,12 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
         m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
     }
 
+    // Sync Delay 更新
+    if (m_lfoDelayCounter > 0.0f) {
+        m_lfoDelayCounter -= 1.0f / (float)m_hostSampleRate;
+        if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
+    }
+
     // ========================================================
     // 1. Amplitude Modulation (Tremolo / Wah) の計算
     // ========================================================
@@ -374,7 +382,7 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
     }
 
     // ② ローカルPM (このOP独自の揺れ深さ)
-    if (m_params.vibEnable) {
+    if (m_params.vibEnable && m_lfoDelayCounter <= 0.0f) {
         totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
     }
 

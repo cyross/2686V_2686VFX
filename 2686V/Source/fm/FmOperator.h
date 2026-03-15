@@ -68,6 +68,12 @@ protected:
     float m_susReleaseDec = 0.0f;
     float m_currentReleaseDec = 0.0f;
 
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
+    double m_lfoPhase = 0.0;
+    float  m_amSmooth = 0.0f;
+
     // OPZX3 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
 

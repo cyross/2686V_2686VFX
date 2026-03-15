@@ -35,10 +35,12 @@ struct FmOpParams
 
     // LFO Sync Delay
     float lfoSyncDelay = 0.0f;
+    int lfoFreqIndex = 0;
 
     // オペレーターごとのLFO個別感度（上乗せ分）
     int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
     int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
+    int amd = 0;
 
     // --- OPL/OPL3 LFO Settings ---
     float oplAms = 3.7f;  // AM Speed (Hz)
@@ -153,7 +155,7 @@ struct SynthParams
     float lfoAmSmRt = 0.005f;
 
     // LFO Sync Delay
-    //float lfoSyncDelay = 0.0f;
+    float lfoSyncDelay = 0.0f;
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index

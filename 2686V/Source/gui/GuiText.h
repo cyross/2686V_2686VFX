@@ -44,6 +44,9 @@ namespace GuiText
 		static inline const juce::String algFb = "--- ALGORITHM/FEEDBACK ---";
 		static inline const juce::String m = "--- PARAMETERS ---";
 		static inline const juce::String lfo = "--- LFO ---";
+		static inline const juce::String hwLfo = "--- HW LFO ---";
+		static inline const juce::String swLfo = "--- SW LFO ---";
+		static inline const juce::String n88Lfo = "--- N88 LFO ---";
 		static inline const juce::String adsr = "--- ADSR ---";
 		static inline const juce::String fix = "--- FIX ---";
 		static inline const juce::String mvol = "--- MASTER VOLUME ---";
@@ -115,6 +118,7 @@ namespace GuiText
 		static inline const juce::String lfoShape = "L.SHAPE";
 		static inline const juce::String lfoPgShape = "L.P.SHAPE";
 		static inline const juce::String lfoEgShape = "L.A.SHAPE";
+		static inline const juce::String lfoSyncDelay = "L.S.Dly";
 		static inline const juce::String amEn = "L.AM-EN";
 		static inline const juce::String pmEn = "L.PM-EN";
 		static inline const juce::String ams = "L.AMS";
@@ -150,6 +154,8 @@ namespace GuiText
 			static inline const juce::String FFreq = "FFREQ";
 			static inline const juce::String SEnv = "SENV";
 			static inline const juce::String SFreq = "SFREQ";
+			static inline const juce::String Freqs = "LFREQ";
+			static inline const juce::String SyncDelay = "S.Dly";
 			static inline const juce::String Am = "AM";
 			static inline const juce::String Pm = "PM";
 			static inline const juce::String AmEn = "AM-EN";

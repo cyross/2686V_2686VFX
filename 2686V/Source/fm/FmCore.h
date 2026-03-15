@@ -34,4 +34,7 @@ public:
 
     // 5つのLFO波形の計算アルゴリズム配列
     static const std::array<LfoCalculator, 5> lfoStrategies;
+
+    // 4つのN88ソフトウェアLFO波形の計算アルゴリズム配列
+    static const std::array<LfoCalculator, 4> lfoN88Strategies;
 };

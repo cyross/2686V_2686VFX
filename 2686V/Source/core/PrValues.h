@@ -168,7 +168,7 @@ namespace PrValue
 		namespace Freq
 		{
 			inline constexpr float min = 0.1f;
-			inline constexpr float max = 200.0f;
+			inline constexpr float max = 16383.0f;
 			inline constexpr float initial = 5.0f;
 		}
 
@@ -205,6 +205,20 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
+		namespace N88Ams
+		{
+			inline constexpr int min = -127;
+			inline constexpr int max = 127;
+			inline constexpr int initial = 0;
+		}
+
+		namespace N88Amd
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 15;
+			inline constexpr int initial = 0;
+		}
+
 		namespace Pm
 		{
 			inline constexpr bool initial = false;
@@ -221,6 +235,20 @@ namespace PrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 127;
+			inline constexpr int initial = 0;
+		}
+
+		namespace N88Pms
+		{
+			inline constexpr int min = -127;
+			inline constexpr int max = 127;
+			inline constexpr int initial = 0;
+		}
+
+		namespace N88Pmd
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 15;
 			inline constexpr int initial = 0;
 		}
 
@@ -443,6 +471,13 @@ namespace PrValue
 
 	namespace OpLfo
 	{
+		namespace Freqs
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 7;
+			inline constexpr int initial = 0;
+		}
+
 		namespace Am
 		{
 			inline constexpr bool initial = false; // 初期値
@@ -613,6 +648,16 @@ namespace PrValue
 			inline constexpr int min = 0; // 最小値
 			inline constexpr int max = 7; // 最大値
 			inline constexpr int initial = 7; // 初期値
+		}
+
+		namespace Lfo
+		{
+			namespace Freq
+			{
+				inline constexpr float min = 0.0f;
+				inline constexpr float max = 60.0f;
+				inline constexpr float initial = 5.0f;
+			}
 		}
 	}
 

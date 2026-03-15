@@ -113,6 +113,7 @@ namespace PrKey
 				static inline const juce::String se = "_SE";
 				static inline const juce::String seFreq = "_SEFREQ";
 
+				static inline const juce::String freqs = "_LFO_FREQS";
 				static inline const juce::String am = "_AM";
 				static inline const juce::String vib = "_VIB";
 
