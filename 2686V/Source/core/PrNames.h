@@ -81,6 +81,12 @@ namespace PrName
 				static inline const juce::String ams = " AMS";
 				static inline const juce::String pmd = " PMD";
 				static inline const juce::String amd = " AMD";
+
+				static inline const juce::String n88Amd = " N88AMD";
+				static inline const juce::String n88Ams = " N88AMS";
+				static inline const juce::String n88Pmd = " N88PMD";
+				static inline const juce::String n88Pms = " N88PMS";
+
 				static inline const juce::String syncDelay = " S.DLY";
 				static inline const juce::String egType = " EG TYPE";
 				static inline const juce::String eg = " EG";

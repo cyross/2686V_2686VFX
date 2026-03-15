@@ -205,14 +205,14 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
-		namespace N88Ams
+		namespace N88Amd
 		{
 			inline constexpr int min = -127;
 			inline constexpr int max = 127;
 			inline constexpr int initial = 0;
 		}
 
-		namespace N88Amd
+		namespace N88Ams
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
@@ -238,14 +238,14 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
-		namespace N88Pms
+		namespace N88Pmd
 		{
 			inline constexpr int min = -127;
 			inline constexpr int max = 127;
 			inline constexpr int initial = 0;
 		}
 
-		namespace N88Pmd
+		namespace N88Pms
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
