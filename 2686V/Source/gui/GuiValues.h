@@ -106,7 +106,7 @@ namespace GuiValue
 	namespace Category
 	{
 		static inline constexpr int paddingTop = 4;
-		static inline constexpr int paddingBotton = 3;
+		static inline constexpr int paddingBottom = 3;
 	}
 
 	namespace PaddingTop
@@ -147,7 +147,8 @@ namespace GuiValue
 		namespace Row
 		{
 			static inline constexpr int height = 18;
-			static inline constexpr int paddingBottom = 3;
+			static inline constexpr int paddingTop = 3;
+			static inline constexpr int paddingBottom = 0;
 
 			namespace Padding
 			{
@@ -251,8 +252,8 @@ namespace GuiValue
 		{
 			static inline constexpr int width = 226;
 			static inline constexpr int height = 15;
-			static inline constexpr int paddingTop = 2;
-			static inline constexpr int paddingBottom = 3;
+			static inline constexpr int paddingTop = 3;
+			static inline constexpr int paddingBottom = 0;
 			static inline constexpr int paddingRight = 0;
 		}
 
