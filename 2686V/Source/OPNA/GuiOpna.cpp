@@ -216,21 +216,21 @@ void GuiOpna::setup()
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
-    lfoPmsSlider.setWantsKeyboardFocus(true);
-    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
-
     lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
     lfoPmdSlider.setWantsKeyboardFocus(true);
     lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
+    lfoPmsSlider.setWantsKeyboardFocus(true);
+    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
 
     lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
     lfoAmToggle.setWantsKeyboardFocus(true);
     lfoAmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::ams, .title = GuiText::Fm::ams, .isReset = true });
-    lfoAmsSlider.setWantsKeyboardFocus(true);
-    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
+    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
+    lfoAmdSlider.setWantsKeyboardFocus(true);
+    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
@@ -393,9 +393,9 @@ void GuiOpna::setup()
 
         catN88Lfo[i].setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-        amd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::amd, .title = GuiText::Fm::Op::Amd, .isReset = true });
-        amd[i].setWantsKeyboardFocus(true);
-        amd[i].setExplicitFocusOrder(++tabOrder);
+        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        n88Ams[i].setWantsKeyboardFocus(true);
+        n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
         cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
 
@@ -463,10 +463,10 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
     layoutMain({ .mainRect = mRect, .component = &lfoPmToggle });
-    layoutMain({ .mainRect = mRect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
     layoutMain({ .mainRect = mRect, .component = &lfoAmToggle });
-    layoutMain({ .mainRect = mRect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
@@ -525,7 +525,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .component = &am[i] });
         layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &catN88Lfo[i] });
-        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
+        layoutRow({ .rowRect = innerRect, .label = &n88Ams[i].label, .component = &n88Ams[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
         layoutRow({ .rowRect = innerRect, .component = &fix[i] });
         layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });

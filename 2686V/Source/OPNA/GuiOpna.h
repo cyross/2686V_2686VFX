@@ -58,9 +58,9 @@ class GuiOpna : public GuiBase
     GuiSlider lfoSyncDelaySlider;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
-    GuiSlider lfoPmsSlider;
     GuiSlider lfoPmdSlider;
-    GuiSlider lfoAmsSlider;
+    GuiSlider lfoPmsSlider;
+    GuiSlider lfoAmdSlider;
 
     GuiCategoryLabel mvolCat;
 
@@ -106,7 +106,7 @@ class GuiOpna : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
     std::array<GuiComboBox, Global::Fm::Op4> ams;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catN88Lfo;
-    std::array<GuiSlider, Global::Fm::Op4> amd;
+    std::array<GuiSlider, Global::Fm::Op4> n88Ams;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -144,9 +144,9 @@ public:
         lfoSyncDelaySlider(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
-        lfoPmsSlider(context),
         lfoPmdSlider(context),
-        lfoAmsSlider(context),
+        lfoPmsSlider(context),
+        lfoAmdSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -179,7 +179,7 @@ public:
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catN88Lfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        n88Ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

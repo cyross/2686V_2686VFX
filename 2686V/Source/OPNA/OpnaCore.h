@@ -40,6 +40,7 @@ private:
     int m_pms = 0;
     int m_ams = 0;
     int m_pmd = 0;
+    int m_amd = 0;
     bool m_pm = false;
     bool m_am = false;
 

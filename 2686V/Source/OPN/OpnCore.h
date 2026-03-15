@@ -57,6 +57,7 @@ private:
     int m_pms = 0;
     int m_ams = 0;
     int m_pmd = 0;
+    int m_amd = 0;
 
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;

@@ -83,8 +83,8 @@ void OpnOperator::getSample(float& output, float modulator, float amLfoVal, floa
 
     if (globalAm) {
         // グローバルAMS (-127〜127) と OP毎のAMD (0〜15) を合成
-        float amSign = (globalAms < 0) ? -1.0f : 1.0f;
-        float amDepthNorm = (std::abs((float)globalAms) / 127.0f) * ((float)m_params.amd / 15.0f);
+        float amSign = (globalAmd < 0) ? -1.0f : 1.0f;
+        float amDepthNorm = (std::abs((float)globalAmd) / 127.0f) * ((float)m_params.ams / 15.0f);
 
         // amLfoVal は 0.0 ~ 1.0。AMSがマイナスの場合は波形を反転(1.0 - x)させる
         float unipolarLfo = (amSign > 0.0f) ? amLfoVal : (1.0f - amLfoVal);
@@ -106,7 +106,7 @@ void OpnOperator::getSample(float& output, float modulator, float amLfoVal, floa
     if (globalPm) {
         // グローバルPMS (-127〜127) と グローバルPMD (0〜15) を合成
         // PMSがマイナスならそのまま掛け算結果もマイナスになり、位相が反転する
-        float pmDepthNorm = ((float)globalPms / 127.0f) * (globalPmd / 15.0f);
+        float pmDepthNorm = ((float)globalPmd / 127.0f) * (globalPms / 15.0f);
 
         // 最大で ±1オクターブ (1200セント) の揺れ幅と定義する
         float pitchCentDeviation = pmLfoVal * pmDepthNorm * 1200.0f;

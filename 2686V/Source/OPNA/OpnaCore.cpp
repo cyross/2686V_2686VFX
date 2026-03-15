@@ -22,7 +22,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_am = params.amEnable;
     m_pm = params.pmEnable;
     m_pms = params.lfoPms;
-    m_ams = params.lfoAms;
+    m_amd = params.lfoAmd;
     m_pmd = params.lfoPmd;
     m_lfoWave = params.lfoWave;
     m_amSmoothRate = params.lfoAmSmRt;
@@ -165,28 +165,28 @@ float OpnaCore::getSample() {
         // =================================================================
         // OP1 (入力なし。フィードバックは内部で解決される)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
+        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
         // OP2 (入力: OP1)
         // =================================================================
         float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
+        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[1]) out2 = 0.0f;
 
         // =================================================================
         // OP3 (入力: OP1, OP2)
         // =================================================================
         float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
-        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
+        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[2]) out3 = 0.0f;
 
         // =================================================================
         // OP4 (入力: OP1, OP2, OP3)
         // =================================================================
         float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
-        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, 0.0f, m_modWheel);
+        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[3]) out4 = 0.0f;
 
         // =================================================================
