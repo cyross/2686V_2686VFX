@@ -445,9 +445,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &bypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .component = &bypassToggle, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &bypassCat });
+    layoutMain({ .mainRect = mRect, .component = &bypassToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeightBig);
@@ -467,14 +467,14 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     flRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = flRect, .label = &flBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = flRect, .component = &flBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = flRect, .label = &flMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = flRect, .label = &flMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = flRect, .label = &flBypassCat });
+    layoutRow({ .rowRect = flRect, .component = &flBypassBtn });
+    layoutRowCategory({ .rowRect = flRect, .label = &flMainCat });
+    layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector });
+    layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider });
+    layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider });
+    layoutRowCategory({ .rowRect = flRect, .label = &flMixCat });
+    layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider });
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0});
 
     // Retro LFO
@@ -486,17 +486,17 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rlfoRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rlfoRect, .component = &rlfoBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoWaveSelector.label, .component = &rlfoWaveSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoFreqSlider.label, .component = &rlfoFreqSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmsSlider.label, .component = &rlfoPmsSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmdSlider.label, .component = &rlfoPmdSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmsSlider.label, .component = &rlfoAmsSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmdSlider.label, .component = &rlfoAmdSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoMixSlider.label, .component = &rlfoMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoBypassCat });
+    layoutRow({ .rowRect = rlfoRect, .component = &rlfoBypassBtn });
+    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoMainCat });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoWaveSelector.label, .component = &rlfoWaveSelector });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoFreqSlider.label, .component = &rlfoFreqSlider });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmsSlider.label, .component = &rlfoPmsSlider });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmdSlider.label, .component = &rlfoPmdSlider });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmsSlider.label, .component = &rlfoAmsSlider });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmdSlider.label, .component = &rlfoAmdSlider });
+    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoMixCat });
+    layoutRow({ .rowRect = rlfoRect, .label = &rlfoMixSlider.label, .component = &rlfoMixSlider });
     layoutRowThreeComps({ .rect = rlfoRect, .comp1 = &rlfoDryBtn, .comp2 = &rlfoHalfBtn, .comp3 = &rlfoWetBtn, .paddingBottom = 0 });
 
     // Tremolo
@@ -508,13 +508,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     trmRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = trmRect, .label = &tBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = trmRect, .component = &tBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = trmRect, .label = &tMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = trmRect, .label = &tMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = trmRect, .label = &tBypassCat });
+    layoutRow({ .rowRect = trmRect, .component = &tBypassBtn });
+    layoutRowCategory({ .rowRect = trmRect, .label = &tMainCat });
+    layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider });
+    layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider });
+    layoutRowCategory({ .rowRect = trmRect, .label = &tMixCat });
+    layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider });
     layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn, .paddingBottom = 0 });
 
     // Vibrato
@@ -526,13 +526,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     vibRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = vibRect, .label = &vBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vibRect, .component = &vBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = vibRect, .label = &vMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = vibRect, .label = &vMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = vibRect, .label = &vBypassCat });
+    layoutRow({ .rowRect = vibRect, .component = &vBypassBtn });
+    layoutRowCategory({ .rowRect = vibRect, .label = &vMainCat });
+    layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider });
+    layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider });
+    layoutRowCategory({ .rowRect = vibRect, .label = &vMixCat });
+    layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider });
     layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn, .paddingBottom = 0 });
 
 
@@ -547,13 +547,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     mbcRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = mbcRect, .label = &mbcBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = mbcRect, .label = &mbcBypassCat });
+    layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
+    layoutRowCategory({ .rowRect = mbcRect, .label = &mbcMainCat });
+    layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider });
+    layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider });
+    layoutRowCategory({ .rowRect = mbcRect, .label = &mbcMixCat });
+    layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider });
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn, .paddingBottom = 0 });
 
     // Delay
@@ -565,13 +565,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     dlyRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = dlyRect, .label = &dBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = dlyRect, .label = &dMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = dlyRect, .label = &dMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = dlyRect, .label = &dBypassCat });
+    layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn });
+    layoutRowCategory({ .rowRect = dlyRect, .label = &dMainCat });
+    layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider });
+    layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider });
+    layoutRowCategory({ .rowRect = dlyRect, .label = &dMixCat });
+    layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider });
     layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn, .paddingBottom = 0 });
 
     // Reverb
@@ -583,13 +583,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rvbRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = rvbRect, .label = &rBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rvbRect, .label = &rMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rvbRect, .label = &rMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = rvbRect, .label = &rBypassCat });
+    layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn });
+    layoutRowCategory({ .rowRect = rvbRect, .label = &rMainCat });
+    layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider });
+    layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider });
+    layoutRowCategory({ .rowRect = rvbRect, .label = &rMixCat });
+    layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider });
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0 });
 
     // Retro Bit Crusher
@@ -601,13 +601,13 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     rbcRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = rbcRect, .label = &rbcBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rbcRect, .component = &rbcBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcMainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcBitsSelector.label, .component = &rbcBitsSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcRateSelector.label, .component = &rbcRateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcMixSlider.label, .component = &rbcMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcBypassCat });
+    layoutRow({ .rowRect = rbcRect, .component = &rbcBypassBtn });
+    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcMainCat });
+    layoutRow({ .rowRect = rbcRect, .label = &rbcBitsSelector.label, .component = &rbcBitsSelector });
+    layoutRow({ .rowRect = rbcRect, .label = &rbcRateSelector.label, .component = &rbcRateSelector });
+    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcMixCat });
+    layoutRow({ .rowRect = rbcRect, .label = &rbcMixSlider.label, .component = &rbcMixSlider });
     layoutRowThreeComps({ .rect = rbcRect, .comp1 = &rbcDryBtn, .comp2 = &rbcHalfBtn, .comp3 = &rbcWetBtn, .paddingBottom = 0 });
 
 
@@ -622,9 +622,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     scRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = scRect, .label = &scBypassCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = scRect, .component = &scBypassBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = scRect, .label = &scMixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = scRect, .label = &scMixSlider.label, .component = &scMixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = scRect, .label = &scBypassCat });
+    layoutRow({ .rowRect = scRect, .component = &scBypassBtn });
+    layoutRowCategory({ .rowRect = scRect, .label = &scMixCat });
+    layoutRow({ .rowRect = scRect, .label = &scMixSlider.label, .component = &scMixSlider });
     layoutRowThreeComps({ .rect = scRect, .comp1 = &scDryBtn, .comp2 = &scHalfBtn, .comp3 = &scWetBtn, .paddingBottom = 0 });
 }

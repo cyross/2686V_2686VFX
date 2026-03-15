@@ -275,22 +275,22 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button });
     layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
 
     // --- Voice Group ---
@@ -301,16 +301,16 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     vRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = vRect, .label = &shapeCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = vRect, .label = &toneCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = vRect, .label = &noiseCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = vRect, .component = &noiseOnNoteButton, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutRow({ .rowRect = vRect, .label = &mixCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = vRect, .label = &shapeCat });
+    layoutRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, });
+    layoutRowCategory({ .rowRect = vRect, .label = &toneCat });
+    layoutRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, });
+    layoutRowCategory({ .rowRect = vRect, .label = &noiseCat });
+    layoutRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
+    layoutRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutRow({ .rowRect = vRect, .component = &noiseOnNoteButton, });
+    layoutRowCategory({ .rowRect = vRect, .label = &mixCat });
+    layoutRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
     layoutRowThreeComps({ .rect = vRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
@@ -347,8 +347,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutRow({ .rowRect = dRect, .label = &pulseDutyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowCategory({ .rowRect = dRect, .label = &pulseDutyCat });
+        layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
@@ -356,17 +356,17 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             dutyPresetSelector.label.setVisible(true);
             dutyVarSlider.setVisible(false);
             dutyVarSlider.label.setVisible(false);
-            layoutRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, .paddingBottom = GuiValue::Category::paddingTop });
+            layoutRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, });
         }
         else {
             dutyPresetSelector.setVisible(false);
             dutyPresetSelector.label.setVisible(false);
             dutyVarSlider.setVisible(true);
             dutyVarSlider.label.setVisible(true);
-            layoutRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, .paddingBottom = GuiValue::Category::paddingTop });
+            layoutRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, });
         }
 
-        layoutRow({ .rowRect = dRect, .label = &pulseInvCat, .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRowCategory({ .rowRect = dRect, .label = &pulseInvCat });
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
     else // Triangle
@@ -400,23 +400,23 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        layoutRow({ .rowRect = tRect, .label = &triCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowCategory({ .rowRect = tRect, .label = &triCat });
+        layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
         triFreqSlider.setVisible(!isKeyTrack);
         triFreqSlider.label.setVisible(!isKeyTrack);
 
         if (!isKeyTrack) {
-            layoutRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider, .paddingBottom = GuiValue::Category::paddingTop });
+            layoutRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider, });
         }
         else
         {
             tRect.removeFromTop(GuiValue::Category::paddingTop);
         }
 
-        layoutRow({ .rowRect = tRect, .label = &triPeakCat, .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowCategory({ .rowRect = tRect, .label = &triPeakCat });
+        layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
     }
 
@@ -427,9 +427,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutRow({ .rowRect = eRect, .label = &hwEnvCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutRow({ .rowRect = eRect, .component = &envEnableButton, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-    layoutRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowCategory({ .rowRect = eRect, .label = &hwEnvCat });
+    layoutRow({ .rowRect = eRect, .component = &envEnableButton });
+    layoutRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
     layoutRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
 }
 

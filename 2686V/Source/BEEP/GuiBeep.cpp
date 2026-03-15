@@ -87,24 +87,24 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
+    layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
-    layoutMain({ .mainRect = mRect, .label = &catFix, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &catFix });
     layoutMain({ .mainRect = mRect, .component = &fixToggle });
     layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider});
-    layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
+    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
     layoutMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });
     layoutMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
     layoutMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
-    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
 }
 

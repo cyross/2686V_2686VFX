@@ -172,27 +172,27 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutMain({ .mainRect = mRect, .component = &loopButton });
     layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
-    layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &panCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+    layoutMainCategory({ .mainRect = mRect, .label = &panCat });
     layoutMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainThreeComps({ .rect = mRect, .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR, });
+    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button, .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button });
     layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto headerArea = pageArea.removeFromTop(GuiValue::Adpcm::File::height);
