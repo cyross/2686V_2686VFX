@@ -100,11 +100,6 @@ class GuiOpm : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> freq;
     std::array<GuiTextButton, Global::Fm::Op4> freqToZero;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
-    std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> pms;
-    std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> ams;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -166,11 +161,6 @@ public:
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         freqToZero{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

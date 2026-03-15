@@ -72,18 +72,13 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ========================================================
     // 1. Amplitude Modulation (Tremolo / Wah) の計算
     // ========================================================
-    float amsDepths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
+    float amsDepths[] = { 0.0f, 0.93622f, 0.99593f, 0.99998f };
     float totalAmDepth = 0.0f;
 
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
     if (globalAm) {
         float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
         totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
-    }
-
-    // ② ローカルAM (このOP独自の揺れ深さ)
-    if (m_params.amEnable) {
-        totalAmDepth += amsDepths[std::clamp(m_params.ams, 0, 3)];
     }
 
     // 上限を1.0(100%)でクリップ
@@ -97,18 +92,15 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ========================================================
     // 2. Pitch Modulation (Vibrato) の計算
     // ========================================================
-    float pmsDepths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
+    // (2^(Cent/1200) - 1.0)
+    // 0: 0cent / 1: ±5cent / 2: ±10cent / 3: ±20cent / 4: ±50cent / 5: ±100cent / 6: ±400cent / 7: ±700cent
+    float pmsDepths[] = { 0.0f, 0.002892f, 0.005793f, 0.011619, 0.029302, 0.059463f, 0.259921f, 0.498307f };
     float totalPmDepth = 0.0f;
 
     // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
     if (globalPm) {
         float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
         totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
-    }
-
-    // ② ローカルPM (このOP独自の揺れ深さ)
-    if (m_params.vibEnable) {
-        totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
     }
 
     // PMがONの時だけ、その深さをLFO波形に掛ける
