@@ -63,7 +63,6 @@ class GuiOpl : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op2> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op2> catLfo;
     std::array<GuiSlider, Global::Fm::Op2> mul;
-    std::array<GuiComboBox, Global::Fm::Op2> dt;
     std::array<GuiSlider, Global::Fm::Op2> ar;
     std::array<GuiTextButton, Global::Fm::Op2> arTo000;
     std::array<GuiTextButton, Global::Fm::Op2> arTo003;
@@ -131,7 +130,6 @@ public:
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiSlider(context), GuiSlider(context) },
-        dt{ GuiComboBox(context), GuiComboBox(context) },
         ar{ GuiSlider(context), GuiSlider(context) },
         arTo000{ GuiTextButton(context),GuiTextButton(context) },
         arTo003{ GuiTextButton(context),GuiTextButton(context) },

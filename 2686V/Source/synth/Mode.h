@@ -17,6 +17,7 @@ enum class OscMode
     RHYTHM = 8,
     ADPCM = 9,
     BEEP = 10,
+    Count = 11, // カウント用
 };
 
 static juce::String getModeName(OscMode mode) {

@@ -44,6 +44,9 @@ namespace GuiText
 		static inline const juce::String algFb = "--- ALGORITHM/FEEDBACK ---";
 		static inline const juce::String m = "--- PARAMETERS ---";
 		static inline const juce::String lfo = "--- LFO ---";
+		static inline const juce::String hwLfo = "--- HW LFO ---";
+		static inline const juce::String swLfo = "--- SW LFO ---";
+		static inline const juce::String n88Lfo = "--- N88 LFO ---";
 		static inline const juce::String adsr = "--- ADSR ---";
 		static inline const juce::String fix = "--- FIX ---";
 		static inline const juce::String mvol = "--- MASTER VOLUME ---";
@@ -111,15 +114,19 @@ namespace GuiText
 		static inline const juce::String fb0 = "FB1";
 		static inline const juce::String fb01 = "FB1/2";
 		static inline const juce::String fb2 = "FB3";
-		static inline const juce::String lfoFreq = "L.FREQ";
-		static inline const juce::String lfoShape = "L.SHAPE";
-		static inline const juce::String amEn = "L.AM-EN";
-		static inline const juce::String pmEn = "L.PM-EN";
-		static inline const juce::String ams = "L.AMS";
-		static inline const juce::String pms = "L.PMS";
-		static inline const juce::String amd = "L.AMD";
-		static inline const juce::String pmd = "L.PMD";
-		static inline const juce::String amSmoothRatio = "L.ASMRT";
+		static inline const juce::String lfoFreq = "FREQ";
+		static inline const juce::String lfoSpeed = "SPEED";
+		static inline const juce::String lfoShape = "SHAPE";
+		static inline const juce::String lfoPgShape = "P.SHAPE";
+		static inline const juce::String lfoEgShape = "A.SHAPE";
+		static inline const juce::String lfoSyncDelay = "S.Dly";
+		static inline const juce::String amEn = "AM-EN";
+		static inline const juce::String pmEn = "PM-EN";
+		static inline const juce::String ams = "AMS";
+		static inline const juce::String pms = "PMS";
+		static inline const juce::String amd = "AMD";
+		static inline const juce::String pmd = "PMD";
+		static inline const juce::String amSmoothRatio = "ASMRT";
 		static inline const juce::String initLfoToOpl = "Init Lfo: OPL";
 		static inline const juce::String initLfoToOpll = "Init Lfo: OPLL";
 
@@ -148,10 +155,14 @@ namespace GuiText
 			static inline const juce::String FFreq = "FFREQ";
 			static inline const juce::String SEnv = "SENV";
 			static inline const juce::String SFreq = "SFREQ";
+			static inline const juce::String Freqs = "LFREQ";
+			static inline const juce::String SyncDelay = "S.Dly";
 			static inline const juce::String Am = "AM";
 			static inline const juce::String Pm = "PM";
 			static inline const juce::String AmEn = "AM-EN";
 			static inline const juce::String PmEn = "PM-EN";
+			static inline const juce::String PgShape = "P.SHAPE";
+			static inline const juce::String EgShape = "A.SHAPE";
 			static inline const juce::String Vib = "VIB";
 			static inline const juce::String Ams = "AMS";
 			static inline const juce::String Pms = "PMS";
@@ -240,6 +251,7 @@ namespace GuiText
 			static inline const juce::String to0 = "-> 0.0";
 			static inline const juce::String to1 = "-> 1.0";
 			static inline const juce::String toM1 = "-> -1.0";
+			static inline const juce::String smooth = "Smooth Waveform";
 		}
 	}
 

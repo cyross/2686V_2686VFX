@@ -199,7 +199,7 @@ void RhythmCore::setSampleData(int padIndex, const std::vector<float>& data, dou
     }
 }
 
-void RhythmCore::noteOn(int midiNote, float velocity)
+void RhythmCore::noteOn(float freq, float velocity, int midiNote)
 {
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
@@ -278,4 +278,18 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
             outR += sample * pad.m_pan;
         }
     }
+}
+
+void RhythmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float padOutL = 0.0f;
+    float padOutR = 0.0f;
+
+    // RhythmCore 内部で Pan 適用済みのステレオミックスを受け取る
+    getSampleStereo(padOutL, padOutR);
+
+    outL[startSample + sampleIdx] += padOutL;
+    outR[startSample + sampleIdx] += padOutR;
+
+    isActive = isPlaying();
 }

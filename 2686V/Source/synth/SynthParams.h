@@ -33,9 +33,19 @@ struct FmOpParams
     bool vibEnable = false; // VIB (LFO Pitch)
     bool egType = false;    // EG-TYP (Sustain Mode)
 
+    int pgLfoWave = 0;
+    int egLfoWave = 0;
+
+    // LFO Sync Delay
+    float lfoSyncDelay = 0.0f;
+    int lfoFreqIndex = 0;
+    float lfoFreq = 0.0f;
+
     // オペレーターごとのLFO個別感度（上乗せ分）
-    int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
-    int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
+    float pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
+    float pmd = 0;
+    float ams = 0; // 個別 Amp Mod Sensitivity (0-3)
+    float amd = 0;
 
     // --- OPL/OPL3 LFO Settings ---
     float oplAms = 3.7f;  // AM Speed (Hz)
@@ -129,25 +139,28 @@ struct SynthParams
 
     // LFO Sensitivity
 
-    // Pitch Modulation Sensitivity (0-7)
-    int lfoPms = 0;
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
 
-    // Amplitude Modulation Sensitivity (0-3)
-    int lfoAms = 0;
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
 
-    // LFO Depth (0-127)
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
 
-    // Pitch Modulation Depth
-    int lfoPmd = 0;
-
-    // Amplitude Modulation Depth
-    int lfoAmd = 0;
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
 
     // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     int lfoWave = 2;
+    int pgLfoWave = 0;
+    int egLfoWave = 0;
 
     // LFO AM Smooth Ratio (0.005 - 0.5)
     float lfoAmSmRt = 0.005f;
+
+    // LFO Sync Delay
+    float lfoSyncDelay = 0.0f;
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index
@@ -252,6 +265,10 @@ struct SynthParams
     std::array<float, 32> wtCustomWave32 = { 0.0f };
     // Custom Waveform Data (64 steps)
     std::array<float, 64> wtCustomWave64 = { 0.0f };
+    // Custom Waveform Data (128 steps)
+    std::array<float, 128> wtCustomWave128 = { 0.0f };
+    // Custom Waveform Data (256 steps)
+    std::array<float, 256> wtCustomWave256 = { 0.0f };
     bool wtModEnable = false;
     float wtModDepth = 0.0f;
     float wtModSpeed = 1.0f; // Ratio or Hz

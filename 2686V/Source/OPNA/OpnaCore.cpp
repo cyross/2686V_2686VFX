@@ -11,6 +11,10 @@ void OpnaCore::prepare(double sampleRate) {
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0; // Ready to render
 
+    m_lfoTimerAcc = 1.0;
+    m_steppedPmLfoVal = 0.0f;
+    m_steppedAmLfoVal = 0.0f;
+
     updateNoiseDelta(target);
 
     m_amSmooth = 0.0f;
@@ -22,9 +26,11 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_am = params.amEnable;
     m_pm = params.pmEnable;
     m_pms = params.lfoPms;
-    m_ams = params.lfoAms;
+    m_amd = params.lfoAmd;
+    m_pmd = params.lfoPmd;
     m_lfoWave = params.lfoWave;
     m_amSmoothRate = params.lfoAmSmRt;
+    m_lfoSyncDelay = params.lfoSyncDelay;
 
     if (m_rateIndex != params.fmRateIndex) {
         m_rateIndex = params.fmRateIndex;
@@ -51,17 +57,28 @@ void OpnaCore::setParameters(const SynthParams& params) {
         // OPNA: SSG-EG=True, WaveSelect=False
         // params.fmSsgEgFreq を渡す (第6引数)
         // 第5引数(useOpmEg)は false
-        m_operators[i].setParameters(params.fmOp[i], fb, true, false, false, params.fmOp[i].fmSsgEgFreq);
+        m_operators[i].setParameters(params.fmOp[i], fb);
         m_opMask[i] = params.fmOp[i].mask;
     }
 }
 
-void OpnaCore::noteOn(float freq, float velocity) {
+void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
     float gain = std::max(0.01f, velocity);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
     m_rateAccumulator = 1.0; // Reset timing
+
+    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
+    if (m_lfoSyncDelay > 0.0f) {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+    }
+    else {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
+
+    m_lfoCycleCount = 0;
 }
 
 void OpnaCore::noteOff() { for (auto& op : m_operators) op.noteOff(); }
@@ -108,48 +125,60 @@ float OpnaCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        double lfoInc = m_lfoFreq / targetRate;
-        m_lfoPhase += lfoInc;
-
-        // ノイズの更新処理
-        if (m_lfoPhase >= 1.0) {
-            m_lfoPhase -= 1.0;
-            unsigned int bit0 = m_lfsr & 1;
-            unsigned int bit3 = (m_lfsr >> 3) & 1;
-            unsigned int nextBit = bit0 ^ bit3;
-            m_lfsr >>= 1;
-            if (nextBit) m_lfsr |= (1 << 16);
-            m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
-        }
-
-        float amLfoVal = 0.0f;
         float pmLfoVal = 0.0f;
+        float amLfoVal = 0.0f;
 
-        switch (m_lfoWave) {
-        case 0: // Sine
-            pmLfoVal = (float)std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
-            amLfoVal = (pmLfoVal + 1.0f) * 0.5f;
-            break;
-        case 1: // Saw Down
-            pmLfoVal = (float)(1.0 - m_lfoPhase * 2.0);
-            amLfoVal = (float)(1.0 - m_lfoPhase);
-            break;
-        case 2: // Square
-            pmLfoVal = (m_lfoPhase < 0.5) ? 1.0f : -1.0f;
-            amLfoVal = (m_lfoPhase < 0.5) ? 1.0f : 0.0f;
-            break;
-        case 3: // Triangle
-            if (m_lfoPhase < 0.25)       pmLfoVal = (float)(m_lfoPhase * 4.0);
-            else if (m_lfoPhase < 0.75)  pmLfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-            else                         pmLfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
+        if (m_lfoDelayCounter > 0.0f) {
+            m_lfoDelayCounter -= 1.0f / (float)targetRate;
+            if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
 
-            if (m_lfoPhase < 0.5)        amLfoVal = (float)(m_lfoPhase * 2.0);
-            else                         amLfoVal = (float)(1.0 - (m_lfoPhase - 0.5) * 2.0);
-            break;
-        case 4: // Noise
-            pmLfoVal = m_currentNoiseSample;
-            amLfoVal = (m_currentNoiseSample + 1.0f) * 0.5f;
-            break;
+            // ディレイ中は pm=0, am=0 となるため何もしない
+        }
+        else {
+            // =================================================================
+            // 60Hz ソフトウェアタイマーのシミュレート
+            // =================================================================
+            double timerInc = 60.0 / targetRate; // 1サンプルあたりに進む60Hzタイマーの割合
+            m_lfoTimerAcc += timerInc;
+
+            // 1/60秒に1回だけ、LFOの計算をガクッと進める！
+            if (m_lfoTimerAcc >= 1.0) {
+                m_lfoTimerAcc -= 1.0;
+
+                // m_lfoFreq(Hz) を 60(Hz) で割ることで、1回の割り込みあたりの位相増分になる
+                m_lfoPhase += (m_lfoFreq / 60.0);
+
+                // ノイズの更新処理とサイクルカウント
+                if (m_lfoPhase >= 1.0) {
+                    m_lfoPhase -= 1.0;
+                    m_lfoCycleCount++;
+
+                    unsigned int bit0 = m_lfsr & 1;
+                    unsigned int bit3 = (m_lfsr >> 3) & 1;
+                    unsigned int nextBit = bit0 ^ bit3;
+                    m_lfsr >>= 1;
+                    if (nextBit) m_lfsr |= (1 << 16);
+                    m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+                }
+
+                // OPNの場合は 0〜3 (lfoN88Strategies)
+                // OPNAの場合は 0〜5 (lfoN8886Strategies) などの配列サイズに合わせる
+                int waveIdx = std::clamp(m_lfoWave, 0, 5);
+                FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+
+                if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
+                    lfoVal.pm = 0.0f;
+                    lfoVal.am = 0.0f;
+                }
+
+                // 計算した結果を保持する
+                m_steppedPmLfoVal = lfoVal.pm;
+                m_steppedAmLfoVal = lfoVal.am;
+            }
+
+            // 保持されている値(階段状の波形)を出力に回す
+            pmLfoVal = m_steppedPmLfoVal;
+            amLfoVal = m_steppedAmLfoVal;
         }
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
@@ -160,144 +189,41 @@ float OpnaCore::getSample() {
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        // 安全のため 0〜7 の範囲に丸める
+        int algIndex = std::clamp(m_algorithm, 0, 7);
+        const auto& r = baseRoutings[algIndex];
+
+        // =================================================================
+        // OP1 (入力なし。フィードバックは内部で解決される)
+        // =================================================================
+        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
-        switch (m_algorithm) {
-        case 0:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        // =================================================================
+        // OP2 (入力: OP1)
+        // =================================================================
+        float in2 = out1 * r.in2_1;
+        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[1]) out2 = 0.0f;
 
-            if (m_opMask[1]) out2 = 0.0f;
+        // =================================================================
+        // OP3 (入力: OP1, OP2)
+        // =================================================================
+        float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
+        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[2]) out3 = 0.0f;
 
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
+        // =================================================================
+        // OP4 (入力: OP1, OP2, OP3)
+        // =================================================================
+        float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
+        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        if (m_opMask[3]) out4 = 0.0f;
 
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 1:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1 + out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 2:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3 + out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 3:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out2 + out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out4;
-
-            break;
-        case 4:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out4;
-
-            break;
-        case 5:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        case 6:
-            m_operators[1].getSample(out2, out1, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out2 + out3 + out4;
-
-            break;
-        default:
-            m_operators[1].getSample(out2, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[1]) out2 = 0.0f;
-
-            m_operators[2].getSample(out3, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[2]) out3 = 0.0f;
-
-            m_operators[3].getSample(out4, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, -1.0f, -1.0f, m_modWheel);
-
-            if (m_opMask[3]) out4 = 0.0f;
-
-            finalOut = out1 + out2 + out3 + out4;
-
-            break;
-        }
-
-        // =======================================================
-        // 複数のキャリアが加算されても1.0を超えないように音量を調整
-        // =======================================================
-        finalOut *= 0.25f;
+        // =================================================================
+        // Final Output
+        // =================================================================
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 0.25f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
@@ -317,4 +243,14 @@ float OpnaCore::getSample() {
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+}
+
+void OpnaCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

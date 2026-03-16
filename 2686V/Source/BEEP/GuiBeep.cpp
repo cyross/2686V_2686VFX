@@ -15,9 +15,13 @@ void GuiBeep::setup() {
 
     mainGroup.setup(*this, GuiText::Group::mainGroup); // GuiText 等に置換
 
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
     presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
     volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
@@ -30,6 +34,7 @@ void GuiBeep::setup() {
     fixToggle.setExplicitFocusOrder(++tabOrder);
 
     freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
+    freqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freqSlider.setWantsKeyboardFocus(true);
     freqSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -63,19 +68,18 @@ void GuiBeep::setup() {
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiBeep::layout(juce::Rectangle<int> content) {
@@ -87,25 +91,25 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
+    layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
-    layoutMain({ .mainRect = mRect, .label = &catFix, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &catFix });
     layoutMain({ .mainRect = mRect, .component = &fixToggle });
     layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider});
-    layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
+    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
     layoutMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });
     layoutMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
     layoutMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
-    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)

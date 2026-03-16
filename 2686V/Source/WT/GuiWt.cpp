@@ -44,8 +44,10 @@ static std::vector<SelectItem> wtWsItems = {
 };
 
 static std::vector<SelectItem> wtTsItems = {
-    {.name = "0: 32 Samples",  .value = 1 },
-    {.name = "1: 64 Samples",  .value = 2 },
+    {.name = "0:  32 Samples",  .value = 1 },
+    {.name = "1:  64 Samples",  .value = 2 },
+    {.name = "2: 128 Samples",  .value = 3 },
+    {.name = "3: 256 Samples",  .value = 4 },
 };
 
 void GuiWt::setup()
@@ -140,18 +142,19 @@ void GuiWt::setup()
     rrTo003Button.setExplicitFocusOrder(++tabOrder);
     rrTo003Button.onClick = [this] { releaseSlider.setValue(0.03, juce::sendNotification); };
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
-    // Master Volume
-	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    // Master Volume
+	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, GuiText::Group::wtCustom);
@@ -159,6 +162,8 @@ void GuiWt::setup()
     // Custom Wave Sliders
 	customSliders32.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom32 });
     customSliders64.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom64 });
+    customSliders128.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom128 });
+    customSliders256.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom256 });
 
 	customWaveResetTo0Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
@@ -166,6 +171,8 @@ void GuiWt::setup()
     customWaveResetTo0Btn.onClick = [this] {
         customSliders32.setAllValues(0.0f);
         customSliders64.setAllValues(0.0f);
+        customSliders128.setAllValues(0.0f);
+        customSliders256.setAllValues(0.0f);
         resized();
     };
 
@@ -175,6 +182,8 @@ void GuiWt::setup()
     customWaveResetTo1Btn.onClick = [this] {
         customSliders32.setAllValues(1.0f);
         customSliders64.setAllValues(1.0f);
+        customSliders128.setAllValues(1.0f);
+        customSliders256.setAllValues(1.0f);
         resized();
         };
 
@@ -184,7 +193,21 @@ void GuiWt::setup()
     customWaveResetToM1Btn.onClick = [this] {
         customSliders32.setAllValues(-1.0f);
         customSliders64.setAllValues(-1.0f);
+        customSliders128.setAllValues(-1.0f);
+        customSliders256.setAllValues(-1.0f);
         resized();
+        };
+
+    customWaveSmoothBtn.setup({ .parent = *this, .title = GuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setWantsKeyboardFocus(true);
+    customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveSmoothBtn.onClick = [this] {
+        // 現在選択されている波形サイズに応じてスムージングを実行
+        int sizeId = sizeSelector.getSelectedId();
+        if (sizeId == 1) customSliders32.applySmoothing();
+        else if (sizeId == 2) customSliders64.applySmoothing();
+        else if (sizeId == 3) customSliders128.applySmoothing();
+        else if (sizeId == 4) customSliders256.applySmoothing();
         };
 }
 
@@ -198,30 +221,30 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mainCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, .paddingBottom = GuiValue::Category::paddingTop });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
-    layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &modCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, });
+    layoutMainCategory({ .mainRect = mRect, .label = &modCat });
     layoutMain({ .mainRect = mRect, .component = &modEnableButton });
     layoutMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
-    layoutMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &adsrCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
     layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button });
     layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button, .paddingBottom = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabled(isMod);
@@ -236,9 +259,12 @@ void GuiWt::layout(juce::Rectangle<int> content)
     sizeSelector.label.setEnabled(isCustomWave);
     customSliders32.setEnabled(isCustomWave);
     customSliders64.setEnabled(isCustomWave);
+    customSliders128.setEnabled(isCustomWave);
+    customSliders256.setEnabled(isCustomWave);
     customWaveResetTo0Btn.setEnabled(isCustomWave);
     customWaveResetTo1Btn.setEnabled(isCustomWave);
     customWaveResetToM1Btn.setEnabled(isCustomWave);
+    customWaveSmoothBtn.setEnabled(isCustomWave);
 
     // Custom Wave
     // Custom Mode Layout
@@ -255,9 +281,27 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     customSliders32.setBounds(containerArea);
     customSliders64.setBounds(containerArea);
+    customSliders128.setBounds(containerArea);
+    customSliders256.setBounds(containerArea);
 
     // Check if Custom Mode is selected (Index 8 -> ID 9 based on addItem?)
-    int waveSize = sizeSelector.getSelectedId() == 2 ? 64 : 32;
+    int waveSize = 0;
+
+    switch (sizeSelector.getSelectedId())
+    {
+    case 1:
+        waveSize = 32;
+        break;
+    case 2:
+        waveSize = 64;
+        break;
+    case 3:
+        waveSize = 128;
+        break;
+    case 4:
+        waveSize = 256;
+        break;
+    }
 
     customWaveGroup.setEnabled(isCustomWave);
 
@@ -265,25 +309,50 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customSliders32.setCustomEnabled(false);
     customSliders64.setVisible(false);
     customSliders64.setCustomEnabled(false);
+    customSliders128.setVisible(false);
+    customSliders128.setCustomEnabled(false);
+    customSliders256.setVisible(false);
+    customSliders256.setCustomEnabled(false);
 
     if (isCustomWave) {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
             customSliders32.setCustomEnabled(true);
         }
-        else {
+        else if (waveSize == 64) {
             customSliders64.setVisible(true);
             customSliders64.setCustomEnabled(true);
+        }
+        else if (waveSize == 128) {
+            customSliders128.setVisible(true);
+            customSliders128.setCustomEnabled(true);
+        }
+        else {
+            customSliders256.setVisible(true);
+            customSliders256.setCustomEnabled(true);
         }
     }
     else {
         if (waveSize == 32) {
             customSliders32.setVisible(true);
         }
-        else {
+        else if (waveSize == 64) {
             customSliders64.setVisible(true);
         }
+        else if (waveSize == 128) {
+            customSliders128.setVisible(true);
+        }
+        else {
+            customSliders256.setVisible(true);
+        }
     }
+
+    cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
+
+    auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
+    customWaveSmoothBtn.setBounds(smoothArea);
+
+    cwRect.removeFromTop(4); // リセットボタンとの隙間
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });

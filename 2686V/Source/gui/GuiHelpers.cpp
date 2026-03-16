@@ -33,6 +33,7 @@ juce::String getNoteName(int noteNumber)
 void layoutRowOneSide(
     juce::Rectangle<int>& rect,
     int height,
+    int paddingTop,
     int paddingBottom,
     juce::Component *comp,
     int width,
@@ -40,6 +41,8 @@ void layoutRowOneSide(
 ) 
 {
     auto area = rect.removeFromTop(height);
+
+    rect.removeFromTop(paddingTop);
 
     comp->setBounds(area.removeFromLeft(width));
 
@@ -51,6 +54,7 @@ void layoutRowOneSide(
 void layoutRowBoth(
     juce::Rectangle<int>& rect,
     int height,
+    int paddingTop,
     int paddingBottom,
     GuiLabel *label,
     int labelWidth,
@@ -61,6 +65,8 @@ void layoutRowBoth(
 )
 {
     auto area = rect.removeFromTop(height);
+
+    rect.removeFromTop(paddingTop);
 
     label->setBounds(area.removeFromLeft(labelWidth));
 
@@ -78,6 +84,7 @@ void layoutRow(
     GuiLabel *label,
     juce::Component *component,
     int rowHeight,
+    int paddingTop,
     int paddingBottom,
     int labelWidth,
     int labelPaddingRight,
@@ -96,7 +103,7 @@ void layoutRow(
         int newLabelWidth = labelWidth == -1 ? GuiValue::MainGroup::Comps::One::width : labelWidth;
         int newLabelPaddingRight = labelPaddingRight == -1 ? 0 : labelPaddingRight;
 
-        layoutRowOneSide(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
+        layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
     }
     // コンポーネントのみ配置
     else if (label == nullptr)
@@ -104,7 +111,7 @@ void layoutRow(
         int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Comps::One::width : compWidth;
         int newCompPaddingRight = compPaddingRight == -1 ? 0 : compPaddingRight;
 
-        layoutRowOneSide(rect, rowHeight, paddingBottom, component, newCompWidth, newCompPaddingRight);
+        layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, component, newCompWidth, newCompPaddingRight);
     }
     // 両方配置
     else
@@ -113,24 +120,36 @@ void layoutRow(
         int newLabelPaddingRight = labelPaddingRight == -1 ? GuiValue::MainGroup::Row::Padding::right : labelPaddingRight;
         int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Value::width : compWidth;
 
-        layoutRowBoth(rect, rowHeight, paddingBottom, label, newLabelWidth, newLabelPaddingRight, component, newCompWidth, compPaddingRight);
+        layoutRowBoth(rect, rowHeight, paddingTop, paddingBottom, label, newLabelWidth, newLabelPaddingRight, component, newCompWidth, compPaddingRight);
     }
 
 }
 
 void layoutMain(const MainConfig& c)
 {
-    layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+    layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
 void layoutRow(const RowConfig& c)
 {
-    layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+    layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+}
+
+void layoutMainCategory(const MainConfigCategory& c)
+{
+    layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+}
+
+void layoutRowCategory(const RowConfigCategory& c)
+{
+    layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
 void layoutRowOpzx3Pcm(const RowConfigOpzx3Pcm& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.loadPcmBtn->setBounds(area.removeFromLeft(c.loadPcmBtnWidth));
 
@@ -149,6 +168,8 @@ void layoutRowWtWaveValueUpdate(const RowConfigWtWaveValueUpdate& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    c.rect.removeFromTop(c.paddingTop);
+
     c.resetTo0Btn->setBounds(area.removeFromLeft(c.resetTo0BtnWidth));
 
     area.removeFromLeft(c.paddingRight);
@@ -165,6 +186,8 @@ void layoutRowWtWaveValueUpdate(const RowConfigWtWaveValueUpdate& c)
 void layoutRowRhythmPadPcmFile(const RowConfigRhythmPadPcmFile& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.loadBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
 
@@ -183,6 +206,8 @@ void layoutRowSettingsIo(const RowConfigSettingsIo& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    c.rect.removeFromTop(c.paddingTop);
+
     c.loadSettingsBtn->setBounds(area.removeFromLeft(c.loadSettingsBtnWidth));
 
     area.removeFromLeft(c.paddingRight);
@@ -200,6 +225,8 @@ void layoutRowOneComp(const RowConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    c.rect.removeFromTop(c.paddingTop);
+
     c.comp->setBounds(area.removeFromLeft(c.compWidth));
 
     area.removeFromLeft(c.compPaddingRight);
@@ -210,6 +237,8 @@ void layoutRowOneComp(const RowConfigOneComp& c)
 void layoutRowTwoComps(const RowConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
@@ -223,6 +252,8 @@ void layoutRowTwoComps(const RowConfigTwoComps& c)
 void layoutRowThreeComps(const RowConfigThreeComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
@@ -240,6 +271,8 @@ void layoutRowThreeComps(const RowConfigThreeComps& c)
 void layoutRowFourComps(const RowConfigFourComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
@@ -261,6 +294,8 @@ void layoutRowFourComps(const RowConfigFourComps& c)
 void layoutRowFiveComps(const RowConfigFiveComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     c.comp1->setBounds(area.removeFromLeft(c.compWidth));
 
@@ -288,6 +323,8 @@ void layoutMainOneComp(const MainConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    c.rect.removeFromTop(c.paddingTop);
+
     area.removeFromLeft(c.paddingLeft);
 
     c.comp->setBounds(area.removeFromLeft(c.compWidth));
@@ -299,6 +336,8 @@ void layoutMainOneComp(const MainConfigOneComp& c)
 void layoutMainTwoComps(const MainConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     area.removeFromLeft(c.paddingLeft);
 
@@ -315,6 +354,8 @@ void layoutMainTwoComps(const MainConfigTwoComps& c)
 void layoutMainThreeComps(const MainConfigThreeComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
 
     area.removeFromLeft(c.paddingLeft);
 

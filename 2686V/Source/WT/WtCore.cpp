@@ -1,10 +1,12 @@
 ﻿#include "WtCore.h"
 #include "../synth/SynthHelpers.h"
 
-WtCore::WtCore()
+WtCore::WtCore() : SynthCore()
 {
     // 初期波形: サイン波
-    m_sourceWave.resize(64);
+    m_sourceWave.resize(256);
+    m_tableSizes = { 32, 64, 128, 256 };
+    m_customWaves = { m_customWaveCache32.data(), m_customWaveCache64.data(), m_customWaveCache128.data(), m_customWaveCache256.data() };
     generateWaveform(0); // Default Sine
 }
 
@@ -25,11 +27,11 @@ void WtCore::setParameters(const SynthParams& params)
     m_rateIndex = params.wtRateIndex;
 
     // 波形・テーブルサイズ変更検知
-    int newTableSize = (params.wtTableSize == 0) ? 32 : 64;
-
+    int newTableSize = m_tableSizes[params.wtTableSize];
     bool waveformChanged = (m_waveform != params.wtWaveform);
     bool sizeChanged = (m_prevTableSize != newTableSize);
 
+    m_tableSizeIndex = params.wtTableSize;
     m_tableSize = newTableSize;
     m_prevTableSize = newTableSize;
     m_waveform = params.wtWaveform;
@@ -41,6 +43,8 @@ void WtCore::setParameters(const SynthParams& params)
         // パラメータ配列をメンバに保存
         m_customWaveCache32 = params.wtCustomWave32;
         m_customWaveCache64 = params.wtCustomWave64;
+        m_customWaveCache128 = params.wtCustomWave128;
+        m_customWaveCache256 = params.wtCustomWave256;
         // 強制的に再生成
         generateWaveform(8);
     }
@@ -58,14 +62,14 @@ void WtCore::setParameters(const SynthParams& params)
     updateIncrements();
 }
 
-void WtCore::noteOn(float frequency)
+void WtCore::noteOn(float freq, float velocity, int midiNote)
 {
     m_phase = 0.0f;
     m_modPhase = 0.0f;
 
     double targetRate = getTargetRate(m_rateIndex);
     if (targetRate > 0.0) {
-        m_phaseDelta = frequency / targetRate;
+        m_phaseDelta = freq / targetRate;
     }
     else {
         m_phaseDelta = 0.0;
@@ -183,8 +187,8 @@ float WtCore::getSample()
         int idx = (int)readIndex;
         if (idx >= m_tableSize) idx = m_tableSize - 1;
 
-        int sourceIdx = (m_tableSize == 32) ? (idx * 2) : idx;
-        if (sourceIdx >= 64) sourceIdx = 63;
+        int sourceIdx = idx * (256 / m_tableSize);
+        if (sourceIdx >= 256) sourceIdx = 255;
 
         float rawSample = m_sourceWave[sourceIdx];
 
@@ -209,7 +213,7 @@ float WtCore::getSample()
 // 波形データ生成
 void WtCore::generateWaveform(int type)
 {
-    const int N = 64;
+    const int N = 256;
     const double PI = juce::MathConstants<double>::pi;
 
     for (int i = 0; i < N; ++i)
@@ -217,48 +221,42 @@ void WtCore::generateWaveform(int type)
         double phase = (double)i / (double)N; // 0.0 to 1.0
         float sample = 0.0f;
 
-        switch (type)
+        if (type == 8) // custom
         {
-        case 0: // Sine
-            sample = (float)std::sin(2.0 * PI * phase);
-            break;
-        case 1: // Triangle
-            sample = (float)(phase < 0.5 ? (-1.0 + 4.0 * phase) : (3.0 - 4.0 * phase));
-            break;
-        case 2: // Saw Up
-            sample = (float)(-1.0 + 2.0 * phase);
-            break;
-        case 3: // Saw Down
-            sample = (float)(1.0 - 2.0 * phase);
-            break;
-        case 4: // Square (50%)
-            sample = (phase < 0.5) ? 1.0f : -1.0f;
-            break;
-        case 5: // Pulse 25%
-            sample = (phase < 0.25) ? 1.0f : -1.0f;
-            break;
-        case 6: // Pulse 12.5%
-            sample = (phase < 0.125) ? 1.0f : -1.0f;
-            break;
-        case 7: // Noise (Pseudo-random but fixed cycle for "Digital" feel)
-            sample = ((float)(i * 12345 % 100) / 50.0f) - 1.0f;
-            break;
-        case 8: // Custom
+            sample = m_customWaves[m_tableSizeIndex][i / (256 / m_tableSize)];
+        }
+        else
         {
-            if (m_tableSize == 64)
+            switch (type)
             {
-                // 64サンプルをそのまま使う
-                sample = m_customWaveCache64[i];
-            }
-            else
-            {
-                // 64サンプルを32ステップで埋める (index / 2)
-                int step = i / 2;
-                sample = m_customWaveCache32[step];
+            case 0: // Sine
+                sample = (float)std::sin(2.0 * PI * phase);
+                break;
+            case 1: // Triangle
+                sample = (float)(phase < 0.5 ? (-1.0 + 4.0 * phase) : (3.0 - 4.0 * phase));
+                break;
+            case 2: // Saw Up
+                sample = (float)(-1.0 + 2.0 * phase);
+                break;
+            case 3: // Saw Down
+                sample = (float)(1.0 - 2.0 * phase);
+                break;
+            case 4: // Square (50%)
+                sample = (phase < 0.5) ? 1.0f : -1.0f;
+                break;
+            case 5: // Pulse 25%
+                sample = (phase < 0.25) ? 1.0f : -1.0f;
+                break;
+            case 6: // Pulse 12.5%
+                sample = (phase < 0.125) ? 1.0f : -1.0f;
+                break;
+            case 7: // Noise (Pseudo-random but fixed cycle for "Digital" feel)
+                sample = ((float)(i * 12345 % 100) / 50.0f) - 1.0f;
+                break;
+            break;
             }
         }
-        break;
-        }
+
         m_sourceWave[i] = sample;
     }
 }
@@ -277,4 +275,14 @@ void WtCore::updatePhaseDelta()
     if (targetRate > 0.0) {
         m_phaseDelta = m_currentFrequency / targetRate;
     }
+}
+
+void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+
+    outL[startSample + sampleIdx] += sample;
+    outR[startSample + sampleIdx] += sample;
+
+    isActive = isPlaying();
 }

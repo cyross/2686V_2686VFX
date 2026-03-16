@@ -175,7 +175,10 @@ void GuiPreset::setup()
     nameEditor.setText(ctx.audioProcessor.presetName);
     nameEditor.setWantsKeyboardFocus(true);
     nameEditor.setExplicitFocusOrder(++tabOrder);
-    nameEditor.onTextChange = [this] { ctx.audioProcessor.presetName = nameEditor.getText(); };
+    nameEditor.onTextChange = [this] {
+        ctx.audioProcessor.presetName = nameEditor.getText();
+        ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);
+    };
 
     // Author
     authorEditor.setup({ .parent = *this, .title = PresetKey::MetaData::Label::auther, .isMultiLine = false });

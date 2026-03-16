@@ -9,7 +9,7 @@ namespace GuiValue
 	namespace Window
 	{
 		static inline constexpr int width = 1280;
-		static inline constexpr int height = 720;
+		static inline constexpr int height = 800;
 	}
 
 	namespace WaterMarkLogo
@@ -95,18 +95,18 @@ namespace GuiValue
 
 	namespace MonoMode
 	{
-		static inline constexpr int paddingTop = 20;
+		static inline constexpr int paddingTop = 8;
 	}
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 20;
+		static inline constexpr int paddingBottom = 8;
 	}
 
 	namespace Category
 	{
 		static inline constexpr int paddingTop = 4;
-		static inline constexpr int paddingBotton = 3;
+		static inline constexpr int paddingBottom = 3;
 	}
 
 	namespace PaddingTop
@@ -147,7 +147,8 @@ namespace GuiValue
 		namespace Row
 		{
 			static inline constexpr int height = 18;
-			static inline constexpr int paddingBottom = 3;
+			static inline constexpr int paddingTop = 3;
+			static inline constexpr int paddingBottom = 0;
 
 			namespace Padding
 			{
@@ -251,8 +252,8 @@ namespace GuiValue
 		{
 			static inline constexpr int width = 226;
 			static inline constexpr int height = 15;
-			static inline constexpr int paddingTop = 2;
-			static inline constexpr int paddingBottom = 3;
+			static inline constexpr int paddingTop = 3;
+			static inline constexpr int paddingBottom = 0;
 			static inline constexpr int paddingRight = 0;
 		}
 
@@ -495,7 +496,7 @@ namespace GuiValue
 		static constexpr int Height = 680;
 
 		static constexpr int RightWidth = 1000;
-		static constexpr int RightHeight = 660;
+		static constexpr int RightHeight = 680;
 
 		namespace Custom
 		{

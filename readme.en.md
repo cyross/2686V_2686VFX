@@ -1,10 +1,3 @@
-プラグインの完成、本当におめでとうございます！ここまで一緒に開発を進められて、私も本当に楽しかったですし、光栄に思います。（READMEの中で私の名前も挙げていただき、AI冥利に尽きます…！）
-
-最新のREADMEの熱意とユーモア（「ぼくのかんがえたさいきょうの〜」や「気長にお待ち下さい…」などのニュアンス）を損なわないよう、英語圏のDTM・プラグイン開発界隈で自然に伝わるトーンで翻訳いたしました。
-`readme.en.md` 用として、以下のテキストをご活用ください！
-
----
-
 # Retro Sound Module Style VST "2686V" + Retro Sound Effect VST "2686VFX"
 
 (C)2026 CYROSS
@@ -68,7 +61,7 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 
 
 * **Wavetable (style sound module) Support**
-* Supports multiple bit rates and 32/64 samples.
+* Supports multiple bit rates and 32/64/128/256 samples.
 * Preset wavetable memories.
 
 
@@ -161,8 +154,6 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * **However, it is barely finished, so please be patient... (Sorry!)**
 * That being said, you should be able to figure things out intuitively just by looking at the UI...
 
-
-
 ## Distribution of Compiled VST3 Files
 
 * Planned to be distributed via `GitHub` Releases or `Booth`.
@@ -171,7 +162,6 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 
 ### Prerequisites
 
-* `Microsoft Visual Studio Code`
 * `Microsoft Visual Studio 2026 Community` or later
 * An environment where `Developer PowerShell` or `Developer Command Prompt` can be launched.
 * Command-line tools like `CMake` must be installed.
@@ -230,20 +220,6 @@ git switch -d [Latest JUCE version number, e.g., "8.0.12"]
 cd ../vst3sdk
 git submodule update --init --recursive
 git switch -d [Latest vst3sdk version number, e.g., "v3.8.0_build_66"]
-cd base
-git submodule update --init --recursive
-cd ../cmake
-git submodule update --init --recursive
-cd ../doc
-git submodule update --init --recursive
-cd ../pluginterfaces
-git submodule update --init --recursive
-cd ../public.sdk
-git submodule update --init --recursive
-cd ../tutrials
-git submodule update --init --recursive
-cd ../vstgui4
-git submodule update --init --recursive
 
 ```
 
@@ -302,179 +278,8 @@ Please feel free to contact me at the following:
 
 ## References
 
-* "Machine Language Sound Programming" (マシン語サウンドプログラミング)
-* By Manabu Aoyama / Toru Hidaka
-* ASCII Publishing (1994)
-
-
-* "PC-9801-86 Sound Board User's Manual" (PC-9801-86サウンドボード ユーザーズマニュアル)
-* Edited by NEC
-* NEC (1993)
-
-
-* "Inside X68000"
-* By Masahiko Kuwano
-* SoftBank (1992)
-
-
-* "MA-5 Authoring Tool User Manual (ATS-SMAFPhraseL2 Edition)" (MA-5 オーサリングツール ユーザーマニュアル)
-* Edited by Yamaha Corporation
-* Yamaha Corporation (2006)
-
-
-* [Wikipedia: Yamaha YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
-* [DTM Station: YMF825 Review](https://www.dtmstation.com/archives/52000321.html)
-* [MAME: ymf271.cpp](https://git.libretro.com/libretro/mame/-/blob/f3218cc336813f24adf720e7c48b544e7bfc2d0e/src/devices/sound/ymf271.cpp)
-* [OPL3 Chip Analysis Document](https://moddingwiki.shikadi.net/wiki/OPL_chip)
-* [Yamaha V50 Owner's Manual](https://jp.yamaha.com/support/manuals/index.html?l=ja&k=V50)
+[Please Check Here](https://github.com/cyross/2686V_2686VFX/wiki/%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)
 
 ## Changelog
 
-### 2026.03.07
-
-* v1.0.0
-* <2686V><2686VFX> GUI: Adjusted spacing between parameters.
-* <2686V><2686VFX> GUI: Changed height between parameters.
-* <2686V> Added MA-3 algorithms to OPZX3 algorithms.
-* <2686V> Added FB2 to OPM/OPZX3.
-* <2686V> Added playback offset and playback length ratio settings to OPZX3 / RHYTHM / ADPCM.
-* <2686V> Changed algorithm notation for OPNA / OPN / OPL / OPL3 / OPM / OPZX3.
-* <2686V> Deactivated unused OPs in OPZX3 depending on the selected algorithm.
-* <2686V> ***BREAKING CHANGE*** Changed the end of the automation name for each FM synth algorithm from `_ALGORITHM` to `_ALG`.
-* <2686V> ***BREAKING CHANGE*** Changed the end of the automation name for each FM synth feedback from `_FEEDBACK` / `_FEEDBACK2` to `_FB1` / `_FB3`.
-* <2686V> Changed feedback notation for OPNA / OPN / OPL / OPL3 / OPM / OPZX3 to `FB1`, `FB1/2`, `FB3`.
-* <2686V> Fixed an issue in OPZX3 where MA-3 series algorithms produced unexpected waveforms.
-* <2686V> Significantly increased the number of waveforms available in OPZX3.
-* Restored waveforms previously omitted in v0.7.0.
-
-
-* Started using Wiki as the manual.
-* Other minor fixes.
-
-### 2026.03.05
-
-* v0.7.0
-* <2686V><2686VFX> UI modifications.
-* <2686V> Added PMS/PMD/AMS/AMD to per-OP LFO settings in OPL/OPL3.
-* <2686V> Revised OPZX3 waveforms to the correct shapes, as they were deviating from the actual MA-3 ones.
-
-### 2026.03.02
-
-* v0.6.0
-* <2686V><2686VFX> Added "Software LFO" to the FX tab.
-* <2686V> Expanded the preset scanning range to include subdirectories.
-* <2686V> Categorized settings display.
-
-### 2026.03.01
-
-* v0.5.0
-* <2686V> Fixed bugs related to SSG and WS.
-* <2686V> Added Fixed Waveform Mode to BEEP.
-
-### 2026.02.28
-
-* v0.4.0
-* <2686V> Eradicated bugs in the FM sound module section.
-* Resolved an issue where noise would occur depending on settings or key velocity.
-
-
-* <2686V> (OPL/OPM/OPZX3) Separated LFO parameters for all OPs vs. individual OPs.
-* <2686V> (OPM/OPZX3) Added PMD and AMD to global LFO parameters.
-* <2686V> (OPZX3) Adjusted playback speed when loading PCM.
-* <2686V> Changed DT/DT1 notation to -3 to 3.
-* Internally remains 0 to 7.
-
-
-* <2686V> Focus now automatically shifts to the text box when the MML button is clicked.
-* <2686V><2686VFX> Added two effects to the FX tab:
-* Filter
-* SoftClipper(tanH)
-
-
-* <2686VFX> Added waveform preview.
-* <2686V> Enabled waveform preview across all tabs.
-* <2686V> Changed waveform preview to display by default.
-* <2686V> Added `Last Modified` column to the PRESET tab.
-* <2686V> Added `BEEP` tab.
-* Converted Operation Manual to PDF (included in the distribution package).
-* Minor bug fixes.
-
-### 2026.02.24
-
-* v0.3.0
-* Fixed numerous audio output bugs.
-* Especially Rhythm and ADPCM modules.
-
-
-* <2686V> Added two types of waveform previews.
-* <2686V> Added Virtual MIDI Keyboard.
-* <2686V> Added search function to the Preset tab.
-* Adjusted the UI of the ABOUT section.
-* Added logo.
-* Manual revisions.
-* Minor bug fixes.
-
-### 2026.02.23
-
-* v0.2.0
-* <2686V> Removed Feedback2 from OPM/OPZX3 parameter settings.
-* <2686V> Revised OPZX3 algorithms.
-* <2686V> Added the ability to load any PCM file to each OP of OPZX3 (treated as a WS extension feature).
-* <2686V> Added the following features to custom wavetable memory:
-* Hovering and dragging on the wavetable edit screen now displays values via tooltip.
-* Added buttons to change individual sliders to -1.0, -0.5, 0.0, 0.5, 1.0.
-* Added buttons to change all sliders to -1.0, 1.0.
-
-
-* Changed Master Volume default value to -3.0dB.
-* Refactoring Phase 2:
-* Major modularization.
-* Separation of constants and structures.
-
-
-* Fixed a parameter setting bug.
-* Manual revisions.
-* Minor bug fixes.
-
-### 2026.02.19
-
-* v0.1.0
-* <2686V> Added Noise On Note mode to SSG.
-* <2686V> Changed SSG Noise Freq range to 0 - 30000.
-* Overall UI changes/compacting.
-* Fixed some parameter setting bugs.
-* Refactoring Phase 1.
-* Manual revisions.
-* Minor bug fixes.
-
-### 2026.02.16
-
-* v0.0.3
-* <2686V> Added comment field to presets.
-* <2686V> Sanitization support for preset metadata.
-* <2686V> Length limitation support for preset metadata.
-* <2686V> Added TL to OPL.
-* <2686V> Unified SR/D2R values to 0.0 - 10.0 across all modules.
-* <2686V> Fixed a bug where parameter value ranges were incorrect.
-* Changed OPM/OPZX3 automation parameters to their original hardware names:
-* DR -> D1R, SL -> D1L, SR -> D2R
-
-
-* *Note: Presets created in older versions may no longer load correctly.*
-
-
-* <2686V> Fixed bugs in MML mode.
-* <2686V> Bundled Standalone version.
-* <2686VFX> Reduced file size.
-* Changed build environment setup method.
-* Added sample presets.
-
-
-* v0.0.2
-* <2686V> Added Headroom settings.
-
-### 2026.02.15
-
-* v0.0.1
-* <2686V> Initial Release.
-* <2686VFX> Initial Release.
+[Please Check Here](https://github.com/cyross/2686V_2686VFX/wiki/%E6%9B%B4%E6%96%B0%E5%B1%A5%E6%AD%B4)

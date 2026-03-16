@@ -20,7 +20,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::wveform, code + PrName::Ssg::Post::waveform, PrValue::Ssg::waveForm::min, PrValue::Ssg::waveForm::max, PrValue::Ssg::waveForm::initial)); // 0:Pulse, 1:Triangle
 
     // ADSR Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Ssg::Post::Adsr::bypass, PrValue::Ssg::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Ssg::Post::Adsr::bypass, PrValue::Adsr::Bypass::initial));
 
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::mode, code + PrName::Ssg::Post::Duty::mode, PrValue::Ssg::Duty::Mode::min, PrValue::Ssg::Duty::Mode::max, PrValue::Ssg::Duty::Mode::initial)); // Duty Mode: 0=Preset, 1=Variable
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::preset, code + PrName::Ssg::Post::Duty::preset, PrValue::Ssg::Duty::Preset::min, PrValue::Ssg::Duty::Preset::max, PrValue::Ssg::Duty::Preset::initial)); // Preset: 0~8
@@ -34,10 +34,10 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Ssg::Tri::freq, code + PrName::Ssg::Post::Tri::manualFreq, PrValue::Ssg::Tri::ManualFreq::min, PrValue::Ssg::Tri::ManualFreq::max, PrValue::Ssg::Tri::ManualFreq::initial));
 
     // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::bit, code + PrName::Ssg::Post::bit, PrValue::Ssg::Bit::min, PrValue::Ssg::Bit::max, PrValue::Ssg::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::bit, code + PrName::Ssg::Post::bit, PrValue::Quality::Bit::min, PrValue::Quality::Bit::max, PrValue::Quality::Bit::initial));
     // ADD: Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::rate, code + PrName::Ssg::Post::rate, PrValue::Ssg::Rate::min, PrValue::Ssg::Rate::max, PrValue::Ssg::Rate::initial)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::rate, code + PrName::Ssg::Post::rate, PrValue::Quality::Rate::min, PrValue::Quality::Rate::max, PrValue::Quality::Rate::initial)); // Default 6 (16kHz)
 
     // Hardware Envelope Parameters
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::Ssg::HwEnv::enable, code + PrName::Ssg::Post::HwEnv::enable, PrValue::Ssg::HwEnv::Enable::initial)); // HW Env Enable(Bool)

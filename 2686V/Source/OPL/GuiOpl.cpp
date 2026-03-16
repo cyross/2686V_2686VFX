@@ -61,10 +61,10 @@ static std::vector<SelectItem> kslItems = {
 };
 
 static std::vector<SelectItem> oplEgItems = {
-    {.name = "0: Sine",  .value = 1},
-    {.name = "1: Half",  .value = 2},
-    {.name = "2: Abs",   .value = 3},
-    {.name = "3: Pulse", .value = 4}
+    {.name = "0: Sine",       .value = 1},
+    {.name = "1: Half Sine",  .value = 2},
+    {.name = "2: Abs Sine",   .value = 3},
+    {.name = "3: Pulse Sine", .value = 4}
 };
 
 void GuiOpl::setup()
@@ -133,17 +133,18 @@ void GuiOpl::setup()
         }
         };
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -173,10 +174,6 @@ void GuiOpl::setup()
         mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
-
-        dt[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
-        dt[i].setWantsKeyboardFocus(true);
-        dt[i].setExplicitFocusOrder(++tabOrder);
 
         rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
@@ -370,21 +367,21 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
     mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMain({ .mainRect = mRect, .label = &qualityCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &algFbCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
-    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &initCat, .paddingBottom = GuiValue::Category::paddingBotton });
+    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    layoutMainCategory({ .mainRect = mRect, .label = &initCat });
     layoutMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
     layoutMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
-    layoutMain({ .mainRect = mRect, .label = &mvolCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = GuiValue::Category::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &monoPolyCat, .paddingBottom = GuiValue::Category::paddingBotton });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto imgArea = mRect.removeFromBottom(100);
     algImageComp.setBounds(imgArea);
@@ -401,50 +398,49 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         bool rgMode = rgEn[i].getToggleState();
 
-        layoutRow({ .rowRect = innerRect, .component = &catMain[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &rgEn[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
+        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
         updateRgDisplayAsOp(i, rgMode);
         if (rgMode)
         {
-            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         }
         else
         {
-            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
+            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i] });
+            layoutRow({ .rowRect = innerRect, .label = &dr[i].label, .component = &dr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &sl[i].label, .component = &sl[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i] });
+            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
         }
-        layoutRow({ .rowRect = innerRect, .component = &egType[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &ksr[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &catShape[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &adsrCat[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = innerRect, .component = &sus[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &catLfo[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = innerRect, .component = &am[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &amsTo37[i], .comp2 = &amsTo606[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
-        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRowThreeComps({ .rect = innerRect, .comp1 = &amdTo1[i], .comp2 = &amdTo12[i], .comp3 = &amdTo48[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
-        layoutRow({ .rowRect = innerRect, .component = &vib[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &pmsTo606[i], .comp2 = &pmsTo64[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop});
-        layoutRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i], .paddingBottom = GuiValue::ParamGroup::Row::paddingTop });
-        layoutRowThreeComps({ .rect = innerRect, .comp1 = &pmdTo7[i], .comp2 = &pmdTo137[i], .comp3 = &pmdTo14[i], .paddingBottom = GuiValue::Category::paddingTop});
-        layoutRow({ .rowRect = innerRect, .component = &catMask[i], .paddingBottom = GuiValue::Category::paddingBotton });
-        layoutRow({ .rowRect = innerRect, .component = &mask[i], .paddingBottom = GuiValue::Category::paddingTop });
-        layoutRow({ .rowRect = innerRect, .component = &catMml[i], .paddingBottom = GuiValue::Category::paddingBotton });
+        layoutRow({ .rowRect = innerRect, .component = &egType[i] });
+        layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
+        layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &adsrCat[i] });
+        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
+        layoutRow({ .rowRect = innerRect, .component = &am[i] });
+        layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
+        layoutRowTwoComps({ .rect = innerRect, .comp1 = &amsTo37[i], .comp2 = &amsTo606[i]});
+        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
+        layoutRowThreeComps({ .rect = innerRect, .comp1 = &amdTo1[i], .comp2 = &amdTo12[i], .comp3 = &amdTo48[i]});
+        layoutRow({ .rowRect = innerRect, .component = &vib[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });
+        layoutRowTwoComps({ .rect = innerRect, .comp1 = &pmsTo606[i], .comp2 = &pmsTo64[i]});
+        layoutRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i] });
+        layoutRowThreeComps({ .rect = innerRect, .comp1 = &pmdTo7[i], .comp2 = &pmdTo137[i], .comp3 = &pmdTo14[i]});
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
+        layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
 
@@ -464,14 +460,6 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
     // MUL
     val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl::mul);
     if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
-
-    // DT
-    val = RegisterConverter::getValue(input, mmlPrefixDt, mmlValues::opn::dt);
-    if (RegisterConverter::isValidVal(val)) {
-        int regVal = RegisterConverter::convertMmlDtToReg(val);
-
-        dt[opIndex].setSelectedItemIndex((double)regVal, juce::sendNotification);
-    }
 
     // AM
     val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl::am);
@@ -565,8 +553,6 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
     catMain[idx].setEnabled(enable);
     mul[idx].setEnabled(enable);
     mul[idx].label.setEnabled(enable);
-    dt[idx].setEnabled(enable);
-    dt[idx].label.setEnabled(enable);
     ar[idx].setEnabled(enable);
     ar[idx].label.setEnabled(enable);
     arTo000[idx].setEnabled(enable);

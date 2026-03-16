@@ -32,8 +32,10 @@ namespace PrName
 
 			namespace Lfo
 			{
-				static inline const juce::String freq = " L.FREQ";
+				static inline const juce::String freq = " L.SPEED";
 				static inline const juce::String shape = " L.SHAPE";
+				static inline const juce::String pgShape = " L.P.SHAPE";
+				static inline const juce::String egShape = " L.A.SHAPE";
 				static inline const juce::String am = " LFO.AM";
 				static inline const juce::String pm = " LFO.PM";
 				static inline const juce::String ams = " L.AMS";
@@ -41,6 +43,7 @@ namespace PrName
 				static inline const juce::String pmd = " L.PMD";
 				static inline const juce::String amd = " L.AMD";
 				static inline const juce::String amSmoothRatio = " L.ASMRT";
+				static inline const juce::String syncDelay = " L.S.Delay";
 			}
 		}
 
@@ -71,12 +74,27 @@ namespace PrName
 				static inline const juce::String fix = " FIX";
 				static inline const juce::String fixFreq = " FREQ";
 				static inline const juce::String ws = " WS";
+
 				static inline const juce::String am = " AM";
 				static inline const juce::String vib = " VIB";
+
+				static inline const juce::String lfoFreq = " LFO FREQ";
+				static inline const juce::String freqs = " LFO FREQS";
+
+				static inline const juce::String pgShape = " L.P.SHAPE";
+				static inline const juce::String egShape = " L.A.SHAPE";
+
 				static inline const juce::String pms = " PMS";
 				static inline const juce::String ams = " AMS";
 				static inline const juce::String pmd = " PMD";
 				static inline const juce::String amd = " AMD";
+
+				static inline const juce::String n88Amd = " N88AMD";
+				static inline const juce::String n88Ams = " N88AMS";
+				static inline const juce::String n88Pmd = " N88PMD";
+				static inline const juce::String n88Pms = " N88PMS";
+
+				static inline const juce::String syncDelay = " S.DLY";
 				static inline const juce::String egType = " EG TYPE";
 				static inline const juce::String eg = " EG";
 				static inline const juce::String pcmOffset = " PCM Offset";
@@ -159,6 +177,8 @@ namespace PrName
 		{
 			static inline const juce::String custom32 = " Custom32 ";
 			static inline const juce::String custom64 = " Custom64 ";
+			static inline const juce::String custom128 = " Custom128 ";
+			static inline const juce::String custom256 = " Custom256 ";
 		}
 
 		namespace Post

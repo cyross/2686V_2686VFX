@@ -90,7 +90,7 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
     adpcmLowPassFilter(m_adpcmBuffer);
 }
 
-void AdpcmCore::noteOn(float frequency)
+void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
 {
     m_position = 0.0;
 
@@ -111,7 +111,7 @@ void AdpcmCore::noteOn(float frequency)
     // ホストDAWのレートとの比率
     double rateRatio = currentBufferRate / m_sampleRate;
 
-    m_pitchRatio = (frequency / rootFreq) * rateRatio;
+    m_pitchRatio = (freq / rootFreq) * rateRatio;
 
     //m_currentLevel = 0.0f;
     m_state = State::Attack;
@@ -327,4 +327,15 @@ void AdpcmCore::updateIncrements()
     m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.a) * m_sampleRate);
     m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.d) * m_sampleRate);
     m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
+}
+
+void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+{
+    float sample = getSample();
+    float pan = getCurrentPan();
+
+    outL[startSample + sampleIdx] += sample * (1.0f - pan);
+    outR[startSample + sampleIdx] += sample * pan;
+
+    isActive = isPlaying();
 }
