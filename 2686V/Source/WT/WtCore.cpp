@@ -5,6 +5,8 @@ WtCore::WtCore() : SynthCore()
 {
     // 初期波形: サイン波
     m_sourceWave.resize(256);
+    m_tableSizes = { 32, 64, 128, 256 };
+    m_customWaves = { m_customWaveCache32.data(), m_customWaveCache64.data(), m_customWaveCache128.data(), m_customWaveCache256.data() };
     generateWaveform(0); // Default Sine
 }
 
@@ -25,27 +27,11 @@ void WtCore::setParameters(const SynthParams& params)
     m_rateIndex = params.wtRateIndex;
 
     // 波形・テーブルサイズ変更検知
-    int newTableSize = 0;
-
-    switch (params.wtTableSize)
-    {
-    case 0:
-        newTableSize = 32;
-        break;
-    case 1:
-        newTableSize = 64;
-        break;
-    case 2:
-        newTableSize = 128;
-        break;
-    case 3:
-        newTableSize = 256;
-        break;
-    }
-
+    int newTableSize = m_tableSizes[params.wtTableSize];
     bool waveformChanged = (m_waveform != params.wtWaveform);
     bool sizeChanged = (m_prevTableSize != newTableSize);
 
+    m_tableSizeIndex = params.wtTableSize;
     m_tableSize = newTableSize;
     m_prevTableSize = newTableSize;
     m_waveform = params.wtWaveform;
@@ -201,7 +187,7 @@ float WtCore::getSample()
         int idx = (int)readIndex;
         if (idx >= m_tableSize) idx = m_tableSize - 1;
 
-        int sourceIdx = (m_tableSize == 32) ? (idx * 8) : (m_tableSize == 64) ? (idx * 4) : (m_tableSize == 128) ? (idx * 2) : idx;
+        int sourceIdx = idx * (256 / m_tableSize);
         if (sourceIdx >= 256) sourceIdx = 255;
 
         float rawSample = m_sourceWave[sourceIdx];
@@ -235,60 +221,42 @@ void WtCore::generateWaveform(int type)
         double phase = (double)i / (double)N; // 0.0 to 1.0
         float sample = 0.0f;
 
-        switch (type)
+        if (type == 8) // custom
         {
-        case 0: // Sine
-            sample = (float)std::sin(2.0 * PI * phase);
-            break;
-        case 1: // Triangle
-            sample = (float)(phase < 0.5 ? (-1.0 + 4.0 * phase) : (3.0 - 4.0 * phase));
-            break;
-        case 2: // Saw Up
-            sample = (float)(-1.0 + 2.0 * phase);
-            break;
-        case 3: // Saw Down
-            sample = (float)(1.0 - 2.0 * phase);
-            break;
-        case 4: // Square (50%)
-            sample = (phase < 0.5) ? 1.0f : -1.0f;
-            break;
-        case 5: // Pulse 25%
-            sample = (phase < 0.25) ? 1.0f : -1.0f;
-            break;
-        case 6: // Pulse 12.5%
-            sample = (phase < 0.125) ? 1.0f : -1.0f;
-            break;
-        case 7: // Noise (Pseudo-random but fixed cycle for "Digital" feel)
-            sample = ((float)(i * 12345 % 100) / 50.0f) - 1.0f;
-            break;
-        case 8: // Custom
+            sample = m_customWaves[m_tableSizeIndex][i / (256 / m_tableSize)];
+        }
+        else
         {
-            if (m_tableSize == 256)
+            switch (type)
             {
-                // 256サンプルをそのまま使う
-                sample = m_customWaveCache256[i];
-            }
-            else if (m_tableSize == 128)
-            {
-                // 256サンプルを128ステップで埋める (index / 2)
-                int step = i / 2;
-                sample = m_customWaveCache128[i];
-            }
-            else if (m_tableSize == 64)
-            {
-                // 256サンプルを64ステップで埋める (index / 4)
-                int step = i / 4;
-                sample = m_customWaveCache64[step];
-            }
-            else
-            {
-                // 256サンプルを32ステップで埋める (index / 8)
-                int step = i / 8;
-                sample = m_customWaveCache32[step];
+            case 0: // Sine
+                sample = (float)std::sin(2.0 * PI * phase);
+                break;
+            case 1: // Triangle
+                sample = (float)(phase < 0.5 ? (-1.0 + 4.0 * phase) : (3.0 - 4.0 * phase));
+                break;
+            case 2: // Saw Up
+                sample = (float)(-1.0 + 2.0 * phase);
+                break;
+            case 3: // Saw Down
+                sample = (float)(1.0 - 2.0 * phase);
+                break;
+            case 4: // Square (50%)
+                sample = (phase < 0.5) ? 1.0f : -1.0f;
+                break;
+            case 5: // Pulse 25%
+                sample = (phase < 0.25) ? 1.0f : -1.0f;
+                break;
+            case 6: // Pulse 12.5%
+                sample = (phase < 0.125) ? 1.0f : -1.0f;
+                break;
+            case 7: // Noise (Pseudo-random but fixed cycle for "Digital" feel)
+                sample = ((float)(i * 12345 % 100) / 50.0f) - 1.0f;
+                break;
+            break;
             }
         }
-        break;
-        }
+
         m_sourceWave[i] = sample;
     }
 }

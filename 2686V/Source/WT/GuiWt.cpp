@@ -198,7 +198,7 @@ void GuiWt::setup()
         resized();
         };
 
-    customWaveSmoothBtn.setup({ .parent = *this, .title = "Smooth Waveform", .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setup({ .parent = *this, .title = GuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
     customWaveSmoothBtn.setWantsKeyboardFocus(true);
     customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
     customWaveSmoothBtn.onClick = [this] {

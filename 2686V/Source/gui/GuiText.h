@@ -251,6 +251,7 @@ namespace GuiText
 			static inline const juce::String to0 = "-> 0.0";
 			static inline const juce::String to1 = "-> 1.0";
 			static inline const juce::String toM1 = "-> -1.0";
+			static inline const juce::String smooth = "Smooth Waveform";
 		}
 	}
 
