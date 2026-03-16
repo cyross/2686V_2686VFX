@@ -18,6 +18,14 @@ class Opzx3Core : public FmCore
 public:
     Opzx3Core() : FmCore() {}
 
+    using Opzx3LfoCalculator = float(*)(double phase, float noise);
+
+    // OPM/PG-LFO波形の計算アルゴリズム配列
+    static const std::array<Opzx3LfoCalculator, 8> lfoPgStrategies;
+
+    // OPM/EG-LFO波形の計算アルゴリズム配列
+    static const std::array<Opzx3LfoCalculator, 8> lfoEgStrategies;
+
     void prepare(double sampleRate) override;
     void setParameters(const SynthParams& params);
     void noteOn(float freq, float velocity, int midiNote) override;
@@ -45,11 +53,14 @@ private:
     // OPM LFO
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
-    int m_pms = 0; int m_ams = 0; int m_lfoWave = 2;
     bool m_pm = false;
     bool m_am = false;
-    int m_pmd = 0;
-    int m_amd = 0;
+    int m_lfoPgWave = 0;
+    int m_lfoEgWave = 0;
+    float m_pms = 0.0f;
+    float m_ams = 0.0f;
+    float m_pmd = 0.0f;
+    float m_amd = 0.0f;
 
     // Noise LFSR Variables
     unsigned int m_lfsr = 0x1FFFF;

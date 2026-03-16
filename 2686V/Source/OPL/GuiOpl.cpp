@@ -133,18 +133,18 @@ void GuiOpl::setup()
         }
         };
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
-
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -378,10 +378,10 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &initCat });
     layoutMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
     layoutMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto imgArea = mRect.removeFromBottom(100);
     algImageComp.setBounds(imgArea);

@@ -74,9 +74,16 @@ namespace PrName
 				static inline const juce::String fix = " FIX";
 				static inline const juce::String fixFreq = " FREQ";
 				static inline const juce::String ws = " WS";
+
 				static inline const juce::String am = " AM";
-				static inline const juce::String freqs = " LFO_FREQS";
 				static inline const juce::String vib = " VIB";
+
+				static inline const juce::String lfoFreq = " LFO FREQ";
+				static inline const juce::String freqs = " LFO FREQS";
+
+				static inline const juce::String pgShape = " L.P.SHAPE";
+				static inline const juce::String egShape = " L.A.SHAPE";
+
 				static inline const juce::String pms = " PMS";
 				static inline const juce::String ams = " AMS";
 				static inline const juce::String pmd = " PMD";

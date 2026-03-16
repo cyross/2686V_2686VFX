@@ -35,7 +35,7 @@ public:
     float virtual getCurrentEnvelope() const { return m_currentLevel; }
     void virtual setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
     void virtual getSample(float& output, float modulator, float lfoAmp, float lfoPitch) {};
-    void virtual getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f) {};
+    void virtual getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f) {};
     void virtual setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
     // OPZX3 の外部 PCM データ用
@@ -72,6 +72,8 @@ protected:
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
     uint32_t m_lfoCycleCount = 0;
+    unsigned int m_lfsr = 0x1FFFF;
+    float m_currentNoiseSample = 0.0f;
     double m_lfoPhase = 0.0;
     float  m_amSmooth = 0.0f;
 

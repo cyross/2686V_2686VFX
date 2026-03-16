@@ -65,7 +65,7 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 }
 
 void OpnOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 

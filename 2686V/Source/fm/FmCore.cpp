@@ -23,7 +23,7 @@ const std::array<FmCore::LfoCalculator, 5> FmCore::lfoStrategies = { {
     },
     // 1: Saw Down
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
-        return { (float)(1.0 - phase * 2.0), (float)(1.0 - phase) };
+        return { (float)(1.0 - phase), (float)(1.0 - phase) };
     },
     // 2: Square
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
@@ -51,7 +51,7 @@ const std::array<FmCore::LfoCalculator, 5> FmCore::lfoStrategies = { {
 const std::array<FmCore::LfoCalculator, 4> FmCore::lfoN88Strategies = { {
     // 0: Saw Up
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
-        return { (float)(phase * 2.0), (float)(phase) };
+        return { (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0), (float)(phase) };
     },
     // 1: Square
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
@@ -79,7 +79,7 @@ const std::array<FmCore::LfoCalculator, 4> FmCore::lfoN88Strategies = { {
 const std::array<FmCore::LfoCalculator, 6> FmCore::lfoN8886Strategies = { {
     // 0: Saw Up
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
-        return { (float)(phase * 2.0), (float)(phase) };
+        return { (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0), (float)(phase) };
     },
     // 1: Square
     [](double phase, float /*noise*/) -> FmCore::LfoResult {

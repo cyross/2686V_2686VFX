@@ -15,9 +15,13 @@ void GuiBeep::setup() {
 
     mainGroup.setup(*this, GuiText::Group::mainGroup); // GuiText 等に置換
 
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
     presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
     volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
@@ -64,20 +68,18 @@ void GuiBeep::setup() {
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
-
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 }
 
 void GuiBeep::layout(juce::Rectangle<int> content) {
@@ -104,10 +106,10 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     layoutMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
     layoutMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
     layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, });
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)

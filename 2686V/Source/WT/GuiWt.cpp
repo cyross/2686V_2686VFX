@@ -141,6 +141,12 @@ void GuiWt::setup()
     rrTo003Button.setExplicitFocusOrder(++tabOrder);
     rrTo003Button.onClick = [this] { releaseSlider.setValue(0.03, juce::sendNotification); };
 
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
     // Master Volume
@@ -148,12 +154,6 @@ void GuiWt::setup()
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
-
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, GuiText::Group::wtCustom);
@@ -224,10 +224,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
     layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, });
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle, .paddingBottom = 0 });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabled(isMod);

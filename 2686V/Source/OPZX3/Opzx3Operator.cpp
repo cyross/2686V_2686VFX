@@ -1,4 +1,5 @@
 ﻿#include "Opzx3Operator.h"
+#include "Opzx3Core.h"
 #include "../core/PrValues.h"
 
 namespace {
@@ -247,7 +248,21 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
-    m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
+    if (m_params.lfoSyncDelay > 0.0f) {
+        m_lfoPhase = 0.0; // ディレイがある場合は必ずSync(位相リセット)する
+        m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
+    }
+    else {
+        m_lfoDelayCounter = 0.0f;
+        // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
+        // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
+        if (m_params.pgLfoWave == 6 || m_params.pgLfoWave == 7 ||
+            m_params.egLfoWave == 6 || m_params.egLfoWave == 7) {
+            m_lfoPhase = 0.0;
+        }
+    }
+
+    m_lfoCycleCount = 0;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -324,7 +339,7 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
 }
 
 void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
@@ -340,60 +355,97 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
 
     // Sync Delay 更新
     if (m_lfoDelayCounter > 0.0f) {
-        m_lfoDelayCounter -= 1.0f / (float)m_hostSampleRate;
+        m_lfoDelayCounter -= 1.0f / (float)m_sampleRate;
         if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
     }
 
     // ========================================================
-    // 1. Amplitude Modulation (Tremolo / Wah) の計算
+    // 0. ローカル LFO の計算 (波形独立)
     // ========================================================
-    float amsDepths[] = { 0.0f, 0.1f, 0.3f, 0.7f };
-    float totalAmDepth = 0.0f;
+    float localAmLfo = 0.0f;
+    float localPmLfo = 0.0f;
 
-    // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
+    if (m_params.vibEnable || m_params.amEnable) {
+        if (m_lfoDelayCounter <= 0.0f) {
+            // ローカルのLFO Freq (そのままHzとして使用)
+            float currentLfoFreq = m_params.lfoFreq;
+
+            m_lfoPhase += (double)currentLfoFreq / m_sampleRate;
+
+            if (m_lfoPhase >= 1.0) {
+                m_lfoPhase -= 1.0;
+                m_lfoCycleCount++;
+
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+
+                m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+            }
+
+            // Opzx3Core の静的波形配列を使って波形を算出
+            int pgIdx = std::clamp(m_params.pgLfoWave, 0, 7);
+            int egIdx = std::clamp(m_params.egLfoWave, 0, 7);
+
+            // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
+            localPmLfo = Opzx3Core::lfoPgStrategies[pgIdx](m_lfoPhase, m_currentNoiseSample);
+            localAmLfo = Opzx3Core::lfoEgStrategies[egIdx](m_lfoPhase, m_currentNoiseSample);
+
+            // ワンショット波形 (6, 7) のミュート処理
+            if ((pgIdx == 6 || pgIdx == 7) && m_lfoCycleCount > 0) localPmLfo = 0.0f;
+            if ((egIdx == 6 || egIdx == 7) && m_lfoCycleCount > 0) localAmLfo = 0.0f;
+        }
+    }
+
+    // AMクリックノイズ防止スムージング
+    m_amSmooth += (localAmLfo - m_amSmooth) * 0.1f;
+
+    // ========================================================
+    // 1. Amplitude Modulation (Tremolo) の連続計算
+    // ========================================================
+    float totalAmpMod = 1.0f;
+
+    // ① グローバルAM (最大 96dB の減衰)
     if (globalAm) {
-        float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
-        totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
+        float globalDepthDb = (globalAms * globalAmd) * 96.0f;
+        float attenDb = amLfoVal * globalDepthDb;
+        totalAmpMod *= std::pow(10.0f, -attenDb / 20.0f);
     }
 
-    // ② ローカルAM (このOP独自の揺れ深さ)
+    // ② ローカルAM (最大 96dB の減衰)
     if (m_params.amEnable) {
-        totalAmDepth += amsDepths[std::clamp(m_params.ams, 0, 3)];
+        float localDepthDb = (m_params.ams * m_params.amd) * 96.0f;
+        float attenDb = m_amSmooth * localDepthDb;
+        totalAmpMod *= std::pow(10.0f, -attenDb / 20.0f);
     }
 
-    // 上限を1.0(100%)でクリップ
-    totalAmDepth = std::min(totalAmDepth, 1.0f);
-
-    if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (amLfoVal * totalAmDepth);
-        envVal *= lfoAmpMod; // 音量に直接適用
-    }
+    envVal *= totalAmpMod;
 
     // ========================================================
-    // 2. Pitch Modulation (Vibrato) の計算
+    // 2. Pitch Modulation (Vibrato) の連続計算
     // ========================================================
-    float pmsDepths[] = { 0.0f, 0.003f, 0.006f, 0.012f, 0.03f, 0.06f, 0.26f, 0.5f };
-    float totalPmDepth = 0.0f;
+    float lfoPitchMod = 1.0f;
+    float currentPitchCent = 0.0f;
 
-    // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
+    // ① グローバルPM (最大 ±1200 Cent の揺れ幅 = ±1オクターブ)
     if (globalPm) {
-        float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
-        totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
+        float globalDepthCent = (globalPms * globalPmd) * 1200.0f;
+        currentPitchCent += pmLfoVal * globalDepthCent;
     }
 
-    // ② ローカルPM (このOP独自の揺れ深さ)
-    if (m_params.vibEnable && m_lfoDelayCounter <= 0.0f) {
-        totalPmDepth += pmsDepths[std::clamp(m_params.pms, 0, 7)];
+    // ② ローカルPM
+    if (m_params.vibEnable) {
+        float localDepthCent = (m_params.pms * m_params.pmd) * 1200.0f;
+        currentPitchCent += localPmLfo * localDepthCent;
     }
 
-    // PMがONの時だけ、その深さをLFO波形に掛ける
-    float currentPitchMod = pmLfoVal * totalPmDepth;
+    // ③ モジュレーションホイール (Global LFO を使用、最大200セント)
+    currentPitchCent += pmLfoVal * (modWheel * 200.0f);
 
-    // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
-    float wheelDepth = modWheel * 0.03f;
-    currentPitchMod += (pmLfoVal * wheelDepth);
-
-    float lfoPitchMod = 1.0f + currentPitchMod;
+    // 蓄積した Cent を周波数倍率に変換
+    lfoPitchMod = std::pow(2.0f, currentPitchCent / 1200.0f);
 
     // ========================================================
     // 3. 位相と波形の生成

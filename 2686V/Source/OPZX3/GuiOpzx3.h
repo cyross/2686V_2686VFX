@@ -123,12 +123,14 @@ class GuiOpzx3 : public GuiBase
 
     // LFO
     GuiSlider lfoFreqSlider;
+    GuiSlider lfoSyncDelaySlider;
     GuiSlider lfoAmSmRtSlider;
-    GuiComboBox lfoShapeSelector;
+    GuiComboBox lfoPgShapeSelector;
+    GuiComboBox lfoEgShapeSelector;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
-    GuiComboBox lfoPmsSelector;
-    GuiComboBox lfoAmsSelector;
+    GuiSlider lfoPmsSlider;
+    GuiSlider lfoAmsSlider;
     GuiSlider lfoPmdSlider;
     GuiSlider lfoAmdSlider;
 
@@ -182,10 +184,16 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> se;
     std::array<GuiSlider, Global::Fm::Op4> seFreq;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
+    std::array<GuiSlider, Global::Fm::Op4> lFreq;
+    std::array<GuiSlider, Global::Fm::Op4> syncDelay;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> pms;
+    std::array<GuiComboBox, Global::Fm::Op4> pgShape;
+    std::array<GuiSlider, Global::Fm::Op4> pms;
+    std::array<GuiSlider, Global::Fm::Op4> pmd;
     std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> ams;
+    std::array<GuiComboBox, Global::Fm::Op4> egShape;
+    std::array<GuiSlider, Global::Fm::Op4> ams;
+    std::array<GuiSlider, Global::Fm::Op4> amd;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -216,12 +224,14 @@ public:
         rateSelector(context),
         lfoCat(context),
         lfoFreqSlider(context),
+        lfoSyncDelaySlider(context),
         lfoAmSmRtSlider(context),
-        lfoShapeSelector(context),
+        lfoPgShapeSelector(context),
+        lfoEgShapeSelector(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
-        lfoPmsSelector(context),
-        lfoAmsSelector(context),
+        lfoPmsSlider(context),
+        lfoAmsSlider(context),
         lfoPmdSlider(context),
         lfoAmdSlider(context),
         mvolCat(context),
@@ -260,10 +270,16 @@ public:
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        lFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        pgShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pmd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        ams{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        egShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

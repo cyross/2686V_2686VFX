@@ -447,7 +447,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &bypassCat });
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topCol = pageArea.removeFromTop(GuiValue::Fx::AreaHeightBig);

@@ -11,6 +11,15 @@ class FmCore : public SynthCore
 public:
     FmCore() : SynthCore() {}
 
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
+    uint32_t m_lfoCycleCount = 0;
+    unsigned int m_lfsr = 0x1FFFF;
+    float m_currentNoiseSample = 0.0f;
+    double m_lfoPhase = 0.0;
+    float  m_amSmooth = 0.0f;
+
     struct BaseAlgRouting {
         float in2_1;             // OP2への入力 (1からの割合)
         float in3_1, in3_2;      // OP3への入力 (1, 2からの割合)
