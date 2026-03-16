@@ -41,6 +41,101 @@ const std::array<Opzx3Core::AlgRouting, 36> Opzx3Core::routings = { {
     { 0.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }  // 35
 } };
 
+// -----------------------------------------------------------
+// LFO 波形算出アルゴリズム (OPM PG)
+// -----------------------------------------------------------
+const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoPgStrategies = { {
+    // 0: Sine
+    [](double phase, float /*noise*/) -> float {
+        return (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
+    },
+    // 1: Saw Up
+    [](double phase, float /*noise*/) -> float {
+        float pm = 0.0f;
+        if (phase < 0.5) pm = (float)(phase * 2.0);
+        else             pm = (float)(-1.0 + (phase - 0.5) * 2.0);
+
+        return pm;
+    },
+    // 2: Saw Down
+    [](double phase, float /*noise*/) -> float {
+        return (float)(1.0 - phase * 2.0);
+    },
+    // 3: Square
+    [](double phase, float /*noise*/) -> float {
+        return (phase < 0.5) ? 1.0f : -1.0f;
+    },
+    // 4: Triangle
+    [](double phase, float /*noise*/) -> float {
+        float pm = 0.0f;
+        if (phase < 0.25)       pm = (float)(phase * 4.0);
+        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
+        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
+
+        return pm;
+    },
+    // 5: Sample & Hold
+    [](double /*phase*/, float noise) -> float {
+        return noise;
+    },
+    // 6: Saw Down & One Shot
+    [](double phase, float /*noise*/) -> float {
+        return (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
+    },
+    // 7: Triangle & One Shot
+    [](double phase, float /*noise*/) -> float {
+        if (phase < 0.25)      return (float)(phase * 4.0);
+        else if (phase < 0.5)  return (float)(1.0 - (phase - 0.25) * 4.0);
+        else                   return 0.0;
+    }
+} };
+
+// -----------------------------------------------------------
+// LFO 波形算出アルゴリズム (OPM EG)
+// -----------------------------------------------------------
+const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoEgStrategies = { {
+    // 0: Sine
+    [] (double phase, float /*noise*/)-> float {
+        float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
+
+        return (pm + 1.0f) * 0.5f;
+    },
+    // 1: Saw Up
+    [](double phase, float /*noise*/) -> float {
+        return (float)phase;
+    },
+    // 2: Saw Down
+    [](double phase, float /*noise*/) -> float {
+        return (float)(1.0 - phase);
+    },
+    // 3: Square
+    [](double phase, float /*noise*/) -> float {
+        return (phase < 0.5) ? 1.0f : 0.0f;
+    },
+    // 4: Triangle
+    [](double phase, float /*noise*/) -> float {
+        float am = 0.0f;
+
+        if (phase < 0.5) am = (float)(1.0 - phase * 2.0);
+        else             am = (float)((phase - 0.5) * 2.0);
+
+        return am;
+    },
+    // 5: Sample & Hold
+    [](double /*phase*/, float noise) -> float {
+        return (noise + 1.0f) * 0.5f;
+    },
+    // 6: Saw Down & One Shot
+    [](double phase, float /*noise*/) -> float {
+        return (float)(phase < 0.5 ? 1.0 - phase : 0.0);
+    },
+    // 7: Triangle & One Shot
+    [](double phase, float /*noise*/) -> float {
+        return (phase < 0.5) ? (float)(phase * 2.0) : 0.0f;
+    }
+} };
+
+
 void Opzx3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
     double target = getTargetRate(m_rateIndex);
@@ -65,7 +160,8 @@ void Opzx3Core::setParameters(const SynthParams& params) {
     m_ams = params.lfoAms;
     m_pmd = params.lfoPmd;
     m_amd = params.lfoAmd;
-    m_lfoWave = params.lfoWave;
+    m_lfoPgWave = params.pgLfoWave;
+    m_lfoEgWave = params.egLfoWave;
     m_amSmoothRate = params.lfoAmSmRt;
     m_lfoSyncDelay = params.lfoSyncDelay;
 
@@ -118,7 +214,13 @@ void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
     }
     else {
         m_lfoDelayCounter = 0.0f; // フリーラン継続
+
+        if (m_lfoPgWave == 6 || m_lfoPgWave == 7 || m_lfoEgWave == 6 || m_lfoEgWave == 7) {
+            m_lfoPhase = 0.0;
+        }
     }
+
+    m_lfoCycleCount = 0;
 }
 
 void Opzx3Core::noteOff()
@@ -176,16 +278,42 @@ float Opzx3Core::getSample() {
 
             if (m_lfoPhase >= 1.0) {
                 m_lfoPhase -= 1.0;
-                // ... (ノイズのLFSR処理) ...
+
+                m_lfoCycleCount++;
+
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+
                 m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
             }
 
             // ストラテジー配列を使ってLFO値を計算
-            int waveIdx = std::clamp(m_lfoWave, 0, 4);
-            FmCore::LfoResult lfoVal = FmCore::lfoStrategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+            int pgWaveIdx = std::clamp(m_lfoPgWave, 0, 7);
 
-            pmLfoVal = lfoVal.pm;
-            amLfoVal = lfoVal.am;
+            // ワンショット波形 (6, 7) のミュート処理
+            if ((pgWaveIdx == 6 || pgWaveIdx == 7) && m_lfoCycleCount > 0)
+            {
+                pmLfoVal = 0.0f;
+            }
+            else
+            {
+                pmLfoVal = lfoPgStrategies[pgWaveIdx](m_lfoPhase, m_currentNoiseSample);
+            }
+
+            int egWaveIdx = std::clamp(m_lfoEgWave, 0, 7);
+
+            // ワンショット波形 (6, 7) のミュート処理
+            if ((egWaveIdx == 6 || egWaveIdx == 7) && m_lfoCycleCount > 0)
+            {
+                amLfoVal = 0.0f;
+            }
+            else
+            {
+                amLfoVal = lfoEgStrategies[egWaveIdx](m_lfoPhase, m_currentNoiseSample);
+            }
         }
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;

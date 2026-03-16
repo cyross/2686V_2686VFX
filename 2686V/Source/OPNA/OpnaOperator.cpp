@@ -70,7 +70,7 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 }
 
 void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
@@ -119,7 +119,7 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
     }
 
     // AMスムージング (クリックノイズ防止)
-    m_amSmooth += (localAmLfo - m_amSmooth) * 0.005f;
+    m_amSmooth += (localAmLfo - m_amSmooth) * 0.1f;
 
     // ========================================================
     // 1. Amplitude Modulation (Tremolo) の計算
@@ -146,7 +146,7 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
 
     // ② ローカルAM (ローカルの m_amSmooth を使う)
     if (m_params.amEnable) {
-        float lDepth = amsDepths[std::clamp(m_params.ams, 0, 3)];
+        float lDepth = amsDepths[std::clamp((int)m_params.ams, 0, 3)];
         totalAmpMod *= (1.0f - (m_amSmooth * lDepth));
     }
 
@@ -176,7 +176,7 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
 
     // ② ローカルPM (ローカルの localPmLfo を使う)
     if (m_params.vibEnable) {
-        lfoPitchMod += localPmLfo * pmsDepths[std::clamp(m_params.pms, 0, 7)];
+        lfoPitchMod += localPmLfo * pmsDepths[std::clamp((int)m_params.pms, 0, 7)];
     }
 
     // ③ モジュレーションホイール (Global LFO を使う)

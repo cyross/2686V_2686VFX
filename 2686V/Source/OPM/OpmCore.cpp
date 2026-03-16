@@ -26,7 +26,7 @@ const std::array<OpmCore::OpmLfoCalculator, 4> OpmCore::lfoHwPgStrategies = { {
 
         return pm;
     },
-    // 3: Noise
+    // 3: Sample & Hold
     [](double /*phase*/, float noise) -> float {
         return noise;
     }
@@ -53,7 +53,7 @@ const std::array<OpmCore::OpmLfoCalculator, 4> OpmCore::lfoHwEgStrategies = { {
 
         return am;
     },
-    // 3: Noise
+    // 3: Sample & Hold
     [](double /*phase*/, float noise) -> float {
         return (noise + 1.0f) * 0.5f;
     }

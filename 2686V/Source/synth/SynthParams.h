@@ -33,14 +33,19 @@ struct FmOpParams
     bool vibEnable = false; // VIB (LFO Pitch)
     bool egType = false;    // EG-TYP (Sustain Mode)
 
+    int pgLfoWave = 0;
+    int egLfoWave = 0;
+
     // LFO Sync Delay
     float lfoSyncDelay = 0.0f;
     int lfoFreqIndex = 0;
+    float lfoFreq = 0.0f;
 
     // オペレーターごとのLFO個別感度（上乗せ分）
-    int pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
-    int ams = 0; // 個別 Amp Mod Sensitivity (0-3)
-    int amd = 0;
+    float pms = 0; // 個別 Pitch Mod Sensitivity (0-7)
+    float pmd = 0;
+    float ams = 0; // 個別 Amp Mod Sensitivity (0-3)
+    float amd = 0;
 
     // --- OPL/OPL3 LFO Settings ---
     float oplAms = 3.7f;  // AM Speed (Hz)
@@ -134,17 +139,17 @@ struct SynthParams
 
     // LFO Sensitivity
 
-    // Pitch Modulation Sensitivity (0-7)
-    int lfoPms = 0;
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
 
-    // Amplitude Modulation Sensitivity (0-3)
-    int lfoAms = 0;
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
 
-    // Pitch Modulation Depth (0-127)
-    int lfoPmd = 0;
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
 
-    // Amplitude Modulation Depth (0-127)
-    int lfoAmd = 0;
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
 
     // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
     int lfoWave = 2;

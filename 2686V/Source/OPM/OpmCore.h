@@ -33,7 +33,6 @@ private:
     float m_quantizeSteps = 0.0f;
 
     // OPM LFO
-    double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
     int m_pms = 0;
     int m_ams = 0;
@@ -48,9 +47,7 @@ private:
     unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)
     float m_noisePhase = 0.0f;
     float m_noiseDelta = 0.0f;
-    float m_currentNoiseSample = 0.0f;
     float m_targetNoiseFreq = 12000.0f;
-    float m_amSmooth = 0.0f;
     float m_amSmoothRate = 0.005f;
 
     float m_modWheel = 0.0f;

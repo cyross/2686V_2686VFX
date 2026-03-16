@@ -59,6 +59,9 @@ private:
     int m_ams = 0;
     int m_pmd = 0;
     int m_amd = 0;
+    double m_lfoTimerAcc = 0.0;
+    float m_steppedPmLfoVal = 0.0f;
+    float m_steppedAmLfoVal = 0.0f;
 
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;

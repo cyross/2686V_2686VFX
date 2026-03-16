@@ -9,7 +9,7 @@ namespace GuiValue
 	namespace Window
 	{
 		static inline constexpr int width = 1280;
-		static inline constexpr int height = 720;
+		static inline constexpr int height = 800;
 	}
 
 	namespace WaterMarkLogo
@@ -95,12 +95,12 @@ namespace GuiValue
 
 	namespace MonoMode
 	{
-		static inline constexpr int paddingTop = 20;
+		static inline constexpr int paddingTop = 8;
 	}
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 20;
+		static inline constexpr int paddingBottom = 8;
 	}
 
 	namespace Category

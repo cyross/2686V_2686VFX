@@ -193,7 +193,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
     layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto headerArea = pageArea.removeFromTop(GuiValue::Adpcm::File::height);

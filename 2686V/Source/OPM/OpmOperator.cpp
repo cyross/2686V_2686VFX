@@ -62,7 +62,7 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
 }
 
 void OpmOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, int globalPms, int globalAms, float globalPmd, float globalAmd, float modWheel)
+    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
@@ -78,7 +78,7 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
     if (globalAm) {
         float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
-        totalAmDepth += amsDepths[std::clamp(globalAms, 0, 3)] * globalDepthScale;
+        totalAmDepth += amsDepths[std::clamp((int)globalAms, 0, 3)] * globalDepthScale;
     }
 
     // 上限を1.0(100%)でクリップ
@@ -100,7 +100,7 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
     if (globalPm) {
         float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
-        totalPmDepth += pmsDepths[std::clamp(globalPms, 0, 7)] * globalPmdScale;
+        totalPmDepth += pmsDepths[std::clamp((int)globalPms, 0, 7)] * globalPmdScale;
     }
 
     // PMがONの時だけ、その深さをLFO波形に掛ける

@@ -258,7 +258,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat, .paddingTop = GuiValue::MVol::paddingTop });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     auto topPadsArea = pageArea.removeFromTop(GuiValue::Rhythm::Pad::height);
