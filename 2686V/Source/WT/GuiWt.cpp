@@ -192,6 +192,17 @@ void GuiWt::setup()
         customSliders128.setAllValues(-1.0f);
         resized();
         };
+
+    customWaveSmoothBtn.setup({ .parent = *this, .title = "Smooth Waveform", .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setWantsKeyboardFocus(true);
+    customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveSmoothBtn.onClick = [this] {
+        // 現在選択されている波形サイズに応じてスムージングを実行
+        int sizeId = sizeSelector.getSelectedId();
+        if (sizeId == 1) customSliders32.applySmoothing();
+        else if (sizeId == 2) customSliders64.applySmoothing();
+        else if (sizeId == 3) customSliders128.applySmoothing();
+    };
 }
 
 void GuiWt::layout(juce::Rectangle<int> content)
@@ -246,6 +257,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customWaveResetTo0Btn.setEnabled(isCustomWave);
     customWaveResetTo1Btn.setEnabled(isCustomWave);
     customWaveResetToM1Btn.setEnabled(isCustomWave);
+    customWaveSmoothBtn.setEnabled(isCustomWave);
 
     // Custom Wave
     // Custom Mode Layout
@@ -314,6 +326,13 @@ void GuiWt::layout(juce::Rectangle<int> content)
             customSliders128.setVisible(true);
         }
     }
+
+    cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
+
+    auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
+    customWaveSmoothBtn.setBounds(smoothArea);
+
+    cwRect.removeFromTop(4); // リセットボタンとの隙間
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });

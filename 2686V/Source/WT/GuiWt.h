@@ -16,7 +16,62 @@ class WaveformContainer :
     public juce::Component,
     public GuiBaseComponent
 {
+    // ==========================================================
+        // ★追加: スライダーの描画をカスタマイズする専用 LookAndFeel
+        // ==========================================================
+    class WaveformSliderLookAndFeel : public juce::LookAndFeel_V4
+    {
+    public:
+        // ホバーされているスライダーのインデックスを親から教えてもらうための変数
+        int hoveredIndex = -1;
+        int myIndex = -1;
+
+        void drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+            float sliderPos, float minSliderPos, float maxSliderPos,
+            const juce::Slider::SliderStyle style, juce::Slider& slider) override
+        {
+            // ホバーされているスライダーなら背景を黒色、そうでないなら通常色
+            juce::Colour trackColor;
+            if (slider.isEnabled()) {
+                trackColor = (hoveredIndex == myIndex) ? juce::Colours::cyan.withAlpha(0.5f) : GuiColor::WaveformContainer::Track;
+            }
+            else {
+                trackColor = juce::Colours::darkgrey.withAlpha(0.5f);
+            }
+
+            // ホバーされているスライダーなら赤色、そうでないなら通常色
+            juce::Colour thumbColor;
+            if (slider.isEnabled()) {
+                thumbColor = (hoveredIndex == myIndex) ? juce::Colours::red : GuiColor::WaveformContainer::Thumb;
+            }
+            else {
+                thumbColor = juce::Colours::grey;
+            }
+
+            // --- 枠線を無くし、背景（トラック）を描画 ---
+            g.setColour(trackColor);
+            g.fillRect(x, y, width, height);
+
+            // --- 実際の波形値（中身）を描画 ---
+            // Y軸の中央を 0 (ゼロ) とする
+            float zeroPos = y + height * 0.5f;
+
+            g.setColour(thumbColor);
+
+            // sliderPos が zeroPos より上（プラス値）か下（マイナス値）かで描画の起点を変える
+            if (sliderPos < zeroPos) {
+                // プラスの値（上向きに伸びる）
+                g.fillRect((float)x, sliderPos, (float)width, zeroPos - sliderPos);
+            }
+            else {
+                // マイナスの値（下向きに伸びる）
+                g.fillRect((float)x, zeroPos, (float)width, sliderPos - zeroPos);
+            }
+        }
+    };
+
     std::vector<std::unique_ptr<GuiSlider>> wts;
+    std::vector<std::unique_ptr<WaveformSliderLookAndFeel>> wtsLnF;
     std::vector<std::unique_ptr<GuiTextButton>> p01Btns;     // +0.1
     std::vector<std::unique_ptr<GuiTextButton>> p001Btns;     // +0.01
     std::vector<std::unique_ptr<GuiTextButton>> maxBtns;     // 1.0
@@ -41,6 +96,10 @@ public:
         for (size_t i = 0; i < tableSize; ++i)
         {
             wts.push_back(std::make_unique<GuiSlider>(context));
+            wtsLnF.push_back(std::make_unique<WaveformSliderLookAndFeel>());
+            wtsLnF.back()->myIndex = (int)i; // 自分が何番目のスライダーか教える
+            wts.back()->setLookAndFeel(wtsLnF.back().get()); // L&Fを適用
+
             p01Btns.push_back(std::make_unique<GuiTextButton>(context));
             p001Btns.push_back(std::make_unique<GuiTextButton>(context));
             maxBtns.push_back(std::make_unique<GuiTextButton>(context));
@@ -63,10 +122,29 @@ public:
             addAndMakeVisible(m001Btns.back().get());
             addAndMakeVisible(m01Btns.back().get());
 
+            p01Btns.back()->addMouseListener(this, false);
+            p001Btns.back()->addMouseListener(this, false);
+            maxBtns.back()->addMouseListener(this, false);
+            halfMaxBtns.back()->addMouseListener(this, false);
+            zeroBtns.back()->addMouseListener(this, false);
+            halfMinBtns.back()->addMouseListener(this, false);
+            minBtns.back()->addMouseListener(this, false);
+            m001Btns.back()->addMouseListener(this, false);
+            m01Btns.back()->addMouseListener(this, false);
+
             // スライダー個別の操作を無効化し、親（このコンテナ）でマウス入力をまとめて受け取る
             wts.back()->setInterceptsMouseClicks(false, false);
         }
     }
+
+    ~WaveformContainer() override
+    {
+        // コンポーネント破棄時にL&Fの適用を解除する（JUCEの安全な作法）
+        for (auto& slider : wts) {
+            slider->setLookAndFeel(nullptr);
+        }
+    }
+
     struct Config {
         juce::Component& parent;
         juce::String idPrefix;
@@ -167,46 +245,78 @@ public:
     }
 
     // マウス操作時に常に状態を更新して再描画(repaint)を呼ぶ
-    void mouseMove(const juce::MouseEvent& e) override { updateHoverState(e); }
-    void mouseDown(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
-    void mouseDrag(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
+    void mouseMove(const juce::MouseEvent& e) override {
+        // e.originalComponentがボタンだった場合でも、コンテナ基準の座標に直して処理する
+        updateHoverState(e.getEventRelativeTo(this).position);
+    }
+
+    void mouseDown(const juce::MouseEvent& e) override {
+        // スライダーエリアを直接クリックした時のみ値を変更する(ボタンクリック時は無視)
+        if (e.originalComponent == this) updateSliderValue(e.getEventRelativeTo(this).position);
+        updateHoverState(e.getEventRelativeTo(this).position);
+    }
+
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if (e.originalComponent == this) updateSliderValue(e.getEventRelativeTo(this).position);
+        updateHoverState(e.getEventRelativeTo(this).position);
+    }
 
     void mouseExit(const juce::MouseEvent& e) override {
-        hoveredIndex = -1; // カーソルが外れたら非表示にする
+        // isMouseOver(true) は、このコンテナ自身 または 子コンポーネント(ボタン) の
+        // 領域内にマウスがあるかどうかを判定します。中にあるならホバー解除しない！
+        if (isMouseOver(true)) return;
+
+        setHoveredIndex(-1); // 完全に外に出たら非表示にする
         repaint();
     }
 
-    void updateSliderValue(const juce::MouseEvent& e)
+    // 引数を MouseEvent から Point<float> に変更
+    void updateSliderValue(juce::Point<float> pos)
     {
         if (!isEnabledState) return;
 
-        int index = (int)(e.position.x / sliderWidth);
+        int index = (int)(pos.x / sliderWidth);
         index = std::clamp(index, 0, (int)tableSize - 1);
 
         float sliderH = (float)wts[0]->getHeight();
-        float normalizedY = 1.0f - (e.position.y / sliderH);
+        float normalizedY = 1.0f - (pos.y / sliderH);
         float newValue = std::clamp(normalizedY * 2.0f - 1.0f, -1.0f, 1.0f);
 
         wts[index]->setValue(newValue, juce::sendNotification);
     }
 
-    // マウスの位置と選択中のインデックスを記憶する
-    void updateHoverState(const juce::MouseEvent& e)
+    // ヘルパー関数 (前回追加したもの)
+    void setHoveredIndex(int index)
+    {
+        if (hoveredIndex != index) {
+            hoveredIndex = index;
+
+            for (size_t i = 0; i < tableSize; ++i) {
+                wtsLnF[i]->hoveredIndex = hoveredIndex;
+                wts[i]->repaint();
+            }
+        }
+    }
+
+    // 引数を MouseEvent から Point<float> に変更
+    void updateHoverState(juce::Point<float> pos)
     {
         if (!isEnabledState) return;
 
         float sliderH = (float)wts[0]->getHeight();
-        // ボタンエリア（下部）にいる時はポップアップを消す
-        if (e.position.y > sliderH || e.position.y < 0) {
-            if (hoveredIndex != -1) { hoveredIndex = -1; repaint(); }
+
+        int index = (int)(pos.x / sliderWidth);
+        index = std::clamp(index, 0, (int)tableSize - 1);
+
+        // ボタンエリア（下部）にいる時はポップアップ(ツールチップ)を更新しない
+        if (pos.y > sliderH || pos.y < 0) {
+            setHoveredIndex(index);
+            repaint();
             return;
         }
 
-        int index = (int)(e.position.x / sliderWidth);
-        index = std::clamp(index, 0, (int)tableSize - 1);
-
-        hoveredIndex = index;
-        lastMousePos = e.getPosition();
+        setHoveredIndex(index);
+        lastMousePos = pos.toInt();
 
         repaint(); // 画面を更新して paintOverChildren を呼び出す
     }
@@ -260,6 +370,34 @@ public:
     {
         for (auto& slider : wts) {
             slider->setValue(val, juce::sendNotification);
+        }
+    }
+
+    void applySmoothing()
+    {
+        if (!isEnabledState) return;
+
+        std::vector<float> temp(tableSize);
+
+        // 1. 全てのポイントの平滑化された値を一旦バッファ(temp)に計算する
+        for (size_t i = 0; i < tableSize; ++i)
+        {
+            // 波形はループしている前提なので、端の次は反対側の端を参照する
+            size_t prev = (i == 0) ? tableSize - 1 : i - 1;
+            size_t next = (i == tableSize - 1) ? 0 : i + 1;
+
+            float valPrev = (float)wts[prev]->getValue();
+            float valCurr = (float)wts[i]->getValue();
+            float valNext = (float)wts[next]->getValue();
+
+            // 加重移動平均 (隣25% + 自分50% + 隣25%) で角を丸める
+            temp[i] = (valPrev * 0.25f) + (valCurr * 0.5f) + (valNext * 0.25f);
+        }
+
+        // 2. 計算結果をスライダーに適用して通知を飛ばす
+        for (size_t i = 0; i < tableSize; ++i)
+        {
+            wts[i]->setValue(temp[i], juce::sendNotification);
         }
     }
 };
@@ -318,6 +456,8 @@ class GuiWt : public GuiBase
     GuiTextButton customWaveResetTo1Btn;
     GuiTextButton customWaveResetToM1Btn;
 
+    GuiTextButton customWaveSmoothBtn;
+
     GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
@@ -353,6 +493,7 @@ public:
         rrTo003Button(context),
         bitSelector(context),
         rateSelector(context),
+        customWaveSmoothBtn(context),
         mvolCat(context),
         masterVolSlider(context),
         sizeSelector(context),

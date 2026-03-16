@@ -496,7 +496,7 @@ namespace GuiValue
 		static constexpr int Height = 680;
 
 		static constexpr int RightWidth = 1000;
-		static constexpr int RightHeight = 660;
+		static constexpr int RightHeight = 680;
 
 		namespace Custom
 		{
