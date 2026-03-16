@@ -166,10 +166,17 @@ public:
         val = std::clamp(val, -1.0f, 1.0f);
 
         // 修飾キーによる高精度ドラッグ操作
-        if (e.mods.isShiftDown()) {
+        bool isShift = e.mods.isShiftDown();
+        bool isCtrl = e.mods.isCtrlDown() || e.mods.isCommandDown(); // MacのCmdキーにも対応
+
+        if (isShift && isCtrl)
+        {
+            val = std::round(val / 0.1f) * 0.1f;
+        }
+        else if (isShift) {
             val = std::round(val / 0.01f) * 0.01f;
         }
-        else if (e.mods.isCtrlDown() || e.mods.isCommandDown()) {
+        else if (isCtrl) {
             val = std::round(val / 0.05f) * 0.05f;
         }
 
@@ -207,10 +214,16 @@ public:
             potentialVal = std::clamp(potentialVal, -1.0f, 1.0f);
 
             // 修飾キーが押されている場合は、そのスナップ値もプレビューに反映させる
-            if (lastModifiers.isShiftDown()) {
+            bool isShift = lastModifiers.isShiftDown();
+            bool isCtrl = lastModifiers.isCtrlDown() || lastModifiers.isCommandDown();
+
+            if (isShift && isCtrl) {
+                potentialVal = std::round(potentialVal / 0.1f) * 0.1f;
+            }
+            else if (isShift) {
                 potentialVal = std::round(potentialVal / 0.01f) * 0.01f;
             }
-            else if (lastModifiers.isCtrlDown() || lastModifiers.isCommandDown()) {
+            else if (isCtrl) {
                 potentialVal = std::round(potentialVal / 0.05f) * 0.05f;
             }
 
