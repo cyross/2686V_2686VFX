@@ -411,6 +411,7 @@ class GuiWt : public GuiBase
     WaveformContainer<32> customSliders32;
     WaveformContainer<64> customSliders64;
     WaveformContainer<128> customSliders128;
+    WaveformContainer<256> customSliders256;
 
     GuiSlider levelSlider;
 
@@ -476,6 +477,7 @@ public:
         customSliders32(context),
         customSliders64(context),
         customSliders128(context),
+        customSliders256(context),
         levelSlider(context),
         monoPolyCat(context),
         presetNameCat(context),

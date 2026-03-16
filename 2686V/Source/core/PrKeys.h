@@ -34,6 +34,7 @@ namespace PrKey
 		static inline const juce::String custom32 = "_CUSTOM32_";
 		static inline const juce::String custom64 = "_CUSTOM64_";
 		static inline const juce::String custom128 = "_CUSTOM128_";
+		static inline const juce::String custom256 = "_CUSTOM256_";
 
 		namespace Fx
 		{

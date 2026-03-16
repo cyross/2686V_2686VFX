@@ -44,6 +44,7 @@ private:
     std::array<float, 32> m_customWaveCache32; // for data storage
     std::array<float, 64> m_customWaveCache64; // for data storage
     std::array<float, 128> m_customWaveCache128; // for data storage
+    std::array<float, 256> m_customWaveCache256; // for data storage
 
     // Rate / Lo-Fi
     int m_rateIndex = 5; // Default ID 6 (16kHz) -> Index 5
