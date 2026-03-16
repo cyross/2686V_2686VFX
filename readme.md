@@ -47,7 +47,7 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
   - パルス波は、SSGだけではなくファミコンやKONAMI VRC VIのデューティ比に対応
   - 位相逆転可能
 - 波形メモリ(WAVETABLE)(風音源)対応
-  - 複数ビットレートと32/64/128サンプルに対応
+  - 複数ビットレートと32/64/128/256サンプルに対応
   - プリセット波形メモリ
 - リズム音源(風音源)サポート
   - ビットクラッシャー付きのドラムマシン
@@ -121,7 +121,6 @@ DAW上で、「PC-9801-26」と「PC-9801-86」を再現したような曲を作
 
 ### 必要な環境
 
-- `Microsoft Visual Studio Code`
 - `Microsoft Visual Studio 2026 Community` 以上
 - `Developer PowerShell` か `Developer Command Prompt` を起動できる環境
   - `CMake` などのコマンドラインツールインストール済み
@@ -173,20 +172,6 @@ git switch -d [JUCEの最新バージョン番号 例: "8.0.12"]
 cd ../vst3sdk
 git submodule update --init --recursive
 git switch -d [vst3sdkの最新バージョン番号 例: "v3.8.0_build_66"]
-cd base
-git submodule update --init --recursive
-cd ../cmake
-git submodule update --init --recursive
-cd ../doc
-git submodule update --init --recursive
-cd ../pluginterfaces
-git submodule update --init --recursive
-cd ../public.sdk
-git submodule update --init --recursive
-cd ../tutrials
-git submodule update --init --recursive
-cd ../vstgui4
-git submodule update --init --recursive
 
 ```
 
@@ -249,35 +234,7 @@ JUCEのライセンスは、`external/JUCE/LICENSE.md` にございます。
 
 ## 参考文献
 
-- 「マシン語サウンドプログラミング」
-  - 青山学／日高徹 著
-  - アスキー出版局
-  - 1994年
-
-- 「PC-9801-86サウンドボード ユーザーズマニュアル」
-  - 日本電気 編
-  - 日本電気
-  - 1993年
-
-- 「Inside X68000」
-  - 桒野雅彦 著
-  - ソフトバンク
-  - 1992年
-
-- 「MA-5 オーサリングツール ユーザーマニュアル(ATS-SMAFPhraseL2版)」
-  - ヤマハ株式会社 編
-  - ヤマハ株式会社
-  - 2006年
-
-- YMF262のデータシート
-
-- [Wikipedia - YAMAHA YM2414](https://en.wikipedia.org/wiki/Yamaha_YM2414)
-- [DTM STATION - YAMAHAのFM音源チップ、YMF825がMAKE市場向けに登場。Maker Faireで先行発売が決定だ！](https://www.dtmstation.com/archives/52000321.html)
-- [MAMEのFM271部分](https://git.libretro.com/libretro/mame/-/blob/f3218cc336813f24adf720e7c48b544e7bfc2d0e/src/devices/sound/ymf271.cpp)
-- [OPL3解析ドキュメント](https://moddingwiki.shikadi.net/wiki/OPL_chip)
-- [YAMAHA V50の取扱説明書](https://jp.yamaha.com/support/manuals/index.html?l=ja&k=V50)
-- [YAMAHA TX81Zの取扱説明書](https://jp.yamaha.com/products/music_production/synthesizers/tx81z/downloads.html#product-tabs)
-- [Programmer's Guide to OPL3 FM Music Synthesizer](https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/programmers-guide-to-opl3-fm-music-synthesizer-r447/)
+[「2686V オペレーションマニュアル」の参考文献](https://github.com/cyross/2686V_2686VFX/wiki/%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)をご参照ください
 
 ## 更新履歴
 
