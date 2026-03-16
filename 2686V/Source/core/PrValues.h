@@ -172,6 +172,13 @@ namespace PrValue
 			inline constexpr float initial = 5.0f;
 		}
 
+		namespace N88Freq
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 16383;
+			inline constexpr int initial = 0;
+		}
+
 		namespace Shape
 		{
 			inline constexpr int min = 0;

@@ -71,7 +71,7 @@ static std::vector<SelectItem> lfoShapeItems = {
     {.name = "1: Square",              .value = 2 },
     {.name = "2: Triangle",            .value = 3 },
     {.name = "3: Sample & Hold",       .value = 4 },
-    {.name = "4: Saw Up & One Shot",   .value = 5 },
+    {.name = "4: Saw Down & One Shot", .value = 5 },
     {.name = "5: Triangle & One Shot", .value = 6 },
 };
 

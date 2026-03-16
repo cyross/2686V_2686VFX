@@ -8,6 +8,10 @@ void OpnCore::prepare(double sampleRate)
     for (auto& op : m_operators) op.setSampleRate(target);
     m_rateAccumulator = 1.0;
 
+    m_lfoTimerAcc = 1.0;
+    m_steppedPmLfoVal = 0.0f;
+    m_steppedAmLfoVal = 0.0f;
+
     updateNoiseDelta(target);
 
     m_amSmooth = 0.0f;
@@ -132,33 +136,50 @@ float OpnCore::getSample() {
             // ディレイ中は pm=0, am=0 となるため何もしない
         }
         else {
-            double lfoInc = m_lfoFreq / targetRate;
-            m_lfoPhase += lfoInc;
+            // =================================================================
+            // 60Hz ソフトウェアタイマーのシミュレート
+            // =================================================================
+            double timerInc = 60.0 / targetRate; // 1サンプルあたりに進む60Hzタイマーの割合
+            m_lfoTimerAcc += timerInc;
 
-            // ノイズの更新処理
-            if (m_lfoPhase >= 1.0) {
-                m_lfoPhase -= 1.0;
+            // 1/60秒に1回だけ、LFOの計算をガクッと進める！
+            if (m_lfoTimerAcc >= 1.0) {
+                m_lfoTimerAcc -= 1.0;
 
-                m_lfoCycleCount++;
+                // m_lfoFreq(Hz) を 60(Hz) で割ることで、1回の割り込みあたりの位相増分になる
+                m_lfoPhase += (m_lfoFreq / 60.0);
 
-                unsigned int bit0 = m_lfsr & 1;
-                unsigned int bit3 = (m_lfsr >> 3) & 1;
-                unsigned int nextBit = bit0 ^ bit3;
-                m_lfsr >>= 1;
-                if (nextBit) m_lfsr |= (1 << 16);
-                m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+                // ノイズの更新処理とサイクルカウント
+                if (m_lfoPhase >= 1.0) {
+                    m_lfoPhase -= 1.0;
+                    m_lfoCycleCount++;
+
+                    unsigned int bit0 = m_lfsr & 1;
+                    unsigned int bit3 = (m_lfsr >> 3) & 1;
+                    unsigned int nextBit = bit0 ^ bit3;
+                    m_lfsr >>= 1;
+                    if (nextBit) m_lfsr |= (1 << 16);
+                    m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+                }
+
+                // OPNの場合は 0〜3 (lfoN88Strategies)
+                // OPNAの場合は 0〜5 (lfoN8886Strategies) などの配列サイズに合わせる
+                int waveIdx = std::clamp(m_lfoWave, 0, 5);
+                FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
+
+                if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
+                    lfoVal.pm = 0.0f;
+                    lfoVal.am = 0.0f;
+                }
+
+                // 計算した結果を保持する
+                m_steppedPmLfoVal = lfoVal.pm;
+                m_steppedAmLfoVal = lfoVal.am;
             }
 
-            int waveIdx = std::clamp(m_lfoWave, 0, 5);
-            FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
-
-            if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
-                lfoVal.pm = 0.0f;
-                lfoVal.am = 0.0f;
-            }
-
-            pmLfoVal = lfoVal.pm;
-            amLfoVal = lfoVal.am;
+            // 保持されている値(階段状の波形)を出力に回す
+            pmLfoVal = m_steppedPmLfoVal;
+            amLfoVal = m_steppedAmLfoVal;
         }
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;

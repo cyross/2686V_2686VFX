@@ -13,7 +13,7 @@ const std::array<FmCore::BaseAlgRouting, 8> FmCore::baseRoutings = { {
 } };
 
 // -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPNA, OPN, OPM, OPZX3 共通)
+// LFO 波形算出アルゴリズム (オリジナル)
 // -----------------------------------------------------------
 const std::array<FmCore::LfoCalculator, 5> FmCore::lfoStrategies = { {
     // 0: Sine
@@ -46,7 +46,7 @@ const std::array<FmCore::LfoCalculator, 5> FmCore::lfoStrategies = { {
 } };
 
 // -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPNA, OPN, OPM, OPZX3 共通)
+// LFO 波形算出アルゴリズム (N888BASIC準拠)
 // -----------------------------------------------------------
 const std::array<FmCore::LfoCalculator, 4> FmCore::lfoN88Strategies = { {
     // 0: Saw Up
@@ -73,9 +73,8 @@ const std::array<FmCore::LfoCalculator, 4> FmCore::lfoN88Strategies = { {
     }
 } };
 
-
 // -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPNA, OPN, OPM, OPZX3 共通)
+// LFO 波形算出アルゴリズム (N888BASIC(86)準拠)
 // -----------------------------------------------------------
 const std::array<FmCore::LfoCalculator, 6> FmCore::lfoN8886Strategies = { {
     // 0: Saw Up
@@ -100,9 +99,9 @@ const std::array<FmCore::LfoCalculator, 6> FmCore::lfoN8886Strategies = { {
     [](double /*phase*/, float noise) -> FmCore::LfoResult {
         return { noise, (noise + 1.0f) * 0.5f };
     },
-    // 4: Saw Up & One Shot
+    // 4: Saw Down & One Shot
     [](double phase, float /*noise*/) -> FmCore::LfoResult {
-        return { (float)(phase < 0.5 ? phase * 2.0: 0.0), (float)(phase < 0.5 ? phase : 0.0) };
+        return { (float)(phase < 0.5 ? 1.0 - phase * 2.0: 0.0), (float)(phase < 0.5 ? 1.0 - phase : 0.0) };
     },
     // 5: Triangle & One Shot
     [](double phase, float /*noise*/) -> FmCore::LfoResult {

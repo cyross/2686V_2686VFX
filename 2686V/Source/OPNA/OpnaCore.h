@@ -59,6 +59,9 @@ private:
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
     uint32_t m_lfoCycleCount = 0;
+    double m_lfoTimerAcc = 0.0;
+    float m_steppedPmLfoVal = 0.0f;
+    float m_steppedAmLfoVal = 0.0f;
 
     void updateNoiseDelta(double targetRate) {
         if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
