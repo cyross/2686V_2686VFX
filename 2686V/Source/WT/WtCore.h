@@ -37,6 +37,7 @@ private:
 
     // Wave Data
     std::vector<float> m_sourceWave; // Internal High-Res (Length 64)
+    int m_tableSizeIndex = 0;
     int m_tableSize = 32;            // Playback Size (32 or 64)
     float m_quantizeSteps = 15.0f;   // 4bit=15
     int m_waveform = -1; // for initialize
@@ -44,6 +45,9 @@ private:
     std::array<float, 32> m_customWaveCache32; // for data storage
     std::array<float, 64> m_customWaveCache64; // for data storage
     std::array<float, 128> m_customWaveCache128; // for data storage
+    std::array<float, 256> m_customWaveCache256; // for data storage
+    std::array<int, 4> m_tableSizes;
+    std::array<float*, 4> m_customWaves;
 
     // Rate / Lo-Fi
     int m_rateIndex = 5; // Default ID 6 (16kHz) -> Index 5

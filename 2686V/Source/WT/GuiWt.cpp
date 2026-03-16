@@ -47,6 +47,7 @@ static std::vector<SelectItem> wtTsItems = {
     {.name = "0:  32 Samples",  .value = 1 },
     {.name = "1:  64 Samples",  .value = 2 },
     {.name = "2: 128 Samples",  .value = 3 },
+    {.name = "3: 256 Samples",  .value = 4 },
 };
 
 void GuiWt::setup()
@@ -162,6 +163,7 @@ void GuiWt::setup()
 	customSliders32.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom32 });
     customSliders64.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom64 });
     customSliders128.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom128 });
+    customSliders256.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom256 });
 
 	customWaveResetTo0Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
@@ -170,6 +172,7 @@ void GuiWt::setup()
         customSliders32.setAllValues(0.0f);
         customSliders64.setAllValues(0.0f);
         customSliders128.setAllValues(0.0f);
+        customSliders256.setAllValues(0.0f);
         resized();
     };
 
@@ -180,6 +183,7 @@ void GuiWt::setup()
         customSliders32.setAllValues(1.0f);
         customSliders64.setAllValues(1.0f);
         customSliders128.setAllValues(1.0f);
+        customSliders256.setAllValues(1.0f);
         resized();
         };
 
@@ -190,7 +194,20 @@ void GuiWt::setup()
         customSliders32.setAllValues(-1.0f);
         customSliders64.setAllValues(-1.0f);
         customSliders128.setAllValues(-1.0f);
+        customSliders256.setAllValues(-1.0f);
         resized();
+        };
+
+    customWaveSmoothBtn.setup({ .parent = *this, .title = GuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setWantsKeyboardFocus(true);
+    customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveSmoothBtn.onClick = [this] {
+        // 現在選択されている波形サイズに応じてスムージングを実行
+        int sizeId = sizeSelector.getSelectedId();
+        if (sizeId == 1) customSliders32.applySmoothing();
+        else if (sizeId == 2) customSliders64.applySmoothing();
+        else if (sizeId == 3) customSliders128.applySmoothing();
+        else if (sizeId == 4) customSliders256.applySmoothing();
         };
 }
 
@@ -243,9 +260,11 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customSliders32.setEnabled(isCustomWave);
     customSliders64.setEnabled(isCustomWave);
     customSliders128.setEnabled(isCustomWave);
+    customSliders256.setEnabled(isCustomWave);
     customWaveResetTo0Btn.setEnabled(isCustomWave);
     customWaveResetTo1Btn.setEnabled(isCustomWave);
     customWaveResetToM1Btn.setEnabled(isCustomWave);
+    customWaveSmoothBtn.setEnabled(isCustomWave);
 
     // Custom Wave
     // Custom Mode Layout
@@ -263,6 +282,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customSliders32.setBounds(containerArea);
     customSliders64.setBounds(containerArea);
     customSliders128.setBounds(containerArea);
+    customSliders256.setBounds(containerArea);
 
     // Check if Custom Mode is selected (Index 8 -> ID 9 based on addItem?)
     int waveSize = 0;
@@ -278,6 +298,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
     case 3:
         waveSize = 128;
         break;
+    case 4:
+        waveSize = 256;
+        break;
     }
 
     customWaveGroup.setEnabled(isCustomWave);
@@ -288,6 +311,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     customSliders64.setCustomEnabled(false);
     customSliders128.setVisible(false);
     customSliders128.setCustomEnabled(false);
+    customSliders256.setVisible(false);
+    customSliders256.setCustomEnabled(false);
 
     if (isCustomWave) {
         if (waveSize == 32) {
@@ -298,9 +323,13 @@ void GuiWt::layout(juce::Rectangle<int> content)
             customSliders64.setVisible(true);
             customSliders64.setCustomEnabled(true);
         }
-    else {
+        else if (waveSize == 128) {
             customSliders128.setVisible(true);
             customSliders128.setCustomEnabled(true);
+        }
+        else {
+            customSliders256.setVisible(true);
+            customSliders256.setCustomEnabled(true);
         }
     }
     else {
@@ -310,10 +339,20 @@ void GuiWt::layout(juce::Rectangle<int> content)
         else if (waveSize == 64) {
             customSliders64.setVisible(true);
         }
-        else {
+        else if (waveSize == 128) {
             customSliders128.setVisible(true);
         }
+        else {
+            customSliders256.setVisible(true);
+        }
     }
+
+    cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
+
+    auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
+    customWaveSmoothBtn.setBounds(smoothArea);
+
+    cwRect.removeFromTop(4); // リセットボタンとの隙間
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });

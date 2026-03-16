@@ -865,14 +865,15 @@ namespace PrValue
 
 	namespace Wt
 	{
-		inline constexpr int customSize1 = 32; // 最大値
-		inline constexpr int customSize2 = 64; // 最大値
-		inline constexpr int customSize3 = 128; // 最大値
+		inline constexpr int customSize1 = 32;
+		inline constexpr int customSize2 = 64;
+		inline constexpr int customSize3 = 128;
+		inline constexpr int customSize4 = 256;
 
 		namespace SammpleSize
 		{
 			inline constexpr int min = 0; // 最小値
-			inline constexpr int max = 2; // 最大値
+			inline constexpr int max = 3; // 最大値
 			inline constexpr int initial = 0; // 最大値
 		}
 
