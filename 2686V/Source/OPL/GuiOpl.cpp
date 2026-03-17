@@ -455,83 +455,70 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 // ==============================================================================
 void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
 {
-    juce::String input = mml.toUpperCase();
-    int val;
-
+    std::vector<RegisterUnit> units = RegisterConverter::convertToRegisterUnit(mml);
     bool rgMode = rgEn[opIndex].getToggleState();
 
-    // MUL
-    val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl::mul);
-    if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
+    // 文字列キーと、実行する処理(ラムダ式)とのマップ
+    std::map<juce::String, std::function<void(int)>> actionMap = {
+        // --- 基本パラメータ ---
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
+        { mmlPrefixAm,   [&](int v) { am[opIndex].setToggleState(RegisterConverter::convertOplAm(v), juce::sendNotification); } },
+        { mmlPrefixVib,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixVb,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixPm,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixEgType,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixEt,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixKsr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKsl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
+        { mmlPrefixKl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
 
-    // AM
-    val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl::am);
-    if (RegisterConverter::isValidVal(val)) am[opIndex].setToggleState(RegisterConverter::convertOplAm(val), juce::sendNotification);
+        // --- TL系 (RGモードで分岐) ---
+        { mmlPrefixTl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixO,    [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixOl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
 
-    // VIB
-    val = RegisterConverter::getValue(input, mmlPrefixVib, mmlValues::opl::vib);
-    if (RegisterConverter::isValidVal(val)) vib[opIndex].setToggleState(RegisterConverter::convertOplVib(val), juce::sendNotification);
+        // --- エンベロープ系 (RGモードで分岐) ---
+        { mmlPrefixAr,   [&](int v) {
+            rgMode ? rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : ar[opIndex].setValue(RegisterConverter::convertOplAr(v), juce::sendNotification);
+        }},
+        { mmlPrefixDr,   [&](int v) {
+            rgMode ? rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : dr[opIndex].setValue(RegisterConverter::convertOplDr(v), juce::sendNotification);
+        }},
+        { mmlPrefixSl,   [&](int v) {
+            rgMode ? rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : sl[opIndex].setValue(RegisterConverter::convertOplSl(v), juce::sendNotification);
+        }},
+        { mmlPrefixRr,   [&](int v) {
+            rgMode ? rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : rr[opIndex].setValue(RegisterConverter::convertOplRr(v), juce::sendNotification);
+        }}
+    };
 
-    // EGTYPE
-    val = RegisterConverter::getValue(input, mmlPrefixEgType, mmlValues::opl::egtype);
-    if (RegisterConverter::isValidVal(val)) egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(val), juce::sendNotification);
-
-    // KSR
-    val = RegisterConverter::getValue(input, mmlPrefixKsr, mmlValues::opl::ksr);
-    if (RegisterConverter::isValidVal(val)) ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(val), juce::sendNotification);
-
-    // KSL
-    val = RegisterConverter::getValue(input, mmlPrefixKsl, mmlValues::opl::ksl);
-    if (RegisterConverter::isValidVal(val)) ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(val), juce::sendNotification);
-
-    // MASK
-    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opl::mask);
-    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
-
-    if (rgMode)
+    for (const auto& rUnit : units)
     {
-        // TL
-        val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl::tl);
-        if (RegisterConverter::isValidVal(val)) rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(val), juce::sendNotification);
+        // actionMapの中に rUnit.key と一致するものがあるか検索
+        auto it = actionMap.find(rUnit.key);
 
-        // AR
-        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl::ar);
-        if (RegisterConverter::isValidVal(val)) rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // DR
-        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl::dr);
-        if (RegisterConverter::isValidVal(val)) rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // SL
-        val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl::sl);
-        if (RegisterConverter::isValidVal(val)) rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // RR
-        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl::rr);
-        if (RegisterConverter::isValidVal(val)) rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        return;
+        if (it != actionMap.end())
+        {
+            // 見つかったら、そこに登録されたラムダ式(関数)に value を渡して実行
+            it->second(rUnit.value);
+        }
     }
-
-    // TL
-    val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl::tl);
-    if (RegisterConverter::isValidVal(val)) tl[opIndex].setValue(RegisterConverter::convertOplTl(val), juce::sendNotification);
-
-    // AR
-    val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl::ar);
-    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(val), juce::sendNotification);
-
-    // DR
-    val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl::dr);
-    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(val), juce::sendNotification);
-
-    // SL
-    val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl::sl);
-    if (RegisterConverter::isValidVal(val)) sl[opIndex].setValue(RegisterConverter::convertOplSl(val), juce::sendNotification);
-
-    // RR
-    val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl::rr);
-    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
 }
 
 void GuiOpl::updateOpEnable(int idx, bool enable)
