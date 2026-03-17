@@ -357,6 +357,12 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 #if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
+    // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
+    int currentMode = (int)*apvts.getRawParameterValue(PrKey::mode);
+    if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
+        lastActiveSynthMode = (OscMode)currentMode;
+    }
+
     // メタデータとパスを属性として追加
     xml->setAttribute(PresetKey::name, sanitizeString(presetName, PresetValue::MetaData::Length::name));
     xml->setAttribute(PresetKey::author, sanitizeString(presetAuthor, PresetValue::MetaData::Length::author));
