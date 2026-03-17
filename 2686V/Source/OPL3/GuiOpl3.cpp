@@ -460,37 +460,21 @@ void GuiOpl3::applyMmlString(const juce::String& mml, int opIndex)
     val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl3::tl);
     if (RegisterConverter::isValidVal(val)) tl[opIndex].setValue(RegisterConverter::convertOplTl(val), juce::sendNotification);
 
-    // AR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRar, mmlValues::opl3::ar);
-    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(mmlValues::opl3::ar - val), juce::sendNotification);
     // AR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl3::ar);
-        if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl3::ar);
+    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(val), juce::sendNotification);
 
-    // DR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRdr, mmlValues::opl3::dr);
-    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(mmlValues::opl3::dr - val), juce::sendNotification);
     // DR
-    else
-    {
-        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl3::dr);
-        if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl3::dr);
+    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(val), juce::sendNotification);
 
     // SL
     val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl3::sl);
     if (RegisterConverter::isValidVal(val)) sl[opIndex].setValue(RegisterConverter::convertOplSl(val), juce::sendNotification);
 
-    // RR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRrr, mmlValues::opl3::rr);
-    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(mmlValues::opl3::rr - val), juce::sendNotification);
     // RR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl3::rr);
-        if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl3::rr);
+    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
 }
 
 void GuiOpl3::updateOpEnable(int idx, bool enable)

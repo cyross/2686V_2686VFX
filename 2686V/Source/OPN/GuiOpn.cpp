@@ -488,46 +488,22 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
     val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opn::tl);
     if (RegisterConverter::isValidVal(val)) tl[opIndex].setValue(RegisterConverter::convertFmTl(val), juce::sendNotification);
 
-    // AR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRar, mmlValues::opn::ar);
-    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertFmAr(mmlValues::opn::ar - val), juce::sendNotification);
     // AR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opn::ar);
-        if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opn::ar);
+    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertFmAr(val), juce::sendNotification);
 
-    // DR
-    val = RegisterConverter::getValue(input, mmlPrefixRdr, mmlValues::opn::dr);
-    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertFmDr(mmlValues::opn::dr - val), juce::sendNotification);
-    // DR
-    else
-    {
-        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opn::dr);
-        if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opn::dr);
+    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertFmDr(val), juce::sendNotification);
 
-    // SR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRsr, mmlValues::opn::sr);
-    if (RegisterConverter::isValidVal(val)) sr[opIndex].setValue(RegisterConverter::convertFmSr(mmlValues::opn::sr - val), juce::sendNotification);
-    // SR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixSr, mmlValues::opn::sr);
-        if (RegisterConverter::isValidVal(val)) sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixSr, mmlValues::opn::sr);
+    if (RegisterConverter::isValidVal(val)) sr[opIndex].setValue(RegisterConverter::convertFmSr(val), juce::sendNotification);
 
     // SL
     val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opn::sl);
     if (RegisterConverter::isValidVal(val)) sl[opIndex].setValue(RegisterConverter::convertFmSl(val), juce::sendNotification);
 
-    // RR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRrr, mmlValues::opn::rr);
-    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(mmlValues::opn::rr - val), juce::sendNotification);
-    // RR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opn::rr);
-        if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
-    }
+    val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opn::rr);
+    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertFmRr(val), juce::sendNotification);
 }
 
 void GuiOpn::updateOpEnable(int idx, bool enable)
