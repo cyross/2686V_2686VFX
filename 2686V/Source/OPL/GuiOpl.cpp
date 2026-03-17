@@ -69,6 +69,9 @@ static std::vector<SelectItem> oplEgItems = {
 
 void GuiOpl::setup()
 {
+    // このタブ(Component)がキーボードフォーカスを受け取れるようにする
+    setWantsKeyboardFocus(true);
+
     const juce::String code = PrKey::Prefix::opl;
     int tabOrder = 1;
 
@@ -658,4 +661,29 @@ void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
 void GuiOpl::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+// ==============================================================================
+// Keyboard Shortcut Logic
+// ==============================================================================
+bool GuiOpl::keyPressed(const juce::KeyPress& key)
+{
+    int opIndex = -1;
+    int code = key.getKeyCode();
+
+    // 通常の 1〜4キー、または テンキーの 1〜4 を判定
+    if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
+    else if (code == '2' || code == juce::KeyPress::numberPad2) opIndex = 1;
+
+    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    if (opIndex != -1)
+    {
+        // 該当オペレータが有効(Enabled)な時のみ反応させる
+        if (mml[opIndex].isEnabled()) {
+            mml[opIndex].triggerClick();
+        }
+        return true; // キー入力を消費したことをJUCEに伝える
+    }
+
+    return false; // 他のキーなら無視（通常処理へ）
 }
