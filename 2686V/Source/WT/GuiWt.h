@@ -144,9 +144,23 @@ public:
     // =======================================================
     // マウス操作の自前処理
     // =======================================================
-    void mouseMove(const juce::MouseEvent& e) override { updateHoverState(e); }
-    void mouseDown(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
-    void mouseDrag(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
+    void mouseMove(const juce::MouseEvent& e) override {
+        updateHoverState(e);
+    }
+
+    void mouseDown(const juce::MouseEvent& e) override { 
+        if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
+
+        updateSliderValue(e);
+        updateHoverState(e);
+    }
+
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
+
+        updateSliderValue(e);
+        updateHoverState(e);
+    }
 
     void mouseExit(const juce::MouseEvent& e) override {
         hoveredIndex = -1;
@@ -166,10 +180,11 @@ public:
         val = std::clamp(val, -1.0f, 1.0f);
 
         // 修飾キーによる高精度ドラッグ操作
+        bool isAlt = e.mods.isAltDown();
         bool isShift = e.mods.isShiftDown();
         bool isCtrl = e.mods.isCtrlDown() || e.mods.isCommandDown(); // MacのCmdキーにも対応
 
-        if (isShift && isCtrl)
+        if (isAlt)
         {
             val = std::round(val / 0.1f) * 0.1f;
         }
@@ -214,10 +229,11 @@ public:
             potentialVal = std::clamp(potentialVal, -1.0f, 1.0f);
 
             // 修飾キーが押されている場合は、そのスナップ値もプレビューに反映させる
+            bool isAlt = lastModifiers.isAltDown();
             bool isShift = lastModifiers.isShiftDown();
             bool isCtrl = lastModifiers.isCtrlDown() || lastModifiers.isCommandDown();
 
-            if (isShift && isCtrl) {
+            if (isAlt) {
                 potentialVal = std::round(potentialVal / 0.1f) * 0.1f;
             }
             else if (isShift) {

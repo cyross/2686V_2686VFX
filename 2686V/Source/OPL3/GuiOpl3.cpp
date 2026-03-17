@@ -64,6 +64,9 @@ static std::vector<SelectItem> opl3EgItems = {
 
 void GuiOpl3::setup()
 {
+    // このタブ(Component)がキーボードフォーカスを受け取れるようにする
+    setWantsKeyboardFocus(true);
+
     const juce::String code = PrKey::Prefix::opl3;
     int tabOrder = 1;
 
@@ -395,98 +398,70 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 // ==============================================================================
 void GuiOpl3::applyMmlString(const juce::String& mml, int opIndex)
 {
-    juce::String input = mml.toUpperCase();
-    int val;
-
-    // MUL
-    val = RegisterConverter::getValue(input, mmlPrefixMul, mmlValues::opl3::mul);
-    if (RegisterConverter::isValidVal(val)) mul[opIndex].setValue((double)RegisterConverter::convertOplMul(val), juce::sendNotification);
-
-    // AM
-    val = RegisterConverter::getValue(input, mmlPrefixAm, mmlValues::opl3::am);
-    if (RegisterConverter::isValidVal(val)) am[opIndex].setToggleState(RegisterConverter::convertOplAm(val), juce::sendNotification);
-
-    // VIB
-    val = RegisterConverter::getValue(input, mmlPrefixVib, mmlValues::opl3::vib);
-    if (RegisterConverter::isValidVal(val)) vib[opIndex].setToggleState(RegisterConverter::convertOplVib(val), juce::sendNotification);
-
-    // EGTYPE
-    val = RegisterConverter::getValue(input, mmlPrefixEgType, mmlValues::opl3::egtype);
-    if (RegisterConverter::isValidVal(val)) egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(val), juce::sendNotification);
-
-    // KSR
-    val = RegisterConverter::getValue(input, mmlPrefixKsr, mmlValues::opl3::ksr);
-    if (RegisterConverter::isValidVal(val)) ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(val), juce::sendNotification);
-
-    // KSL
-    val = RegisterConverter::getValue(input, mmlPrefixKsl, mmlValues::opl3::ksl);
-    if (RegisterConverter::isValidVal(val)) ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(val), juce::sendNotification);
-
-    // MASK
-    val = RegisterConverter::getValue(input, mmlPrefixMask, mmlValues::opl3::mask);
-    if (RegisterConverter::isValidVal(val)) mask[opIndex].setToggleState(RegisterConverter::convertFmMask(val), juce::sendNotification);
-
+    std::vector<RegisterUnit> units = RegisterConverter::convertToRegisterUnit(mml);
     bool rgMode = rgEn[opIndex].getToggleState();
 
-    if (rgMode)
+    // 文字列キーと、実行する処理(ラムダ式)とのマップ
+    // 文字列キーと、実行する処理(ラムダ式)とのマップ
+    std::map<juce::String, std::function<void(int)>> actionMap = {
+        // --- 基本パラメータ ---
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
+        { mmlPrefixAm,   [&](int v) { am[opIndex].setToggleState(RegisterConverter::convertOplAm(v), juce::sendNotification); } },
+        { mmlPrefixVib,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixVb,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixPm,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixEgType,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixEt,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixKsr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKsl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
+        { mmlPrefixKl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
+
+        // --- TL系 (RGモードで分岐) ---
+        { mmlPrefixTl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixO,    [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixOl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+
+        // --- エンベロープ系 (RGモードで分岐) ---
+        { mmlPrefixAr,   [&](int v) {
+            rgMode ? rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : ar[opIndex].setValue(RegisterConverter::convertOplAr(v), juce::sendNotification);
+        }},
+        { mmlPrefixDr,   [&](int v) {
+            rgMode ? rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : dr[opIndex].setValue(RegisterConverter::convertOplDr(v), juce::sendNotification);
+        }},
+        { mmlPrefixSl,   [&](int v) {
+            rgMode ? rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : sl[opIndex].setValue(RegisterConverter::convertOplSl(v), juce::sendNotification);
+        }},
+        { mmlPrefixRr,   [&](int v) {
+            rgMode ? rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : rr[opIndex].setValue(RegisterConverter::convertOplRr(v), juce::sendNotification);
+        }}
+    };
+
+    for (const auto& rUnit : units)
     {
-        // TL
-        val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl3::tl);
-        if (RegisterConverter::isValidVal(val)) rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(val), juce::sendNotification);
+        // actionMapの中に rUnit.key と一致するものがあるか検索
+        auto it = actionMap.find(rUnit.key);
 
-        // AR
-        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl3::ar);
-        if (RegisterConverter::isValidVal(val)) rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // DR
-        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl3::dr);
-        if (RegisterConverter::isValidVal(val)) rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // SL
-        val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl3::sl);
-        if (RegisterConverter::isValidVal(val)) rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        // RR
-        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl3::rr);
-        if (RegisterConverter::isValidVal(val)) rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(val), juce::sendNotification);
-
-        return;
-    }
-
-    // TL
-    val = RegisterConverter::getValue(input, mmlPrefixTl, mmlValues::opl3::tl);
-    if (RegisterConverter::isValidVal(val)) tl[opIndex].setValue(RegisterConverter::convertOplTl(val), juce::sendNotification);
-
-    // AR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRar, mmlValues::opl3::ar);
-    if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(mmlValues::opl3::ar - val), juce::sendNotification);
-    // AR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixAr, mmlValues::opl3::ar);
-        if (RegisterConverter::isValidVal(val)) ar[opIndex].setValue(RegisterConverter::convertOplAr(val), juce::sendNotification);
-    }
-
-    // DR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRdr, mmlValues::opl3::dr);
-    if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(mmlValues::opl3::dr - val), juce::sendNotification);
-    // DR
-    else
-    {
-        val = RegisterConverter::getValue(input, mmlPrefixDr, mmlValues::opl3::dr);
-        if (RegisterConverter::isValidVal(val)) dr[opIndex].setValue(RegisterConverter::convertOplDr(val), juce::sendNotification);
-    }
-
-    // SL
-    val = RegisterConverter::getValue(input, mmlPrefixSl, mmlValues::opl3::sl);
-    if (RegisterConverter::isValidVal(val)) sl[opIndex].setValue(RegisterConverter::convertOplSl(val), juce::sendNotification);
-
-    // RR(Reverse)
-    val = RegisterConverter::getValue(input, mmlPrefixRrr, mmlValues::opl3::rr);
-    if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(mmlValues::opl3::rr - val), juce::sendNotification);
-    // RR
-    else {
-        val = RegisterConverter::getValue(input, mmlPrefixRr, mmlValues::opl3::rr);
-        if (RegisterConverter::isValidVal(val)) rr[opIndex].setValue(RegisterConverter::convertOplRr(val), juce::sendNotification);
+        if (it != actionMap.end())
+        {
+            // 見つかったら、そこに登録されたラムダ式(関数)に value を渡して実行
+            it->second(rUnit.value);
+        }
     }
 }
 
@@ -601,4 +576,31 @@ void GuiOpl3::updateRgDisplayAsOp(int idx, bool rgMode)
 void GuiOpl3::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+// ==============================================================================
+// Keyboard Shortcut Logic
+// ==============================================================================
+bool GuiOpl3::keyPressed(const juce::KeyPress& key)
+{
+    int opIndex = -1;
+    int code = key.getKeyCode();
+
+    // 通常の 1〜4キー、または テンキーの 1〜4 を判定
+    if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
+    else if (code == '2' || code == juce::KeyPress::numberPad2) opIndex = 1;
+    else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
+    else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
+
+    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    if (opIndex != -1)
+    {
+        // 該当オペレータが有効(Enabled)な時のみ反応させる
+        if (mml[opIndex].isEnabled()) {
+            mml[opIndex].triggerClick();
+        }
+        return true; // キー入力を消費したことをJUCEに伝える
+    }
+
+    return false; // 他のキーなら無視（通常処理へ）
 }

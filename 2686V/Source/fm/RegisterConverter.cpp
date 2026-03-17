@@ -268,52 +268,6 @@ int RegisterConverter::convertOplDt(int regValue)
     return std::clamp(regValue, 0, 7);
 }
 
-// ==============================================================================
-// SSG Parameters
-// ==============================================================================
-
-// --- Volume ---
-// Register: 0-15
-// VST Param: 0.0 - 1.0
-float RegisterConverter::convertSsgVol(int regValue)
-{
-    int v = std::clamp(regValue, 0, 15);
-    return (float)v / 15.0f; // Linear
-}
-
-// --- Mixer (Enable Flags) ---
-// Register 0x07 bits:
-// Bit 0: Tone A Enable (0=On, 1=Off)
-// Bit 3: Noise A Enable (0=On, 1=Off)
-//
-// VST Param (Mix): 0.0(Tone) - 1.0(Noise) - 0.5(Both)
-// ※VSTの実装はクロスフェード式なので完全再現は難しいですが、近似値を返します
-float RegisterConverter::convertSsgMixer(bool toneOff, bool noiseOff)
-{
-    bool toneOn = !toneOff;
-    bool noiseOn = !noiseOff;
-
-    if (toneOn && !noiseOn) return 0.0f; // Tone Only
-    if (!toneOn && noiseOn) return 1.0f; // Noise Only
-    if (toneOn && noiseOn)  return 0.5f; // Both
-    return 0.0f; // Silent (Tone default)
-}
-
-// --- Envelope Period ---
-// Register: 0-65535 (EP)
-// VST Param: Frequency (Hz) or Period?
-// SsgCoreでは `m_envFreq` を保持し、位相を進めている。
-// 実機: Period = EP * T_clock * ... => Freq = Clock / (256 * EP) roughly
-// 近似: 入力をHzに変換
-float RegisterConverter::convertSsgEnvPeriod(int regValue)
-{
-    if (regValue <= 0) return 20.0f; // Fast
-    // 簡易計算: レジスタ値が大きいほど周波数は低い
-    // BaseClock(approx 2MHz) / (256 * Reg)
-    // e.g. 2000000 / (256 * 1000) = 7.8Hz
-    return 7812.5f / (float)regValue;
-}
-
 // MMLの -3 ～ +3 を、レジスタ値 0 ～ 7 に変換する
 int RegisterConverter::convertMmlDtToReg(int mmlDtValue)
 {
@@ -329,33 +283,10 @@ int RegisterConverter::convertMmlDtToReg(int mmlDtValue)
     }
 }
 
-
-// マイナス符号を許容し、エラー時の戻り値を -1000 に変更（-1 だと正常なDT値と区別がつかないため）
-int RegisterConverter::getValue(const juce::String& input, const juce::String& key, int maxVal)
+// MML値を、レジスタ値 0 ～ 3 に変換する
+int RegisterConverter::convertMmlDt2ToReg(int mmlDt2Value)
 {
-    int idx = input.indexOf(key);
-
-    if (idx < 0) return -1000;
-
-    int valStart = idx + key.length();
-    int valEnd = valStart;
-
-    // マイナス符号 '-' またはプラス符号 '+' があればインデックスを進める
-    if (valEnd < input.length() && (input[valEnd] == '-' || input[valEnd] == '+')) {
-        valEnd++;
-    }
-
-    while (valEnd < input.length() && juce::CharacterFunctions::isDigit(input[valEnd])) {
-        valEnd++;
-    }
-
-    if (valStart == valEnd) return -1000;
-    return input.substring(valStart, valEnd).getIntValue();
-};
-
-bool RegisterConverter::isValidVal(int val)
-{
-    return val != -1000;
+    return std::clamp(mmlDt2Value, 0, 3);
 }
 
 int RegisterConverter::convertFmKs(int regValue)
@@ -391,4 +322,49 @@ bool RegisterConverter::convertOplKsr(int regValue)
 int RegisterConverter::convertOplKsl(int regValue)
 {
     return std::clamp(regValue, 0, 3);
+}
+
+std::vector<RegisterUnit> RegisterConverter::convertToRegisterUnit(const juce::String& input)
+{
+    std::vector<RegisterUnit> units;
+    juce::StringArray tokens = juce::StringArray::fromTokens(input.toUpperCase(), false);
+
+    for (const juce::String& token : tokens)
+    {
+        // 文字列の後ろが数字ではない時は無視
+        if (!juce::CharacterFunctions::isDigit(token.getLastCharacter()))
+        {
+            continue;
+        }
+
+        // 文字列の後ろから数えて、数字ではない箇所を見つける
+        int lastKeyPos = token.length() - 1;
+
+        while (lastKeyPos >= 0 && (juce::CharacterFunctions::isDigit(token[lastKeyPos]) || token[lastKeyPos] == '-' || token[lastKeyPos] == '+'))
+        {
+
+            // +, - が検出されたときは、この時点で検索を中断する
+            if (token[lastKeyPos] == '-' || token[lastKeyPos] == '+')
+            {
+                lastKeyPos--;
+
+                break;
+            }
+
+            lastKeyPos--;
+        }
+
+        // 数字のみの場合は無視
+        if (lastKeyPos < 0)
+        {
+            continue;
+        }
+
+        juce::String key = token.substring(0, lastKeyPos + 1).replaceCharacter(':', ' ').trim();
+        int value = token.substring(lastKeyPos + 1).getIntValue();
+
+        units.push_back({ key, value });
+    }
+
+    return units;
 }

@@ -200,6 +200,9 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
         if (targetMode >= 0 && targetMode <= (int)OscMode::BEEP) // BEEP is 11
         {
+            // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
+            audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
+
             auto* param = audioProcessor.apvts.getParameter(PrKey::mode);
             if (param != nullptr)
             {
@@ -413,6 +416,13 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
         }
 
         opzx3Gui->updatePcmFileName(i, text);
+    }
+
+    // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
+    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(PrKey::mode);
+    if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
+        audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
+        tabs.setCurrentTabIndex(loadedMode);
     }
 
     // 4. 各タブのプリセット名を更新
@@ -649,45 +659,6 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
         auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
         fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
         rhythmGui->buttonClicked(button, audioProcessor.formatManager, fileChooser);
-    }
-#endif
-}
-
-void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
-{
-#if !defined(BUILD_AS_FX_PLUGIN)
-    if (event.mods.isRightButtonDown())
-    {
-        juce::Component* target = event.originalComponent;
-
-        // Find if target (or its parent, as originalComponent might be the slider thumb) is in our map
-        // JUCE sliders are complex components. We attached listener to the slider itself.
-        // Event source should bubble up or be the slider if clicked on background.
-
-        auto* slider = dynamic_cast<juce::Slider*>(event.eventComponent);
-        if (slider && sliderRegMap.count(slider))
-        {
-            RegisterType type = sliderRegMap[slider];
-
-            showRegisterInput(slider, [slider, type](int regValue) {
-                float newVal = 0.0f;
-                switch (type) {
-                case RegisterType::FmAr: newVal = RegisterConverter::convertFmAr(regValue); break;
-                case RegisterType::FmDr: newVal = RegisterConverter::convertFmDr(regValue); break;
-                case RegisterType::FmSr: newVal = RegisterConverter::convertFmSr(regValue); break;
-                case RegisterType::FmRr: newVal = RegisterConverter::convertFmRr(regValue); break;
-                case RegisterType::FmSl:   newVal = RegisterConverter::convertFmSl(regValue); break;
-                case RegisterType::FmTl:   newVal = RegisterConverter::convertFmTl(regValue); break;
-                case RegisterType::FmMul:  newVal = (float)RegisterConverter::convertFmMul(regValue); break;
-                case RegisterType::FmDt:   newVal = (float)RegisterConverter::convertFmDt(regValue); break;
-                case RegisterType::FmDt2:  newVal = RegisterConverter::convertFmDt2(regValue); break;
-                case RegisterType::SsgVol: newVal = RegisterConverter::convertSsgVol(regValue); break;
-                case RegisterType::SsgEnv: newVal = RegisterConverter::convertSsgEnvPeriod(regValue); break;
-                default: return;
-                }
-                slider->setValue(newVal, juce::sendNotification);
-            });
-        }
     }
 #endif
 }

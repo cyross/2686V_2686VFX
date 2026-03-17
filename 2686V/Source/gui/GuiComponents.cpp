@@ -337,6 +337,9 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
         if (auto* editor = w->getTextEditor("mmlInput"))
         {
             editor->grabKeyboardFocus();
+
+            // テキストエディタ内でEnterキーが押されたら、OK(1)として終了する
+            editor->onReturnKey = [w] { w->exitModalState(1); };
         }
     };
 }
