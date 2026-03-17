@@ -143,6 +143,22 @@ public:
     };
 
     void setup(const Config& c);
+
+    // 右クリックによるドラッグ操作を完全にブロックする
+    void mouseDown(const juce::MouseEvent& e) override
+    {
+        if (e.mods.isRightButtonDown()) return; // 右クリックなら何もしない（値を変えない）
+
+        juce::Slider::mouseDown(e);             // 左クリックなら通常の処理を継続
+    }
+
+    // 右クリックによるドラッグ操作を完全にブロックする
+    void mouseDrag(const juce::MouseEvent& e) override
+    {
+        if (e.mods.isRightButtonDown()) return; // 右ドラッグなら何もしない
+
+        juce::Slider::mouseDrag(e);             // 左ドラッグなら通常の処理を継続
+    }
 };
 
 class GuiComboBox : public juce::ComboBox, public GuiBaseComponent

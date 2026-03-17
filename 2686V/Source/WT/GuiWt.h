@@ -144,9 +144,23 @@ public:
     // =======================================================
     // マウス操作の自前処理
     // =======================================================
-    void mouseMove(const juce::MouseEvent& e) override { updateHoverState(e); }
-    void mouseDown(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
-    void mouseDrag(const juce::MouseEvent& e) override { updateSliderValue(e); updateHoverState(e); }
+    void mouseMove(const juce::MouseEvent& e) override {
+        updateHoverState(e);
+    }
+
+    void mouseDown(const juce::MouseEvent& e) override { 
+        if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
+
+        updateSliderValue(e);
+        updateHoverState(e);
+    }
+
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
+
+        updateSliderValue(e);
+        updateHoverState(e);
+    }
 
     void mouseExit(const juce::MouseEvent& e) override {
         hoveredIndex = -1;
