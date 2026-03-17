@@ -41,7 +41,6 @@ public:
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized) override;
     void buttonClicked(juce::Button* button) override;
-    void mouseDown(const juce::MouseEvent& event) override;
     void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames(const juce::String finename);

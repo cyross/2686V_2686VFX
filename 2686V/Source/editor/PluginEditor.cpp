@@ -663,45 +663,6 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 #endif
 }
 
-void AudioPlugin2686VEditor::mouseDown(const juce::MouseEvent& event)
-{
-#if !defined(BUILD_AS_FX_PLUGIN)
-    if (event.mods.isRightButtonDown())
-    {
-        juce::Component* target = event.originalComponent;
-
-        // Find if target (or its parent, as originalComponent might be the slider thumb) is in our map
-        // JUCE sliders are complex components. We attached listener to the slider itself.
-        // Event source should bubble up or be the slider if clicked on background.
-
-        auto* slider = dynamic_cast<juce::Slider*>(event.eventComponent);
-        if (slider && sliderRegMap.count(slider))
-        {
-            RegisterType type = sliderRegMap[slider];
-
-            showRegisterInput(slider, [slider, type](int regValue) {
-                float newVal = 0.0f;
-                switch (type) {
-                case RegisterType::FmAr: newVal = RegisterConverter::convertFmAr(regValue); break;
-                case RegisterType::FmDr: newVal = RegisterConverter::convertFmDr(regValue); break;
-                case RegisterType::FmSr: newVal = RegisterConverter::convertFmSr(regValue); break;
-                case RegisterType::FmRr: newVal = RegisterConverter::convertFmRr(regValue); break;
-                case RegisterType::FmSl:   newVal = RegisterConverter::convertFmSl(regValue); break;
-                case RegisterType::FmTl:   newVal = RegisterConverter::convertFmTl(regValue); break;
-                case RegisterType::FmMul:  newVal = (float)RegisterConverter::convertFmMul(regValue); break;
-                case RegisterType::FmDt:   newVal = (float)RegisterConverter::convertFmDt(regValue); break;
-                case RegisterType::FmDt2:  newVal = RegisterConverter::convertFmDt2(regValue); break;
-                case RegisterType::SsgVol: newVal = RegisterConverter::convertSsgVol(regValue); break;
-                case RegisterType::SsgEnv: newVal = RegisterConverter::convertSsgEnvPeriod(regValue); break;
-                default: return;
-                }
-                slider->setValue(newVal, juce::sendNotification);
-            });
-        }
-    }
-#endif
-}
-
 #if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
 {

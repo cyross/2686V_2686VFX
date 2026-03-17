@@ -1,7 +1,14 @@
 ﻿#pragma once
 #include <cmath>
 #include <algorithm>
+#include <vector>
 #include "../synth/Mode.h"
+
+struct RegisterUnit
+{
+    const juce::String key;
+    int value;
+};
 
 class RegisterConverter
 {
@@ -9,6 +16,7 @@ public:
     static int convertFmMul(int regValue);
     static int convertFmDt(int regValue);
     static int convertMmlDtToReg(int mmlDtValue);
+    static int convertMmlDt2ToReg(int mmlDt2Value);
     static float convertFmAr(int regValue);
     static float convertFmRr(int regValue);
     static float convertFmDr(int regValue);
@@ -42,11 +50,5 @@ public:
     static bool convertOplKsr(int regValue);
     static int convertOplKsl(int regValue);
 
-    // --- For SSG ---
-    static float convertSsgVol(int regValue);
-    static float convertSsgMixer(bool toneOff, bool noiseOff);
-    static float convertSsgEnvPeriod(int regValue);
-
-    static int getValue(const juce::String& input, const juce::String& key, int maxVal);
-    static bool isValidVal(int val);
+    static std::vector<RegisterUnit> convertToRegisterUnit(const juce::String& input);
 };
