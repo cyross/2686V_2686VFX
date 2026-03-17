@@ -200,6 +200,9 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
         if (targetMode >= 0 && targetMode <= (int)OscMode::BEEP) // BEEP is 11
         {
+            // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
+            audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
+
             auto* param = audioProcessor.apvts.getParameter(PrKey::mode);
             if (param != nullptr)
             {
@@ -413,6 +416,13 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
         }
 
         opzx3Gui->updatePcmFileName(i, text);
+    }
+
+    // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
+    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(PrKey::mode);
+    if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
+        audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
+        tabs.setCurrentTabIndex(loadedMode);
     }
 
     // 4. 各タブのプリセット名を更新
