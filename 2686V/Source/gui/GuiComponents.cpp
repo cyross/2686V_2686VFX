@@ -279,6 +279,7 @@ void GuiTextEditor::setup(const Config& c)
     c.parent.addAndMakeVisible(*this);
 
 	this->setMultiLine(c.isMultiLine);
+    this->setReturnKeyStartsNewLine(c.isReturnKeyStartsNewLine);
 
     if (!c.color.isTransparent())
     {
