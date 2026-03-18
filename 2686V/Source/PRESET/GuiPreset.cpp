@@ -33,7 +33,9 @@ void GuiPreset::setup()
 
     // defaultPresetDirから取ってくる
     auto defaultPath = ctx.audioProcessor.getDefaultPresetDir();
+
     currentFolder = juce::File(defaultPath);
+
     if (!currentFolder.exists()) {
         currentFolder.createDirectory();
     }
@@ -58,11 +60,13 @@ void GuiPreset::setup()
     searchBox.setup({ .parent = *this, .title = PresetKey::Search::title, .isMultiLine = false });
     searchBox.setWantsKeyboardFocus(true);
     searchBox.setExplicitFocusOrder(++tabOrder);
+
     searchBox.onTextChange = [this] { applyFilter(); };
 
     clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
     clearSearchButton.setWantsKeyboardFocus(true);
     clearSearchButton.setExplicitFocusOrder(++tabOrder);
+
     clearSearchButton.onClick = [this] {
         searchBox.setText(""); // テキストボックスを空にする
         applyFilter();         // リストの絞り込みをリセット（全件表示）する
@@ -76,9 +80,11 @@ void GuiPreset::setup()
     table.addColumn(PresetKey::Table::ColName::version, 4, GuiValue::Preset::Table::ColWidth::Version);
     table.addColumn(PresetKey::Table::ColName::mode, 5, GuiValue::Preset::Table::ColWidth::Mode);
     table.addColumn(PresetKey::Table::ColName::lastModified, 6, GuiValue::Preset::Table::ColWidth::LastModified);
+
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
         };
+
     table.onGetCellText = [this](int row, int columnId) {
         if (row >= filteredItems.size()) return juce::String();
         const auto& item = filteredItems[row];
@@ -92,12 +98,49 @@ void GuiPreset::setup()
         }
         return juce::String();
     };
+
+    // ホバー時にコメント文字列をツールチップとして返す
+    table.onGetCellTooltip = [this](int row, int columnId) {
+        if (row >= 0 && row < filteredItems.size()) {
+            juce::String comment = filteredItems[row].comment.trim(); // 前後の余白を削除
+
+            // コメントが空欄でない場合のみ返す（空ならJUCE側で勝手に非表示にしてくれます）
+            if (comment.isNotEmpty()) {
+                bool isTruncated = false;
+
+                // 1. 行数制限のチェック（改行で分割して配列にする）
+                juce::StringArray lines = juce::StringArray::fromLines(comment);
+                if (lines.size() > 3) {
+                    // 3行目までを結合して上書き
+                    comment = lines[0] + "\n" + lines[1] + "\n" + lines[2];
+                    isTruncated = true;
+                }
+
+                // 2. 文字数制限のチェック（128文字を超える場合）
+                if (comment.length() > 128) {
+                    // 0文字目から128文字分だけを切り出す
+                    comment = comment.substring(0, 128);
+                    isTruncated = true;
+                }
+
+                // 3. どちらかの制限に引っかかっていたら末尾に "..." を追加
+                if (isTruncated) {
+                    comment += "...";
+                }
+
+                return comment;
+            }
+        }
+        return juce::String();
+    };
+
     table.onDoubleClicked = [this](int row) {
         juce::File file = getSelectedFile();
         if (file.existsAsFile()) {
             ctx.editor.loadPresetFile(file);
         }
     };
+
     table.onSelectionChanged = [this](int lastRow) {
         bool hasSelection = table.getNumSelectedRows() > 0;
         deleteButton.setEnabled(hasSelection);
@@ -105,6 +148,7 @@ void GuiPreset::setup()
         copyButton.setEnabled(hasSelection);
         loadButton.setEnabled(hasSelection);
     };
+
     table.onSortOrderChanged = [this](int newSortColumnId, bool isForwards) {
         // 並び替え処理
         std::sort(filteredItems.begin(), filteredItems.end(),

@@ -264,6 +264,16 @@ void GuiTableList::paintCell(juce::Graphics& g, int rowNumber, int columnId, int
     g.drawText(text, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
 }
 
+// セル（行）ごとのツールチップテキストを返す処理
+juce::String GuiTableList::getCellTooltip(int rowNumber, int columnId)
+{
+    // ラムダ式が設定されていればそれを呼び出し、なければ空文字(表示しない)を返す
+    if (onGetCellTooltip != nullptr) {
+        return onGetCellTooltip(rowNumber, columnId);
+    }
+    return juce::String();
+}
+
 void GuiTableList::cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent& e) {
     if (onDoubleClicked) onDoubleClicked(rowNumber);
 }
@@ -279,6 +289,7 @@ void GuiTextEditor::setup(const Config& c)
     c.parent.addAndMakeVisible(*this);
 
 	this->setMultiLine(c.isMultiLine);
+    this->setReturnKeyStartsNewLine(c.isReturnKeyStartsNewLine);
 
     if (!c.color.isTransparent())
     {

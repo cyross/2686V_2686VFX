@@ -25,7 +25,7 @@ namespace PresetValue
 			static inline const int name = 512;
 			static inline const int author = 128;
 			static inline const int version = 64;
-			static inline const int comment = 2048;
+			static inline const int comment = 4096;
 			static inline const int genre = 128;
 		}
 

@@ -577,7 +577,7 @@ void GuiOpl::updateAlgorithmDisplay()
 
     if (algIndex < 0 || algIndex > 1) return;
 
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 
