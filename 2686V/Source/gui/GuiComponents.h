@@ -278,6 +278,7 @@ public:
     std::function<juce::String(int row, int columnId)> onGetCellText = nullptr;
     std::function<void(int row)> onDoubleClicked = nullptr;
     std::function<void(int lastRowSelected)> onSelectionChanged = nullptr;
+    std::function<juce::String(int row, int columnId)> onGetCellTooltip = nullptr;
 
     struct Config {
         juce::Component& parent;
@@ -297,6 +298,7 @@ public:
     int getNumRows() override;
     void paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
     void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+    juce::String getCellTooltip(int rowNumber, int columnId) override;
     void cellDoubleClicked(int rowNumber, int columnId, const juce::MouseEvent& e) override;
     void selectedRowsChanged(int lastRowSelected) override;
     std::function<void(int columnId, bool isForwards)> onSortOrderChanged;
