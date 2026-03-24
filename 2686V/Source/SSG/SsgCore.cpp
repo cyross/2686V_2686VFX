@@ -37,35 +37,35 @@ void SsgCore::setSampleRate(double sampleRate) { m_sampleRate = sampleRate; upda
 
 void SsgCore::setParameters(const SynthParams& params)
 {
-    m_level = params.ssgLevel;
-    m_noiseLevel = params.ssgNoiseLevel;
-    m_mix = params.ssgMix;
-    m_baseNoiseFreq = params.ssgNoiseFreq;
-    m_noiseOnNote = params.ssgNoiseOnNote;
+    m_level = params.ssg.level;
+    m_noiseLevel = params.ssg.noiseLevel;
+    m_mix = params.ssg.mix;
+    m_baseNoiseFreq = params.ssg.noiseFreq;
+    m_noiseOnNote = params.ssg.noiseOnNote;
 
-    m_adsrBypass = params.ssgAdsrBypass;
-    m_adsr = params.ssgAdsr;
+    m_adsrBypass = params.ssg.bypass;
+    m_adsr = params.ssg.adsr;
 
-    m_waveform = params.ssgWaveform;
+    m_waveform = params.ssg.waveform;
 
-    m_useHwEnv = params.ssgUseHwEnv;
-    m_envShape = params.ssgEnvShape;
-    m_envFreq = params.ssgEnvPeriod;
+    m_useHwEnv = params.ssg.useHwEnv;
+    m_envShape = params.ssg.envShape;
+    m_envFreq = params.ssg.envPeriod;
 
-    m_dutyMode = params.ssgDutyMode;
-    m_dutyPreset = params.ssgDutyPreset;
-    m_dutyVar = params.ssgDutyVar;
-    m_dutyInvert = params.ssgDutyInvert;
+    m_dutyMode = params.ssg.dutyMode;
+    m_dutyPreset = params.ssg.dutyPreset;
+    m_dutyVar = params.ssg.dutyVar;
+    m_dutyInvert = params.ssg.dutyInvert;
 
-    m_triKeyTrack = params.ssgTriKeyTrack;
-    m_triPeak = params.ssgTriPeak;
-    m_triFreq = params.ssgTriFreq;
+    m_triKeyTrack = params.ssg.triKeyTrack;
+    m_triPeak = params.ssg.triPeak;
+    m_triFreq = params.ssg.triFreq;
 
-    if (m_rateIndex != params.ssgRateIndex) {
-        m_rateIndex = params.ssgRateIndex;
+    if (m_rateIndex != params.ssg.rateIndex) {
+        m_rateIndex = params.ssg.rateIndex;
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.ssgBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
 
     updateIncrements();
     updateNoiseFrequency();

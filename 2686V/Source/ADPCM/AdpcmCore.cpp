@@ -18,29 +18,29 @@ void AdpcmCore::prepare(double sampleRate)
 
 void AdpcmCore::setParameters(const SynthParams& params)
 {
-    m_level = params.adpcmLevel;
-    m_pan = params.adpcmPan;
+    m_level = params.adpcm.level;
+    m_pan = params.adpcm.pan;
 
-    m_pcmOffset = params.adpcmPcmOffset;
-    m_pcmRatio = params.adpcmPcmRatio;
+    m_pcmOffset = params.adpcm.offset;
+    m_pcmRatio = params.adpcm.ratio;
 
-    bool newLoopState = params.adpcmLoop;
+    bool newLoopState = params.adpcm.loop;
     if (m_isLooping != newLoopState) {
         m_isLooping = newLoopState;
         if (m_isLooping) m_hasFinished = false;
     }
 
-    m_adsr = params.adpcmAdsr;
-    m_rootNote = params.adpcmRootNote;
+    m_adsr = params.adpcm.adsr;
+    m_rootNote = params.adpcm.rootNote;
 
     bool needRefresh = false;
 
-    if (m_qualityMode != params.adpcmQualityMode) {
-        m_qualityMode = params.adpcmQualityMode;
+    if (m_qualityMode != params.adpcm.qualityMode) {
+        m_qualityMode = params.adpcm.qualityMode;
     }
 
-    if (m_rateIndex != params.adpcmRateIndex) {
-        m_rateIndex = params.adpcmRateIndex;
+    if (m_rateIndex != params.adpcm.rateIndex) {
+        m_rateIndex = params.adpcm.rateIndex;
         needRefresh = true;
     }
 

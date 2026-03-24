@@ -3,6 +3,7 @@
 #include <array>
 
 #include "../fm/FmOperator.h"
+#include "../fm/FmOpParams.h"
 
 class OplOperator : public FmOperator
 {

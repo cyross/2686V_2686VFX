@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../fm/FmOperator.h"
+#include "../fm/FmOpParams.h"
 
 class Opzx3Operator : public FmOperator
 {

@@ -19,42 +19,42 @@ void OpnCore::prepare(double sampleRate)
 
 void OpnCore::setParameters(const SynthParams& params)
 {
-    m_algorithm = params.algorithm;
-    m_lfoWave = params.lfoWave;
-    m_amSmoothRate = params.lfoAmSmRt;
-    m_lfoSyncDelay = params.lfoSyncDelay;
-    m_lfoFreq = params.lfoFreq;
-    m_pm = params.pmEnable;
-    m_am = params.amEnable;
-    m_pms = params.lfoPms;
-    m_amd = params.lfoAmd;
-    m_pmd = params.lfoPmd;
+    m_algorithm = params.opn.algorithm;
+    m_lfoWave = params.opn.lfoWave;
+    m_amSmoothRate = params.opn.lfoAmSmRt;
+    m_lfoSyncDelay = params.opn.lfoSyncDelay;
+    m_lfoFreq = params.opn.lfoFreq;
+    m_pm = params.opn.pmEnable;
+    m_am = params.opn.amEnable;
+    m_pms = params.opn.lfoPms;
+    m_amd = params.opn.lfoAmd;
+    m_pmd = params.opn.lfoPmd;
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opn.fmRateIndex) {
+        m_rateIndex = params.opn.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
 
         updateNoiseDelta(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
         if (i == 0) // OP0
         {
-            fb = params.feedback;
+            fb = params.opn.feedback;
         }
         else if (i == 2) // OP2
         {
-            fb = params.feedback2;
+            fb = params.opn.feedback2;
         }
 
         // OPN: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.fmOp[i], fb);
-        m_opMask[i] = params.fmOp[i].mask;
+        m_operators[i].setParameters(params.opn.op[i], fb);
+        m_opMask[i] = params.opn.op[i].mask;
     }
 }
 

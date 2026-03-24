@@ -63,23 +63,23 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
 {
     const juce::String code = PrKey::Prefix::wt;
         
-    params.wtBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::bit);
-    params.wtRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::rate);
-    params.wtTableSize = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::sampleSize);
-    params.wtWaveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::wave);
+    params.wt.bitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::bit);
+    params.wt.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::rate);
+    params.wt.tableSize = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::sampleSize);
+    params.wt.waveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::wave);
 
-    processCustomWaveBlock(params.wtCustomWave32, apvts, code + PrKey::Innder::custom32);
-    processCustomWaveBlock(params.wtCustomWave64, apvts, code + PrKey::Innder::custom64);
-    processCustomWaveBlock(params.wtCustomWave128, apvts, code + PrKey::Innder::custom128);
-    processCustomWaveBlock(params.wtCustomWave256, apvts, code + PrKey::Innder::custom256);
+    processCustomWaveBlock(params.wt.customWave32, apvts, code + PrKey::Innder::custom32);
+    processCustomWaveBlock(params.wt.customWave64, apvts, code + PrKey::Innder::custom64);
+    processCustomWaveBlock(params.wt.customWave128, apvts, code + PrKey::Innder::custom128);
+    processCustomWaveBlock(params.wt.customWave256, apvts, code + PrKey::Innder::custom256);
 
-    params.wtModEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::enable) > PrValue::boolThread);
-    params.wtModDepth = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::depth);
-    params.wtModSpeed = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::speed);
-    params.wtLevel = *apvts.getRawParameterValue(code + PrKey::Post::Wt::level);
+    params.wt.modEnable = (*apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::enable) > PrValue::boolThread);
+    params.wt.modDepth = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::depth);
+    params.wt.modSpeed = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::speed);
+    params.wt.level = *apvts.getRawParameterValue(code + PrKey::Post::Wt::level);
 
-    params.wtAdsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
-    params.wtAdsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
-    params.wtAdsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
-    params.wtAdsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+    params.wt.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
+    params.wt.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
+    params.wt.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
+    params.wt.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
 }

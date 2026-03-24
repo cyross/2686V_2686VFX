@@ -9,26 +9,26 @@ void OplCore::prepare(double sampleRate) {
 }
 
 void OplCore::setParameters(const SynthParams& params) {
-    m_algorithm = params.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algorithm = params.opl.algorithm; // 0:Serial(FM), 1:Parallel(AM)
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opl.fmRateIndex) {
+        m_rateIndex = params.opl.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opl.fmBitDepth);
 
     for (int i = 0; i < 2; ++i) {
-        float fb = (i == 0) ? params.feedback : 0.0f; // OP1のみFeedback
+        float fb = (i == 0) ? params.opl.feedback : 0.0f; // OP1のみFeedback
 
         // FmCommon(96dB)に対して、OPL(48dB)のスケールを合わせるためTLを半分にする
-        FmOpParams opParams = params.fmOp[i];
+        FmOpParams opParams = params.opl.op[i];
         opParams.totalLevel *= 0.5f;
 
-        m_operators[i].setParameters(params.fmOp[i], fb);
+        m_operators[i].setParameters(params.opl.op[i], fb);
 
-        m_opMask[i] = params.fmOp[i].mask;
+        m_opMask[i] = params.opl.op[i].mask;
     }
 }
 
