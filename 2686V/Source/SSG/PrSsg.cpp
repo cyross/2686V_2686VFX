@@ -53,31 +53,31 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     const juce::String code = PrKey::Prefix::ssg;
 
     // --- SSG Parameters ---
-    params.ssgLevel = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::tone);
-    params.ssgNoiseLevel = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::noise);
-    params.ssgNoiseFreq = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::noiseFreq);
-    params.ssgNoiseOnNote = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::noiseOnNote) > PrValue::boolThread);
-    params.ssgMix = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::mix);
-    params.ssgWaveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
-    params.ssgBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::bit);
-    params.ssgRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::rate);
+    params.ssg.level = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::tone);
+    params.ssg.noiseLevel = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::noise);
+    params.ssg.noiseFreq = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::noiseFreq);
+    params.ssg.noiseOnNote = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::noiseOnNote) > PrValue::boolThread);
+    params.ssg.mix = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::mix);
+    params.ssg.waveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
+    params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::bit);
+    params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::rate);
 
-    params.ssgUseHwEnv = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::enable) > PrValue::boolThread);
-    params.ssgEnvShape = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::shape);
-    params.ssgEnvPeriod = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::period);
+    params.ssg.dutyMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
+    params.ssg.dutyPreset = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::preset);
+    params.ssg.dutyVar = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::var);
+    params.ssg.dutyInvert = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::inv) > PrValue::boolThread);
 
-    params.ssgDutyMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
-    params.ssgDutyPreset = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::preset);
-    params.ssgDutyVar = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::var);
-    params.ssgDutyInvert = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::inv) > PrValue::boolThread);
+    params.ssg.triKeyTrack = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::keyTrk) > PrValue::boolThread);
+    params.ssg.triPeak = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::peak);
+    params.ssg.triFreq = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::freq);
 
-    params.ssgTriKeyTrack = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::keyTrk) > PrValue::boolThread);
-    params.ssgTriPeak = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::peak);
-    params.ssgTriFreq = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::freq);
+    params.ssg.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
+    params.ssg.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
+    params.ssg.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
+    params.ssg.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
+    params.ssg.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
 
-    params.ssgAdsrBypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
-    params.ssgAdsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
-    params.ssgAdsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
-    params.ssgAdsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
-    params.ssgAdsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+    params.ssg.useHwEnv = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::enable) > PrValue::boolThread);
+    params.ssg.envShape = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::shape);
+    params.ssg.envPeriod = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::period);
 }

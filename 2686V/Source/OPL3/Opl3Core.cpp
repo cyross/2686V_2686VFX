@@ -20,28 +20,28 @@ void Opl3Core::prepare(double sampleRate) {
 // --- Opl3Core.cpp : setParameters() 内 ---
 
 void Opl3Core::setParameters(const SynthParams& params) {
-    m_algorithm = params.algorithm;
+    m_algorithm = params.opl3.algorithm;
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opl3.fmRateIndex) {
+        m_rateIndex = params.opl3.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
-        if (i == 0) fb = params.feedback;
-        else if (i == 2) fb = params.feedback2;
+        if (i == 0) fb = params.opl3.feedback;
+        else if (i == 2) fb = params.opl3.feedback2;
 
         // FmCommon(96dB)に対して、OPL3(48dB)のスケールを合わせるためTLを半分にする
-        FmOpParams opParams = params.fmOp[i];
+        FmOpParams opParams = params.opl3.op[i];
         opParams.totalLevel *= 0.5f;
 
         m_operators[i].setParameters(opParams, fb);
-        m_opMask[i] = params.fmOp[i].mask;
+        m_opMask[i] = params.opl3.op[i].mask;
     }
 }
 

@@ -54,58 +54,58 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 {
     const juce::String code = PrKey::Prefix::opl;
 
-    params.algorithm = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::alg);
-    params.feedback = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb0);
-    params.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
-    params.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
-    params.lfoFreq = 0.0f;
-    params.amEnable = false;
-    params.pmEnable = false;
-    params.lfoPms = 0;
-    params.lfoAms = 0;
-    params.lfoPmd = 0;
-    params.lfoAmd = 0;
+    params.opl.algorithm = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::alg);
+    params.opl.feedback = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb0);
+    params.opl.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
+    params.opl.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
+    params.opl.lfoFreq = 0.0f;
+    params.opl.amEnable = false;
+    params.opl.pmEnable = false;
+    params.opl.lfoPms = 0;
+    params.opl.lfoAms = 0;
+    params.opl.lfoPmd = 0;
+    params.opl.lfoAmd = 0;
 
     for (int op = 0; op < PrValue::Opl::ops; ++op)
     {
         juce::String p = code + PrKey::Innder::op + juce::String(op);
 
-        params.fmOp[op].multiple = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mul);
-        params.fmOp[op].detune = 0;
-        params.fmOp[op].attack = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ar);
-        params.fmOp[op].decay = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dr);
-        params.fmOp[op].sustain = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sl);
-        params.fmOp[op].release = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rr);
+        params.opl.op[op].multiple = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mul);
+        params.opl.op[op].detune = 0;
+        params.opl.op[op].attack = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ar);
+        params.opl.op[op].decay = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dr);
+        params.opl.op[op].sustain = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sl);
+        params.opl.op[op].release = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rr);
         bool ksrOn = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ksr) > PrValue::boolThread;
-        params.fmOp[op].keyScale = ksrOn ? 3 : 0;
-        params.fmOp[op].keyScaleLevel = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ksl);
-        params.fmOp[op].totalLevel = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::tl);
-        params.fmOp[op].sustainRate = 0.0f;
-        params.fmOp[op].phaseOffset = 0.0f;
-        params.fmOp[op].ssgEg = 0; // OPLにはSSG-EGは無い
-        params.fmOp[op].fmSsgEgFreq = 0.0f;
-        params.fmOp[op].fixedMode = false; // OPLにはFixed Modeは無い
-        params.fmOp[op].fixedFreq = 0.0f;
-        params.fmOp[op].waveSelect = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::eg);
-        params.fmOp[op].egType = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::egType) > PrValue::boolThread;
-        params.fmOp[op].vibEnable = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::vib) > PrValue::boolThread;
-        params.fmOp[op].pms = 0;
-        params.fmOp[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
-        params.fmOp[op].ams = 0;
-        params.fmOp[op].oplAms = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
-        params.fmOp[op].oplAmd = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::amd);
-        params.fmOp[op].oplPms = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
-        params.fmOp[op].oplPmd = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pmd);
-        params.fmOp[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
+        params.opl.op[op].keyScale = ksrOn ? 3 : 0;
+        params.opl.op[op].keyScaleLevel = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ksl);
+        params.opl.op[op].totalLevel = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::tl);
+        params.opl.op[op].sustainRate = 0.0f;
+        params.opl.op[op].phaseOffset = 0.0f;
+        params.opl.op[op].ssgEg = 0; // OPLにはSSG-EGは無い
+        params.opl.op[op].fmSsgEgFreq = 0.0f;
+        params.opl.op[op].fixedMode = false; // OPLにはFixed Modeは無い
+        params.opl.op[op].fixedFreq = 0.0f;
+        params.opl.op[op].waveSelect = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::eg);
+        params.opl.op[op].egType = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::egType) > PrValue::boolThread;
+        params.opl.op[op].vibEnable = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::vib) > PrValue::boolThread;
+        params.opl.op[op].pms = 0;
+        params.opl.op[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::am) > PrValue::boolThread);
+        params.opl.op[op].ams = 0;
+        params.opl.op[op].oplAms = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ams);
+        params.opl.op[op].oplAmd = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::amd);
+        params.opl.op[op].oplPms = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pms);
+        params.opl.op[op].oplPmd = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::pmd);
+        params.opl.op[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
 
-        params.fmOp[op].isOplMode = true;
-        params.fmOp[op].regEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgEn) > PrValue::boolThread);
-        params.fmOp[op].rar = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgAr);
-        params.fmOp[op].rdr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgDr);
-        params.fmOp[op].rsl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgSl);
-        params.fmOp[op].rrr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgRr);
-        params.fmOp[op].rtl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgTl);
+        params.opl.op[op].isOplMode = true;
+        params.opl.op[op].regEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgEn) > PrValue::boolThread);
+        params.opl.op[op].rar = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgAr);
+        params.opl.op[op].rdr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgDr);
+        params.opl.op[op].rsl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgSl);
+        params.opl.op[op].rrr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgRr);
+        params.opl.op[op].rtl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgTl);
 
-        params.fmOp[op].susEnable = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sus) > PrValue::boolThread;
+        params.opl.op[op].susEnable = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::sus) > PrValue::boolThread;
     }
 }

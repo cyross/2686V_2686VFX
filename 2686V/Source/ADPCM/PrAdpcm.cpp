@@ -28,16 +28,16 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
     // get Bool value
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
-    params.adpcmLevel = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::level);
-    params.adpcmPan = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pan);
-    params.adpcmLoop = (*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::loop) > PrValue::boolThread);
-    params.adpcmQualityMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::mode);
-    params.adpcmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::rate);
-    params.adpcmPcmOffset = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmOffset);
-    params.adpcmPcmRatio = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmRatio);
+    params.adpcm.level = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::level);
+    params.adpcm.pan = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pan);
+    params.adpcm.loop = (*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::loop) > PrValue::boolThread);
+    params.adpcm.qualityMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::mode);
+    params.adpcm.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Adpcm::rate);
+    params.adpcm.offset = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmOffset);
+    params.adpcm.ratio = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmRatio);
 
-    params.adpcmAdsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
-    params.adpcmAdsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);
-    params.adpcmAdsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::sl);
-    params.adpcmAdsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::rr);
+    params.adpcm.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
+    params.adpcm.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);
+    params.adpcm.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::sl);
+    params.adpcm.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::rr);
 }

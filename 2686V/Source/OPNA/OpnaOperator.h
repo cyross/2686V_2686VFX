@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "../fm/FmOperator.h"
+#include "../fm/FmOpParams.h"
+#include "OpnaParams.h"
 
 class OpnaOperator : public FmOperator
 {

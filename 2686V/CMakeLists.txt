@@ -44,6 +44,7 @@ set(SYNTH_FILES
     "Source/synth/Pcm.cpp"
     "Source/synth/SynthCore.h"
     "Source/synth/SynthCore.cpp"
+    "Source/synth/AdsrParams.h"
     "Source/synth/SynthParams.h"
     "Source/synth/SynthVoice.h"
     "Source/synth/SynthVoice.cpp"
@@ -56,6 +57,7 @@ set(FM_FILES
     "Source/fm/FmCore.cpp"
     "Source/fm/FmOperator.h"
     "Source/fm/FmOperator.cpp"
+    "Source/fm/FmOpParams.h"
     "Source/fm/RegisterType.h"
     "Source/fm/RegisterConverter.h"
     "Source/fm/RegisterConverter.cpp"
@@ -86,6 +88,7 @@ set(OPNA_FILES
     "Source/OPNA/OpnaCore.cpp"
     "Source/OPNA/OpnaOperator.h"
     "Source/OPNA/OpnaOperator.cpp"
+    "Source/OPNA/OpnaParams.h"
     "Source/OPNA/PrOpna.h"
     "Source/OPNA/PrOpna.cpp"
 )
@@ -97,6 +100,7 @@ set(OPN_FILES
     "Source/OPN/OpnCore.cpp"
     "Source/OPN/OpnOperator.h"
     "Source/OPN/OpnOperator.cpp"
+    "Source/OPN/OpnParams.h"
     "Source/OPN/PrOpn.h"
     "Source/OPN/PrOpn.cpp"
 )
@@ -108,6 +112,7 @@ set(OPL_FILES
     "Source/OPL/OplCore.cpp"
     "Source/OPL/OplOperator.h"
     "Source/OPL/OplOperator.cpp"
+    "Source/OPL/OplParams.h"
     "Source/OPL/PrOpl.h"
     "Source/OPL/PrOpl.cpp"
 )
@@ -119,6 +124,7 @@ set(OPL3_FILES
     "Source/OPL3/Opl3Core.cpp"
     "Source/OPL3/Opl3Operator.h"
     "Source/OPL3/Opl3Operator.cpp"
+    "Source/OPL3/Opl3Params.h"
     "Source/OPL3/PrOpl3.h"
     "Source/OPL3/PrOpl3.cpp"
 )
@@ -130,6 +136,7 @@ set(OPM_FILES
     "Source/OPM/OpmCore.cpp"
     "Source/OPM/OpmOperator.h"
     "Source/OPM/OpmOperator.cpp"
+    "Source/OPM/OpmParams.h"
     "Source/OPM/PrOpm.h"
     "Source/OPM/PrOpm.cpp"
 )
@@ -141,6 +148,7 @@ set(OPZX3_FILES
     "Source/OPZX3/Opzx3Core.cpp"
     "Source/OPZX3/Opzx3Operator.h"
     "Source/OPZX3/Opzx3Operator.cpp"
+    "Source/OPZX3/Opzx3Params.h"
     "Source/OPZX3/PrOpzx3.h"
     "Source/OPZX3/PrOpzx3.cpp"
 )
@@ -152,6 +160,7 @@ set(SSG_FILES
     "Source/SSG/PrSsg.cpp"
     "Source/SSG/SsgCore.h"
     "Source/SSG/SsgCore.cpp"
+    "Source/SSG/SsgParams.h"
 )
 
 set(WT_FILES
@@ -161,6 +170,7 @@ set(WT_FILES
     "Source/WT/PrWt.cpp"
     "Source/WT/WtCore.h"
     "Source/WT/WtCore.cpp"
+    "Source/WT/WtParams.h"
 )
 
 set(RHYTHM_FILES
@@ -170,11 +180,13 @@ set(RHYTHM_FILES
     "Source/RHYTHM/PrRhythm.cpp"
     "Source/RHYTHM/RhythmCore.h"
     "Source/RHYTHM/RhythmCore.cpp"
+    "Source/RHYTHM/RhythmParams.h"
 )
 
 set(ADPCM_FILES
     "Source/ADPCM/AdpcmCore.h"
     "Source/ADPCM/AdpcmCore.cpp"
+    "Source/ADPCM/AdpcmParams.h"
     "Source/ADPCM/GuiAdpcm.h"
     "Source/ADPCM/GuiAdpcm.cpp"
     "Source/ADPCM/PrAdpcm.h"
@@ -186,6 +198,7 @@ set(BEEP_FILES
     "Source/BEEP/GuiBeep.cpp"
     "Source/BEEP/BeepCore.h"
     "Source/BEEP/BeepCore.cpp"
+    "Source/BEEP/BeepParams.h"
     "Source/BEEP/PrBeep.h"
     "Source/BEEP/PrBeep.cpp"
 )
@@ -193,6 +206,7 @@ set(BEEP_FILES
 set(FX_FILES
     "Source/FX/FxCore.h"
     "Source/FX/FxCore.cpp"
+    "Source/FX/FxParams.h"
     "Source/FX/GuiFx.h"
     "Source/FX/GuiFx.cpp"
     "Source/FX/PrFx.h"

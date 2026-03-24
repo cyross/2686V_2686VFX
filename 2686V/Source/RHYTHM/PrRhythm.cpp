@@ -47,11 +47,11 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
     const juce::String code = PrKey::Prefix::rhythm;
 
     // --- Rhythm Parameters ---
-    params.rhythmLevel = *apvts.getRawParameterValue(code + PrKey::Post::Rhythm::level);
+    params.rhythm.level = *apvts.getRawParameterValue(code + PrKey::Post::Rhythm::level);
 
     for (int i = 0; i < PrValue::Rhythm::pads; ++i) {
         juce::String prefix = code + PrKey::Innder::pad + juce::String(i);
-        auto& pad = params.rhythmPads[i];
+        auto& pad = params.rhythm.pads[i];
         pad.level = *apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::volume);
         pad.pan = *apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::pan);
         pad.noteNumber = (int)*apvts.getRawParameterValue(prefix + PrKey::Post::Rhythm::Pad::note);

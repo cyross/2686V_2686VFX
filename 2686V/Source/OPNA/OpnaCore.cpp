@@ -21,44 +21,44 @@ void OpnaCore::prepare(double sampleRate) {
 }
 
 void OpnaCore::setParameters(const SynthParams& params) {
-    m_algorithm = params.algorithm;
-    m_lfoFreq = params.lfoFreq;
-    m_am = params.amEnable;
-    m_pm = params.pmEnable;
-    m_pms = params.lfoPms;
-    m_amd = params.lfoAmd;
-    m_pmd = params.lfoPmd;
-    m_lfoWave = params.lfoWave;
-    m_amSmoothRate = params.lfoAmSmRt;
-    m_lfoSyncDelay = params.lfoSyncDelay;
+    m_algorithm = params.opna.algorithm;
+    m_lfoFreq = params.opna.lfoFreq;
+    m_am = params.opna.amEnable;
+    m_pm = params.opna.pmEnable;
+    m_pms = params.opna.lfoPms;
+    m_amd = params.opna.lfoAmd;
+    m_pmd = params.opna.lfoPmd;
+    m_lfoWave = params.opna.lfoWave;
+    m_amSmoothRate = params.opna.lfoAmSmRt;
+    m_lfoSyncDelay = params.opna.lfoSyncDelay;
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opna.fmRateIndex) {
+        m_rateIndex = params.opna.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
 
         updateNoiseDelta(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opna.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
         if (i == 0) // OP0
         {
-            fb = params.feedback;
+            fb = params.opna.feedback;
         }
         else if (i == 2) // OP2
         {
-            fb = params.feedback2;
+            fb = params.opna.feedback2;
         }
 
         // OPNA: SSG-EG=True, WaveSelect=False
         // params.fmSsgEgFreq を渡す (第6引数)
         // 第5引数(useOpmEg)は false
-        m_operators[i].setParameters(params.fmOp[i], fb);
-        m_opMask[i] = params.fmOp[i].mask;
+        m_operators[i].setParameters(params.opna.op[i], fb);
+        m_opMask[i] = params.opna.op[i].mask;
     }
 }
 

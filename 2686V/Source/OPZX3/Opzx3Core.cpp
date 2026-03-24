@@ -152,44 +152,44 @@ void Opzx3Core::prepare(double sampleRate) {
 }
 
 void Opzx3Core::setParameters(const SynthParams& params) {
-    m_algorithm = params.algorithm; // Range: 0-27
-    m_lfoFreq = params.lfoFreq;
-    m_am = params.amEnable;
-    m_pm = params.pmEnable;
-    m_pms = params.lfoPms;
-    m_ams = params.lfoAms;
-    m_pmd = params.lfoPmd;
-    m_amd = params.lfoAmd;
-    m_lfoPgWave = params.pgLfoWave;
-    m_lfoEgWave = params.egLfoWave;
-    m_amSmoothRate = params.lfoAmSmRt;
-    m_lfoSyncDelay = params.lfoSyncDelay;
+    m_algorithm = params.opzx3.algorithm; // Range: 0-27
+    m_lfoFreq = params.opzx3.lfoFreq;
+    m_am = params.opzx3.amEnable;
+    m_pm = params.opzx3.pmEnable;
+    m_pms = params.opzx3.lfoPms;
+    m_ams = params.opzx3.lfoAms;
+    m_pmd = params.opzx3.lfoPmd;
+    m_amd = params.opzx3.lfoAmd;
+    m_lfoPgWave = params.opzx3.pgLfoWave;
+    m_lfoEgWave = params.opzx3.egLfoWave;
+    m_amSmoothRate = params.opzx3.lfoAmSmRt;
+    m_lfoSyncDelay = params.opzx3.lfoSyncDelay;
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opzx3.fmRateIndex) {
+        m_rateIndex = params.opzx3.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
         updateNoiseDelta(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opzx3.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
         if (i == 0) // OP0
         {
-            fb = params.feedback;
+            fb = params.opzx3.feedback;
         }
 
         if (i == 2) // OP2
         {
-            fb = params.feedback2;
+            fb = params.opzx3.feedback2;
         }
 
         // WaveSelect=True, SSG-EG=True, OpmEg=True
-        m_operators[i].setParameters(params.fmOp[i], fb);
-        m_opMask[i] = params.fmOp[i].mask;
+        m_operators[i].setParameters(params.opzx3.op[i], fb);
+        m_opMask[i] = params.opzx3.op[i].mask;
     }
 
     // OPX特有の外部フィードバックアルゴリズムの場合、OP0/OP2の自己FBをオフにする

@@ -19,45 +19,45 @@ void WtCore::prepare(double sampleRate)
 
 void WtCore::setParameters(const SynthParams& params)
 {
-    m_level = params.wtLevel;
-    m_adsr = params.wtAdsr;
+    m_level = params.wt.level;
+    m_adsr = params.wt.adsr;
 
     // Bit Depth & Table Size
-    m_quantizeSteps = getTargetBitDepth(params.wtBitDepth);
-    m_rateIndex = params.wtRateIndex;
+    m_quantizeSteps = getTargetBitDepth(params.wt.bitDepth);
+    m_rateIndex = params.wt.rateIndex;
 
     // 波形・テーブルサイズ変更検知
-    int newTableSize = m_tableSizes[params.wtTableSize];
-    bool waveformChanged = (m_waveform != params.wtWaveform);
+    int newTableSize = m_tableSizes[params.wt.tableSize];
+    bool waveformChanged = (m_waveform != params.wt.waveform);
     bool sizeChanged = (m_prevTableSize != newTableSize);
 
-    m_tableSizeIndex = params.wtTableSize;
+    m_tableSizeIndex = params.wt.tableSize;
     m_tableSize = newTableSize;
     m_prevTableSize = newTableSize;
-    m_waveform = params.wtWaveform;
+    m_waveform = params.wt.waveform;
 
     // 波形変更検知
     // カスタム波形データのコピー (値が変わっていれば更新するため)
-    if (params.wtWaveform == 8) // 8 = Custom
+    if (params.wt.waveform == 8) // 8 = Custom
     {
         // パラメータ配列をメンバに保存
-        m_customWaveCache32 = params.wtCustomWave32;
-        m_customWaveCache64 = params.wtCustomWave64;
-        m_customWaveCache128 = params.wtCustomWave128;
-        m_customWaveCache256 = params.wtCustomWave256;
+        m_customWaveCache32 = params.wt.customWave32;
+        m_customWaveCache64 = params.wt.customWave64;
+        m_customWaveCache128 = params.wt.customWave128;
+        m_customWaveCache256 = params.wt.customWave256;
         // 強制的に再生成
         generateWaveform(8);
     }
     else if (waveformChanged || sizeChanged)
     {
-        m_waveform = params.wtWaveform;
+        m_waveform = params.wt.waveform;
 
         generateWaveform(m_waveform);
     }
 
-    m_modEnable = params.wtModEnable;
-    m_modDepth = params.wtModDepth;
-    m_modSpeed = params.wtModSpeed;
+    m_modEnable = params.wt.modEnable;
+    m_modDepth = params.wt.modDepth;
+    m_modSpeed = params.wt.modSpeed;
 
     updateIncrements();
 }

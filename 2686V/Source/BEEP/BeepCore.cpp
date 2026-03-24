@@ -7,17 +7,17 @@ void BeepCore::prepare(double sampleRate) {
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
-    m_level = params.beepLevel;
-    m_bypassAdsr = params.beepAdsrBypass;
-    m_adsr = params.beepAdsr;
+    m_level = params.beep.level;
+    m_bypassAdsr = params.beep.bypass;
+    m_adsr = params.beep.adsr;
 
     auto calcInc = [&](float time) { return time <= 0.001f ? 1.0f : 1.0f / (time * (float)m_sampleRate); };
     m_attackInc = calcInc(m_adsr.a);
     m_decayDec = calcInc(m_adsr.d);
     m_releaseDec = calcInc(m_adsr.r);
 
-    m_fixedMode = params.beepFixedMode;
-    m_fixedFreq = params.beepFixedFreq;
+    m_fixedMode = params.beep.fixedMode;
+    m_fixedFreq = params.beep.fixedFreq;
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote) {

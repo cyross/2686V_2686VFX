@@ -72,43 +72,43 @@ void OpmCore::prepare(double sampleRate) {
 }
 
 void OpmCore::setParameters(const SynthParams& params) {
-    m_algorithm = params.algorithm;
-    m_lfoFreq = params.lfoFreq;
-    m_am = params.amEnable;
-    m_pm = params.pmEnable;
-    m_pms = params.lfoPms;
-    m_ams = params.lfoAms;
-    m_pmd = params.lfoPmd;
-    m_amd = params.lfoAmd;
-    m_lfoPgWave = params.pgLfoWave;
-    m_lfoEgWave = params.egLfoWave;
-    m_amSmoothRate = params.lfoAmSmRt;
+    m_algorithm = params.opm.algorithm;
+    m_lfoFreq = params.opm.lfoFreq;
+    m_am = params.opm.amEnable;
+    m_pm = params.opm.pmEnable;
+    m_pms = params.opm.lfoPms;
+    m_ams = params.opm.lfoAms;
+    m_pmd = params.opm.lfoPmd;
+    m_amd = params.opm.lfoAmd;
+    m_lfoPgWave = params.opm.pgLfoWave;
+    m_lfoEgWave = params.opm.egLfoWave;
+    m_amSmoothRate = params.opm.lfoAmSmRt;
 
-    if (m_rateIndex != params.fmRateIndex) {
-        m_rateIndex = params.fmRateIndex;
+    if (m_rateIndex != params.opm.fmRateIndex) {
+        m_rateIndex = params.opm.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
         updateNoiseDelta(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opm.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
         if (i == 0) // OP0
         {
-            fb = params.feedback;
+            fb = params.opm.feedback;
         }
 
         if (i == 2) // OP2
         {
-            fb = params.feedback2;
+            fb = params.opm.feedback2;
         }
 
         // OPM: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.fmOp[i], fb);
-        m_opMask[i] = params.fmOp[i].mask;
+        m_operators[i].setParameters(params.opm.op[i], fb);
+        m_opMask[i] = params.opm.op[i].mask;
     }
 }
 

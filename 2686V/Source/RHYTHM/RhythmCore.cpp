@@ -187,7 +187,7 @@ void RhythmCore::prepare(double sampleRate)
 void RhythmCore::setParameters(const SynthParams& params)
 {
     for (int i = 0; i < MaxRhythmPads; ++i) {
-        pads[i].setParameters(params.rhythmPads[i]);
+        pads[i].setParameters(params.rhythm.pads[i]);
     }
 }
 
