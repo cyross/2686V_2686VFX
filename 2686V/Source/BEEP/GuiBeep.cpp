@@ -1,13 +1,13 @@
-﻿#include "GuiBeep.h"
+﻿#include "./GuiBeep.h"
 
-#include "../processor/PluginProcessor.h"
+#include "../Core/Processor/PluginProcessor.h"
 
-#include "../core/PrKeys.h"
-#include "../core/PrValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrValues.h"
 
-#include "../gui/GuiHelpers.h"
-#include "../gui/GuiValues.h"
-#include "../gui/GuiText.h"
+#include "../Core/Gui/GuiHelpers.h"
+#include "../Core/Gui/GuiValues.h"
+#include "../Core/Gui/GuiText.h"
 
 void GuiBeep::setup() {
     juce::String code = PrKey::Prefix::beep;

@@ -1,29 +1,26 @@
 ﻿#pragma once
 #include <JuceHeader.h>
-#if !defined(BUILD_AS_FX_PLUGIN)
-#include "../synth/SynthVoice.h"
-#include "../OPNA/PrOpna.h"
-#include "../OPN/PrOpn.h"
-#include "../OPL/PrOpl.h"
-#include "../OPL3/PrOpl3.h"
-#include "../OPM/PrOpm.h"
-#include "../OPZX3/PrOpzx3.h"
-#include "../SSG/PrSsg.h"
-#include "../WT/PrWt.h"
-#include "../RHYTHM/PrRhythm.h"
-#include "../ADPCM/PrAdpcm.h"
-#include "../BEEP/PrBeep.h"
-#endif
-#include "../core/Global.h"
-#include "../core/PrKeys.h"
-#include "../core/PrValues.h"
-#include "../core/FileValues.h"
-//#include "../gui/GuiText.h"
-#include "../core/PresetKeys.h"
-#include "../core/PresetValues.h"
+#include "../Synth/SynthVoice.h"
+#include "../../OPNA/PrOpna.h"
+#include "../../OPN/PrOpn.h"
+#include "../../OPL/PrOpl.h"
+#include "../../OPL3/PrOpl3.h"
+#include "../../OPM/PrOpm.h"
+#include "../../OPZX3/PrOpzx3.h"
+#include "../../SSG/PrSsg.h"
+#include "../../WT/PrWt.h"
+#include "../../RHYTHM/PrRhythm.h"
+#include "../../ADPCM/PrAdpcm.h"
+#include "../../BEEP/PrBeep.h"
+#include "../Const/Global.h"
+#include "../Const/PrKeys.h"
+#include "../Const/PrValues.h"
+#include "../Const/FileValues.h"
+#include "../Const/PresetKeys.h"
+#include "../Const/PresetValues.h"
 
-#include "../FX/PrFx.h"
-#include "../editor/PluginEditor.h"
+#include "../../FX/PrFx.h"
+#include "../Editor/PluginEditor.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
@@ -94,7 +91,6 @@ public:
     void setCurrentProgram(int index) override;
     const juce::String getProgramName(int index) override;
     void changeProgramName(int index, const juce::String& newName) override;
-#if !defined(BUILD_AS_FX_PLUGIN)
     // Function to load ADPCM file (Global/Voice)
     void loadAdpcmFile(const juce::File& file);
     void unloadAdpcmFile();
@@ -104,13 +100,11 @@ public:
 
     juce::AudioFormatManager formatManager;
     juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
-#endif
 
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState apvts;
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     // --- Metadata ---
     juce::String presetName = PresetValue::MetaData::Initial::name;
     juce::String presetAuthor = PresetValue::MetaData::Initial::author;
@@ -143,7 +137,6 @@ public:
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
-#endif
 
     // --- Preview ---
     bool previewVisiblity = true; // Editorとの同期用
@@ -170,7 +163,6 @@ public:
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
 private:
-#if !defined(BUILD_AS_FX_PLUGIN)
     OpnaProcessor prOpna;
     OpnProcessor prOpn;
     OplProcessor prOpl;
@@ -182,18 +174,15 @@ private:
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
-#endif
     FxProcessor prFx;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     RetroSynthesiser m_synth;
 
     // 波形プレビュー用
     juce::Synthesiser previewSynth;
     std::unique_ptr<SynthSound> previewSound;
-#endif
     void loadStartupSettings(); // 設定の自動読み込み用関数
     void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
     void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);

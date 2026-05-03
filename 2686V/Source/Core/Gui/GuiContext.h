@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
-#include "../fm/SliderRegMap.h"
+#include "../../Core/Fm/SliderRegMap.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;

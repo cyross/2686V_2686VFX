@@ -5,7 +5,7 @@
 #include <vector>
 #include <span>
 
-#include "GuiContext.h"
+#include "./GuiContext.h"
 
 class GuiBase: public juce::Component
 {

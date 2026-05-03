@@ -2,9 +2,9 @@
 
 #include <vector>
 
-//#include "../gui/GuiValues.h"
-//#include "../gui/GuiText.h"
-#include "../core/PrKeys.h"
+//#include "../Core/Gui/GuiValues.h"
+//#include "../Core/Gui/GuiText.h"
+#include "../Core/Const/PrKeys.h"
 
 void FxRetroLfo::prepare(double sampleRate) {
     fs = sampleRate;

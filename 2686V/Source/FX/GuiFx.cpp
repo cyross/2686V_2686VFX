@@ -1,12 +1,12 @@
 ﻿#include "GuiFx.h"
 
-#include "../core/PrKeys.h"
-#include "../core/PrValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrValues.h"
 
-#include "../gui/GuiHelpers.h"
-#include "../gui/GuiValues.h"
-#include "../gui/GuiText.h"
-#include "../gui/GuiStructs.h"
+#include "../Core/Gui/GuiHelpers.h"
+#include "../Core/Gui/GuiValues.h"
+#include "../Core/Gui/GuiText.h"
+#include "../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> qualityItems = {
     {.name = "1: Raw (32bit)", .value = 1 },

@@ -23,62 +23,74 @@ juce_add_binary_data(AppIconForAbout
 )
 
 # 定義
-set(CORE_FILES
-    "Source/core/Global.h"
-    "Source/core/FileValues.h"
-    "Source/core/MmlKeys.h"
-    "Source/core/MmlValues.h"
-    "Source/core/PrKeys.h"
-    "Source/core/PrNames.h"
-    "Source/core/PrValues.h"
-    "Source/core/PresetKeys.h"
-    "Source/core/PresetValues.h"
-    "Source/core/SettingsKeys.h"
-    "Source/core/SettingsValues.h"
+set(CONST_FILES
+    "Source/Core/Const/Global.h"
+    "Source/Core/Const/FileValues.h"
+    "Source/Core/Const/MmlKeys.h"
+    "Source/Core/Const/MmlValues.h"
+    "Source/Core/Const/PrKeys.h"
+    "Source/Core/Const/PrNames.h"
+    "Source/Core/Const/PrValues.h"
+    "Source/Core/Const/PresetKeys.h"
+    "Source/Core/Const/PresetValues.h"
+    "Source/Core/Const/SettingsKeys.h"
+    "Source/Core/Const/SettingsValues.h"
 )
 
 set(SYNTH_FILES
-    "Source/synth/Mode.h"
-    "Source/synth/Mode.cpp"
-    "Source/synth/Pcm.h"
-    "Source/synth/Pcm.cpp"
-    "Source/synth/SynthCore.h"
-    "Source/synth/SynthCore.cpp"
-    "Source/synth/AdsrParams.h"
-    "Source/synth/SynthParams.h"
-    "Source/synth/SynthVoice.h"
-    "Source/synth/SynthVoice.cpp"
-    "Source/synth/SynthHelpers.h"
-    "Source/synth/SynthHelpers.cpp"
+    "Source/Core/Synth/Mode.h"
+    "Source/Core/Synth/Mode.cpp"
+    "Source/Core/Synth/Pcm.h"
+    "Source/Core/Synth/Pcm.cpp"
+    "Source/Core/Synth/SynthCore.h"
+    "Source/Core/Synth/SynthCore.cpp"
+    "Source/Core/Synth/AdsrParams.h"
+    "Source/Core/Synth/SynthParams.h"
+    "Source/Core/Synth/SynthVoice.h"
+    "Source/Core/Synth/SynthVoice.cpp"
+    "Source/Core/Synth/SynthHelpers.h"
+    "Source/Core/Synth/SynthHelpers.cpp"
 )
 
 set(FM_FILES
-    "Source/fm/FmCore.h"
-    "Source/fm/FmCore.cpp"
-    "Source/fm/FmOperator.h"
-    "Source/fm/FmOperator.cpp"
-    "Source/fm/FmOpParams.h"
-    "Source/fm/RegisterType.h"
-    "Source/fm/RegisterConverter.h"
-    "Source/fm/RegisterConverter.cpp"
-    "Source/fm/SliderRegMap.h"
-    "Source/fm/SliderRegMap.cpp"
+    "Source/Core/Fm/FmCore.h"
+    "Source/Core/Fm/FmCore.cpp"
+    "Source/Core/Fm/FmOperator.h"
+    "Source/Core/Fm/FmOperator.cpp"
+    "Source/Core/Fm/FmOpParams.h"
+    "Source/Core/Fm/RegisterType.h"
+    "Source/Core/Fm/RegisterConverter.h"
+    "Source/Core/Fm/RegisterConverter.cpp"
+    "Source/Core/Fm/SliderRegMap.h"
+    "Source/Core/Fm/SliderRegMap.cpp"
 )
 
 set(GUI_FILES
-    "Source/gui/GuiBase.h"
-    "Source/gui/GuiBase.cpp"
-    "Source/gui/GuiColor.h"
-    "Source/gui/GuiComponents.h"
-    "Source/gui/GuiComponents.cpp"
-    "Source/gui/GuiContext.h"
-    "Source/gui/GuiHelpers.h"
-    "Source/gui/GuiHelpers.cpp"
-    "Source/gui/GuiLF.h"
-    "Source/gui/GuiLF.cpp"
-    "Source/gui/GuiStructs.h"
-    "Source/gui/GuiText.h"
-    "Source/gui/GuiValues.h"
+    "Source/Core/Gui/GuiBase.h"
+    "Source/Core/Gui/GuiBase.cpp"
+    "Source/Core/Gui/GuiColor.h"
+    "Source/Core/Gui/GuiComponents.h"
+    "Source/Core/Gui/GuiComponents.cpp"
+    "Source/Core/Gui/GuiContext.h"
+    "Source/Core/Gui/GuiHelpers.h"
+    "Source/Core/Gui/GuiHelpers.cpp"
+    "Source/Core/Gui/GuiLF.h"
+    "Source/Core/Gui/GuiLF.cpp"
+    "Source/Core/Gui/GuiStructs.h"
+    "Source/Core/Gui/GuiText.h"
+    "Source/Core/Gui/GuiValues.h"
+)
+
+set(PROCESSOR_FILES
+    "Source/Core/Processor/PrBase.h"
+    "Source/Core/Processor/PrBase.cpp"
+    "Source/Core/Processor/PluginProcessor.h"
+    "Source/Core/Processor/PluginProcessor.cpp"
+)
+
+set(EDITOR_FILES
+    "Source/Core/Editor/PluginEditor.h"
+    "Source/Core/Editor/PluginEditor.cpp"
 )
 
 set(OPNA_FILES
@@ -228,59 +240,41 @@ set(ABOUT_FILES
     "Source/ABOUT/GuiAbout.cpp"
 )
 
-set(PROCESSOR_FILES
-    "Source/processor/PrBase.h"
-    "Source/processor/PrBase.cpp"
-    "Source/processor/PluginProcessor.h"
-    "Source/processor/PluginProcessor.cpp"
-)
-
-set(EDITOR_FILES
-    "Source/editor/PluginEditor.h"
-    "Source/editor/PluginEditor.cpp"
-)
-
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
-source_group("[Core01]Main" FILES ${CORE_FILES})
-source_group("[Core02]Synth" FILES ${SYNTH_FILES})
-source_group("[Core03]FM" FILES ${FM_FILES})
-source_group("[Core04]Gui" FILES ${GUI_FILES})
-source_group("[Core05]Processor" FILES ${PROCESSOR_FILES})
-source_group("[Core06]Editor" FILES ${EDITOR_FILES})
-source_group("[Core07]Docs" FILES ${DOCUMENT_FILES})
-source_group("[TAB 01]OPNA" FILES ${OPNA_FILES})
-source_group("[TAB 02]OPN" FILES ${OPN_FILES})
-source_group("[TAB 03]OPL" FILES ${OPL_FILES})
-source_group("[TAB 04]OPL3" FILES ${OPL3_FILES})
-source_group("[TAB 05]OPM" FILES ${OPM_FILES})
-source_group("[TAB 06]OPZX3" FILES ${OPZX3_FILES})
-source_group("[TAB 07]SSG" FILES ${SSG_FILES})
-source_group("[TAB 08]WT" FILES ${WT_FILES})
-source_group("[TAB 09]RHYTHM" FILES ${RHYTHM_FILES})
-source_group("[TAB 10]ADPCM" FILES ${ADPCM_FILES})
-source_group("[TAB 11]BEEP" FILES ${BEEP_FILES})
-source_group("[TAB 12]PRESET" FILES ${PRESET_FILES})
-source_group("[TAB 13]FX" FILES ${FX_FILES})
-source_group("[TAB 14]SETTINGS" FILES ${SETTINGS_FILES})
-source_group("[TAB 15]ABOUT" FILES ${ABOUT_FILES})
+source_group("Core\\Const" FILES ${CONST_FILES})
+source_group("Core\\Synth" FILES ${SYNTH_FILES})
+source_group("Core\\Fm" FILES ${FM_FILES})
+source_group("Core\\Gui" FILES ${GUI_FILES})
+source_group("Core\\Processor" FILES ${PROCESSOR_FILES})
+source_group("Core\\Editor" FILES ${EDITOR_FILES})
+source_group("Core\\Docs" FILES ${DOCUMENT_FILES})
+source_group("Tab\\OPNA" FILES ${OPNA_FILES})
+source_group("Tab\\OPN" FILES ${OPN_FILES})
+source_group("Tab\\OPL" FILES ${OPL_FILES})
+source_group("Tab\\OPL3" FILES ${OPL3_FILES})
+source_group("Tab\\OPM" FILES ${OPM_FILES})
+source_group("Tab\\OPZX3" FILES ${OPZX3_FILES})
+source_group("Tab\\SSG" FILES ${SSG_FILES})
+source_group("Tab\\WaveTable" FILES ${WT_FILES})
+source_group("Tab\\RHYTHM" FILES ${RHYTHM_FILES})
+source_group("Tab\\ADPCM" FILES ${ADPCM_FILES})
+source_group("Tab\\BEEP" FILES ${BEEP_FILES})
+source_group("Tab\\PRESET" FILES ${PRESET_FILES})
+source_group("Tab\\FX" FILES ${FX_FILES})
+source_group("Tab\\SETTINGS" FILES ${SETTINGS_FILES})
+source_group("Tab\\ABOUT" FILES ${ABOUT_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
 # ==============================================================================
-function(create_cyross_plugin TARGET_NAME IS_FX)
-    if(IS_FX)
-        set(CY_PLUGIN_CODE "28FX")
-        set(CY_IS_SYNTH FALSE)
-    else()
-        set(CY_PLUGIN_CODE "2686")
-        set(CY_IS_SYNTH TRUE)
-    endif()
+function(create_cyross_plugin TARGET_NAME)
+    set(CY_PLUGIN_CODE "2686")
 
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME ${CY_COMPANY_NAME}
-        IS_SYNTH ${CY_IS_SYNTH}
+        IS_SYNTH TRUE
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT FALSE
         IS_MIDI_EFFECT FALSE
@@ -293,46 +287,30 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
         PRODUCT_NAME ${TARGET_NAME}
     )
 
-    # ソースコードの紐付け (FXかどうかで混ぜるファイルを分ける)
-    if(IS_FX)
-        target_compile_definitions(${TARGET_NAME} PUBLIC BUILD_AS_FX_PLUGIN=1)
-        target_sources(${TARGET_NAME} PRIVATE
-            ${CORE_FILES}
-            ${SYNTH_FILES}
-            ${GUI_FILES}
-            ${PROCESSOR_FILES}
-            ${EDITOR_FILES}
-            ${FX_FILES}
-            ${SETTINGS_FILES}
-            ${ABOUT_FILES}
-            ${DOCUMENT_FILES}
-        )
-    else()
-        target_sources(${TARGET_NAME} PRIVATE
-            ${CORE_FILES}
-            ${SYNTH_FILES}
-            ${FM_FILES}
-            ${GUI_FILES}
-            ${PROCESSOR_FILES}
-            ${EDITOR_FILES}
-            ${OPNA_FILES}
-            ${OPN_FILES}
-            ${OPL_FILES}
-            ${OPL3_FILES}
-            ${OPM_FILES}
-            ${OPZX3_FILES}
-            ${SSG_FILES}
-            ${WT_FILES}
-            ${RHYTHM_FILES}
-            ${ADPCM_FILES}
-            ${BEEP_FILES}
-            ${FX_FILES}
-            ${PRESET_FILES}
-            ${SETTINGS_FILES}
-            ${ABOUT_FILES}
-            ${DOCUMENT_FILES}
-        )
-    endif()
+    target_sources(${TARGET_NAME} PRIVATE
+        ${CONST_FILES}
+        ${SYNTH_FILES}
+        ${FM_FILES}
+        ${GUI_FILES}
+        ${PROCESSOR_FILES}
+        ${EDITOR_FILES}
+        ${OPNA_FILES}
+        ${OPN_FILES}
+        ${OPL_FILES}
+        ${OPL3_FILES}
+        ${OPM_FILES}
+        ${OPZX3_FILES}
+        ${SSG_FILES}
+        ${WT_FILES}
+        ${RHYTHM_FILES}
+        ${ADPCM_FILES}
+        ${BEEP_FILES}
+        ${FX_FILES}
+        ${PRESET_FILES}
+        ${SETTINGS_FILES}
+        ${ABOUT_FILES}
+        ${DOCUMENT_FILES}
+    )
 
     target_link_libraries(${TARGET_NAME} PRIVATE
         AppIconForAbout
@@ -347,5 +325,4 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
     juce_generate_juce_header(${TARGET_NAME})
 endfunction()
 
-create_cyross_plugin("2686V" FALSE)
-create_cyross_plugin("2686VFX" TRUE)
+create_cyross_plugin("2686V")

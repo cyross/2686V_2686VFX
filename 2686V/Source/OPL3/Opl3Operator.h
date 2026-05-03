@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "../fm/FmOperator.h"
-#include "../fm/FmOpParams.h"
+#include "../Core/Fm/FmOperator.h"
+#include "../Core/Fm/FmOpParams.h"
 
 class Opl3Operator : public FmOperator
 {

@@ -1,11 +1,11 @@
 ﻿#include "GuiHelpers.h"
 
-#include "../core/MmlKeys.h"
+#include "../Const/MmlKeys.h"
 
-#include "../fm/RegisterType.h"
-#include "../fm/RegisterConverter.h"
+#include "../../Core/Fm/RegisterType.h"
+#include "../../Core/Fm/RegisterConverter.h"
 
-#include "../gui/GuiValues.h"
+#include "./GuiValues.h"
 
 std::vector<SelectItem> createItems(int size, const juce::String& prefix)
 {

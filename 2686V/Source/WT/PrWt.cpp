@@ -1,8 +1,8 @@
 ﻿#include "PrWt.h"
 
-#include "../core/PrKeys.h"
-#include "../core/PrNames.h"
-#include "../core/PrValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrNames.h"
+#include "../Core/Const/PrValues.h"
 
 void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int size, const juce::String& code, const juce::String& name)
 {

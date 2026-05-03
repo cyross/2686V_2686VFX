@@ -1,10 +1,10 @@
 ﻿#include "PluginProcessor.h"
 
-#include "../core/PrNames.h"
-#include "../core/SettingsKeys.h"
-#include "../core/SettingsValues.h"
+#include "../Const/PrNames.h"
+#include "../Const/SettingsKeys.h"
+#include "../Const/SettingsValues.h"
 
-#include "../gui/GuiValues.h"
+#include "../Gui/GuiValues.h"
 
 // ============================================================================
 // Constructor
@@ -12,20 +12,13 @@
 AudioPlugin2686V::AudioPlugin2686V()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-#if defined(BUILD_AS_FX_PLUGIN)
-        // FXモード: ステレオ入力あり、ステレオ出力あり
-        .withInput(Global::Audio::input, juce::AudioChannelSet::stereo(), true)
-        .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
-#else
         // シンセモード: 入力なし、ステレオ出力あり
         .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
-#endif
     ),
     // Initialize APVTS (Parameters are created here)
     apvts(*this, nullptr, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
-#if !defined(BUILD_AS_FX_PLUGIN)
     m_synth.addSound(new SynthSound());
     for (int i = 0; i < Global::voices; i++) {
         m_synth.addVoice(new SynthVoice());
@@ -35,7 +28,6 @@ AudioPlugin2686V::AudioPlugin2686V()
     previewSynth.addVoice(new SynthVoice());
 
     formatManager.registerBasicFormats();
-#endif
     loadStartupSettings();
 }
 
@@ -51,10 +43,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-#if defined(BUILD_AS_FX_PLUGIN)
-    // Mode: 0:FX, 1:SETTING, 2:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
-#else
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX3 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
     layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
 
@@ -69,7 +57,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
-#endif
 	prFx.createLayout(layout);
 
     // マスターボリューム追加
@@ -96,7 +83,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 // ============================================================================
 void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-#if !defined(BUILD_AS_FX_PLUGIN)
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 
     // Prepare RhythmCore for all voices
@@ -105,7 +91,6 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
             voice->getRhythmCore()->prepare(sampleRate);
         }
     }
-#endif
 
 	prFx.prepare(sampleRate);
 }
@@ -132,9 +117,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
-#if defined(BUILD_AS_FX_PLUGIN)
-    SynthParams params;
-#else
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
     SynthParams params;
@@ -206,7 +188,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     {
         buffer.applyGain(headroomGain);
     }
-#endif
 
 	prFx.processBlock(buffer, params, apvts);
 
@@ -267,7 +248,6 @@ juce::AudioProcessorEditor* AudioPlugin2686V::createEditor()
     return new AudioPlugin2686VEditor(*this);
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
 {
     auto* reader = formatManager.createReaderFor(file);
@@ -338,7 +318,6 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
         }
     }
 }
-#endif
 
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
@@ -354,7 +333,6 @@ void AudioPlugin2686V::setCurrentProgram(int index) {}
 const juce::String AudioPlugin2686V::getProgramName(int index) { return {}; }
 void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName) {}
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
@@ -427,14 +405,11 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         }
     }
 };
-#endif
 
 // ============================================================================
 // State Information
 // ============================================================================
 void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
-// 2686FXではプリセット情報のやり取りは無いので、何もしない関数を定義する
-#if !defined(BUILD_AS_FX_PLUGIN)
     // APVTSの状態をXMLとして取得
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
@@ -442,12 +417,9 @@ void AudioPlugin2686V::getStateInformation(juce::MemoryBlock& destData) {
     setPresetToXml(xml);
 
     copyXmlToBinary(*xml, destData);
-#endif
 }
 
 void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
-    // 2686FXではプリセット情報のやり取りは無いので、何もしない関数を定義する
-#if !defined(BUILD_AS_FX_PLUGIN)
 // 1. データ自体のバリデーション
     if (data == nullptr || sizeInBytes <= 0) return;
 
@@ -498,10 +470,8 @@ void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
         // ここでは何もしないか、デバッグログを出す程度に留めることでクラッシュを防ぎます。
         DBG("setStateInformation: Failed to parse XML state.");
     }
-#endif
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::savePreset(const juce::File& file)
 {
     auto state = apvts.copyState();
@@ -519,7 +489,6 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
     getPresetFromXml(xmlState);
 }
-#endif
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
@@ -562,12 +531,11 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
         showVirtualKeyboard = xml->getBoolAttribute(SettingsKey::showVirtualKeyboard, SettingsValue::Initial::showVirtualKeyboard);
-#if !defined(BUILD_AS_FX_PLUGIN)
+
         // 内部変数の更新
         if (juce::File(defaultSampleDir).isDirectory()) {
             lastSampleDirectory = juce::File(defaultSampleDir);
         }
-#endif
     }
 }
 
@@ -629,9 +597,7 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultSampleDir = newSampleDir.getFullPathName();
-#if !defined(BUILD_AS_FX_PLUGIN)
         lastSampleDirectory = newSampleDir;
-#endif
     }
 
 }
@@ -641,7 +607,6 @@ juce::String AudioPlugin2686V::getDefaultPresetDir()
     return defaultPresetDir;
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::unloadAdpcmFile()
 {
     // パス情報を削除
@@ -681,7 +646,6 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
         }
     }
 }
-#endif
 
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
 juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
@@ -754,7 +718,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new AudioPlugin2686V();
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686V::initPreset()
 {
     // 1. 全パラメータをデフォルト値(Normalized 0.0-1.0)にリセット
@@ -921,11 +884,9 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     // 8. 停止
     previewSynth.noteOff(1, 69, 0.0f, false);
 }
-#endif
 
 void AudioPlugin2686V::panic()
 {
-#if !defined(BUILD_AS_FX_PLUGIN)
     // 1. 全てのボイス（回路）の音を強制的に停止（切り離し）します
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = m_synth.getVoice(i)) {
@@ -933,7 +894,6 @@ void AudioPlugin2686V::panic()
             voice->stopNote(0.0f, false);
         }
     }
-#endif
 
     prFx.clear();
 }

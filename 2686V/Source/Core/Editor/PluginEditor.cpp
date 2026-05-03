@@ -5,19 +5,19 @@
 
 #include "PluginEditor.h"
 
-#include "../processor/PluginProcessor.h"
+#include "../Processor/PluginProcessor.h"
 
-#include "../core/PrKeys.h"
-#include "../core/FileValues.h"
-#include "../core/PresetKeys.h"
+#include "../Const/PrKeys.h"
+#include "../Const/FileValues.h"
+#include "../Const/PresetKeys.h"
 
-#include "../fm/SliderRegMap.h"
-#include "../fm/RegisterConverter.h"
+#include "../Fm/SliderRegMap.h"
+#include "../Fm/RegisterConverter.h"
 
-#include "../gui/GuiText.h"
-#include "../gui/GuiValues.h"
-#include "../gui/GuiColor.h"
-#include "../gui/GuiContext.h"
+#include "../Gui/GuiText.h"
+#include "../Gui/GuiValues.h"
+#include "../Gui/GuiColor.h"
+#include "../Gui/GuiContext.h"
 
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
@@ -28,7 +28,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     opnaGui = std::make_unique<GuiOpna>(context);
 	opnGui = std::make_unique<GuiOpn>(context);
 	oplGui = std::make_unique<GuiOpl>(context);
@@ -41,20 +40,16 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	adpcmGui = std::make_unique<GuiAdpcm>(context);
     beepGui = std::make_unique<GuiBeep>(context);
     presetGui = std::make_unique<GuiPreset>(context);
-#endif
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     wtGui->addComponentListener(this);
-#endif
     tabs.getTabbedButtonBar().addChangeListener(this);
     audioProcessor.apvts.addParameterListener(PrKey::mode, this);
 
     setupLogo();
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     opnaGui->setup();
     opnGui->setup();
     oplGui->setup();
@@ -67,7 +62,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     adpcmGui->setup();
     beepGui->setup();
     presetGui->setup();
-#endif
     fxGui->setup();
     settingsGui->setup();
     aboutGui->setup();
@@ -82,28 +76,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(PrKey::mode);
     tabs.setCurrentTabIndex(currentMode);
 
-#if defined(BUILD_AS_FX_PLUGIN)
-    setSize(GuiValue::Window::width, GuiValue::Window::height);
-
-    addAndMakeVisible(togglePreviewBtn);
-    addChildComponent(realtimePreview);
-
-    togglePreviewBtn.onClick = [this] {
-        isPreviewVisible = !isPreviewVisible;
-        updatePreviewVisibilityToProcessor();
-
-        staticPreview.setVisible(isPreviewVisible);
-        realtimePreview.setVisible(isPreviewVisible);
-        togglePreviewBtn.setButtonText(isPreviewVisible ? GuiText::Preview::hide : GuiText::Preview::show);
-
-        // ウィンドウの幅を動的に変更
-        int newWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
-        setSize(newWidth, GuiValue::Window::height); // 高さは固定、幅を伸縮
-
-        // タイマーのON/OFFを切り替え
-        updateTimerState();
-    };
-#else
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
     for (int i = 0; i < tabs.getNumTabs(); ++i)
     {
@@ -162,18 +134,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     int initialHeight = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
     setSize(GuiValue::Window::width, initialHeight);
-#endif
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
-#if defined(BUILD_AS_FX_PLUGIN)
-
-    tabs.setLookAndFeel(nullptr);
-    tabs.getTabbedButtonBar().removeChangeListener(this);
-
-    audioProcessor.apvts.removeParameterListener(PrKey::mode, this);
-#else
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
 
@@ -186,13 +150,10 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     audioProcessor.apvts.removeParameterListener(PrKey::mode, this);
 
     stopTimer();
-#endif
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-// 2686FXでは不要
-#if !defined(BUILD_AS_FX_PLUGIN)
     if (source == &tabs.getTabbedButtonBar())
     {
         // 0:OPNA, 1:OPN, 2:OPL, ...
@@ -220,7 +181,6 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
         updateTimerState();
     }
-#endif
 }
 
 void AudioPlugin2686VEditor::paint(juce::Graphics& g)
@@ -232,27 +192,20 @@ void AudioPlugin2686VEditor::resized()
 {
     auto area = getLocalBounds();
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     // 画面の一番下を鍵盤UIに割り当てる
     if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
     {
         midiKeyboard->setBounds(area.removeFromBottom(GuiValue::KeyboardHeight));
     }
-#endif
 
     togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
 
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(GuiValue::Preview::extraWidth);
-#if defined(BUILD_AS_FX_PLUGIN)
-        // FX版: リアルタイム波形だけを大きく中央に表示
-        realtimePreview.setBounds(rightArea.getX() + 4, 30, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize * 2);
-#else
-        // シンセ版: 上下に並べる
+        // 上下に並べる
         staticPreview.setBounds(rightArea.getX() + 4, 30, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
-#endif
     }
 
     panicButton.setBounds(getWidth() - 60, 5, 20, 20);
@@ -265,7 +218,6 @@ void AudioPlugin2686VEditor::resized()
     auto content = tabs.getLocalBounds();
     content.removeFromTop(tabs.getTabBarDepth()).reduce(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height); // 全体の余白
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     opnaGui->layout(content);
     opnGui->layout(content);
     oplGui->layout(content);
@@ -277,11 +229,8 @@ void AudioPlugin2686VEditor::resized()
     rhythmGui->layout(content);
     adpcmGui->layout(content);
     beepGui->layout(content);
-#endif
     fxGui->layout(content);
-#if !defined(BUILD_AS_FX_PLUGIN)
     presetGui->layout(content);
-#endif
     settingsGui->layout(content);
     aboutGui->layout(content);
 }
@@ -365,12 +314,6 @@ void AudioPlugin2686VEditor::setupLogo()
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
-    // FXモードならシンセ系タブを追加しない
-#if defined(BUILD_AS_FX_PLUGIN)
-    tabs.addTab(GuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
-    tabs.addTab(GuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(GuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
-#else
     tabs.addTab(GuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
     tabs.addTab(GuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
     tabs.addTab(GuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
@@ -386,10 +329,8 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(GuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(GuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(GuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
-#endif
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 {
     audioProcessor.loadPreset(file);
@@ -428,7 +369,6 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     // 4. 各タブのプリセット名を更新
     updatePresetNameToTabs(audioProcessor.presetName);
 }
-#endif
 
 void AudioPlugin2686VEditor::loadSettingsFile()
 {
@@ -451,21 +391,18 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                 // 壁紙再描画
                 loadWallpaperImage();
 
-#if !defined(BUILD_AS_FX_PLUGIN)
                 // プリセットリスト更新
                 if (juce::File(audioProcessor.defaultPresetDir).isDirectory()) {
                     presetGui->currentFolder = juce::File(audioProcessor.defaultPresetDir);
                     presetGui->updatePresetPath();
                     scanPresets(); // リスト更新関数を呼ぶ
                 }
-#endif
             }
         }
     );
 
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::scanPresets()
 {
     presetGui->clearTable();
@@ -569,7 +506,6 @@ void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     adpcmGui->updatePresetName(pName);
     beepGui->updatePresetName(pName);
 }
-#endif
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
 {
@@ -610,7 +546,6 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
 
 void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized)
 {
-#if !defined(BUILD_AS_FX_PLUGIN)
     // wtPage のサイズが変わったときだけレイアウトを実行
     if (&component == wtGui.get() && wasResized)
     {
@@ -622,12 +557,10 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
     }
     // もし gui.page も登録したなら
     // if (&component == &gui.page && wasResized) layoutgui.page(); // (関数化していれば)
-#endif
 }
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
-#if !defined(BUILD_AS_FX_PLUGIN)
     // ADPCM Load Buttons
     if (adpcmGui->isThis(button))
     {
@@ -660,10 +593,8 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
         fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
         rhythmGui->buttonClicked(button, audioProcessor.formatManager, fileChooser);
     }
-#endif
 }
 
-#if !defined(BUILD_AS_FX_PLUGIN)
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
 {
     // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
@@ -832,19 +763,16 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
 
     setSize(targetWidth, targetHeight);
 }
-#endif
 
 void AudioPlugin2686VEditor::timerCallback()
 {
     if (isPreviewVisible)
     {
-#if !defined(BUILD_AS_FX_PLUGIN)
         // 1. 静的波形（完成波形）の更新
         std::vector<float> staticData;
 
         audioProcessor.generatePreviewWaveform(staticData);
         staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
-#endif
         // 2. リアルタイム波形の更新
         std::vector<float> realTimeData(512);
 
@@ -878,11 +806,9 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     {
         int idx = (int)newValue;
 
-#if !defined(BUILD_AS_FX_PLUGIN)
         if (idx >= 0 && idx <= (int)OscMode::BEEP) {
             audioProcessor.lastActiveSynthMode = (OscMode)idx;
         }
-#endif
 
         // UIスレッドで実行するために callAsync を使用
         juce::MessageManager::callAsync([this, idx]() {

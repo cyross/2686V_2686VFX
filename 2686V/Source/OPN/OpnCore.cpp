@@ -1,5 +1,5 @@
-﻿#include "OpnCore.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./OpnCore.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 void OpnCore::prepare(double sampleRate)
 {

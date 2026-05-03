@@ -1,6 +1,6 @@
 ﻿#include "Opzx3Operator.h"
 #include "Opzx3Core.h"
-#include "../core/PrValues.h"
+#include "../Core/Const/PrValues.h"
 
 namespace {
     // =================================================================
