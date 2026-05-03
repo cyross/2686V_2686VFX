@@ -1,0 +1,596 @@
+﻿#include "./Gui.h"
+
+#include <vector>
+
+#include "../../Core/Processor/PluginProcessor.h"
+
+#include "../../Core/Const/PrKeys.h"
+#include "../../Core/Const/PrValues.h"
+#include "../../Core/Const/MmlKeys.h"
+#include "../../Core/Const/MmlValues.h"
+
+#include "../../Generator/Fm/RegisterConverter.h"
+
+#include "../../Core/Gui/GuiHelpers.h"
+#include "../../Core/Gui/GuiValues.h"
+#include "../../Core/Gui/GuiText.h"
+#include "../../Core/Gui/GuiStructs.h"
+
+static std::vector<SelectItem> bdItems = {
+    {.name = "1: 4-bit (16 steps)",  .value = 1 },
+    {.name = "2: 5-bit (32 steps)",  .value = 2 },
+    {.name = "3: 6-bit (64 steps)",  .value = 3 },
+    {.name = "4: 8-bit (256 steps)", .value = 4 },
+    {.name = "5: Raw",               .value = 5 },
+    {.name = "6: 7-bit (OPLL/128 steps)", .value = 6 }
+};
+
+static std::vector<SelectItem> rateItems = {
+    {.name = "1: 96kHz",    .value = 1 },
+    {.name = "2: 55.5kHz",  .value = 2 },
+    {.name = "3: 48kHz",    .value = 3 },
+    {.name = "4: 44.1kHz",  .value = 4 },
+    {.name = "5: 22.05kHz", .value = 5 },
+    {.name = "6: 16kHz",    .value = 6 },
+    {.name = "7: 8kHz",     .value = 7 },
+};
+
+static std::vector<SelectItem> oplAlgItems = {
+    {.name = "00: <OPL-00>", .value = 1 },
+    {.name = "01: <OPL-01>", .value = 2 },
+};
+
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
+};
+
+static std::vector<SelectItem> kslItems = {
+    {.name = "KSL: 0", .value = 1},
+    {.name = "KSL: 1", .value = 2},
+    {.name = "KSL: 2", .value = 3},
+    {.name = "KSL: 3", .value = 4}
+};
+
+static std::vector<SelectItem> oplEgItems = {
+    {.name = "0: Sine",       .value = 1},
+    {.name = "1: Half Sine",  .value = 2},
+    {.name = "2: Abs Sine",   .value = 3},
+    {.name = "3: Pulse Sine", .value = 4}
+};
+
+void GuiOpl::setup()
+{
+    // このタブ(Component)がキーボードフォーカスを受け取れるようにする
+    setWantsKeyboardFocus(true);
+
+    const juce::String code = PrKey::Prefix::opl;
+    int tabOrder = 1;
+
+    mainGroup.setup(*this, GuiText::Group::mainGroup);
+
+    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+
+    presetNameLabel.setup({ .parent = *this, .title = "" });
+    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+
+    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setWantsKeyboardFocus(true);
+    bitSelector.setExplicitFocusOrder(++tabOrder);
+
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setWantsKeyboardFocus(true);
+    rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
+
+    algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = oplAlgItems, .isReset = true });
+    algSelector.setWantsKeyboardFocus(true);
+    algSelector.setExplicitFocusOrder(++tabOrder);
+    algSelector.onChange = [this] {
+        updateAlgorithmDisplay();
+        };
+
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setWantsKeyboardFocus(true);
+    feedbackSlider.setExplicitFocusOrder(++tabOrder);
+
+    initCat.setup({ .parent = *this, .title = GuiText::Category::initialize });
+
+    initLfoToOplBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpl });
+    initLfoToOplBtn.setWantsKeyboardFocus(true);
+    initLfoToOplBtn.setExplicitFocusOrder(++tabOrder);
+    initLfoToOplBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(3.7, juce::sendNotification);
+            amd[i].setValue(4.8, juce::sendNotification);
+
+            pms[i].setValue(6.4, juce::sendNotification);
+            pmd[i].setValue(14.0, juce::sendNotification);
+        }
+        };
+
+    initLfoToOpllBtn.setup({ .parent = *this, .title = GuiText::Fm::initLfoToOpll });
+    initLfoToOpllBtn.setWantsKeyboardFocus(true);
+    initLfoToOpllBtn.setExplicitFocusOrder(++tabOrder);
+    initLfoToOpllBtn.onClick = [this] {
+        for (int i = 0; i < 2; i++)
+        {
+            ams[i].setValue(6.06, juce::sendNotification);
+            amd[i].setValue(1.2, juce::sendNotification);
+
+            pms[i].setValue(6.06, juce::sendNotification);
+            pmd[i].setValue(13.7, juce::sendNotification);
+        }
+        };
+
+    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+
+    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setWantsKeyboardFocus(true);
+    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+
+    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+
+    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    masterVolSlider.setWantsKeyboardFocus(true);
+    masterVolSlider.setExplicitFocusOrder(++tabOrder);
+
+    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL_%02d.png", i);
+        auto imgFile = docDir.getChildFile(fileName);
+
+        if (imgFile.existsAsFile()) {
+            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
+        }
+    }
+
+    // 画像コンポーネントを画面に追加
+    addAndMakeVisible(algImageComp);
+
+    const juce::String opCode = code + PrKey::Innder::op;
+
+    for (int i = 0; i < 2; ++i)
+    {
+        opGroups[i].setup(*this, GuiText::Group::opPrefix + juce::String(i + 1));
+
+        juce::String paramPrefix = opCode + juce::String(i);
+
+        catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
+
+        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setWantsKeyboardFocus(true);
+        mul[i].setExplicitFocusOrder(++tabOrder);
+
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgAr[i].setWantsKeyboardFocus(true);
+        rgAr[i].setExplicitFocusOrder(++tabOrder);
+
+        rgDr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgDr, .title = GuiText::Fm::Op::Dr, .isReset = true });
+        rgDr[i].setWantsKeyboardFocus(true);
+        rgDr[i].setExplicitFocusOrder(++tabOrder);
+
+        rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
+        rgSl[i].setWantsKeyboardFocus(true);
+        rgSl[i].setExplicitFocusOrder(++tabOrder);
+
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgRr[i].setWantsKeyboardFocus(true);
+        rgRr[i].setExplicitFocusOrder(++tabOrder);
+
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
+        rgTl[i].setWantsKeyboardFocus(true);
+        rgTl[i].setExplicitFocusOrder(++tabOrder);
+
+        egType[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::egType, .title = GuiText::Fm::Op::EgType, .isReset = true });
+        egType[i].setWantsKeyboardFocus(true);
+        egType[i].setExplicitFocusOrder(++tabOrder);
+
+        ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksr, .title = GuiText::Fm::Op::Ksr, .isReset = true });
+        ksr[i].setWantsKeyboardFocus(true);
+        ksr[i].setExplicitFocusOrder(++tabOrder);
+
+        ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ksl, .title = GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
+        ksl[i].setWantsKeyboardFocus(true);
+        ksl[i].setExplicitFocusOrder(++tabOrder);
+
+        catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
+
+        eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::eg, .title = GuiText::Fm::Op::Eg, .items = oplEgItems, .isReset = true });
+        eg[i].setWantsKeyboardFocus(true);
+        eg[i].setExplicitFocusOrder(++tabOrder);
+
+        adsrCat[i].setup({ .parent = *this, .title = GuiText::Category::adsr });
+
+        sus[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::sus, .title = GuiText::Fm::Op::sus, .isReset = true });
+
+        catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
+
+        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::am, .title = GuiText::Fm::Op::Am, .isReset = true });
+        am[i].setWantsKeyboardFocus(true);
+        am[i].setExplicitFocusOrder(++tabOrder);
+
+        ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
+
+        amsTo37[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->3.7Hz", .isReset = false, .isResized = false });
+        amsTo37[i].setWantsKeyboardFocus(true);
+        amsTo37[i].setExplicitFocusOrder(++tabOrder);
+        amsTo37[i].onClick = [this, index = i] { ams[index].setValue(3.7, juce::sendNotification); };
+
+        amsTo606[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.06Hz", .isReset = false, .isResized = false });
+        amsTo606[i].setWantsKeyboardFocus(true);
+        amsTo606[i].setExplicitFocusOrder(++tabOrder);
+        amsTo606[i].onClick = [this, index = i] { ams[index].setValue(6.06, juce::sendNotification); };
+
+        amd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::amd, .title = GuiText::Fm::Op::Amd, .isReset = true });
+        amd[i].setWantsKeyboardFocus(true);
+        amd[i].setExplicitFocusOrder(++tabOrder);
+
+        amdTo1[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->1dB", .isReset = false, .isResized = false });
+        amdTo1[i].setWantsKeyboardFocus(true);
+        amdTo1[i].setExplicitFocusOrder(++tabOrder);
+        amdTo1[i].onClick = [this, index = i] { amd[index].setValue(1.0, juce::sendNotification); };
+
+        amdTo12[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->1.2dB", .isReset = false, .isResized = false });
+        amdTo12[i].setWantsKeyboardFocus(true);
+        amdTo12[i].setExplicitFocusOrder(++tabOrder);
+        amdTo12[i].onClick = [this, index = i] { amd[index].setValue(1.2, juce::sendNotification); };
+
+        amdTo48[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->4.8dB", .isReset = false, .isResized = false });
+        amdTo48[i].setWantsKeyboardFocus(true);
+        amdTo48[i].setExplicitFocusOrder(++tabOrder);
+        amdTo48[i].onClick = [this, index = i] { amd[index].setValue(4.8, juce::sendNotification); };
+
+        vib[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::vib, .title = GuiText::Fm::Op::Vib, .isReset = true });
+        vib[i].setWantsKeyboardFocus(true);
+        vib[i].setExplicitFocusOrder(++tabOrder);
+
+        pms[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .isReset = true });
+        pms[i].setWantsKeyboardFocus(true);
+        pms[i].setExplicitFocusOrder(++tabOrder);
+
+        pmsTo606[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.06Hz", .isReset = false, .isResized = false });
+        pmsTo606[i].setWantsKeyboardFocus(true);
+        pmsTo606[i].setExplicitFocusOrder(++tabOrder);
+        pmsTo606[i].onClick = [this, index = i] { pms[index].setValue(6.06, juce::sendNotification); };
+
+        pmsTo64[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->6.4Hz", .isReset = false, .isResized = false });
+        pmsTo64[i].setWantsKeyboardFocus(true);
+        pmsTo64[i].setExplicitFocusOrder(++tabOrder);
+        pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
+
+        pmd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pmd, .title = GuiText::Fm::Op::Pmd, .isReset = true });
+        pmd[i].setWantsKeyboardFocus(true);
+        pmd[i].setExplicitFocusOrder(++tabOrder);
+
+        pmdTo7[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->7cent", .isReset = false, .isResized = false});
+        pmdTo7[i].setWantsKeyboardFocus(true);
+        pmdTo7[i].setExplicitFocusOrder(++tabOrder);
+        pmdTo7[i].onClick = [this, index = i] { pmd[index].setValue(7.0, juce::sendNotification); };
+
+        pmdTo137[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->13.7cent", .isReset = false, .isResized = false });
+        pmdTo137[i].setWantsKeyboardFocus(true);
+        pmdTo137[i].setExplicitFocusOrder(++tabOrder);
+        pmdTo137[i].onClick = [this, index = i] { pmd[index].setValue(13.7, juce::sendNotification); };
+
+        pmdTo14[i].setup(GuiTextButton::Config{ .parent = *this, .title = "->14cent", .isReset = false, .isResized = false });
+        pmdTo14[i].setWantsKeyboardFocus(true);
+        pmdTo14[i].setExplicitFocusOrder(++tabOrder);
+        pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
+
+        catMask[i].setup({ .parent = *this, .title = GuiText::Category::mask });
+
+        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
+        mask[i].setWantsKeyboardFocus(true);
+        mask[i].setExplicitFocusOrder(++tabOrder);
+
+        catMml[i].setup({ .parent = *this, .title = GuiText::Category::mml });
+
+        mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
+        mml[i].setWantsKeyboardFocus(true);
+        mml[i].setExplicitFocusOrder(++tabOrder);
+        mml[i].setupMml({
+            .opIndex = i,
+            .hintMessage = "e.g. AR:31/RAR:0 DR:0 SL:0 RR:15 MUL:1 DT:0",
+            .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
+            });
+    }
+}
+
+void GuiOpl::layout(juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin();
+
+    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
+
+    mainGroup.setBounds(mainArea);
+    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+
+    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
+    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
+    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+    layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
+    layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+    layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+    layoutMainCategory({ .mainRect = mRect, .label = &initCat });
+    layoutMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
+    layoutMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
+    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
+    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
+    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+
+    auto imgArea = mRect.removeFromBottom(100);
+    algImageComp.setBounds(imgArea);
+    mRect.removeFromTop(GuiValue::Category::paddingTop);
+
+    // --- B. Operators Section ---
+    for (int i = 0; i < 2; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+        opGroups[i].setBounds(opArea);
+
+        auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
+        innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
+        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
+        layoutRow({ .rowRect = innerRect, .component = &egType[i] });
+        layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
+        layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &adsrCat[i] });
+        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
+        layoutRow({ .rowRect = innerRect, .component = &am[i] });
+        layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
+        layoutRowTwoComps({ .rect = innerRect, .comp1 = &amsTo37[i], .comp2 = &amsTo606[i]});
+        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
+        layoutRowThreeComps({ .rect = innerRect, .comp1 = &amdTo1[i], .comp2 = &amdTo12[i], .comp3 = &amdTo48[i]});
+        layoutRow({ .rowRect = innerRect, .component = &vib[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });
+        layoutRowTwoComps({ .rect = innerRect, .comp1 = &pmsTo606[i], .comp2 = &pmsTo64[i]});
+        layoutRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i] });
+        layoutRowThreeComps({ .rect = innerRect, .comp1 = &pmdTo7[i], .comp2 = &pmdTo137[i], .comp3 = &pmdTo14[i]});
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
+        layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
+        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
+    }
+
+    updateAlgorithmDisplay();
+}
+
+// ==============================================================================
+// MML Parsing Logic (Template to handle different GuiSets)
+// ==============================================================================
+void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
+{
+    std::vector<RegisterUnit> units = RegisterConverter::convertToRegisterUnit(mml);
+    bool rgMode = rgEn[opIndex].getToggleState();
+
+    // 文字列キーと、実行する処理(ラムダ式)とのマップ
+    std::map<juce::String, std::function<void(int)>> actionMap = {
+        // --- 基本パラメータ ---
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
+        { mmlPrefixAm,   [&](int v) { am[opIndex].setToggleState(RegisterConverter::convertOplAm(v), juce::sendNotification); } },
+        { mmlPrefixVib,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixVb,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixPm,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
+        { mmlPrefixEgType,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixEt,   [&](int v) { egType[opIndex].setToggleState(RegisterConverter::convertOplEgType(v), juce::sendNotification); } },
+        { mmlPrefixKsr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKr,   [&](int v) { ksr[opIndex].setToggleState(RegisterConverter::convertOplKsr(v), juce::sendNotification); } },
+        { mmlPrefixKsl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
+        { mmlPrefixKl,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertOplKsl(v), juce::sendNotification); } },
+
+        // --- TL系 (RGモードで分岐) ---
+        { mmlPrefixTl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixO,    [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+        { mmlPrefixOl,   [&](int v) {
+            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg63(v), juce::sendNotification)
+                   : tl[opIndex].setValue(RegisterConverter::convertOplTl(v), juce::sendNotification);
+        }},
+
+        // --- エンベロープ系 (RGモードで分岐) ---
+        { mmlPrefixAr,   [&](int v) {
+            rgMode ? rgAr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : ar[opIndex].setValue(RegisterConverter::convertOplAr(v), juce::sendNotification);
+        }},
+        { mmlPrefixDr,   [&](int v) {
+            rgMode ? rgDr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : dr[opIndex].setValue(RegisterConverter::convertOplDr(v), juce::sendNotification);
+        }},
+        { mmlPrefixSl,   [&](int v) {
+            rgMode ? rgSl[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : sl[opIndex].setValue(RegisterConverter::convertOplSl(v), juce::sendNotification);
+        }},
+        { mmlPrefixRr,   [&](int v) {
+            rgMode ? rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
+                   : rr[opIndex].setValue(RegisterConverter::convertOplRr(v), juce::sendNotification);
+        }}
+    };
+
+    for (const auto& rUnit : units)
+    {
+        // actionMapの中に rUnit.key と一致するものがあるか検索
+        auto it = actionMap.find(rUnit.key);
+
+        if (it != actionMap.end())
+        {
+            // 見つかったら、そこに登録されたラムダ式(関数)に value を渡して実行
+            it->second(rUnit.value);
+        }
+    }
+}
+
+void GuiOpl::updateOpEnable(int idx, bool enable)
+{
+    opGroups[idx].setEnabled(enable);
+    catMain[idx].setEnabled(enable);
+    mul[idx].setEnabled(enable);
+    mul[idx].label.setEnabled(enable);
+    ar[idx].setEnabled(enable);
+    ar[idx].label.setEnabled(enable);
+    arTo000[idx].setEnabled(enable);
+    arTo003[idx].setEnabled(enable);
+    dr[idx].setEnabled(enable);
+    dr[idx].label.setEnabled(enable);
+    sl[idx].setEnabled(enable);
+    sl[idx].label.setEnabled(enable);
+    rr[idx].setEnabled(enable);
+    rr[idx].label.setEnabled(enable);
+    rrTo000[idx].setEnabled(enable);
+    rrTo003[idx].setEnabled(enable);
+    tl[idx].setEnabled(enable);
+    tl[idx].label.setEnabled(enable);
+    ksr[idx].setEnabled(enable);
+    ksl[idx].setEnabled(enable);
+    ksl[idx].label.setEnabled(enable);
+    egType[idx].setEnabled(enable);
+    eg[idx].setEnabled(enable);
+    eg[idx].label.setEnabled(enable);
+    catShape[idx].setEnabled(enable);
+    catLfo[idx].setEnabled(enable);
+    vib[idx].setEnabled(enable);
+    pms[idx].setEnabled(enable);
+    pms[idx].label.setEnabled(enable);
+    pmsTo64[idx].setEnabled(enable);
+    pmd[idx].setEnabled(enable);
+    pmd[idx].label.setEnabled(enable);
+    pmdTo7[idx].setEnabled(enable);
+    pmdTo14[idx].setEnabled(enable);
+    am[idx].setEnabled(enable);
+    ams[idx].setEnabled(enable);
+    ams[idx].label.setEnabled(enable);
+    amsTo37[idx].setEnabled(enable);
+    amd[idx].setEnabled(enable);
+    amd[idx].label.setEnabled(enable);
+    amdTo1[idx].setEnabled(enable);
+    amdTo48[idx].setEnabled(enable);
+    catMask[idx].setEnabled(enable);
+    mask[idx].setEnabled(enable);
+    catMml[idx].setEnabled(enable);
+    mml[idx].setEnabled(enable);
+}
+
+void GuiOpl::updateAlgorithmDisplay()
+{
+    int algIndex = algSelector.getSelectedItemIndex();
+
+    if (algIndex < 0 || algIndex > 1) return;
+
+    for (int i = 0; i < 2; ++i)
+    {
+        juce::String newTitle = GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
+
+        opGroups[i].setText(newTitle);
+    }
+
+    // ==========================================================
+    // 画像の切り替え
+    // ==========================================================
+    if (algImages[algIndex].isValid())
+    {
+        // 読み込めている場合はその画像をセット
+        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
+        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
+    }
+    else
+    {
+        // 画像がない場合（ファイルが見つからなかった時など）はクリア
+        algImageComp.setImage(juce::Image());
+    }
+}
+
+void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
+{
+    rgAr[idx].label.setVisible(rgMode);
+    rgAr[idx].setVisible(rgMode);
+    rgDr[idx].label.setVisible(rgMode);
+    rgDr[idx].setVisible(rgMode);
+    rgSl[idx].label.setVisible(rgMode);
+    rgSl[idx].setVisible(rgMode);
+    rgRr[idx].label.setVisible(rgMode);
+    rgRr[idx].setVisible(rgMode);
+    rgTl[idx].label.setVisible(rgMode);
+    rgTl[idx].setVisible(rgMode);
+
+    ar[idx].label.setVisible(!rgMode);
+    ar[idx].setVisible(!rgMode);
+    arTo000[idx].setVisible(!rgMode);
+    arTo003[idx].setVisible(!rgMode);
+    dr[idx].label.setVisible(!rgMode);
+    dr[idx].setVisible(!rgMode);
+    sl[idx].label.setVisible(!rgMode);
+    sl[idx].setVisible(!rgMode);
+    rr[idx].label.setVisible(!rgMode);
+    rr[idx].setVisible(!rgMode);
+    rrTo000[idx].setVisible(!rgMode);
+    rrTo003[idx].setVisible(!rgMode);
+    tl[idx].label.setVisible(!rgMode);
+    tl[idx].setVisible(!rgMode);
+}
+
+void GuiOpl::updatePresetName(const juce::String& presetName)
+{
+    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+// ==============================================================================
+// Keyboard Shortcut Logic
+// ==============================================================================
+bool GuiOpl::keyPressed(const juce::KeyPress& key)
+{
+    int opIndex = -1;
+    int code = key.getKeyCode();
+
+    // 通常の 1〜4キー、または テンキーの 1〜4 を判定
+    if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
+    else if (code == '2' || code == juce::KeyPress::numberPad2) opIndex = 1;
+
+    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    if (opIndex != -1)
+    {
+        // 該当オペレータが有効(Enabled)な時のみ反応させる
+        if (mml[opIndex].isEnabled()) {
+            mml[opIndex].triggerClick();
+        }
+        return true; // キー入力を消費したことをJUCEに伝える
+    }
+
+    return false; // 他のキーなら無視（通常処理へ）
+}

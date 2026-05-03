@@ -23,248 +23,564 @@ juce_add_binary_data(AppIconForAbout
 )
 
 # 定義
-set(CORE_FILES
-    "Source/core/Global.h"
-    "Source/core/FileValues.h"
-    "Source/core/MmlKeys.h"
-    "Source/core/MmlValues.h"
-    "Source/core/PrKeys.h"
-    "Source/core/PrNames.h"
-    "Source/core/PrValues.h"
-    "Source/core/PresetKeys.h"
-    "Source/core/PresetValues.h"
-    "Source/core/SettingsKeys.h"
-    "Source/core/SettingsValues.h"
-)
-
-set(SYNTH_FILES
-    "Source/synth/Mode.h"
-    "Source/synth/Mode.cpp"
-    "Source/synth/Pcm.h"
-    "Source/synth/Pcm.cpp"
-    "Source/synth/SynthCore.h"
-    "Source/synth/SynthCore.cpp"
-    "Source/synth/AdsrParams.h"
-    "Source/synth/SynthParams.h"
-    "Source/synth/SynthVoice.h"
-    "Source/synth/SynthVoice.cpp"
-    "Source/synth/SynthHelpers.h"
-    "Source/synth/SynthHelpers.cpp"
-)
-
-set(FM_FILES
-    "Source/fm/FmCore.h"
-    "Source/fm/FmCore.cpp"
-    "Source/fm/FmOperator.h"
-    "Source/fm/FmOperator.cpp"
-    "Source/fm/FmOpParams.h"
-    "Source/fm/RegisterType.h"
-    "Source/fm/RegisterConverter.h"
-    "Source/fm/RegisterConverter.cpp"
-    "Source/fm/SliderRegMap.h"
-    "Source/fm/SliderRegMap.cpp"
-)
-
-set(GUI_FILES
-    "Source/gui/GuiBase.h"
-    "Source/gui/GuiBase.cpp"
-    "Source/gui/GuiColor.h"
-    "Source/gui/GuiComponents.h"
-    "Source/gui/GuiComponents.cpp"
-    "Source/gui/GuiContext.h"
-    "Source/gui/GuiHelpers.h"
-    "Source/gui/GuiHelpers.cpp"
-    "Source/gui/GuiLF.h"
-    "Source/gui/GuiLF.cpp"
-    "Source/gui/GuiStructs.h"
-    "Source/gui/GuiText.h"
-    "Source/gui/GuiValues.h"
-)
-
-set(OPNA_FILES
-    "Source/OPNA/GuiOpna.h"
-    "Source/OPNA/GuiOpna.cpp"
-    "Source/OPNA/OpnaCore.h"
-    "Source/OPNA/OpnaCore.cpp"
-    "Source/OPNA/OpnaOperator.h"
-    "Source/OPNA/OpnaOperator.cpp"
-    "Source/OPNA/OpnaParams.h"
-    "Source/OPNA/PrOpna.h"
-    "Source/OPNA/PrOpna.cpp"
-)
-
-set(OPN_FILES
-    "Source/OPN/GuiOpn.h"
-    "Source/OPN/GuiOpn.cpp"
-    "Source/OPN/OpnCore.h"
-    "Source/OPN/OpnCore.cpp"
-    "Source/OPN/OpnOperator.h"
-    "Source/OPN/OpnOperator.cpp"
-    "Source/OPN/OpnParams.h"
-    "Source/OPN/PrOpn.h"
-    "Source/OPN/PrOpn.cpp"
-)
-
-set(OPL_FILES
-    "Source/OPL/GuiOpl.h"
-    "Source/OPL/GuiOpl.cpp"
-    "Source/OPL/OplCore.h"
-    "Source/OPL/OplCore.cpp"
-    "Source/OPL/OplOperator.h"
-    "Source/OPL/OplOperator.cpp"
-    "Source/OPL/OplParams.h"
-    "Source/OPL/PrOpl.h"
-    "Source/OPL/PrOpl.cpp"
-)
-
-set(OPL3_FILES
-    "Source/OPL3/GuiOpl3.h"
-    "Source/OPL3/GuiOpl3.cpp"
-    "Source/OPL3/Opl3Core.h"
-    "Source/OPL3/Opl3Core.cpp"
-    "Source/OPL3/Opl3Operator.h"
-    "Source/OPL3/Opl3Operator.cpp"
-    "Source/OPL3/Opl3Params.h"
-    "Source/OPL3/PrOpl3.h"
-    "Source/OPL3/PrOpl3.cpp"
-)
-
-set(OPM_FILES
-    "Source/OPM/GuiOpm.h"
-    "Source/OPM/GuiOpm.cpp"
-    "Source/OPM/OpmCore.h"
-    "Source/OPM/OpmCore.cpp"
-    "Source/OPM/OpmOperator.h"
-    "Source/OPM/OpmOperator.cpp"
-    "Source/OPM/OpmParams.h"
-    "Source/OPM/PrOpm.h"
-    "Source/OPM/PrOpm.cpp"
-)
-
-set(OPZX3_FILES
-    "Source/OPZX3/GuiOpzx3.h"
-    "Source/OPZX3/GuiOpzx3.cpp"
-    "Source/OPZX3/Opzx3Core.h"
-    "Source/OPZX3/Opzx3Core.cpp"
-    "Source/OPZX3/Opzx3Operator.h"
-    "Source/OPZX3/Opzx3Operator.cpp"
-    "Source/OPZX3/Opzx3Params.h"
-    "Source/OPZX3/PrOpzx3.h"
-    "Source/OPZX3/PrOpzx3.cpp"
-)
-
-set(SSG_FILES
-    "Source/SSG/GuiSsg.h"
-    "Source/SSG/GuiSsg.cpp"
-    "Source/SSG/PrSsg.h"
-    "Source/SSG/PrSsg.cpp"
-    "Source/SSG/SsgCore.h"
-    "Source/SSG/SsgCore.cpp"
-    "Source/SSG/SsgParams.h"
-)
-
-set(WT_FILES
-    "Source/WT/GuiWt.h"
-    "Source/WT/GuiWt.cpp"
-    "Source/WT/PrWt.h"
-    "Source/WT/PrWt.cpp"
-    "Source/WT/WtCore.h"
-    "Source/WT/WtCore.cpp"
-    "Source/WT/WtParams.h"
-)
-
-set(RHYTHM_FILES
-    "Source/RHYTHM/GuiRhythm.h"
-    "Source/RHYTHM/GuiRhythm.cpp"
-    "Source/RHYTHM/PrRhythm.h"
-    "Source/RHYTHM/PrRhythm.cpp"
-    "Source/RHYTHM/RhythmCore.h"
-    "Source/RHYTHM/RhythmCore.cpp"
-    "Source/RHYTHM/RhythmParams.h"
-)
-
-set(ADPCM_FILES
-    "Source/ADPCM/AdpcmCore.h"
-    "Source/ADPCM/AdpcmCore.cpp"
-    "Source/ADPCM/AdpcmParams.h"
-    "Source/ADPCM/GuiAdpcm.h"
-    "Source/ADPCM/GuiAdpcm.cpp"
-    "Source/ADPCM/PrAdpcm.h"
-    "Source/ADPCM/PrAdpcm.cpp"
-)
-
-set(BEEP_FILES
-    "Source/BEEP/GuiBeep.h"
-    "Source/BEEP/GuiBeep.cpp"
-    "Source/BEEP/BeepCore.h"
-    "Source/BEEP/BeepCore.cpp"
-    "Source/BEEP/BeepParams.h"
-    "Source/BEEP/PrBeep.h"
-    "Source/BEEP/PrBeep.cpp"
-)
-
-set(FX_FILES
-    "Source/FX/FxCore.h"
-    "Source/FX/FxCore.cpp"
-    "Source/FX/FxParams.h"
-    "Source/FX/GuiFx.h"
-    "Source/FX/GuiFx.cpp"
-    "Source/FX/PrFx.h"
-    "Source/FX/PrFx.cpp"
-)
-
-set(PRESET_FILES
-    "Source/PRESET/GuiPreset.h"
-    "Source/PRESET/GuiPreset.cpp"
-)
-
-set(SETTINGS_FILES
-    "Source/SETTINGS/GuiSettings.h"
-    "Source/SETTINGS/GuiSettings.cpp"
-)
-
-set(ABOUT_FILES
-    "Source/ABOUT/GuiAbout.h"
-    "Source/ABOUT/GuiAbout.cpp"
-)
-
-set(PROCESSOR_FILES
-    "Source/processor/PrBase.h"
-    "Source/processor/PrBase.cpp"
-    "Source/processor/PluginProcessor.h"
-    "Source/processor/PluginProcessor.cpp"
+set(CONST_FILES
+    "Source/Core/Const/Global.h"
+    "Source/Core/Const/FileValues.h"
+    "Source/Core/Const/MmlKeys.h"
+    "Source/Core/Const/MmlValues.h"
+    "Source/Core/Const/PrKeys.h"
+    "Source/Core/Const/PrNames.h"
+    "Source/Core/Const/PrValues.h"
+    "Source/Core/Const/PresetKeys.h"
+    "Source/Core/Const/PresetValues.h"
+    "Source/Core/Const/SettingsKeys.h"
+    "Source/Core/Const/SettingsValues.h"
 )
 
 set(EDITOR_FILES
-    "Source/editor/PluginEditor.h"
-    "Source/editor/PluginEditor.cpp"
+    "Source/Core/Editor/PluginEditor.h"
+    "Source/Core/Editor/PluginEditor.cpp"
+)
+
+set(GUI_FILES
+    "Source/Core/Gui/GuiBase.h"
+    "Source/Core/Gui/GuiBase.cpp"
+    "Source/Core/Gui/GuiColor.h"
+    "Source/Core/Gui/GuiComponents.h"
+    "Source/Core/Gui/GuiComponents.cpp"
+    "Source/Core/Gui/GuiContext.h"
+    "Source/Core/Gui/GuiHelpers.h"
+    "Source/Core/Gui/GuiHelpers.cpp"
+    "Source/Core/Gui/GuiLF.h"
+    "Source/Core/Gui/GuiLF.cpp"
+    "Source/Core/Gui/GuiStructs.h"
+    "Source/Core/Gui/GuiText.h"
+    "Source/Core/Gui/GuiValues.h"
+)
+
+set(PROCESSOR_FILES
+    "Source/Core/Processor/PrBase.h"
+    "Source/Core/Processor/PrBase.cpp"
+    "Source/Core/Processor/PluginProcessor.h"
+    "Source/Core/Processor/PluginProcessor.cpp"
+)
+
+set(FM_SAMPLE_CORE_FILES
+    "Source/Core/Sample/Fm/Core.h"
+    "Source/Core/Sample/Fm/Core.cpp"
+)
+
+set(SSG_SAMPLE_CORE_FILES
+    "Source/Core/Sample/Ssg/Core.h"
+    "Source/Core/Sample/Ssg/Core.cpp"
+)
+
+set(SYNTH_FILES
+    "Source/Core/Synth/Mode.h"
+    "Source/Core/Synth/SynthParams.h"
+    "Source/Core/Synth/SynthCore.h"
+    "Source/Core/Synth/SynthVoice.h"
+    "Source/Core/Synth/SynthVoice.cpp"
+    "Source/Core/Synth/SynthHelpers.h"
+    "Source/Core/Synth/SynthHelpers.cpp"
+)
+
+set(FM_FILES
+    "Source/Generator/Fm/RegisterType.h"
+    "Source/Generator/Fm/RegisterConverter.h"
+    "Source/Generator/Fm/RegisterConverter.cpp"
+    "Source/Generator/Fm/SliderRegMap.h"
+    "Source/Generator/Fm/SliderRegMap.cpp"
+)
+
+set(FM_BASIC_ALG_FILES
+    "Source/Generator/Fm/Alg/Basic/Alg.h"
+    "Source/Generator/Fm/Alg/Basic/Alg.cpp"
+)
+
+set(FM_OPL_ALG_FILES
+    "Source/Generator/Fm/Alg/Opl/Alg.h"
+    "Source/Generator/Fm/Alg/Opl/Alg.cpp"
+)
+
+set(FM_OPL3_ALG_FILES
+    "Source/Generator/Fm/Alg/Opl3/Alg.h"
+    "Source/Generator/Fm/Alg/Opl3/Alg.cpp"
+)
+
+set(FM_OPZX3_ALG_FILES
+    "Source/Generator/Fm/Alg/Opzx3/Alg.h"
+    "Source/Generator/Fm/Alg/Opzx3/Alg.cpp"
+)
+
+set(FM_FIX_FILES
+    "Source/Generator/Fm/Fix/Params.h"
+    "Source/Generator/Fm/Fix/Fix.h"
+    "Source/Generator/Fm/Fix/Fix.cpp"
+)
+
+set(LFSR_NOISE_GEN_FILES
+    "Source/Generator/Noise/Lfsr/Noise.h"
+    "Source/Generator/Noise/Lfsr/Noise.cpp"
+)
+
+set(PCM_FILES
+    "Source/Generator/Pcm/Pcm.h"
+    "Source/Generator/Pcm/Pcm.cpp"
+)
+
+set(LFO_COUNTER_FILES
+    "Source/Effector/Lfo/Counter/Counter.h"
+    "Source/Effector/Lfo/Counter/Counter.cpp"
+)
+
+set(GLOBAL_LFO_FILES
+    "Source/Effector/Lfo/Global/Params.h"
+    "Source/Effector/Lfo/Global/Lfo.h"
+    "Source/Effector/Lfo/Global/Lfo.cpp"
+)
+
+set(GLOBAL_LFO_UNIT_FILES
+    "Source/Effector/Lfo/Global/Unit/Params.h"
+    "Source/Effector/Lfo/Global/Unit/Unit.h"
+    "Source/Effector/Lfo/Global/Unit/Unit.cpp"
+)
+
+set(Opna_LFO_FILES
+    "Source/Effector/Lfo/Opna/Params.h"
+    "Source/Effector/Lfo/Opna/Lfo.h"
+    "Source/Effector/Lfo/Opna/Lfo.cpp"
+)
+
+set(Opna_LFO_UNIT_FILES
+    "Source/Effector/Lfo/Opna/Unit/Params.h"
+    "Source/Effector/Lfo/Opna/Unit/Unit.h"
+    "Source/Effector/Lfo/Opna/Unit/Unit.cpp"
+)
+
+set(OPL_LFO_FILES
+    "Source/Effector/Lfo/Opl/Params.h"
+    "Source/Effector/Lfo/Opl/Lfo.h"
+    "Source/Effector/Lfo/Opl/Lfo.cpp"
+)
+
+set(OPL_LFO_UNIT_FILES
+    "Source/Effector/Lfo/Opl/Unit/Params.h"
+    "Source/Effector/Lfo/Opl/Unit/Unit.h"
+    "Source/Effector/Lfo/Opl/Unit/Unit.cpp"
+)
+
+set(OPM_LFO_FILES
+    "Source/Effector/Lfo/Opm/Params.h"
+    "Source/Effector/Lfo/Opm/Lfo.h"
+    "Source/Effector/Lfo/Opm/Lfo.cpp"
+)
+
+set(OPM_LFO_UNIT_FILES
+    "Source/Effector/Lfo/Opm/Unit/Params.h"
+    "Source/Effector/Lfo/Opm/Unit/Unit.h"
+    "Source/Effector/Lfo/Opm/Unit/Unit.cpp"
+)
+
+set(N88_LFO_FILES
+    "Source/Effector/Lfo/N88/Params.h"
+    "Source/Effector/Lfo/N88/Lfo.h"
+    "Source/Effector/Lfo/N88/Lfo.cpp"
+)
+
+set(N88_LFO_UNIT_FILES
+    "Source/Effector/Lfo/N88/Unit/Params.h"
+    "Source/Effector/Lfo/N88/Unit/Unit.h"
+    "Source/Effector/Lfo/N88/Unit/Unit.cpp"
+)
+
+set(XB_LFO_FILES
+    "Source/Effector/Lfo/Xb/Params.h"
+    "Source/Effector/Lfo/Xb/Lfo.h"
+    "Source/Effector/Lfo/Xb/Lfo.cpp"
+)
+
+set(XB_LFO_UNIT_FILES
+    "Source/Effector/Lfo/Xb/Unit/Params.h"
+    "Source/Effector/Lfo/Xb/Unit/Unit.h"
+    "Source/Effector/Lfo/Xb/Unit/Unit.cpp"
+)
+
+set(AMP_ADDDR_ENVELOPE_FILES
+    "Source/Effector/Envelope/Amp/Adddr/Params.h"
+    "Source/Effector/Envelope/Amp/Adddr/Env.h"
+    "Source/Effector/Envelope/Amp/Adddr/Env.cpp"
+)
+
+set(AMP_ADSSR_ENVELOPE_FILES
+    "Source/Effector/Envelope/Amp/Adssr/Params.h"
+    "Source/Effector/Envelope/Amp/Adssr/Env.h"
+    "Source/Effector/Envelope/Amp/Adssr/Env.cpp"
+)
+
+set(AMP_ADSR_ENVELOPE_FILES
+    "Source/Effector/Envelope/Amp/Adsr/Params.h"
+    "Source/Effector/Envelope/Amp/Adsr/Env.h"
+    "Source/Effector/Envelope/Amp/Adsr/Env.cpp"
+)
+
+set(OPL_ENVELOPE_FILES
+    "Source/Effector/Envelope/Fm/Opl/Params.h"
+    "Source/Effector/Envelope/Fm/Opl/Env.h"
+    "Source/Effector/Envelope/Fm/Opl/Env.cpp"
+)
+
+set(OPM_ENVELOPE_FILES
+    "Source/Effector/Envelope/Fm/Opm/Params.h"
+    "Source/Effector/Envelope/Fm/Opm/Env.h"
+    "Source/Effector/Envelope/Fm/Opm/Env.cpp"
+)
+
+set(OPN_ENVELOPE_FILES
+    "Source/Effector/Envelope/Fm/Opn/Params.h"
+    "Source/Effector/Envelope/Fm/Opn/Env.h"
+    "Source/Effector/Envelope/Fm/Opn/Env.cpp"
+)
+
+set(SSG_ENVELOPE_FILES
+    "Source/Effector/Envelope/Ssg/Params.h"
+    "Source/Effector/Envelope/Ssg/Env.h"
+    "Source/Effector/Envelope/Ssg/Env.cpp"
+)
+
+set(Opna_PROCESSOR_FILES
+    "Source/Processor/Opna/Pr.h"
+    "Source/Processor/Opna/Pr.cpp"
+)
+
+set(Opna_SYNTH_FILES
+    "Source/Synth/Opna/Core.h"
+    "Source/Synth/Opna/Core.cpp"
+    "Source/Synth/Opna/Params.h"
+)
+
+set(Opna_OPERATOR_FILES
+    "Source/Synth/Opna/Operator/Core.h"
+    "Source/Synth/Opna/Operator/Core.cpp"
+    "Source/Synth/Opna/Operator/Params.h"
+)
+
+set(Opna_GUI_FILES
+    "Source/Gui/Opna/Gui.h"
+    "Source/Gui/Opna/Gui.cpp"
+)
+
+set(OPN_PROCESSOR_FILES
+    "Source/Processor/Opn/Pr.h"
+    "Source/Processor/Opn/Pr.cpp"
+)
+
+set(OPN_SYNTH_FILES
+    "Source/Synth/Opn/Core.h"
+    "Source/Synth/Opn/Core.cpp"
+    "Source/Synth/Opn/Params.h"
+)
+
+set(OPN_OPERATOR_FILES
+    "Source/Synth/Opn/Operator/Core.h"
+    "Source/Synth/Opn/Operator/Core.cpp"
+    "Source/Synth/Opn/Operator/Params.h"
+)
+
+set(OPN_GUI_FILES
+    "Source/Gui/Opn/Gui.h"
+    "Source/Gui/Opn/Gui.cpp"
+)
+
+set(OPL_PROCESSOR_FILES
+    "Source/Processor/Opl/Pr.h"
+    "Source/Processor/Opl/Pr.cpp"
+)
+
+set(OPL_SYNTH_FILES
+    "Source/Synth/Opl/Core.h"
+    "Source/Synth/Opl/Core.cpp"
+    "Source/Synth/Opl/Params.h"
+)
+
+set(OPL_OPERATOR_FILES
+    "Source/Synth/Opl/Operator/Core.h"
+    "Source/Synth/Opl/Operator/Core.cpp"
+    "Source/Synth/Opl/Operator/Params.h"
+)
+
+set(OPL_GUI_FILES
+    "Source/Gui/Opl/Gui.h"
+    "Source/Gui/Opl/Gui.cpp"
+)
+
+set(OPL3_PROCESSOR_FILES
+    "Source/Processor/Opl3/Pr.h"
+    "Source/Processor/Opl3/Pr.cpp"
+)
+
+set(OPL3_SYNTH_FILES
+    "Source/Synth/Opl3/Core.h"
+    "Source/Synth/Opl3/Core.cpp"
+    "Source/Synth/Opl3/Params.h"
+)
+
+set(OPL3_OPERATOR_FILES
+    "Source/Synth/Opl3/Operator/Core.h"
+    "Source/Synth/Opl3/Operator/Core.cpp"
+    "Source/Synth/Opl3/Operator/Params.h"
+)
+
+set(OPL3_GUI_FILES
+    "Source/Gui/Opl3/Gui.h"
+    "Source/Gui/Opl3/Gui.cpp"
+)
+
+set(OPM_PROCESSOR_FILES
+    "Source/Processor/Opm/Pr.h"
+    "Source/Processor/Opm/Pr.cpp"
+)
+
+set(OPM_SYNTH_FILES
+    "Source/Synth/Opm/Core.h"
+    "Source/Synth/Opm/Core.cpp"
+    "Source/Synth/Opm/Params.h"
+)
+
+set(OPM_OPERATOR_FILES
+    "Source/Synth/Opm/Operator/Core.h"
+    "Source/Synth/Opm/Operator/Core.cpp"
+    "Source/Synth/Opm/Operator/Params.h"
+)
+
+set(OPM_GUI_FILES
+    "Source/Gui/Opm/Gui.h"
+    "Source/Gui/Opm/Gui.cpp"
+)
+
+set(OPZX3_PROCESSOR_FILES
+    "Source/Processor/Opzx3/Pr.h"
+    "Source/Processor/Opzx3/Pr.cpp"
+)
+
+set(OPZX3_SYNTH_FILES
+    "Source/Synth/Opzx3/Core.h"
+    "Source/Synth/Opzx3/Core.cpp"
+    "Source/Synth/Opzx3/Params.h"
+)
+
+set(OPZX3_OPERATOR_FILES
+    "Source/Synth/Opzx3/Operator/Core.h"
+    "Source/Synth/Opzx3/Operator/Core.cpp"
+    "Source/Synth/Opzx3/Operator/Params.h"
+)
+
+set(OPZX3_GUI_FILES
+    "Source/Gui/Opzx3/Gui.h"
+    "Source/Gui/Opzx3/Gui.cpp"
+)
+
+set(SSG_PROCESSOR_FILES
+    "Source/Processor/Ssg/Pr.h"
+    "Source/Processor/Ssg/Pr.cpp"
+)
+
+set(SSG_SYNTH_FILES
+    "Source/Synth/Ssg/Core.h"
+    "Source/Synth/Ssg/Core.cpp"
+    "Source/Synth/Ssg/Params.h"
+)
+
+set(SSG_GUI_FILES
+    "Source/Gui/Ssg/Gui.h"
+    "Source/Gui/Ssg/Gui.cpp"
+)
+
+set(WT_PROCESSOR_FILES
+    "Source/Processor/Wavetable/Pr.h"
+    "Source/Processor/Wavetable/Pr.cpp"
+)
+
+set(WT_SYNTH_FILES
+    "Source/Synth/Wavetable/Core.h"
+    "Source/Synth/Wavetable/Core.cpp"
+    "Source/Synth/Wavetable/Params.h"
+)
+
+set(WT_GUI_FILES
+    "Source/Gui/Wavetable/Gui.h"
+    "Source/Gui/Wavetable/Gui.cpp"
+)
+
+set(RHYTHM_PROCESSOR_FILES
+    "Source/Processor/Rhythm/Pr.h"
+    "Source/Processor/Rhythm/Pr.cpp"
+)
+
+set(RHYTHM_SYNTH_FILES
+    "Source/Synth/Rhythm/Core.h"
+    "Source/Synth/Rhythm/Core.cpp"
+    "Source/Synth/Rhythm/Params.h"
+)
+
+set(RHYTHM_GUI_FILES
+    "Source/Gui/Rhythm/Gui.h"
+    "Source/Gui/Rhythm/Gui.cpp"
+)
+
+set(ADPCM_PROCESSOR_FILES
+    "Source/Processor/Adpcm/Pr.h"
+    "Source/Processor/Adpcm/Pr.cpp"
+)
+
+set(ADPCM_SYNTH_FILES
+    "Source/Synth/Adpcm/Core.h"
+    "Source/Synth/Adpcm/Core.cpp"
+    "Source/Synth/Adpcm/Params.h"
+)
+
+set(ADPCM_GUI_FILES
+    "Source/Gui/Adpcm/Gui.h"
+    "Source/Gui/Adpcm/Gui.cpp"
+)
+
+set(BEEP_PROCESSOR_FILES
+    "Source/Processor/Beep/Pr.h"
+    "Source/Processor/Beep/Pr.cpp"
+)
+
+set(BEEP_SYNTH_FILES
+    "Source/Synth/Beep/Core.h"
+    "Source/Synth/Beep/Core.cpp"
+    "Source/Synth/Beep/Params.h"
+)
+
+set(BEEP_GUI_FILES
+    "Source/Gui/Beep/Gui.h"
+    "Source/Gui/Beep/Gui.cpp"
+)
+
+set(FX_PROCESSOR_FILES
+    "Source/Processor/Fx/Pr.h"
+    "Source/Processor/Fx/Pr.cpp"
+)
+
+set(FX_EFFECT_FILES
+    "Source/Effector/Fx/Core.h"
+    "Source/Effector/Fx/Core.cpp"
+)
+
+set(FX_GUI_FILES
+    "Source/Gui/Fx/Gui.h"
+    "Source/Gui/Fx/Gui.cpp"
+)
+
+set(PRESET_FILES
+    "Source/Gui/Preset/Gui.h"
+    "Source/Gui/Preset/Gui.cpp"
+)
+
+set(SETTINGS_FILES
+    "Source/Gui/Settings/Gui.h"
+    "Source/Gui/Settings/Gui.cpp"
+)
+
+set(ABOUT_FILES
+    "Source/Gui/About/Gui.h"
+    "Source/Gui/About/Gui.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
-source_group("[Core01]Main" FILES ${CORE_FILES})
-source_group("[Core02]Synth" FILES ${SYNTH_FILES})
-source_group("[Core03]FM" FILES ${FM_FILES})
-source_group("[Core04]Gui" FILES ${GUI_FILES})
-source_group("[Core05]Processor" FILES ${PROCESSOR_FILES})
-source_group("[Core06]Editor" FILES ${EDITOR_FILES})
-source_group("[Core07]Docs" FILES ${DOCUMENT_FILES})
-source_group("[TAB 01]OPNA" FILES ${OPNA_FILES})
-source_group("[TAB 02]OPN" FILES ${OPN_FILES})
-source_group("[TAB 03]OPL" FILES ${OPL_FILES})
-source_group("[TAB 04]OPL3" FILES ${OPL3_FILES})
-source_group("[TAB 05]OPM" FILES ${OPM_FILES})
-source_group("[TAB 06]OPZX3" FILES ${OPZX3_FILES})
-source_group("[TAB 07]SSG" FILES ${SSG_FILES})
-source_group("[TAB 08]WT" FILES ${WT_FILES})
-source_group("[TAB 09]RHYTHM" FILES ${RHYTHM_FILES})
-source_group("[TAB 10]ADPCM" FILES ${ADPCM_FILES})
-source_group("[TAB 11]BEEP" FILES ${BEEP_FILES})
-source_group("[TAB 12]PRESET" FILES ${PRESET_FILES})
-source_group("[TAB 13]FX" FILES ${FX_FILES})
-source_group("[TAB 14]SETTINGS" FILES ${SETTINGS_FILES})
-source_group("[TAB 15]ABOUT" FILES ${ABOUT_FILES})
+source_group("2686V\\Core\\Const" FILES ${CONST_FILES})
+source_group("2686V\\Core\\Synth" FILES ${SYNTH_FILES})
+source_group("2686V\\Core\\Sample\\Fm" FILES ${FM_SAMPLE_CORE_FILES})
+source_group("2686V\\Core\\Sample\\Ssg" FILES ${SSG_SAMPLE_CORE_FILES})
+source_group("2686V\\Core\\Gui" FILES ${GUI_FILES})
+source_group("2686V\\Core\\Processor" FILES ${PROCESSOR_FILES})
+source_group("2686V\\Core\\Editor" FILES ${EDITOR_FILES})
+source_group("2686V\\Core\\Docs" FILES ${DOCUMENT_FILES})
+
+source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
+source_group("2686V\\Generator\\Pcm" FILES ${PCM_FILES})
+source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Basic" FILES ${FM_BASIC_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opl" FILES ${FM_OPL_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opl3" FILES ${FM_OPL3_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opzx3" FILES ${FM_OPZX3_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
+
+source_group("2686V\\Effector\\Lfo\\Counter" FILES ${LFO_COUNTER_FILES})
+source_group("2686V\\Effector\\Lfo\\Global" FILES ${GLOBAL_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\Global\\Unit" FILES ${GLOBAL_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Lfo\\Opna" FILES ${Opna_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\Opna\\Unit" FILES ${Opna_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Lfo\\Opl" FILES ${OPL_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\Opl\\Unit" FILES ${OPL_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Lfo\\Opm" FILES ${OPM_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\Opm\\Unit" FILES ${OPM_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Lfo\\N88" FILES ${N88_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\N88\\Unit" FILES ${N88_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Lfo\\Xb" FILES ${XB_LFO_FILES})
+source_group("2686V\\Effector\\Lfo\\Xb\\Unit" FILES ${XB_LFO_UNIT_FILES})
+source_group("2686V\\Effector\\Envelope\\Amp\\Adddr" FILES ${AMP_ADDDR_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Amp\\Adssr" FILES ${AMP_ADSSR_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Fm\\Opl" FILES ${OPL_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Fm\\Opn" FILES ${OPN_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Fm\\Opm" FILES ${OPM_ENVELOPE_FILES})
+source_group("2686V\\Effector\\Envelope\\Ssg" FILES ${SSG_ENVELOPE_FILES})
+
+source_group("2686V\\Effector\\Fx" FILES ${FX_EFFECT_FILES})
+
+source_group("2686V\\Processor\\Opna" FILES ${Opna_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opzx3" FILES ${OPZX3_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Wt" FILES ${WT_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
+
+source_group("2686V\\Synth\\Opna" FILES ${Opna_SYNTH_FILES})
+source_group("2686V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
+source_group("2686V\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
+source_group("2686V\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
+source_group("2686V\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
+source_group("2686V\\Synth\\Opzx3" FILES ${OPZX3_SYNTH_FILES})
+source_group("2686V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
+source_group("2686V\\Synth\\Wt" FILES ${WT_SYNTH_FILES})
+source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
+source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
+source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
+
+source_group("2686V\\Synth\\Opna\\Operator" FILES ${Opna_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opn\\Operator" FILES ${OPN_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opl\\Operator" FILES ${OPL_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opl3\\Operator" FILES ${OPL3_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opm\\Operator" FILES ${OPM_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opzx3\\Operator" FILES ${OPZX3_OPERATOR_FILES})
+
+source_group("2686V\\Gui\\Opna" FILES ${Opna_GUI_FILES})
+source_group("2686V\\Gui\\Opn" FILES ${OPN_GUI_FILES})
+source_group("2686V\\Gui\\Opl" FILES ${OPL_GUI_FILES})
+source_group("2686V\\Gui\\Opl3" FILES ${OPL3_GUI_FILES})
+source_group("2686V\\Gui\\Opm" FILES ${OPM_GUI_FILES})
+source_group("2686V\\Gui\\Opzx3" FILES ${OPZX3_GUI_FILES})
+source_group("2686V\\Gui\\Ssg" FILES ${SSG_GUI_FILES})
+source_group("2686V\\Gui\\Wt" FILES ${WT_GUI_FILES})
+source_group("2686V\\Gui\\Rhythm" FILES ${RHYTHM_GUI_FILES})
+source_group("2686V\\Gui\\Adpcm" FILES ${ADPCM_GUI_FILES})
+source_group("2686V\\Gui\\Beep" FILES ${BEEP_GUI_FILES})
+source_group("2686V\\Gui\\Preset" FILES ${PRESET_GUI_FILES})
+source_group("2686V\\Gui\\Fx" FILES ${FX_GUI_FILES})
+source_group("2686V\\Gui\\Settings" FILES ${SETTINGS_GUI_FILES})
+source_group("2686V\\Gui\\About" FILES ${ABOUT_GUI_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
@@ -297,7 +613,7 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
     if(IS_FX)
         target_compile_definitions(${TARGET_NAME} PUBLIC BUILD_AS_FX_PLUGIN=1)
         target_sources(${TARGET_NAME} PRIVATE
-            ${CORE_FILES}
+            ${CONST_FILES}
             ${SYNTH_FILES}
             ${GUI_FILES}
             ${PROCESSOR_FILES}
@@ -309,27 +625,87 @@ function(create_cyross_plugin TARGET_NAME IS_FX)
         )
     else()
         target_sources(${TARGET_NAME} PRIVATE
-            ${CORE_FILES}
+            ${CONST_FILES}
             ${SYNTH_FILES}
+            ${FM_SAMPLE_CORE_FILES}
+            ${SSG_SAMPLE_CORE_FILES}
             ${FM_FILES}
+            ${FM_BASIC_ALG_FILES}
+            ${FM_OPL_ALG_FILES}
+            ${FM_OPL3_ALG_FILES}
+            ${FM_OPZX3_ALG_FILES}
+            ${FM_FIX_FILES}
+            ${LFSR_NOISE_GEN_FILES}
+            ${LFO_COUNTER_FILES}
+            ${GLOBAL_LFO_FILES}
+            ${GLOBAL_LFO_UNIT_FILES}
+            ${Opna_LFO_FILES}
+            ${Opna_LFO_UNIT_FILES}
+            ${OPL_LFO_FILES}
+            ${OPL_LFO_UNIT_FILES}
+            ${OPM_LFO_FILES}
+            ${OPM_LFO_UNIT_FILES}
+            ${N88_LFO_FILES}
+            ${N88_LFO_UNIT_FILES}
+            ${XB_LFO_FILES}
+            ${XB_LFO_UNIT_FILES}
+            ${ENVELOPE_FILES}
+            ${AMP_ADDDR_ENVELOPE_FILES}
+            ${AMP_ADSSR_ENVELOPE_FILES}
+            ${AMP_ADSR_ENVELOPE_FILES}
+            ${OPL_ENVELOPE_FILES}
+            ${OPM_ENVELOPE_FILES}
+            ${OPN_ENVELOPE_FILES}
+            ${SSG_ENVELOPE_FILES}
+            ${PCM_FILES}
             ${GUI_FILES}
             ${PROCESSOR_FILES}
             ${EDITOR_FILES}
-            ${OPNA_FILES}
-            ${OPN_FILES}
-            ${OPL_FILES}
-            ${OPL3_FILES}
-            ${OPM_FILES}
-            ${OPZX3_FILES}
-            ${SSG_FILES}
-            ${WT_FILES}
-            ${RHYTHM_FILES}
-            ${ADPCM_FILES}
-            ${BEEP_FILES}
-            ${FX_FILES}
-            ${PRESET_FILES}
-            ${SETTINGS_FILES}
-            ${ABOUT_FILES}
+            ${Opna_PROCESSOR_FILES}
+            ${Opna_SYNTH_FILES}
+            ${Opna_OPERATOR_FILES}
+            ${Opna_GUI_FILES}
+            ${OPN_PROCESSOR_FILES}
+            ${OPN_SYNTH_FILES}
+            ${OPN_OPERATOR_FILES}
+            ${OPN_GUI_FILES}
+            ${OPL_PROCESSOR_FILES}
+            ${OPL_SYNTH_FILES}
+            ${OPL_OPERATOR_FILES}
+            ${OPL_GUI_FILES}
+            ${OPL3_PROCESSOR_FILES}
+            ${OPL3_SYNTH_FILES}
+            ${OPL3_OPERATOR_FILES}
+            ${OPL3_GUI_FILES}
+            ${OPM_PROCESSOR_FILES}
+            ${OPM_SYNTH_FILES}
+            ${OPM_OPERATOR_FILES}
+            ${OPM_GUI_FILES}
+            ${OPZX3_PROCESSOR_FILES}
+            ${OPZX3_SYNTH_FILES}
+            ${OPZX3_OPERATOR_FILES}
+            ${OPZX3_GUI_FILES}
+            ${SSG_PROCESSOR_FILES}
+            ${SSG_SYNTH_FILES}
+            ${SSG_GUI_FILES}
+            ${WT_PROCESSOR_FILES}
+            ${WT_SYNTH_FILES}
+            ${WT_GUI_FILES}
+            ${RHYTHM_FPROCESSOR_ILES}
+            ${RHYTHM_SYNTH_FILES}
+            ${RHYTHM_GUI_FILES}
+            ${ADPCM_PROCESSOR_FILES}
+            ${ADPCM_SYNTH_FILES}
+            ${ADPCM_GUI_FILES}
+            ${BEEP_PROCESSOR_FILES}
+            ${BEEP_SYNTH_FILES}
+            ${BEEP_GUI_FILES}
+            ${FX_PROCESSOR_FILES}
+            ${FX_EFFECT_FILES}
+            ${FX_GUI_FILES}
+            ${PRESET_GUI_FILES}
+            ${SETTINGS_GUI_FILES}
+            ${ABOUT_GUI_FILES}
             ${DOCUMENT_FILES}
         )
     endif()
