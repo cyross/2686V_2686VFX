@@ -2,11 +2,11 @@
 
 #include <JuceHeader.h>
 #include <array>
-#include "../gui/GuiColor.h"
-#include "../gui/GuiComponents.h"
-#include "../gui/GuiBase.h"
-#include "../gui/GuiContext.h"
-#include "../gui/GuiValues.h"
+#include "../Core/Gui/GuiColor.h"
+#include "../Core/Gui/GuiComponents.h"
+#include "../Core/Gui/GuiBase.h"
+#include "../Core/Gui/GuiContext.h"
+#include "../Core/Gui/GuiValues.h"
 
 // ==========================================================
 // Waveform Drawing Container (Super Lightweight Custom Paint)

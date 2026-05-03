@@ -1,21 +1,21 @@
-﻿#include "GuiOpna.h"
+﻿#include "./GuiOpna.h"
 
 #include <vector>
 
-#include "../processor/PluginProcessor.h"
+#include "../Core/Processor/PluginProcessor.h"
 
-#include "../core/FileValues.h"
-#include "../core/PrKeys.h"
-#include "../core/PrValues.h"
-#include "../core/MmlKeys.h"
-#include "../core/MmlValues.h"
+#include "../Core/Const/FileValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrValues.h"
+#include "../Core/Const/MmlKeys.h"
+#include "../Core/Const/MmlValues.h"
 
-#include "../fm/RegisterConverter.h"
+#include "../Core/Fm/RegisterConverter.h"
 
-#include "../gui/GuiHelpers.h"
-#include "../gui/GuiValues.h"
-#include "../gui/GuiStructs.h"
-#include "../gui/GuiText.h"
+#include "../Core/Gui/GuiHelpers.h"
+#include "../Core/Gui/GuiValues.h"
+#include "../Core/Gui/GuiStructs.h"
+#include "../Core/Gui/GuiText.h"
 
 static std::vector<SelectItem> bdItems = {
     {.name = "1: 4-bit (16 steps)",  .value = 1 },

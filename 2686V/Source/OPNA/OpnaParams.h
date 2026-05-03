@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../fm/FmOpParams.h"
+#include "../Core/Fm/FmOpParams.h"
 
 struct OpnaParams
 {

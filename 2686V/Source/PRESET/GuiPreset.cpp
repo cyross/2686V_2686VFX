@@ -1,16 +1,17 @@
-﻿#include "GuiPreset.h"
-#include "../processor/PluginProcessor.h"
+﻿#include "./GuiPreset.h"
 
-#include "../core/Global.h"
-#include "../core/PrKeys.h"
-#include "../core/PrValues.h"
-#include "../core/FileValues.h"
-#include "../core/PresetKeys.h"
-#include "../core/PresetValues.h"
+#include "../Core/Processor/PluginProcessor.h"
 
-#include "../gui/GuiValues.h"
-#include "../gui/GuiText.h"
-#include "../gui/GuiStructs.h"
+#include "../Core/Const/Global.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrValues.h"
+#include "../Core/Const/FileValues.h"
+#include "../Core/Const/PresetKeys.h"
+#include "../Core/Const/PresetValues.h"
+
+#include "../Core/Gui/GuiValues.h"
+#include "../Core/Gui/GuiText.h"
+#include "../Core/Gui/GuiStructs.h"
 
 juce::File GuiPreset::getSelectedFile() const
 {

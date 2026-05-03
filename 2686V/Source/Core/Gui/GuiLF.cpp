@@ -1,6 +1,6 @@
 ﻿#include "GuiLF.h"
 
-#include "../gui/GuiText.h"
+#include "./GuiText.h"
 
 // アイコンのパスを生成するヘルパー関数
 juce::Path CustomTabLookAndFeel::getIconPath(const juce::String& name, juce::Rectangle<float> area)

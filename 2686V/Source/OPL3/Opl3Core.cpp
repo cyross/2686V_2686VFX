@@ -1,5 +1,5 @@
-﻿#include "Opl3Core.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./Opl3Core.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 const std::array<Opl3Core::AlgRouting, 5> Opl3Core::routings = { {
     // in2_1, in3_2, in4_3, out_1, out_2, out_3, out_4

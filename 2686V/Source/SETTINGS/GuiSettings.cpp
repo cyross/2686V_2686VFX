@@ -2,18 +2,18 @@
 
 #include <vector>
 
-#include "../editor/PluginEditor.h"
-#include "../gui/GuiColor.h"
+#include "../Core/Editor/PluginEditor.h"
+#include "../Core/Gui/GuiColor.h"
 
-#include "../core/FileValues.h"
-#include "../core/PrKeys.h"
-#include "../core/SettingsKeys.h"
-#include "../core/SettingsValues.h"
+#include "../Core/Const/FileValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/SettingsKeys.h"
+#include "../Core/Const/SettingsValues.h"
 
-#include "../gui/GuiHelpers.h"
-#include "../gui/GuiValues.h"
-#include "../gui/GuiText.h"
-#include "../gui/GuiStructs.h"
+#include "../Core/Gui/GuiHelpers.h"
+#include "../Core/Gui/GuiValues.h"
+#include "../Core/Gui/GuiText.h"
+#include "../Core/Gui/GuiStructs.h"
 
 void GuiSettings::setup()
 {
@@ -76,7 +76,6 @@ void GuiSettings::setup()
         ctx.editor.repaint(); // Editor全体の再描画を呼び出す
     };
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     // --- ADPCM Dir ---
     setupRow(sampleDirLabel, "Sample Dir:", sampleDirPathLabel, sampleDirBrowseBtn);
     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
@@ -168,7 +167,6 @@ void GuiSettings::setup()
 
         ctx.editor.updateKeyboardVisibility();
     };
-#endif
 
     // --- Save Preference Button ---
 	saveSettingsBtn.setup({ .parent = *this, .title = "Save Settings", .isReset = false });
@@ -211,14 +209,12 @@ void GuiSettings::setup()
                     // 壁紙再描画
                     ctx.editor.loadWallpaperImage();
 
-#if !defined(BUILD_AS_FX_PLUGIN)
                     // プリセットリスト更新
                     if (juce::File(ctx.audioProcessor.defaultPresetDir).isDirectory()) {
                         ctx.editor.setPresetDir(juce::File(ctx.audioProcessor.defaultPresetDir));
                         ctx.editor.updatePresetPath();
                         ctx.editor.scanPresets(); // リスト更新関数を呼ぶ
                     }
-#endif
                 }
             }
 

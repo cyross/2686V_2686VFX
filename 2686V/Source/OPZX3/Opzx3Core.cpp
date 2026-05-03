@@ -1,5 +1,5 @@
-﻿#include "Opzx3Core.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./Opzx3Core.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 const std::array<Opzx3Core::AlgRouting, 36> Opzx3Core::routings = { {
     // in2_1, fb2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4

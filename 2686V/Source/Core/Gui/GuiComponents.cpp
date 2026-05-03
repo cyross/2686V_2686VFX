@@ -1,8 +1,8 @@
 ﻿#include "GuiComponents.h"
 
-#include "../editor/PluginEditor.h"
+#include "../Editor/PluginEditor.h"
 
-#include "../gui/GuiText.h"
+#include "./GuiText.h"
 
 void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
 {

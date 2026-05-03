@@ -1,5 +1,5 @@
-﻿#include "OpmCore.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./OpmCore.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 // -----------------------------------------------------------
 // LFO 波形算出アルゴリズム (OPM PG)

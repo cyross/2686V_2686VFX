@@ -1,6 +1,6 @@
 ﻿#include "OpnaOperator.h"
 
-#include "../fm/FmCore.h"
+#include "../Core/Fm/FmCore.h"
 
 void OpnaOperator::setParameters(const FmOpParams& params, float feedback)
 {

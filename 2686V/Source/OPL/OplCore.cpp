@@ -1,5 +1,5 @@
-﻿#include "OplCore.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./OplCore.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 void OplCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;

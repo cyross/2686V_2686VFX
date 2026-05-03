@@ -1,8 +1,8 @@
 ﻿#include "PrOpl3.h"
 
-#include "../core/PrKeys.h"
-#include "../core/PrNames.h"
-#include "../core/PrValues.h"
+#include "../Core/Const/PrKeys.h"
+#include "../Core/Const/PrNames.h"
+#include "../Core/Const/PrValues.h"
 
 void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {

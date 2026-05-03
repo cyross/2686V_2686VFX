@@ -3,11 +3,11 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../core/Global.h"
-#include "../gui/GuiComponents.h"
-#include "../gui/GuiBase.h"
-#include "../gui/GuiContext.h"
-#include "../gui/GuiValues.h"
+#include "../Core/Const/Global.h"
+#include "../Core/Gui/GuiComponents.h"
+#include "../Core/Gui/GuiBase.h"
+#include "../Core/Gui/GuiContext.h"
+#include "../Core/Gui/GuiValues.h"
 
 class GuiOpm : public GuiBase
 {

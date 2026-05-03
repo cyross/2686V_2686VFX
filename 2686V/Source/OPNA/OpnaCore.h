@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../fm/FmCore.h"
+#include "../Core/Fm/FmCore.h"
 #include "OpnaOperator.h"
 
 // ==========================================================

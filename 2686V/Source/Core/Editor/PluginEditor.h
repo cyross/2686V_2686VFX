@@ -3,26 +3,24 @@
 #include <array>
 #include <vector>
 #include <span>
-#include "../processor/PluginProcessor.h"
-#include "../fm/SliderRegMap.h"
-#include "../gui/GuiLF.h"
-#if !defined(BUILD_AS_FX_PLUGIN)
-#include "../OPNA/GuiOpna.h"
-#include "../OPN/GuiOpn.h"
-#include "../OPL/GuiOpl.h"
-#include "../OPL3/GuiOpl3.h"
-#include "../OPM/GuiOpm.h"
-#include "../OPZX3/GuiOpzx3.h"
-#include "../SSG/GuiSsg.h"
-#include "../WT/GuiWt.h"
-#include "../RHYTHM/GuiRhythm.h"
-#include "../ADPCM/GuiAdpcm.h"
-#include "../BEEP/GuiBeep.h"
-#include "../PRESET/GuiPreset.h"
-#endif
-#include "../FX/GuiFx.h"
-#include "../SETTINGS/GuiSettings.h"
-#include "../ABOUT/GuiAbout.h"
+#include "../Processor/PluginProcessor.h"
+#include "../Fm/SliderRegMap.h"
+#include "../Gui/GuiLF.h"
+#include "../../OPNA/GuiOpna.h"
+#include "../../OPN/GuiOpn.h"
+#include "../../OPL/GuiOpl.h"
+#include "../../OPL3/GuiOpl3.h"
+#include "../../OPM/GuiOpm.h"
+#include "../../OPZX3/GuiOpzx3.h"
+#include "../../SSG/GuiSsg.h"
+#include "../../WT/GuiWt.h"
+#include "../../RHYTHM/GuiRhythm.h"
+#include "../../ADPCM/GuiAdpcm.h"
+#include "../../BEEP/GuiBeep.h"
+#include "../../PRESET/GuiPreset.h"
+#include "../../FX/GuiFx.h"
+#include "../../SETTINGS/GuiSettings.h"
+#include "../../ABOUT/GuiAbout.h"
 
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
@@ -50,13 +48,11 @@ public:
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
     void loadSettingsFile();
-#if !defined(BUILD_AS_FX_PLUGIN)
     void loadPresetFile(const juce::File& file);
     void scanPresets();
     void saveCurrentPreset();
     void saveCurrentPresetAs();
     void updatePresetNameToTabs(const juce::String& pName);
-#endif
     void loadWallpaperImage();
     void openFileChooser(const juce::String title, const juce::String filter, const std::function<void(const FileChooser&)>& callback) {
         fileChooser = std::make_unique<juce::FileChooser>(title, juce::File(), filter);
@@ -82,7 +78,6 @@ public:
         fileChooser = std::make_unique<juce::FileChooser>(title, file, filter);
         fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting, callback);
     }
-#if !defined(BUILD_AS_FX_PLUGIN)
     void setTooltipState(bool enabled);
     void assignTooltipsRecursive(juce::Component* parentComponent);
     void setPresetDir(const juce::File& dir)
@@ -96,7 +91,6 @@ public:
 
     // 仮想MIDIキーボード用
     void updateKeyboardVisibility();
-#endif
 
     // 波形プレビュー用
     void timerCallback() override;
@@ -115,7 +109,6 @@ private:
 
     SliderRegMap sliderRegMap;
 
-#if !defined(BUILD_AS_FX_PLUGIN)
     std::unique_ptr<GuiOpna> opnaGui;  // OPNA
     std::unique_ptr<GuiOpn> opnGui; // OPN
     std::unique_ptr<GuiOpl> oplGui; // OPL
@@ -131,7 +124,7 @@ private:
 
     // 仮想MIDIキーボード用
     std::unique_ptr<juce::MidiKeyboardComponent> midiKeyboard;
-#endif
+
     // 波形プレビュー用
     juce::TextButton togglePreviewBtn{ ">>" }; // 初期状態は閉じているので ">>"
     // 青系のリアルタイムプレビュー

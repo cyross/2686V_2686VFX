@@ -1,5 +1,5 @@
-﻿#include "OpnaCore.h"
-#include "../synth/SynthHelpers.h"
+﻿#include "./OpnaCore.h"
+#include "../Core/Synth/SynthHelpers.h"
 
 void OpnaCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;

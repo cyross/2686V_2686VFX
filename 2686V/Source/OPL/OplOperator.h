@@ -2,8 +2,8 @@
 
 #include <array>
 
-#include "../fm/FmOperator.h"
-#include "../fm/FmOpParams.h"
+#include "../Core/Fm/FmOperator.h"
+#include "../Core/Fm/FmOpParams.h"
 
 class OplOperator : public FmOperator
 {

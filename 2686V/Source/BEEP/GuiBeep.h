@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
-#include "../gui/GuiComponents.h"
-#include "../gui/GuiBase.h"
+#include "../Core/Gui/GuiComponents.h"
+#include "../Core/Gui/GuiBase.h"
 
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;

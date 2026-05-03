@@ -5,7 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../fm/FmCore.h"
+#include "../Core/Fm/FmCore.h"
 #include "Opzx3Operator.h"
 
 // ==========================================================

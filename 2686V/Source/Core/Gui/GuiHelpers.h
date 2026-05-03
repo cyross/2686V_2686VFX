@@ -2,8 +2,8 @@
 
 #include <JuceHeader.h>
 #include <vector>
-#include "GuiComponents.h"
-#include "GuiBase.h"
+#include "./GuiComponents.h"
+#include "./GuiBase.h"
 
 std::vector<SelectItem> createItems(int size, const juce::String& prefix);
 std::vector<SelectItem> createAlgItems(int size);

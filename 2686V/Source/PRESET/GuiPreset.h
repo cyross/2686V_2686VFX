@@ -3,9 +3,9 @@
 #include <JuceHeader.h>
 #include <array>
 
-#include "../gui/GuiComponents.h"
-#include "../gui/GuiBase.h"
-#include "../gui/GuiContext.h"
+#include "../Core/Gui/GuiComponents.h"
+#include "../Core/Gui/GuiBase.h"
+#include "../Core/Gui/GuiContext.h"
 
 class GuiPreset : public GuiBase
 {
