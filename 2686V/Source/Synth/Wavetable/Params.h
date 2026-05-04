@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include "../../Effect/Envelope/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
 
 struct WtParams
 {
@@ -34,5 +35,8 @@ struct WtParams
     // --- ADSR Filter ---
 
     // Params
-    AdsrParams adsr;
+    AmpAdsrParams adsr;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
 };

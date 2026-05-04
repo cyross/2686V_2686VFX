@@ -2,7 +2,7 @@
 
 #include "./Params.h"
 
-class AdsrAmpEnv {
+class AmpAdsrEnv {
 	enum class State { Idle, Attack, Decay, Sustain, Release };
 	State state = State::Idle;
 
@@ -21,7 +21,7 @@ class AdsrAmpEnv {
 	void updateIncrements();
 public:
 	void prepare(double sampleRate);
-	void setParameters(const AdsrParams& params);
+	void setParameters(const AmpAdsrParams& params);
 	void noteOn();
 	void noteOff();
 	float process(float currentLevel);

@@ -31,6 +31,7 @@ namespace PrKey
 		static inline const juce::String op = "_OP";
 		static inline const juce::String pad = "_PAD";
 		static inline const juce::String adsr = "_ADSR";
+		static inline const juce::String pitchAdsr = "_PITCHENV";
 		static inline const juce::String custom32 = "_CUSTOM32_";
 		static inline const juce::String custom64 = "_CUSTOM64_";
 		static inline const juce::String custom128 = "_CUSTOM128_";
@@ -60,6 +61,17 @@ namespace PrKey
 			static inline const juce::String dr = "_DR";
 			static inline const juce::String sl = "_SL";
 			static inline const juce::String rr = "_RR";
+		};
+
+		namespace PitchAdsr
+		{
+			static inline const juce::String ar = "_PITCH_AR";
+			static inline const juce::String dr = "_PITCH_DR";
+			static inline const juce::String rr = "_PITCH_RR";
+			static inline const juce::String stl = "_PITCH_STL";
+			static inline const juce::String atl = "_PITCH_ATL";
+			static inline const juce::String ssl = "_PITCH_SSL";
+			static inline const juce::String rll = "_PITCH_RLL";
 		};
 
 		namespace Fm

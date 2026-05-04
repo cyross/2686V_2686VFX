@@ -303,7 +303,29 @@ class GuiWt : public GuiBase
 
     GuiTextButton rrTo003Button;
 
-	GuiComboBox bitSelector;
+    GuiCategoryLabel pitchAdsrCat;
+
+    // Pitch ADSR
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+
+    GuiSlider pitchAttackSlider;
+
+    GuiTextButton pitchArTo000Button;
+    GuiTextButton pitchArTo003Button;
+
+    GuiSlider pitchDecaySlider;
+
+    GuiSlider pitchReleaseSlider;
+
+    GuiTextButton pitchRrTo000Button;
+    GuiTextButton pitchRrTo003Button;
+
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
+    
+    GuiComboBox bitSelector;
 
     GuiComboBox rateSelector;
 
@@ -357,6 +379,19 @@ public:
         releaseSlider(context),
         rrTo000Button(context),
         rrTo003Button(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchArTo000Button(context),
+        pitchArTo003Button(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchRrTo000Button(context),
+        pitchRrTo003Button(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context),
         bitSelector(context),
         rateSelector(context),
         customWaveSmoothBtn(context),

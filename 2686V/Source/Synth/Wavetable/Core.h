@@ -7,7 +7,8 @@
 
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Core/Synth/SynthParams.h"
-#include "../../Effect/Envelope/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 
 class WtCore : public SynthCore
 {
@@ -30,7 +31,8 @@ private:
 
     double m_sampleRate = 44100.0;
 
-    AdsrAmpEnv m_adsr;
+    AmpAdsrEnv m_adsr;
+    PitchAdsrEnv m_pitchAdsr;
 
     float m_level = 1.0f;
 

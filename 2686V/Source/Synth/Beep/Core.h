@@ -4,7 +4,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
-#include "../../Effect/Envelope/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/Adsr/Core.h"
 
 class BeepCore : public SynthCore
 {
@@ -35,7 +35,7 @@ private:
     // Params
     float m_level = 1.0f;
 
-    AdsrAmpEnv m_adsr;
+    AmpAdsrEnv m_adsr;
 
     bool m_fixedMode = false;
     float m_fixedFreq = 2000.0f;

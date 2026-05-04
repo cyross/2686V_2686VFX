@@ -91,6 +91,63 @@ namespace PrValue
 		}
 	}
 
+	namespace PitchAdsr
+	{
+		namespace Bypass
+		{
+			inline constexpr float initial = false; // 初期値
+		}
+
+		namespace Ar
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace Dr
+		{
+			inline constexpr float min = 0.0f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace Rr
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace Ssl
+		{
+			inline constexpr int min = -2400; // 最小値
+			inline constexpr int max = 2400;  // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
+
+		namespace Atl
+		{
+			inline constexpr int min = -2400; // 最小値
+			inline constexpr int max = 2400;  // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
+
+		namespace Stl
+		{
+			inline constexpr int min = -2400; // 最小値
+			inline constexpr int max = 2400;  // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
+
+		namespace Rll
+		{
+			inline constexpr int min = -2400; // 最小値
+			inline constexpr int max = 2400;  // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
+	}
+
 	namespace Pan
 	{
 		inline constexpr float min = 0.0f; // 最小値

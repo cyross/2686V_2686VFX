@@ -1,13 +1,13 @@
-#include <algorithm>
+﻿#include <algorithm>
 
 #include "./Core.h"
 
-void AdsrAmpEnv::prepare(double sampleRate) {
+void AmpAdsrEnv::prepare(double sampleRate) {
 	this->sampleRate = sampleRate;
     this->updateIncrements();
 }
 
-void AdsrAmpEnv::setParameters(const AdsrParams& params) {
+void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
 	this->ar = params.ar;
 	this->dr = params.dr;
 	this->sl = params.sl;
@@ -16,25 +16,25 @@ void AdsrAmpEnv::setParameters(const AdsrParams& params) {
     this->updateIncrements();
 }
 
-void AdsrAmpEnv::noteOn() {
+void AmpAdsrEnv::noteOn() {
     this->state = State::Attack;
 }
 
-void AdsrAmpEnv::noteOff() {
+void AmpAdsrEnv::noteOff() {
     this->state = State::Release;
 }
 
-float AdsrAmpEnv::bypassedReleasedProcess() {
+float AmpAdsrEnv::bypassedReleasedProcess() {
    this->state = State::Idle;
 
    return 0.0f;
 }
 
-float AdsrAmpEnv::bypassedProcess() {
+float AmpAdsrEnv::bypassedProcess() {
     return 1.0f;
 }
 
-float AdsrAmpEnv::process(float currentLevel) {
+float AmpAdsrEnv::process(float currentLevel) {
     if (this->bypass) {
         return currentLevel;
     }
@@ -76,7 +76,7 @@ float AdsrAmpEnv::process(float currentLevel) {
     return newLevel;
 }
 
-void AdsrAmpEnv::updateIncrements()
+void AmpAdsrEnv::updateIncrements()
 {
     if (this->sampleRate <= 0.0) return;
 
@@ -85,7 +85,7 @@ void AdsrAmpEnv::updateIncrements()
     this->releaseDec = 1.0f / (float)(std::max(0.001f, this->rr) * this->sampleRate);
 }
 
-void AdsrAmpEnv::updateSampleRate(double newSampleRate) {
+void AmpAdsrEnv::updateSampleRate(double newSampleRate) {
 	this->sampleRate = newSampleRate;
     this->updateIncrements();
 }

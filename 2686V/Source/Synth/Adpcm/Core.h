@@ -5,7 +5,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Generator/Pcm/Core.h"
-#include "../../Effect/Envelope/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/Adsr/Core.h"
 
 // --- Core Class ---
 
@@ -48,7 +48,7 @@ private:
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;
 
-    AdsrAmpEnv m_adsr;
+    AmpAdsrEnv m_adsr;
 
     float m_currentLevel = 0.0f;
 

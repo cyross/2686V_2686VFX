@@ -131,10 +131,16 @@ set(EDITOR_FILES
     "Source/Core/Editor/PluginEditor.cpp"
 )
 
-set(ADSR_ENVELOPE_FILES
-    "Source/Effect/Envelope/Adsr/Params.h"
-    "Source/Effect/Envelope/Adsr/Core.h"
-    "Source/Effect/Envelope/Adsr/Core.cpp"
+set(AMP_ADSR_ENVELOPE_FILES
+    "Source/Effect/Envelope/Amp/Adsr/Params.h"
+    "Source/Effect/Envelope/Amp/Adsr/Core.h"
+    "Source/Effect/Envelope/Amp/Adsr/Core.cpp"
+)
+
+set(PITCH_ADSR_ENVELOPE_FILES
+    "Source/Effect/Envelope/Pitch/Adsr/Params.h"
+    "Source/Effect/Envelope/Pitch/Adsr/Core.h"
+    "Source/Effect/Envelope/Pitch/Adsr/Core.cpp"
 )
 
 set(OPNA_SYNTH_FILES
@@ -409,7 +415,8 @@ source_group("2686V\\Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
 source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
-source_group("2686V\\Effect\\Envelope\\Adsr" FILES ${ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
@@ -475,7 +482,8 @@ function(create_cyross_plugin TARGET_NAME)
         ${GUI_FILES}
         ${PROCESSOR_FILES}
         ${EDITOR_FILES}
-        ${ADSR_ENVELOPE_FILES}
+        ${AMP_ADSR_ENVELOPE_FILES}
+        ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPNA_SYNTH_FILES}
         ${OPN_SYNTH_FILES}
         ${OPL_SYNTH_FILES}

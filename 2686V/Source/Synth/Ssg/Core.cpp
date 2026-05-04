@@ -34,6 +34,7 @@ void SsgCore::prepare(double sampleRate) {
     m_noiseGen.prepare(getTargetRate(m_rateIndex));
 
     m_adsr.prepare(m_sampleRate);
+	m_pitchAdsr.prepare(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -42,6 +43,7 @@ void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
 
     m_adsr.updateSampleRate(m_sampleRate);
+    m_pitchAdsr.updateSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthParams& params)
@@ -50,6 +52,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_mix = params.ssg.mix;
 
     m_adsr.setParameters(params.ssg.adsr);
+	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
 
     m_waveform = params.ssg.waveform;
 
@@ -102,14 +105,16 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     m_lastSample = 0.0f;
 
     m_adsr.noteOn();
+	m_pitchAdsr.noteOn();
 }
 
 void SsgCore::noteOff()
 {
     m_adsr.noteOff();
+	m_pitchAdsr.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_pitchAdsr.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -141,7 +146,7 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
-    if (m_adsr.isIdle()) {
+    if (m_adsr.isIdle() && m_pitchAdsr.isIdle()) {
         return 0.0f;
     }
 
@@ -171,6 +176,7 @@ float SsgCore::getSample()
     // ★修正: SSG（矩形波）の場合は、線形補間ではなく「平均化(アベレージング)」が正解
     int steps = 0;
     float sumOut = 0.0f;
+	float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)
@@ -198,7 +204,7 @@ float SsgCore::getSample()
             phaseInc = (m_triFreq / (float)targetRate) * freqMult;
         }
         else {
-            phaseInc = m_phaseDelta * freqMult;
+            phaseInc = newPhaseDelta * freqMult;
         }
 
         // ==========================================

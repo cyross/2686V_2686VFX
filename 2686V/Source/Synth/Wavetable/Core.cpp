@@ -15,6 +15,7 @@ void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 	m_adsr.prepare(sampleRate);
+    m_pitchAdsr.prepare(m_sampleRate);
     updatePhaseDelta();
 }
 
@@ -23,6 +24,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_level = params.wt.level;
 
     m_adsr.setParameters(params.wt.adsr);
+    m_pitchAdsr.setParameters(params.wt.pitchAdsr);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.bitDepth);
@@ -80,16 +82,18 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     m_lastSample = 0.0f;
 
     m_adsr.noteOn();
+	m_pitchAdsr.noteOn();
 }
 
 void WtCore::noteOff()
 {
     m_adsr.noteOff();
+	m_pitchAdsr.noteOff();
 }
 
 bool WtCore::isPlaying() const
 {
-    return m_adsr.isPlaying();
+    return m_adsr.isPlaying() || m_pitchAdsr.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -124,6 +128,8 @@ float WtCore::getSample()
 {
     m_currentLevel = m_adsr.process(m_currentLevel);
 
+    float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+
     // --- Sample Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);
     double step = targetRate / m_sampleRate;
@@ -152,13 +158,13 @@ float WtCore::getSample()
             // Advance Mod LFO
             // Speed depends on note frequency (Ratio) or Fixed? 
             // Using m_modSpeed as ratio to Note Freq
-            m_modPhase += (m_phaseDelta * m_modSpeed);
+            m_modPhase += (newPhaseDelta * m_modSpeed);
             if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
         }
 
         // 2. Phase
         // Apply Pitch Bend to Phase Delta
-        float currentDelta = m_phaseDelta * m_pitchBendRatio;
+        float currentDelta = newPhaseDelta * m_pitchBendRatio;
 
         // Apply Modulation to Phase (Vibrato effect) or Read Index?
         // Here we apply to Phase for Vibrato-like effect on table lookup

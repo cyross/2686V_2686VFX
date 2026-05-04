@@ -128,6 +128,60 @@ void GuiSsg::setup()
     rrTo003Button.setExplicitFocusOrder(++tabOrder);
     rrTo003Button.onClick = [this] { releaseSlider.setValue(0.03, juce::sendNotification); };
 
+    pitchAdsrCat.setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
+
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
+    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setWantsKeyboardFocus(true);
+    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchArTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+    pitchArTo000Button.setWantsKeyboardFocus(true);
+    pitchArTo000Button.setExplicitFocusOrder(++tabOrder);
+    pitchArTo000Button.onClick = [this] { pitchAttackSlider.setValue(0.00, juce::sendNotification); };
+
+    pitchArTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+    pitchArTo003Button.setWantsKeyboardFocus(true);
+    pitchArTo003Button.setExplicitFocusOrder(++tabOrder);
+    pitchArTo003Button.onClick = [this] { pitchAttackSlider.setValue(0.03, juce::sendNotification); };
+
+    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setWantsKeyboardFocus(true);
+    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setWantsKeyboardFocus(true);
+    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchRrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
+    pitchRrTo000Button.setWantsKeyboardFocus(true);
+    pitchRrTo000Button.setExplicitFocusOrder(++tabOrder);
+    pitchRrTo000Button.onClick = [this] { pitchReleaseSlider.setValue(0.00, juce::sendNotification); };
+
+    pitchRrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
+    pitchRrTo003Button.setWantsKeyboardFocus(true);
+    pitchRrTo003Button.setExplicitFocusOrder(++tabOrder);
+    pitchRrTo003Button.onClick = [this] { pitchReleaseSlider.setValue(0.03, juce::sendNotification); };
+
+    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setWantsKeyboardFocus(true);
+    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
+    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
+    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
+    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+
     monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
@@ -281,6 +335,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
     layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+
     layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
@@ -289,6 +344,19 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
     layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+
+    layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
+    layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
+    layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &pitchArTo000Button, .comp2 = &pitchArTo003Button });
+    layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+    layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+    layoutRowTwoComps({ .rect = mRect, .comp1 = &pitchRrTo000Button, .comp2 = &pitchRrTo003Button });
+    layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+    layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+    layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+    layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
