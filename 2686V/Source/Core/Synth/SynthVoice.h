@@ -6,17 +6,17 @@
 #include "./SynthParams.h"
 #include "./SynthCore.h"
 
-#include "../../Synth/Opn/OpnCore.h"
-#include "../../Synth/Opna/OpnaCore.h"
-#include "../../Synth/Opl/OplCore.h"
-#include "../../Synth/Opl3/Opl3Core.h"
-#include "../../Synth/Opm/OpmCore.h"
-#include "../../Synth/Opzx3/Opzx3Core.h"
-#include "../../Synth/Ssg/SSGCore.h"
-#include "../../Synth/Wavetable/WtCore.h"
-#include "../../Synth/Rhythm/RhythmCore.h"
-#include "../../Synth/Adpcm/AdpcmCore.h"
-#include "../../Synth/Beep/BeepCore.h"
+#include "../../Synth/Opna/Core.h"
+#include "../../Synth/Opn/Core.h"
+#include "../../Synth/Opl/Core.h"
+#include "../../Synth/Opl3/Core.h"
+#include "../../Synth/Opm/Core.h"
+#include "../../Synth/Opzx3/Core.h"
+#include "../../Synth/Ssg/Core.h"
+#include "../../Synth/Wavetable/Core.h"
+#include "../../Synth/Rhythm/Core.h"
+#include "../../Synth/Adpcm/Core.h"
+#include "../../Synth/Beep/Core.h"
 
 class SynthSound : public juce::SynthesiserSound
 {

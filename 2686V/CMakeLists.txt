@@ -94,240 +94,240 @@ set(EDITOR_FILES
 )
 
 set(OPNA_SYNTH_FILES
-    "Source/Synth/Opna/OpnaCore.h"
-    "Source/Synth/Opna/OpnaCore.cpp"
-    "Source/Synth/Opna/OpnaParams.h"
+    "Source/Synth/Opna/Core.h"
+    "Source/Synth/Opna/Core.cpp"
+    "Source/Synth/Opna/Params.h"
 )
 
 set(OPNA_OPERATOR_FILES
-    "Source/Synth/Opna/Operator/OpnaOperator.h"
-    "Source/Synth/Opna/Operator/OpnaOperator.cpp"
+    "Source/Synth/Opna/Operator/Core.h"
+    "Source/Synth/Opna/Operator/Core.cpp"
 )
 
 set(OPNA_PROCESSOR_FILES
-    "Source/Processor/Opna/PrOpna.h"
-    "Source/Processor/Opna/PrOpna.cpp"
+    "Source/Processor/Opna/Core.h"
+    "Source/Processor/Opna/Core.cpp"
 )
 
 set(OPNA_GUI_FILES
-    "Source/Gui/Opna/GuiOpna.h"
-    "Source/Gui/Opna/GuiOpna.cpp"
+    "Source/Gui/Opna/Core.h"
+    "Source/Gui/Opna/Core.cpp"
 )
 
 set(OPN_SYNTH_FILES
-    "Source/Synth/Opn/OpnCore.h"
-    "Source/Synth/Opn/OpnCore.cpp"
-    "Source/Synth/Opn/OpnParams.h"
+    "Source/Synth/Opn/Core.h"
+    "Source/Synth/Opn/Core.cpp"
+    "Source/Synth/Opn/Params.h"
 )
 
 set(OPN_OPERATOR_FILES
-    "Source/Synth/Opn/Operator/OpnOperator.h"
-    "Source/Synth/Opn/Operator/OpnOperator.cpp"
+    "Source/Synth/Opn/Operator/Core.h"
+    "Source/Synth/Opn/Operator/Core.cpp"
 )
 
 set(OPN_PROCESSOR_FILES
-    "Source/Processor/Opn/PrOpn.h"
-    "Source/Processor/Opn/PrOpn.cpp"
+    "Source/Processor/Opn/Core.h"
+    "Source/Processor/Opn/Core.cpp"
 )
 
 set(OPN_GUI_FILES
-    "Source/Gui/Opn/GuiOpn.h"
-    "Source/Gui/Opn/GuiOpn.cpp"
+    "Source/Gui/Opn/Core.h"
+    "Source/Gui/Opn/Core.cpp"
 )
 
 set(OPL_SYNTH_FILES
-    "Source/Synth/Opl/OplCore.h"
-    "Source/Synth/Opl/OplCore.cpp"
-    "Source/Synth/Opl/OplParams.h"
+    "Source/Synth/Opl/Core.h"
+    "Source/Synth/Opl/Core.cpp"
+    "Source/Synth/Opl/Params.h"
 )
 
 set(OPL_OPERATOR_FILES
-    "Source/Synth/Opl/Operator/OplOperator.h"
-    "Source/Synth/Opl/Operator/OplOperator.cpp"
+    "Source/Synth/Opl/Operator/Core.h"
+    "Source/Synth/Opl/Operator/Core.cpp"
 )
 
 set(OPL_PROCESSOR_FILES
-    "Source/Processor/Opl/PrOpl.h"
-    "Source/Processor/Opl/PrOpl.cpp"
+    "Source/Processor/Opl/Core.h"
+    "Source/Processor/Opl/Core.cpp"
 )
 
 set(OPL_GUI_FILES
-    "Source/Gui/Opl/GuiOpl.h"
-    "Source/Gui/Opl/GuiOpl.cpp"
+    "Source/Gui/Opl/Core.h"
+    "Source/Gui/Opl/Core.cpp"
 )
 
 set(OPL3_SYNTH_FILES
-    "Source/Synth/Opl3/Opl3Core.h"
-    "Source/Synth/Opl3/Opl3Core.cpp"
-    "Source/Synth/Opl3/Opl3Params.h"
+    "Source/Synth/Opl3/Core.h"
+    "Source/Synth/Opl3/Core.cpp"
+    "Source/Synth/Opl3/Params.h"
 )
 
 set(OPL3_OPERATOR_FILES
-    "Source/Synth/Opl3/Operator/Opl3Operator.h"
-    "Source/Synth/Opl3/Operator/Opl3Operator.cpp"
+    "Source/Synth/Opl3/Operator/Core.h"
+    "Source/Synth/Opl3/Operator/Core.cpp"
 )
 
 set(OPL3_PROCESSOR_FILES
-    "Source/Processor/Opl3/PrOpl3.h"
-    "Source/Processor/Opl3/PrOpl3.cpp"
+    "Source/Processor/Opl3/Core.h"
+    "Source/Processor/Opl3/Core.cpp"
 )
 
 set(OPL3_GUI_FILES
-    "Source/Gui/Opl3/GuiOpl3.h"
-    "Source/Gui/Opl3/GuiOpl3.cpp"
+    "Source/Gui/Opl3/Core.h"
+    "Source/Gui/Opl3/Core.cpp"
 )
 
 set(OPM_SYNTH_FILES
-    "Source/Synth/Opm/OpmCore.h"
-    "Source/Synth/Opm/OpmCore.cpp"
-    "Source/Synth/Opm/OpmParams.h"
+    "Source/Synth/Opm/Core.h"
+    "Source/Synth/Opm/Core.cpp"
+    "Source/Synth/Opm/Params.h"
 )
 
 set(OPM_OPERATOR_FILES
-    "Source/Synth/Opm/Operator/OpmOperator.h"
-    "Source/Synth/Opm/Operator/OpmOperator.cpp"
+    "Source/Synth/Opm/Operator/Core.h"
+    "Source/Synth/Opm/Operator/Core.cpp"
 )
 
 set(OPM_PROCESSOR_FILES
-    "Source/Processor/Opm/PrOpm.h"
-    "Source/Processor/Opm/PrOpm.cpp"
+    "Source/Processor/Opm/Core.h"
+    "Source/Processor/Opm/Core.cpp"
 )
 
 set(OPM_GUI_FILES
-    "Source/Gui/Opm/GuiOpm.h"
-    "Source/Gui/Opm/GuiOpm.cpp"
+    "Source/Gui/Opm/Core.h"
+    "Source/Gui/Opm/Core.cpp"
 )
 
 set(OPZX3_SYNTH_FILES
-    "Source/Synth/Opzx3/Opzx3Core.h"
-    "Source/Synth/Opzx3/Opzx3Core.cpp"
-    "Source/Synth/Opzx3/Opzx3Params.h"
+    "Source/Synth/Opzx3/Core.h"
+    "Source/Synth/Opzx3/Core.cpp"
+    "Source/Synth/Opzx3/Params.h"
 )
 
 set(OPZX3_OPERATOR_FILES
-    "Source/Synth/Opzx3/Operator/Opzx3Operator.h"
-    "Source/Synth/Opzx3/Operator/Opzx3Operator.cpp"
+    "Source/Synth/Opzx3/Operator/Core.h"
+    "Source/Synth/Opzx3/Operator/Core.cpp"
 )
 
 set(OPZX3_PROCESSOR_FILES
-    "Source/Processor/Opzx3/PrOpzx3.h"
-    "Source/Processor/Opzx3/PrOpzx3.cpp"
+    "Source/Processor/Opzx3/Core.h"
+    "Source/Processor/Opzx3/Core.cpp"
 )
 
 set(OPZX3_GUI_FILES
-    "Source/Gui/Opzx3/GuiOpzx3.h"
-    "Source/Gui/Opzx3/GuiOpzx3.cpp"
+    "Source/Gui/Opzx3/Core.h"
+    "Source/Gui/Opzx3/Core.cpp"
 )
 
 set(SSG_SYNTH_FILES
-    "Source/Synth/Ssg/SsgCore.h"
-    "Source/Synth/Ssg/SsgCore.cpp"
-    "Source/Synth/Ssg/SsgParams.h"
+    "Source/Synth/Ssg/Core.h"
+    "Source/Synth/Ssg/Core.cpp"
+    "Source/Synth/Ssg/Params.h"
 )
 
 set(SSG_PROCESSOR_FILES
-    "Source/Processor/Ssg/PrSsg.h"
-    "Source/Processor/Ssg/PrSsg.cpp"
+    "Source/Processor/Ssg/Core.h"
+    "Source/Processor/Ssg/Core.cpp"
 )
 
 set(SSG_GUI_FILES
-    "Source/Gui/Ssg/GuiSsg.h"
-    "Source/Gui/Ssg/GuiSsg.cpp"
+    "Source/Gui/Ssg/Core.h"
+    "Source/Gui/Ssg/Core.cpp"
 )
 
 set(WT_SYNTH_FILES
-    "Source/Synth/Wavetable/WtCore.h"
-    "Source/Synth/Wavetable/WtCore.cpp"
-    "Source/Synth/Wavetable/WtParams.h"
+    "Source/Synth/Wavetable/Core.h"
+    "Source/Synth/Wavetable/Core.cpp"
+    "Source/Synth/Wavetable/Params.h"
 )
 
 set(WT_PROCESSOR_FILES
-    "Source/Processor/Wavetable/PrWt.h"
-    "Source/Processor/Wavetable/PrWt.cpp"
+    "Source/Processor/Wavetable/Core.h"
+    "Source/Processor/Wavetable/Core.cpp"
 )
 
 set(WT_GUI_FILES
-    "Source/Gui/Wavetable/GuiWt.h"
-    "Source/Gui/Wavetable/GuiWt.cpp"
+    "Source/Gui/Wavetable/Core.h"
+    "Source/Gui/Wavetable/Core.cpp"
 )
 
 set(RHYTHM_SYNTH_FILES
-    "Source/Synth/Rhythm/RhythmCore.h"
-    "Source/Synth/Rhythm/RhythmCore.cpp"
-    "Source/Synth/Rhythm/RhythmParams.h"
+    "Source/Synth/Rhythm/Core.h"
+    "Source/Synth/Rhythm/Core.cpp"
+    "Source/Synth/Rhythm/Params.h"
 )
 
 set(RHYTHM_PROCESSOR_FILES
-    "Source/Processor/Rhythm/PrRhythm.h"
-    "Source/Processor/Rhythm/PrRhythm.cpp"
+    "Source/Processor/Rhythm/Core.h"
+    "Source/Processor/Rhythm/Core.cpp"
 )
 
 set(RHYTHM_GUI_FILES
-    "Source/Gui/Rhythm/GuiRhythm.h"
-    "Source/Gui/Rhythm/GuiRhythm.cpp"
+    "Source/Gui/Rhythm/Core.h"
+    "Source/Gui/Rhythm/Core.cpp"
 )
 
 set(ADPCM_SYNTH_FILES
-    "Source/Synth/Adpcm/AdpcmCore.h"
-    "Source/Synth/Adpcm/AdpcmCore.cpp"
-    "Source/Synth/Adpcm/AdpcmParams.h"
+    "Source/Synth/Adpcm/Core.h"
+    "Source/Synth/Adpcm/Core.cpp"
+    "Source/Synth/Adpcm/Params.h"
 )
 
 set(ADPCM_PROCESSOR_FILES
-    "Source/Processor/Adpcm/PrAdpcm.h"
-    "Source/Processor/Adpcm/PrAdpcm.cpp"
+    "Source/Processor/Adpcm/Core.h"
+    "Source/Processor/Adpcm/Core.cpp"
 )
 
 set(ADPCM_GUI_FILES
-    "Source/Gui/Adpcm/GuiAdpcm.h"
-    "Source/Gui/Adpcm/GuiAdpcm.cpp"
+    "Source/Gui/Adpcm/Core.h"
+    "Source/Gui/Adpcm/Core.cpp"
 )
 
 set(BEEP_SYNTH_FILES
-    "Source/Synth/Beep/BeepCore.h"
-    "Source/Synth/Beep/BeepCore.cpp"
-    "Source/Synth/Beep/BeepParams.h"
+    "Source/Synth/Beep/Core.h"
+    "Source/Synth/Beep/Core.cpp"
+    "Source/Synth/Beep/Params.h"
 )
 
 set(BEEP_PROCESSOR_FILES
-    "Source/Processor/Beep/PrBeep.h"
-    "Source/Processor/Beep/PrBeep.cpp"
+    "Source/Processor/Beep/Core.h"
+    "Source/Processor/Beep/Core.cpp"
 )
 
 set(BEEP_GUI_FILES
-    "Source/Gui/Beep/GuiBeep.h"
-    "Source/Gui/Beep/GuiBeep.cpp"
+    "Source/Gui/Beep/Core.h"
+    "Source/Gui/Beep/Core.cpp"
 )
 
 set(FX_EFFECT_FILES
-    "Source/Effect/Fx/FxCore.h"
-    "Source/Effect/Fx/FxCore.cpp"
-    "Source/Effect/Fx/FxParams.h"
+    "Source/Effect/Fx/Core.h"
+    "Source/Effect/Fx/Core.cpp"
+    "Source/Effect/Fx/Params.h"
 )
 
 set(FX_PROCESSOR_FILES
-    "Source/Processor/Fx/PrFx.h"
-    "Source/Processor/Fx/PrFx.cpp"
+    "Source/Processor/Fx/Core.h"
+    "Source/Processor/Fx/Core.cpp"
 )
 
 set(FX_GUI_FILES
-    "Source/Gui/Fx/GuiFx.h"
-    "Source/Gui/Fx/GuiFx.cpp"
+    "Source/Gui/Fx/Core.h"
+    "Source/Gui/Fx/Core.cpp"
 )
 
 set(PRESET_GUI_FILES
-    "Source/Gui/PRESET/GuiPreset.h"
-    "Source/Gui/PRESET/GuiPreset.cpp"
+    "Source/Gui/Preset/Core.h"
+    "Source/Gui/Preset/Core.cpp"
 )
 
 set(SETTINGS_GUI_FILES
-    "Source/Gui/SETTINGS/GuiSettings.h"
-    "Source/Gui/SETTINGS/GuiSettings.cpp"
+    "Source/Gui/Settings/Core.h"
+    "Source/Gui/Settings/Core.cpp"
 )
 
 set(ABOUT_GUI_FILES
-    "Source/Gui/About/GuiAbout.h"
-    "Source/Gui/About/GuiAbout.cpp"
+    "Source/Gui/About/Core.h"
+    "Source/Gui/About/Core.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
