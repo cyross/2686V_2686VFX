@@ -1,17 +1,21 @@
 ﻿#pragma once
 #include <JuceHeader.h>
+
 #include "../Synth/SynthVoice.h"
-#include "../../OPNA/PrOpna.h"
-#include "../../OPN/PrOpn.h"
-#include "../../OPL/PrOpl.h"
-#include "../../OPL3/PrOpl3.h"
-#include "../../OPM/PrOpm.h"
-#include "../../OPZX3/PrOpzx3.h"
-#include "../../SSG/PrSsg.h"
-#include "../../WT/PrWt.h"
-#include "../../RHYTHM/PrRhythm.h"
-#include "../../ADPCM/PrAdpcm.h"
-#include "../../BEEP/PrBeep.h"
+
+#include "../../Processor/Opna/Core.h"
+#include "../../Processor/Opn/Core.h"
+#include "../../Processor/Opl/Core.h"
+#include "../../Processor/Opl3/Core.h"
+#include "../../Processor/Opm/Core.h"
+#include "../../Processor/Opzx3/Core.h"
+#include "../../Processor/Ssg/Core.h"
+#include "../../Processor/Wavetable/Core.h"
+#include "../../Processor/RHYTHM/Core.h"
+#include "../../Processor/ADPCM/Core.h"
+#include "../../Processor/BEEP/Core.h"
+#include "../../Processor/Fx/Core.h"
+
 #include "../Const/Global.h"
 #include "../Const/PrKeys.h"
 #include "../Const/PrValues.h"
@@ -19,7 +23,6 @@
 #include "../Const/PresetKeys.h"
 #include "../Const/PresetValues.h"
 
-#include "../../FX/PrFx.h"
 #include "../Editor/PluginEditor.h"
 
 class RetroSynthesiser : public juce::Synthesiser

@@ -2,19 +2,19 @@
 
 #include <array>
 
-#include "Mode.h"
-#include "AdsrParams.h"
-#include "../../OPNA/OpnaParams.h"
-#include "../../OPN/OpnParams.h"
-#include "../../OPL/OplParams.h"
-#include "../../OPL3/Opl3Params.h"
-#include "../../OPM/OpmParams.h"
-#include "../../OPZX3/Opzx3Params.h"
-#include "../../SSG/SsgParams.h"
-#include "../../WT/WtParams.h"
-#include "../../RHYTHM/RhythmParams.h"
-#include "../../ADPCM/AdpcmParams.h"
-#include "../../BEEP/BeepParams.h"
+#include "./Mode.h"
+
+#include "../../Synth/Opna/Params.h"
+#include "../../Synth/Opn/Params.h"
+#include "../../Synth/Opl/Params.h"
+#include "../../Synth/Opl3/Params.h"
+#include "../../Synth/Opm/Params.h"
+#include "../../Synth/Opzx3/Params.h"
+#include "../../Synth/Ssg/Params.h"
+#include "../../Synth/Wavetable/Params.h"
+#include "../../Synth/Rhythm/Params.h"
+#include "../../Synth/Adpcm/Params.h"
+#include "../../Synth/Beep/Params.h"
 
 struct SynthParams
 {

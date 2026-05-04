@@ -9,7 +9,7 @@
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertFmAr(int regValue)
 {
-    if (regValue == 0) return 5.0f; // Slowest
+    if (regValue <= 0) return 5.0f; // Slowest
     if (regValue >= 31) return 0.03f; // Fastest
 
     // Clamp 0-31
@@ -34,7 +34,7 @@ float RegisterConverter::convertFmAr(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertFmRr(int regValue)
 {
-    if (regValue == 0) return 5.0f; // Slowest
+    if (regValue <= 0) return 5.0f; // Slowest
     if (regValue >= 15) return 0.03f; // Fastest
 
     // Clamp 0-15
@@ -59,6 +59,9 @@ float RegisterConverter::convertFmRr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertFmDr(int regValue)
 {
+    if (regValue <= 0) return 5.0f; // Slowest
+    if (regValue >= 31) return 0.0f; // Fastest
+
     // Clamp 0-31
     float r = (float)std::clamp(regValue, 0, 31);
 
@@ -66,8 +69,6 @@ float RegisterConverter::convertFmDr(int regValue)
     // 0  -> 5.0s (Slow)
     // カーブは指数的にするのが理想ですが、簡易的に反転線形＋補正で近似します
     // Rateが高いほど時間は急激に短くなる
-
-    if (regValue >= 31) return 0.0f; // Fastest
 
     // 簡易変換: (31 - reg) をベースに係数を掛ける
     // 例: Reg=0 -> 5.0s, Reg=20 -> 短い, Reg=31 -> 0s
@@ -84,7 +85,7 @@ float RegisterConverter::convertFmDr(int regValue)
 float RegisterConverter::convertFmSr(int regValue)
 {
     // ガード処理
-    if (regValue <= 0) return 10.0f;  // Slowest (10.0s)
+    if (regValue <= 0) return 5.0f;  // Slowest (10.0s)
     if (regValue >= 31) return 0.03f; // Fastest (30ms)
 
     // Clamp 0-31
@@ -112,7 +113,10 @@ float RegisterConverter::convertFmSl(int regValue)
     // 0 -> 1.0
     // 15 -> 0.0
     // -3dB step approximation
-    if (v == 15) return 0.0f;
+
+    if (v <= 0) return 1.0f;
+    if (v >= 15) return 0.0f;
+
     // linear mapping for simplicity in VST UI, or -3dB steps
     // 1.0 * pow(10, -3dB * v / 20) ?
     // ここではUIの操作感を重視して線形で返しますが、
@@ -206,6 +210,7 @@ float RegisterConverter::convertOplAr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertOplDr(int regValue)
 {
+    if (regValue <= 0) return 5.0f; // Slowest
     if (regValue >= 15) return 0.0f; // Fastest (Instant decay)
 
     float r = (float)std::clamp(regValue, 0, 15);
@@ -236,6 +241,8 @@ float RegisterConverter::convertOplRr(int regValue)
 float RegisterConverter::convertOplSl(int regValue)
 {
     int v = std::clamp(regValue, 0, 15);
+
+    if (v == 0) return 1.0f; // Slowest
     if (v == 15) return 0.0f; // Silent
 
     // 線形での簡易変換 (0->1.0, 15->0.0)

@@ -1,20 +1,22 @@
 ﻿#pragma once
 
 #include <JuceHeader.h>
-#include "Mode.h"
-#include "SynthParams.h"
-#include "SynthCore.h"
-#include "../../OPN/OpnCore.h"
-#include "../../OPNA/OpnaCore.h"
-#include "../../OPL/OplCore.h"
-#include "../../OPL3/Opl3Core.h"
-#include "../../OPM/OpmCore.h"
-#include "../../OPZX3/Opzx3Core.h"
-#include "../../SSG/SSGCore.h"
-#include "../../WT/WtCore.h"
-#include "../../RHYTHM/RhythmCore.h"
-#include "../../ADPCM/AdpcmCore.h"
-#include "../../BEEP/BeepCore.h"
+
+#include "./Mode.h"
+#include "./SynthParams.h"
+#include "./SynthCore.h"
+
+#include "../../Synth/Opna/Core.h"
+#include "../../Synth/Opn/Core.h"
+#include "../../Synth/Opl/Core.h"
+#include "../../Synth/Opl3/Core.h"
+#include "../../Synth/Opm/Core.h"
+#include "../../Synth/Opzx3/Core.h"
+#include "../../Synth/Ssg/Core.h"
+#include "../../Synth/Wavetable/Core.h"
+#include "../../Synth/Rhythm/Core.h"
+#include "../../Synth/Adpcm/Core.h"
+#include "../../Synth/Beep/Core.h"
 
 class SynthSound : public juce::SynthesiserSound
 {
