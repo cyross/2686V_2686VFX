@@ -144,8 +144,13 @@ void FmOperator::updateEnvelopeState()
     else if (m_state == State::Decay) {
         float limitLevel = m_params.sustain;
 
-        if (m_currentLevel > limitLevel) {
-            // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+        // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+        if (m_params.decay <= 0.0f)
+        {
+            m_currentLevel = 1.0;
+            m_state = State::Sustain;
+        }
+        else if (m_currentLevel > limitLevel) {
             if (m_decayDec > 0.0f) {
                 m_currentLevel -= m_decayDec;
                 if (m_currentLevel <= limitLevel) {
