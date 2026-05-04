@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../../Core/Synth/SynthParams.h"
-#include "../../Core/Synth/Pcm.h"
+#include "../../Generator/Pcm/Core.h"
 
 // ======================================================
 // エフェクトの種類を定義 (マジックナンバー撲滅の鍵)

@@ -1,5 +1,6 @@
-﻿#include "Pcm.h"
-#include "SynthHelpers.h"
+﻿#include "./Core.h"
+
+#include "../../Core/Synth/SynthHelpers.h"
 
 void Ym2608AdpcmCodec::reset()
 {

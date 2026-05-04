@@ -1,7 +1,7 @@
 ﻿#include "./Core.h"
 
-#include "../../Core/Synth/Pcm.h"
 #include "../../Core/Synth/SynthHelpers.h"
+#include "../../Generator/Pcm/Core.h"
 
 // Set data (Same logic as AdpcmCore)
 void RhythmPad::setSampleData(const std::vector<float>& sourceData, double sourceRate)

@@ -5,8 +5,8 @@
 #include "./Core.h"
 
 #include "../../Core/Synth/Mode.h"
-#include "../../Core/Synth/Pcm.h"
 #include "../../Core/Synth/SynthHelpers.h"
+#include "../../Generator/Pcm/Core.h"
 
 void AdpcmCore::prepare(double sampleRate)
 {

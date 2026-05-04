@@ -40,8 +40,6 @@ set(CONST_FILES
 set(SYNTH_FILES
     "Source/Core/Synth/Mode.h"
     "Source/Core/Synth/Mode.cpp"
-    "Source/Core/Synth/Pcm.h"
-    "Source/Core/Synth/Pcm.cpp"
     "Source/Core/Synth/SynthCore.h"
     "Source/Core/Synth/SynthCore.cpp"
     "Source/Core/Synth/SynthParams.h"
@@ -49,6 +47,11 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthVoice.cpp"
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
+)
+
+set(PCM_GENERATOR_FILES
+    "Source/Generator/Pcm/Core.h"
+    "Source/Generator/Pcm/Core.cpp"
 )
 
 set(FM_FILES
@@ -344,6 +347,7 @@ source_group("Core\\Gui" FILES ${GUI_FILES})
 source_group("Core\\Processor" FILES ${PROCESSOR_FILES})
 source_group("Core\\Editor" FILES ${EDITOR_FILES})
 source_group("Core\\Docs" FILES ${DOCUMENT_FILES})
+source_group("Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
 source_group("Synth\\Opn" FILES ${OPN_SYNTH_FILES})
 source_group("Synth\\Opl" FILES ${OPL_SYNTH_FILES})
@@ -415,6 +419,7 @@ function(create_cyross_plugin TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         ${CONST_FILES}
         ${SYNTH_FILES}
+        ${PCM_GENERATOR_FILES}
         ${FM_FILES}
         ${GUI_FILES}
         ${PROCESSOR_FILES}

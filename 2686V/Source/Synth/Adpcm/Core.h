@@ -3,8 +3,8 @@
 #include <JuceHeader.h>
 
 #include "../../Core/Synth/SynthParams.h"
-#include "../../Core/Synth/Pcm.h"
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Generator/Pcm/Core.h"
 #include "../../Effect/Envelope/Adsr/Core.h"
 
 // --- Core Class ---
