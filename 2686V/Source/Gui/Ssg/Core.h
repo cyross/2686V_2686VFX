@@ -77,15 +77,9 @@ class GuiSsg : public GuiBase
 
     GuiSlider pitchAttackSlider;
 
-    GuiTextButton pitchArTo000Button;
-    GuiTextButton pitchArTo003Button;
-
     GuiSlider pitchDecaySlider;
 
     GuiSlider pitchReleaseSlider;
-
-    GuiTextButton pitchRrTo000Button;
-    GuiTextButton pitchRrTo003Button;
 
     GuiSlider pitchStartLevelSlider;
     GuiSlider pitchAttackLevelSlider;
@@ -175,12 +169,8 @@ public:
 		pitchAdsrCat(context),
         pitchAdsrBypassButton(context),
         pitchAttackSlider(context),
-		pitchArTo000Button(context),
-		pitchArTo003Button(context),
 		pitchDecaySlider(context),
 		pitchReleaseSlider(context),
-		pitchRrTo000Button(context),
-		pitchRrTo003Button(context),
 		pitchStartLevelSlider(context),
 		pitchAttackLevelSlider(context),
 		pitchSustainLevelSlider(context),

@@ -152,16 +152,6 @@ void GuiWt::setup()
     pitchAttackSlider.setWantsKeyboardFocus(true);
     pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchArTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-    pitchArTo000Button.setWantsKeyboardFocus(true);
-    pitchArTo000Button.setExplicitFocusOrder(++tabOrder);
-    pitchArTo000Button.onClick = [this] { pitchAttackSlider.setValue(0.00, juce::sendNotification); };
-
-    pitchArTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-    pitchArTo003Button.setWantsKeyboardFocus(true);
-    pitchArTo003Button.setExplicitFocusOrder(++tabOrder);
-    pitchArTo003Button.onClick = [this] { pitchAttackSlider.setValue(0.03, juce::sendNotification); };
-
     pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
     pitchDecaySlider.setWantsKeyboardFocus(true);
     pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
@@ -169,16 +159,6 @@ void GuiWt::setup()
     pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
     pitchReleaseSlider.setWantsKeyboardFocus(true);
     pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchRrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-    pitchRrTo000Button.setWantsKeyboardFocus(true);
-    pitchRrTo000Button.setExplicitFocusOrder(++tabOrder);
-    pitchRrTo000Button.onClick = [this] { pitchReleaseSlider.setValue(0.00, juce::sendNotification); };
-
-    pitchRrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-    pitchRrTo003Button.setWantsKeyboardFocus(true);
-    pitchRrTo003Button.setExplicitFocusOrder(++tabOrder);
-    pitchRrTo003Button.onClick = [this] { pitchReleaseSlider.setValue(0.03, juce::sendNotification); };
 
     pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
     pitchStartLevelSlider.setWantsKeyboardFocus(true);
@@ -300,10 +280,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
     layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
     layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &pitchArTo000Button, .comp2 = &pitchArTo003Button });
     layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
     layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &pitchRrTo000Button, .comp2 = &pitchRrTo003Button });
     layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
