@@ -71,11 +71,11 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.triPeak = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::peak);
     params.ssg.triFreq = *apvts.getRawParameterValue(code + PrKey::Post::Ssg::Tri::freq);
 
-    params.ssg.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
-    params.ssg.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
-    params.ssg.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
-    params.ssg.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
-    params.ssg.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+    params.ssg.adsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
+    params.ssg.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
+    params.ssg.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
+    params.ssg.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
+    params.ssg.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
 
     params.ssg.useHwEnv = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::enable) > PrValue::boolThread);
     params.ssg.envShape = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::shape);

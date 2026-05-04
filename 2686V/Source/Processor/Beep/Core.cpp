@@ -23,9 +23,9 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.level = *apvts.getRawParameterValue(code + PrKey::Post::Beep::level);
     params.beep.fixedMode = (*apvts.getRawParameterValue(code + PrKey::Post::Beep::fix) > PrValue::boolThread);
     params.beep.fixedFreq = *apvts.getRawParameterValue(code + PrKey::Post::Beep::fixFreq);
-    params.beep.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
-    params.beep.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
-    params.beep.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
-    params.beep.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
-    params.beep.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+    params.beep.adsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
+    params.beep.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
+    params.beep.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
+    params.beep.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
+    params.beep.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
 }

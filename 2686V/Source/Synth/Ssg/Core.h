@@ -6,6 +6,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Effect/Envelope/Adsr/Core.h"
 
 class SsgCore : public SynthCore
 {
@@ -35,8 +36,7 @@ private:
     float m_mix = 0.5;
     int m_waveform = 0; // 0:Pulse, 1:Triangle
 
-    SimpleAdsr m_adsr;
-    bool m_adsrBypass = false;
+    AdsrAmpEnv m_adsr;
 
     // HW Env Params
     bool m_useHwEnv = false;

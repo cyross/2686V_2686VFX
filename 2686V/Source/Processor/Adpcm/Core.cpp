@@ -36,8 +36,9 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.offset = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmOffset);
     params.adpcm.ratio = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmRatio);
 
-    params.adpcm.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
-    params.adpcm.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);
-    params.adpcm.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::sl);
-    params.adpcm.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::rr);
+    params.adpcm.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
+    params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);
+    params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::sl);
+    params.adpcm.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::rr);
+    params.adpcm.adsr.bypass = false;
 }

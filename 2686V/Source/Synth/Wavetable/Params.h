@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Core/Synth/AdsrParams.h"
+#include "../../Effect/Envelope/Adsr/Params.h"
 
 struct WtParams
 {
@@ -33,9 +33,6 @@ struct WtParams
 
     // --- ADSR Filter ---
 
-    // Bypass
-    bool bypass = false;
-
     // Params
-    SimpleAdsr adsr;
+    AdsrParams adsr;
 };

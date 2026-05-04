@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Core/Synth/AdsrParams.h"
+#include "../../Effect/Envelope/Adsr/Params.h"
 
 struct SsgParams
 {
@@ -35,11 +35,8 @@ struct SsgParams
 
     // --- ADSR Filter ---
 
-    // Bypass
-    bool bypass = false;
-
     // Params
-    SimpleAdsr adsr;
+    AdsrParams adsr;
 
     // --- Waveform ---
     // 0: Pulse, 1: Triangle

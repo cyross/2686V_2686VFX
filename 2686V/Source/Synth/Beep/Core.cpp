@@ -8,13 +8,13 @@ void BeepCore::prepare(double sampleRate) {
 
 void BeepCore::setParameters(const SynthParams& params) {
     m_level = params.beep.level;
-    m_bypassAdsr = params.beep.bypass;
-    m_adsr = params.beep.adsr;
+
+    m_adsr.setParameters(params.beep.adsr);
 
     auto calcInc = [&](float time) { return time <= 0.001f ? 1.0f : 1.0f / (time * (float)m_sampleRate); };
-    m_attackInc = calcInc(m_adsr.a);
-    m_decayDec = calcInc(m_adsr.d);
-    m_releaseDec = calcInc(m_adsr.r);
+    m_attackInc = calcInc(m_adsr.ar);
+    m_decayDec = calcInc(m_adsr.dr);
+    m_releaseDec = calcInc(m_adsr.rr);
 
     m_fixedMode = params.beep.fixedMode;
     m_fixedFreq = params.beep.fixedFreq;
@@ -61,7 +61,7 @@ void BeepCore::updateEnvelope() {
         if (m_currentLevel >= m_targetLevel) { m_currentLevel = m_targetLevel; m_state = State::Decay; }
     }
     else if (m_state == State::Decay) {
-        float sl = m_targetLevel * m_adsr.s;
+        float sl = m_targetLevel * m_adsr.sl;
         m_currentLevel -= m_decayDec;
         if (m_currentLevel <= sl) { m_currentLevel = sl; m_state = State::Sustain; }
     }

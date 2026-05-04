@@ -30,7 +30,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
         if (m_isLooping) m_hasFinished = false;
     }
 
-    m_adsr = params.adpcm.adsr;
+    m_adsr.setParameters(params.adpcm.adsr);
+
     m_rootNote = params.adpcm.rootNote;
 
     bool needRefresh = false;
@@ -306,14 +307,14 @@ void AdpcmCore::processAdsr()
         if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
     }
     else if (m_state == State::Decay) {
-        if (m_currentLevel > m_adsr.s) {
+        if (m_currentLevel > m_adsr.sl) {
             m_currentLevel -= m_decayDec;
-            if (m_currentLevel <= m_adsr.s) { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
+            if (m_currentLevel <= m_adsr.sl) { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
         }
-        else { m_currentLevel = m_adsr.s; m_state = State::Sustain; }
+        else { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
     }
     else if (m_state == State::Sustain) {
-        m_currentLevel = m_adsr.s;
+        m_currentLevel = m_adsr.sl;
     }
     else if (m_state == State::Release) {
         m_currentLevel -= m_releaseDec;
@@ -324,9 +325,9 @@ void AdpcmCore::processAdsr()
 void AdpcmCore::updateIncrements()
 {
     if (m_sampleRate <= 0.0) return;
-    m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.a) * m_sampleRate);
-    m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.d) * m_sampleRate);
-    m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.r) * m_sampleRate);
+    m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.ar) * m_sampleRate);
+    m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.dr) * m_sampleRate);
+    m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.rr) * m_sampleRate);
 }
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

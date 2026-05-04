@@ -78,8 +78,9 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.modSpeed = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::speed);
     params.wt.level = *apvts.getRawParameterValue(code + PrKey::Post::Wt::level);
 
-    params.wt.adsr.a = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
-    params.wt.adsr.d = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
-    params.wt.adsr.s = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
-    params.wt.adsr.r = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+    params.wt.adsr.bypass = false;
+    params.wt.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
+    params.wt.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
+    params.wt.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
+    params.wt.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
 }

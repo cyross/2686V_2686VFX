@@ -7,6 +7,7 @@
 
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Core/Synth/SynthParams.h"
+#include "../../Effect/Envelope/Adsr/Core.h"
 
 class WtCore : public SynthCore
 {
@@ -32,7 +33,8 @@ private:
     State m_state = State::Idle;
     double m_sampleRate = 44100.0;
 
-    SimpleAdsr m_adsr;
+    AdsrAmpEnv m_adsr;
+
     float m_level = 1.0f;
 
     // Wave Data

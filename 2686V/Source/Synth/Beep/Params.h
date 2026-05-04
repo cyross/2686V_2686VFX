@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../synth/AdsrParams.h"
+#include "../../Effect/Envelope/Adsr/Params.h"
 
 struct BeepParams
 {
@@ -17,9 +17,6 @@ struct BeepParams
 
     // --- ADSR Filter ---
 
-    // Bypass
-    bool bypass = false;
-
     // Params
-    SimpleAdsr adsr;
+    AdsrParams adsr;
 };
