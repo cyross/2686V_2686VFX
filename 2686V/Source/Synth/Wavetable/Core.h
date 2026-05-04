@@ -26,11 +26,8 @@ public:
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     void generateWaveform(int type);
-    void updateIncrements();
     void updatePhaseDelta();
 
-    enum class State { Idle, Attack, Decay, Sustain, Release };
-    State m_state = State::Idle;
     double m_sampleRate = 44100.0;
 
     AdsrAmpEnv m_adsr;
@@ -66,9 +63,6 @@ private:
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
     float m_currentLevel = 0.0f;
-    float m_attackInc = 0.0f;
-    float m_decayDec = 0.0f;
-    float m_releaseDec = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;

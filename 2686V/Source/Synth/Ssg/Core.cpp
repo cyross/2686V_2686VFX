@@ -33,13 +33,15 @@ void SsgCore::prepare(double sampleRate) {
 
     m_noiseGen.prepare(getTargetRate(m_rateIndex));
 
-    updateIncrements();
+    m_adsr.prepare(m_sampleRate);
+
     updatePhaseDelta();
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
-    updateIncrements();
+
+    m_adsr.updateSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthParams& params)
@@ -68,15 +70,16 @@ void SsgCore::setParameters(const SynthParams& params)
 
     if (m_rateIndex != params.ssg.rateIndex) {
         m_rateIndex = params.ssg.rateIndex;
-        m_noiseGen.updateTargetRate(getTargetRate(m_rateIndex));
+
+        double newRate = getTargetRate(m_rateIndex);
+
+        m_noiseGen.updateTargetRate(newRate);
     }
 
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
 
     m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
-
-    updateIncrements();
 
     updatePhaseDelta();
 }
@@ -93,19 +96,20 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
 
     m_hwEnvPhase = 0.0f;
     m_currentLevel = 0.0f;
-    m_state = State::Attack;
 
     // Reset Rate Logic
     m_rateAccumulator = 1.0f;
     m_lastSample = 0.0f;
+
+    m_adsr.noteOn();
 }
 
 void SsgCore::noteOff()
 {
-    m_state = State::Release;
+    m_adsr.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_state != State::Idle; }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -137,38 +141,26 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
-    if (m_state == State::Idle) return 0.0f;
+    if (m_adsr.isIdle()) {
+        return 0.0f;
+    }
 
     // --- ADSR / Gate Logic ---
-    if (m_adsr.bypass)
+    if (m_adsr.isBypassed())
     {
-        if (m_state == State::Release) {
+        if (m_adsr.isRelease()) {
             m_currentLevel = 0.0f;
-            m_state = State::Idle;
+
+            m_adsr.bypassedReleasedProcess();
+
             return 0.0f;
         }
+
         m_currentLevel = 1.0f;
     }
     else
     {
-        if (m_state == State::Attack) {
-            m_currentLevel += m_attackInc;
-            if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
-        }
-        else if (m_state == State::Decay) {
-            if (m_currentLevel > m_adsr.sl) {
-                m_currentLevel -= m_decayDec;
-                if (m_currentLevel <= m_adsr.sl) { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-            }
-            else { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-        }
-        else if (m_state == State::Sustain) {
-            m_currentLevel = m_adsr.sl;
-        }
-        else if (m_state == State::Release) {
-            m_currentLevel -= m_releaseDec;
-            if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-        }
+		m_currentLevel = m_adsr.process(m_currentLevel);
     }
 
     // --- Sample Rate Emulation ---
@@ -304,14 +296,6 @@ float SsgCore::getSample()
     }
 
     return m_lastSample * m_currentLevel * 0.5f;
-}
-
-void SsgCore::updateIncrements()
-{
-    if (m_sampleRate <= 0.0) return;
-    m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.ar) * m_sampleRate);
-    m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.dr) * m_sampleRate);
-    m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.rr) * m_sampleRate);
 }
 
 void SsgCore::updatePhaseDelta() {

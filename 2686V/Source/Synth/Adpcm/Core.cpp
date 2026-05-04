@@ -11,7 +11,8 @@
 void AdpcmCore::prepare(double sampleRate)
 {
     m_sampleRate = sampleRate;
-    updateIncrements();
+
+    m_adsr.prepare(m_sampleRate);
 
     m_lfoPhase = 0.0;
 }
@@ -48,8 +49,6 @@ void AdpcmCore::setParameters(const SynthParams& params)
     if (needRefresh) {
         refreshAdpcmBuffer();
     }
-
-    updateIncrements();
 }
 
 // Set sample data from external source
@@ -114,19 +113,19 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
 
     m_pitchRatio = (freq / rootFreq) * rateRatio;
 
-    //m_currentLevel = 0.0f;
-    m_state = State::Attack;
     m_hasFinished = false;
+
+    m_adsr.noteOn();
 }
 
 void AdpcmCore::noteOff()
 {
-    m_state = State::Release;
+    m_adsr.noteOff();
 }
 
 bool AdpcmCore::isPlaying() const
 {
-    return m_state != State::Idle;
+    return m_adsr.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -164,7 +163,9 @@ void AdpcmCore::setPitchBendRatio(float ratio)
 
 float AdpcmCore::getSample()
 {
-    if (m_state == State::Idle) return 0.0f;
+    if (m_adsr.isIdle()) {
+        return 0.0f;
+    }
 
     // Safety check for empty buffers
     if ((m_qualityMode == 6 && m_adpcmBuffer.empty()) ||
@@ -174,7 +175,7 @@ float AdpcmCore::getSample()
 
     if (m_hasFinished) return 0.0f;
 
-    processAdsr();
+	m_currentLevel = m_adsr.process(m_currentLevel);
 
     // --- Pitch Modulation (Vibrato) ---
     // Simple 5Hz LFO
@@ -298,36 +299,6 @@ void AdpcmCore::refreshAdpcmBuffer()
     }
 
     adpcmLowPassFilter(m_adpcmBuffer);
-}
-
-void AdpcmCore::processAdsr()
-{
-    if (m_state == State::Attack) {
-        m_currentLevel += m_attackInc;
-        if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
-    }
-    else if (m_state == State::Decay) {
-        if (m_currentLevel > m_adsr.sl) {
-            m_currentLevel -= m_decayDec;
-            if (m_currentLevel <= m_adsr.sl) { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-        }
-        else { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-    }
-    else if (m_state == State::Sustain) {
-        m_currentLevel = m_adsr.sl;
-    }
-    else if (m_state == State::Release) {
-        m_currentLevel -= m_releaseDec;
-        if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-    }
-}
-
-void AdpcmCore::updateIncrements()
-{
-    if (m_sampleRate <= 0.0) return;
-    m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.ar) * m_sampleRate);
-    m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.dr) * m_sampleRate);
-    m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.rr) * m_sampleRate);
 }
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

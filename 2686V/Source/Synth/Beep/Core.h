@@ -22,9 +22,6 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    enum class State { Idle, Attack, Decay, Sustain, Release };
-    State m_state = State::Idle;
-
     double m_sampleRate = 44100.0;
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
@@ -35,19 +32,11 @@ private:
     float m_currentLevel = 0.0f;
     float m_targetLevel = 0.0f;
 
-    // ADSR increments
-    float m_attackInc = 0.0f;
-    float m_decayDec = 0.0f;
-    float m_releaseDec = 0.0f;
-
     // Params
     float m_level = 1.0f;
-    bool m_bypassAdsr = false;
 
     AdsrAmpEnv m_adsr;
 
     bool m_fixedMode = false;
     float m_fixedFreq = 2000.0f;
-
-    void updateEnvelope();
 };

@@ -27,8 +27,6 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    enum class State { Idle, Attack, Decay, Sustain, Release };
-    State m_state = State::Idle;
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
     double m_sourceRate = 44100.0;
     double m_bufferSampleRate = 16000.0; // Internal Data Sample Rate
@@ -53,9 +51,6 @@ private:
     AdsrAmpEnv m_adsr;
 
     float m_currentLevel = 0.0f;
-    float m_attackInc = 0.0f;
-    float m_decayDec = 0.0f;
-    float m_releaseDec = 0.0f;
 
     bool m_isLooping = false;
     bool m_hasFinished = false;
@@ -67,6 +62,4 @@ private:
     double m_lfoPhase = 0.0;
 
     void refreshAdpcmBuffer();
-    void processAdsr();
-    void updateIncrements();
 };

@@ -4,17 +4,14 @@
 
 void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
+	m_adsr.prepare(m_sampleRate);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
     m_level = params.beep.level;
 
     m_adsr.setParameters(params.beep.adsr);
-
-    auto calcInc = [&](float time) { return time <= 0.001f ? 1.0f : 1.0f / (time * (float)m_sampleRate); };
-    m_attackInc = calcInc(m_adsr.ar);
-    m_decayDec = calcInc(m_adsr.dr);
-    m_releaseDec = calcInc(m_adsr.rr);
 
     m_fixedMode = params.beep.fixedMode;
     m_fixedFreq = params.beep.fixedFreq;
@@ -27,27 +24,14 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
 
     m_targetLevel = velocity * m_level;
 
-    if (m_bypassAdsr) {
-        m_currentLevel = m_targetLevel;
-        m_state = State::Sustain;
-    }
-    else {
-        m_currentLevel = 0.0f;
-        m_state = State::Attack;
-    }
+    m_adsr.noteOn();
 }
 
 void BeepCore::noteOff() {
-    if (m_bypassAdsr) {
-        m_currentLevel = 0.0f;
-        m_state = State::Idle;
-    }
-    else {
-        m_state = State::Release;
-    }
+    m_adsr.noteOff();
 }
 
-bool BeepCore::isPlaying() const { return m_state != State::Idle; }
+bool BeepCore::isPlaying() const { return m_adsr.isPlaying(); }
 
 void BeepCore::setPitchBend(int pitchWheelValue) {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
@@ -55,25 +39,12 @@ void BeepCore::setPitchBend(int pitchWheelValue) {
     m_phaseDelta = (m_baseFreq * m_pitchBendRatio) / (float)m_sampleRate;
 }
 
-void BeepCore::updateEnvelope() {
-    if (m_state == State::Attack) {
-        m_currentLevel += m_attackInc;
-        if (m_currentLevel >= m_targetLevel) { m_currentLevel = m_targetLevel; m_state = State::Decay; }
-    }
-    else if (m_state == State::Decay) {
-        float sl = m_targetLevel * m_adsr.sl;
-        m_currentLevel -= m_decayDec;
-        if (m_currentLevel <= sl) { m_currentLevel = sl; m_state = State::Sustain; }
-    }
-    else if (m_state == State::Release) {
-        m_currentLevel -= m_releaseDec;
-        if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-    }
-}
-
 float BeepCore::getSample() {
-    if (m_state == State::Idle) return 0.0f;
-    if (!m_bypassAdsr) updateEnvelope();
+    if (m_adsr.isIdle()) {
+        return 0.0f;
+    }
+
+    m_currentLevel = m_adsr.process(m_currentLevel);
 
     // 究極にシンプルな1-bit矩形波（50% Duty）
     float output = (m_phase < 0.5f) ? 1.0f : -1.0f;

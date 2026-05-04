@@ -14,7 +14,7 @@ WtCore::WtCore() : SynthCore()
 void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
-    updateIncrements();
+	m_adsr.prepare(sampleRate);
     updatePhaseDelta();
 }
 
@@ -60,8 +60,6 @@ void WtCore::setParameters(const SynthParams& params)
     m_modEnable = params.wt.modEnable;
     m_modDepth = params.wt.modDepth;
     m_modSpeed = params.wt.modSpeed;
-
-    updateIncrements();
 }
 
 void WtCore::noteOn(float freq, float velocity, int midiNote)
@@ -78,19 +76,20 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     }
 
     m_currentLevel = 0.0f;
-    m_state = State::Attack;
     m_rateAccumulator = 1.0f; // Force update on first sample
     m_lastSample = 0.0f;
+
+    m_adsr.noteOn();
 }
 
 void WtCore::noteOff()
 {
-    m_state = State::Release;
+    m_adsr.noteOff();
 }
 
 bool WtCore::isPlaying() const
 {
-    return m_state != State::Idle;
+    return m_adsr.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -123,24 +122,7 @@ void WtCore::setPitchBendRatio(float ratio)
 
 float WtCore::getSample()
 {
-    if (m_state == State::Idle) return 0.0f;
-
-    // --- ADSR Logic ---
-    if (m_state == State::Attack) {
-        m_currentLevel += m_attackInc;
-        if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
-    }
-    else if (m_state == State::Decay) {
-        if (m_currentLevel > m_adsr.sl) {
-            m_currentLevel -= m_decayDec;
-            if (m_currentLevel <= m_adsr.sl) { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-        }
-        else { m_currentLevel = m_adsr.sl; m_state = State::Sustain; }
-    }
-    else if (m_state == State::Release) {
-        m_currentLevel -= m_releaseDec;
-        if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-    }
+    m_currentLevel = m_adsr.process(m_currentLevel);
 
     // --- Sample Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);
@@ -261,14 +243,6 @@ void WtCore::generateWaveform(int type)
 
         m_sourceWave[i] = sample;
     }
-}
-
-void WtCore::updateIncrements()
-{
-    if (m_sampleRate <= 0.0) return;
-    m_attackInc = 1.0f / (float)(std::max(0.001f, m_adsr.ar) * m_sampleRate);
-    m_decayDec = 1.0f / (float)(std::max(0.001f, m_adsr.dr) * m_sampleRate);
-    m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.rr) * m_sampleRate);
 }
 
 void WtCore::updatePhaseDelta()

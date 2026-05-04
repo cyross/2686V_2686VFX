@@ -28,8 +28,6 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
-    enum class State { Idle, Attack, Decay, Sustain, Release };
-    State m_state = State::Idle;
     double m_sampleRate = 44100.0;
 
     float m_level = 1.0f;
@@ -70,7 +68,6 @@ private:
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
     float m_currentLevel = 0.0f;
-    float m_attackInc = 0.0f; float m_decayDec = 0.0f; float m_releaseDec = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
@@ -78,6 +75,5 @@ private:
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
 
-    void updateIncrements();
     void updatePhaseDelta();
 };
