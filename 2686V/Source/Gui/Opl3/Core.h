@@ -61,15 +61,6 @@ class GuiOpl3 : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiSlider, Global::Fm::Op4> mul;
-    std::array<GuiSlider, Global::Fm::Op4> tl;
-    std::array<GuiSlider, Global::Fm::Op4> ar;
-    std::array<GuiTextButton, Global::Fm::Op4> arTo000;
-    std::array<GuiTextButton, Global::Fm::Op4> arTo003;
-    std::array<GuiSlider, Global::Fm::Op4> dr;
-    std::array<GuiSlider, Global::Fm::Op4> sl;
-    std::array<GuiSlider, Global::Fm::Op4> rr;
-    std::array<GuiTextButton, Global::Fm::Op4> rrTo000;
-    std::array<GuiTextButton, Global::Fm::Op4> rrTo003;
     std::array<GuiToggleButton, Global::Fm::Op4> am;
     std::array<GuiToggleButton, Global::Fm::Op4> vib;
     std::array<GuiToggleButton, Global::Fm::Op4> egType;
@@ -92,7 +83,6 @@ class GuiOpl3 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> pmdTo7;
     std::array<GuiTextButton, Global::Fm::Op4> pmdTo14;
 
-    std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
     std::array<GuiSlider, Global::Fm::Op4> rgAr;
     std::array<GuiSlider, Global::Fm::Op4> rgDr;
     std::array<GuiSlider, Global::Fm::Op4> rgSl;
@@ -119,15 +109,6 @@ public:
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        arTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        arTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        dr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        sl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rrTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        rrTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         egType{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -149,7 +130,6 @@ public:
         pmsTo64{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pmdTo7{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pmdTo14{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

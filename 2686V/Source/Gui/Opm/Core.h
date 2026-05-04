@@ -83,16 +83,6 @@ class GuiOpm : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> mul;
     std::array<GuiComboBox, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
-    std::array<GuiSlider, Global::Fm::Op4> tl;
-    std::array<GuiSlider, Global::Fm::Op4> ar;
-    std::array<GuiTextButton, Global::Fm::Op4> arTo000;
-    std::array<GuiTextButton, Global::Fm::Op4> arTo003;
-    std::array<GuiSlider, Global::Fm::Op4> d1r;
-    std::array<GuiSlider, Global::Fm::Op4> d1l;
-    std::array<GuiSlider, Global::Fm::Op4> d2r;
-    std::array<GuiSlider, Global::Fm::Op4> rr;
-    std::array<GuiTextButton, Global::Fm::Op4> rrTo000;
-    std::array<GuiTextButton, Global::Fm::Op4> rrTo003;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
@@ -104,7 +94,6 @@ class GuiOpm : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
-    std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
     std::array<GuiSlider, Global::Fm::Op4> rgAr;
     std::array<GuiSlider, Global::Fm::Op4> rgD1r;
     std::array<GuiSlider, Global::Fm::Op4> rgD2r;
@@ -144,16 +133,6 @@ public:
         mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        arTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        arTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rrTo000{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        rrTo003{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -164,7 +143,6 @@ public:
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
-        rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgD2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

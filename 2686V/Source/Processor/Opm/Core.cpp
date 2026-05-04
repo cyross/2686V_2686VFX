@@ -85,14 +85,15 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].multiple = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mul);
         params.opm.op[op].detune = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dt);
         params.opm.op[op].detune2 = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::dt2);
-        params.opm.op[op].attack = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ar);
-        params.opm.op[op].decay = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::d1r);
-        params.opm.op[op].sustain = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::d1l);
-        params.opm.op[op].release = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rr);
+        params.opm.op[op].attack = 0.0f;
+        params.opm.op[op].decay = 0.0f;
+        params.opm.op[op].sustain = 0.0f;
+        params.opm.op[op].release = 0.0f;
+        params.opm.op[op].sustainRate = 0.0f;
+        params.opm.op[op].totalLevel = 0.0f;
         params.opm.op[op].keyScale = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::ks);
         params.opm.op[op].keyScaleLevel = 0;
         params.opm.op[op].totalLevel = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::tl);
-        params.opm.op[op].sustainRate = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::d2r);
         params.opm.op[op].phaseOffset = 0.0f;
         params.opm.op[op].ssgEg = 0;
         params.opm.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::seFreq);
@@ -111,7 +112,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].mask = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::mask) > PrValue::boolThread);
 
         params.opm.op[op].isOplMode = false;
-        params.opm.op[op].regEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgEn) > PrValue::boolThread);
+        params.opm.op[op].regEnable = true;
         params.opm.op[op].rar = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgAr);
         params.opm.op[op].rdr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgD1r);
         params.opm.op[op].rsl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgD1l);

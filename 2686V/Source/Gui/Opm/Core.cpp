@@ -243,13 +243,6 @@ void GuiOpm::setup()
         dt2[i].setWantsKeyboardFocus(true);
         dt2[i].setExplicitFocusOrder(++tabOrder);
 
-        rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgEn, .title = GuiText::Fm::Op::RgEn, .isReset = true });
-        rgEn[i].setWantsKeyboardFocus(true);
-        rgEn[i].setExplicitFocusOrder(++tabOrder);
-        rgEn[i].onStateChange = [this, i] {
-            ctx.editor.resized();
-            };
-
         rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
         rgAr[i].setWantsKeyboardFocus(true);
         rgAr[i].setExplicitFocusOrder(++tabOrder);
@@ -273,50 +266,6 @@ void GuiOpm::setup()
         rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
-
-        ar[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ar, .title = GuiText::Fm::Op::Ar, .isReset = true, .regType = RegisterType::FmAr });
-        ar[i].setWantsKeyboardFocus(true);
-        ar[i].setExplicitFocusOrder(++tabOrder);
-
-        arTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-        arTo000[i].setWantsKeyboardFocus(true);
-        arTo000[i].setExplicitFocusOrder(++tabOrder);
-        arTo000[i].onClick = [this, index = i] { ar[index].setValue(0.00, juce::sendNotification); };
-
-        arTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-        arTo003[i].setWantsKeyboardFocus(true);
-        arTo003[i].setExplicitFocusOrder(++tabOrder);
-        arTo003[i].onClick = [this, index = i] { ar[index].setValue(0.03, juce::sendNotification); };
-
-        d1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d1r, .title = GuiText::Fm::Op::D1r, .isReset = true, .regType = RegisterType::FmDr });
-        d1r[i].setWantsKeyboardFocus(true);
-        d1r[i].setExplicitFocusOrder(++tabOrder);
-
-        d1l[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d1l, .title = GuiText::Fm::Op::D1l, .isReset = true, .regType = RegisterType::FmSl });
-        d1l[i].setWantsKeyboardFocus(true);
-        d1l[i].setExplicitFocusOrder(++tabOrder);
-
-        d2r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d2r, .title = GuiText::Fm::Op::D2r, .isReset = true, .regType = RegisterType::FmSr });
-        d2r[i].setWantsKeyboardFocus(true);
-        d2r[i].setExplicitFocusOrder(++tabOrder);
-
-        rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rr, .title = GuiText::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
-        rr[i].setWantsKeyboardFocus(true);
-        rr[i].setExplicitFocusOrder(++tabOrder);
-
-        rrTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo000, .isReset = false, .isResized = false });
-        rrTo000[i].setWantsKeyboardFocus(true);
-        rrTo000[i].setExplicitFocusOrder(++tabOrder);
-        rrTo000[i].onClick = [this, index = i] { rr[index].setValue(0.00, juce::sendNotification); };
-
-        rrTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo003, .isReset = false, .isResized = false });
-        rrTo003[i].setWantsKeyboardFocus(true);
-        rrTo003[i].setExplicitFocusOrder(++tabOrder);
-        rrTo003[i].onClick = [this, index = i] { rr[index].setValue(0.03, juce::sendNotification); };
-
-        tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
-        tl[i].setWantsKeyboardFocus(true);
-        tl[i].setExplicitFocusOrder(++tabOrder);
 
         ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ks, .title = GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
         ks[i].setWantsKeyboardFocus(true);
@@ -415,34 +364,17 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(GuiValue::Fm::Op::Padding::width, GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
-        bool rgMode = rgEn[i].getToggleState();
-
         layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
-        layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
-        updateRgDisplayAsOp(i, rgMode);
-        if (rgMode)
-        {
-            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
-        }
-        else
-        {
-            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i] });
-            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
-        }
+        updateRgDisplayAsOp(i, true);
+        layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], });
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
         layoutRow({ .rowRect = innerRect, .component = &fix[i] });
@@ -463,7 +395,6 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 void GuiOpm::applyMmlString(const juce::String& mml, int opIndex)
 {
     std::vector<RegisterUnit> units = RegisterConverter::convertToRegisterUnit(mml);
-    bool rgMode = rgEn[opIndex].getToggleState();
 
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
@@ -479,40 +410,16 @@ void GuiOpm::applyMmlString(const juce::String& mml, int opIndex)
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
-        { mmlPrefixTl,   [&](int v) {
-            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
-                   : tl[opIndex].setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
-        }},
-        { mmlPrefixO,    [&](int v) {
-            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
-                   : tl[opIndex].setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
-        }},
-        { mmlPrefixOl,   [&](int v) {
-            rgMode ? rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification)
-                   : tl[opIndex].setValue(RegisterConverter::convertFmTl(v), juce::sendNotification);
-        }},
+        { mmlPrefixTl,   [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixO,    [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
+        { mmlPrefixOl,   [&](int v) { rgTl[opIndex].setValue(RegisterConverter::convertFmRg127(v), juce::sendNotification); }},
 
         // --- エンベロープ系 (RGモードで分岐) ---
-        { mmlPrefixAr,   [&](int v) {
-            rgMode ? rgAr[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification)
-                   : ar[opIndex].setValue(RegisterConverter::convertFmAr(v), juce::sendNotification);
-        }},
-        { mmlPrefixD1r,   [&](int v) {
-            rgMode ? rgD1r[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification)
-                   : d1r[opIndex].setValue(RegisterConverter::convertFmDr(v), juce::sendNotification);
-        }},
-        { mmlPrefixD2r,   [&](int v) {
-            rgMode ? rgD2r[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification)
-                   : d2r[opIndex].setValue(RegisterConverter::convertFmSr(v), juce::sendNotification);
-        }},
-        { mmlPrefixD1l,   [&](int v) {
-            rgMode ? rgD1l[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
-                   : d1l[opIndex].setValue(RegisterConverter::convertFmSl(v), juce::sendNotification);
-        }},
-        { mmlPrefixRr,   [&](int v) {
-            rgMode ? rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification)
-                   : rr[opIndex].setValue(RegisterConverter::convertFmRr(v), juce::sendNotification);
-        }}
+        { mmlPrefixAr,   [&](int v) { rgAr[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD1r,   [&](int v) { rgD1r[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD2r,   [&](int v) { rgD2r[opIndex].setValue(RegisterConverter::convertFmRg31(v), juce::sendNotification); }},
+        { mmlPrefixD1l,   [&](int v) { rgD1l[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }},
+        { mmlPrefixRr,   [&](int v) { rgRr[opIndex].setValue(RegisterConverter::convertFmRg15(v), juce::sendNotification); }}
     };
 
     for (const auto& rUnit : units)
@@ -538,22 +445,6 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
     dt1[idx].label.setEnabled(enable);
     dt2[idx].setEnabled(enable);
     dt2[idx].label.setEnabled(enable);
-    ar[idx].setEnabled(enable);
-    ar[idx].label.setEnabled(enable);
-    arTo000[idx].setEnabled(enable);
-    arTo003[idx].setEnabled(enable);
-    d1r[idx].setEnabled(enable);
-    d1r[idx].label.setEnabled(enable);
-    d1l[idx].setEnabled(enable);
-    d1l[idx].label.setEnabled(enable);
-    rr[idx].setEnabled(enable);
-    rr[idx].label.setEnabled(enable);
-    rrTo000[idx].setEnabled(enable);
-    rrTo003[idx].setEnabled(enable);
-    d2r[idx].setEnabled(enable);
-    d2r[idx].label.setEnabled(enable);
-    tl[idx].setEnabled(enable);
-    tl[idx].label.setEnabled(enable);
     ks[idx].setEnabled(enable);
     ks[idx].label.setEnabled(enable);
     cafFix[idx].setEnabled(enable);
@@ -611,23 +502,6 @@ void GuiOpm::updateRgDisplayAsOp(int idx, bool rgMode)
     rgRr[idx].setVisible(rgMode);
     rgTl[idx].label.setVisible(rgMode);
     rgTl[idx].setVisible(rgMode);
-
-    ar[idx].label.setVisible(!rgMode);
-    ar[idx].setVisible(!rgMode);
-    arTo000[idx].setVisible(!rgMode);
-    arTo003[idx].setVisible(!rgMode);
-    d1r[idx].label.setVisible(!rgMode);
-    d1r[idx].setVisible(!rgMode);
-    d1l[idx].label.setVisible(!rgMode);
-    d1l[idx].setVisible(!rgMode);
-    d2r[idx].label.setVisible(!rgMode);
-    d2r[idx].setVisible(!rgMode);
-    rr[idx].label.setVisible(!rgMode);
-    rr[idx].setVisible(!rgMode);
-    rrTo000[idx].setVisible(!rgMode);
-    rrTo003[idx].setVisible(!rgMode);
-    tl[idx].label.setVisible(!rgMode);
-    tl[idx].setVisible(!rgMode);
 }
 
 void GuiOpm::updatePresetName(const juce::String& presetName)
