@@ -3,24 +3,26 @@
 #include <array>
 #include <vector>
 #include <span>
+
 #include "../Processor/PluginProcessor.h"
 #include "../Fm/SliderRegMap.h"
 #include "../Gui/GuiLF.h"
-#include "../../OPNA/GuiOpna.h"
-#include "../../OPN/GuiOpn.h"
-#include "../../OPL/GuiOpl.h"
-#include "../../OPL3/GuiOpl3.h"
-#include "../../OPM/GuiOpm.h"
-#include "../../OPZX3/GuiOpzx3.h"
-#include "../../SSG/GuiSsg.h"
-#include "../../WT/GuiWt.h"
-#include "../../RHYTHM/GuiRhythm.h"
-#include "../../ADPCM/GuiAdpcm.h"
-#include "../../BEEP/GuiBeep.h"
-#include "../../PRESET/GuiPreset.h"
-#include "../../FX/GuiFx.h"
-#include "../../SETTINGS/GuiSettings.h"
-#include "../../ABOUT/GuiAbout.h"
+
+#include "../../Gui/Opna/GuiOpna.h"
+#include "../../Gui/Opn/GuiOpn.h"
+#include "../../Gui/Opl/GuiOpl.h"
+#include "../../Gui/Opl3/GuiOpl3.h"
+#include "../../Gui/Opm/GuiOpm.h"
+#include "../../Gui/Opzx3/GuiOpzx3.h"
+#include "../../Gui/Ssg/GuiSsg.h"
+#include "../../Gui/Wavetable/GuiWt.h"
+#include "../../Gui/Rhythm/GuiRhythm.h"
+#include "../../Gui/Adpcm/GuiAdpcm.h"
+#include "../../Gui/Beep/GuiBeep.h"
+#include "../../Gui/Preset/GuiPreset.h"
+#include "../../Gui/Fx/GuiFx.h"
+#include "../../Gui/Settings/GuiSettings.h"
+#include "../../Gui/About/GuiAbout.h"
 
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,

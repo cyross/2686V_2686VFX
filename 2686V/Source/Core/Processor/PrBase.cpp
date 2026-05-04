@@ -1,10 +1,10 @@
 ﻿// プロセッサ処理の実装
 
-#include "PrBase.h"
+#include "./PrBase.h"
 
-#include "../Core/Const/PrKeys.h"
-#include "../Core/Const/PrNames.h"
-#include "../Core/Const/PrValues.h"
+#include "../Const/PrKeys.h"
+#include "../Const/PrNames.h"
+#include "../Const/PrValues.h"
 
 void PrBase::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
