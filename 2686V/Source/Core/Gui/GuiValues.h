@@ -142,7 +142,7 @@ namespace GuiValue
 
 		namespace Row
 		{
-			static inline constexpr int height = 18;
+			static inline constexpr int height = 15;
 			static inline constexpr int paddingTop = 3;
 			static inline constexpr int paddingBottom = 0;
 
@@ -247,7 +247,7 @@ namespace GuiValue
 		namespace Row
 		{
 			static inline constexpr int width = 226;
-			static inline constexpr int height = 15;
+			static inline constexpr int height = 12;
 			static inline constexpr int paddingTop = 3;
 			static inline constexpr int paddingBottom = 0;
 			static inline constexpr int paddingRight = 0;

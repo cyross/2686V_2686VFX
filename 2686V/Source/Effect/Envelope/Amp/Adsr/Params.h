@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class AdsrParams {
+class AmpAdsrParams {
 public:
 	float ar = 0.01f;
 	float dr = 0.0f;

@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include "../../Effect/Envelope/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
 
 struct SsgParams
 {
@@ -36,7 +37,10 @@ struct SsgParams
     // --- ADSR Filter ---
 
     // Params
-    AdsrParams adsr;
+    AmpAdsrParams adsr;
+
+    // --- Pitch Envelope ---
+	PitchAdsrParams pitchAdsr;
 
     // --- Waveform ---
     // 0: Pulse, 1: Triangle

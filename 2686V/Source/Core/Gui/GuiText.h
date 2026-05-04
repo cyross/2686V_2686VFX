@@ -48,6 +48,7 @@ namespace GuiText
 		static inline const juce::String swLfo = "--- SW LFO ---";
 		static inline const juce::String n88Lfo = "--- N88 LFO ---";
 		static inline const juce::String adsr = "--- ADSR ---";
+		static inline const juce::String pitchAdsr = "--- PITCH ENV ---";
 		static inline const juce::String fix = "--- FIX ---";
 		static inline const juce::String mvol = "--- MASTER VOLUME ---";
 		static inline const juce::String shape = "--- SHAPE ---";
@@ -97,11 +98,27 @@ namespace GuiText
 
 	namespace Adsr
 	{
-		static inline const juce::String bypass = "Bypass ADSR";
+		static inline const juce::String bypass = "Bypass";
 		static inline const juce::String ar = " AR";
 		static inline const juce::String dr = " DR";
 		static inline const juce::String sl = " SL";
 		static inline const juce::String rr = " RR";
+		static inline const juce::String ArTo000 = "-> 0.00";
+		static inline const juce::String ArTo003 = "-> 0.03";
+		static inline const juce::String RrTo000 = "-> 0.00";
+		static inline const juce::String RrTo003 = "-> 0.03";
+	}
+
+	namespace PitchAdsr
+	{
+		static inline const juce::String bypass = "Bypass";
+		static inline const juce::String ar = " AR";
+		static inline const juce::String dr = " DR";
+		static inline const juce::String rr = " RR";
+		static inline const juce::String stl = " STL";
+		static inline const juce::String atl = " ATL";
+		static inline const juce::String ssl = " SSL";
+		static inline const juce::String rll = " RLL";
 		static inline const juce::String ArTo000 = "-> 0.00";
 		static inline const juce::String ArTo003 = "-> 0.03";
 		static inline const juce::String RrTo000 = "-> 0.00";

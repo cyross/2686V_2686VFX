@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Effect/Envelope/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/Adsr/Params.h"
 
 struct AdpcmParams
 {
@@ -22,5 +22,5 @@ struct AdpcmParams
     // --- ADSR Filter ---
 
     // Params
-    AdsrParams adsr;
+    AmpAdsrParams adsr;
 };

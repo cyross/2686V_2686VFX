@@ -22,6 +22,9 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // ADSR Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Ssg::Post::Adsr::bypass, PrValue::Adsr::Bypass::initial));
 
+    // PitchEnv Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, code + PrName::PitchAdsr::Post::bypass, PrValue::PitchAdsr::Bypass::initial));
+
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::mode, code + PrName::Ssg::Post::Duty::mode, PrValue::Ssg::Duty::Mode::min, PrValue::Ssg::Duty::Mode::max, PrValue::Ssg::Duty::Mode::initial)); // Duty Mode: 0=Preset, 1=Variable
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::preset, code + PrName::Ssg::Post::Duty::preset, PrValue::Ssg::Duty::Preset::min, PrValue::Ssg::Duty::Preset::max, PrValue::Ssg::Duty::Preset::initial)); // Preset: 0~8
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Ssg::Duty::var, code + PrName::Ssg::Post::Duty::var, PrValue::Ssg::Duty::Var::min, PrValue::Ssg::Duty::Var::max, PrValue::Ssg::Duty::Var::initial)); // Variable: 0.0 ~ 0.5
@@ -46,6 +49,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Ssg::HwEnv::period, code + PrName::Ssg::Post::HwEnv::period, PrValue::Ssg::HwEnv::Period::min, PrValue::Ssg::HwEnv::Period::max, PrValue::Ssg::HwEnv::Period::initial)); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
 
     addEnvParameters(layout, code);
+    addPitchEnvParameters(layout, code);
 }
 
 void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -76,6 +80,15 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
     params.ssg.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);
     params.ssg.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::rr);
+
+    params.ssg.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass) > PrValue::boolThread);
+    params.ssg.pitchAdsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::ar);
+    params.ssg.pitchAdsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::dr);
+    params.ssg.pitchAdsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::rr);
+    params.ssg.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::stl);
+    params.ssg.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::atl);
+    params.ssg.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::ssl);
+    params.ssg.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::rll);
 
     params.ssg.useHwEnv = (*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::enable) > PrValue::boolThread);
     params.ssg.envShape = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::HwEnv::shape);

@@ -13,12 +13,28 @@ namespace PrName
 	{
 		namespace Post
 		{
+			static inline const juce::String bypass = " ADSR Bypass";
 			static inline const juce::String ar = " AR";
 			static inline const juce::String dr = " DR";
 			static inline const juce::String sl = " SL";
 			static inline const juce::String rr = " RR";
 		}
 	}
+
+	namespace PitchAdsr
+	{
+		namespace Post
+		{
+			static inline const juce::String bypass = " PITCH-ENV Bypass";
+			static inline const juce::String ar = " PITCH-ENV AR";
+			static inline const juce::String dr = " PITCH-ENV DR";
+			static inline const juce::String rr = " PITCH-ENV RR";
+			static inline const juce::String stl = " PITCH-ENV STL";
+			static inline const juce::String atl = " PITCH-ENV ATL";
+			static inline const juce::String ssl = " PITCH-ENV SSL";
+			static inline const juce::String rll = " PITCH-ENV RLL";
+		}
+	};
 
 	namespace Fm
 	{
