@@ -9,14 +9,13 @@
 class GuiFx : public GuiBase
 {
     GuiGroup mainGroup;
+
     GuiGroup tremGroup;
     GuiGroup vibGroup;
     GuiGroup mbcGroup;
     GuiGroup delayGroup;
     GuiGroup reverbGroup;
-    GuiGroup rbcGroup;
     GuiGroup filterGroup;
-    GuiGroup softClipperGroup;
 
     GuiCategoryLabel bypassCat;
 
@@ -28,17 +27,6 @@ class GuiFx : public GuiBase
     GuiMasterVolumeSlider masterVolSlider;
 
     // 以降、エフェクトごとの設定
-
-    // レトロLFO(Retro LFO)
-    GuiGroup rlfoGroup;
-    GuiCategoryLabel rlfoBypassCat;
-    GuiToggleButton rlfoBypassBtn;
-    GuiCategoryLabel rlfoMainCat;
-    GuiComboBox rlfoWaveSelector;
-    GuiSlider rlfoFreqSlider, rlfoAmsSlider, rlfoPmsSlider, rlfoAmdSlider, rlfoPmdSlider;
-    GuiCategoryLabel rlfoMixCat;
-    GuiSlider rlfoMixSlider;
-    GuiTextButton rlfoDryBtn, rlfoHalfBtn, rlfoWetBtn;
 
     // トレモロ(Tremolo)
     GuiCategoryLabel tBypassCat;
@@ -85,15 +73,6 @@ class GuiFx : public GuiBase
     GuiSlider rMixSlider;
     GuiTextButton rDryBtn, rHalfBtn, rWetBtn;
 
-    // Retro Bit Crusher
-    GuiCategoryLabel rbcBypassCat;
-    GuiToggleButton rbcBypassBtn;
-    GuiCategoryLabel rbcMainCat;
-    GuiComboBox rbcRateSelector, rbcBitsSelector;
-    GuiCategoryLabel rbcMixCat;
-    GuiSlider rbcMixSlider;
-    GuiTextButton rbcDryBtn, rbcHalfBtn, rbcWetBtn;
-
     // Filter
     GuiCategoryLabel flBypassCat;
     GuiToggleButton flBypassBtn;
@@ -104,13 +83,6 @@ class GuiFx : public GuiBase
     GuiCategoryLabel flMixCat;
     GuiSlider flMixSlider;
     GuiTextButton flDryBtn, flHalfBtn, flWetBtn;
-
-    // Soft Clipper
-    GuiCategoryLabel scBypassCat;
-    GuiToggleButton scBypassBtn;
-    GuiCategoryLabel scMixCat;
-    GuiSlider scMixSlider;
-    GuiTextButton scDryBtn, scHalfBtn, scWetBtn;
 public:
 	GuiFx(const GuiContext& context) :
         GuiBase(context),
@@ -120,28 +92,11 @@ public:
         mbcGroup(context),
         delayGroup(context),
         reverbGroup(context),
-        rbcGroup(context),
         filterGroup(context),
-        softClipperGroup(context),
         bypassCat(context),
         bypassToggle(context),
         mvolCat(context),
         masterVolSlider(context),
-        rlfoGroup(context),
-        rlfoBypassCat(context),
-        rlfoBypassBtn(context),
-        rlfoMainCat(context),
-        rlfoWaveSelector(context),
-        rlfoFreqSlider(context),
-        rlfoAmsSlider(context),
-        rlfoPmsSlider(context),
-        rlfoAmdSlider(context),
-        rlfoPmdSlider(context),
-        rlfoMixCat(context),
-        rlfoMixSlider(context),
-        rlfoDryBtn(context),
-        rlfoHalfBtn(context),
-        rlfoWetBtn(context),
         tBypassCat(context),
         tBypassBtn(context),
         tMainCat(context),
@@ -192,16 +147,6 @@ public:
         rDryBtn(context),
         rHalfBtn(context),
         rWetBtn(context),
-        rbcBypassCat(context),
-        rbcBypassBtn(context),
-        rbcMainCat(context),
-        rbcRateSelector(context),
-        rbcBitsSelector(context),
-        rbcMixCat(context),
-        rbcMixSlider(context),
-        rbcDryBtn(context),
-        rbcHalfBtn(context),
-        rbcWetBtn(context),
         flBypassCat(context),
         flBypassBtn(context),
         flMainCat(context),
@@ -212,14 +157,7 @@ public:
         flMixSlider(context),
         flDryBtn(context),
         flHalfBtn(context),
-        flWetBtn(context),
-        scBypassCat(context),
-        scBypassBtn(context),
-        scMixCat(context),
-        scMixSlider(context),
-        scDryBtn(context),
-        scHalfBtn(context),
-        scWetBtn(context)
+        flWetBtn(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }

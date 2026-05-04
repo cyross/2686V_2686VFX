@@ -101,18 +101,6 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
         return;
     }
 
-    // Retro LFO
-    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
-    bool rlfoB = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::bypass) > PrValue::boolThread;
-    int rlfoWave = (int)*apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::wave);
-    float rlfoFreq = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::freq);
-    float rlfoAms = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::ams);
-    float rlfoPms = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::pms);
-    float rlfoAmd = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::amd);
-    float rlfoPmd = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::RLfo::pmd);
-    float rlfoMix = *apvts.getRawParameterValue(rlfoPrefix + PrKey::Post::Fx::mix);
-    effects.setRetroLfoParams(rlfoWave, rlfoFreq, rlfoAms, rlfoPms, rlfoAmd, rlfoPmd, rlfoMix);
-
     // Filter
     const juce::String filterPrefix = code + PrKey::Innder::Fx::fil;
     bool flB = *apvts.getRawParameterValue(filterPrefix + PrKey::Post::bypass) > PrValue::boolThread;
@@ -160,25 +148,10 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     float rSize = *apvts.getRawParameterValue(rvbPrefix + PrKey::Post::Fx::Reverb::size);
     float rDamp = *apvts.getRawParameterValue(rvbPrefix + PrKey::Post::Fx::Reverb::damp);
     float rMix = *apvts.getRawParameterValue(rvbPrefix + PrKey::Post::Fx::mix);
-
-    // Retro Bit Crusher
-    const juce::String rbcPrefix = code + PrKey::Innder::Fx::rbc;
-    bool rcB = *apvts.getRawParameterValue(rbcPrefix + PrKey::Post::bypass) > PrValue::boolThread;
-    int rbcRate = (int)*apvts.getRawParameterValue(rbcPrefix + PrKey::Post::Fx::Rbc::rate);
-    int rbcBits = (int)*apvts.getRawParameterValue(rbcPrefix + PrKey::Post::Fx::Rbc::bit);
-    float rbcMix = *apvts.getRawParameterValue(rbcPrefix + PrKey::Post::Fx::mix);
-    effects.setRetroBitCrusherParams(rbcRate, rbcBits, rbcMix);
-
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
-    // Soft Clipper (tanH)
-    const juce::String sclPrefix = code + PrKey::Innder::Fx::scl;
-    bool scB = *apvts.getRawParameterValue(sclPrefix + PrKey::Post::bypass) > PrValue::boolThread;
-    float scMix = *apvts.getRawParameterValue(sclPrefix + PrKey::Post::Fx::mix);
-    effects.setSoftClipperParams(scMix);
-
     // バイパス設定
-    effects.setBypasses(flB, rlfoB, tB, vB, mcB, rcB, dB, rB, scB);
+    effects.setBypasses(flB, tB, vB, mcB, dB, rB);
 
     // エフェクト処理実行
     effects.process(buffer);

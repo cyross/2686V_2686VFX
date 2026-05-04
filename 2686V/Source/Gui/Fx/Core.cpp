@@ -8,37 +8,10 @@
 #include "../../Core/Gui/GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
-static std::vector<SelectItem> qualityItems = {
-    {.name = "1: Raw (32bit)", .value = 1 },
-    {.name = "2: 24-bit PCM",  .value = 2 },
-    {.name = "3: 16-bit PCM",  .value = 3 },
-    {.name = "4: 8-bit PCM",   .value = 4 },
-    {.name = "5: 5-bit PCM",   .value = 5 },
-    {.name = "6: 4-bit PCM",   .value = 6 },
-    {.name = "7: 4-bit ADPCM", .value = 7 },
-};
-
-static std::vector<SelectItem> rateItems = {
-    {.name = "1: 96kHz",    .value = 1 },
-    {.name = "2: 55.5kHz",  .value = 2 },
-    {.name = "3: 48kHz",    .value = 3 },
-    {.name = "4: 44.1kHz",  .value = 4 },
-    {.name = "5: 22.05kHz", .value = 5 },
-    {.name = "6: 16kHz",    .value = 6 },
-    {.name = "7: 8kHz",     .value = 7 },
-};
-
 static std::vector<SelectItem> flTypeItems = {
     {.name = "LPF (Low Pass)",  .value = 1 },
     {.name = "HPF (High Pass)", .value = 2 },
     {.name = "BPF (Band Pass)", .value = 3 }
-};
-
-static std::vector<SelectItem> rlfoWaves = {
-    {"Saw",      1},
-    {"Square",   2},
-    {"Triangle", 3},
-    {"Noise",    4}
 };
 
 void GuiFx::setup()
@@ -104,59 +77,6 @@ void GuiFx::setup()
     flWetBtn.onClick = [&] { flMixSlider.setValue(1.0f); };
     flWetBtn.setWantsKeyboardFocus(true);
     flWetBtn.setExplicitFocusOrder(++tabOrder);
-
-    // Retro LFO Group
-    rlfoGroup.setup(*this, GuiText::Group::fxRLfo);
-    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
-
-    rlfoBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
-    rlfoBypassBtn.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
-    rlfoBypassBtn.setWantsKeyboardFocus(true);
-    rlfoBypassBtn.setExplicitFocusOrder(++tabOrder);
-
-    rlfoMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-
-    rlfoWaveSelector.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::wave, .title = GuiText::Fx::Rlfo::wave, .items = rlfoWaves, .isReset = true });
-    rlfoWaveSelector.setWantsKeyboardFocus(true);
-    rlfoWaveSelector.setExplicitFocusOrder(++tabOrder);
-
-    rlfoFreqSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::freq, .title = GuiText::Fx::Rlfo::freq, .isReset = true });
-    rlfoFreqSlider.setWantsKeyboardFocus(true);
-    rlfoFreqSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoPmsSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::pms, .title = GuiText::Fx::Rlfo::pms, .isReset = true });
-    rlfoPmsSlider.setWantsKeyboardFocus(true);
-    rlfoPmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoPmdSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::pmd, .title = GuiText::Fx::Rlfo::pmd, .isReset = true });
-    rlfoPmdSlider.setWantsKeyboardFocus(true);
-    rlfoPmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoAmsSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::ams, .title = GuiText::Fx::Rlfo::ams, .isReset = true });
-    rlfoAmsSlider.setWantsKeyboardFocus(true);
-    rlfoAmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoAmdSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::RLfo::amd, .title = GuiText::Fx::Rlfo::amd, .isReset = true });
-    rlfoAmdSlider.setWantsKeyboardFocus(true);
-    rlfoAmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
-
-    rlfoMixSlider.setup({ .parent = *this, .id = rlfoPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
-    rlfoMixSlider.setWantsKeyboardFocus(true);
-    rlfoMixSlider.setExplicitFocusOrder(++tabOrder);
-
-    rlfoDryBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::dry }); rlfoDryBtn.onClick = [&] { rlfoMixSlider.setValue(0.0f); };
-    rlfoDryBtn.setWantsKeyboardFocus(true);
-    rlfoDryBtn.setExplicitFocusOrder(++tabOrder);
-
-    rlfoHalfBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::mix }); rlfoHalfBtn.onClick = [&] { rlfoMixSlider.setValue(0.5f); };
-    rlfoHalfBtn.setWantsKeyboardFocus(true);
-    rlfoHalfBtn.setExplicitFocusOrder(++tabOrder);
-
-    rlfoWetBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::wet }); rlfoWetBtn.onClick = [&] { rlfoMixSlider.setValue(1.0f); };
-    rlfoWetBtn.setWantsKeyboardFocus(true);
-    rlfoWetBtn.setExplicitFocusOrder(++tabOrder);
 
     // Tremolo Group
 	tremGroup.setup(*this, GuiText::Group::fxTremolo);
@@ -361,76 +281,6 @@ void GuiFx::setup()
     rWetBtn.setWantsKeyboardFocus(true);
     rWetBtn.setExplicitFocusOrder(++tabOrder);
     rWetBtn.onClick = [&] { rMixSlider.setValue(1.0f); };
-
-    // Retro Bit Crusher Group
-	rbcGroup.setup(*this, GuiText::Group::fxRbc);
-    const juce::String rbcPrefix = code + PrKey::Innder::Fx::rbc;
-    rbcBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
-
-    rbcBypassBtn.setup({ .parent = *this, .id = rbcPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
-    rbcBypassBtn.setWantsKeyboardFocus(true);
-    rbcBypassBtn.setExplicitFocusOrder(++tabOrder);
-
-    rbcMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
-
-    rbcBitsSelector.setup({ .parent = *this, .id = rbcPrefix + PrKey::Post::Fx::Rbc::bit, .title = GuiText::Fx::Rbc::quality, .items = qualityItems, .isReset = true });
-    rbcBitsSelector.setWantsKeyboardFocus(true);
-    rbcBitsSelector.setExplicitFocusOrder(++tabOrder);
-
-    rbcRateSelector.setup({ .parent = *this, .id = rbcPrefix + PrKey::Post::Fx::Rbc::rate, .title = GuiText::Fx::Rbc::rate, .items = rateItems, .isReset = true });
-    rbcRateSelector.setWantsKeyboardFocus(true);
-    rbcRateSelector.setExplicitFocusOrder(++tabOrder);
-
-    rbcMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
-
-    rbcMixSlider.setup({ .parent = *this, .id = rbcPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
-    rbcMixSlider.setWantsKeyboardFocus(true);
-    rbcMixSlider.setExplicitFocusOrder(++tabOrder);
-
-    rbcDryBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::dry });
-    rbcDryBtn.setWantsKeyboardFocus(true);
-    rbcDryBtn.setExplicitFocusOrder(++tabOrder);
-    rbcDryBtn.onClick = [&] { rbcMixSlider.setValue(0.0f); };
-
-    rbcHalfBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::mix });
-    rbcHalfBtn.setWantsKeyboardFocus(true);
-    rbcHalfBtn.setExplicitFocusOrder(++tabOrder);
-    rbcHalfBtn.onClick = [&] { rbcMixSlider.setValue(0.5f); };
-
-    rbcWetBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::wet });
-    rbcWetBtn.setWantsKeyboardFocus(true);
-    rbcWetBtn.setExplicitFocusOrder(++tabOrder);
-    rbcWetBtn.onClick = [&] { rbcMixSlider.setValue(1.0f); };
-
-    // Soft Clipper Group
-    softClipperGroup.setup(*this, GuiText::Group::fxSoftClipper);
-    const juce::String sclPrefix = code + PrKey::Innder::Fx::scl;
-    scBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
-
-    scBypassBtn.setup({ .parent = *this, .id = sclPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
-    scBypassBtn.setWantsKeyboardFocus(true);
-    scBypassBtn.setExplicitFocusOrder(++tabOrder);
-
-    scMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
-
-    scMixSlider.setup({ .parent = *this, .id = sclPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
-    scMixSlider.setWantsKeyboardFocus(true);
-    scMixSlider.setExplicitFocusOrder(++tabOrder);
-
-    scDryBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::dry });
-    scDryBtn.onClick = [&] { scMixSlider.setValue(0.0f); };
-    scDryBtn.setWantsKeyboardFocus(true);
-    scDryBtn.setExplicitFocusOrder(++tabOrder);
-
-    scHalfBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::mix });
-    scHalfBtn.onClick = [&] { scMixSlider.setValue(0.5f); };
-    scHalfBtn.setWantsKeyboardFocus(true);
-    scHalfBtn.setExplicitFocusOrder(++tabOrder);
-
-    scWetBtn.setup({ .parent = *this, .title = GuiText::Fx::Mix::wet });
-    scWetBtn.onClick = [&] { scMixSlider.setValue(1.0f); };
-    scWetBtn.setWantsKeyboardFocus(true);
-    scWetBtn.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiFx::layout(juce::Rectangle<int> content)
@@ -476,28 +326,6 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowCategory({ .rowRect = flRect, .label = &flMixCat });
     layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider });
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0});
-
-    // Retro LFO
-    auto rlfoArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
-
-    rlfoGroup.setBounds(rlfoArea);
-
-    auto rlfoRect = rlfoArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-
-    rlfoRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
-
-    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoBypassCat });
-    layoutRow({ .rowRect = rlfoRect, .component = &rlfoBypassBtn });
-    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoMainCat });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoWaveSelector.label, .component = &rlfoWaveSelector });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoFreqSlider.label, .component = &rlfoFreqSlider });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmsSlider.label, .component = &rlfoPmsSlider });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoPmdSlider.label, .component = &rlfoPmdSlider });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmsSlider.label, .component = &rlfoAmsSlider });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoAmdSlider.label, .component = &rlfoAmdSlider });
-    layoutRowCategory({ .rowRect = rlfoRect, .label = &rlfoMixCat });
-    layoutRow({ .rowRect = rlfoRect, .label = &rlfoMixSlider.label, .component = &rlfoMixSlider });
-    layoutRowThreeComps({ .rect = rlfoRect, .comp1 = &rlfoDryBtn, .comp2 = &rlfoHalfBtn, .comp3 = &rlfoWetBtn, .paddingBottom = 0 });
 
     // Tremolo
     auto trmArea = topCol.removeFromLeft(GuiValue::Fm::Op::width);
@@ -591,40 +419,4 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowCategory({ .rowRect = rvbRect, .label = &rMixCat });
     layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider });
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0 });
-
-    // Retro Bit Crusher
-    auto rbcArea = centerCol.removeFromLeft(GuiValue::Fm::Op::width);
-
-    rbcGroup.setBounds(rbcArea);
-
-    auto rbcRect = rbcArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-
-    rbcRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
-
-    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcBypassCat });
-    layoutRow({ .rowRect = rbcRect, .component = &rbcBypassBtn });
-    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcMainCat });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcBitsSelector.label, .component = &rbcBitsSelector });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcRateSelector.label, .component = &rbcRateSelector });
-    layoutRowCategory({ .rowRect = rbcRect, .label = &rbcMixCat });
-    layoutRow({ .rowRect = rbcRect, .label = &rbcMixSlider.label, .component = &rbcMixSlider });
-    layoutRowThreeComps({ .rect = rbcRect, .comp1 = &rbcDryBtn, .comp2 = &rbcHalfBtn, .comp3 = &rbcWetBtn, .paddingBottom = 0 });
-
-
-    // 3rd Row
-
-    // Soft Clipper
-    auto scArea = bottomCol.removeFromLeft(GuiValue::Fm::Op::width);
-
-    softClipperGroup.setBounds(scArea);
-
-    auto scRect = scArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-
-    scRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
-
-    layoutRowCategory({ .rowRect = scRect, .label = &scBypassCat });
-    layoutRow({ .rowRect = scRect, .component = &scBypassBtn });
-    layoutRowCategory({ .rowRect = scRect, .label = &scMixCat });
-    layoutRow({ .rowRect = scRect, .label = &scMixSlider.label, .component = &scMixSlider });
-    layoutRowThreeComps({ .rect = scRect, .comp1 = &scDryBtn, .comp2 = &scHalfBtn, .comp3 = &scWetBtn, .paddingBottom = 0 });
 }
