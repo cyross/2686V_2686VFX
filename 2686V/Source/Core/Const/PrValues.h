@@ -37,14 +37,14 @@ namespace PrValue
 		namespace Ar
 		{
 			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 10.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.03f; // 初期値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
 		namespace Dr
 		{
 			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 100.0f;  // 最大値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
@@ -58,21 +58,21 @@ namespace PrValue
 		namespace Sr
 		{
 			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 100.0f;  // 最大値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
 		namespace Rr
 		{
 			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 100.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.03f; // 初期値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
 		namespace D1r
 		{
 			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 100.0f; // 最大値（秒）
+			inline constexpr float max = 5.0f; // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
@@ -86,7 +86,7 @@ namespace PrValue
 		namespace D2r
 		{
 			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 100.0f; // 最大値（秒）
+			inline constexpr float max = 5.0f; // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 	}
