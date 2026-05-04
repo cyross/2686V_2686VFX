@@ -7,6 +7,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Adsr/Core.h"
+#include "../../Generator/Noise/Ssg/Core.h"
 
 class SsgCore : public SynthCore
 {
@@ -56,6 +57,7 @@ private:
     float m_triFreq = 440.0f;
 
     // Noise LFSR Params
+    SsgNoiseGen m_noiseGen;
     unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)
     float m_noisePhase = 0.0f;
     float m_noiseDelta = 0.0f;
@@ -66,6 +68,7 @@ private:
 
     // Rate / Quality Params
     int m_rateIndex = 1; // Default 55.5k
+    double m_targetRate = 44100.0;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_quantizeSteps = 15.0f; // Default 4bit
@@ -83,6 +86,5 @@ private:
     float m_lfoFreq = 5.0f;
 
     void updateIncrements();
-    void updateNoiseFrequency();
     void updatePhaseDelta();
 };

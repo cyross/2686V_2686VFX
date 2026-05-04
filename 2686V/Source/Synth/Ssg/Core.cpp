@@ -24,25 +24,28 @@ namespace {
 }
 
 SsgCore::SsgCore() : SynthCore() {
-    m_lfsr = 0x1FFFF;
 }
 
 void SsgCore::prepare(double sampleRate) {
-    if (sampleRate > 0.0) m_sampleRate = sampleRate;
+    if (sampleRate > 0.0) {
+        m_sampleRate = sampleRate;
+    }
+
+    m_noiseGen.prepare(getTargetRate(m_rateIndex));
 
     updateIncrements();
     updatePhaseDelta();
 }
 
-void SsgCore::setSampleRate(double sampleRate) { m_sampleRate = sampleRate; updateIncrements(); }
+void SsgCore::setSampleRate(double sampleRate) {
+    m_sampleRate = sampleRate;
+    updateIncrements();
+}
 
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
-    m_noiseLevel = params.ssg.noiseLevel;
     m_mix = params.ssg.mix;
-    m_baseNoiseFreq = params.ssg.noiseFreq;
-    m_noiseOnNote = params.ssg.noiseOnNote;
 
     m_adsr.setParameters(params.ssg.adsr);
 
@@ -61,14 +64,20 @@ void SsgCore::setParameters(const SynthParams& params)
     m_triPeak = params.ssg.triPeak;
     m_triFreq = params.ssg.triFreq;
 
+    m_noiseGen.setParameters(params.ssg.noiseLevel, params.ssg.noiseFreq, params.ssg.noiseOnNote);
+
     if (m_rateIndex != params.ssg.rateIndex) {
         m_rateIndex = params.ssg.rateIndex;
+        m_noiseGen.updateTargetRate(getTargetRate(m_rateIndex));
     }
+
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 
     m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
 
     updateIncrements();
-    updateNoiseFrequency();
+
     updatePhaseDelta();
 }
 
@@ -77,7 +86,8 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     m_currentFrequency = freq; // Save for recalculation
     m_phase = 0.0f;
 
-    updateNoiseFrequency();
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 
     updatePhaseDelta();
 
@@ -257,30 +267,14 @@ float SsgCore::getSample()
         // ==========================================
         // 3. Noise Generator
         // ==========================================
-        if (m_targetNoiseFreq > 0.001f)
-        {
-            m_noisePhase += m_noiseDelta;
-            while (m_noisePhase >= 1.0f)
-            {
-                m_noisePhase -= 1.0f;
-                unsigned int bit0 = m_lfsr & 1;
-                unsigned int bit3 = (m_lfsr >> 3) & 1;
-                unsigned int nextBit = bit0 ^ bit3;
-                m_lfsr >>= 1;
-                if (nextBit) m_lfsr |= (1 << 16);
-                m_currentNoiseSample = (m_lfsr & 1) ? 1.0f : -1.0f;
-            }
-        }
-        else {
-            m_currentNoiseSample = 0.0f;
-        }
+        m_noiseGen.generate();
 
         // ==========================================
         // 4. Mixing
         // ==========================================
         float toneGain = 1.0f - m_mix;
         float noiseGain = m_mix;
-        float rawMixed = (toneSample * m_level * toneGain) + (m_currentNoiseSample * m_noiseLevel * noiseGain);
+        float rawMixed = (toneSample * m_level * toneGain) + m_noiseGen.generateSample(noiseGain);
 
         rawMixed *= hwEnvGain;
 
@@ -320,23 +314,11 @@ void SsgCore::updateIncrements()
     m_releaseDec = 1.0f / (float)(std::max(0.001f, m_adsr.rr) * m_sampleRate);
 }
 
-void SsgCore::updateNoiseFrequency()
-{
-    if (m_noiseOnNote) {
-        // ONの時：キーボードの音程に合わせてノイズの周波数を上下させる
-        m_targetNoiseFreq = m_baseNoiseFreq * (m_currentFrequency / 440.0);
-    }
-    else {
-        // OFFの時：スライダーで設定したノイズ周波数に固定する
-        m_targetNoiseFreq = m_baseNoiseFreq;
-    }
-}
-
 void SsgCore::updatePhaseDelta() {
     double targetRate = getTargetRate(m_rateIndex);
+
     if (targetRate > 0.0) {
         m_phaseDelta = m_currentFrequency / targetRate;
-        m_noiseDelta = m_targetNoiseFreq / targetRate;
     }
 }
 

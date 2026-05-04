@@ -49,6 +49,42 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthHelpers.cpp"
 )
 
+set(FM_BASIC_ALG_FILES
+    "Source/Generator/Fm/Alg/Basic/Core.h"
+    "Source/Generator/Fm/Alg/Basic/Core.cpp"
+)
+
+set(FM_OPL_ALG_FILES
+    "Source/Generator/Fm/Alg/Opl/Core.h"
+    "Source/Generator/Fm/Alg/Opl/Core.cpp"
+)
+
+set(FM_OPL3_ALG_FILES
+    "Source/Generator/Fm/Alg/Opl3/Core.h"
+    "Source/Generator/Fm/Alg/Opl3/Core.cpp"
+)
+
+set(FM_OPZX3_ALG_FILES
+    "Source/Generator/Fm/Alg/Opzx3/Core.h"
+    "Source/Generator/Fm/Alg/Opzx3/Core.cpp"
+)
+
+set(FM_FIX_FILES
+    "Source/Generator/Fm/Fix/Params.h"
+    "Source/Generator/Fm/Fix/Core.h"
+    "Source/Generator/Fm/Fix/Core.cpp"
+)
+
+set(LFSR_NOISE_GEN_FILES
+    "Source/Generator/Noise/Lfsr/Core.h"
+    "Source/Generator/Noise/Lfsr/Core.cpp"
+)
+
+set(SSG_NOISE_GEN_FILES
+    "Source/Generator/Noise/Ssg/Core.h"
+    "Source/Generator/Noise/Ssg/Core.cpp"
+)
+
 set(PCM_GENERATOR_FILES
     "Source/Generator/Pcm/Core.h"
     "Source/Generator/Pcm/Core.cpp"
@@ -340,60 +376,68 @@ set(ABOUT_GUI_FILES
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
-source_group("Core\\Const" FILES ${CONST_FILES})
-source_group("Core\\Synth" FILES ${SYNTH_FILES})
-source_group("Core\\Fm" FILES ${FM_FILES})
-source_group("Core\\Gui" FILES ${GUI_FILES})
-source_group("Core\\Processor" FILES ${PROCESSOR_FILES})
-source_group("Core\\Editor" FILES ${EDITOR_FILES})
-source_group("Core\\Docs" FILES ${DOCUMENT_FILES})
-source_group("Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
-source_group("Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
-source_group("Synth\\Opn" FILES ${OPN_SYNTH_FILES})
-source_group("Synth\\Opl" FILES ${OPL_SYNTH_FILES})
-source_group("Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
-source_group("Synth\\Opm" FILES ${OPM_SYNTH_FILES})
-source_group("Synth\\Opzx3" FILES ${OPZX3_SYNTH_FILES})
-source_group("Synth\\Opna\\Operator" FILES ${OPNA_OPERATOR_FILES})
-source_group("Synth\\Opn\\Operator" FILES ${OPN_OPERATOR_FILES})
-source_group("Synth\\Opl\\Operator" FILES ${OPL_OPERATOR_FILES})
-source_group("Synth\\Opl3\\Operator" FILES ${OPL3_OPERATOR_FILES})
-source_group("Synth\\Opm\\Operator" FILES ${OPM_OPERATOR_FILES})
-source_group("Synth\\Opzx3\\Operator" FILES ${OPZX3_OPERATOR_FILES})
-source_group("Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
-source_group("Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
-source_group("Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
-source_group("Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
-source_group("Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
-source_group("Effect\\Envelope\\Adsr" FILES ${ADSR_ENVELOPE_FILES})
-source_group("Effect\\Fx" FILES ${FX_EFFECT_FILES})
-source_group("Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
-source_group("Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
-source_group("Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
-source_group("Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
-source_group("Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
-source_group("Processor\\Opzx3" FILES ${OPZX3_PROCESSOR_FILES})
-source_group("Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
-source_group("Processor\\Wavetable" FILES ${WT_PROCESSOR_FILES})
-source_group("Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
-source_group("Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
-source_group("Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
-source_group("Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
-source_group("Gui\\Opna" FILES ${OPNA_GUI_FILES})
-source_group("Gui\\Opn" FILES ${OPN_GUI_FILES})
-source_group("Gui\\Opl" FILES ${OPL_GUI_FILES})
-source_group("Gui\\Opl3" FILES ${OPL3_GUI_FILES})
-source_group("Gui\\Opm" FILES ${OPM_GUI_FILES})
-source_group("Gui\\Opzx3" FILES ${OPZX3_GUI_FILES})
-source_group("Gui\\Ssg" FILES ${SSG_GUI_FILES})
-source_group("Gui\\Wavetable" FILES ${WT_GUI_FILES})
-source_group("Gui\\Rhythm" FILES ${RHYTHM_GUI_FILES})
-source_group("Gui\\Adpcm" FILES ${ADPCM_GUI_FILES})
-source_group("Gui\\Beep" FILES ${BEEP_GUI_FILES})
-source_group("Gui\\Fx" FILES ${FX_GUI_FILES})
-source_group("Gui\\Preset" FILES ${PRESET_GUI_FILES})
-source_group("Gui\\Settings" FILES ${SETTINGS_GUI_FILES})
-source_group("Gui\\About" FILES ${ABOUT_GUI_FILES})
+source_group("2686V\\Core\\Const" FILES ${CONST_FILES})
+source_group("2686V\\Core\\Synth" FILES ${SYNTH_FILES})
+source_group("2686V\\Core\\Fm" FILES ${FM_FILES})
+source_group("2686V\\Core\\Gui" FILES ${GUI_FILES})
+source_group("2686V\\Core\\Processor" FILES ${PROCESSOR_FILES})
+source_group("2686V\\Core\\Editor" FILES ${EDITOR_FILES})
+source_group("2686V\\Core\\Docs" FILES ${DOCUMENT_FILES})
+source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
+source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
+source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
+source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Basic" FILES ${FM_BASIC_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opl" FILES ${FM_OPL_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opl3" FILES ${FM_OPL3_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opzx3" FILES ${FM_OPZX3_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
+source_group("2686V\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
+source_group("2686V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
+source_group("2686V\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
+source_group("2686V\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
+source_group("2686V\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
+source_group("2686V\\Synth\\Opzx3" FILES ${OPZX3_SYNTH_FILES})
+source_group("2686V\\Synth\\Opna\\Operator" FILES ${OPNA_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opn\\Operator" FILES ${OPN_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opl\\Operator" FILES ${OPL_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opl3\\Operator" FILES ${OPL3_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opm\\Operator" FILES ${OPM_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opzx3\\Operator" FILES ${OPZX3_OPERATOR_FILES})
+source_group("2686V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
+source_group("2686V\\Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
+source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
+source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
+source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
+source_group("2686V\\Effect\\Envelope\\Adsr" FILES ${ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
+source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opzx3" FILES ${OPZX3_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Wavetable" FILES ${WT_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
+source_group("2686V\\Gui\\Opna" FILES ${OPNA_GUI_FILES})
+source_group("2686V\\Gui\\Opn" FILES ${OPN_GUI_FILES})
+source_group("2686V\\Gui\\Opl" FILES ${OPL_GUI_FILES})
+source_group("2686V\\Gui\\Opl3" FILES ${OPL3_GUI_FILES})
+source_group("2686V\\Gui\\Opm" FILES ${OPM_GUI_FILES})
+source_group("2686V\\Gui\\Opzx3" FILES ${OPZX3_GUI_FILES})
+source_group("2686V\\Gui\\Ssg" FILES ${SSG_GUI_FILES})
+source_group("2686V\\Gui\\Wavetable" FILES ${WT_GUI_FILES})
+source_group("2686V\\Gui\\Rhythm" FILES ${RHYTHM_GUI_FILES})
+source_group("2686V\\Gui\\Adpcm" FILES ${ADPCM_GUI_FILES})
+source_group("2686V\\Gui\\Beep" FILES ${BEEP_GUI_FILES})
+source_group("2686V\\Gui\\Fx" FILES ${FX_GUI_FILES})
+source_group("2686V\\Gui\\Preset" FILES ${PRESET_GUI_FILES})
+source_group("2686V\\Gui\\Settings" FILES ${SETTINGS_GUI_FILES})
+source_group("2686V\\Gui\\About" FILES ${ABOUT_GUI_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
@@ -419,6 +463,13 @@ function(create_cyross_plugin TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         ${CONST_FILES}
         ${SYNTH_FILES}
+        ${FM_BASIC_ALG_FILES}
+        ${FM_OPL_ALG_FILES}
+        ${FM_OPL3_ALG_FILES}
+        ${FM_OPZX3_ALG_FILES}
+        ${FM_FIX_FILES}
+        ${LFSR_NOISE_GEN_FILES}
+        ${SSG_NOISE_GEN_FILES}
         ${PCM_GENERATOR_FILES}
         ${FM_FILES}
         ${GUI_FILES}
