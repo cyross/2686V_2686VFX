@@ -58,13 +58,6 @@ private:
 
     // Noise LFSR Params
     SsgNoiseGen m_noiseGen;
-    unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)
-    float m_noisePhase = 0.0f;
-    float m_noiseDelta = 0.0f;
-    float m_currentNoiseSample = 0.0f;
-    float m_baseNoiseFreq = 12000.0f; // Slider Value
-    float m_targetNoiseFreq = 12000.0f; // Active Frequency
-    bool m_noiseOnNote = false;
 
     // Rate / Quality Params
     int m_rateIndex = 1; // Default 55.5k
