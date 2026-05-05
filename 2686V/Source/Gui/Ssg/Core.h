@@ -70,60 +70,44 @@ class GuiSsg : public GuiBase
     GuiTextButton rrTo000Button;
     GuiTextButton rrTo003Button;
 
-    GuiCategoryLabel pitchAdsrCat;
-
     // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
     GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
-
     GuiSlider pitchAttackSlider;
-
     GuiSlider pitchDecaySlider;
-
     GuiSlider pitchReleaseSlider;
-
     GuiSlider pitchStartLevelSlider;
     GuiSlider pitchAttackLevelSlider;
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
 
+    // Duty
     GuiComboBox dutyModeSelector; // Preset / Variable
-
     GuiComboBox dutyPresetSelector;
-
     GuiSlider dutyVarSlider;
-
     GuiToggleButton dutyInvertButton;
 
-    // Triangle Controls
+    // Triangle
     GuiToggleButton triKeyTrackButton;
-
     GuiSlider triFreqSlider;
-
     GuiSlider triPeakSlider;
-
-    // Peak Preset Buttons
     GuiTextButton triSetSawDown; // 0.0
-
     GuiTextButton triSetTri;     // 0.5
-
     GuiTextButton triSetSawUp;   // 1.0
 
-    // HW Env Controls
+    // HW Env
     GuiToggleButton envEnableButton;
-
     GuiComboBox shapeSelector;
-
     GuiSlider periodSlider;
 
+    // Master Volume
     GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    // Mono/Poly切り替えスイッチ
+    // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
-    // プリセット名ラベル
+    // Preset Name Label
     GuiLabel presetNameLabel;
 public:
 	GuiSsg(const GuiContext& context) :

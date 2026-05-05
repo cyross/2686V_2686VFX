@@ -147,13 +147,24 @@ void Opzx3Core::prepare(double sampleRate) {
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
 
-    updateNoiseDelta(target);
-
     m_amSmooth = 0.0f;
+
+    updateNoiseDelta(target);
+    m_pitchAdsr.prepare(m_hostSampleRate);
+}
+
+void Opzx3Core::setSampleRate(double sampleRate) {
+    if (sampleRate > 0.0) {
+        m_hostSampleRate = sampleRate;
+        m_pitchAdsr.updateSampleRate(m_hostSampleRate);
+    }
 }
 
 void Opzx3Core::setParameters(const SynthParams& params) {
     m_algorithm = params.opzx3.algorithm; // Range: 0-27
+
+	m_pitchAdsr.setParameters(params.opzx3.pitchAdsr);
+
     m_lfoFreq = params.opzx3.lfoFreq;
     m_am = params.opzx3.amEnable;
     m_pm = params.opzx3.pmEnable;
@@ -222,11 +233,15 @@ void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
     }
 
     m_lfoCycleCount = 0;
+
+    m_pitchAdsr.noteOn();
 }
 
 void Opzx3Core::noteOff()
 {
     for (auto& op : m_operators) op.noteOff();
+
+    m_pitchAdsr.noteOff();
 }
 
 bool Opzx3Core::isPlaying() const
@@ -329,14 +344,14 @@ float Opzx3Core::getSample() {
         // =================================================================
         // 1. OP1 (入力は常に0.0)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[0].getSample(out1, 0.0f, m_pitchAdsr, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
         // 2. OP2 (入力: OP1)
         // =================================================================
         float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[1].getSample(out2, in2, m_pitchAdsr, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[1]) out2 = 0.0f;
 
         // フィードバック指定があれば OP2->OP1 にフィードバックをプッシュ
@@ -348,14 +363,14 @@ float Opzx3Core::getSample() {
         // 3. OP3 (入力: OP1, OP2)
         // =================================================================
         float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
-        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[2].getSample(out3, in3, m_pitchAdsr, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[2]) out3 = 0.0f;
 
         // =================================================================
         // 4. OP4 (入力: OP1, OP2, OP3)
         // =================================================================
         float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
-        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[3].getSample(out4, in4, m_pitchAdsr, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, m_ams, (float)m_pmd, (float)m_amd, m_modWheel);
         if (m_opMask[3]) out4 = 0.0f;
 
         // =================================================================

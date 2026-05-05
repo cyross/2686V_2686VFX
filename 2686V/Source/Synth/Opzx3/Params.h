@@ -3,6 +3,7 @@
 #include <array>
 
 #include "../../Core/Fm/FmOpParams.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
 
 struct Opzx3Params
 {
@@ -61,6 +62,9 @@ struct Opzx3Params
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
 
     // Parameters for Operator
     std::array<FmOpParams, 4> op;

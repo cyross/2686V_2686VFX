@@ -338,8 +338,8 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_currentReleaseDec = m_releaseDec;
 }
 
-void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
+void Opzx3Operator::getSample(float& output, float modulator, PitchAdsrEnv& pitchAdsr,
+    float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
@@ -456,7 +456,7 @@ void Opzx3Operator::getSample(float& output, float modulator, float amLfoVal, fl
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = pitchAdsr.process(m_phaseDelta * m_pitchBendRatio * lfoPitchMod);
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

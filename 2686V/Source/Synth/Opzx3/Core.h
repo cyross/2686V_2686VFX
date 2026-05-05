@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -37,6 +38,7 @@ public:
     float getSample() override;
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setSampleRate(double sampleRate) override ;
 private:
     std::array<Opzx3Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
@@ -85,6 +87,8 @@ private:
         float in4_1, in4_2, in4_3; // OP4への入力 (1, 2, 3からの割合)
         float out_1, out_2, out_3, out_4; // 最終出力へのミックス割合
     };
+
+    PitchAdsrEnv m_pitchAdsr;
 
     static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
 

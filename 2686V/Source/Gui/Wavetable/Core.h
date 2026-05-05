@@ -288,66 +288,52 @@ class GuiWt : public GuiBase
 
     // Filter (ADSR)
     GuiSlider attackSlider;
-
     GuiTextButton arTo000Button;
-
     GuiTextButton arTo003Button;
-
     GuiSlider decaySlider;
-
     GuiSlider sustainSlider;
-
     GuiSlider releaseSlider;
-
     GuiTextButton rrTo000Button;
-
     GuiTextButton rrTo003Button;
 
-    GuiCategoryLabel pitchAdsrCat;
-
     // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
     GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
-
     GuiSlider pitchAttackSlider;
-
     GuiSlider pitchDecaySlider;
-
     GuiSlider pitchReleaseSlider;
-
     GuiSlider pitchStartLevelSlider;
     GuiSlider pitchAttackLevelSlider;
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
     
     GuiComboBox bitSelector;
-
     GuiComboBox rateSelector;
-
     GuiComboBox sizeSelector;
 
     GuiComboBox waveSelector;
 
+    // Moduration
 	GuiToggleButton modEnableButton;
-
     GuiSlider modDepthSlider;
-
     GuiSlider modSpeedSlider;
 
+	// Custom Waveform Reset
     GuiTextButton customWaveResetTo0Btn;
     GuiTextButton customWaveResetTo1Btn;
     GuiTextButton customWaveResetToM1Btn;
 
+	// Custom Waveform Smoothing
     GuiTextButton customWaveSmoothBtn;
 
+    // Master Volume
     GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    // Mono/Poly切り替えスイッチ
+    // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
-    // プリセット名ラベル
+    // Preset Name Label
     GuiLabel presetNameLabel;
 public:
 	GuiWt(const GuiContext& context) :
