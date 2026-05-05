@@ -6,6 +6,7 @@
 
 #include "../../Core/Const/PrKeys.h"
 #include "../../Core/Const/PrValues.h"
+#include "../../Core/Const/FileValues.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "../../Core/Gui/GuiValues.h"
@@ -223,6 +224,18 @@ void GuiWt::setup()
         else if (sizeId == 3) customSliders128.applySmoothing();
         else if (sizeId == 4) customSliders256.applySmoothing();
         };
+
+    waveFileCat.setup({ .parent = *this, .title = GuiText::Category::waveFile });
+
+    customWaveImportBtn.setup({ .parent = *this, .title = GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveImportBtn.setWantsKeyboardFocus(true);
+    customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveImportBtn.onClick = [this] { importWavetable(); };
+
+    customWaveExportBtn.setup({ .parent = *this, .title = GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveExportBtn.setWantsKeyboardFocus(true);
+    customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveExportBtn.onClick = [this] { exportWavetable(); };
 }
 
 void GuiWt::layout(juce::Rectangle<int> content)
@@ -264,6 +277,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+
+    layoutMainCategory({ .mainRect = mRect, .label = &waveFileCat });
+    layoutMain({ .mainRect = mRect, .component = &customWaveImportBtn });
+    layoutMain({ .mainRect = mRect, .component = &customWaveExportBtn });
 
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
@@ -385,4 +402,110 @@ void GuiWt::layout(juce::Rectangle<int> content)
 void GuiWt::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+// ==============================================================================
+// Import / Export Logic
+// ==============================================================================
+void GuiWt::importWavetable()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importWavetableFile, defaultDir, Io::ExtensionGlob::wavetable);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+
+                // 1行目のサンプル数を取得
+                int sampleCount = lines[0].trim().getIntValue();
+
+                // サンプル数の検証
+                if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) {
+                    juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,
+                        "Invalid WT File", "Sample count must be 32, 64, 128, or 256.");
+                    return;
+                }
+
+                // デフォルト0.0で配列を初期化（足りない部分は0.0で埋まる）
+                std::vector<float> values(sampleCount, 0.0f);
+
+                // 2行目以降の値を読み込み、-1.0 ~ 1.0 にクランプして格納
+                for (int i = 0; i < sampleCount; ++i) {
+                    if (i + 1 < lines.size()) {
+                        float val = lines[i + 1].getFloatValue();
+                        values[i] = std::clamp(val, -1.0f, 1.0f);
+                    }
+                }
+
+                // --- UIの更新 ---
+                // 波形を「8: Custom(Draw)」に変更 (ID: 9)
+                waveSelector.setSelectedId(9, juce::sendNotification);
+
+                // サンプルサイズを選択
+                int sizeId = 1;
+                if (sampleCount == 32) sizeId = 1;
+                else if (sampleCount == 64) sizeId = 2;
+                else if (sampleCount == 128) sizeId = 3;
+                else if (sampleCount == 256) sizeId = 4;
+                sizeSelector.setSelectedId(sizeId, juce::sendNotification);
+
+                // --- 値をAPVTS(スライダー)に反映 ---
+                if (sampleCount == 32) customSliders32.setValues(values);
+                else if (sampleCount == 64) customSliders64.setValues(values);
+                else if (sampleCount == 128) customSliders128.setValues(values);
+                else if (sampleCount == 256) customSliders256.setValues(values);
+            }
+        });
+}
+
+void GuiWt::exportWavetable()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultWavetableDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportWavetableFile, defaultDir.getChildFile("custom_wave.wt"), Io::ExtensionGlob::wavetable);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+
+                // 現在のサイズIDを取得
+                int sizeId = sizeSelector.getSelectedId();
+                std::vector<float> values;
+
+                if (sizeId == 1) values = customSliders32.getValues();
+                else if (sizeId == 2) values = customSliders64.getValues();
+                else if (sizeId == 3) values = customSliders128.getValues();
+                else if (sizeId == 4) values = customSliders256.getValues();
+
+                if (values.empty()) return;
+
+                // 1行目にサンプル数
+                juce::String content = juce::String(values.size()) + "\n";
+
+                // 2行目以降に値を書き込む
+                for (float v : values) {
+                    content += juce::String(v, 6) + "\n"; // 小数点以下6桁まで保存
+                }
+
+                file.replaceWithText(content);
+            }
+        });
 }

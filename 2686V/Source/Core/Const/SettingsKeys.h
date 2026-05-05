@@ -9,6 +9,7 @@ namespace SettingsKey
 	static inline const juce::String wallpaperMode = "wallpaperMode";
 	static inline const juce::String defaultSampleDir = "defaultSampleDir";
 	static inline const juce::String defaultPresetDir = "defaultPresetDir";
+	static inline const juce::String defaultWavetableDir = "defaultWavetableDir";
 	static inline const juce::String showTooltips = "showTooltips";
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";

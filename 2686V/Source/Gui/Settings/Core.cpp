@@ -122,6 +122,27 @@ void GuiSettings::setup()
         );
     };
 
+    // --- Wavetable Dir ---
+    setupRow(wavetableDirLabel, "Wavetable Dir:", wavetableDirPathLabel, wavetableDirBrowseBtn);
+    wavetableDirPathLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
+    wavetableDirPathLabel.setWantsKeyboardFocus(false);
+
+    wavetableDirBrowseBtn.setWantsKeyboardFocus(true);
+    wavetableDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    wavetableDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            "Select Default Wavetable Directory",
+            ctx.audioProcessor.defaultWavetableDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultWavetableDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultWavetableDir = file.getFullPathName();
+                    wavetableDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+    };
+
     // --- Toggle Tooltip Visible Toggle Button ---
 	tooltipToggle.setup({ .parent = *this, .title = "Show Parameter Range", .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
@@ -312,7 +333,14 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
 
-    // 5. Tooltip Visible Row
+    // 5. Wavetable Dir
+    auto rowWavetableDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(GuiValue::Settings::LabelWidth));
+    wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
+    wavetableDirPathLabel.setBounds(rowWavetableDir);
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+
+    // 6. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(GuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(GuiValue::Settings::ToggleWidth));
 
@@ -343,11 +371,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn });
 }
 
-void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath)
+void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)
 {
     wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
     sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
     presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
+	wavetableDirLabel.setText(wavetableDirPath, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

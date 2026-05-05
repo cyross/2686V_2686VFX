@@ -33,6 +33,10 @@ class GuiSettings : public GuiBase
     GuiLabel presetDirPathLabel;
     GuiTextButton presetDirBrowseBtn;
 
+    GuiLabel wavetableDirLabel;
+    GuiLabel wavetableDirPathLabel;
+    GuiTextButton wavetableDirBrowseBtn;
+
     // Global Settings I/O
     GuiTextButton saveSettingsBtn;
     GuiTextButton loadSettingsBtn;
@@ -62,6 +66,9 @@ public:
         presetDirLabel(context),
         presetDirPathLabel(context),
         presetDirBrowseBtn(context),
+        wavetableDirLabel(context),
+        wavetableDirPathLabel(context),
+        wavetableDirBrowseBtn(context),
         virtualMidiKeyboardToggle(context),
         saveSettingsBtn(context),
         loadSettingsBtn(context),
@@ -75,6 +82,6 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath);
+    void setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath);
 	void setWallpaperPath(const juce::String& wallpaperPath);
 };

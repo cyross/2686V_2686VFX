@@ -7,11 +7,11 @@
 #include <vector>
 #include <atomic>
 
-#include "GuiColor.h"
-#include "GuiStructs.h"
-#include "GuiContext.h"
-#include "GuiValues.h"
-#include "GuiText.h"
+#include "./GuiColor.h"
+#include "./GuiStructs.h"
+#include "./GuiContext.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 
 #include "../../Core/Fm/SliderRegMap.h"
 
