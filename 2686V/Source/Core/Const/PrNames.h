@@ -25,6 +25,7 @@ namespace PrName
 	{
 		namespace Post
 		{
+			static inline const juce::String enable = " PITCH-ENV Enable";
 			static inline const juce::String bypass = " PITCH-ENV Bypass";
 			static inline const juce::String ar = " PITCH-ENV AR";
 			static inline const juce::String dr = " PITCH-ENV DR";

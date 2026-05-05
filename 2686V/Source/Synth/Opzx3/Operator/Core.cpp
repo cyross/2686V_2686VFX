@@ -456,7 +456,8 @@ void Opzx3Operator::getSample(float& output, float modulator, PitchAdsrEnv& pitc
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = pitchAdsr.process(m_phaseDelta * m_pitchBendRatio * lfoPitchMod);
+	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

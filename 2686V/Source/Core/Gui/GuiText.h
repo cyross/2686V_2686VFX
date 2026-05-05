@@ -112,6 +112,7 @@ namespace GuiText
 
 	namespace PitchAdsr
 	{
+		static inline const juce::String enable = "Enable";
 		static inline const juce::String bypass = "Bypass";
 		static inline const juce::String ar = " AR";
 		static inline const juce::String dr = " DR";

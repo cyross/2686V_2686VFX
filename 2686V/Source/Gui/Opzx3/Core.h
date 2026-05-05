@@ -206,6 +206,8 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> egShape;
     std::array<GuiSlider, Global::Fm::Op4> ams;
     std::array<GuiSlider, Global::Fm::Op4> amd;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catPitchEnv;
+    std::array<GuiToggleButton, Global::Fm::Op4> pitchEnvEnable;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -304,6 +306,8 @@ public:
         egShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		catPitchEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+		pitchEnvEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
