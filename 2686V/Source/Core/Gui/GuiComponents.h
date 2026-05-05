@@ -165,8 +165,54 @@ class GuiComboBox : public juce::ComboBox, public GuiBaseComponent
 {
 protected:
     std::unique_ptr<ComboBoxAttachment> att;
+
+    // =======================================================
+    // ドロップダウン用のカスタム LookAndFeel
+    // =======================================================
+    class ComboBoxLF : public juce::LookAndFeel_V4
+    {
+    public:
+        // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
+        juce::Font selectedFont{ 13.0f };
+        juce::Font dropdownFont{ 16.0f };
+
+        // ドロップダウンメニューのフォントサイズを上書き
+        juce::Font getPopupMenuFont() override {
+            return dropdownFont;
+        }
+
+        // コンボボックス表面（選択中のテキスト）のフォントサイズを上書き
+        juce::Font getComboBoxFont(juce::ComboBox&) override {
+            return selectedFont;
+        }
+
+        juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox& box, juce::Label& label) override
+        {
+            // カスタムフォントの高さに合わせて、ドロップダウン1行の「高さ」を計算
+            // (+6 は文字がギリギリにならないための上下の少しの余白です)
+            int itemHeight = (int)dropdownFont.getHeight() + 6;
+
+            // デフォルトの挙動を保ちつつ、高さ(StandardItemHeight)だけを強制上書きして返す
+            return juce::PopupMenu::Options().withTargetComponent(&box)
+                .withItemThatMustBeVisible(box.getSelectedId())
+                .withMinimumWidth(box.getWidth())
+                .withMaximumNumColumns(1)
+                .withStandardItemHeight(itemHeight); // ←ここが最大のポイント
+        }
+    };
+
+    // クラスのメンバとして保持する
+    ComboBoxLF customLF;
 public:
-    GuiComboBox(const GuiContext& context) : GuiBaseComponent(context), label(context) {}
+    GuiComboBox(const GuiContext& context) : GuiBaseComponent(context), label(context) {
+        this->setLookAndFeel(&customLF);
+    }
+
+    ~GuiComboBox() override
+    {
+        // メンバ変数(customLF)が破棄される前に、必ず nullptr に戻して安全に解除する
+        this->setLookAndFeel(nullptr);
+    }
 
     GuiLabel label;
 
@@ -182,6 +228,8 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
+        std::optional<juce::Font> selectedFont = juce::Font(13.0f);
+        std::optional<juce::Font> dropdownFont = juce::Font(16.0f);
         RegisterType regType = RegisterType::None;
     };
 

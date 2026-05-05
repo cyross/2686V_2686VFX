@@ -102,6 +102,14 @@ void GuiComboBox::setup(const Config& c)
 
     c.parent.addAndMakeVisible(*this);
 
+    if (c.selectedFont.has_value()) {
+        customLF.selectedFont = c.selectedFont.value();
+    }
+
+    if (c.dropdownFont.has_value()) {
+        customLF.dropdownFont = c.dropdownFont.value();
+    }
+
     if (!c.color.isTransparent())
     {
         this->setColour(juce::ComboBox::textColourId, c.color);
