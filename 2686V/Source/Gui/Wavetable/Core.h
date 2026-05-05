@@ -95,6 +95,31 @@ public:
     }
 
     // =======================================================
+    // 外部から配列で値を一括セットする
+    // =======================================================
+    void setValues(const std::vector<float>& values)
+    {
+        if (m_params.empty()) return;
+        for (size_t i = 0; i < tableSize && i < values.size(); ++i) {
+            if (m_params[i]) m_params[i]->setValueNotifyingHost(m_params[i]->convertTo0to1(values[i]));
+        }
+        repaint();
+    }
+
+    // =======================================================
+    // 現在の値を配列として取得する
+    // =======================================================
+    std::vector<float> getValues()
+    {
+        std::vector<float> vals(tableSize, 0.0f);
+        if (m_params.empty()) return vals;
+        for (size_t i = 0; i < tableSize; ++i) {
+            if (m_params[i]) vals[i] = m_params[i]->convertFrom0to1(m_params[i]->getValue());
+        }
+        return vals;
+    }
+
+    // =======================================================
     // カスタム描画 (子コンポーネントを使わず一気に描く)
     // =======================================================
     void paint(juce::Graphics& g) override
@@ -322,6 +347,11 @@ class GuiWt : public GuiBase
 	// Custom Waveform Smoothing
     GuiTextButton customWaveSmoothBtn;
 
+    GuiCategoryLabel waveFileCat;
+    GuiTextButton customWaveImportBtn;
+    GuiTextButton customWaveExportBtn;
+    std::unique_ptr<juce::FileChooser> fileChooser;
+
     // Master Volume
     GuiCategoryLabel mvolCat;
     GuiMasterVolumeSlider masterVolSlider;
@@ -362,7 +392,10 @@ public:
         pitchReleaseLevelSlider(context),
         bitSelector(context),
         rateSelector(context),
+		waveFileCat(context),
         customWaveSmoothBtn(context),
+        customWaveImportBtn(context),
+        customWaveExportBtn(context),
         mvolCat(context),
         masterVolSlider(context),
         sizeSelector(context),
@@ -382,4 +415,6 @@ public:
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
+    void importWavetable();
+    void exportWavetable();
 };

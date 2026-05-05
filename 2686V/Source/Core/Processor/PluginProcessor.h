@@ -150,6 +150,7 @@ public:
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
+	juce::String defaultWavetableDir; // For Wavetables
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値

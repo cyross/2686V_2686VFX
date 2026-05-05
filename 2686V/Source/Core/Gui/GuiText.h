@@ -65,6 +65,7 @@ namespace GuiText
 		static inline const juce::String initialize = "--- INITIALIZE ---";
 		static inline const juce::String monoMode = "--- MONO/POLY ---";
 		static inline const juce::String preset = "--- PRESET ---";
+		static inline const juce::String waveFile = "--- WAVE FILE ---";
 	}
 
 	namespace File
@@ -256,6 +257,8 @@ namespace GuiText
 		static inline const juce::String size = "Size";
 		static inline const juce::String sampleSize = "Sample Size";
 		static inline const juce::String waveform = "Waveform";
+		static inline const juce::String fileImport = "Import (.wt)";
+		static inline const juce::String fileExport = "Export (.wt)";
 
 		namespace Mod
 		{

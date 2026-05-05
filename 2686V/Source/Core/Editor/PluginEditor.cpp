@@ -385,7 +385,8 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                 settingsGui->setSettings(
                     audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
                     audioProcessor.defaultSampleDir,
-                    audioProcessor.defaultPresetDir
+                    audioProcessor.defaultPresetDir,
+                    audioProcessor.defaultWavetableDir
                 );
 
                 // 壁紙再描画

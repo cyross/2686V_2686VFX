@@ -507,6 +507,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::wallpaperMode, wallpaperMode);
     xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
     xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
+    xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -527,6 +528,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         wallpaperMode = xml->getIntAttribute(SettingsKey::wallpaperMode);
         defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
         defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
+		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -598,6 +600,18 @@ void AudioPlugin2686V::loadStartupSettings()
 
         defaultSampleDir = newSampleDir.getFullPathName();
         lastSampleDirectory = newSampleDir;
+    }
+
+    if (defaultWavetableDir.isEmpty() || !juce::File(defaultWavetableDir).isDirectory())
+    {
+        auto newWavetableDir = pluginDir.getChildFile(Io::Folder::wavetable);
+
+        // 存在していなければ作成
+        if (!newWavetableDir.exists()) {
+            newWavetableDir.createDirectory();
+        }
+
+        defaultWavetableDir = newWavetableDir.getFullPathName();
     }
 
 }
