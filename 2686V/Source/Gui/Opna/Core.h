@@ -56,6 +56,8 @@ class GuiOpna : public GuiBase
     GuiComboBox lfoShapeSelector;
     GuiSlider lfoAmSmRtSlider;
     GuiSlider lfoSyncDelaySlider;
+    GuiTextButton lfoSyncDelayToZeroBtn;
+    GuiTextButton lfoSyncDelayToOneBtn;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
     GuiSlider lfoPmdSlider;
@@ -91,6 +93,8 @@ class GuiOpna : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiComboBox, Global::Fm::Op4> freqs;
     std::array<GuiSlider, Global::Fm::Op4> syncDelay;
+    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToZero;
+    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToOne;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
     std::array<GuiComboBox, Global::Fm::Op4> pms;
     std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
@@ -131,6 +135,8 @@ public:
         lfoShapeSelector(context),
         lfoAmSmRtSlider(context),
         lfoSyncDelaySlider(context),
+        lfoSyncDelayToZeroBtn(context),
+        lfoSyncDelayToOneBtn(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
         lfoPmdSlider(context),
@@ -153,6 +159,8 @@ public:
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         freqs{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        syncDelayToZero{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        syncDelayToOne{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         pms{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },

@@ -134,6 +134,8 @@ class GuiOpzx3 : public GuiBase
     GuiCategoryLabel lfoCat;
     GuiSlider lfoFreqSlider;
     GuiSlider lfoSyncDelaySlider;
+	GuiTextButton lfoSyncDelayToZeroBtn;
+    GuiTextButton lfoSyncDelayToOneBtn;
     GuiSlider lfoAmSmRtSlider;
     GuiComboBox lfoPgShapeSelector;
     GuiComboBox lfoEgShapeSelector;
@@ -194,6 +196,8 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiSlider, Global::Fm::Op4> lFreq;
     std::array<GuiSlider, Global::Fm::Op4> syncDelay;
+    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToZero;
+    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToOne;
     std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
     std::array<GuiComboBox, Global::Fm::Op4> pgShape;
     std::array<GuiSlider, Global::Fm::Op4> pms;
@@ -242,6 +246,8 @@ public:
         lfoCat(context),
         lfoFreqSlider(context),
         lfoSyncDelaySlider(context),
+		lfoSyncDelayToZeroBtn(context),
+		lfoSyncDelayToOneBtn(context),
         lfoAmSmRtSlider(context),
         lfoPgShapeSelector(context),
         lfoEgShapeSelector(context),
@@ -288,6 +294,8 @@ public:
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         lFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		syncDelayToZero{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        syncDelayToOne{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         pgShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
