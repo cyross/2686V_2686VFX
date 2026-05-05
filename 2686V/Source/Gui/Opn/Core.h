@@ -55,6 +55,8 @@ class GuiOpn : public GuiBase
     GuiComboBox lfoShapeSelector;
     GuiSlider lfoAmSmRtSlider;
     GuiSlider lfoSyncDelaySlider;
+    GuiTextButton lfoSyncDelayToZeroBtn;
+    GuiTextButton lfoSyncDelayToOneBtn;
     GuiToggleButton lfoPmToggle;
     GuiToggleButton lfoAmToggle;
     GuiSlider lfoPmdSlider;
@@ -122,6 +124,8 @@ public:
         lfoShapeSelector(context),
         lfoAmSmRtSlider(context),
         lfoSyncDelaySlider(context),
+        lfoSyncDelayToZeroBtn(context),
+        lfoSyncDelayToOneBtn(context),
         lfoPmToggle(context),
         lfoAmToggle(context),
         lfoPmdSlider(context),

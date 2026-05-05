@@ -165,6 +165,20 @@ void GuiOpm::setup()
     lfoSyncDelaySlider.setWantsKeyboardFocus(true);
     lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
 
+    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false });
+    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToZeroBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(0.0f);
+        };
+
+    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
+    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToOneBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(1.0f);
+        };
+
     lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
@@ -347,6 +361,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
+    layoutMainTwoComps({ .rect = mRect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
     layoutMain({ .mainRect = mRect, .component = &lfoPmToggle });
     layoutMain({ .mainRect = mRect, .label = &lfoPgShapeSelector.label, .component = &lfoPgShapeSelector });
     layoutMain({ .mainRect = mRect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });

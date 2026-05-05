@@ -55,6 +55,8 @@ class GuiOpm : public GuiBase
     GuiSlider lfoFreqSlider;
     GuiSlider lfoAmSmRtSlider;
     GuiSlider lfoSyncDelaySlider;
+    GuiTextButton lfoSyncDelayToZeroBtn;
+    GuiTextButton lfoSyncDelayToOneBtn;
     GuiComboBox lfoPgShapeSelector;
     GuiComboBox lfoEgShapeSelector;
     GuiToggleButton lfoPmToggle;
@@ -123,6 +125,8 @@ public:
         lfoFreqSlider(context),
         lfoAmSmRtSlider(context),
         lfoSyncDelaySlider(context),
+        lfoSyncDelayToZeroBtn(context),
+        lfoSyncDelayToOneBtn(context),
         lfoPgShapeSelector(context),
         lfoEgShapeSelector(context),
         lfoPmToggle(context),
