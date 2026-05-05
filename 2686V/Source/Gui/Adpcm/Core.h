@@ -40,6 +40,7 @@ class GuiAdpcm : public GuiBase
     GuiCategoryLabel panCat;
     GuiCategoryLabel adsrCat;
 
+    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
     GuiSlider attackSlider;
     GuiSlider decaySlider;
     GuiSlider sustainSlider;
@@ -78,6 +79,7 @@ public:
         mainCat(context),
         panCat(context),
         adsrCat(context),
+		adsrBypassButton(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),

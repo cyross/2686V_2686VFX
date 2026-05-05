@@ -175,7 +175,14 @@ float AdpcmCore::getSample()
 
     if (m_hasFinished) return 0.0f;
 
-	m_currentLevel = m_adsr.process(m_currentLevel);
+    if (!m_adsr.isBypassed())
+    {
+        m_currentLevel = m_adsr.process(m_currentLevel);
+    }
+    else
+    {
+        m_currentLevel = m_adsr.isRelease() ? 0.0f : 1.0f;
+    }
 
     // --- Pitch Modulation (Vibrato) ---
     // Simple 5Hz LFO

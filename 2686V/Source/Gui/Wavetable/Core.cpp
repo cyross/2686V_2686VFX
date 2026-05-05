@@ -107,6 +107,10 @@ void GuiWt::setup()
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
+    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setWantsKeyboardFocus(true);
+    adsrBypassButton.setExplicitFocusOrder(++tabOrder);
+
     attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
@@ -263,6 +267,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
 
     layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
+    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
     layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });

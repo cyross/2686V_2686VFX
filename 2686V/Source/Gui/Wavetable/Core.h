@@ -312,6 +312,7 @@ class GuiWt : public GuiBase
     GuiCategoryLabel adsrCat;
 
     // Filter (ADSR)
+    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
     GuiSlider attackSlider;
     GuiSlider decaySlider;
     GuiSlider sustainSlider;
@@ -377,6 +378,7 @@ public:
         mainCat(context),
         modCat(context),
         adsrCat(context),
+		adsrBypassButton(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),
