@@ -119,9 +119,19 @@ class GuiOpzx3 : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
-    GuiCategoryLabel lfoCat;
+    // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+    GuiSlider pitchAttackSlider;
+    GuiSlider pitchDecaySlider;
+    GuiSlider pitchReleaseSlider;
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
 
     // LFO
+    GuiCategoryLabel lfoCat;
     GuiSlider lfoFreqSlider;
     GuiSlider lfoSyncDelaySlider;
     GuiSlider lfoAmSmRtSlider;
@@ -134,15 +144,14 @@ class GuiOpzx3 : public GuiBase
     GuiSlider lfoPmdSlider;
     GuiSlider lfoAmdSlider;
 
+    // Master Volume
     GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
-    // Mono/Poly切り替えスイッチ
+    // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
-    // プリセット名ラベル
+    // Preset Name Label
     GuiLabel presetNameLabel;
 
     juce::ImageComponent algImageComp;
@@ -222,6 +231,15 @@ public:
         feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoSyncDelaySlider(context),

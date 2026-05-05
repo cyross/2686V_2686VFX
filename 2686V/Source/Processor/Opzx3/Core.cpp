@@ -16,6 +16,10 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::fb2, code + PrName::Fm::Post::fb2, PrValue::Fm::Fb2::min, PrValue::Fm::Fb2::max, PrValue::Fm::Fb2::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::bit, code + PrName::Fm::Post::bit, PrValue::Quality::Bit::min, PrValue::Quality::Bit::max, PrValue::Quality::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::rate, code + PrName::Fm::Post::rate, PrValue::Quality::Rate::min, PrValue::Quality::Rate::max, PrValue::Quality::Rate::initial)); // Default 6 (16kHz)
+
+    // PitchEnv Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, code + PrName::PitchAdsr::Post::bypass, PrValue::PitchAdsr::Bypass::initial));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::freq, code + PrName::Fm::Post::Lfo::freq, PrValue::Lfo::Freq::min, PrValue::Lfo::Freq::max, PrValue::Lfo::Freq::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::syncDelay, code + PrName::Fm::Post::Lfo::syncDelay, PrValue::Lfo::SyncDelay::min, PrValue::Lfo::SyncDelay::max, PrValue::Lfo::SyncDelay::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::amSmoothRatio, code + PrName::Fm::Post::Lfo::amSmoothRatio, PrValue::Lfo::AmSmRt::min, PrValue::Lfo::AmSmRt::max, PrValue::Lfo::AmSmRt::initial));
@@ -27,6 +31,8 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::ams, code + PrName::Fm::Post::Lfo::ams, PrValue::Lfo::AmsFloat::min, PrValue::Lfo::AmsFloat::max, PrValue::Lfo::AmsFloat::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Lfo::PmdFloat::min, PrValue::Lfo::PmdFloat::max, PrValue::Lfo::PmdFloat::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Lfo::AmdFloat::min, PrValue::Lfo::AmdFloat::max, PrValue::Lfo::AmdFloat::initial));
+
+    addPitchEnvParameters(layout, code);
 
     for (int op = 0; op < PrValue::Opzx3::ops; ++op)
     {
@@ -82,10 +88,22 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     const juce::String code = PrKey::Prefix::opzx3;
 
     params.opzx3.algorithm = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::alg);
+
     params.opzx3.feedback = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb0);
     params.opzx3.feedback2 = *apvts.getRawParameterValue(code + PrKey::Post::Fm::fb2);
+
     params.opzx3.fmBitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::bit);
     params.opzx3.fmRateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::rate);
+
+    params.opzx3.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass) > PrValue::boolThread);
+    params.opzx3.pitchAdsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::ar);
+    params.opzx3.pitchAdsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::dr);
+    params.opzx3.pitchAdsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::rr);
+    params.opzx3.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::stl);
+    params.opzx3.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::atl);
+    params.opzx3.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::ssl);
+    params.opzx3.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + PrKey::Post::PitchAdsr::rll);
+
     params.opzx3.lfoFreq = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::freq);
     params.opzx3.pgLfoWave = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pgShape);
     params.opzx3.egLfoWave = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::egShape);
