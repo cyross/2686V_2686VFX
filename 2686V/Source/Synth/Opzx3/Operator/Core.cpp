@@ -114,7 +114,7 @@ namespace {
         [](float p, float n, float s) { return n < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f; },
         // 14: Half Square
         [](float p, float n, float s) { return n < 0.5f ? 1.0f : 0.0f; },
-        // 15: None
+        // 15: Wavetable (Dummy: 実際の処理はメソッド内で分岐)
         [](float p, float n, float s) { return 0.0f; },
         // 16: Triangle
         [](float p, float n, float s) { return triangle(n); },
@@ -542,6 +542,33 @@ float Opzx3Operator::calcWaveform(double phase, int wave)
         }
 
         return s; // PCMバッファが無い場合はサイン波を返す
+    }
+
+    // =================================================================
+    // 波形メモリの特別処理 (メンバ変数へのアクセスが必要なため分離)
+    // =================================================================
+    if (m_params.waveSelect == PrValue::Opzx3::wtIndex)
+    {
+        if (m_wtBuffer != nullptr && !m_wtBuffer->empty())
+        {
+            size_t totalSize = m_wtBuffer->size();
+
+            // normPhase (0.0 ~ 1.0) を totalSize にマッピング
+            float floatIndex = normPhase * (float)totalSize;
+            int index1 = (int)floatIndex;
+
+            if (index1 >= totalSize) index1 = totalSize - 1;
+
+            int index2 = index1 + 1;
+            if (index2 >= totalSize) index2 = 0; // ループ
+
+            float frac = floatIndex - (float)index1;
+
+            // 線形補間で滑らかに読み取る
+            return (*m_wtBuffer)[index1] * (1.0f - frac) + (*m_wtBuffer)[index2] * frac;
+        }
+
+        return s; // データが無い場合はサイン波を返す
     }
 
     // =================================================================

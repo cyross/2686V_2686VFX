@@ -56,6 +56,8 @@ public:
 
     void setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
 
+    void setOpzx3WtBuffer(int opIndex, const std::vector<float>* wtData);
+
     std::map<OscMode, SynthCore *> coreMap;
 private:
     OscMode m_mode = OscMode::OPNA;

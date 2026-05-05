@@ -186,6 +186,9 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiLabel, Global::Fm::Op4> pcmFileNameLabel;
     std::array<GuiSlider, Global::Fm::Op4> pcmOffset;
     std::array<GuiSlider, Global::Fm::Op4> pcmRatio;
+    std::array<GuiTextButton, Global::Fm::Op4> loadWtBtn;
+    std::array<GuiTextButton, Global::Fm::Op4> clearWtBtn;
+    std::array<GuiLabel, Global::Fm::Op4> wtFileNameLabel;
     std::array<GuiComboBox, Global::Fm::Op4> se;
     std::array<GuiSlider, Global::Fm::Op4> seFreq;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
@@ -277,6 +280,9 @@ public:
         pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
         pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -311,6 +317,9 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePcmFileName(int opIndex, const juce::String& fileName) {
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+    }
+    void updateWtFileName(int opIndex, const juce::String& fileName) {
+		wtFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
     void updateAllPcmFileName(const juce::String& fileName) {
         for (int i = 0; i < 4; i++)

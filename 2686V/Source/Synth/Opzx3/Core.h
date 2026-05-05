@@ -37,6 +37,7 @@ public:
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
+    void setWtBuffer(int opIndex, const std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setSampleRate(double sampleRate) override ;
 private:

@@ -135,6 +135,13 @@ public:
     void loadOpzx3PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx3PcmFile(int opIndex);
 
+    // --- OPZX3 Wavetable ---
+    std::array<std::vector<float>, 4> opzx3WtBuffers;
+    std::array<juce::String, 4> opzx3WtFilePaths;
+
+    void loadOpzx3WtFile(int opIndex, const juce::File& file);
+    void unloadOpzx3WtFile(int opIndex);
+
     // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>& destBuffer);
 
