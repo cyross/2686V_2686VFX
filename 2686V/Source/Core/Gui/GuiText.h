@@ -8,8 +8,8 @@ namespace GuiText
 {
 	static inline const juce::String mode = "Mode";
 
-	static inline const juce::String bit = "BIT";
-	static inline const juce::String rate = "RATE";
+	static inline const juce::String bit = "Bit";
+	static inline const juce::String rate = "Rate";
 
 	static inline const juce::String monoPoly = "MonoPhonic";
 
@@ -79,7 +79,7 @@ namespace GuiText
 	namespace Group
 	{
 		static inline const juce::String mainGroup = "Main";
-		static inline const juce::String opPrefix = "OP";
+		static inline const juce::String opPrefix = "Op";
 		static inline const juce::String voice = "Voice";
 		static inline const juce::String ssgDuty = "Pulse Width (Duty)";
 		static inline const juce::String ssgTri = "Triangle Property";
@@ -101,10 +101,10 @@ namespace GuiText
 	namespace Adsr
 	{
 		static inline const juce::String bypass = "Bypass";
-		static inline const juce::String ar = " AR";
-		static inline const juce::String dr = " DR";
-		static inline const juce::String sl = " SL";
-		static inline const juce::String rr = " RR";
+		static inline const juce::String ar = " Ar";
+		static inline const juce::String dr = " Dr";
+		static inline const juce::String sl = " Sl";
+		static inline const juce::String rr = " Rr";
 		static inline const juce::String ArTo000 = "-> 0.00";
 		static inline const juce::String ArTo003 = "-> 0.03";
 		static inline const juce::String RrTo000 = "-> 0.00";
@@ -115,13 +115,13 @@ namespace GuiText
 	{
 		static inline const juce::String enable = "Enable";
 		static inline const juce::String bypass = "Bypass";
-		static inline const juce::String ar = " AR";
-		static inline const juce::String dr = " DR";
-		static inline const juce::String rr = " RR";
-		static inline const juce::String stl = " STL";
-		static inline const juce::String atl = " ATL";
-		static inline const juce::String ssl = " SSL";
-		static inline const juce::String rll = " RLL";
+		static inline const juce::String ar = " Ar";
+		static inline const juce::String dr = " Dr";
+		static inline const juce::String rr = " Rr";
+		static inline const juce::String stl = " Stl";
+		static inline const juce::String atl = " Atl";
+		static inline const juce::String ssl = " Ssl";
+		static inline const juce::String rll = " Rll";
 		static inline const juce::String ArTo000 = "-> 0.00";
 		static inline const juce::String ArTo003 = "-> 0.03";
 		static inline const juce::String RrTo000 = "-> 0.00";
@@ -130,68 +130,68 @@ namespace GuiText
 
 	namespace Fm
 	{
-		static inline const juce::String alg = "ALG";
-		static inline const juce::String fb0 = "FB1";
-		static inline const juce::String fb01 = "FB1/2";
-		static inline const juce::String fb2 = "FB3";
-		static inline const juce::String lfoFreq = "FREQ";
-		static inline const juce::String lfoSpeed = "SPEED";
-		static inline const juce::String lfoShape = "SHAPE";
-		static inline const juce::String lfoPgShape = "P.SHAPE";
-		static inline const juce::String lfoEgShape = "A.SHAPE";
-		static inline const juce::String lfoSyncDelay = "S.Dly";
-		static inline const juce::String amEn = "AM-EN";
-		static inline const juce::String pmEn = "PM-EN";
-		static inline const juce::String ams = "AMS";
-		static inline const juce::String pms = "PMS";
-		static inline const juce::String amd = "AMD";
-		static inline const juce::String pmd = "PMD";
-		static inline const juce::String amSmoothRatio = "ASMRT";
+		static inline const juce::String alg = "Alg";
+		static inline const juce::String fb0 = "Fb1";
+		static inline const juce::String fb01 = "Fb1/2";
+		static inline const juce::String fb2 = "Fb3";
+		static inline const juce::String lfoFreq = "Freq";
+		static inline const juce::String lfoSpeed = "Speed";
+		static inline const juce::String lfoShape = "Shape";
+		static inline const juce::String lfoPgShape = "P.Shape";
+		static inline const juce::String lfoEgShape = "A.Shape";
+		static inline const juce::String lfoSyncDelay = "Delay";
+		static inline const juce::String amEn = "AM Enable";
+		static inline const juce::String pmEn = "PM Enable";
+		static inline const juce::String ams = "Ams";
+		static inline const juce::String pms = "Pms";
+		static inline const juce::String amd = "Amd";
+		static inline const juce::String pmd = "Pmd";
+		static inline const juce::String amSmoothRatio = "As Ratio";
 		static inline const juce::String initLfoToOpl = "Init Lfo: OPL";
 		static inline const juce::String initLfoToOpll = "Init Lfo: OPLL";
 
 		namespace Op
 		{
-			static inline const juce::String key = " OP";
+			static inline const juce::String key = " Op";
 
-			static inline const juce::String Ar = "AR";
-			static inline const juce::String Dr = "DR";
-			static inline const juce::String Sl = "SL";
-			static inline const juce::String Rr = "RR";
-			static inline const juce::String Sr = "SR";
-			static inline const juce::String D1r = "D1R";
-			static inline const juce::String D1l = "D1L";
-			static inline const juce::String D2r = "D2R";
-			static inline const juce::String Mul = "MUL";
-			static inline const juce::String Tl = "TL";
-			static inline const juce::String Dt = "DT";
-			static inline const juce::String Dt1 = "DT1";
-			static inline const juce::String Dt2 = "DT2";
-			static inline const juce::String Ks = "KS";
-			static inline const juce::String Ksr = "KSR";
-			static inline const juce::String Ksl = "KSL";
-			static inline const juce::String Mask = "MASK";
-			static inline const juce::String Fix = "FIX";
-			static inline const juce::String FFreq = "FFREQ";
-			static inline const juce::String SEnv = "SENV";
-			static inline const juce::String SFreq = "SFREQ";
-			static inline const juce::String Freqs = "LFREQ";
-			static inline const juce::String SyncDelay = "S.Dly";
-			static inline const juce::String Am = "AM";
-			static inline const juce::String Pm = "PM";
-			static inline const juce::String AmEn = "AM-EN";
-			static inline const juce::String PmEn = "PM-EN";
-			static inline const juce::String AmsEn = "AMS-EN";
-			static inline const juce::String PgShape = "P.SHAPE";
-			static inline const juce::String EgShape = "A.SHAPE";
-			static inline const juce::String Vib = "VIB";
-			static inline const juce::String Ams = "AMS";
-			static inline const juce::String Pms = "PMS";
-			static inline const juce::String Amd = "AMD";
-			static inline const juce::String Pmd = "PMD";
-			static inline const juce::String EgType = "EGTYPE";
-			static inline const juce::String Eg = "EG";
-			static inline const juce::String Ws = "WS";
+			static inline const juce::String Ar = "Ar";
+			static inline const juce::String Dr = "Dr";
+			static inline const juce::String Sl = "Sl";
+			static inline const juce::String Rr = "Rr";
+			static inline const juce::String Sr = "Sr";
+			static inline const juce::String D1r = "D1r";
+			static inline const juce::String D1l = "D1l";
+			static inline const juce::String D2r = "D2r";
+			static inline const juce::String Mul = "Mul";
+			static inline const juce::String Tl = "Tl";
+			static inline const juce::String Dt = "Dt";
+			static inline const juce::String Dt1 = "Dt1";
+			static inline const juce::String Dt2 = "Dt2";
+			static inline const juce::String Ks = "Ks";
+			static inline const juce::String Ksr = "Ksr";
+			static inline const juce::String Ksl = "Ksl";
+			static inline const juce::String Mask = "Mask";
+			static inline const juce::String Fix = "Enable";
+			static inline const juce::String FFreq = "Freq";
+			static inline const juce::String SEnv = "Env";
+			static inline const juce::String SFreq = "Freq";
+			static inline const juce::String Freqs = "Freq";
+			static inline const juce::String SyncDelay = "Delay";
+			static inline const juce::String Am = "Am";
+			static inline const juce::String Pm = "Pm";
+			static inline const juce::String AmEn = "AM Enable";
+			static inline const juce::String PmEn = "PM Enable";
+			static inline const juce::String AmsEn = "AMS Enable";
+			static inline const juce::String PgShape = "P.Shape";
+			static inline const juce::String EgShape = "A.Shape";
+			static inline const juce::String Vib = "Vib";
+			static inline const juce::String Ams = "Ams";
+			static inline const juce::String Pms = "Pms";
+			static inline const juce::String Amd = "Amd";
+			static inline const juce::String Pmd = "Pmd";
+			static inline const juce::String EgType = "EgType";
+			static inline const juce::String Eg = "Eg";
+			static inline const juce::String Ws = "Ws";
 			static inline const juce::String FreqTo0 = "Freq -> 0Hz";
 			static inline const juce::String FreqTo440 = "Freq -> 440Hz";
 			static inline const juce::String Opzx3FreqTo0 = "->0";
@@ -203,13 +203,13 @@ namespace GuiText
 			static inline const juce::String ArTo003 = "-> 0.03";
 			static inline const juce::String RrTo000 = "-> 0.00";
 			static inline const juce::String RrTo003 = "-> 0.03";
-			static inline const juce::String PcmOffset = "OFFSET";
-			static inline const juce::String PcmRatio = "RATIO";
-			static inline const juce::String RgEn = "RG-EN";
+			static inline const juce::String PcmOffset = "Offset";
+			static inline const juce::String PcmRatio = "Ratio";
+			static inline const juce::String RgEn = "Register Mode";
 
-			static inline const juce::String sus = "SUS";
+			static inline const juce::String sus = "Sus";
 
-			static inline const juce::String phaseOffset = "P.OFFSET";
+			static inline const juce::String phaseOffset = "P.Offset";
 		}
 	}
 
@@ -292,9 +292,9 @@ namespace GuiText
 			static inline const juce::String rate = "Rate";
 			static inline const juce::String oneShot = "One Shot";
 			static inline const juce::String pan = "Pan";
-			static inline const juce::String rr = "RR";
-			static inline const juce::String pcmOffset = "OFFSET";
-			static inline const juce::String pcmRatio = "RATIO";
+			static inline const juce::String rr = "Rr";
+			static inline const juce::String pcmOffset = "Offset";
+			static inline const juce::String pcmRatio = "Ratio";
 
 			namespace Pan
 			{
@@ -312,8 +312,8 @@ namespace GuiText
 		static inline const juce::String quality = "Bit";
 		static inline const juce::String rate = "Rate";
 		static inline const juce::String loop = "Loop";
-		static inline const juce::String pcmOffset = "OFFSET";
-		static inline const juce::String pcmRatio = "RATIO";
+		static inline const juce::String pcmOffset = "Offset";
+		static inline const juce::String pcmRatio = "Ratio";
 
 		namespace Pan
 		{
@@ -324,33 +324,33 @@ namespace GuiText
 
 		namespace Adsr
 		{
-			static inline const juce::String ar = "AR";
-			static inline const juce::String dr = "DR";
-			static inline const juce::String sl = "SL";
-			static inline const juce::String rr = "RR";
+			static inline const juce::String ar = "Ar";
+			static inline const juce::String dr = "Dr";
+			static inline const juce::String sl = "Sl";
+			static inline const juce::String rr = "Rr";
 		}
 	}
 
 	namespace Beep
 	{
 		static inline const juce::String Level = "Level";
-		static inline const juce::String Fix = "Fix";
-		static inline const juce::String FFreq = "FFreq";
+		static inline const juce::String Fix = "Enable";
+		static inline const juce::String FFreq = "Freq";
 		static inline const juce::String To2k = "-> 2k";
 
 		namespace Adsr
 		{
-			static inline const juce::String Bypass = "Bypass ADSR";
-			static inline const juce::String Ar = "AR";
-			static inline const juce::String Dr = "DR";
-			static inline const juce::String Sl = "SL";
-			static inline const juce::String Rr = "RR";
+			static inline const juce::String Bypass = "Bypass";
+			static inline const juce::String Ar = "Ar";
+			static inline const juce::String Dr = "Dr";
+			static inline const juce::String Sl = "Sl";
+			static inline const juce::String Rr = "Rr";
 		}
 	}
 
 	namespace Fx
 	{
-		static inline const juce::String masterBypass = "M.Bypass";
+		static inline const juce::String masterBypass = "Bypass";
 		static inline const juce::String bypass = "Bypass";
 		static inline const juce::String mix = "Mix";
 		
@@ -391,27 +391,11 @@ namespace GuiText
 			static inline const juce::String damp = "Damp";
 		}
 
-		namespace Rbc
-		{
-			static inline const juce::String quality = "Bit";
-			static inline const juce::String rate = "Rate";
-		}
-
 		namespace Filter
 		{
 			static inline const juce::String type = "Type";
 			static inline const juce::String freq = "Freq";
 			static inline const juce::String q = " Q";
-		}
-
-		namespace Rlfo
-		{
-			static inline const juce::String wave = "Wave";
-			static inline const juce::String freq = "Freq";
-			static inline const juce::String pms = "Pms";
-			static inline const juce::String pmd = "Pmd";
-			static inline const juce::String ams = "Ams";
-			static inline const juce::String amd = "Amd";
 		}
 	}
 
