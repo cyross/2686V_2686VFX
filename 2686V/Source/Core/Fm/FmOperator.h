@@ -40,6 +40,8 @@ public:
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
     // OPZX3 の外部 PCM データ用
     void virtual setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
+    // OPZX3 の波形データ用
+    void virtual setWtBuffer(const std::vector<float>* wtData) { m_wtBuffer = wtData; }
     float virtual calcWaveform(double phase, int wave);
     void virtual updateIncrementsWithKeyScale();
 protected:
@@ -79,6 +81,8 @@ protected:
 
     // OPZX3 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
+    // OPZX3 の波形データ用
+    const std::vector<float>* m_wtBuffer = nullptr;
 
     void updateEnvelopeState();
 };

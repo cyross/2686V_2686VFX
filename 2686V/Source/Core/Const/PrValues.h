@@ -776,6 +776,7 @@ namespace PrValue
 	{
 		inline constexpr int ops = 4;
 		inline constexpr int pcmIndex = 31;
+		inline constexpr int wtIndex = 15;
 
 		namespace Alg
 		{

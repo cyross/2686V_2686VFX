@@ -358,9 +358,14 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
     }
 
-    // サンプルパス保存 (OPZX3)
+    // サンプルパス保存 (OPZX3 PCM)
     for (int i = 0; i < 4; ++i) {
         xml->setAttribute(PresetKey::opzx3PathPrefix + juce::String(i), makePathRelative(juce::File(opzx3PcmFilePaths[i])));
+    }
+
+    // サンプルパス保存 (OPZX3 WT)
+    for (int i = 0; i < 4; ++i) {
+        xml->setAttribute(PresetKey::opzx3WtPathPrefix + juce::String(i), makePathRelative(juce::File(opzx3WtFilePaths[i])));
     }
 };
 
@@ -401,6 +406,14 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
             juce::File file = resolvePath(storedPath);
             if (file.existsAsFile()) {
                 loadOpzx3PcmFile(i, file);
+            }
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx3WtPathPrefix + juce::String(i));
+            juce::File file = resolvePath(storedPath);
+            if (file.existsAsFile()) {
+                loadOpzx3WtFile(i, file);
             }
         }
     }
@@ -910,4 +923,47 @@ void AudioPlugin2686V::panic()
     }
 
     prFx.clear();
+}
+
+void AudioPlugin2686V::loadOpzx3WtFile(int opIndex, const juce::File& file)
+{
+    if (opIndex < 0 || opIndex >= 4) return;
+
+    juce::StringArray lines;
+    file.readLines(lines);
+    if (lines.size() == 0) return;
+
+    int sampleCount = lines[0].trim().getIntValue();
+    if (sampleCount != 32 && sampleCount != 64 && sampleCount != 128 && sampleCount != 256) return;
+
+    std::vector<float> values(sampleCount, 0.0f);
+    for (int i = 0; i < sampleCount; ++i) {
+        if (i + 1 < lines.size()) {
+            float val = lines[i + 1].getFloatValue();
+            values[i] = std::clamp(val, -1.0f, 1.0f);
+        }
+    }
+
+    opzx3WtBuffers[opIndex] = values;
+    opzx3WtFilePaths[opIndex] = file.getFullPathName();
+
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setOpzx3WtBuffer(opIndex, &opzx3WtBuffers[opIndex]); // ※ SynthVoice側にメソッド追加が必要
+        }
+    }
+}
+
+void AudioPlugin2686V::unloadOpzx3WtFile(int opIndex)
+{
+    if (opIndex < 0 || opIndex >= 4) return;
+
+    opzx3WtBuffers[opIndex].clear();
+    opzx3WtFilePaths[opIndex] = juce::String();
+
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->setOpzx3WtBuffer(opIndex, nullptr);
+        }
+    }
 }

@@ -409,6 +409,13 @@ void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
     }
 }
 
+void Opzx3Core::setWtBuffer(int opIndex, const std::vector<float>* wtData)
+{
+    if (opIndex >= 0 && opIndex < 4) {
+        m_operators[opIndex].setWtBuffer(wtData);
+    }
+}
+
 void Opzx3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();

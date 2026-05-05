@@ -100,3 +100,8 @@ void SynthVoice::setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmDat
 {
     m_opzx3Core.setPcmBuffer(opIndex, pcmData);
 }
+
+void SynthVoice::setOpzx3WtBuffer(int opIndex, const std::vector<float>* wtData)
+{
+    m_opzx3Core.setWtBuffer(opIndex, wtData);
+}

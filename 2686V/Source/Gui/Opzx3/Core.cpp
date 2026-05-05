@@ -133,7 +133,7 @@ static std::vector<SelectItem> opzx3WsItems = {
     {.name = "12 Mini Alt Sine",                    .value = 13},
     {.name = "13 Mini Alt Abs Sine",                .value = 14},
     {.name = "14 Half Square",                      .value = 15},
-    {.name = "15 ---",                              .value = 16},
+    {.name = "15 Wavetable File",                   .value = 16},
     {.name = "16 Triangle",                         .value = 17},
     {.name = "17 Half Triangle",                    .value = 18},
     {.name = "18 Abs Triangle",                     .value = 19},
@@ -479,6 +479,38 @@ void GuiOpzx3::setup()
         pcmRatio[i].setWantsKeyboardFocus(true);
         pcmRatio[i].setExplicitFocusOrder(++tabOrder);
 
+        loadWtBtn[i].setup({ .parent = *this, .title = "WS", .isReset = false, .isResized = false });
+        loadWtBtn[i].setWantsKeyboardFocus(true);
+        loadWtBtn[i].setExplicitFocusOrder(++tabOrder);
+        loadWtBtn[i].onClick = [this, i] {
+            ctx.editor.openFileChooser(
+                "Load Wavetable for OP" + juce::String(i + 1),
+                ctx.audioProcessor.defaultWavetableDir,
+                "*.wt",
+                [this, i](const juce::FileChooser& fc) {
+                    auto file = fc.getResult();
+                    if (file.existsAsFile()) {
+                        ctx.audioProcessor.loadOpzx3WtFile(i, file);
+                        updateWtFileName(i, file.getFileName());
+                        ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                    }
+                }
+            );
+            };
+
+        clearWtBtn[i].setup({ .parent = *this, .title = GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearWtBtn[i].setWantsKeyboardFocus(true);
+        clearWtBtn[i].setExplicitFocusOrder(++tabOrder);
+        clearWtBtn[i].onClick = [this, i] {
+            ctx.audioProcessor.unloadOpzx3WtFile(i);
+            updateWtFileName(i, Io::empty);
+            };
+
+        wtFileNameLabel[i].setup({ .parent = *this, .title = Io::empty });
+        if (ctx.audioProcessor.opzx3WtFilePaths[i].isNotEmpty()) {
+            updateWtFileName(i, juce::File(ctx.audioProcessor.opzx3WtFilePaths[i]).getFileName());
+        }
+
         se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::se, .title = GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
         se[i].setWantsKeyboardFocus(true);
         se[i].setExplicitFocusOrder(++tabOrder);
@@ -685,6 +717,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
         layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
         layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
+        layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
         layoutRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i] });
         layoutRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], });
         layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
