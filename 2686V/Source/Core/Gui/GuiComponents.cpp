@@ -141,9 +141,15 @@ void GuiToggleButton::setup(const Config& c)
 
     this->setButtonText(c.title);
 
+    this->textJustification = c.justification;
+
+    if (c.font.has_value()) {
+        this->buttonFont = c.font.value();
+    }
+
     if (!c.color.isTransparent())
     {
-        this->setColour(juce::Label::textColourId, c.color);
+        this->setColour(juce::ToggleButton::textColourId, c.color);
     }
 
     if (c.isReset) {
@@ -153,6 +159,45 @@ void GuiToggleButton::setup(const Config& c)
     if (c.isResized) {
         this->onClick = [this] { ctx.editor.resized(); };
     }
+}
+
+void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    float boxSize = 12.0f; // 縮小しても視認しやすい四角のサイズ
+    float gap = 6.0f;      // 四角と文字の隙間
+
+    g.setFont(buttonFont);
+    juce::String text = getButtonText();
+    float textWidth = (float)g.getCurrentFont().getStringWidth(text);
+    float totalWidth = boxSize + gap + textWidth;
+
+    float alpha = isEnabled() ? 1.0f : 0.5f;
+    juce::Colour textColor = findColour(juce::ToggleButton::textColourId);
+    if (textColor.isTransparent()) textColor = juce::Colours::white; // フォールバック
+
+    juce::Rectangle<float> bounds = getLocalBounds().toFloat();
+    float startX = 0.0f;
+
+    // Configで中央寄せ(centred)が指定されている場合、ボックスと文字のセットを中央に配置する
+    if (textJustification == juce::Justification::centred) {
+        startX = std::max(0.0f, (bounds.getWidth() - totalWidth) * 0.5f);
+    }
+
+    // 1. 枠線の描画
+    float boxY = (bounds.getHeight() - boxSize) * 0.5f;
+    juce::Rectangle<float> box(startX, boxY, boxSize, boxSize);
+
+    g.setColour(textColor.withMultipliedAlpha(alpha));
+    g.drawRect(box, 1.0f);
+
+    // 2. ONのときの塗りつぶし (■)
+    if (getToggleState()) {
+        g.fillRect(box.reduced(2.0f)); // 2px内側を塗りつぶす
+    }
+
+    // 3. テキストの描画
+    juce::Rectangle<float> textBounds(box.getRight() + gap, 0.0f, bounds.getWidth() - box.getRight() - gap, bounds.getHeight());
+    g.drawFittedText(text, textBounds.toNearestInt(), juce::Justification::centredLeft, 1);
 }
 
 void GuiTextButton::setup(const Config& c)

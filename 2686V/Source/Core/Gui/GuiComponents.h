@@ -192,6 +192,8 @@ class GuiToggleButton : public juce::ToggleButton, public GuiBaseComponent
 {
 protected:
     std::unique_ptr<ButtonAttachment> att;
+    juce::Justification textJustification = juce::Justification::centred;
+    juce::Font buttonFont{ 12.0f }; 
 public:
     GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {}
 
@@ -207,6 +209,7 @@ public:
     };
 
     void setup(const Config& c);
+    void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 };
 
 class GuiTextButton : public juce::TextButton, public GuiBaseComponent
