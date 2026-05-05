@@ -214,9 +214,18 @@ void GuiTextButton::setup(const Config& c)
 
     this->setButtonText(c.title);
 
+    if (c.font.has_value()) {
+        customLF.customFont = c.font.value();
+    }
+
     if (!c.textColor.isTransparent())
     {
-        this->setColour(juce::Label::textColourId, c.textColor);
+        this->setColour(juce::TextButton::textColourOffId, c.textColor); // 通常時
+    }
+
+    if (!c.textOnColor.isTransparent())
+    {
+        this->setColour(juce::TextButton::textColourOnId, c.textOnColor);  // 押下時
     }
 
     if (!c.bgColor.isTransparent())
