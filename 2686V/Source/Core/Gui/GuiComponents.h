@@ -264,14 +264,41 @@ class GuiTextButton : public juce::TextButton, public GuiBaseComponent
 {
 protected:
     std::unique_ptr<ButtonAttachment> att;
+
+    class TextButtonLF : public juce::LookAndFeel_V4
+    {
+    public:
+        std::optional<juce::Font> customFont = juce::Font(13.0f);
+
+        // テキストボタンのフォントを要求された時に呼ばれる関数をオーバーライド
+        juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
+        {
+            if (customFont.has_value()) {
+                return customFont.value();
+            }
+            // 指定がない場合は、ボタンの高さに合わせたJUCEの標準フォントを返す
+            return juce::Font(juce::jmin(16.0f, (float)buttonHeight * 0.6f));
+        }
+    };
+
+    TextButtonLF customLF;
 public:
-    GuiTextButton(const GuiContext& context) : GuiBaseComponent(context) {}
+    GuiTextButton(const GuiContext& context) : GuiBaseComponent(context) {
+        this->setLookAndFeel(&customLF);
+    }
+
+    ~GuiTextButton() override
+    {
+        this->setLookAndFeel(nullptr);
+    }
 
     struct Config {
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
+        std::optional<juce::Font> font = std::nullopt;
         juce::Colour textColor = GuiColor::TextButton::Text;
+        juce::Colour textOnColor = GuiColor::TextButton::TextOn;
         juce::Colour bgColor = GuiColor::TextButton::Bg;
         juce::Colour borderColor = GuiColor::TextButton::Border;
         bool isReset = false;

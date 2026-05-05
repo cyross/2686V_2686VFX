@@ -37,6 +37,7 @@ namespace GuiColor {
 	};
 	namespace TextButton {
 		static inline const juce::Colour Text = defaultFgColor;
+		static inline const juce::Colour TextOn = juce::Colours::white;
 		static inline const juce::Colour Bg = defaultBgColor;
 		static inline const juce::Colour Border = defaultFgColor;
 	};
