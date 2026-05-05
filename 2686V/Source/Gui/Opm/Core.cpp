@@ -160,6 +160,11 @@ void GuiOpm::setup()
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
 
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::syncDelay, .title = GuiText::Fm::lfoSyncDelay, .isReset = true });
+    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
+    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
+
     lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
@@ -271,6 +276,12 @@ void GuiOpm::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
+        cafLfo[i].setup({ .parent = *this, .title = GuiText::Category::hwLfo });
+
+        amsEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::amsEn, .title = GuiText::Fm::Op::AmsEn, .isReset = true });
+        amsEnable[i].setWantsKeyboardFocus(true);
+        amsEnable[i].setExplicitFocusOrder(++tabOrder);
+
         cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
@@ -335,6 +346,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+    layoutMain({ .mainRect = mRect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
     layoutMain({ .mainRect = mRect, .component = &lfoPmToggle });
     layoutMain({ .mainRect = mRect, .label = &lfoPgShapeSelector.label, .component = &lfoPgShapeSelector });
     layoutMain({ .mainRect = mRect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
@@ -376,6 +388,8 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], });
+        layoutRowCategory({ .rowRect = innerRect, .component = &cafLfo[i] });
+        layoutRow({ .rowRect = innerRect, .component = &amsEnable[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
         layoutRow({ .rowRect = innerRect, .component = &fix[i] });
         layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });

@@ -84,6 +84,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_lfoPgWave = params.opm.pgLfoWave;
     m_lfoEgWave = params.opm.egLfoWave;
     m_amSmoothRate = params.opm.lfoAmSmRt;
+	m_lfoSyncDelay = params.opm.lfoSyncDelay;
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
@@ -117,6 +118,17 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
     m_rateAccumulator = 1.0;
+
+    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
+    if (m_lfoSyncDelay > 0.0f) {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+    }
+    else {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
+
+    m_lfoCycleCount = 0;
 }
 void OpmCore::noteOff() { for (auto& op : m_operators) op.noteOff(); }
 bool OpmCore::isPlaying() const {
@@ -161,28 +173,39 @@ float OpmCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        // --- OPM LFO (at Target Rate) ---
-        double lfoInc = m_lfoFreq / targetRate;
-        m_lfoPhase += lfoInc;
+        float pmLfoVal = 0.0f;
+        float amLfoVal = 0.0f;
 
-        if (m_lfoPhase >= 1.0) {
-            m_lfoPhase -= 1.0;
-            unsigned int bit0 = m_lfsr & 1;
-            unsigned int bit3 = (m_lfsr >> 3) & 1;
-            unsigned int nextBit = bit0 ^ bit3;
-            m_lfsr >>= 1;
-            if (nextBit) m_lfsr |= (1 << 16);
-            m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f; // -1.0 ~ 1.0
+        if (m_lfoDelayCounter > 0.0f) {
+            m_lfoDelayCounter -= 1.0f / (float)targetRate;
+            if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
+
+            // ディレイ中は pm=0, am=0 となるため何もしない
         }
+        else {
+            // --- OPM LFO (at Target Rate) ---
+            double lfoInc = m_lfoFreq / targetRate;
+            m_lfoPhase += lfoInc;
 
-        // =================================================================
-        // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
-        // =================================================================
-        int pgWaveIdx = std::clamp(m_lfoPgWave, 0, 4);
-        float pmLfoVal = lfoHwPgStrategies[pgWaveIdx](m_lfoPhase, m_currentNoiseSample);
+            if (m_lfoPhase >= 1.0) {
+                m_lfoPhase -= 1.0;
+                unsigned int bit0 = m_lfsr & 1;
+                unsigned int bit3 = (m_lfsr >> 3) & 1;
+                unsigned int nextBit = bit0 ^ bit3;
+                m_lfsr >>= 1;
+                if (nextBit) m_lfsr |= (1 << 16);
+                m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f; // -1.0 ~ 1.0
+            }
 
-        int egWaveIdx = std::clamp(m_lfoEgWave, 0, 4);
-        float amLfoVal = lfoHwEgStrategies[egWaveIdx](m_lfoPhase, m_currentNoiseSample);
+            // =================================================================
+            // 親クラス(FmCore)のストラテジー配列を使ってLFO値を計算
+            // =================================================================
+            int pgWaveIdx = std::clamp(m_lfoPgWave, 0, 4);
+            pmLfoVal = lfoHwPgStrategies[pgWaveIdx](m_lfoPhase, m_currentNoiseSample);
+
+            int egWaveIdx = std::clamp(m_lfoEgWave, 0, 4);
+            amLfoVal = lfoHwEgStrategies[egWaveIdx](m_lfoPhase, m_currentNoiseSample);
+        }
 
         m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
 

@@ -131,6 +131,7 @@ namespace PrKey
 
 				static inline const juce::String am = "_AM";
 				static inline const juce::String vib = "_VIB";
+				static inline const juce::String amsEn = "_AMS_EN";
 
 				static inline const juce::String pgShape = "_LFO_PG_SHAPE";
 				static inline const juce::String egShape = "_LFO_EG_SHAPE";

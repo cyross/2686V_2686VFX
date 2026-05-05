@@ -582,6 +582,11 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
+		namespace AmsEn
+		{
+			inline constexpr bool initial = true; // 初期値
+		}
+
 		namespace Vib
 		{
 			inline constexpr bool initial = false; // 初期値
