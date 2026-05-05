@@ -93,6 +93,7 @@ namespace PrName
 
 				static inline const juce::String am = " AM";
 				static inline const juce::String vib = " VIB";
+				static inline const juce::String amsEn = " AMS EN";
 
 				static inline const juce::String lfoFreq = " LFO FREQ";
 				static inline const juce::String freqs = " LFO FREQS";

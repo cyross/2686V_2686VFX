@@ -26,6 +26,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::ams, code + PrName::Fm::Post::Lfo::ams, PrValue::Lfo::Ams::min, PrValue::Lfo::Ams::max, PrValue::Lfo::Ams::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Lfo::Pmd::min, PrValue::Lfo::Pmd::max, PrValue::Lfo::Pmd::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Lfo::Amd::min, PrValue::Lfo::Amd::max, PrValue::Lfo::Amd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Fm::Lfo::syncDelay, code + PrName::Fm::Post::Lfo::syncDelay, PrValue::Lfo::SyncDelay::min, PrValue::Lfo::SyncDelay::max, PrValue::Lfo::SyncDelay::initial));
 
     for (int op = 0; op < PrValue::Opm::ops; ++op)
     {
@@ -43,6 +44,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::rr, namePrefix + PrName::Fm::Op::Post::rr, PrValue::Adsr::Rr::min, PrValue::Adsr::Rr::max, PrValue::Adsr::Rr::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::seFreq, namePrefix + PrName::Fm::Op::Post::seFreq, PrValue::Op::SeFreq::min, PrValue::Op::SeFreq::max, PrValue::Op::SeFreq::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::ks, namePrefix + PrName::Fm::Op::Post::ks, PrValue::Op::Ks::min, PrValue::Op::Ks::max, PrValue::Op::Ks::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::amsEn, namePrefix + PrName::Fm::Op::Post::amsEn, PrValue::OpLfo::AmsEn::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::fix, namePrefix + PrName::Fm::Op::Post::fix, PrValue::Fix::Fix::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::fixFreq, namePrefix + PrName::Fm::Op::Post::fixFreq, PrValue::Fix::Freq::min, PrValue::Fix::Freq::max, PrValue::Fix::Freq::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::mask, namePrefix + PrName::Fm::Op::Post::mask, PrValue::Op::Mask::initial)); // OP Mask (Switch)
@@ -77,6 +79,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opm.lfoAms = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::ams);
     params.opm.lfoPmd = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::pmd);
     params.opm.lfoAmd = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::amd);
+    params.opm.lfoSyncDelay = *apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::syncDelay);
 
     for (int op = 0; op < PrValue::Opm::ops; ++op)
     {
@@ -103,7 +106,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].egType = true;
         params.opm.op[op].vibEnable = false;
         params.opm.op[op].pms = 0;
-        params.opm.op[op].amEnable = false;
+		params.opm.op[op].amEnable = (*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::amsEn) > PrValue::boolThread); // AMS Enable を AM Enable で代用
         params.opm.op[op].ams = 0;
         params.opm.op[op].oplAms = 0.0f;
         params.opm.op[op].oplAmd = 0.0f;

@@ -54,6 +54,7 @@ class GuiOpm : public GuiBase
     // OPM LFO
     GuiSlider lfoFreqSlider;
     GuiSlider lfoAmSmRtSlider;
+    GuiSlider lfoSyncDelaySlider;
     GuiComboBox lfoPgShapeSelector;
     GuiComboBox lfoEgShapeSelector;
     GuiToggleButton lfoPmToggle;
@@ -84,6 +85,8 @@ class GuiOpm : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> cafLfo;
+    std::array<GuiToggleButton, Global::Fm::Op4> amsEnable;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
     std::array<GuiSlider, Global::Fm::Op4> freq;
@@ -119,6 +122,7 @@ public:
         lfoCat(context),
         lfoFreqSlider(context),
         lfoAmSmRtSlider(context),
+        lfoSyncDelaySlider(context),
         lfoPgShapeSelector(context),
         lfoEgShapeSelector(context),
         lfoPmToggle(context),
@@ -134,6 +138,8 @@ public:
         dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        cafLfo{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        amsEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

@@ -78,7 +78,8 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
     if (globalAm) {
         float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
-        totalAmDepth += amsDepths[std::clamp((int)globalAms, 0, 3)] * globalDepthScale;
+		int amsIndex = m_params.amEnable ? std::clamp((int)globalAms, 0, 3) : 0;
+        totalAmDepth += amsDepths[amsIndex] * globalDepthScale;
     }
 
     // 上限を1.0(100%)でクリップ
