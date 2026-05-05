@@ -54,16 +54,25 @@ float PitchAdsrEnv::process(float phaseDelta) {
         }
     }
     else if (this->state == State::Decay) {
-        this->phaseProgress += this->decayDelta;
-        if (this->phaseProgress >= 1.0f) {
-            this->phaseProgress = 0.0f;
-            this->currentCents = this->ssl;
-            this->state = State::Sustain;
+        // DR(Decay Rate)が0の時は、減衰せずにATLを永遠に維持する
+        if (this->dr <= 0.0f)
+        {
+            this->currentCents = this->atl;
         }
         else {
-            // atl から ssl へ向かって補間
-            this->currentCents = this->atl + (this->ssl - this->atl) * this->phaseProgress;
+            this->phaseProgress += this->decayDelta;
+
+            if (this->phaseProgress >= 1.0f) {
+                this->phaseProgress = 0.0f;
+                this->currentCents = this->ssl;
+                this->state = State::Sustain;
+            }
+            else {
+                // atl から ssl へ向かって補間
+                this->currentCents = this->atl + (this->ssl - this->atl) * this->phaseProgress;
+            }
         }
+
     }
     else if (this->state == State::Sustain) {
         this->currentCents = this->ssl;

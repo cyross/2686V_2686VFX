@@ -51,7 +51,13 @@ float AmpAdsrEnv::process(float currentLevel) {
         }
     }
     else if (this->state == State::Decay) {
-        if (newLevel > this->sl) {
+        // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+        if (this->dr <= 0.0f)
+        {
+            newLevel = 1.0f;
+            this->state = State::Sustain;
+        }
+        else if (newLevel > this->sl) {
             newLevel -= this->decayDec;
 
             if (newLevel <= this->sl) {
