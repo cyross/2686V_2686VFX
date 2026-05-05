@@ -52,8 +52,8 @@ float BeepCore::getSample() {
     m_phase += m_phaseDelta;
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
-    // 音量に変換 (0.2f はフルボリューム時のクリッピング防止用ゲイン)
-    return output * m_currentLevel * 0.2f;
+    // 音量に変換
+    return output * m_currentLevel;
 }
 
 // モジュレーションホイール (0 - 127)

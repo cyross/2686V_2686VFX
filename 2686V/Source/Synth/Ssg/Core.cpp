@@ -328,7 +328,7 @@ float SsgCore::getSample()
         m_lastSample = sumOut / (float)steps;
     }
 
-    return m_lastSample * m_currentLevel * 0.5f;
+    return m_lastSample * m_currentLevel;
 }
 
 void SsgCore::updatePhaseDelta() {
