@@ -53,6 +53,8 @@ void Opzx3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::Fm::Op::ks, namePrefix + PrName::Fm::Op::Post::ks, PrValue::Op::Ks::min, PrValue::Op::Ks::max, PrValue::Op::Ks::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::phaseOffset, namePrefix + PrName::Fm::Op::Post::phaseOffset, PrValue::Opzx3::Op::PhaseOffset::min, PrValue::Opzx3::Op::PhaseOffset::max, PrValue::Opzx3::Op::PhaseOffset::initial));
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::PitchAdsr::enable, namePrefix + PrName::PitchAdsr::Post::enable, PrValue::PitchAdsr::Enable::initial));
+
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + PrKey::Post::Fm::Op::fix, namePrefix + PrName::Fm::Op::Post::fix, PrValue::Fix::Fix::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Fm::Op::fixFreq, namePrefix + PrName::Fm::Op::Post::fixFreq, PrValue::Fix::Freq::min, PrValue::Fix::Freq::max, PrValue::Fix::Freq::initial));
 
@@ -175,5 +177,7 @@ void Opzx3Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx3.op[op].rsr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgD2r);
         params.opzx3.op[op].rrr = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgRr);
         params.opzx3.op[op].rtl = (int)*apvts.getRawParameterValue(p + PrKey::Post::Fm::Op::rgTl);
+
+		params.opzx3.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + PrKey::Post::PitchAdsr::enable) > PrValue::boolThread);
     }
 }

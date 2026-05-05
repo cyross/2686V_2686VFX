@@ -533,6 +533,12 @@ void GuiOpzx3::setup()
         seFreq[i].setWantsKeyboardFocus(true);
         seFreq[i].setExplicitFocusOrder(++tabOrder);
 
+        catPitchEnv[i].setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
+
+        pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::enable, .title = GuiText::PitchAdsr::enable, .isReset = true });
+        pitchEnvEnable[i].setWantsKeyboardFocus(true);
+        pitchEnvEnable[i].setExplicitFocusOrder(++tabOrder);
+
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
 
         lFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::lfoFreq, .title = GuiText::Fm::Op::Freqs, .isReset = true });
@@ -749,6 +755,8 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
         layoutRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i] });
         layoutRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], });
+        layoutRowCategory({ .rowRect = innerRect, .component = &catPitchEnv[i] });
+        layoutRow({ .rowRect = innerRect, .component = &pitchEnvEnable[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
         layoutRow({ .rowRect = innerRect, .label = &lFreq[i].label, .component = &lFreq[i] });
         layoutRow({ .rowRect = innerRect, .label = &syncDelay[i].label, .component = &syncDelay[i] });

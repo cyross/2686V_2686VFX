@@ -73,4 +73,6 @@ struct FmOpParams
     int rrr = 15;  // RR Register (0-15)
     int rsl = 0;   // SL Register (0-15)
     int rtl = 0;   // TL Register (0-127 / OPL: 0-63)
+
+    bool pitchEnvEnable = true;
 };

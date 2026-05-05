@@ -98,6 +98,11 @@ namespace PrValue
 			inline constexpr float initial = false; // 初期値
 		}
 
+		namespace Enable
+		{
+			inline constexpr float initial = true; // 初期値
+		}
+
 		namespace Ar
 		{
 			inline constexpr float min = 0.00f; // 最小値（秒）

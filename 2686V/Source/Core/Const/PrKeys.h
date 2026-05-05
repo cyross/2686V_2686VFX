@@ -65,6 +65,7 @@ namespace PrKey
 
 		namespace PitchAdsr
 		{
+			static inline const juce::String enable = "_PITCH_ENABLE";
 			static inline const juce::String ar = "_PITCH_AR";
 			static inline const juce::String dr = "_PITCH_DR";
 			static inline const juce::String rr = "_PITCH_RR";
