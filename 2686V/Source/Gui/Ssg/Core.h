@@ -75,6 +75,11 @@ class GuiSsg : public GuiBase
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
 
+    // Detune
+    GuiCategoryLabel detuneCat;
+    GuiComboBox dt1;
+    GuiSlider dt2;
+
     // Duty
     GuiComboBox dutyModeSelector; // Preset / Variable
     GuiComboBox dutyPresetSelector;
@@ -149,6 +154,9 @@ public:
 		pitchAttackLevelSlider(context),
 		pitchSustainLevelSlider(context),
 		pitchReleaseLevelSlider(context),
+		detuneCat(context),
+		dt1(context),
+		dt2(context),
         dutyModeSelector(context),
         dutyPresetSelector(context),
         dutyVarSlider(context),

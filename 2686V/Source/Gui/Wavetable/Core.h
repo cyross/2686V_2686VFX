@@ -328,7 +328,12 @@ class GuiWt : public GuiBase
     GuiSlider pitchAttackLevelSlider;
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
-    
+
+    // Detune
+    GuiCategoryLabel detuneCat;
+    GuiComboBox dt1;
+    GuiSlider dt2;
+
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiComboBox sizeSelector;
@@ -392,6 +397,9 @@ public:
         pitchAttackLevelSlider(context),
         pitchSustainLevelSlider(context),
         pitchReleaseLevelSlider(context),
+        detuneCat(context),
+        dt1(context),
+        dt2(context),
         bitSelector(context),
         rateSelector(context),
 		waveFileCat(context),

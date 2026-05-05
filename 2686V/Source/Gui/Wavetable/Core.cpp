@@ -51,6 +51,19 @@ static std::vector<SelectItem> wtTsItems = {
     {.name = "3: 256 Samples",  .value = 4 },
 };
 
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
+};
+
 void GuiWt::setup()
 {
     const juce::String code = PrKey::Prefix::wt;
@@ -160,6 +173,16 @@ void GuiWt::setup()
     pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    detuneCat.setup({ .parent = *this, .title = GuiText::Category::detune });
+
+    dt1.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setWantsKeyboardFocus(true);
+    dt1.setExplicitFocusOrder(++tabOrder);
+
+    dt2.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setWantsKeyboardFocus(true);
+    dt2.setExplicitFocusOrder(++tabOrder);
 
     monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
 
@@ -282,6 +305,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
     layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+
+    layoutMainCategory({ .mainRect = mRect, .label = &detuneCat });
+    layoutMain({ .mainRect = mRect, .label = &dt1.label, .component = &dt1 });
+    layoutMain({ .mainRect = mRect, .label = &dt2.label, .component = &dt2 });
 
     layoutMainCategory({ .mainRect = mRect, .label = &waveFileCat });
     layoutMain({ .mainRect = mRect, .component = &customWaveImportBtn });

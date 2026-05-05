@@ -68,4 +68,8 @@ private:
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
+
+    // detune
+    int m_detune = 0;
+    int m_detune2 = 0;
 };
