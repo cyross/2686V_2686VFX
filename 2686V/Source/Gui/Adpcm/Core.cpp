@@ -99,16 +99,6 @@ void GuiAdpcm::setup()
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    arTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-    arTo000Button.setWantsKeyboardFocus(true);
-    arTo000Button.setExplicitFocusOrder(++tabOrder);
-    arTo000Button.onClick = [this] { attackSlider.setValue(0.00, juce::sendNotification); };
-
-    arTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-    arTo003Button.setWantsKeyboardFocus(true);
-    arTo003Button.setExplicitFocusOrder(++tabOrder);
-    arTo003Button.onClick = [this] { attackSlider.setValue(0.03, juce::sendNotification); };
-
     decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::dr, .title = GuiText::Adpcm::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
@@ -120,16 +110,6 @@ void GuiAdpcm::setup()
     releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::rr, .title = GuiText::Adpcm::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    rrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-    rrTo000Button.setWantsKeyboardFocus(true);
-    rrTo000Button.setExplicitFocusOrder(++tabOrder);
-    rrTo000Button.onClick = [this] { releaseSlider.setValue(0.00, juce::sendNotification); };
-
-    rrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-    rrTo003Button.setWantsKeyboardFocus(true);
-    rrTo003Button.setExplicitFocusOrder(++tabOrder);
-    rrTo003Button.onClick = [this] { releaseSlider.setValue(0.03, juce::sendNotification); };
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
 
@@ -189,11 +169,9 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMainThreeComps({ .rect = mRect, .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR, });
     layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &arTo000Button, .comp2 = &arTo003Button });
     layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
     layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
-    layoutRowTwoComps({ .rect = mRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 

@@ -6,10 +6,10 @@ struct FmOpParams
     bool mask = false;
 
     // --- Envelope (ADSR) ---
-    float attack = 0.01f;  // AR
+    float attack = 0.0f;  // AR
     float decay = 0.0f;    // DR
     float sustain = 1.0f;  // SL (Sustain Level)
-    float release = 0.2f;  // RR
+    float release = 0.0f;  // RR
 
     // --- YM2608 Specific ---
     float sustainRate = 0.0f; // SR: Sustain Rate

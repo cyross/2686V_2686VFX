@@ -288,13 +288,9 @@ class GuiWt : public GuiBase
 
     // Filter (ADSR)
     GuiSlider attackSlider;
-    GuiTextButton arTo000Button;
-    GuiTextButton arTo003Button;
     GuiSlider decaySlider;
     GuiSlider sustainSlider;
     GuiSlider releaseSlider;
-    GuiTextButton rrTo000Button;
-    GuiTextButton rrTo003Button;
 
     // Pitch ADSR
     GuiCategoryLabel pitchAdsrCat;
@@ -352,13 +348,9 @@ public:
         modCat(context),
         adsrCat(context),
         attackSlider(context),
-        arTo000Button(context),
-        arTo003Button(context),
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
-        rrTo000Button(context),
-        rrTo003Button(context),
         pitchAdsrCat(context),
         pitchAdsrBypassButton(context),
         pitchAttackSlider(context),

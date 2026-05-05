@@ -404,16 +404,6 @@ void GuiOpzx3::setup()
         ar[i].setWantsKeyboardFocus(true);
         ar[i].setExplicitFocusOrder(++tabOrder);
 
-        arTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-        arTo000[i].setWantsKeyboardFocus(true);
-        arTo000[i].setExplicitFocusOrder(++tabOrder);
-        arTo000[i].onClick = [this, index = i] { ar[index].setValue(0.00, juce::sendNotification); };
-
-        arTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-        arTo003[i].setWantsKeyboardFocus(true);
-        arTo003[i].setExplicitFocusOrder(++tabOrder);
-        arTo003[i].onClick = [this, index = i] { ar[index].setValue(0.03, juce::sendNotification); };
-
         d1r[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::d1r, .title = GuiText::Fm::Op::D1r, .isReset = true, .regType = RegisterType::FmDr });
         d1r[i].setWantsKeyboardFocus(true);
         d1r[i].setExplicitFocusOrder(++tabOrder);
@@ -429,16 +419,6 @@ void GuiOpzx3::setup()
         rr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rr, .title = GuiText::Fm::Op::Rr, .isReset = true, .regType = RegisterType::FmRr });
         rr[i].setWantsKeyboardFocus(true);
         rr[i].setExplicitFocusOrder(++tabOrder);
-
-        rrTo000[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo000, .isReset = false, .isResized = false });
-        rrTo000[i].setWantsKeyboardFocus(true);
-        rrTo000[i].setExplicitFocusOrder(++tabOrder);
-        rrTo000[i].onClick = [this, index = i] { rr[index].setValue(0.00, juce::sendNotification); };
-
-        rrTo003[i].setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Op::RrTo003, .isReset = false, .isResized = false });
-        rrTo003[i].setWantsKeyboardFocus(true);
-        rrTo003[i].setExplicitFocusOrder(++tabOrder);
-        rrTo003[i].onClick = [this, index = i] { rr[index].setValue(0.03, juce::sendNotification); };
 
         tl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::tl, .title = GuiText::Fm::Op::Tl, .isReset = true, .regType = RegisterType::FmTl });
         tl[i].setWantsKeyboardFocus(true);
@@ -692,12 +672,10 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         else
         {
             layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &arTo000[i], .comp2 = &arTo003[i] });
             layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
             layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
             layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
             layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-            layoutRowTwoComps({ .rect = innerRect, .comp1 = &rrTo000[i], .comp2 = &rrTo003[i] });
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
         }
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i] });
@@ -816,16 +794,12 @@ void GuiOpzx3::updateOpEnable(int idx, bool enable)
     dt2[idx].label.setEnabled(enable);
     ar[idx].setEnabled(enable);
     ar[idx].label.setEnabled(enable);
-    arTo000[idx].setEnabled(enable);
-    arTo003[idx].setEnabled(enable);
     d1r[idx].setEnabled(enable);
     d1r[idx].label.setEnabled(enable);
     d1l[idx].setEnabled(enable);
     d1l[idx].label.setEnabled(enable);
     rr[idx].setEnabled(enable);
     rr[idx].label.setEnabled(enable);
-    rrTo000[idx].setEnabled(enable);
-    rrTo003[idx].setEnabled(enable);
     d2r[idx].setEnabled(enable);
     d2r[idx].label.setEnabled(enable);
     tl[idx].setEnabled(enable);
@@ -920,8 +894,6 @@ void GuiOpzx3::updateRgDisplayAsOp(int idx, bool rgMode)
 
     ar[idx].label.setVisible(!rgMode);
     ar[idx].setVisible(!rgMode);
-    arTo000[idx].setVisible(!rgMode);
-    arTo003[idx].setVisible(!rgMode);
     d1r[idx].label.setVisible(!rgMode);
     d1r[idx].setVisible(!rgMode);
     d1l[idx].label.setVisible(!rgMode);
@@ -930,8 +902,6 @@ void GuiOpzx3::updateRgDisplayAsOp(int idx, bool rgMode)
     d2r[idx].setVisible(!rgMode);
     rr[idx].label.setVisible(!rgMode);
     rr[idx].setVisible(!rgMode);
-    rrTo000[idx].setVisible(!rgMode);
-    rrTo003[idx].setVisible(!rgMode);
     tl[idx].label.setVisible(!rgMode);
     tl[idx].setVisible(!rgMode);
 }

@@ -1,16 +1,9 @@
 ﻿#include "RegisterConverter.h"
 
-// ==============================================================================
-// FM Parameters (OPNA/OPN Standard)
-// ==============================================================================
-
-// --- Envelope Generator Rate (AR) ---
-// Register: 0 (Slowest) - 31 (Fastest)
-// VST Param: Time in Seconds (0.03s - 5.0s)
-float RegisterConverter::convertFmAr(int regValue)
+auto RegisterConverter::convertFmParam31(int regValue) -> std::optional<float>
 {
     if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 31) return 0.03f; // Fastest
+    if (regValue >= 31) return 0.0f; // Fastest
 
     // Clamp 0-31
     float r = (float)std::clamp(regValue, 0, 31);
@@ -26,16 +19,13 @@ float RegisterConverter::convertFmAr(int regValue)
 
     // 指数カーブ近似: pow(inv) で急峻に変化させる
     // regが小さい(invが大きい)ほど時間が大幅に増える
-    return 0.03f + (0.0052f * std::pow(inv, 2.0f));
+    return 0.005f * std::pow(inv, 2.0f);
 }
 
-// --- Envelope Generator Rate (RR) ---
-// Register: 0 (Slowest) - 15 (Fastest)
-// VST Param: Time in Seconds (0.03s - 5.0s)
-float RegisterConverter::convertFmRr(int regValue)
+auto RegisterConverter::convertFmParam15(int regValue) -> std::optional<float>
 {
     if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 15) return 0.03f; // Fastest
+    if (regValue >= 15) return 0.0f; // Fastest
 
     // Clamp 0-15
     float r = (float)std::clamp(regValue, 0, 15);
@@ -51,7 +41,38 @@ float RegisterConverter::convertFmRr(int regValue)
 
     // 指数カーブ近似: pow(inv) で急峻に変化させる
     // regが小さい(invが大きい)ほど時間が大幅に増える
-    return 0.03f + (0.022f * std::pow(inv, 2.0f));
+    return 0.0222f * std::pow(inv, 2.0f);
+}
+
+auto RegisterConverter::convertFmParamSl(int regValue) -> std::optional<float>
+{
+    int v = std::clamp(regValue, 0, 15);
+
+    if (v == 0) return 1.0f; // Slowest
+    if (v == 15) return 0.0f; // Silent
+
+    // 線形での簡易変換 (0->1.0, 15->0.0)
+    return 1.0f - ((float)v / 15.0f);
+}
+
+// ==============================================================================
+// FM Parameters (OPNA/OPN Standard)
+// ==============================================================================
+
+// --- Envelope Generator Rate (AR) ---
+// Register: 0 (Slowest) - 31 (Fastest)
+// VST Param: Time in Seconds (0.03s - 5.0s)
+float RegisterConverter::convertFmAr(int regValue)
+{
+	return convertFmParam31(regValue).value_or(5.0f);
+}
+
+// --- Envelope Generator Rate (RR) ---
+// Register: 0 (Slowest) - 15 (Fastest)
+// VST Param: Time in Seconds (0.03s - 5.0s)
+float RegisterConverter::convertFmRr(int regValue)
+{
+    return convertFmParam15(regValue).value_or(5.0f);
 }
 
 // --- Envelope Generator Rate (DR, SR) ---
@@ -59,24 +80,7 @@ float RegisterConverter::convertFmRr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertFmDr(int regValue)
 {
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 31) return 0.0f; // Fastest
-
-    // Clamp 0-31
-    float r = (float)std::clamp(regValue, 0, 31);
-
-    // 31 -> 0.0s (Fast)
-    // 0  -> 5.0s (Slow)
-    // カーブは指数的にするのが理想ですが、簡易的に反転線形＋補正で近似します
-    // Rateが高いほど時間は急激に短くなる
-
-    // 簡易変換: (31 - reg) をベースに係数を掛ける
-    // 例: Reg=0 -> 5.0s, Reg=20 -> 短い, Reg=31 -> 0s
-    float inv = 31.0f - r;
-
-    // 指数カーブ近似: pow(inv) で急峻に変化させる
-    // regが小さい(invが大きい)ほど時間が大幅に増える
-    return 0.005f * std::pow(inv, 2.0f);
+    return convertFmParam31(regValue).value_or(5.0f);
 }
 
 // --- Sustain Rate (SR) Converter ---
@@ -84,23 +88,7 @@ float RegisterConverter::convertFmDr(int regValue)
 // Output: Time in Seconds (0.03s - 10.0s)
 float RegisterConverter::convertFmSr(int regValue)
 {
-    // ガード処理
-    if (regValue <= 0) return 5.0f;  // Slowest (10.0s)
-    if (regValue >= 31) return 0.03f; // Fastest (30ms)
-
-    // Clamp 0-31
-    float r = (float)std::clamp(regValue, 0, 31);
-
-    // 反転: 31(速) -> 0, 0(遅) -> 31
-    float inv = 31.0f - r;
-
-    // 計算式
-    // 目標: inv=31 (Reg0) のとき 10.0s
-    // 式: Time = MinTime + (Coefficient * inv^2)
-    // 10.0 = 0.03 + (Coef * 961)
-    // Coef = 9.97 / 961 ≈ 0.01037... -> 0.0104f を採用
-
-    return 0.03f + (0.0104f * std::pow(inv, 2.0f));
+    return convertFmParam31(regValue).value_or(5.0f);
 }
 
 
@@ -109,19 +97,7 @@ float RegisterConverter::convertFmSr(int regValue)
 // VST Param: 0.0 (Silent) - 1.0 (Max)
 float RegisterConverter::convertFmSl(int regValue)
 {
-    int v = std::clamp(regValue, 0, 15);
-    // 0 -> 1.0
-    // 15 -> 0.0
-    // -3dB step approximation
-
-    if (v <= 0) return 1.0f;
-    if (v >= 15) return 0.0f;
-
-    // linear mapping for simplicity in VST UI, or -3dB steps
-    // 1.0 * pow(10, -3dB * v / 20) ?
-    // ここではUIの操作感を重視して線形で返しますが、
-    // 実機感重視なら対数カーブを入れてください。
-    return 1.0f - (float)v / 15.0f;
+    return convertFmParamSl(regValue).value_or(1.0f);
 }
 
 // --- Total Level (TL) ---
@@ -194,15 +170,7 @@ int RegisterConverter::convertFmRg127(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertOplAr(int regValue)
 {
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 15) return 0.03f; // Fastest
-
-    float r = (float)std::clamp(regValue, 0, 15);
-    float inv = 15.0f - r;
-
-    // 15の2乗=225 をベースに係数を調整。 5.0sを目指す。
-    // 5.0 = 0.03 + (Coef * 225) -> Coef = 4.97 / 225 ≈ 0.022f
-    return 0.03f + (0.022f * std::pow(inv, 2.0f));
+    return convertFmParam15(regValue).value_or(5.0f);
 }
 
 // --- OPL: Decay Rate (DR) ---
@@ -210,14 +178,7 @@ float RegisterConverter::convertOplAr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertOplDr(int regValue)
 {
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 15) return 0.0f; // Fastest (Instant decay)
-
-    float r = (float)std::clamp(regValue, 0, 15);
-    float inv = 15.0f - r;
-
-    // 5.0 = Coef * 225 -> Coef = 5.0 / 225 ≈ 0.0222f
-    return 0.0222f * std::pow(inv, 2.0f);
+    return convertFmParam15(regValue).value_or(5.0f);
 }
 
 // --- OPL: Release Rate (RR) ---
@@ -225,14 +186,7 @@ float RegisterConverter::convertOplDr(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertOplRr(int regValue)
 {
-    // OPLのRRは0〜15で、DRと同じようなカーブを描きます。
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 15) return 0.03f; // Fastest
-
-    float r = (float)std::clamp(regValue, 0, 15);
-    float inv = 15.0f - r;
-
-    return 0.03f + (0.022f * std::pow(inv, 2.0f));
+    return convertFmParam15(regValue).value_or(5.0f);
 }
 
 // --- OPL: Sustain Level (SL) ---
@@ -240,13 +194,7 @@ float RegisterConverter::convertOplRr(int regValue)
 // VST Param: 0.0 (Silent) - 1.0 (Max)
 float RegisterConverter::convertOplSl(int regValue)
 {
-    int v = std::clamp(regValue, 0, 15);
-
-    if (v == 0) return 1.0f; // Slowest
-    if (v == 15) return 0.0f; // Silent
-
-    // 線形での簡易変換 (0->1.0, 15->0.0)
-    return 1.0f - ((float)v / 15.0f);
+    return convertFmParamSl(regValue).value_or(1.0f);
 }
 
 // --- OPL: Total Level (TL) ---

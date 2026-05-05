@@ -50,5 +50,9 @@ public:
     static bool convertOplKsr(int regValue);
     static int convertOplKsl(int regValue);
 
+	static auto convertFmParam31(int regValue) -> std::optional<float>;
+    static auto convertFmParam15(int regValue) -> std::optional<float>;
+	static auto convertFmParamSl(int regValue) -> std::optional<float>;
+
     static std::vector<RegisterUnit> convertToRegisterUnit(const juce::String& input);
 };
