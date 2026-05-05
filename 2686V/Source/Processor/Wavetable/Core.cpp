@@ -56,6 +56,9 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // Common
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Wt::level, code + PrName::Wt::Post::level, PrValue::Level::min, PrValue::Level::max, PrValue::Level::initial));
 
+    // ADSR Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Ssg::Post::Adsr::bypass, PrValue::Adsr::Bypass::initial));
+
     // PitchEnv Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, code + PrName::PitchAdsr::Post::bypass, PrValue::PitchAdsr::Bypass::initial));
 
@@ -82,7 +85,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.modSpeed = *apvts.getRawParameterValue(code + PrKey::Post::Wt::Mod::speed);
     params.wt.level = *apvts.getRawParameterValue(code + PrKey::Post::Wt::level);
 
-    params.wt.adsr.bypass = false;
+    params.wt.adsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
     params.wt.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::ar);
     params.wt.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::dr);
     params.wt.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adsr::sl);

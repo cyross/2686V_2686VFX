@@ -19,6 +19,9 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Adpcm::pcmOffset, code + PrName::Adpcm::Post::pcmOffset, PrValue::Pcm::Offset::min, PrValue::Pcm::Offset::max, PrValue::Pcm::Offset::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Adpcm::pcmRatio, code + PrName::Adpcm::Post::pcmRatio, PrValue::Pcm::Ratio::min, PrValue::Pcm::Ratio::max, PrValue::Pcm::Ratio::initial));
 
+    // ADSR Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::adsr + PrKey::Post::bypass, code + PrName::Ssg::Post::Adsr::bypass, PrValue::Adsr::Bypass::initial));
+
     addEnvParameters(layout, code);
 }
 
@@ -36,9 +39,9 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.offset = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmOffset);
     params.adpcm.ratio = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::pcmRatio);
 
+    params.adpcm.adsr.bypass = (*apvts.getRawParameterValue(code + PrKey::Innder::adsr + PrKey::Post::bypass) > PrValue::boolThread);
     params.adpcm.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::ar);
     params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::dr);
     params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::sl);
     params.adpcm.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Post::Adpcm::Adsr::rr);
-    params.adpcm.adsr.bypass = false;
 }
