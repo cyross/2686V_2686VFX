@@ -25,6 +25,10 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // PitchEnv Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, code + PrName::PitchAdsr::Post::bypass, PrValue::PitchAdsr::Bypass::initial));
 
+    // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Op::dt, code + PrName::Fm::Op::Post::dt1, PrValue::Op::Dt1::min, PrValue::Op::Dt1::max, PrValue::Op::Dt1::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Op::dt2, code + PrName::Fm::Op::Post::dt2, PrValue::Op::Dt2::min, PrValue::Op::Dt2::max, PrValue::Op::Dt2::initial));
+
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::mode, code + PrName::Ssg::Post::Duty::mode, PrValue::Ssg::Duty::Mode::min, PrValue::Ssg::Duty::Mode::max, PrValue::Ssg::Duty::Mode::initial)); // Duty Mode: 0=Preset, 1=Variable
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Ssg::Duty::preset, code + PrName::Ssg::Post::Duty::preset, PrValue::Ssg::Duty::Preset::min, PrValue::Ssg::Duty::Preset::max, PrValue::Ssg::Duty::Preset::initial)); // Preset: 0~8
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::Post::Ssg::Duty::var, code + PrName::Ssg::Post::Duty::var, PrValue::Ssg::Duty::Var::min, PrValue::Ssg::Duty::Var::max, PrValue::Ssg::Duty::Var::initial)); // Variable: 0.0 ~ 0.5
@@ -65,6 +69,9 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.waveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
     params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::bit);
     params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::rate);
+
+	params.ssg.detune = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Op::dt);
+    params.ssg.detune2 = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Op::dt2);
 
     params.ssg.dutyMode = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
     params.ssg.dutyPreset = (int)*apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::preset);

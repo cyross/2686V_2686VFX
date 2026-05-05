@@ -66,6 +66,7 @@ namespace GuiText
 		static inline const juce::String monoMode = "--- MONO/POLY ---";
 		static inline const juce::String preset = "--- PRESET ---";
 		static inline const juce::String waveFile = "--- WAVE FILE ---";
+		static inline const juce::String detune = "--- DETUNE ---";
 	}
 
 	namespace File

@@ -85,4 +85,8 @@ struct SsgParams
 
     // Hardware Envelope Period Freq
     float envPeriod = 1.0f;
+
+    // detune
+    int detune = 0;
+    int detune2 = 0;
 };

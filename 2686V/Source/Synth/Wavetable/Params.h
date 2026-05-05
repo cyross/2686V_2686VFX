@@ -39,4 +39,8 @@ struct WtParams
 
     // --- Pitch Envelope ---
     PitchAdsrParams pitchAdsr;
+
+    // detune
+    int detune = 0;
+    int detune2 = 0;
 };

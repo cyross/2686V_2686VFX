@@ -77,5 +77,9 @@ private:
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
 
+    // detune
+    int m_detune = 0;
+    int m_detune2 = 0;
+
     void updatePhaseDelta();
 };
