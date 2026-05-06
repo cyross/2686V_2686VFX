@@ -381,7 +381,7 @@ void GuiOpna::setup()
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
-        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
+        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
         fix[i].setWantsKeyboardFocus(true);
@@ -402,7 +402,7 @@ void GuiOpna::setup()
         freqTo440[i].setExplicitFocusOrder(++tabOrder);
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
-        catMask[i].setup({ .parent = *this, .title = GuiText::Category::mask });
+        catMask[i].setup({ .parent = *this, .title = GuiText::Category::visibleMask, .invisibleTitle = GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
@@ -495,12 +495,35 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &catN88Lfo[i] });
         layoutRow({ .rowRect = innerRect, .label = &n88Ams[i].label, .component = &n88Ams[i] });
+
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
-        layoutRow({ .rowRect = innerRect, .component = &fix[i] });
-        layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &freqToZero[i], .comp2 = &freqTo440[i] });
+
+        bool visibleFix = cafFix[i].isDetailVisible();
+
+        fix[i].setVisible(visibleFix);
+        freq[i].setVisible(visibleFix);
+        freq[i].label.setVisible(visibleFix);
+        freqToZero[i].setVisible(visibleFix);
+        freqTo440[i].setVisible(visibleFix);
+
+        if (visibleFix)
+        {
+            layoutRow({ .rowRect = innerRect, .component = &fix[i] });
+            layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &freqToZero[i], .comp2 = &freqTo440[i] });
+        }
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
-        layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+
+        bool visibleMask = catMask[i].isDetailVisible();
+
+        mask[i].setVisible(visibleMask);
+
+        if (visibleMask)
+        {
+            layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+        }
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }

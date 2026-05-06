@@ -145,6 +145,7 @@ namespace GuiValue
 			static inline constexpr int height = 15;
 			static inline constexpr int paddingTop = 3;
 			static inline constexpr int paddingBottom = 0;
+			static inline constexpr int paddingRight = 0;
 
 			namespace Padding
 			{
@@ -156,6 +157,24 @@ namespace GuiValue
 			namespace MainVol
 			{
 				static inline constexpr int height = 28;
+			}
+
+			namespace Pcm
+			{
+				namespace LoadBtn
+				{
+					static constexpr int width = 50;
+				}
+
+				namespace FileLabel
+				{
+					static constexpr int width = 155;
+				}
+
+				namespace ClearBtn
+				{
+					static constexpr int width = 20;
+				}
 			}
 		}
 
@@ -492,7 +511,7 @@ namespace GuiValue
 		static constexpr int Height = 680;
 
 		static constexpr int RightWidth = 1000;
-		static constexpr int RightHeight = 680;
+		static constexpr int RightHeight = 700;
 
 		namespace Custom
 		{
@@ -529,7 +548,7 @@ namespace GuiValue
 		namespace Pad
 		{
 			static constexpr int width = 230;
-			static constexpr int height = 340;
+			static constexpr int height = 300;
 		}
 	}
 
@@ -548,9 +567,9 @@ namespace GuiValue
 	{
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
-		static inline constexpr int AreaHeightBig = 310;
-		static inline constexpr int AreaHeightMini = 150;
-		static inline constexpr int AreaHeight = 220;
+		static inline constexpr int AreaHeightBig = 190;
+		static inline constexpr int AreaHeightMini = 120;
+		static inline constexpr int AreaHeight = 170;
 		static inline constexpr int GlobalBypassHeight = 120;
 		static inline constexpr int BypassWidth = 120;
 		static inline constexpr int GroupHeight = 200;

@@ -482,16 +482,24 @@ public:
 
 class GuiCategoryLabel : public GuiLabel
 {
+    bool enableChangeDetailVisible = false;
+    bool detailVisible = false;
+	juce::String visibleText = juce::String();
+    juce::String invisibleText = juce::String();
 public:
     GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}
 
     struct Config {
         juce::Component& parent;
         juce::String title;
+		std::optional<juce::String> invisibleTitle = std::nullopt; // 詳細テキスト（省略可能）
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
         juce::Colour color = GuiColor::Label::CategoryText;
+        bool detailVisible = false;
+        bool enableChangeDetailVisible = false;
     };
 
     void setup(const Config& c);
+	bool isDetailVisible() const { return this->detailVisible; }
 };

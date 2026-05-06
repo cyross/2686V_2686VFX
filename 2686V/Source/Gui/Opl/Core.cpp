@@ -294,7 +294,7 @@ void GuiOpl::setup()
         pmdTo14[i].setExplicitFocusOrder(++tabOrder);
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
-        catMask[i].setup({ .parent = *this, .title = GuiText::Category::mask });
+        catMask[i].setup({ .parent = *this, .title = GuiText::Category::visibleMask, .invisibleTitle = GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
@@ -379,7 +379,16 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i] });
         layoutRowThreeComps({ .rect = innerRect, .comp1 = &pmdTo7[i], .comp2 = &pmdTo137[i], .comp3 = &pmdTo14[i]});
         layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
-        layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+
+        bool visibleMask = catMask[i].isDetailVisible();
+
+        mask[i].setVisible(visibleMask);
+
+        if (visibleMask)
+        {
+            layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+        }
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }

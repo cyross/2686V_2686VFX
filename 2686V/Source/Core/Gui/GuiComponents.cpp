@@ -171,6 +171,11 @@ void GuiToggleButton::setup(const Config& c)
 
 void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
+    if (!this->isVisible())
+    {
+		return; // 非表示なら描画しない
+    }
+
     float boxSize = 12.0f; // 縮小しても視認しやすい四角のサイズ
     float gap = 6.0f;      // 四角と文字の隙間
 
@@ -419,5 +424,26 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
 
 void GuiCategoryLabel::setup(const Config& c)
 {
-    GuiLabel::setup({ .parent = c.parent, .title = c.title, .font = c.font, .justification = c.justification, .color = c.color });
+    this->visibleText = c.title;
+    this->invisibleText = c.invisibleTitle.value_or(""); // 詳細テキストがない場合は空文字
+    this->detailVisible = c.detailVisible;
+    this->enableChangeDetailVisible = c.enableChangeDetailVisible;
+
+    GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = c.font, .justification = c.justification, .color = c.color});
+
+    // 切り替え可能なときは、表示・非表示をトグルする関数を追加
+    if (this->enableChangeDetailVisible) {
+        this->onClick = [this] {
+            this->detailVisible = !this->detailVisible;
+
+            if (detailVisible) {
+                this->setText(visibleText, juce::NotificationType::sendNotification);
+            }
+            else {
+                this->setText(invisibleText, juce::NotificationType::sendNotification);
+            }
+
+            ctx.editor.resized();
+            };
+    }
 }

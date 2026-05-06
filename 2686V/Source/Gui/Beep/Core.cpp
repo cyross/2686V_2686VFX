@@ -27,7 +27,7 @@ void GuiBeep::setup() {
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
-    catFix.setup({ .parent = *this, .title = GuiText::Category::fix });
+    catFix.setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
     fixToggle.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fix, .title = GuiText::Beep::Fix, .isReset = true });
     fixToggle.setWantsKeyboardFocus(true);
@@ -97,9 +97,22 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
     layoutMainCategory({ .mainRect = mRect, .label = &catFix });
-    layoutMain({ .mainRect = mRect, .component = &fixToggle });
-    layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider});
-    layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
+
+
+    bool visibleFix = catFix.isDetailVisible();
+
+    fixToggle.setVisible(visibleFix);
+    freqSlider.setVisible(visibleFix);
+    freqSlider.label.setVisible(visibleFix);
+    freqTo2kBtn.setVisible(visibleFix);
+
+    if (visibleFix)
+    {
+        layoutMain({ .mainRect = mRect, .component = &fixToggle });
+        layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider });
+        layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
+    }
+
     layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
     layoutMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });

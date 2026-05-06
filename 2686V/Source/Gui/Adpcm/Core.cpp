@@ -122,8 +122,6 @@ void GuiAdpcm::setup()
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
-    paramGroup.setup(*this, GuiText::Group::adpcmParams);
-
     // 音声ファイル読み込みボタン
     loadButton.setup({ .parent = *this, .title = GuiText::File::load , .isReset = false });
     loadButton.addListener(&ctx.editor);
@@ -164,6 +162,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
     layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
+    layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutMain({ .mainRect = mRect, .component = &loopButton });
     layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
@@ -179,23 +178,6 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
-
-    auto headerArea = pageArea.removeFromTop(GuiValue::Adpcm::File::height);
-
-    paramGroup.setBounds(headerArea);
-
-    auto inner = headerArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    inner.removeFromTop(GuiValue::Group::TitlePaddingTop);
-
-    auto fileRow = inner.removeFromTop(30);
-    // 左にロードボタン
-    loadButton.setBounds(fileRow.removeFromLeft(100));
-    fileRow.removeFromLeft(10);
-    // 右にクリアボタン
-    clearButton.setBounds(fileRow.removeFromRight(60));
-    fileRow.removeFromRight(10);
-    // 中間にファイル名ラベル
-    fileNameLabel.setBounds(fileRow);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)

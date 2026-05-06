@@ -285,3 +285,19 @@ struct MainConfigThreeComps {
 };
 
 void layoutMainThreeComps(const MainConfigThreeComps& c);
+
+struct MainConfigPcm {
+    juce::Rectangle<int>& rect;
+    juce::Component* loadPcmBtn;
+    juce::Component* pcmFileNameLabel;
+    juce::Component* clearPcmBtn;
+    int rowHeight = GuiValue::MainGroup::Row::height;
+    int paddingTop = GuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = GuiValue::MainGroup::Row::paddingBottom;
+    int paddingRight = GuiValue::MainGroup::Row::paddingRight;
+    int loadPcmBtnWidth = GuiValue::MainGroup::Row::Pcm::LoadBtn::width;
+    int pcmFileNameLabelWidth = GuiValue::MainGroup::Row::Pcm::FileLabel::width;
+    int clearPcmBtnWidth = GuiValue::MainGroup::Row::Pcm::ClearBtn::width;
+};
+
+void layoutMainPcm(const MainConfigPcm& c);

@@ -14,7 +14,6 @@ class GuiAdpcm : public GuiBase
 {
     // --- ADPCM Page ---
     GuiGroup mainGroup;
-    GuiGroup paramGroup;
 
     GuiComboBox modeSelector;
 
@@ -59,7 +58,6 @@ public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        paramGroup(context),
         mvolCat(context),
         masterVolSlider(context),
         modeSelector(context),

@@ -345,8 +345,10 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
+    auto paramArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+
     // --- Voice Group ---
-    auto voiceArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+    auto voiceArea = paramArea.removeFromTop(230);
 
     voiceGroup.setBounds(voiceArea);
     auto vRect = voiceGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
@@ -368,7 +370,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // Wave Group
     float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
     int waveMode = (waveParam > PrValue::boolThread) ? 1 : 0;
-    auto waveArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+    auto waveArea = paramArea.removeFromTop(140);
 
     if (waveMode == 0) // Pulse
     {
@@ -473,7 +475,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     }
 
     // HW Env Group
-    auto envArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+    auto envArea = paramArea.removeFromTop(120);
     envGroup.setBounds(envArea);
     auto eRect = envGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
 

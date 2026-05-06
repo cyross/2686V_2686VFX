@@ -50,9 +50,13 @@ namespace GuiText
 		static inline const juce::String adsr = u8"--- ADSR ---";
 		static inline const juce::String pitchAdsr = u8"--- PITCH ENV ---";
 		static inline const juce::String fix = u8"--- FIX ---";
+		static inline const juce::String visibleFix = u8"[▲]--- FIX ---";
+		static inline const juce::String invisibleFix = u8"[▼]--- FIX ---";
 		static inline const juce::String mvol = u8"--- MASTER VOLUME ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
 		static inline const juce::String mask = u8"--- MASK ---";
+		static inline const juce::String visibleMask = u8"[▲]--- MASK ---";
+		static inline const juce::String invisibleMask = u8"[▼]--- MASK ---";
 		static inline const juce::String mml = u8"--- MML ---";
 		static inline const juce::String bypass = u8"--- BYPASS ---";
 		static inline const juce::String pan = u8"--- PAN ---";
@@ -263,7 +267,7 @@ namespace GuiText
 
 		namespace Mod
 		{
-			static inline const juce::String enable = u8"Mod";
+			static inline const juce::String enable = u8"Enable";
 			static inline const juce::String depth = u8"Depth";
 			static inline const juce::String speed = u8"Speed";
 		}

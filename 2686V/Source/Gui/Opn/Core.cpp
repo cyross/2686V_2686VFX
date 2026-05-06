@@ -253,7 +253,7 @@ void GuiOpn::setup()
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
-        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::fix });
+        cafFix[i].setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
         fix[i].setWantsKeyboardFocus(true);
@@ -360,11 +360,33 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         layoutRowCategory({ .rowRect = innerRect, .component = &catN88Lfo[i] });
         layoutRow({ .rowRect = innerRect, .label = &n88Ams[i].label, .component = &n88Ams[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &cafFix[i] });
-        layoutRow({ .rowRect = innerRect, .component = &fix[i] });
-        layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &freqToZero[i], .comp2 = &freqTo440[i] });
+
+        bool visibleFix = cafFix[i].isDetailVisible();
+
+        fix[i].setVisible(visibleFix);
+        freq[i].setVisible(visibleFix);
+        freq[i].label.setVisible(visibleFix);
+        freqToZero[i].setVisible(visibleFix);
+        freqTo440[i].setVisible(visibleFix);
+
+        if (visibleFix)
+        {
+            layoutRow({ .rowRect = innerRect, .component = &fix[i] });
+            layoutRow({ .rowRect = innerRect, .label = &freq[i].label, .component = &freq[i] });
+            layoutRowTwoComps({ .rect = innerRect, .comp1 = &freqToZero[i], .comp2 = &freqTo440[i] });
+        }
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
-        layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+
+        bool visibleMask = catMask[i].isDetailVisible();
+
+        mask[i].setVisible(visibleMask);
+
+        if (visibleMask)
+        {
+            layoutRow({ .rowRect = innerRect, .component = &mask[i] });
+        }
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i] });
     }
