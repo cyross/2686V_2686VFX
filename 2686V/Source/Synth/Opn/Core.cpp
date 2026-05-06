@@ -12,10 +12,9 @@ void OpnCore::prepare(double sampleRate)
     m_lfoTimerAcc = 1.0;
     m_steppedPmLfoVal = 0.0f;
     m_steppedAmLfoVal = 0.0f;
-
-    updateNoiseDelta(target);
-
     m_amSmooth = 0.0f;
+
+	m_noiseGen.prepare(target);
 }
 
 void OpnCore::setParameters(const SynthParams& params)
@@ -36,7 +35,7 @@ void OpnCore::setParameters(const SynthParams& params)
         double target = getTargetRate(m_rateIndex);
         for (auto& op : m_operators) op.setSampleRate(target);
 
-        updateNoiseDelta(target);
+		m_noiseGen.updateDelta(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
@@ -154,13 +153,7 @@ float OpnCore::getSample() {
                 if (m_lfoPhase >= 1.0) {
                     m_lfoPhase -= 1.0;
                     m_lfoCycleCount++;
-
-                    unsigned int bit0 = m_lfsr & 1;
-                    unsigned int bit3 = (m_lfsr >> 3) & 1;
-                    unsigned int nextBit = bit0 ^ bit3;
-                    m_lfsr >>= 1;
-                    if (nextBit) m_lfsr |= (1 << 16);
-                    m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+                    m_currentNoiseSample = m_noiseGen.generate();
                 }
 
                 // OPNの場合は 0〜3 (lfoN88Strategies)

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Generator/Noise/Lfsr/Core.h"
+#include "../../Generator/Fm/Alg/Basic/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -25,6 +27,9 @@ public:
 private:
     std::array<OpnOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<BasicAlg::OpGetSampleFunc, 4> opGetSamples;
+    BasicAlg alg;
+    LfsrNoiseGen m_noiseGen;
 
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;
@@ -35,11 +40,6 @@ private:
     float m_quantizeSteps = 0.0f;
 
     int m_lfoWave = 0; // 0:Sine, 1:Saw, 2:Square, 3:Tri, 4:Noise
-    unsigned int m_lfsr = 0x1FFFF;
-    float m_noisePhase = 0.0f;
-    float m_noiseDelta = 0.0f;
-    float m_currentNoiseSample = 0.0f;
-    float m_targetNoiseFreq = 12000.0f;
     float m_amSmooth = 0.0f;
     float m_amSmoothRate = 0.005f;
 
@@ -63,8 +63,4 @@ private:
     double m_lfoTimerAcc = 0.0;
     float m_steppedPmLfoVal = 0.0f;
     float m_steppedAmLfoVal = 0.0f;
-
-    void updateNoiseDelta(double targetRate) {
-        if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
-    }
 };

@@ -1,4 +1,6 @@
-﻿// CSM/Fix Mode
+﻿#pragma once
+
+// CSM/Fix Mode
 class FixModeParams
 {
 public:

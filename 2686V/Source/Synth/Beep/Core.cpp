@@ -6,6 +6,7 @@ void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
 	m_adsr.prepare(m_sampleRate);
+    m_fixMode.setParameters(false, 2000.0f);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
@@ -13,12 +14,11 @@ void BeepCore::setParameters(const SynthParams& params) {
 
     m_adsr.setParameters(params.beep.adsr);
 
-    m_fixedMode = params.beep.fixedMode;
-    m_fixedFreq = params.beep.fixedFreq;
+	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote) {
-    m_baseFreq = m_fixedMode ? m_fixedFreq : freq;
+    m_baseFreq = m_fixMode.noteOn(freq);
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 

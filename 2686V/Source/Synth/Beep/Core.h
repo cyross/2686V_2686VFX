@@ -5,6 +5,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Generator/Fm/Fix/Core.h"
 
 class BeepCore : public SynthCore
 {
@@ -36,7 +37,5 @@ private:
     float m_level = 1.0f;
 
     AmpAdsrEnv m_adsr;
-
-    bool m_fixedMode = false;
-    float m_fixedFreq = 2000.0f;
+    FixMode m_fixMode;
 };

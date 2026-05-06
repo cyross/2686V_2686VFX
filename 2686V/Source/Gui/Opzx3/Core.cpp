@@ -451,6 +451,11 @@ void GuiOpzx3::setup()
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ws, .title = GuiText::Fm::Op::Ws, .items = opzx3WsItems, .isReset = true });
         ws[i].setWantsKeyboardFocus(true);
         ws[i].setExplicitFocusOrder(++tabOrder);
+        ws[i].onChange = [this, i] {
+            updateOnWsChange(i);
+
+            ctx.editor.resized();
+            };
 
         loadPcmBtn[i].setup({ .parent = *this, .title = GuiText::File::Pcm, .isReset = false, .isResized = false });
         loadPcmBtn[i].setWantsKeyboardFocus(true);
@@ -720,6 +725,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         innerRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
 
         bool rgMode = rgEn[i].getToggleState();
+		int selectedWs = ws[i].getSelectedId();
 
         layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
@@ -749,10 +755,16 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &phaseOffset[i].label, .component = &phaseOffset[i], });
         layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
         layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
-        layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
-        layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
-        layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+        if (selectedWs == 32)
+        {
+            layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+            layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
+            layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
+        }
+        if (selectedWs == 16)
+        {
+            layoutRowOpzx3Pcm({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+        }
         layoutRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i] });
         layoutRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], });
         layoutRowCategory({ .rowRect = innerRect, .component = &catPitchEnv[i] });
@@ -777,6 +789,7 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .component = &mask[i], });
         layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
+        updateOnWsChange(i);
     }
 
     updateAlgorithmDisplay();
@@ -913,6 +926,49 @@ void GuiOpzx3::updateOpEnable(int idx, bool enable)
     mask[idx].setEnabled(enable);
     catMml[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
+}
+
+void GuiOpzx3::updateOnWsChange(int idx)
+{
+    int selectedWs = ws[idx].getSelectedId();
+    if (selectedWs == 16)
+    {
+        loadPcmBtn[idx].setVisible(false);
+        clearPcmBtn[idx].setVisible(false);
+        pcmFileNameLabel[idx].setVisible(false);
+        pcmOffset[idx].setVisible(false);
+        pcmOffset[idx].label.setVisible(false);
+        pcmRatio[idx].setVisible(false);
+        pcmRatio[idx].label.setVisible(false);
+        loadWtBtn[idx].setVisible(true);
+        clearWtBtn[idx].setVisible(true);
+        wtFileNameLabel[idx].setVisible(true);
+    }
+    else if (selectedWs == 32)
+    {
+        loadPcmBtn[idx].setVisible(true);
+        clearPcmBtn[idx].setVisible(true);
+        pcmFileNameLabel[idx].setVisible(true);
+        pcmOffset[idx].setVisible(true);
+        pcmOffset[idx].label.setVisible(true);
+        pcmRatio[idx].setVisible(true);
+        pcmRatio[idx].label.setVisible(true);
+        loadWtBtn[idx].setVisible(false);
+        clearWtBtn[idx].setVisible(false);
+        wtFileNameLabel[idx].setVisible(false);
+    }
+    else {
+        loadPcmBtn[idx].setVisible(false);
+        clearPcmBtn[idx].setVisible(false);
+        pcmFileNameLabel[idx].setVisible(false);
+        pcmOffset[idx].setVisible(false);
+        pcmOffset[idx].label.setVisible(false);
+        pcmRatio[idx].setVisible(false);
+        pcmRatio[idx].label.setVisible(false);
+        loadWtBtn[idx].setVisible(false);
+        clearWtBtn[idx].setVisible(false);
+        wtFileNameLabel[idx].setVisible(false);
+    }
 }
 
 void GuiOpzx3::updateAlgorithmDisplay()

@@ -146,10 +146,9 @@ void Opzx3Core::prepare(double sampleRate) {
     }
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
-
     m_amSmooth = 0.0f;
 
-    updateNoiseDelta(target);
+    m_noiseGen.prepare(target);
     m_pitchAdsr.prepare(m_hostSampleRate);
 }
 
@@ -179,9 +178,12 @@ void Opzx3Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opzx3.fmRateIndex) {
         m_rateIndex = params.opzx3.fmRateIndex;
+
         double target = getTargetRate(m_rateIndex);
+
         for (auto& op : m_operators) op.setSampleRate(target);
-        updateNoiseDelta(target);
+
+        m_noiseGen.prepare(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx3.fmBitDepth);
@@ -294,16 +296,8 @@ float Opzx3Core::getSample() {
 
             if (m_lfoPhase >= 1.0) {
                 m_lfoPhase -= 1.0;
-
                 m_lfoCycleCount++;
-
-                unsigned int bit0 = m_lfsr & 1;
-                unsigned int bit3 = (m_lfsr >> 3) & 1;
-                unsigned int nextBit = bit0 ^ bit3;
-                m_lfsr >>= 1;
-                if (nextBit) m_lfsr |= (1 << 16);
-
-                m_currentNoiseSample = ((m_lfsr % 1000) / 500.0f) - 1.0f;
+                m_currentNoiseSample = m_noiseGen.generate();
             }
 
             // ストラテジー配列を使ってLFO値を計算
@@ -396,10 +390,6 @@ float Opzx3Core::getSample() {
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
-}
-
-void Opzx3Core::updateNoiseDelta(double targetRate) {
-    if (targetRate > 0.0) m_noiseDelta = m_targetNoiseFreq / targetRate;
 }
 
 void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)

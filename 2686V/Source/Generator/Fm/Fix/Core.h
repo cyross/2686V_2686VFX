@@ -1,9 +1,10 @@
-﻿#include "./Params.h"
+﻿#pragma once
 
 class FixMode
 {
     bool enable = false;
     float freq = 440.0f;
 public:
-    void setParameters(const FixModeParams& params);
+    void setParameters(bool enable, float freq);
+    float noteOn(float baseFreq);
 };

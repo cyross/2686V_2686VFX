@@ -1,7 +1,12 @@
 ﻿#include "./Core.h"
 
-void FixMode::setParameters(const FixModeParams& params)
+void FixMode::setParameters(bool enable, float freq)
 {
-	this->enable = params.enable;
-	this->freq = params.freq;
+	this->enable = enable;
+	this->freq = freq;
+}
+
+float FixMode::noteOn(float baseFreq)
+{
+	return enable ? freq : baseFreq;
 }

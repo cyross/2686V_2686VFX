@@ -3,7 +3,8 @@
 void LfsrNoiseGen::prepare(double newTargetRate) {
 	this->lfsr = 0x1FFFF;
 	this->currentSample = 0.0f;
-	this->targetSampleRate = newTargetRate;
+
+	updateDelta(newTargetRate);
 }
 
 void LfsrNoiseGen::setParameters(float newLevel, float newBaseFreq, bool noiseOnNote)
@@ -28,7 +29,9 @@ float LfsrNoiseGen::generate() {
 	return this->currentSample;
 }
 
-void LfsrNoiseGen::updateDelta() {
+void LfsrNoiseGen::updateDelta(double newTargetRate) {
+	this->targetSampleRate = newTargetRate;
+
 	if (this->targetSampleRate > 0.0) this->delta = this->targetFreq / this->targetSampleRate;
 }
 

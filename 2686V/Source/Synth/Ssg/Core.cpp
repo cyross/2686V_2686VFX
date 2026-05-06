@@ -4,27 +4,6 @@
 
 const std::array<float, 9> SsgCore::dutyPresets = { 0.5f, 0.4375f, 0.375f, 0.3125f, 0.25f, 0.20f, 0.1875f, 0.125f, 0.0625f };
 
-// 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
-// これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
-// 値は実機の数値を参考に調整した近似値です。
-// 0: 0
-// 1: -0.45%
-// 2: -0.25%
-// 3: -0.1% (approx)
-// 4: 0
-// 5: +0.1% (approx)
-// 6: +0.25%
-// 7: +0.45%
-const std::array<float, 8> dtScales = { 0.0f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f };
-
-// DT2 (OPM Coarse Detune)
-// YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
-// 0: x1.0
-// 1: x1.41 (600 cent up)
-// 2: x1.58 (780 cent up)
-// 3: x1.78 (950 cent up)
-const std::array<float, 4> dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
-
 namespace {
     // =================================================================
     // 波形ストラテジー配列の定義
@@ -74,6 +53,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
+    m_detune.setParameters(params.ssg.detune, params.ssg.detune2);
 
     m_waveform = params.ssg.waveform;
 
@@ -89,9 +69,6 @@ void SsgCore::setParameters(const SynthParams& params)
     m_triKeyTrack = params.ssg.triKeyTrack;
     m_triPeak = params.ssg.triPeak;
     m_triFreq = params.ssg.triFreq;
-
-	m_detune = params.ssg.detune;
-	m_detune2 = params.ssg.detune2;
 
     m_noiseGen.setParameters(params.ssg.noiseLevel, params.ssg.noiseFreq, params.ssg.noiseOnNote);
 
@@ -114,12 +91,8 @@ void SsgCore::setParameters(const SynthParams& params)
 void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
     // 基本周波数にデチューン成分を加算
-    float detunedBaseFreq = freq + freq * dtScales[m_detune & 7] * 4.0f;
-
-    // Final Frequency = (Base + DT1) * MUL * DT2
-    float finalFreq = detunedBaseFreq * dt2Scales[m_detune2 & 3];
-
-    m_currentFrequency = finalFreq; // Save for recalculation
+    // Save for recalculation
+    m_currentFrequency = m_detune.noteOn(freq, 1);
     m_phase = 0.0f;
 
     m_noiseGen.updateFrequency(m_currentFrequency);

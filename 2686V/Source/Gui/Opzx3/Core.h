@@ -340,6 +340,7 @@ public:
         }
     }
     void updateOpEnable(int idx, bool enable);
+	void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
     void updatePresetName(const juce::String& presetName);

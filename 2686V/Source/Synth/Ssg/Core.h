@@ -9,6 +9,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Generator/Noise/Ssg/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 
 class SsgCore : public SynthCore
 {
@@ -38,6 +39,7 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
+    OpmDetune m_detune;
 
     // HW Env Params
     bool m_useHwEnv = false;
@@ -76,10 +78,6 @@ private:
 
     double m_lfoPhase = 0.0;
     float m_lfoFreq = 5.0f;
-
-    // detune
-    int m_detune = 0;
-    int m_detune2 = 0;
 
     void updatePhaseDelta();
 };

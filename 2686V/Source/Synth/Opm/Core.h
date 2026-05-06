@@ -3,6 +3,8 @@
 #include <random>
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Generator/Noise/Lfsr/Core.h"
+#include "../../Generator/Fm/Alg/Basic/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -22,6 +24,9 @@ public:
 private:
     std::array<OpmOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<BasicAlg::OpGetSampleFunc, 4> opGetSamples;
+    BasicAlg alg;
+    LfsrNoiseGen m_noiseGen;
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
@@ -44,16 +49,9 @@ private:
     int m_pmd = 0;
     int m_amd = 0;
 
-    // Noise LFSR Variables
-    unsigned int m_lfsr = 0x1FFFF; // 17-bit Shift Register (Seed must be non-zero)
-    float m_noisePhase = 0.0f;
-    float m_noiseDelta = 0.0f;
-    float m_targetNoiseFreq = 12000.0f;
     float m_amSmoothRate = 0.005f;
 
     float m_modWheel = 0.0f;
-
-    void updateNoiseDelta(double targetRate);
 
     using OpmLfoCalculator = float(*)(double phase, float noise);
 

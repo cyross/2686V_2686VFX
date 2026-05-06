@@ -143,6 +143,11 @@ set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Core.cpp"
 )
 
+set(OPM_DETUNE_FILES
+    "Source/Effect/Detune/Opm/Core.h"
+    "Source/Effect/Detune/Opm/Core.cpp"
+)
+
 set(OPNA_SYNTH_FILES
     "Source/Synth/Opna/Core.h"
     "Source/Synth/Opna/Core.cpp"
@@ -417,6 +422,7 @@ source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
@@ -484,6 +490,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${EDITOR_FILES}
         ${AMP_ADSR_ENVELOPE_FILES}
         ${PITCH_ADSR_ENVELOPE_FILES}
+        ${OPM_DETUNE_FILES}
         ${OPNA_SYNTH_FILES}
         ${OPN_SYNTH_FILES}
         ${OPL_SYNTH_FILES}

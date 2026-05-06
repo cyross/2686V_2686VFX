@@ -1,5 +1,16 @@
 ﻿#include "./Core.h"
 
+void OpmOperator::setParameters(const FmOpParams& params, float feedback)
+{
+    m_params = params;
+    m_feedback = feedback;
+    m_ssgEgFreq = 1.0f;
+    m_params.ssgEg = 0;
+    m_params.waveSelect = 0;
+	m_detune.setParameters(params.detune, params.detune2);
+	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+}
+
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
     m_phase = m_params.phaseOffset;
@@ -12,44 +23,17 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
-    float baseFreq = frequency;
-
-    // --- 通常の波形（Sineなど）の場合 ---
-    if (m_params.fixedMode) {
-        baseFreq = m_params.fixedFreq;
-    }
+    float baseFreq = m_fixMode.noteOn(frequency);
 
     // 基本周波数にデチューン成分を加算
-    float detunedBaseFreq = baseFreq + baseFreq * dtScales[m_params.detune & 7];
-
-    // Multi & Detune
-    float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-
-    // Final Frequency = (Base + DT1) * MUL * DT2
-    float finalFreq = detunedBaseFreq * mul * dt2Scales[m_params.detune2 & 3];
+    float finalFreq = m_detune.noteOn(baseFreq, m_params.multiple);
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
-    // TL Calculation
-    float tlGain = 0.0f;
-    if (m_params.regEnable)
-    {
-        // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
-        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = m_params.rtl * 0.75f;
-        tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-    }
-    else
-    {
-        // 従来モード: 0.0〜1.0 を 0dB〜-96dB にマッピング
-        if (m_params.totalLevel < 0.99f) {
-            float attenuationDb = m_params.totalLevel * 96.0f;
-            tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-        }
-        else {
-            tlGain = 0.0f;
-        }
-    }
+    // TLレジスタ値から直接減衰量(dB)を計算
+    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+    float attenuationDb = m_params.rtl * 0.75f;
+    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
     m_targetLevel = velocity * tlGain;
     m_state = State::Attack;

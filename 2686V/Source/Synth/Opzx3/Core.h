@@ -7,6 +7,8 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Generator/Noise/Lfsr/Core.h"
+#include "../../Generator/Fm/Alg/Opzx3/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -43,6 +45,9 @@ public:
 private:
     std::array<Opzx3Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<Opzx3Alg::OpGetSampleFunc, 4> opGetSamples;
+    Opzx3Alg alg;
+    LfsrNoiseGen m_noiseGen;
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
@@ -92,6 +97,4 @@ private:
     PitchAdsrEnv m_pitchAdsr;
 
     static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
-
-    void updateNoiseDelta(double targetRate);
 };

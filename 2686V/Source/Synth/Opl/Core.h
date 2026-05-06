@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Generator/Fm/Alg/Opl/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -25,6 +26,8 @@ public:
 private:
     std::array<OplOperator, 2> m_operators;
     std::array<bool, 2> m_opMask{ false, false };
+    std::array<OplAlg::OpGetSampleFunc, 2> opGetSamples;
+    OplAlg alg;
 
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;

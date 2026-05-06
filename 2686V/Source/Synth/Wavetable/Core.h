@@ -9,6 +9,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 
 class WtCore : public SynthCore
 {
@@ -33,6 +34,7 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
+	OpmDetune m_detune;
 
     float m_level = 1.0f;
 
@@ -68,8 +70,4 @@ private:
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
-
-    // detune
-    int m_detune = 0;
-    int m_detune2 = 0;
 };

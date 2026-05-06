@@ -8,6 +8,7 @@ void OpnaOperator::setParameters(const FmOpParams& params, float feedback)
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = 0;
+    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
 }
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
@@ -21,11 +22,7 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_lfoCycleCount = 0;
 
-    float baseFreq = frequency;
-
-    if (m_params.fixedMode) {
-        baseFreq = m_params.fixedFreq;
-    }
+    float baseFreq = m_fixMode.noteOn(frequency);
 
     float detunedBaseFreq = baseFreq + baseFreq * dtScales[m_params.detune & 7];
 
@@ -37,26 +34,10 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
-    // TL Calculation
-    float tlGain = 0.0f;
-    if (m_params.regEnable)
-    {
-        // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
-        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = m_params.rtl * 0.75f;
-        tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-    }
-    else
-    {
-        // 従来モード: 0.0〜1.0 を 0dB〜-96dB にマッピング
-        if (m_params.totalLevel < 0.99f) {
-            float attenuationDb = m_params.totalLevel * 96.0f;
-            tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-        }
-        else {
-            tlGain = 0.0f;
-        }
-    }
+    // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
+    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+    float attenuationDb = m_params.rtl * 0.75f;
+    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
     float kslAttenuation = 1.0f;
     m_targetLevel = velocity * tlGain * kslAttenuation;
