@@ -105,6 +105,11 @@ class GuiLabel : public juce::Label, public GuiBaseComponent
 {
 public:
     GuiLabel(const GuiContext& context) : GuiBaseComponent(context) {}
+    // =======================================================
+    // クリック時の処理を保持するコールバック
+    // =======================================================
+
+    std::function<void()> onClick = nullptr;
 
     struct Config {
         juce::Component& parent;
@@ -115,6 +120,32 @@ public:
     };
 
     void setup(const Config& c);
+
+    // =======================================================
+    // マウスボタンが押された瞬間のイベントを検知
+    // =======================================================
+    void mouseDown(const juce::MouseEvent& e) override
+    {
+        // 左クリックで、かつ onClick に処理が登録されていれば実行
+        if (e.mods.isLeftButtonDown() && onClick != nullptr)
+        {
+            onClick();
+        }
+
+        // 親クラス（通常のLabel）のクリック処理も一応呼んでおく
+        juce::Label::mouseDown(e);
+    }
+
+    // =======================================================
+    // マウスが乗った時に「押せる感（指カーソル）」を出す
+    // =======================================================
+    void mouseEnter(const juce::MouseEvent& e) override
+    {
+        if (onClick != nullptr) {
+            setMouseCursor(juce::MouseCursor::PointingHandCursor); // 👆カーソルにする
+        }
+        juce::Label::mouseEnter(e);
+    }
 };
 
 class GuiSlider : public juce::Slider, public GuiBaseComponent
@@ -174,7 +205,7 @@ protected:
     public:
         // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
         juce::Font selectedFont{ 13.0f };
-        juce::Font dropdownFont{ 16.0f };
+        juce::Font dropdownFont{ 14.0f };
 
         // ドロップダウンメニューのフォントサイズを上書き
         juce::Font getPopupMenuFont() override {

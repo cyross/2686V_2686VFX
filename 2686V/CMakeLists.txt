@@ -473,6 +473,10 @@ function(create_cyross_plugin TARGET_NAME)
         PRODUCT_NAME ${TARGET_NAME}
     )
 
+    if(MSVC)
+        target_compile_options(${TARGET_NAME} PRIVATE /utf-8)
+    endif()
+
     target_sources(${TARGET_NAME} PRIVATE
         ${CONST_FILES}
         ${SYNTH_FILES}

@@ -425,8 +425,6 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
     customWaveSmoothBtn.setBounds(smoothArea);
 
-    cwRect.removeFromTop(4); // リセットボタンとの隙間
-
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });
 }
