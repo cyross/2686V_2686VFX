@@ -205,20 +205,61 @@ public:
         float val = 1.0f - (e.position.y / halfHeight);
         val = std::clamp(val, -1.0f, 1.0f);
 
-        // 修飾キーによる高精度ドラッグ操作
-        bool isAlt = e.mods.isAltDown();
-        bool isShift = e.mods.isShiftDown();
-        bool isCtrl = e.mods.isCtrlDown() || e.mods.isCommandDown(); // MacのCmdキーにも対応
+        // =======================================================
+        // 1, 2, 3 キーの押下状態を取得 (テンキーにも対応)
+        // =======================================================
+        bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
+        bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
+        bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
 
-        if (isAlt)
+        int steps = 0;
+        if (isKey1) steps = 16;      // 16段階 (0〜15)
+        else if (isKey2) steps = 32; // 32段階 (0〜31)
+        else if (isKey3) steps = 64; // 64段階 (0〜63)
+
+        // 段階スナップが有効な場合
+        if (steps > 0)
         {
-            val = std::round(val / 0.1f) * 0.1f;
+            int maxIndex = steps;        // 例: 16段階なら 15
+            int zeroIndex = steps / 2;   // 例: 16段階なら 8 (8段階目)
+
+            int step = 0;
+            // 1. マウス位置(val)から現在のステップ(段階)を算出
+            if (val < 0.0f) {
+                step = (int)std::round(val * zeroIndex + zeroIndex);
+            }
+            else {
+                step = (int)std::round(val * (maxIndex - zeroIndex) + zeroIndex);
+            }
+            step = std::clamp(step, 0, maxIndex);
+
+            // 2. ステップから正確な値(-1.0 〜 1.0)を再計算
+            if (step < zeroIndex) {
+                val = (float)(step - zeroIndex) / (float)zeroIndex;
+            }
+            else if (step > zeroIndex) {
+                val = (float)(step - zeroIndex) / (float)(maxIndex - zeroIndex);
+            }
+            else {
+                val = 0.0f; // 完全に0.0に固定
+            }
         }
-        else if (isShift) {
-            val = std::round(val / 0.01f) * 0.01f;
-        }
-        else if (isCtrl) {
-            val = std::round(val / 0.05f) * 0.05f;
+        else
+        {
+            // 修飾キーによる高精度ドラッグ操作
+            bool isAlt = e.mods.isAltDown();
+            bool isShift = e.mods.isShiftDown();
+            bool isCtrl = e.mods.isCtrlDown() || e.mods.isCommandDown();
+
+            if (isAlt) {
+                val = std::round(val / 0.1f) * 0.1f;
+            }
+            else if (isShift) {
+                val = std::round(val / 0.01f) * 0.01f;
+            }
+            else if (isCtrl) {
+                val = std::round(val / 0.05f) * 0.05f;
+            }
         }
 
         if (m_params[index] != nullptr) {
@@ -254,23 +295,70 @@ public:
             float potentialVal = 1.0f - ((float)lastMousePos.y / halfHeight);
             potentialVal = std::clamp(potentialVal, -1.0f, 1.0f);
 
-            // 修飾キーが押されている場合は、そのスナップ値もプレビューに反映させる
-            bool isAlt = lastModifiers.isAltDown();
-            bool isShift = lastModifiers.isShiftDown();
-            bool isCtrl = lastModifiers.isCtrlDown() || lastModifiers.isCommandDown();
+            // =======================================================
+            // 1, 2, 3 キーの押下状態を取得
+            // =======================================================
+            bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
+            bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
+            bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
 
-            if (isAlt) {
-                potentialVal = std::round(potentialVal / 0.1f) * 0.1f;
-            }
-            else if (isShift) {
-                potentialVal = std::round(potentialVal / 0.01f) * 0.01f;
-            }
-            else if (isCtrl) {
-                potentialVal = std::round(potentialVal / 0.05f) * 0.05f;
-            }
+            int steps = 0;
+            if (isKey1) steps = 16;
+            else if (isKey2) steps = 32;
+            else if (isKey3) steps = 64;
 
-            // 表示するテキストを作成
-            juce::String text = "[" + juce::String(hoveredIndex) + "] " + juce::String(potentialVal, 2);
+            juce::String text;
+
+            if (steps > 0)
+            {
+                int maxIndex = steps - 1;
+                int zeroIndex = steps / 2 - 1;
+
+                int stepValue = 0;
+
+                // 1. プレビュー用ステップの算出
+                if (potentialVal < 0.0f) {
+                    stepValue = (int)std::round(potentialVal * zeroIndex + zeroIndex);
+                }
+                else {
+                    stepValue = (int)std::round(potentialVal * (maxIndex - zeroIndex) + zeroIndex);
+                }
+                stepValue = std::clamp(stepValue, 0, maxIndex);
+
+                // 2. ツールチップ表示用に正確な位置へスナップ
+                if (stepValue < zeroIndex) {
+                    potentialVal = (float)(stepValue - zeroIndex) / (float)zeroIndex;
+                }
+                else if (stepValue > zeroIndex) {
+                    potentialVal = (float)(stepValue - zeroIndex) / (float)(maxIndex - zeroIndex);
+                }
+                else {
+                    potentialVal = 0.0f;
+                }
+
+                // [index] step/steps (value) でテキストを作成
+                text = "[" + juce::String(hoveredIndex) + "] " + juce::String(stepValue + 1) + "/" + juce::String(steps) + "(" + juce::String(potentialVal, 3) + ")";
+            }
+            else
+            {
+                // 修飾キーが押されている場合は、そのスナップ値もプレビューに反映させる
+                bool isAlt = lastModifiers.isAltDown();
+                bool isShift = lastModifiers.isShiftDown();
+                bool isCtrl = lastModifiers.isCtrlDown() || lastModifiers.isCommandDown();
+
+                if (isAlt) {
+                    potentialVal = std::round(potentialVal / 0.1f) * 0.1f;
+                }
+                else if (isShift) {
+                    potentialVal = std::round(potentialVal / 0.01f) * 0.01f;
+                }
+                else if (isCtrl) {
+                    potentialVal = std::round(potentialVal / 0.05f) * 0.05f;
+                }
+
+                // [index] value でテキストを作成
+                text = "[" + juce::String(hoveredIndex) + "] " + juce::String(potentialVal, 3);
+            }
 
             g.setFont(14.0f);
             int textW = g.getCurrentFont().getStringWidth(text) + 12;
