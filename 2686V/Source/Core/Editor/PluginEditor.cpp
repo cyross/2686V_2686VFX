@@ -94,16 +94,26 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     }
 
     addChildComponent(staticPreview);
-    addAndMakeVisible(togglePreviewBtn);
     addChildComponent(realtimePreview);
 
+    // プレビュー表示切替ボタン
+    showPreviewButtonLF.borderOnColour = juce::Colours::green.darker(0.5f).withAlpha(0.7f);
+    showPreviewButtonLF.borderOffColour = juce::Colours::green.darker(0.7f).withAlpha(0.7f);
+
+    addAndMakeVisible(togglePreviewBtn);
+    togglePreviewBtn.setButtonText(isPreviewVisible ? u8"＜" : u8"＞");
+    togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
+    togglePreviewBtn.setLookAndFeel(&showPreviewButtonLF);
+    togglePreviewBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green.withAlpha(0.7f));
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
         updatePreviewVisibilityToProcessor();
 
         staticPreview.setVisible(isPreviewVisible);
         realtimePreview.setVisible(isPreviewVisible);
-        togglePreviewBtn.setButtonText(isPreviewVisible ? "<<" : ">>");
+        togglePreviewBtn.setButtonText(isPreviewVisible ? u8"＜" : u8"＞");
+        togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
 
         // ウィンドウの幅を動的に変更
         int newWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
@@ -115,14 +125,54 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     };
 
     // パニックボタン
+    panicButtonLF.borderOnColour = juce::Colours::red.darker(0.5f).withAlpha(0.7f);
+    panicButtonLF.borderOffColour = juce::Colours::red.darker(0.7f).withAlpha(0.7f);
+
     addAndMakeVisible(panicButton);
     panicButton.setVisible(true);
     panicButton.setButtonText("!");
+    panicButton.setTooltip(u8"Reset Audio Engine");
+    panicButton.setLookAndFeel(&panicButtonLF);
     panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.7f));
     panicButton.onClick = [this] {
         audioProcessor.panic();
         };
+
+
+    // アンドゥボタンボタン
+    undoButtonLF.borderOnColour = juce::Colours::blue.darker(0.5f).withAlpha(0.7f);
+    undoButtonLF.borderOffColour = juce::Colours::blue.darker(0.7f).withAlpha(0.7f);
+
+    addAndMakeVisible(undoButton);
+    undoButton.setVisible(true);
+    undoButton.setButtonText(u8"⇐");
+    undoButton.setTooltip("Nothing to undo");
+    undoButton.setLookAndFeel(&undoButtonLF);
+    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::yellow);
+    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.7f));
+    undoButton.onClick = [this] {
+        audioProcessor.undoManager.undo();
+        };
+
+    // リドゥボタン
+    redoButtonLF.borderOnColour = juce::Colours::blue.darker(0.5f).withAlpha(0.7f);
+    redoButtonLF.borderOffColour = juce::Colours::blue.darker(0.7f).withAlpha(0.7f);
+
+    addAndMakeVisible(redoButton);
+    redoButton.setVisible(true);
+    redoButton.setButtonText(u8"⇒");
+    redoButton.setTooltip("Nothing to Redo");
+    redoButton.setLookAndFeel(&redoButtonLF);
+    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.7f));
+    redoButton.onClick = [this] {
+        audioProcessor.undoManager.redo();
+        };
+
+    audioProcessor.undoManager.addChangeListener(this);
+
+    updateUndoRedoButtons();
 
     midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
 
@@ -148,6 +198,8 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     rhythmGui->removeLoadButtonListener(this);
 
     audioProcessor.apvts.removeParameterListener(PrKey::mode, this);
+
+    audioProcessor.undoManager.removeChangeListener(this);
 
     stopTimer();
 }
@@ -181,6 +233,11 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 
         updateTimerState();
     }
+
+    if (source == &audioProcessor.undoManager)
+    {
+        updateUndoRedoButtons();
+    }
 }
 
 void AudioPlugin2686VEditor::paint(juce::Graphics& g)
@@ -208,6 +265,8 @@ void AudioPlugin2686VEditor::resized()
         realtimePreview.setBounds(rightArea.getX() + 4, 330, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
     }
 
+    undoButton.setBounds(getWidth() - 140, 5, 30, 20);
+    redoButton.setBounds(getWidth() - 110, 5, 30, 20);
     panicButton.setBounds(getWidth() - 60, 5, 20, 20);
 
     logoLabel.setBounds(area.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height));
@@ -819,4 +878,52 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
             }
             });
     }
+}
+
+bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
+{
+    // commandModifier は、WindowsではCtrl、MacではCmdキーを自動で判定します
+    auto modifiers = key.getModifiers();
+
+    if (modifiers.isCommandDown())
+    {
+        // Ctrl + Z (Undo)
+        if (key.getKeyCode() == 'Z' || key.getKeyCode() == 'z')
+        {
+            // Macでは Cmd+Shift+Z が Redo の標準なので分岐
+            if (modifiers.isShiftDown()) {
+                audioProcessor.undoManager.redo();
+            }
+            else {
+                audioProcessor.undoManager.undo();
+            }
+            return true; // イベントを消費
+        }
+
+        // Ctrl + Y (Redo / Windowsの標準)
+        if (key.getKeyCode() == 'Y' || key.getKeyCode() == 'y')
+        {
+            audioProcessor.undoManager.redo();
+            return true; // イベントを消費
+        }
+    }
+
+    return false; // 他のキー入力は通常の処理へ
+}
+
+void AudioPlugin2686VEditor::updateUndoRedoButtons()
+{
+    // canUndo / canRedo は履歴の有無を bool で返してくれる
+    undoButton.setEnabled(audioProcessor.undoManager.canUndo());
+    redoButton.setEnabled(audioProcessor.undoManager.canRedo());
+
+    if (audioProcessor.undoManager.canUndo())
+        undoButton.setTooltip("Undo");
+    else
+        undoButton.setTooltip("Nothing to undo");
+
+    if (audioProcessor.undoManager.canRedo())
+        redoButton.setTooltip("Redo");
+    else
+        redoButton.setTooltip("Nothing to redo");
 }

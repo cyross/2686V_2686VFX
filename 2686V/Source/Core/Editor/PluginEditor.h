@@ -24,6 +24,52 @@
 #include "../../Gui/Settings/Core.h"
 #include "../../Gui/About/Core.h"
 
+class SystemButtonLF : public juce::LookAndFeel_V4
+{
+public:
+    juce::Colour borderOnColour = juce::Colours::white;
+    juce::Colour borderOffColour = juce::Colours::white.darker(0.3f);
+    juce::Font buttonFont{ 20.0f, 1 };
+
+    juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
+    {
+        return buttonFont;
+    }
+
+    // =======================================================
+    // ボタンの背景と枠線の描画を完全にコントロールする
+    // =======================================================
+    void drawButtonBackground(juce::Graphics& g, juce::Button& button,
+        const juce::Colour& backgroundColour,
+        bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+    {
+        auto bounds = button.getLocalBounds().reduced(4).toFloat();
+        float cornerSize = 2.0f; // 角丸のサイズ（お好みで調整してください）
+
+        // 1. 背景の塗りつぶし
+        juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+
+        // マウスホバー時やクリック時は少し明るくする
+        if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+            baseColour = baseColour.brighter(0.1f);
+
+        g.setColour(baseColour);
+        g.fillRoundedRectangle(bounds, cornerSize);
+
+        // 2. 枠線の描画
+        juce::Colour borderColour = borderOffColour;
+        // マウスホバー時やクリック時はOn色を指定
+        if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+            borderColour = borderOnColour;
+
+        g.setColour(borderColour);
+
+        // reduced(0.5f) を入れると、枠線がアンチエイリアスで綺麗に描画されます
+        g.drawRoundedRectangle(bounds.reduced(0.5f), cornerSize, 4.0f); // 第3引数は線の太さ
+    }
+};
+
+
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,
@@ -98,6 +144,7 @@ public:
     void timerCallback() override;
     void updateTimerState();
     void updatePreviewVisibilityToProcessor();
+    bool keyPressed(const juce::KeyPress& key) override;
 private:
     AudioPlugin2686V& audioProcessor;
 
@@ -106,6 +153,12 @@ private:
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
     juce::TextButton panicButton;
+    juce::TextButton undoButton;
+    juce::TextButton redoButton;
+    SystemButtonLF panicButtonLF;
+    SystemButtonLF undoButtonLF;
+    SystemButtonLF redoButtonLF;
+    SystemButtonLF showPreviewButtonLF;
     std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
 
@@ -141,6 +194,8 @@ private:
 
     juce::Image backgroundImage; // Cache for wallpaper
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
+
+    void updateUndoRedoButtons(); // ボタンの状態を更新する専用の関数
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };

@@ -16,7 +16,7 @@ AudioPlugin2686V::AudioPlugin2686V()
         .withOutput(Global::Audio::output, juce::AudioChannelSet::stereo(), true)
     ),
     // Initialize APVTS (Parameters are created here)
-    apvts(*this, nullptr, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
+    apvts(*this, &undoManager, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
     m_synth.addSound(new SynthSound());
