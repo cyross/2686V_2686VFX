@@ -233,18 +233,36 @@ public:
         val = std::clamp(val, -1.0f, 1.0f);
 
         // =======================================================
-        // 1, 2, 3 キーの押下状態を取得 (テンキーにも対応)
+        // 1, 2, 3, 4, 5 キーの押下状態を取得 (テンキーにも対応)
         // =======================================================
         bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
         bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
         bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
+        bool isKey4 = juce::KeyPress::isKeyCurrentlyDown('4') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad4);
+        bool isKey5 = juce::KeyPress::isKeyCurrentlyDown('5') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad5);
+
+        // =======================================================
+        // 6, 7, 8, 9, 0 キーの押下状態を取得 (テンキーにも対応)
+        // =======================================================
+        bool isKey0 = juce::KeyPress::isKeyCurrentlyDown('0') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad0);
+        bool isKey9 = juce::KeyPress::isKeyCurrentlyDown('9') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad9);
+        bool isKey8 = juce::KeyPress::isKeyCurrentlyDown('8') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad8);
+        bool isKey7 = juce::KeyPress::isKeyCurrentlyDown('7') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad7);
+        bool isKey6 = juce::KeyPress::isKeyCurrentlyDown('6') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad6);
 
         int steps = 0;
         if (isKey1) steps = 16;      // 16段階 (0〜15)
         else if (isKey2) steps = 32; // 32段階 (0〜31)
         else if (isKey3) steps = 64; // 64段階 (0〜63)
+        else if (isKey4) steps = 128; // 128段階 (0〜127)
+        else if (isKey5) steps = 256; // 256段階 (0〜255)
+        else if (isKey6) steps = -256; // 256段階 (0〜255)
+        else if (isKey7) steps = -128; // 128段階 (0〜127)
+        else if (isKey8) steps = -64; // 64段階 (0〜63)
+        else if (isKey9) steps = -32; // 32段階 (0〜31)
+        else if (isKey0) steps = -16; // 16階 (0〜15)
 
-        // 段階スナップが有効な場合
+        // 段階スナップ(+)が有効な場合
         if (steps > 0)
         {
             int maxIndex = steps;        // 例: 16段階なら 15
@@ -257,6 +275,35 @@ public:
             }
             else {
                 step = (int)std::round(val * (maxIndex - zeroIndex) + zeroIndex);
+            }
+            step = std::clamp(step, 0, maxIndex);
+
+            // 2. ステップから正確な値(-1.0 〜 1.0)を再計算
+            if (step < zeroIndex) {
+                val = (float)(step - zeroIndex) / (float)zeroIndex;
+            }
+            else if (step > zeroIndex) {
+                val = (float)(step - zeroIndex) / (float)(maxIndex - zeroIndex);
+            }
+            else {
+                val = 0.0f; // 完全に0.0に固定
+            }
+        }
+        // 段階スナップ(-)が有効な場合
+        else if (steps < 0)
+        {
+            steps = -steps;
+
+            int maxIndex = steps;        // 例: 16段階なら 15
+            int zeroIndex = steps / 2;   // 例: 16段階なら 8 (8段階目)
+
+            int step = 0;
+            // 1. マウス位置(val)から現在のステップ(段階)を算出
+            if (val < 0.0f) {
+                step = (int)std::round(val * (maxIndex - zeroIndex) + zeroIndex);
+            }
+            else {
+                step = (int)std::round(val * zeroIndex + zeroIndex);
             }
             step = std::clamp(step, 0, maxIndex);
 
@@ -323,16 +370,34 @@ public:
             potentialVal = std::clamp(potentialVal, -1.0f, 1.0f);
 
             // =======================================================
-            // 1, 2, 3 キーの押下状態を取得
+            // 1, 2, 3, 4, 5 キーの押下状態を取得 (テンキーにも対応)
             // =======================================================
             bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
             bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
             bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
+            bool isKey4 = juce::KeyPress::isKeyCurrentlyDown('4') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad4);
+            bool isKey5 = juce::KeyPress::isKeyCurrentlyDown('5') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad5);
+
+            // =======================================================
+            // 6, 7, 8, 9, 0 キーの押下状態を取得 (テンキーにも対応)
+            // =======================================================
+            bool isKey0 = juce::KeyPress::isKeyCurrentlyDown('0') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad0);
+            bool isKey9 = juce::KeyPress::isKeyCurrentlyDown('9') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad9);
+            bool isKey8 = juce::KeyPress::isKeyCurrentlyDown('8') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad8);
+            bool isKey7 = juce::KeyPress::isKeyCurrentlyDown('7') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad7);
+            bool isKey6 = juce::KeyPress::isKeyCurrentlyDown('6') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad6);
 
             int steps = 0;
             if (isKey1) steps = 16;
             else if (isKey2) steps = 32;
             else if (isKey3) steps = 64;
+            else if (isKey4) steps = 128; // 128段階 (0〜127)
+            else if (isKey5) steps = 256; // 256段階 (0〜255)
+            else if (isKey6) steps = -256; // 256段階 (0〜255)
+            else if (isKey7) steps = -128; // 128段階 (0〜127)
+            else if (isKey8) steps = -64; // 64段階 (0〜63)
+            else if (isKey9) steps = -32; // 32段階 (0〜31)
+            else if (isKey0) steps = -16; // 16階 (0〜15)
 
             juce::String text;
 
@@ -349,6 +414,38 @@ public:
                 }
                 else {
                     stepValue = (int)std::round(potentialVal * (maxIndex - zeroIndex) + zeroIndex);
+                }
+                stepValue = std::clamp(stepValue, 0, maxIndex);
+
+                // 2. ツールチップ表示用に正確な位置へスナップ
+                if (stepValue < zeroIndex) {
+                    potentialVal = (float)(stepValue - zeroIndex) / (float)zeroIndex;
+                }
+                else if (stepValue > zeroIndex) {
+                    potentialVal = (float)(stepValue - zeroIndex) / (float)(maxIndex - zeroIndex);
+                }
+                else {
+                    potentialVal = 0.0f;
+                }
+
+                // [index] step/steps (value) でテキストを作成
+                text = "[" + juce::String(hoveredIndex) + "] " + juce::String(stepValue + 1) + "/" + juce::String(steps) + "(" + juce::String(potentialVal, 3) + ")";
+            }
+            else if (steps < 0)
+            {
+                steps = -steps;
+
+                int maxIndex = steps - 1;
+                int zeroIndex = steps / 2 - 1;
+
+                int stepValue = 0;
+
+                // 1. プレビュー用ステップの算出
+                if (potentialVal < 0.0f) {
+                    stepValue = (int)std::round(potentialVal * (maxIndex - zeroIndex) + zeroIndex);
+                }
+                else {
+                    stepValue = (int)std::round(potentialVal * zeroIndex + zeroIndex);
                 }
                 stepValue = std::clamp(stepValue, 0, maxIndex);
 
