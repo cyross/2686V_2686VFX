@@ -91,6 +91,8 @@ set(PCM_GENERATOR_FILES
 )
 
 set(FM_FILES
+    "Source/Core/Fm/FmClipboard.h"
+    "Source/Core/Fm/FmClipboard.cpp"
     "Source/Core/Fm/FmCore.h"
     "Source/Core/Fm/FmCore.cpp"
     "Source/Core/Fm/FmOperator.h"

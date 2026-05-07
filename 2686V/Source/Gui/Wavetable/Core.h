@@ -15,10 +15,12 @@
 template <size_t tableSize>
 class WaveformContainer :
     public juce::Component,
-    public GuiBaseComponent
+    public GuiBaseComponent,
+    public juce::AudioProcessorValueTreeState::Listener // リスナーを継承
 {
     // APVTSのパラメータへの直接ポインタを保持して高速にアクセスする
     std::vector<juce::RangedAudioParameter*> m_params;
+    juce::StringArray m_paramIds; // リスナー削除用にIDを格納
 
     bool isEnabledState = false;
     int hoveredIndex = -1;
@@ -29,6 +31,21 @@ public:
     WaveformContainer(const GuiContext& context) : GuiBaseComponent(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    }
+
+    // デストラクタでリスナーを解除しないとクラッシュするため
+    ~WaveformContainer() override
+    {
+        for (const auto& id : m_paramIds) {
+            ctx.audioProcessor.apvts.removeParameterListener(id, this);
+        }
+    }
+
+    // パラメータが外部(Undoなど)から変更されたときに呼ばれる
+    void parameterChanged(const juce::String& parameterID, float newValue) override
+    {
+        // 描画を予約（メッセージスレッドで実行される）
+        juce::MessageManager::callAsync([this] { repaint(); });
     }
 
     struct Config {
@@ -47,7 +64,14 @@ public:
 
             // PluginProcessor側のAPVTSからパラメータの直接ポインタを取得
             auto* param = ctx.audioProcessor.apvts.getParameter(paramId);
-            m_params.push_back(param);
+
+            if (param != nullptr) {
+                m_params.push_back(param);
+                m_paramIds.add(paramId);
+
+                // パラメータごとにリスナーを登録
+                ctx.audioProcessor.apvts.addParameterListener(paramId, this);
+            }
         }
     }
 
@@ -176,6 +200,9 @@ public:
 
     void mouseDown(const juce::MouseEvent& e) override { 
         if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
+
+        // マウスをクリックした瞬間に「新しいUndoの区切り」を作る
+        ctx.audioProcessor.undoManager.beginNewTransaction();
 
         updateSliderValue(e);
         updateHoverState(e);
