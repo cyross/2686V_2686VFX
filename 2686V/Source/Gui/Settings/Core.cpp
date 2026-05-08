@@ -144,7 +144,7 @@ void GuiSettings::setup()
     };
 
     // --- Toggle Tooltip Visible Toggle Button ---
-	tooltipToggle.setup({ .parent = *this, .title = "Show Parameter Range", .isReset = false });
+    tooltipToggle.setup({ .parent = *this, .title = "Show Parameter Range", .font = juce::Font(16.0f), .isReset = false});
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
     tooltipToggle.setWantsKeyboardFocus(true);
     tooltipToggle.setExplicitFocusOrder(++tabOrder);
@@ -154,7 +154,7 @@ void GuiSettings::setup()
         ctx.editor.setTooltipState(newState); // 即座に反映
         };
 
-	useHeadroomToggle.setup({ .parent = *this, .title = "Use Headroom Settings", .isReset = false });
+	useHeadroomToggle.setup({ .parent = *this, .title = "Use Headroom Settings", .font = juce::Font(16.0f), .isReset = false });
     useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
     useHeadroomToggle.setWantsKeyboardFocus(true);
     useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
@@ -179,7 +179,7 @@ void GuiSettings::setup()
         ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
     };
 
-    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = "Show Virtual Midi Keyboard", .isReset = false });
+    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = "Show Virtual Midi Keyboard", .font = juce::Font(16.0f), .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
     virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
     virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);
@@ -368,7 +368,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     // 9. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
 
-    layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn });
+    layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = GuiValue::Settings::RowHeight });
 }
 
 void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)

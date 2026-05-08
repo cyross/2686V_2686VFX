@@ -122,4 +122,5 @@ public:
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
     void updatePresetName(const juce::String& presetName);
+    void initParams();
 };

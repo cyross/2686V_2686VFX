@@ -539,3 +539,8 @@ void GuiWt::exportWavetable()
             }
         });
 }
+
+void GuiWt::initParams()
+{
+    this->ctx.audioProcessor.initParams("WT_");
+}

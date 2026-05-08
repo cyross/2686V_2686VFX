@@ -8,6 +8,7 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
+
 class GuiOpl3 : public GuiBase
 {
     /*
@@ -148,4 +149,8 @@ public:
     void updateRgDisplayAsOp(int idx, bool rgMode);
     void updatePresetName(const juce::String& presetName);
     bool keyPressed(const juce::KeyPress& key) override;
+    void copyFmParamsToString();
+    void copyFmParamsToObject();
+    void pasteFmParamsFromObject();
+    void initParams();
 };

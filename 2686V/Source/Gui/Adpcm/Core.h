@@ -98,4 +98,5 @@ public:
     void setPan(float pan);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void updatePresetName(const juce::String& presetName);
+    void initParams();
 };

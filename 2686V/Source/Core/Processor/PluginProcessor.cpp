@@ -774,7 +774,44 @@ void AudioPlugin2686V::initPreset()
         unloadRhythmFile(i);
         // unloadRhythmFile内で rhythmFilePaths[i].clear() されています
     }
+
+    for (int i = 0; i < 4; i++) {
+        unloadOpzx3PcmFile(i);
+    }
 }
+
+void AudioPlugin2686V::initParams(const juce::String& code)
+{
+    // 1. 全パラメータをデフォルト値(Normalized 0.0-1.0)にリセット
+    auto& params = getParameters();
+    for (auto* param : params)
+    {
+        if (auto* p = dynamic_cast<juce::AudioProcessorParameterWithID*>(param))
+        {
+            if (p->paramID.startsWith(code)) {
+                p->setValueNotifyingHost(p->getDefaultValue());
+            }
+        }
+    }
+
+
+    if (code == "ADPCM_") {
+        unloadAdpcmFile();
+    }
+
+    if (code == "RHYTHM_") {
+        for (int i = 0; i < 8; ++i) {
+            unloadRhythmFile(i);
+        }
+    }
+
+    if (code == "OPZX3_") {
+        for (int i = 0; i < 4; i++) {
+            unloadOpzx3PcmFile(i);
+        }
+    }
+}
+
 
 void AudioPlugin2686V::loadOpzx3PcmFile(int opIndex, const juce::File& file)
 {

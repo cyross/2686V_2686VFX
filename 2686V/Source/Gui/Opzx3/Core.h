@@ -345,4 +345,8 @@ public:
     void updateRgDisplayAsOp(int idx, bool rgMode);
     void updatePresetName(const juce::String& presetName);
     bool keyPressed(const juce::KeyPress& key) override;
+    void copyFmParamsToString();
+    void copyFmParamsToObject();
+    void pasteFmParamsFromObject();
+    void initParams();
 };

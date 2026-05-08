@@ -181,4 +181,5 @@ public:
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
+    void initParams();
 };

@@ -1086,3 +1086,24 @@ bool GuiOpzx3::keyPressed(const juce::KeyPress& key)
 
     return false; // 他のキーなら無視（通常処理へ）
 }
+
+void GuiOpzx3::copyFmParamsToString()
+{
+    juce::String info = u8"[OPZX3]\n";
+    juce::SystemClipboard::copyTextToClipboard(info);
+}
+
+void GuiOpzx3::copyFmParamsToObject()
+{
+
+}
+
+void GuiOpzx3::pasteFmParamsFromObject()
+{
+
+}
+
+void GuiOpzx3::initParams()
+{
+    this->ctx.audioProcessor.initParams("OPZX3_");
+}

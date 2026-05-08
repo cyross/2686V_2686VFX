@@ -16,18 +16,6 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // --- Bypass ---
     layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::Post::bypass, code + PrName::Fx::masterBypass, PrValue::Fx::MBypass::initial));
 
-    // --- Retro LFO ---
-    const juce::String rlfoPrefix = code + PrKey::Innder::Fx::rlfo;
-    const juce::String rlfoLPrefix = code + PrName::Fx::Post::rlfo;
-    layout.add(std::make_unique<juce::AudioParameterBool>(rlfoPrefix + PrKey::Post::bypass, rlfoLPrefix + PrName::Fx::Post::RetroLfo::bypass, PrValue::Fx::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(rlfoPrefix + PrKey::Post::Fx::RLfo::wave, rlfoLPrefix + PrName::Fx::Post::RetroLfo::wave, PrValue::Fx::RetroLfo::Wave::min, PrValue::Fx::RetroLfo::Wave::max, PrValue::Fx::RetroLfo::Wave::initial)); // 0:Saw, 1:Square, 2:Tri, 3:Noise
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::freq, rlfoLPrefix + PrName::Fx::Post::RetroLfo::freq, PrValue::Fx::RetroLfo::Freq::min, PrValue::Fx::RetroLfo::Freq::max, PrValue::Fx::RetroLfo::Freq::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::ams, rlfoLPrefix + PrName::Fx::Post::RetroLfo::ams, PrValue::Fx::RetroLfo::Ams::min, PrValue::Fx::RetroLfo::Ams::max, PrValue::Fx::RetroLfo::Ams::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::pms, rlfoLPrefix + PrName::Fx::Post::RetroLfo::pms, PrValue::Fx::RetroLfo::Pms::min, PrValue::Fx::RetroLfo::Pms::max, PrValue::Fx::RetroLfo::Pms::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::amd, rlfoLPrefix + PrName::Fx::Post::RetroLfo::amd, PrValue::Fx::RetroLfo::Amd::min, PrValue::Fx::RetroLfo::Amd::max, PrValue::Fx::RetroLfo::Amd::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::RLfo::pmd, rlfoLPrefix + PrName::Fx::Post::RetroLfo::pmd, PrValue::Fx::RetroLfo::Pmd::min, PrValue::Fx::RetroLfo::Pmd::max, PrValue::Fx::RetroLfo::Pmd::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rlfoPrefix + PrKey::Post::Fx::mix, PrName::Fx::Post::RetroLfo::mix, PrValue::Fx::Mix::min, PrValue::Fx::Mix::max, PrValue::Fx::Mix::initial));
-
     // --- Filter ---
     const juce::String filterPrefix = code + PrKey::Innder::Fx::fil;
     const juce::String filterLPrefix = code + PrName::Fx::Post::filter;
@@ -76,20 +64,6 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::Post::Fx::Reverb::size, rvbLPrefix + PrName::Fx::Post::Reverb::size, PrValue::Fx::Reverb::Size::min, PrValue::Fx::Reverb::Size::max, PrValue::Fx::Reverb::Size::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::Post::Fx::Reverb::damp, rvbLPrefix + PrName::Fx::Post::Reverb::damp, PrValue::Fx::Reverb::Damp::min, PrValue::Fx::Reverb::Damp::max, PrValue::Fx::Reverb::Damp::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::Post::Fx::mix, rvbLPrefix + PrName::Fx::Post::Reverb::mix, PrValue::Fx::Mix::min, PrValue::Fx::Mix::max, PrValue::Fx::Mix::initial));
-
-    // --- Retro Bit Crusher ---
-    const juce::String rbcPrefix = code + PrKey::Innder::Fx::rbc;
-    const juce::String rbcLPrefix = code + PrName::Fx::Post::rbc;
-    layout.add(std::make_unique<juce::AudioParameterBool>(rbcPrefix + PrKey::Post::bypass, rbcLPrefix + PrName::Fx::Post::Rbc::bypass, PrValue::Fx::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(rbcPrefix + PrKey::Post::Fx::Rbc::rate, rbcLPrefix + PrName::Fx::Post::Rbc::rate, PrValue::Fx::Rbc::Rate::min, PrValue::Fx::Rbc::Rate::max, PrValue::Fx::Rbc::Rate::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(rbcPrefix + PrKey::Post::Fx::Rbc::bit, rbcLPrefix + PrName::Fx::Post::Rbc::bit, PrValue::Fx::Rbc::Bit::min, PrValue::Fx::Rbc::Bit::max, PrValue::Fx::Rbc::Bit::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rbcPrefix + PrKey::Post::Fx::mix, rbcLPrefix + PrName::Fx::Post::Rbc::mix, PrValue::Fx::Mix::min, PrValue::Fx::Mix::max, PrValue::Fx::Mix::initial));
-
-    // --- Soft Clipper (tanH) ---
-    const juce::String sclPrefix = code + PrKey::Innder::Fx::scl;
-    const juce::String sclLPrefix = code + PrName::Fx::Post::softClipper;
-    layout.add(std::make_unique<juce::AudioParameterBool>(sclPrefix + PrKey::Post::bypass, sclLPrefix + PrName::Fx::Post::SoftClipper::bypass, PrValue::Fx::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(sclPrefix + PrKey::Post::Fx::mix, sclLPrefix + PrName::Fx::Post::SoftClipper::mix, PrValue::Fx::Mix::min, PrValue::Fx::Mix::max, PrValue::Fx::Mix::initial));
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)

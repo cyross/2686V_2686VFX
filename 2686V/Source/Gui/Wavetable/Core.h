@@ -639,4 +639,5 @@ public:
     void updatePresetName(const juce::String& presetName);
     void importWavetable();
     void exportWavetable();
+    void initParams();
 };

@@ -491,3 +491,8 @@ void GuiSsg::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
 }
+
+void GuiSsg::initParams()
+{
+    this->ctx.audioProcessor.initParams("SSG_");
+}
