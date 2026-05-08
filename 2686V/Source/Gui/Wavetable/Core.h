@@ -265,8 +265,8 @@ public:
         // 段階スナップ(+)が有効な場合
         if (steps > 0)
         {
-            int maxIndex = steps;        // 例: 16段階なら 15
-            int zeroIndex = steps / 2;   // 例: 16段階なら 8 (8段階目)
+            int maxIndex = steps - 1;        // 例: 16段階なら 15
+            int zeroIndex = steps / 2 - 1;   // 例: 16段階なら 8 (8段階目)
 
             int step = 0;
             // 1. マウス位置(val)から現在のステップ(段階)を算出
@@ -294,8 +294,8 @@ public:
         {
             steps = -steps;
 
-            int maxIndex = steps;        // 例: 16段階なら 15
-            int zeroIndex = steps / 2;   // 例: 16段階なら 8 (8段階目)
+            int maxIndex = steps - 1;        // 例: 16段階なら 15
+            int zeroIndex = steps / 2 - 1;   // 例: 16段階なら 8 (8段階目)
 
             int step = 0;
             // 1. マウス位置(val)から現在のステップ(段階)を算出
