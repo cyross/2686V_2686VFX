@@ -634,7 +634,7 @@ namespace GuiValue
 
 		namespace Meta
 		{
-			static inline constexpr int AreaHeight = 320;
+			static inline constexpr int AreaHeight = 420;
 			static inline constexpr int RowHeight = 20;
 			static inline constexpr int LabelWidth = 50;
 			static inline constexpr int PaddingWidth = 4;
@@ -646,7 +646,7 @@ namespace GuiValue
 		{
 			static inline constexpr int PaddingTop = 10;
 			static inline constexpr int PaddingHeight = 4;
-			static inline constexpr int Height = 20;
+			static inline constexpr int Height = 32;
 		}
 	}
 
@@ -654,8 +654,8 @@ namespace GuiValue
 	{
 		static inline constexpr int PaddingHeight = 4;
 		static inline constexpr int RowHeight = 30;
-		static inline constexpr int LabelWidth = 80;
-		static inline constexpr int LongLabelWidth = 140;
+		static inline constexpr int LabelWidth = 180;
+		static inline constexpr int LongLabelWidth = 220;
 		static inline constexpr int ModeSelectorWidth = 320;
 		static inline constexpr int BrowseButtonWidth = 80;
 		static inline constexpr int ClearButtonWidth = 60;

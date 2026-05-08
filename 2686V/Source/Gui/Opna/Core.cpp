@@ -683,3 +683,24 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
 
     return false; // 他のキーなら無視（通常処理へ）
 }
+
+void GuiOpna::copyFmParamsToString()
+{
+    juce::String info = u8"[OPNA]\n";
+    juce::SystemClipboard::copyTextToClipboard(info);
+}
+
+void GuiOpna::copyFmParamsToObject()
+{
+
+}
+
+void GuiOpna::pasteFmParamsFromObject()
+{
+
+}
+
+void GuiOpna::initParams()
+{
+    this->ctx.audioProcessor.initParams("OPNA_");
+}

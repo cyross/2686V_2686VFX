@@ -534,3 +534,24 @@ bool GuiOpn::keyPressed(const juce::KeyPress& key)
 
     return false; // 他のキーなら無視（通常処理へ）
 }
+
+void GuiOpn::copyFmParamsToString()
+{
+    juce::String info = u8"[OPN]\n";
+    juce::SystemClipboard::copyTextToClipboard(info);
+}
+
+void GuiOpn::copyFmParamsToObject()
+{
+
+}
+
+void GuiOpn::pasteFmParamsFromObject()
+{
+
+}
+
+void GuiOpn::initParams()
+{
+    this->ctx.audioProcessor.initParams("OPN_");
+}

@@ -586,3 +586,24 @@ bool GuiOpm::keyPressed(const juce::KeyPress& key)
 
     return false; // 他のキーなら無視（通常処理へ）
 }
+
+void GuiOpm::copyFmParamsToString()
+{
+    juce::String info = u8"[OPM]\n";
+    juce::SystemClipboard::copyTextToClipboard(info);
+}
+
+void GuiOpm::copyFmParamsToObject()
+{
+
+}
+
+void GuiOpm::pasteFmParamsFromObject()
+{
+
+}
+
+void GuiOpm::initParams()
+{
+    this->ctx.audioProcessor.initParams("OPM_");
+}

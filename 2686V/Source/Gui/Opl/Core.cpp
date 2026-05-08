@@ -553,3 +553,24 @@ bool GuiOpl::keyPressed(const juce::KeyPress& key)
 
     return false; // 他のキーなら無視（通常処理へ）
 }
+
+void GuiOpl::copyFmParamsToString()
+{
+    juce::String info = u8"[OPL]\n";
+    juce::SystemClipboard::copyTextToClipboard(info);
+}
+
+void GuiOpl::copyFmParamsToObject()
+{
+
+}
+
+void GuiOpl::pasteFmParamsFromObject()
+{
+
+}
+
+void GuiOpl::initParams()
+{
+    this->ctx.audioProcessor.initParams("OPL_");
+}

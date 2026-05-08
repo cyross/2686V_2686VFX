@@ -97,22 +97,19 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addChildComponent(realtimePreview);
 
     // プレビュー表示切替ボタン
-    showPreviewButtonLF.borderOnColour = juce::Colours::green.darker(0.5f).withAlpha(0.7f);
-    showPreviewButtonLF.borderOffColour = juce::Colours::green.darker(0.7f).withAlpha(0.7f);
-
     addAndMakeVisible(togglePreviewBtn);
-    togglePreviewBtn.setButtonText(isPreviewVisible ? u8"＜" : u8"＞");
+    togglePreviewBtn.setButtonText(isPreviewVisible ? u8"<<" : u8">>");
     togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
-    togglePreviewBtn.setLookAndFeel(&showPreviewButtonLF);
+    togglePreviewBtn.setLookAndFeel(&togglePreviewButtonLF);
     togglePreviewBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green.withAlpha(0.7f));
+    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green.withAlpha(0.9f));
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
         updatePreviewVisibilityToProcessor();
 
         staticPreview.setVisible(isPreviewVisible);
         realtimePreview.setVisible(isPreviewVisible);
-        togglePreviewBtn.setButtonText(isPreviewVisible ? u8"＜" : u8"＞");
+        togglePreviewBtn.setButtonText(isPreviewVisible ? u8"<<" : u8">>");
         togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
 
         // ウィンドウの幅を動的に変更
@@ -125,47 +122,38 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     };
 
     // パニックボタン
-    panicButtonLF.borderOnColour = juce::Colours::red.darker(0.5f).withAlpha(0.7f);
-    panicButtonLF.borderOffColour = juce::Colours::red.darker(0.7f).withAlpha(0.7f);
-
     addAndMakeVisible(panicButton);
     panicButton.setVisible(true);
     panicButton.setButtonText("!");
     panicButton.setTooltip(u8"Reset Audio Engine");
     panicButton.setLookAndFeel(&panicButtonLF);
     panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.7f));
+    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.9f));
     panicButton.onClick = [this] {
         audioProcessor.panic();
         };
 
 
     // アンドゥボタンボタン
-    undoButtonLF.borderOnColour = juce::Colours::blue.darker(0.5f).withAlpha(0.7f);
-    undoButtonLF.borderOffColour = juce::Colours::blue.darker(0.7f).withAlpha(0.7f);
-
     addAndMakeVisible(undoButton);
     undoButton.setVisible(true);
-    undoButton.setButtonText(u8"⇐");
+    undoButton.setButtonText(u8"Un");
     undoButton.setTooltip("Nothing to undo");
     undoButton.setLookAndFeel(&undoButtonLF);
     undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::yellow);
-    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.7f));
+    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
     undoButton.onClick = [this] {
         audioProcessor.undoManager.undo();
         };
 
     // リドゥボタン
-    redoButtonLF.borderOnColour = juce::Colours::blue.darker(0.5f).withAlpha(0.7f);
-    redoButtonLF.borderOffColour = juce::Colours::blue.darker(0.7f).withAlpha(0.7f);
-
     addAndMakeVisible(redoButton);
     redoButton.setVisible(true);
-    redoButton.setButtonText(u8"⇒");
+    redoButton.setButtonText(u8"Re");
     redoButton.setTooltip("Nothing to Redo");
     redoButton.setLookAndFeel(&redoButtonLF);
     redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.7f));
+    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
     redoButton.onClick = [this] {
         audioProcessor.undoManager.redo();
         };
@@ -173,6 +161,48 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     audioProcessor.undoManager.addChangeListener(this);
 
     updateUndoRedoButtons();
+
+    // パラメーターコピーボタン
+    addAndMakeVisible(copyParamsButton);
+    copyParamsButton.setVisible(true);
+    copyParamsButton.setButtonText(u8"Cp");
+    copyParamsButton.setTooltip("Copy FM Parameters");
+    copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
+    copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
+    copyParamsButton.onClick = [this] {
+        copyFmParamsToString();
+        copyFmParamsToObject();
+        };
+
+    // パラメーターペーストボタン
+    addAndMakeVisible(pasteParamsButton);
+    pasteParamsButton.setVisible(true);
+    pasteParamsButton.setButtonText(u8"Ps");
+    pasteParamsButton.setTooltip("Paste FM Parameters");
+    pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
+    pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
+    pasteParamsButton.onClick = [this] {
+        pasteFmParamsFromObject();
+        };
+
+    updateParameterCopyPasteButtons();
+
+    // パラメーター初期化ボタン
+    addAndMakeVisible(initParamsButton);
+    initParamsButton.setVisible(true);
+    initParamsButton.setButtonText(u8"Init");
+    initParamsButton.setTooltip("Initialize Parameters");
+    initParamsButton.setLookAndFeel(&initParamsButtonLF);
+    initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white.darker(0.8f));
+    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
+    initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white.darker(0.2f).withAlpha(0.9f));
+    initParamsButton.onClick = [this] {
+        initParams();
+        };
+
+    updateParameterInitializeButtons();
 
     midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
 
@@ -232,6 +262,8 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         }
 
         updateTimerState();
+        updateParameterCopyPasteButtons();
+        updateParameterInitializeButtons();
     }
 
     if (source == &audioProcessor.undoManager)
@@ -255,8 +287,6 @@ void AudioPlugin2686VEditor::resized()
         midiKeyboard->setBounds(area.removeFromBottom(GuiValue::KeyboardHeight));
     }
 
-    togglePreviewBtn.setBounds(getWidth() - 35, 5, 30, 20);
-
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(GuiValue::Preview::extraWidth);
@@ -265,9 +295,18 @@ void AudioPlugin2686VEditor::resized()
         realtimePreview.setBounds(rightArea.getX() + 4, 330, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
     }
 
-    undoButton.setBounds(getWidth() - 140, 5, 30, 20);
-    redoButton.setBounds(getWidth() - 110, 5, 30, 20);
-    panicButton.setBounds(getWidth() - 60, 5, 20, 20);
+    int previewPaddingRight = isPreviewVisible ? GuiValue::Preview::drawSize + 8: 0;
+    togglePreviewBtn.setBounds(getWidth() - 45, 5, 40, 20);
+    panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
+    redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
+    undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
+#if true
+    initParamsButton.setBounds(getWidth() - 235 - previewPaddingRight, 5, 60, 20);
+#else
+    pasteParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
+    copyParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
+    initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
+#endif
 
     logoLabel.setBounds(area.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height));
 
@@ -906,6 +945,34 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             audioProcessor.undoManager.redo();
             return true; // イベントを消費
         }
+
+        // 今後やる
+#if false
+        // Ctrl + C (Copy)
+        if (key.getKeyCode() == 'C' || key.getKeyCode() == 'c')
+        {
+            copyFmParamsToString();
+            copyFmParamsToObject();
+
+            return true; // イベントを消費
+        }
+
+        // Ctrl + V (Paste)
+        if (key.getKeyCode() == 'V' || key.getKeyCode() == 'v')
+        {
+            copyFmParamsToObject();
+
+            return true; // イベントを消費
+        }
+#endif
+
+        // Ctrl + I (Initialize
+        if (key.getKeyCode() == 'I' || key.getKeyCode() == 'i')
+        {
+            initParams();
+
+            return true; // イベントを消費
+        }
     }
 
     return false; // 他のキー入力は通常の処理へ
@@ -926,4 +993,150 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
         redoButton.setTooltip("Redo");
     else
         redoButton.setTooltip("Nothing to redo");
+}
+
+void AudioPlugin2686VEditor::updateParameterCopyPasteButtons()
+{
+    // 表示しているタブがFM音源のタブか
+    // 0:OPNA, 1:OPN, 2:OPL, ...
+    int targetMode = tabs.getCurrentTabIndex();
+    bool isFmTab = targetMode >= 0 && targetMode <= (int)OscMode::OPZX3;
+
+    copyParamsButton.setEnabled(isFmTab);
+    pasteParamsButton.setEnabled(isFmTab);
+}
+
+void AudioPlugin2686VEditor::updateParameterInitializeButtons()
+{
+    // 表示しているタブが音源のタブか
+    // 0:OPNA, 1:OPN, 2:OPL, ...
+    int targetMode = tabs.getCurrentTabIndex();
+    bool isNotSystemTab = targetMode >= 0 && targetMode <= ((int)OscMode::BEEP + 1); // OPNA ～ FX
+
+    initParamsButton.setEnabled(isNotSystemTab);
+}
+
+void AudioPlugin2686VEditor::copyFmParamsToString()
+{
+    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
+
+    switch (targetMode)
+    {
+    case OscMode::OPNA:
+        opnaGui->copyFmParamsToString();
+        break;
+    case OscMode::OPN:
+        opnGui->copyFmParamsToString();
+        break;
+    case OscMode::OPL:
+        oplGui->copyFmParamsToString();
+        break;
+    case OscMode::OPL3:
+        opl3Gui->copyFmParamsToString();
+        break;
+    case OscMode::OPM:
+        opmGui->copyFmParamsToString();
+        break;
+    case OscMode::OPZX3:
+        opzx3Gui->copyFmParamsToString();
+        break;
+    };
+}
+
+void AudioPlugin2686VEditor::copyFmParamsToObject()
+{
+    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
+
+    switch (targetMode)
+    {
+    case OscMode::OPNA:
+        opnaGui->copyFmParamsToObject();
+        break;
+    case OscMode::OPN:
+        opnGui->copyFmParamsToObject();
+        break;
+    case OscMode::OPL:
+        oplGui->copyFmParamsToObject();
+        break;
+    case OscMode::OPL3:
+        opl3Gui->copyFmParamsToObject();
+        break;
+    case OscMode::OPM:
+        opmGui->copyFmParamsToObject();
+        break;
+    case OscMode::OPZX3:
+        opzx3Gui->copyFmParamsToObject();
+        break;
+    };
+}
+
+void AudioPlugin2686VEditor::pasteFmParamsFromObject()
+{
+    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
+
+    switch (targetMode)
+    {
+    case OscMode::OPNA:
+        opnaGui->pasteFmParamsFromObject();
+        break;
+    case OscMode::OPN:
+        opnGui->pasteFmParamsFromObject();
+        break;
+    case OscMode::OPL:
+        oplGui->pasteFmParamsFromObject();
+        break;
+    case OscMode::OPL3:
+        opl3Gui->pasteFmParamsFromObject();
+        break;
+    case OscMode::OPM:
+        opmGui->pasteFmParamsFromObject();
+        break;
+    case OscMode::OPZX3:
+        opzx3Gui->pasteFmParamsFromObject();
+        break;
+    };
+}
+
+void AudioPlugin2686VEditor::initParams()
+{
+    int targetMode = tabs.getCurrentTabIndex();
+
+    if (targetMode == ((int)OscMode::BEEP + 1)) // FXタブ
+    {
+        fxGui->initParams();
+    }
+
+    switch ((OscMode)targetMode)
+    {
+    case OscMode::OPNA:
+        opnaGui->initParams();
+        break;
+    case OscMode::OPN:
+        opnGui->initParams();
+        break;
+    case OscMode::OPL:
+        oplGui->initParams();
+        break;
+    case OscMode::OPL3:
+        opl3Gui->initParams();
+        break;
+    case OscMode::OPM:
+        opmGui->initParams();
+        break;
+    case OscMode::OPZX3:
+        opzx3Gui->initParams();
+        break;
+    case OscMode::SSG:
+        ssgGui->initParams();
+        break;
+    case OscMode::WAVETABLE:
+        wtGui->initParams();
+        break;
+    case OscMode::ADPCM:
+        adpcmGui->initParams();
+        break;
+    case OscMode::BEEP:
+        beepGui->initParams();
+        break;
+    };
 }

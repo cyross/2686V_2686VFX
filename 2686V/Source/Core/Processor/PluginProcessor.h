@@ -3,6 +3,8 @@
 
 #include "../Synth/SynthVoice.h"
 
+#include "../Fm/FmClipboard.h"
+
 #include "../../Processor/Opna/Core.h"
 #include "../../Processor/Opn/Core.h"
 #include "../../Processor/Opl/Core.h"
@@ -129,6 +131,8 @@ public:
     void loadPreset(const juce::File& file);
     void initPreset();
 
+    void initParams(const juce::String& code);
+
     // --- OPZX3 PCM File ---
     std::array<std::vector<float>, 4> opzx3PcmBuffers;
     std::array<juce::String, 4> opzx3PcmFilePaths;
@@ -174,6 +178,8 @@ public:
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
+
+    FmClipboard fmClipboard;
 private:
     OpnaProcessor prOpna;
     OpnProcessor prOpn;

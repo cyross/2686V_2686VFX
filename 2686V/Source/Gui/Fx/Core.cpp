@@ -1,5 +1,7 @@
 ﻿#include "./Core.h"
 
+#include "../../Core/Processor/PluginProcessor.h"
+
 #include "../../Core/Const/PrKeys.h"
 #include "../../Core/Const/PrValues.h"
 
@@ -419,4 +421,9 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowCategory({ .rowRect = rvbRect, .label = &rMixCat });
     layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider });
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0 });
+}
+
+void GuiFx::initParams()
+{
+    this->ctx.audioProcessor.initParams("FX_");
 }

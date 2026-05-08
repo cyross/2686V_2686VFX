@@ -2,6 +2,7 @@
 
 #include "./Core.h"
 
+#include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Core/Const/PrKeys.h"
@@ -322,4 +323,9 @@ bool GuiRhythm::isThis(int index, juce::Button* button)
 void GuiRhythm::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+void GuiRhythm::initParams()
+{
+    this->ctx.audioProcessor.initParams("RHYTHM_");
 }

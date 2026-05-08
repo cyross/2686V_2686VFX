@@ -219,3 +219,8 @@ void GuiAdpcm::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
 }
+
+void GuiAdpcm::initParams()
+{
+    this->ctx.audioProcessor.initParams("ADPCM_");
+}

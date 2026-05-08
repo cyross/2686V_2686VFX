@@ -129,3 +129,8 @@ void GuiBeep::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
 }
+
+void GuiBeep::initParams()
+{
+    this->ctx.audioProcessor.initParams("BEEP_");
+}
