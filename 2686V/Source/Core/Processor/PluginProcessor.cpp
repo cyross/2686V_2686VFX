@@ -788,7 +788,7 @@ void AudioPlugin2686V::initParams(const juce::String& code)
     {
         if (auto* p = dynamic_cast<juce::AudioProcessorParameterWithID*>(param))
         {
-            if (p->paramID.startsWith(code)) {
+            if (p->paramID.startsWith(code) || p->paramID == "MASTER_VOL") { // マスターボリュームも初期化
                 p->setValueNotifyingHost(p->getDefaultValue());
             }
         }

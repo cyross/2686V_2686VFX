@@ -192,8 +192,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーター初期化ボタン
     addAndMakeVisible(initParamsButton);
     initParamsButton.setVisible(true);
-    initParamsButton.setButtonText(u8"Init");
-    initParamsButton.setTooltip("Initialize Parameters");
+    initParamsButton.setButtonText(u8"Reset");
+    initParamsButton.setTooltip("Reset Parameters");
     initParamsButton.setLookAndFeel(&initParamsButtonLF);
     initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white.darker(0.8f));
     initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
