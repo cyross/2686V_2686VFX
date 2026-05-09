@@ -45,7 +45,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	aboutGui = std::make_unique<GuiAbout>(context);
 
     wtGui->addComponentListener(this);
+
     tabs.getTabbedButtonBar().addChangeListener(this);
+
     audioProcessor.apvts.addParameterListener(PrKey::mode, this);
 
     setupLogo();

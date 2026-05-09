@@ -56,7 +56,6 @@ public:
     }
 };
 
-
 class AudioPlugin2686VEditor :
     public juce::AudioProcessorEditor,
     public juce::ChangeListener,
@@ -136,7 +135,6 @@ private:
     AudioPlugin2686V& audioProcessor;
 
     CustomTabLookAndFeel customTabLF;
-
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
 	juce::Label logoLabel;
 
