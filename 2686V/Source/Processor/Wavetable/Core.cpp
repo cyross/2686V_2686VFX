@@ -38,8 +38,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // ADD: Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::rate, code + PrName::Fm::Post::rate, PrValue::Quality::Rate::min, PrValue::Quality::Rate::max, PrValue::Quality::Rate::initial)); // Default 6 (16kHz)
-    // Size: 0:32, 1:64
+    // Size: 0:32, 1:64, 2:128, 3:256
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::sampleSize, code + PrName::Wt::Post::sampleSize, PrValue::Wt::SammpleSize::min, PrValue::Wt::SammpleSize::max, PrValue::Wt::SammpleSize::initial));
+    // Steps : 0:Free, 1:16(+), 2:32(+), 3:64(+), 4:128(+), 5:256(+), 6:16(-), 7:32(-), 8:64(-), 9:128(-), 10:256(-)
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::steps, code + PrName::Wt::Post::steps, PrValue::Wt::Steps::min, PrValue::Wt::Steps::max, PrValue::Wt::Steps::initial));
     // Waveform Preset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Wt::wave, code + PrName::Wt::Post::waveform, PrValue::Wt::WaveForm::min, PrValue::Wt::WaveForm::max, PrValue::Wt::WaveForm::initial));
 
@@ -77,6 +79,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.bitDepth = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::bit);
     params.wt.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::rate);
     params.wt.tableSize = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::sampleSize);
+    params.wt.steps = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::steps);
     params.wt.waveform = (int)*apvts.getRawParameterValue(code + PrKey::Post::Wt::wave);
 
     processCustomWaveBlock(params.wt.customWave32, apvts, code + PrKey::Innder::custom32);

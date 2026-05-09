@@ -203,6 +203,7 @@ namespace PrName
 		{
 			static inline const juce::String level = " Level";
 			static inline const juce::String sampleSize = " Sample Size";
+			static inline const juce::String steps = " Steps";
 			static inline const juce::String waveform = " Waveform";
 			static inline const juce::String bit = " BIT";
 			static inline const juce::String rate = " RATE";

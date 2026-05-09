@@ -28,6 +28,8 @@ class WaveformContainer :
     juce::ModifierKeys lastModifiers;
 
 public:
+    int steps = 0;
+
     WaveformContainer(const GuiContext& context) : GuiBaseComponent(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -232,36 +234,6 @@ public:
         float val = 1.0f - (e.position.y / halfHeight);
         val = std::clamp(val, -1.0f, 1.0f);
 
-        // =======================================================
-        // 1, 2, 3, 4, 5 キーの押下状態を取得 (テンキーにも対応)
-        // =======================================================
-        bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
-        bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
-        bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
-        bool isKey4 = juce::KeyPress::isKeyCurrentlyDown('4') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad4);
-        bool isKey5 = juce::KeyPress::isKeyCurrentlyDown('5') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad5);
-
-        // =======================================================
-        // 6, 7, 8, 9, 0 キーの押下状態を取得 (テンキーにも対応)
-        // =======================================================
-        bool isKey0 = juce::KeyPress::isKeyCurrentlyDown('0') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad0);
-        bool isKey9 = juce::KeyPress::isKeyCurrentlyDown('9') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad9);
-        bool isKey8 = juce::KeyPress::isKeyCurrentlyDown('8') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad8);
-        bool isKey7 = juce::KeyPress::isKeyCurrentlyDown('7') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad7);
-        bool isKey6 = juce::KeyPress::isKeyCurrentlyDown('6') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad6);
-
-        int steps = 0;
-        if (isKey1) steps = 16;      // 16段階 (0〜15)
-        else if (isKey2) steps = 32; // 32段階 (0〜31)
-        else if (isKey3) steps = 64; // 64段階 (0〜63)
-        else if (isKey4) steps = 128; // 128段階 (0〜127)
-        else if (isKey5) steps = 256; // 256段階 (0〜255)
-        else if (isKey6) steps = -256; // 256段階 (0〜255)
-        else if (isKey7) steps = -128; // 128段階 (0〜127)
-        else if (isKey8) steps = -64; // 64段階 (0〜63)
-        else if (isKey9) steps = -32; // 32段階 (0〜31)
-        else if (isKey0) steps = -16; // 16階 (0〜15)
-
         // 段階スナップ(+)が有効な場合
         if (steps > 0)
         {
@@ -368,36 +340,6 @@ public:
             float halfHeight = getHeight() * 0.5f;
             float potentialVal = 1.0f - ((float)lastMousePos.y / halfHeight);
             potentialVal = std::clamp(potentialVal, -1.0f, 1.0f);
-
-            // =======================================================
-            // 1, 2, 3, 4, 5 キーの押下状態を取得 (テンキーにも対応)
-            // =======================================================
-            bool isKey1 = juce::KeyPress::isKeyCurrentlyDown('1') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad1);
-            bool isKey2 = juce::KeyPress::isKeyCurrentlyDown('2') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad2);
-            bool isKey3 = juce::KeyPress::isKeyCurrentlyDown('3') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad3);
-            bool isKey4 = juce::KeyPress::isKeyCurrentlyDown('4') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad4);
-            bool isKey5 = juce::KeyPress::isKeyCurrentlyDown('5') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad5);
-
-            // =======================================================
-            // 6, 7, 8, 9, 0 キーの押下状態を取得 (テンキーにも対応)
-            // =======================================================
-            bool isKey0 = juce::KeyPress::isKeyCurrentlyDown('0') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad0);
-            bool isKey9 = juce::KeyPress::isKeyCurrentlyDown('9') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad9);
-            bool isKey8 = juce::KeyPress::isKeyCurrentlyDown('8') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad8);
-            bool isKey7 = juce::KeyPress::isKeyCurrentlyDown('7') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad7);
-            bool isKey6 = juce::KeyPress::isKeyCurrentlyDown('6') || juce::KeyPress::isKeyCurrentlyDown(juce::KeyPress::numberPad6);
-
-            int steps = 0;
-            if (isKey1) steps = 16;
-            else if (isKey2) steps = 32;
-            else if (isKey3) steps = 64;
-            else if (isKey4) steps = 128; // 128段階 (0〜127)
-            else if (isKey5) steps = 256; // 256段階 (0〜255)
-            else if (isKey6) steps = -256; // 256段階 (0〜255)
-            else if (isKey7) steps = -128; // 128段階 (0〜127)
-            else if (isKey8) steps = -64; // 64段階 (0〜63)
-            else if (isKey9) steps = -32; // 32段階 (0〜31)
-            else if (isKey0) steps = -16; // 16階 (0〜15)
 
             juce::String text;
 
@@ -549,6 +491,7 @@ class GuiWt : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiComboBox sizeSelector;
+    GuiComboBox stepsSelector;
 
     GuiComboBox waveSelector;
 
@@ -621,6 +564,7 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         sizeSelector(context),
+        stepsSelector(context),
         waveSelector(context),
         modEnableButton(context),
         modDepthSlider(context),

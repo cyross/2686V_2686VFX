@@ -945,6 +945,14 @@ namespace PrValue
 			inline constexpr int initial = 0; // 最大値
 		}
 
+		namespace Steps
+		{
+			// 0, +16, +32, +64, +128, +256, -16, -32, -64, -128, -256
+			inline constexpr int min = 0; // 最小値
+			inline constexpr int max = 10; // 最大値
+			inline constexpr int initial = 0; // 最大値
+		}
+
 		namespace WaveForm
 		{
 			inline constexpr int min = 0; // 最小値

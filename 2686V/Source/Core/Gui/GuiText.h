@@ -261,6 +261,7 @@ namespace GuiText
 		static inline const juce::String form = u8"Form";
 		static inline const juce::String size = u8"Size";
 		static inline const juce::String sampleSize = u8"Sample Size";
+		static inline const juce::String steps = u8"Steps";
 		static inline const juce::String waveform = u8"Waveform";
 		static inline const juce::String fileImport = u8"Import (.wt)";
 		static inline const juce::String fileExport = u8"Export (.wt)";

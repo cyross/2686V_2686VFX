@@ -228,6 +228,7 @@ namespace PrKey
 			static inline const juce::String rate = "_RATE";
 			static inline const juce::String wave = "_WAVE";
 			static inline const juce::String sampleSize = "_SIZE";
+			static inline const juce::String steps = "_STEPS";
 
 			namespace Mod {
 				static inline const juce::String enable = "_MOD_ENABLE";

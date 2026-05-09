@@ -51,6 +51,20 @@ static std::vector<SelectItem> wtTsItems = {
     {.name = "3: 256 Samples",  .value = 4 },
 };
 
+static std::vector<SelectItem> wtStepsItems = {
+    {.name = " 0: Free",   .value =  1 },
+    {.name = " 1: 16(+)",  .value =  2 },
+    {.name = " 2: 32(+)",  .value =  3 },
+    {.name = " 3: 64(+)",  .value =  4 },
+    {.name = " 4: 128(+)", .value =  5 },
+    {.name = " 5: 256(+)", .value =  6 },
+    {.name = " 6: 16(-)",  .value =  7 },
+    {.name = " 7: 32(-)",  .value =  8 },
+    {.name = " 8: 64(-)",  .value =  9 },
+    {.name = " 9: 128(-)", .value = 10 },
+    {.name = "10: 256(-)", .value = 11 },
+};
+
 // DT (デチューン1) 用のコンボボックスアイテム
 // レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
 static std::vector<SelectItem> dtItems = {
@@ -66,6 +80,49 @@ static std::vector<SelectItem> dtItems = {
 
 void GuiWt::setup()
 {
+    auto applySteps = [this] {
+        int stepsIndex = stepsSelector.getSelectedId() - 1;
+        int steps = 0;
+
+        switch (stepsIndex)
+        {
+        case 1:
+            steps = 16;
+            break;
+        case 2:
+            steps = 32;
+            break;
+        case 3:
+            steps = 64;
+            break;
+        case 4:
+            steps = 128;
+            break;
+        case 5:
+            steps = 256;
+            break;
+        case 6:
+            steps = -16;
+            break;
+        case 7:
+            steps = -32;
+            break;
+        case 8:
+            steps = -64;
+            break;
+        case 9:
+            steps = -128;
+            break;
+        case 10:
+            steps = -256;
+            break;
+        }
+
+        customSliders32.steps = steps;
+        customSliders64.steps = steps;
+        customSliders128.steps = steps;
+        customSliders256.steps = steps;
+        };
     const juce::String code = PrKey::Prefix::wt;
     int tabOrder = 1;
 
@@ -97,11 +154,82 @@ void GuiWt::setup()
     waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::wave, .title = GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
+    waveSelector.onChange = [this] {
+        int index = waveSelector.getSelectedId();
+        bool visible = index == 9; // custom
+
+        sizeSelector.setVisible(visible);
+        sizeSelector.label.setVisible(visible);
+        stepsSelector.setVisible(visible);
+        stepsSelector.label.setVisible(visible);
+
+        resized();
+        };
 
     // Custom Wave Size
     sizeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::sampleSize, .title = GuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
     sizeSelector.setExplicitFocusOrder(++tabOrder);
+
+    // Steps
+    stepsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::steps, .title = GuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
+    stepsSelector.setWantsKeyboardFocus(true);
+    stepsSelector.setExplicitFocusOrder(++tabOrder);
+    stepsSelector.onChange = [this] {
+        // ステップ数が変わると、段階による値が変わるため、いったんリセットする
+        customSliders32.setAllValues(0.0f);
+        customSliders64.setAllValues(0.0f);
+        customSliders128.setAllValues(0.0f);
+        customSliders256.setAllValues(0.0f);
+
+        auto applySteps = [this] {
+            int stepsIndex = stepsSelector.getSelectedId() - 1;
+            int steps = 0;
+
+            switch (stepsIndex)
+            {
+            case 1:
+                steps = 16;
+                break;
+            case 2:
+                steps = 32;
+                break;
+            case 3:
+                steps = 64;
+                break;
+            case 4:
+                steps = 128;
+                break;
+            case 5:
+                steps = 256;
+                break;
+            case 6:
+                steps = -16;
+                break;
+            case 7:
+                steps = -32;
+                break;
+            case 8:
+                steps = -64;
+                break;
+            case 9:
+                steps = -128;
+                break;
+            case 10:
+                steps = -256;
+                break;
+            }
+
+            customSliders32.steps = steps;
+            customSliders64.steps = steps;
+            customSliders128.steps = steps;
+            customSliders256.steps = steps;
+            };
+
+        applySteps();
+
+        resized();
+        };
 
     modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
 
@@ -263,6 +391,8 @@ void GuiWt::setup()
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
+
+    applySteps();
 }
 
 void GuiWt::layout(juce::Rectangle<int> content)
@@ -283,7 +413,21 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
-    layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, });
+
+    int index = waveSelector.getSelectedId();
+    bool visible = index == 9; // custom
+
+    sizeSelector.setVisible(visible);
+    sizeSelector.label.setVisible(visible);
+    stepsSelector.setVisible(visible);
+    stepsSelector.label.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, });
+        layoutMain({ .mainRect = mRect, .label = &stepsSelector.label, .component = &stepsSelector, });
+    }
+
     layoutMainCategory({ .mainRect = mRect, .label = &modCat });
     layoutMain({ .mainRect = mRect, .component = &modEnableButton });
     layoutMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
