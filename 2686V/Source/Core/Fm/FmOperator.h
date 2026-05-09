@@ -71,6 +71,7 @@ protected:
     float m_currentReleaseDec = 0.0f;
 
     // LFO Sync Delay とカウンター
+    int m_lfoSyncDelayParam = 0;
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
     uint32_t m_lfoCycleCount = 0;

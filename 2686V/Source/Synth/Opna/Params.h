@@ -57,7 +57,7 @@ struct OpnaParams
     float lfoAmSmRt = 0.005f;
 
     // LFO Sync Delay
-    float lfoSyncDelay = 0.0f;
+    int lfoSyncDelay = 0;
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index

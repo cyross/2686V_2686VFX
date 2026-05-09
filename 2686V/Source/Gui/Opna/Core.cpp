@@ -9,7 +9,9 @@
 #include "../../Core/Const/PrValues.h"
 #include "../../Core/Const/MmlKeys.h"
 #include "../../Core/Const/MmlValues.h"
+
 #include "../../Core/Fm/RegisterConverter.h"
+#include "../../Core/Fm/FmMmlFormatter.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "../../Core/Gui/GuiValues.h"
@@ -686,8 +688,76 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
 
 void GuiOpna::copyFmParamsToString()
 {
-    juce::String info = u8"[OPNA]\n";
-    juce::SystemClipboard::copyTextToClipboard(info);
+    int mask1 = FmMml::bool2Int(!mask[0].getToggleState());
+    int mask2 = FmMml::bool2Int(!mask[1].getToggleState());
+    int mask3 = FmMml::bool2Int(!mask[2].getToggleState());
+    int mask4 = FmMml::bool2Int(!mask[3].getToggleState());
+    int maskVal = FmMml::genMask4(mask1, mask2, mask2, mask3);
+
+    auto formatCoreBasic = [this, maskVal]() {
+        return juce::String::formatted(
+            // '   ALG   FB0   FB2   MSK    SHP  SPD  SYC  PMD  PMS  AMD 
+            u8"    %1d,  %1d,  %1d,  %2d,   %2d, %5d, %3d,  %d, %+d,  %d\n",
+            algSelector.getSelectedId() - 1,      // ALG
+            (int)feedbackSlider.getValue(),       // FB0
+            (int)feedback2Slider.getValue(),      // FB2
+            maskVal,                              // MASK
+            lfoShapeSelector.getSelectedId() - 1, // SHAPE
+            (int)lfoFreqSlider.getValue(),        // SPEED
+            (int)lfoSyncDelaySlider.getValue(),   // SYNC
+            (int)lfoPmdSlider.getValue(),         // PMD
+            (int)lfoPmsSlider.getValue(),         // PMS
+            (int)lfoAmdSlider.getValue()          // AMD
+        );
+        };
+    auto formatOpBasic = [this](int index) {
+        return juce::String::formatted(
+            // ' MUL    DT   AR   DR   SL   RR   SR   TL   KS  AMS
+            u8"  %2d, %+1d, %2d, %2d, %2d, %2d, %2d, %3d, %1d, %+d\n",
+            (int)this->mul[index].getValue(),                   // MUL
+            FmMml::int2dt(this->dt[index].getSelectedId() - 1), // DT
+            (int)this->rgAr[index].getValue(),                  // AR
+            (int)this->rgDr[index].getValue(),                  // DR
+            (int)this->rgSl[index].getValue(),                  // SL
+            (int)this->rgSr[index].getValue(),                  // SR
+            (int)this->rgRr[index].getValue(),                  // RR
+            (int)this->rgTl[index].getValue(),                  // TL
+            this->ks[index].getSelectedId() - 1,                // KS
+            (int)this->n88Ams[index].getValue()                 // AMS
+        );
+        };
+    auto formatOpsBasic = [this, formatOpBasic]() {
+        return formatOpBasic(0) + formatOpBasic(1) + formatOpBasic(2) + formatOpBasic(3);
+        };
+    auto formatOpExt = [this](int index) {
+        return juce::String::formatted(
+            // ' MUL    DT   AR   DR   SL   SR   RR   TL   KS
+            u8"MUL%d DT%+d AR%d DR%d SL%d SR%d RR%d TL%d KS%d\n",
+            (int)this->mul[index].getValue(),
+            FmMml::int2dt(this->dt[index].getSelectedId() - 1),
+            (int)this->rgAr[index].getValue(),
+            (int)this->rgDr[index].getValue(),
+            (int)this->rgSl[index].getValue(),
+            (int)this->rgSr[index].getValue(),
+            (int)this->rgRr[index].getValue(),
+            (int)this->rgTl[index].getValue(),
+            this->ks[index].getSelectedId() - 1
+        );
+        };
+    auto formatOpsExt = [this, formatOpExt]() {
+        return formatOpExt(0) + formatOpExt(1) + formatOpExt(2) + formatOpExt(3);
+        };
+
+    juce::String mml = juce::String("[OPNA]\n")
+        + FmMml::basicMmlHeader
+        + juce::String(u8"' ALG FB0 FB2 MASK SHAPE  SPEED SYNC PMD PMS AMD\n")
+        + formatCoreBasic()
+        + juce::String(u8"' MUL DT  AR  DR  SL  SR  RR   TL KS AMS\n")
+        + formatOpsBasic()
+        + juce::String(u8"\n")
+        + FmMml::extMmlHeader
+        + formatOpsExt();
+    juce::SystemClipboard::copyTextToClipboard(mml);
 }
 
 void GuiOpna::copyFmParamsToObject()

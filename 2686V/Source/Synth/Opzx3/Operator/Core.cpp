@@ -233,14 +233,25 @@ namespace {
     } };
 }
 
+void Opzx3Operator::prepare(double sampleRate) {
+    m_pitchAdsr.prepare(sampleRate);
+}
+
+void Opzx3Operator::updateSampleRate(double newSampleRate) {
+    m_pitchAdsr.updateSampleRate(newSampleRate);
+}
+
 void Opzx3Operator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
+    m_lfoSyncDelayParam = params.lfoSyncDelay;
+    m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = params.waveSelect;
 	m_detune.setParameters(params.detune, params.detune2);
 	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
 }
 
 void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
@@ -250,18 +261,23 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
-    if (m_params.lfoSyncDelay > 0.0f) {
-        m_lfoPhase = 0.0; // ディレイがある場合は必ずSync(位相リセット)する
-        m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
-    }
-    else {
-        m_lfoDelayCounter = 0.0f;
+    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
+    if (m_lfoSyncDelayParam == 0) {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
         // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
         // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
         if (m_params.pgLfoWave == 6 || m_params.pgLfoWave == 7 ||
             m_params.egLfoWave == 6 || m_params.egLfoWave == 7) {
             m_lfoPhase = 0.0;
         }
+    }
+    else if (m_lfoSyncDelayParam == 1) {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = 0.0f; // ms -> 秒
+    }
+    else {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
     }
 
     m_lfoCycleCount = 0;
@@ -316,9 +332,20 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     updateIncrementsWithKeyScale();
 
     m_currentReleaseDec = m_releaseDec;
+
+    m_pitchAdsr.noteOn();
 }
 
-void Opzx3Operator::getSample(float& output, float modulator, PitchAdsrEnv& pitchAdsr,
+void Opzx3Operator::noteOff()
+{
+    m_state = State::Release;
+
+    m_currentReleaseDec = m_releaseDec;
+
+    m_pitchAdsr.noteOff();
+}
+
+void Opzx3Operator::getSample(float& output, float modulator,
     float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
@@ -430,7 +457,7 @@ void Opzx3Operator::getSample(float& output, float modulator, PitchAdsrEnv& pitc
     }
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
-    float currentPhaseDelta = m_params.pitchEnvEnable ? pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

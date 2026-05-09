@@ -10,6 +10,7 @@
 #include "../../Core/Const/MmlValues.h"
 
 #include "../../Core/Fm/RegisterConverter.h"
+#include "../../Core/Fm/FmMmlFormatter.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "../../Core/Gui/GuiValues.h"
@@ -556,8 +557,71 @@ bool GuiOpl::keyPressed(const juce::KeyPress& key)
 
 void GuiOpl::copyFmParamsToString()
 {
-    juce::String info = u8"[OPL]\n";
-    juce::SystemClipboard::copyTextToClipboard(info);
+    int mask1 = FmMml::bool2Int(!mask[0].getToggleState());
+    int mask2 = FmMml::bool2Int(!mask[1].getToggleState());
+    int maskVal = FmMml::genMask2(mask1, mask2);
+
+    auto formatCoreBasic = [this, maskVal]() {
+        return juce::String::formatted(
+            u8"    %1d, %1d,  %2d\n",
+            algSelector.getSelectedId() - 1, // ALG
+            (int)feedbackSlider.getValue(),  // FB
+            maskVal);                        // MASK
+        };
+    auto formatOpBasic = [this](int index) {
+        // ' MUL AR DR SL RR  TL KSR KSL AM VIB WS EGTYPE PMS PMD AMS AMD
+        return juce::String::formatted(
+            u8"  %3d, %2d, %2d, %2d, %2d, %3d,  %1d,  %1d, %1d,  %1d, %1d,     %1d, %5.2f, %5.2f, %5.2f, %5.2f\n",
+            (int)this->mul[index].getValue(),                      // MUL
+            (int)this->rgAr[index].getValue(),                     // AR
+            (int)this->rgDr[index].getValue(),                     // DR
+            (int)this->rgSl[index].getValue(),                     // SL
+            (int)this->rgRr[index].getValue(),                     // RR
+            (int)this->rgTl[index].getValue(),                     // TL
+            FmMml::bool2Int(this->ksr[index].getToggleState()),    // KSR
+            this->ksl[0].getSelectedId() - 1,                      // KSL
+            FmMml::bool2Int(this->am[index].getToggleState()),     // AM
+            FmMml::bool2Int(this->vib[index].getToggleState()),    // VIB
+            this->eg[index].getSelectedId() - 1,                   // WS
+            FmMml::bool2Int(this->egType[index].getToggleState()), // EGTYPE
+            this->pms[index].getValue(),                           // PMS
+            this->pmd[index].getValue(),                           // PMD
+            this->ams[index].getValue(),                           // AMS
+            this->amd[index].getValue()                            // AMD
+        );
+        };
+    auto formatOpsBasic = [this, formatOpBasic]() {
+        return formatOpBasic(0) + formatOpBasic(1);
+        };
+    auto formatOpExt = [this](int index) {
+        // ' MUL AR DR SL RR TL KSR KSL
+        return juce::String::formatted(
+            u8"mul%d ar%d dr%d rr%d sl%d tl%d ksr%d ksl%d\n",
+            (int)this->mul[index].getValue(),
+            (int)this->rgAr[index].getValue(),
+            (int)this->rgDr[index].getValue(),
+            (int)this->rgSl[index].getValue(),
+            (int)this->rgRr[index].getValue(),
+            (int)this->rgTl[index].getValue(),
+            FmMml::bool2Int(this->ksr[index].getToggleState()),
+            this->ksl[index].getSelectedId() - 1
+        );
+        };
+    auto formatOpsExt = [this, formatOpExt]() {
+        return formatOpExt(0) + formatOpExt(1);
+        };
+
+    juce::String mml = juce::String("[OPL]\n")
+        + FmMml::basicMmlHeader
+        + juce::String(u8"' ALG FB MASK\n")
+        + formatCoreBasic()
+        + juce::String(u8"' MUL  AR  DR  SL  RR   TL KSR KSL AM VIB WS EGTYPE    PMS    PMD    AMS    AMD\n")
+        + formatOpsBasic()
+        + juce::String(u8"\n")
+        + FmMml::extMmlHeader
+        + formatOpsExt();
+
+    juce::SystemClipboard::copyTextToClipboard(mml);
 }
 
 void GuiOpl::copyFmParamsToObject()

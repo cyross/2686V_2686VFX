@@ -24,3 +24,14 @@ void PrBase::addPitchEnvParameters(juce::AudioProcessorValueTreeState::Parameter
     layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::ssl, prefix + PrName::PitchAdsr::Post::ssl, PrValue::PitchAdsr::Ssl::min, PrValue::PitchAdsr::Ssl::max, PrValue::PitchAdsr::Ssl::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::rll, prefix + PrName::PitchAdsr::Post::rll, PrValue::PitchAdsr::Rll::min, PrValue::PitchAdsr::Rll::max, PrValue::PitchAdsr::Rll::initial));
 }
+
+void PrBase::addOpPitchEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
+{
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::PitchAdsr::ar, namePrefix + PrName::PitchAdsr::Post::ar, PrValue::PitchAdsr::Ar::min, PrValue::PitchAdsr::Ar::max, PrValue::PitchAdsr::Ar::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::PitchAdsr::dr, namePrefix + PrName::PitchAdsr::Post::dr, PrValue::PitchAdsr::Dr::min, PrValue::PitchAdsr::Dr::max, PrValue::PitchAdsr::Dr::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::PitchAdsr::rr, namePrefix + PrName::PitchAdsr::Post::rr, PrValue::PitchAdsr::Rr::min, PrValue::PitchAdsr::Rr::max, PrValue::PitchAdsr::Rr::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::stl, namePrefix + PrName::PitchAdsr::Post::stl, PrValue::PitchAdsr::Stl::min, PrValue::PitchAdsr::Stl::max, PrValue::PitchAdsr::Stl::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::atl, namePrefix + PrName::PitchAdsr::Post::atl, PrValue::PitchAdsr::Atl::min, PrValue::PitchAdsr::Atl::max, PrValue::PitchAdsr::Atl::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::ssl, namePrefix + PrName::PitchAdsr::Post::ssl, PrValue::PitchAdsr::Ssl::min, PrValue::PitchAdsr::Ssl::max, PrValue::PitchAdsr::Ssl::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + PrKey::Post::PitchAdsr::rll, namePrefix + PrName::PitchAdsr::Post::rll, PrValue::PitchAdsr::Rll::min, PrValue::PitchAdsr::Rll::max, PrValue::PitchAdsr::Rll::initial));
+}

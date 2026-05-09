@@ -119,17 +119,6 @@ class GuiOpzx3 : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
-    // Pitch ADSR
-    GuiCategoryLabel pitchAdsrCat;
-    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
-    GuiSlider pitchAttackSlider;
-    GuiSlider pitchDecaySlider;
-    GuiSlider pitchReleaseSlider;
-    GuiSlider pitchStartLevelSlider;
-    GuiSlider pitchAttackLevelSlider;
-    GuiSlider pitchSustainLevelSlider;
-    GuiSlider pitchReleaseLevelSlider;
-
     // LFO
     GuiCategoryLabel lfoCat;
     GuiSlider lfoFreqSlider;
@@ -208,6 +197,13 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> amd;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catPitchEnv;
     std::array<GuiToggleButton, Global::Fm::Op4> pitchEnvEnable;
+    std::array<GuiSlider, Global::Fm::Op4> pitchAttack;
+    std::array<GuiSlider, Global::Fm::Op4> pitchDecay;
+    std::array<GuiSlider, Global::Fm::Op4> pitchRelease;
+    std::array<GuiSlider, Global::Fm::Op4> pitchStartLevel;
+    std::array<GuiSlider, Global::Fm::Op4> pitchAttackLevel;
+    std::array<GuiSlider, Global::Fm::Op4> pitchSustainLevel;
+    std::array<GuiSlider, Global::Fm::Op4> pitchReleaseLevel;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -236,15 +232,6 @@ public:
         feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
-        pitchAdsrCat(context),
-        pitchAdsrBypassButton(context),
-        pitchAttackSlider(context),
-        pitchDecaySlider(context),
-        pitchReleaseSlider(context),
-        pitchStartLevelSlider(context),
-        pitchAttackLevelSlider(context),
-        pitchSustainLevelSlider(context),
-        pitchReleaseLevelSlider(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoSyncDelaySlider(context),
@@ -308,6 +295,13 @@ public:
         amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
 		catPitchEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
 		pitchEnvEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        pitchAttack{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchDecay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchRelease{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchStartLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchAttackLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchSustainLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        pitchReleaseLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+
 struct FmOpParams
 {
     // --- Mask ---
@@ -33,7 +35,7 @@ struct FmOpParams
     int egLfoWave = 0;
 
     // LFO Sync Delay
-    float lfoSyncDelay = 0.0f;
+    int lfoSyncDelay = 0;
     int lfoFreqIndex = 0;
     float lfoFreq = 0.0f;
 
@@ -75,4 +77,7 @@ struct FmOpParams
     int rtl = 0;   // TL Register (0-127 / OPL: 0-63)
 
     bool pitchEnvEnable = true;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
 };

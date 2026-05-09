@@ -32,7 +32,8 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_pmd = params.opna.lfoPmd;
     m_lfoWave = params.opna.lfoWave;
     m_amSmoothRate = params.opna.lfoAmSmRt;
-    m_lfoSyncDelay = params.opna.lfoSyncDelay;
+    m_lfoSyncDelayParam = params.opm.lfoSyncDelay;
+    m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
 
     if (m_rateIndex != params.opna.fmRateIndex) {
         m_rateIndex = params.opna.fmRateIndex;
@@ -74,12 +75,16 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
     m_rateAccumulator = 1.0; // Reset timing
 
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (m_lfoSyncDelay > 0.0f) {
+    if (m_lfoSyncDelayParam == 0) {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
+    else if (m_lfoSyncDelayParam == 1) {
         m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
-        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+        m_lfoDelayCounter = 0.0f; // ms -> 秒
     }
     else {
-        m_lfoDelayCounter = 0.0f; // フリーラン継続
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
     }
 
     m_lfoCycleCount = 0;

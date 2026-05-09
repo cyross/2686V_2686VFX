@@ -5,6 +5,8 @@
 void OpnaOperator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
+    m_lfoSyncDelayParam = params.lfoSyncDelay;
+    m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = 0;
@@ -18,7 +20,18 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
-    m_lfoDelayCounter = m_params.lfoSyncDelay / 1000.0f;
+    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
+    if (m_lfoSyncDelayParam == 0) {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
+    else if (m_lfoSyncDelayParam == 1) {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = 0.0f; // ms -> 秒
+    }
+    else {
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+    }
 
     m_lfoCycleCount = 0;
 

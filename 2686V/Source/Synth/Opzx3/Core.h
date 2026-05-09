@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Generator/Noise/Lfsr/Core.h"
 #include "../../Generator/Fm/Alg/Opzx3/Core.h"
 
@@ -93,8 +92,6 @@ private:
         float in4_1, in4_2, in4_3; // OP4への入力 (1, 2, 3からの割合)
         float out_1, out_2, out_3, out_4; // 最終出力へのミックス割合
     };
-
-    PitchAdsrEnv m_pitchAdsr;
 
     static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
 };

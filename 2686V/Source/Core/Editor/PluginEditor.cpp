@@ -167,7 +167,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーターコピーボタン
     addAndMakeVisible(copyParamsButton);
     copyParamsButton.setVisible(true);
-    copyParamsButton.setButtonText(u8"Cp");
+    copyParamsButton.setButtonText(u8"C");
     copyParamsButton.setTooltip("Copy FM Parameters");
     copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
     copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
@@ -180,7 +180,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーターペーストボタン
     addAndMakeVisible(pasteParamsButton);
     pasteParamsButton.setVisible(true);
-    pasteParamsButton.setButtonText(u8"Ps");
+    pasteParamsButton.setButtonText(u8"P");
     pasteParamsButton.setTooltip("Paste FM Parameters");
     pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
     pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
@@ -303,7 +303,8 @@ void AudioPlugin2686VEditor::resized()
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
     undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
 #if true
-    initParamsButton.setBounds(getWidth() - 235 - previewPaddingRight, 5, 60, 20);
+    copyParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
+    initParamsButton.setBounds(getWidth() - 280 - previewPaddingRight, 5, 60, 20);
 #else
     pasteParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
     copyParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
@@ -948,8 +949,6 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             return true; // イベントを消費
         }
 
-        // 今後やる
-#if false
         // Ctrl + C (Copy)
         if (key.getKeyCode() == 'C' || key.getKeyCode() == 'c')
         {
@@ -959,6 +958,8 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             return true; // イベントを消費
         }
 
+        // 今後やる
+#if false
         // Ctrl + V (Paste)
         if (key.getKeyCode() == 'V' || key.getKeyCode() == 'v')
         {

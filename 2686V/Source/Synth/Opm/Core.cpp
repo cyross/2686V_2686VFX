@@ -83,7 +83,8 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_lfoPgWave = params.opm.pgLfoWave;
     m_lfoEgWave = params.opm.egLfoWave;
     m_amSmoothRate = params.opm.lfoAmSmRt;
-	m_lfoSyncDelay = params.opm.lfoSyncDelay;
+	m_lfoSyncDelayParam = params.opm.lfoSyncDelay;
+    m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
@@ -122,12 +123,16 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     m_rateAccumulator = 1.0;
 
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (m_lfoSyncDelay > 0.0f) {
+    if (m_lfoSyncDelayParam == 0) {
+        m_lfoDelayCounter = 0.0f; // フリーラン継続
+    }
+    else if (m_lfoSyncDelayParam == 1) {
         m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
-        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
+        m_lfoDelayCounter = 0.0f; // ms -> 秒
     }
     else {
-        m_lfoDelayCounter = 0.0f; // フリーラン継続
+        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
+        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
     }
 
     m_lfoCycleCount = 0;
@@ -186,7 +191,7 @@ float OpmCore::getSample() {
         }
         else {
             // --- OPM LFO (at Target Rate) ---
-            double lfoInc = m_lfoFreq / targetRate;
+            double lfoInc = 60.0 * ((float)m_lfoFreq / 255.0f) / targetRate;
             m_lfoPhase += lfoInc;
 
             if (m_lfoPhase >= 1.0) {

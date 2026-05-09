@@ -212,16 +212,16 @@ namespace PrValue
 	{
 		namespace Fb0
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 7.0f; // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr int min = 0; // 最小値
+			inline constexpr int max = 7; // 最大値
+			inline constexpr int initial = 0; // 初期値
 		}
 
 		namespace Fb2
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 7.0f; // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr int min = 0; // 最小値
+			inline constexpr int max = 7; // 最大値
+			inline constexpr int initial = 0; // 初期値
 		}
 	}
 
@@ -351,9 +351,9 @@ namespace PrValue
 
 		namespace SyncDelay
 		{
-			inline constexpr float min = 0.0f;
-			inline constexpr float max = 5000.0f;
-			inline constexpr float initial = 0.0f;
+			inline constexpr int min = 0;
+			inline constexpr int max = 255;
+			inline constexpr int initial = 0;
 		}
 
 		namespace PgShape
@@ -606,9 +606,9 @@ namespace PrValue
 
 		namespace SyncDelay
 		{
-			inline constexpr float min = 0.0f;
-			inline constexpr float max = 5000.0f;
-			inline constexpr float initial = 0.0f;
+			inline constexpr int min = 0;
+			inline constexpr int max = 255;
+			inline constexpr int initial = 0;
 		}
 	}
 
@@ -770,9 +770,9 @@ namespace PrValue
 		{
 			namespace Freq
 			{
-				inline constexpr float min = 0.0f;
-				inline constexpr float max = 60.0f;
-				inline constexpr float initial = 5.0f;
+				inline constexpr int min = 0;
+				inline constexpr int max = 255;
+				inline constexpr int initial = 0;
 			}
 		}
 	}

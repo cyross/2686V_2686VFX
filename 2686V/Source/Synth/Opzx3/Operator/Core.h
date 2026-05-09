@@ -12,13 +12,17 @@ class Opzx3Operator : public FmOperator
 public:
 	Opzx3Operator() : FmOperator() {}
 
+	void prepare(double sampleRate);
+	void updateSampleRate(double newSampleRate);
 	void setParameters(const FmOpParams& params, float feedback) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
-	void getSample(float& output, float modulator, PitchAdsrEnv& pitchAdsr, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f);
+	void noteOff() override;
+	void getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
 private:
 	OpmDetune m_detune;
 	LfsrNoiseGen m_noiseGen;
 	FixMode m_fixMode;
+	PitchAdsrEnv m_pitchAdsr;
 	void updateIncrementsWithKeyScale() override;
 };

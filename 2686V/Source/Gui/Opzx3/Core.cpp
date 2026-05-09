@@ -10,6 +10,7 @@
 #include "../../Core/Const/MmlValues.h"
 
 #include "../../Core/Fm/RegisterConverter.h"
+#include "../../Core/Fm/FmMmlFormatter.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "../../Core/Gui/GuiValues.h"
@@ -235,40 +236,6 @@ void GuiOpzx3::setup()
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAdsrCat.setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
-
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
-    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
-    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
-    pitchAttackSlider.setWantsKeyboardFocus(true);
-    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
-    pitchDecaySlider.setWantsKeyboardFocus(true);
-    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
-    pitchReleaseSlider.setWantsKeyboardFocus(true);
-    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
-    pitchStartLevelSlider.setWantsKeyboardFocus(true);
-    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
-    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
-    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
-    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
-    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
-    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
-    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::lfo });
 
@@ -544,6 +511,34 @@ void GuiOpzx3::setup()
         pitchEnvEnable[i].setWantsKeyboardFocus(true);
         pitchEnvEnable[i].setExplicitFocusOrder(++tabOrder);
 
+        pitchAttack[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
+        pitchAttack[i].setWantsKeyboardFocus(true);
+        pitchAttack[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchDecay[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
+        pitchDecay[i].setWantsKeyboardFocus(true);
+        pitchDecay[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchRelease[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
+        pitchRelease[i].setWantsKeyboardFocus(true);
+        pitchRelease[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchStartLevel[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
+        pitchStartLevel[i].setWantsKeyboardFocus(true);
+        pitchStartLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchAttackLevel[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
+        pitchAttackLevel[i].setWantsKeyboardFocus(true);
+        pitchAttackLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchSustainLevel[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
+        pitchSustainLevel[i].setWantsKeyboardFocus(true);
+        pitchSustainLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchReleaseLevel[i].setup({ .parent = *this, .id = paramPrefix + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
+        pitchReleaseLevel[i].setWantsKeyboardFocus(true);
+        pitchReleaseLevel[i].setExplicitFocusOrder(++tabOrder);
+
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::lfo });
 
         lFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::lfoFreq, .title = GuiText::Fm::Op::Freqs, .isReset = true });
@@ -678,16 +673,6 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
     layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
-    layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
-
     layoutMainCategory({ .mainRect = mRect, .label = &lfoCat });
     layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
@@ -767,8 +752,17 @@ void GuiOpzx3::layout(juce::Rectangle<int> content)
         }
         layoutRow({ .rowRect = innerRect, .label = &se[i].label, .component = &se[i] });
         layoutRow({ .rowRect = innerRect, .label = &seFreq[i].label, .component = &seFreq[i], });
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catPitchEnv[i] });
         layoutRow({ .rowRect = innerRect, .component = &pitchEnvEnable[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchAttack[i].label, .component = &pitchAttack[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchDecay[i].label, .component = &pitchDecay[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchRelease[i].label, .component = &pitchRelease[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchStartLevel[i].label, .component = &pitchStartLevel[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchAttackLevel[i].label, .component = &pitchAttackLevel[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchSustainLevel[i].label, .component = &pitchSustainLevel[i] });
+        layoutRow({ .rowRect = innerRect, .label = &pitchReleaseLevel[i].label, .component = &pitchReleaseLevel[i] });
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
         layoutRow({ .rowRect = innerRect, .label = &lFreq[i].label, .component = &lFreq[i] });
         layoutRow({ .rowRect = innerRect, .label = &syncDelay[i].label, .component = &syncDelay[i] });
@@ -1089,8 +1083,30 @@ bool GuiOpzx3::keyPressed(const juce::KeyPress& key)
 
 void GuiOpzx3::copyFmParamsToString()
 {
-    juce::String info = u8"[OPZX3]\n";
-    juce::SystemClipboard::copyTextToClipboard(info);
+    auto formatOpExt = [this](int index) {
+        // ' MUL AR DR SL RR TL KSR KSL
+        return juce::String::formatted(
+            u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d KS%d\n",
+            (int)this->mul[index].getValue(),
+            this->dt1[index].getSelectedId() - 1,
+            (int)this->dt2[index].getValue(),
+            (int)this->rgAr[index].getValue(),
+            (int)this->rgD1r[index].getValue(),
+            (int)this->rgD1l[index].getValue(),
+            (int)this->rgD2r[index].getValue(),
+            (int)this->rgRr[index].getValue(),
+            (int)this->rgTl[index].getValue(),
+            this->ks[index].getSelectedId() - 1
+        );
+        };
+    auto formatOpsExt = [this, formatOpExt]() {
+        return formatOpExt(0) + formatOpExt(1) + formatOpExt(2) + formatOpExt(3);
+        };
+
+    juce::String mml = juce::String("[OPZX3]\n")
+        + FmMml::extMmlHeader
+        + formatOpsExt();
+    juce::SystemClipboard::copyTextToClipboard(mml);
 }
 
 void GuiOpzx3::copyFmParamsToObject()

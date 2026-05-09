@@ -103,6 +103,7 @@ set(FM_FILES
     "Source/Core/Fm/RegisterConverter.cpp"
     "Source/Core/Fm/SliderRegMap.h"
     "Source/Core/Fm/SliderRegMap.cpp"
+    "Source/Core/Fm/FmMmlFormatter.h"
 )
 
 set(GUI_FILES

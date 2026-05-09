@@ -39,7 +39,7 @@ private:
     float m_quantizeSteps = 0.0f;
 
     // OPM LFO
-    float m_lfoFreq = 5.0f;
+    int m_lfoFreq = 0;
     int m_pms = 0;
     int m_ams = 0;
     int m_lfoPgWave = 2;
