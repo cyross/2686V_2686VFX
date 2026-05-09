@@ -290,6 +290,14 @@ void GuiSettings::setup()
                 );
             }
         };
+
+    // --- Clear Undo/Redo History Button ---
+    clearUndoHistoryBtn.setup({ .parent = *this, .title = "Clear Undo/Redo History", .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
+    clearUndoHistoryBtn.setWantsKeyboardFocus(true);
+    clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
+    clearUndoHistoryBtn.onClick = [this] {
+        ctx.audioProcessor.undoManager.clearUndoHistory();
+        };
 }
 
 void GuiSettings::layout(juce::Rectangle<int> content)
@@ -369,6 +377,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
 
     layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = GuiValue::Settings::RowHeight });
+
+    sRect.removeFromTop(GuiValue::Settings::PaddingHeight + 8);
+
+    // 9. Config IO Buttons (Fixed Layout)
+    auto rowClearHistoryBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
+    layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = GuiValue::Settings::RowHeight});
 }
 
 void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)

@@ -51,6 +51,9 @@ class GuiSettings : public GuiBase
 
     // 仮想MIDIキーボード表示制御
     GuiToggleButton virtualMidiKeyboardToggle;
+
+    // アンドゥ・リドゥ履歴消去
+    GuiTextButton clearUndoHistoryBtn;
 public:
     GuiSettings(const GuiContext& context) :
         GuiBase(context),
@@ -75,7 +78,8 @@ public:
         saveStartupSettingsBtn(context),
         tooltipToggle(context),
         useHeadroomToggle(context),
-        headroomGainSlider(context)
+        headroomGainSlider(context),
+        clearUndoHistoryBtn(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }

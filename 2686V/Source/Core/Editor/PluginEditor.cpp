@@ -131,7 +131,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.9f));
     panicButton.onClick = [this] {
         audioProcessor.panic();
-        audioProcessor.undoManager.clearUndoHistory();
         };
 
 
