@@ -155,15 +155,9 @@ void GuiWt::setup()
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
-        int index = waveSelector.getSelectedId();
-        bool visible = index == 9; // custom
+        updateCustomWaveCatOnChange();
 
-        sizeSelector.setVisible(visible);
-        sizeSelector.label.setVisible(visible);
-        stepsSelector.setVisible(visible);
-        stepsSelector.label.setVisible(visible);
-
-        resized();
+        ctx.editor.resized();
         };
 
     // Custom Wave Size
@@ -228,7 +222,7 @@ void GuiWt::setup()
 
         applySteps();
 
-        resized();
+        ctx.editor.resized();
         };
 
     modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
@@ -343,7 +337,7 @@ void GuiWt::setup()
         customSliders64.setAllValues(0.0f);
         customSliders128.setAllValues(0.0f);
         customSliders256.setAllValues(0.0f);
-        resized();
+        ctx.editor.resized();
     };
 
     customWaveResetTo1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to1, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
@@ -354,7 +348,7 @@ void GuiWt::setup()
         customSliders64.setAllValues(1.0f);
         customSliders128.setAllValues(1.0f);
         customSliders256.setAllValues(1.0f);
-        resized();
+        ctx.editor.resized();
         };
 
     customWaveResetToM1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::toM1, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
@@ -416,11 +410,6 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     int index = waveSelector.getSelectedId();
     bool visible = index == 9; // custom
-
-    sizeSelector.setVisible(visible);
-    sizeSelector.label.setVisible(visible);
-    stepsSelector.setVisible(visible);
-    stepsSelector.label.setVisible(visible);
 
     if (visible)
     {
@@ -571,11 +560,24 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });
+
+    updateCustomWaveCatOnChange();
 }
 
 void GuiWt::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+void GuiWt::updateCustomWaveCatOnChange()
+{
+    int index = waveSelector.getSelectedId();
+    bool visible = index == 9; // custom
+
+    sizeSelector.setVisible(visible);
+    sizeSelector.label.setVisible(visible);
+    stepsSelector.setVisible(visible);
+    stepsSelector.label.setVisible(visible);
 }
 
 // ==============================================================================
