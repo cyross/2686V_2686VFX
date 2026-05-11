@@ -1,4 +1,4 @@
-# Retro Sound Module Style VST "2686V" + Retro Sound Effect VST "2686VFX"
+# Retro Sound Module Style VST "2686V"
 
 (C)2026 CYROSS
 
@@ -6,7 +6,7 @@
 
 ## Introduction
 
-"2686V" and "2686VFX" (hereinafter collectively referred to as "this software") provide two plugins: "2686V", an instrument plugin designed to produce retro game sound module (FM/SSG/ADPCM, etc.) `-style` sounds `as close as possible` `(hopefully)` to the vibe of the game music I played the heck out of in the 80s and 90s, and "2686VFX", an effect plugin that converts your audio into retro game module `-style` sounds.
+"2686V" (hereinafter collectively referred to as "this software") provide two plugins: "2686V", an instrument plugin designed to produce retro game sound module (FM/SSG/ADPCM, etc.) `-style` sounds `as close as possible` `(hopefully)` to the vibe of the game music I played the heck out of in the 80s and 90s, and "2686VFX", an effect plugin that converts your audio into retro game module `-style` sounds.
 
 ## Objective
 
@@ -18,14 +18,7 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * Considering that a 100% perfect reproduction was impossible with my tech stack, and wanting to increase the freedom of sound design, I decided to create a plugin that provides just what is necessary and sufficient to evoke the atmosphere of that era, rather than strictly imitating existing hardware.
 * Therefore, I have zero intention of pursuing exact accuracy while constantly comparing it to actual hardware sounds (Sorry!).
 
-
 * Also, since my main goal was "to make music," the code was almost entirely implemented by `Google Gemini 3`. My main role was operation checking and reviewing.
-
-
-* **2686VFX**: A plugin that allows you to use the effect features of "2686V" on any track in your DAW.
-* Simply because I thought it would be fun.
-
-
 
 ## Features
 
@@ -50,9 +43,6 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 
 * (OPNA/OPM/OPZX3) Reorganization of hardware LFO specifications and addition of Software LFOs.
 * Separated and implemented global (entire synth) LFOs and channel-specific LFOs, which were previously mixed up in hardware specs.
-
-
-
 
 * **SSG (style sound module) Support**
 * An enhanced version incorporating PSG features, rather than a perfect reproduction.
@@ -94,14 +84,11 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * **Independent Effects Support**
 * Included effects:
 * Filter
-* Software LFO
 * Vibrato
 * Tremolo
 * Reverb
 * Delay
 * Modern Bit Crusher
-* Retro Bit Crusher
-* Soft Clipper
 
 
 * Bypass support for individual FX and global bypass.
