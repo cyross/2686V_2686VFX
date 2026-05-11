@@ -62,7 +62,7 @@ class GuiOpl : public GuiBase
 
     std::array<GuiCategoryLabel, Global::Fm::Op2> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op2> catLfo;
-    std::array<GuiSlider, Global::Fm::Op2> mul;
+    std::array<GuiComboBox, Global::Fm::Op2> mul;
     std::array<GuiToggleButton, Global::Fm::Op2> am;
     std::array<GuiToggleButton, Global::Fm::Op2> vib;
     std::array<GuiToggleButton, Global::Fm::Op2> egType;
@@ -119,7 +119,7 @@ public:
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mul{ GuiSlider(context), GuiSlider(context) },
+        mul{ GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context) },
         egType{ GuiToggleButton(context),GuiToggleButton(context) },

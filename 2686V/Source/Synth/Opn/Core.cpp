@@ -22,7 +22,7 @@ void OpnCore::setParameters(const SynthParams& params)
     m_algorithm = params.opn.algorithm;
     m_lfoWave = params.opn.lfoWave;
     m_amSmoothRate = params.opn.lfoAmSmRt;
-    m_lfoSyncDelayParam = params.opm.lfoSyncDelay;
+    m_lfoSyncDelayParam = params.opn.lfoSyncDelay;
     m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
     m_lfoFreq = params.opn.lfoFreq;
     m_pm = params.opn.pmEnable;
@@ -246,8 +246,8 @@ void OpnCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
+    outR[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
 
     isActive = isPlaying();
 }

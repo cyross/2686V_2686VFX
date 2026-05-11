@@ -47,6 +47,25 @@ static std::vector<SelectItem> opnAlgItems = {
     {.name = "07: <OPN-07>", .value = 8 },
 };
 
+static std::vector<SelectItem> multems = {
+    {.name = " 0:   0.5x", .value = 1 },
+    {.name = " 1:   1x", .value = 2 },
+    {.name = " 2:   2x", .value = 3 },
+    {.name = " 3:   3x", .value = 4 },
+    {.name = " 4:   4x", .value = 5 },
+    {.name = " 5:   5x", .value = 6 },
+    {.name = " 6:   6x", .value = 7 },
+    {.name = " 7:   7x", .value = 8 },
+    {.name = " 8:   8x", .value = 9 },
+    {.name = " 9:   9x", .value = 10 },
+    {.name = "10:  10x", .value = 11 },
+    {.name = "11:  11x", .value = 12 },
+    {.name = "12:  12x", .value = 13 },
+    {.name = "13:  13x", .value = 14 },
+    {.name = "14:  14x", .value = 15 },
+    {.name = "15:  15x", .value = 16 }
+};
+
 // DT (デチューン1) 用のコンボボックスアイテム
 // レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
 static std::vector<SelectItem> dtItems = {
@@ -212,7 +231,7 @@ void GuiOpn::setup()
 
         catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
 
-        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
@@ -308,13 +327,16 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+
     layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
     layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
     layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
     layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider });
+
     layoutMainCategory({ .mainRect = mRect, .label = &lfoCat });
     layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoShapeSelector.label, .component = &lfoShapeSelector });
@@ -326,8 +348,10 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
     layoutMain({ .mainRect = mRect, .component = &lfoAmToggle });
     layoutMain({ .mainRect = mRect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
@@ -405,8 +429,8 @@ void GuiOpn::applyMmlString(const juce::String& mml, int opIndex)
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
         // --- 基本パラメータ ---
-        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertFmMul(v), juce::sendNotification); } },
-        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertFmMul(v), juce::sendNotification); } },
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
         { mmlPrefixDt,   [&](int v) { dt[opIndex].setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
         { mmlPrefixKs,   [&](int v) { ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
@@ -564,7 +588,7 @@ void GuiOpn::copyFmParamsToString()
         return juce::String::formatted(
             // ' MUL    DT   AR   DR   SL   RR   SR   TL   KS  AMS
             u8"  %2d, %+1d, %2d, %2d, %2d, %2d, %2d, %3d, %1d, %+d\n",
-            (int)this->mul[index].getValue(),                   // MUL
+            (int)this->mul[index].getSelectedId() - 1,          // MUL
             FmMml::int2dt(this->dt[index].getSelectedId() - 1), // DT
             (int)this->rgAr[index].getValue(),                  // AR
             (int)this->rgDr[index].getValue(),                  // DR
@@ -583,7 +607,7 @@ void GuiOpn::copyFmParamsToString()
         return juce::String::formatted(
             // ' MUL    DT   AR   DR   SL   SR   RR   TL   KS
             u8"MUL%d DT%+d AR%d DR%d SL%d SR%d RR%d TL%d KS%d\n",
-            (int)this->mul[index].getValue(),
+            (int)this->mul[index].getSelectedId() - 1,
             FmMml::int2dt(this->dt[index].getSelectedId() - 1),
             (int)this->rgAr[index].getValue(),
             (int)this->rgDr[index].getValue(),

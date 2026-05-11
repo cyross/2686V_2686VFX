@@ -3,7 +3,7 @@
 #include <array>
 #include <functional>
 
-class Opzx3Alg
+class Opzx7Alg
 {
     struct AlgRouting {
         float in2_1;             // OP2への入力 (1からの割合)

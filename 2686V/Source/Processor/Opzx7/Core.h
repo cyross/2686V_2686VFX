@@ -5,7 +5,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/PrBase.h"
 
-class Opzx3Processor : PrBase
+class Opzx7Processor : PrBase
 {
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout);

@@ -2,7 +2,7 @@
 
 #include "../../Core/Synth/SynthHelpers.h"
 
-const std::array<Opzx3Core::AlgRouting, 36> Opzx3Core::routings = { {
+const std::array<Opzx7Core::AlgRouting, 36> Opzx7Core::routings = { {
     // in2_1, fb2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4
     { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 00
     { 1.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 01
@@ -45,7 +45,7 @@ const std::array<Opzx3Core::AlgRouting, 36> Opzx3Core::routings = { {
 // -----------------------------------------------------------
 // LFO 波形算出アルゴリズム (OPM PG)
 // -----------------------------------------------------------
-const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoPgStrategies = { {
+const std::array<Opzx7Core::Opzx7LfoCalculator, 8> Opzx7Core::lfoPgStrategies = { {
     // 0: Sine
     [](double phase, float /*noise*/) -> float {
         return (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
@@ -94,7 +94,7 @@ const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoPgStrategies = 
 // -----------------------------------------------------------
 // LFO 波形算出アルゴリズム (OPM EG)
 // -----------------------------------------------------------
-const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoEgStrategies = { {
+const std::array<Opzx7Core::Opzx7LfoCalculator, 8> Opzx7Core::lfoEgStrategies = { {
     // 0: Sine
     [] (double phase, float /*noise*/)-> float {
         float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
@@ -136,7 +136,7 @@ const std::array<Opzx3Core::Opzx3LfoCalculator, 8> Opzx3Core::lfoEgStrategies = 
     }
 } };
 
-void Opzx3Core::prepare(double sampleRate) {
+void Opzx7Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
     double target = getTargetRate(m_rateIndex);
@@ -154,7 +154,7 @@ void Opzx3Core::prepare(double sampleRate) {
     m_noiseGen.prepare(target);
 }
 
-void Opzx3Core::setSampleRate(double sampleRate) {
+void Opzx7Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
 
@@ -164,24 +164,38 @@ void Opzx3Core::setSampleRate(double sampleRate) {
     }
 }
 
-void Opzx3Core::setParameters(const SynthParams& params) {
-    m_algorithm = params.opzx3.algorithm; // Range: 0-27
+void Opzx7Core::setParameters(const SynthParams& params) {
+    m_algorithm = params.opzx7.algorithm; // Range: 0-27
 
-    m_lfoFreq = params.opzx3.lfoFreq;
-    m_am = params.opzx3.amEnable;
-    m_pm = params.opzx3.pmEnable;
-    m_pms = params.opzx3.lfoPms;
-    m_ams = params.opzx3.lfoAms;
-    m_pmd = params.opzx3.lfoPmd;
-    m_amd = params.opzx3.lfoAmd;
-    m_lfoPgWave = params.opzx3.pgLfoWave;
-    m_lfoEgWave = params.opzx3.egLfoWave;
-    m_amSmoothRate = params.opzx3.lfoAmSmRt;
+    m_lfoFreq = params.opzx7.lfoFreq;
+    m_am = params.opzx7.amEnable;
+    m_pm = params.opzx7.pmEnable;
+    m_pms = params.opzx7.lfoPms;
+    m_ams = params.opzx7.lfoAms;
+    m_pmd = params.opzx7.lfoPmd;
+    m_amd = params.opzx7.lfoAmd;
+    m_lfoPgWave = params.opzx7.pgLfoWave;
+    m_lfoEgWave = params.opzx7.egLfoWave;
+    m_amSmoothRate = params.opzx7.lfoAmSmRt;
     m_lfoSyncDelayParam = params.opm.lfoSyncDelay;
     m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
 
-    if (m_rateIndex != params.opzx3.fmRateIndex) {
-        m_rateIndex = params.opzx3.fmRateIndex;
+    m_panpot = params.opzx7.panpot;
+    m_panpot_enable = params.opzx7.panpot_enable;
+
+    if (m_panpot_enable) {
+        float pan = (float)(m_panpot + 1) / 33.0f;
+
+        m_panpot_l_rate = 1.0f - pan;
+        m_panpot_r_rate = pan;
+    }
+    else {
+        m_panpot_l_rate = 0.5f;
+        m_panpot_r_rate = 0.5f;
+    }
+
+    if (m_rateIndex != params.opzx7.fmRateIndex) {
+        m_rateIndex = params.opzx7.fmRateIndex;
 
         double target = getTargetRate(m_rateIndex);
 
@@ -190,24 +204,24 @@ void Opzx3Core::setParameters(const SynthParams& params) {
         m_noiseGen.prepare(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opzx3.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
         if (i == 0) // OP0
         {
-            fb = params.opzx3.feedback;
+            fb = params.opzx7.feedback;
         }
 
         if (i == 2) // OP2
         {
-            fb = params.opzx3.feedback2;
+            fb = params.opzx7.feedback2;
         }
 
         // WaveSelect=True, SSG-EG=True, OpmEg=True
-        m_operators[i].setParameters(params.opzx3.op[i], fb);
-        m_opMask[i] = params.opzx3.op[i].mask;
+        m_operators[i].setParameters(params.opzx7.op[i], fb);
+        m_opMask[i] = params.opzx7.op[i].mask;
     }
 
     // OPX特有の外部フィードバックアルゴリズムの場合、OP0/OP2の自己FBをオフにする
@@ -220,7 +234,7 @@ void Opzx3Core::setParameters(const SynthParams& params) {
     m_operators[2].setExternalFeedbackMode(useExtFb);
 }
 
-void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
+void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
     m_rateAccumulator = 1.0;
@@ -245,12 +259,12 @@ void Opzx3Core::noteOn(float freq, float velocity, int midiNote) {
     m_lfoCycleCount = 0;
 }
 
-void Opzx3Core::noteOff()
+void Opzx7Core::noteOff()
 {
     for (auto& op : m_operators) op.noteOff();
 }
 
-bool Opzx3Core::isPlaying() const
+bool Opzx7Core::isPlaying() const
 {
     for (const auto& op : m_operators) {
         if (op.isPlaying()) return true;
@@ -258,7 +272,7 @@ bool Opzx3Core::isPlaying() const
     return false;
 }
 
-void Opzx3Core::setPitchBend(int pitchWheelValue)
+void Opzx7Core::setPitchBend(int pitchWheelValue)
 {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
     float semitones = 2.0f;
@@ -266,12 +280,12 @@ void Opzx3Core::setPitchBend(int pitchWheelValue)
     for (auto& op : m_operators) op.setPitchBendRatio(ratio);
 }
 
-void Opzx3Core::setModulationWheel(int wheelValue)
+void Opzx7Core::setModulationWheel(int wheelValue)
 {
     m_modWheel = (float)wheelValue / 127.0f;
 }
 
-float Opzx3Core::getSample() {
+float Opzx7Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
 
     double stepSize = targetRate / m_hostSampleRate;
@@ -396,26 +410,26 @@ float Opzx3Core::getSample() {
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;
 }
 
-void Opzx3Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
+void Opzx7Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
 {
     if (opIndex >= 0 && opIndex < 4) {
         m_operators[opIndex].setPcmBuffer(pcmData);
     }
 }
 
-void Opzx3Core::setWtBuffer(int opIndex, const std::vector<float>* wtData)
+void Opzx7Core::setWtBuffer(int opIndex, const std::vector<float>* wtData)
 {
     if (opIndex >= 0 && opIndex < 4) {
         m_operators[opIndex].setWtBuffer(wtData);
     }
 }
 
-void Opzx3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
+void Opzx7Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += sample * m_panpot_l_rate;
+    outR[startSample + sampleIdx] += sample * m_panpot_r_rate;
 
     isActive = isPlaying();
 }

@@ -274,6 +274,7 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
     for (auto& pad : pads) {
         if (pad.isPlaying()) {
             float sample = pad.getSample(m_sampleRate, totalPitchRatio);
+
             outL += sample * (1.0f - pad.m_pan);
             outR += sample * pad.m_pan;
         }

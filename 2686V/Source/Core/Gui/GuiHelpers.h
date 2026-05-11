@@ -105,7 +105,7 @@ struct RowConfigCategory {
 
 void layoutRowCategory(const RowConfigCategory& c);
 
-struct RowConfigOpzx3Pcm {
+struct RowConfigOpzx7Pcm {
     juce::Rectangle<int>& rect;
     juce::Component* loadPcmBtn;
     juce::Component* pcmFileNameLabel;
@@ -114,12 +114,12 @@ struct RowConfigOpzx3Pcm {
     int paddingTop = GuiValue::ParamGroup::Row::paddingTop;
     int paddingBottom = GuiValue::ParamGroup::Row::paddingBottom;
     int paddingRight = GuiValue::ParamGroup::Row::paddingRight;
-    int loadPcmBtnWidth = GuiValue::ParamGroup::Opzx3Pcm::LoadBtn::width;
-    int pcmFileNameLabelWidth = GuiValue::ParamGroup::Opzx3Pcm::FileLabel::width;
-    int clearPcmBtnWidth = GuiValue::ParamGroup::Opzx3Pcm::ClearBtn::width;
+    int loadPcmBtnWidth = GuiValue::ParamGroup::Opzx7Pcm::LoadBtn::width;
+    int pcmFileNameLabelWidth = GuiValue::ParamGroup::Opzx7Pcm::FileLabel::width;
+    int clearPcmBtnWidth = GuiValue::ParamGroup::Opzx7Pcm::ClearBtn::width;
 };
 
-void layoutRowOpzx3Pcm(const RowConfigOpzx3Pcm& c);
+void layoutRowOpzx7Pcm(const RowConfigOpzx7Pcm& c);
 
 struct RowConfigWtWaveValueUpdate {
     juce::Rectangle<int>& rect;

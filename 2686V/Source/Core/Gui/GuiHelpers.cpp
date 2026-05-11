@@ -145,7 +145,7 @@ void layoutRowCategory(const RowConfigCategory& c)
     layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
-void layoutRowOpzx3Pcm(const RowConfigOpzx3Pcm& c)
+void layoutRowOpzx7Pcm(const RowConfigOpzx7Pcm& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 

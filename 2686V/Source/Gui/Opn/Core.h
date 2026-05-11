@@ -78,7 +78,7 @@ class GuiOpn : public GuiBase
     std::array<juce::Image, 8> algImages;
 
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
-    std::array<GuiSlider, Global::Fm::Op4> mul;
+    std::array<GuiComboBox, Global::Fm::Op4> mul;
     std::array<GuiComboBox, Global::Fm::Op4> dt;
     std::array<GuiComboBox, Global::Fm::Op4> ks; // Key Scale (0-3)
     std::array<GuiCategoryLabel, Global::Fm::Op4> catShape;
@@ -134,7 +134,7 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

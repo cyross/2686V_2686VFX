@@ -17,7 +17,7 @@ namespace PrKey
 		static inline const juce::String opl = "OPL";
 		static inline const juce::String opl3 = "OPL3";
 		static inline const juce::String opm = "OPM";
-		static inline const juce::String opzx3 = "OPZX3";
+		static inline const juce::String opzx7 = "OPZX7";
 		static inline const juce::String ssg = "SSG";
 		static inline const juce::String wt = "WT";
 		static inline const juce::String rhythm = "RHYTHM";
@@ -82,6 +82,9 @@ namespace PrKey
 			static inline const juce::String fb2 = "_FB3";
 			static inline const juce::String bit = "_BIT";
 			static inline const juce::String rate = "_RATE";
+			static inline const juce::String pan = "_PAN";
+			static inline const juce::String panpot = "_PANPOT";
+			static inline const juce::String panpot_en = "_PANPOT_EN";
 
 			namespace Lfo
 			{
@@ -176,6 +179,7 @@ namespace PrKey
 				static inline const juce::String rgD2r = "_R_D2R";
 
 				static inline const juce::String sus = "_SUS";
+				static inline const juce::String xof = "_XOF";
 
 				static inline const juce::String phaseOffset = "_PHASE_OFFSET";
 			};

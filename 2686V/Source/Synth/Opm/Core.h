@@ -53,6 +53,8 @@ private:
 
     float m_modWheel = 0.0f;
 
+    int m_pan = 0;
+
     using OpmLfoCalculator = float(*)(double phase, float noise);
 
     // OPM/PG-LFO波形の計算アルゴリズム配列

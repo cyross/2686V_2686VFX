@@ -11,7 +11,7 @@
 #include "../../Synth/Opl/Core.h"
 #include "../../Synth/Opl3/Core.h"
 #include "../../Synth/Opm/Core.h"
-#include "../../Synth/Opzx3/Core.h"
+#include "../../Synth/Opzx7/Core.h"
 #include "../../Synth/Ssg/Core.h"
 #include "../../Synth/Wavetable/Core.h"
 #include "../../Synth/Rhythm/Core.h"
@@ -54,9 +54,9 @@ public:
     // コントローラー (CC)
     void controllerMoved(int controllerNumber, int newControllerValue) override;
 
-    void setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
+    void setOpzx7PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
 
-    void setOpzx3WtBuffer(int opIndex, const std::vector<float>* wtData);
+    void setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData);
 
     std::map<OscMode, SynthCore *> coreMap;
 private:
@@ -66,7 +66,7 @@ private:
     OplCore m_oplCore;
     Opl3Core m_opl3Core;
     OpmCore  m_opmCore;
-    Opzx3Core m_opzx3Core;
+    Opzx7Core m_opzx7Core;
     SsgCore m_ssgCore;
     WtCore m_wtCore;
     RhythmCore m_rhythmCore;

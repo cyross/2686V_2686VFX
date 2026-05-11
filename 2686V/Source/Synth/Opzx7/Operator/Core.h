@@ -5,12 +5,12 @@
 #include "../../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../../Generator/Noise/Lfsr/Core.h"
 #include "../../../Generator/Fm/Fix/Core.h"
-#include "../../../Effect/Detune/Opm/Core.h"
+#include "../../../Effect/Detune/Opzx7/Core.h"
 
-class Opzx3Operator : public FmOperator
+class Opzx7Operator : public FmOperator
 {
 public:
-	Opzx3Operator() : FmOperator() {}
+	Opzx7Operator() : FmOperator() {}
 
 	void prepare(double sampleRate);
 	void updateSampleRate(double newSampleRate);
@@ -20,7 +20,7 @@ public:
 	void getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
 private:
-	OpmDetune m_detune;
+	Opzx7Detune m_detune;
 	LfsrNoiseGen m_noiseGen;
 	FixMode m_fixMode;
 	PitchAdsrEnv m_pitchAdsr;

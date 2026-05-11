@@ -46,6 +46,9 @@ namespace PrName
 			static inline const juce::String alg = " ALG";
 			static inline const juce::String fb0 = " FB1";
 			static inline const juce::String fb2 = " FB3";
+			static inline const juce::String pan = " PAN";
+			static inline const juce::String panpot = " PANPOT";
+			static inline const juce::String panpot_en = " PANPOT Eable";
 
 			namespace Lfo
 			{
@@ -132,6 +135,7 @@ namespace PrName
 				static inline const juce::String rgD2r = " R_D2R";
 
 				static inline const juce::String sus = " SUS";
+				static inline const juce::String xof = " XOF";
 
 				static inline const juce::String phaseOffset = "PHASE OFFSET";
 			}

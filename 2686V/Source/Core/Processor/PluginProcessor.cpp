@@ -43,7 +43,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX3 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
+    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
     layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prOpl.createLayout(layout);
 	prOpl3.createLayout(layout);
 	prOpm.createLayout(layout);
-	prOpzx3.createLayout(layout);
+	prOpzx7.createLayout(layout);
 	prSsg.createLayout(layout);
 	prWt.createLayout(layout);
 	prRhythm.createLayout(layout);
@@ -146,8 +146,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     case OscMode::OPM:
 		prOpm.processBlock(params, apvts);
         break;
-    case OscMode::OPZX3:
-		prOpzx3.processBlock(params, apvts);
+    case OscMode::OPZX7:
+		prOpzx7.processBlock(params, apvts);
         break;
     case OscMode::SSG:
 		prSsg.processBlock(params, apvts);
@@ -358,14 +358,14 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
     }
 
-    // サンプルパス保存 (OPZX3 PCM)
+    // サンプルパス保存 (OPZX7 PCM)
     for (int i = 0; i < 4; ++i) {
-        xml->setAttribute(PresetKey::opzx3PathPrefix + juce::String(i), makePathRelative(juce::File(opzx3PcmFilePaths[i])));
+        xml->setAttribute(PresetKey::opzx7PathPrefix + juce::String(i), makePathRelative(juce::File(opzx7PcmFilePaths[i])));
     }
 
-    // サンプルパス保存 (OPZX3 WT)
+    // サンプルパス保存 (OPZX7 WT)
     for (int i = 0; i < 4; ++i) {
-        xml->setAttribute(PresetKey::opzx3WtPathPrefix + juce::String(i), makePathRelative(juce::File(opzx3WtFilePaths[i])));
+        xml->setAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i), makePathRelative(juce::File(opzx7WtFilePaths[i])));
     }
 };
 
@@ -400,20 +400,20 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
             }
         }
 
-        // サンプル復帰 (OPZX3)
+        // サンプル復帰 (OPZX7)
         for (int i = 0; i < 4; ++i) {
-            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx3PathPrefix + juce::String(i));
+            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx7PathPrefix + juce::String(i));
             juce::File file = resolvePath(storedPath);
             if (file.existsAsFile()) {
-                loadOpzx3PcmFile(i, file);
+                loadOpzx7PcmFile(i, file);
             }
         }
 
         for (int i = 0; i < 4; ++i) {
-            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx3WtPathPrefix + juce::String(i));
+            juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i));
             juce::File file = resolvePath(storedPath);
             if (file.existsAsFile()) {
-                loadOpzx3WtFile(i, file);
+                loadOpzx7WtFile(i, file);
             }
         }
     }
@@ -776,7 +776,7 @@ void AudioPlugin2686V::initPreset()
     }
 
     for (int i = 0; i < 4; i++) {
-        unloadOpzx3PcmFile(i);
+        unloadOpzx7PcmFile(i);
     }
 }
 
@@ -805,15 +805,15 @@ void AudioPlugin2686V::initParams(const juce::String& code)
         }
     }
 
-    if (code == "OPZX3_") {
+    if (code == "OPZX7_") {
         for (int i = 0; i < 4; i++) {
-            unloadOpzx3PcmFile(i);
+            unloadOpzx7PcmFile(i);
         }
     }
 }
 
 
-void AudioPlugin2686V::loadOpzx3PcmFile(int opIndex, const juce::File& file)
+void AudioPlugin2686V::loadOpzx7PcmFile(int opIndex, const juce::File& file)
 {
     if (opIndex < 0 || opIndex >= 4) return;
 
@@ -824,27 +824,27 @@ void AudioPlugin2686V::loadOpzx3PcmFile(int opIndex, const juce::File& file)
         delete reader;
 
         auto* readPtr = tempBuffer.getReadPointer(0);
-        opzx3PcmBuffers[opIndex].assign(readPtr, readPtr + tempBuffer.getNumSamples());
-        opzx3PcmFilePaths[opIndex] = file.getFullPathName();
+        opzx7PcmBuffers[opIndex].assign(readPtr, readPtr + tempBuffer.getNumSamples());
+        opzx7PcmFilePaths[opIndex] = file.getFullPathName();
 
         for (int i = 0; i < m_synth.getNumVoices(); ++i) {
             if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-                voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+                voice->setOpzx7PcmBuffer(opIndex, &opzx7PcmBuffers[opIndex]);
             }
         }
     }
 }
 
-void AudioPlugin2686V::unloadOpzx3PcmFile(int opIndex)
+void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
 {
     if (opIndex < 0 || opIndex >= 4) return;
 
-    opzx3PcmBuffers[opIndex].clear();
-    opzx3PcmFilePaths[opIndex] = juce::String();
+    opzx7PcmBuffers[opIndex].clear();
+    opzx7PcmFilePaths[opIndex] = juce::String();
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx3PcmBuffer(opIndex, &opzx3PcmBuffers[opIndex]);
+            voice->setOpzx7PcmBuffer(opIndex, &opzx7PcmBuffers[opIndex]);
         }
     }
 }
@@ -862,7 +862,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     case OscMode::OPL:       prOpl.processBlock(currentParams, apvts); break;
     case OscMode::OPL3:      prOpl3.processBlock(currentParams, apvts); break;
     case OscMode::OPM:       prOpm.processBlock(currentParams, apvts); break;
-    case OscMode::OPZX3:     prOpzx3.processBlock(currentParams, apvts); break;
+    case OscMode::OPZX7:     prOpzx7.processBlock(currentParams, apvts); break;
     case OscMode::SSG:       prSsg.processBlock(currentParams, apvts); break;
     case OscMode::WAVETABLE: prWt.processBlock(currentParams, apvts); break;
     case OscMode::RHYTHM:    prRhythm.processBlock(currentParams, apvts); break;
@@ -871,7 +871,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 
     if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
         voice->setParameters(currentParams);
-        for (int i = 0; i < 4; ++i) voice->setOpzx3PcmBuffer(i, &opzx3PcmBuffers[i]);
+        for (int i = 0; i < 4; ++i) voice->setOpzx7PcmBuffer(i, &opzx7PcmBuffers[i]);
     }
 
     // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
@@ -962,7 +962,7 @@ void AudioPlugin2686V::panic()
     prFx.clear();
 }
 
-void AudioPlugin2686V::loadOpzx3WtFile(int opIndex, const juce::File& file)
+void AudioPlugin2686V::loadOpzx7WtFile(int opIndex, const juce::File& file)
 {
     if (opIndex < 0 || opIndex >= 4) return;
 
@@ -981,26 +981,26 @@ void AudioPlugin2686V::loadOpzx3WtFile(int opIndex, const juce::File& file)
         }
     }
 
-    opzx3WtBuffers[opIndex] = values;
-    opzx3WtFilePaths[opIndex] = file.getFullPathName();
+    opzx7WtBuffers[opIndex] = values;
+    opzx7WtFilePaths[opIndex] = file.getFullPathName();
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx3WtBuffer(opIndex, &opzx3WtBuffers[opIndex]); // ※ SynthVoice側にメソッド追加が必要
+            voice->setOpzx7WtBuffer(opIndex, &opzx7WtBuffers[opIndex]); // ※ SynthVoice側にメソッド追加が必要
         }
     }
 }
 
-void AudioPlugin2686V::unloadOpzx3WtFile(int opIndex)
+void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 {
     if (opIndex < 0 || opIndex >= 4) return;
 
-    opzx3WtBuffers[opIndex].clear();
-    opzx3WtFilePaths[opIndex] = juce::String();
+    opzx7WtBuffers[opIndex].clear();
+    opzx7WtFilePaths[opIndex] = juce::String();
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx3WtBuffer(opIndex, nullptr);
+            voice->setOpzx7WtBuffer(opIndex, nullptr);
         }
     }
 }

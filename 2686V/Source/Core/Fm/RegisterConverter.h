@@ -32,8 +32,12 @@ public:
     static int convertFmRg63(int regValue);
     static int convertFmRg127(int regValue);
 
-    // --- For OPM / OPZX3 ---
+    // --- For OPM / OPZX7 ---
     static int convertFmDt2(int regValue);
+    static float convertFmRrOpzx7(int regValue);
+    static float convertFmTlOpzx7(int regValue);
+    static int convertFmMulOpzx7(int regValue);
+    static int convertFmDtOpzx7(int mmlDtValue);
 
     // --- For OPL / OPL3 ---
     // --- 0-15 / 0-63 Scale ---

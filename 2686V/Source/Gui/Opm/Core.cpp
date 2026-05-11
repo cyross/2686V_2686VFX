@@ -47,17 +47,23 @@ static std::vector<SelectItem> opmAlgItems = {
     {.name = "07: <OPM-07>", .value = 8 },
 };
 
-// DT (デチューン1) 用のコンボボックスアイテム
-// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
-static std::vector<SelectItem> dtItems = {
-    {.name = " 0", .value = 1 },
-    {.name = "-3", .value = 2 },
-    {.name = "-2", .value = 3 },
-    {.name = "-1", .value = 4 },
-    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
-    {.name = "+1", .value = 6 },
-    {.name = "+2", .value = 7 },
-    {.name = "+3", .value = 8 }
+static std::vector<SelectItem> multems = {
+    {.name = " 0:   0.5x", .value = 1 },
+    {.name = " 1:   1x", .value = 2 },
+    {.name = " 2:   2x", .value = 3 },
+    {.name = " 3:   3x", .value = 4 },
+    {.name = " 4:   4x", .value = 5 },
+    {.name = " 5:   5x", .value = 6 },
+    {.name = " 6:   6x", .value = 7 },
+    {.name = " 7:   7x", .value = 8 },
+    {.name = " 8:   8x", .value = 9 },
+    {.name = " 9:   9x", .value = 10 },
+    {.name = "10:  10x", .value = 11 },
+    {.name = "11:  11x", .value = 12 },
+    {.name = "12:  12x", .value = 13 },
+    {.name = "13:  13x", .value = 14 },
+    {.name = "14:  14x", .value = 15 },
+    {.name = "15:  15x", .value = 16 }
 };
 
 static std::vector<SelectItem> ksItems = {
@@ -149,6 +155,33 @@ void GuiOpm::setup()
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
+
+    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
+
+    panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::pan, .title = GuiText::Fm::pan, .isReset = true });
+    panSlider.setWantsKeyboardFocus(true);
+    panSlider.setExplicitFocusOrder(++tabOrder);
+
+    panToLBtn.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Pan::l, .isReset = false, .isResized = false });
+    panToLBtn.setWantsKeyboardFocus(true);
+    panToLBtn.setExplicitFocusOrder(++tabOrder);
+    panToLBtn.onClick = [this] {
+        panSlider.setValue(-1, juce::sendNotification);
+        };
+
+    panToCBtn.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Pan::c, .isReset = false, .isResized = false });
+    panToCBtn.setWantsKeyboardFocus(true);
+    panToCBtn.setExplicitFocusOrder(++tabOrder);
+    panToCBtn.onClick = [this] {
+        panSlider.setValue(0, juce::sendNotification);
+        };
+
+    panToRBtn.setup(GuiTextButton::Config{ .parent = *this, .title = GuiText::Fm::Pan::r, .isReset = false, .isResized = false });
+    panToRBtn.setWantsKeyboardFocus(true);
+    panToRBtn.setExplicitFocusOrder(++tabOrder);
+    panToRBtn.onClick = [this] {
+        panSlider.setValue(1, juce::sendNotification);
+        };
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::hwLfo });
 
@@ -251,11 +284,11 @@ void GuiOpm::setup()
 
         catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
 
-        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
-        dt1[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
+        dt1[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
         dt1[i].setWantsKeyboardFocus(true);
         dt1[i].setExplicitFocusOrder(++tabOrder);
 
@@ -357,8 +390,11 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
     layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &lfoCat });
+    layoutMainCategory({ .mainRect = mRect, .label = &panCat });
+    layoutMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
+    layoutMainThreeComps({ .rect = mRect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn });
 
+    layoutMainCategory({ .mainRect = mRect, .label = &lfoCat });
     layoutMain({ .mainRect = mRect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
     layoutMain({ .mainRect = mRect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
@@ -371,8 +407,10 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &lfoEgShapeSelector.label, .component = &lfoEgShapeSelector });
     layoutMain({ .mainRect = mRect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });
     layoutMain({ .mainRect = mRect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+
     layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
     layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
+
     layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
@@ -451,11 +489,11 @@ void GuiOpm::applyMmlString(const juce::String& mml, int opIndex)
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
         // --- 基本パラメータ ---
-        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertFmMul(v), juce::sendNotification); } },
-        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertFmMul(v), juce::sendNotification); } },
-        { mmlPrefixDt,   [&](int v) { dt1[opIndex].setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
-        { mmlPrefixDt1,   [&](int v) { dt1[opIndex].setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
-        { mmlPrefixDto,   [&](int v) { dt1[opIndex].setSelectedItemIndex(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixDt,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
+        { mmlPrefixDt1,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
+        { mmlPrefixDto,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertMmlDtToReg(v), juce::sendNotification); } },
         { mmlPrefixDt2,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
         { mmlPrefixDtt,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
         { mmlPrefixKs,   [&](int v) { ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
@@ -618,8 +656,8 @@ void GuiOpm::copyFmParamsToString()
         return juce::String::formatted(
             // ' MUL     DT   DT2   AR  D1R  D1L  D2R   RR   TL   KS   AMSEN
             u8"   %2d, %+1d,  %1d, %2d, %2d, %2d, %2d, %2d, %3d, %1d,    %1d\n",
-            (int)this->mul[index].getValue(),                        // MUL
-            this->dt1[index].getSelectedId() - 1,                    // DT
+            (int)this->mul[index].getSelectedId() - 1,               // MUL
+            this->dt1[index].getValue() - 1,                         // DT
             (int)this->dt2[index].getValue(),                        // DT2
             (int)this->rgAr[index].getValue(),                       // AR
             (int)this->rgD1r[index].getValue(),                      // D1R
@@ -638,8 +676,8 @@ void GuiOpm::copyFmParamsToString()
         // ' MUL AR DR SL RR TL KSR KSL
         return juce::String::formatted(
             u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d KS%d\n",
-            (int)this->mul[index].getValue(),
-            this->dt1[index].getSelectedId() - 1,
+            (int)this->mul[index].getSelectedId() - 1,
+            this->dt1[index].getValue() - 1,
             (int)this->dt2[index].getValue(),
             (int)this->rgAr[index].getValue(),
             (int)this->rgD1r[index].getValue(),

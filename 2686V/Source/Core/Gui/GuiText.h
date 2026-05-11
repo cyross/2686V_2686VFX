@@ -26,7 +26,7 @@ namespace GuiText
 		static inline const juce::String opl = u8"OPL";
 		static inline const juce::String opl3 = u8"OPL3";
 		static inline const juce::String opm = u8"OPM";
-		static inline const juce::String opzx3 = u8"OPZX3";
+		static inline const juce::String opzx7 = u8"OPZX7";
 		static inline const juce::String ssg = u8"SSG";
 		static inline const juce::String wt = u8"WT";
 		static inline const juce::String rhythm = u8"RHYTHM";
@@ -60,6 +60,7 @@ namespace GuiText
 		static inline const juce::String mml = u8"--- MML ---";
 		static inline const juce::String bypass = u8"--- BYPASS ---";
 		static inline const juce::String pan = u8"--- PAN ---";
+		static inline const juce::String panpot = u8"--- PANPOT ---";
 		static inline const juce::String mix = u8"--- MIX ---";
 		static inline const juce::String mod = u8"--- MODULATION ---";
 		static inline const juce::String ssgTone = u8"--- TOME ---";
@@ -153,6 +154,16 @@ namespace GuiText
 		static inline const juce::String amSmoothRatio = u8"As Ratio";
 		static inline const juce::String initLfoToOpl = u8"Init Lfo: OPL";
 		static inline const juce::String initLfoToOpll = u8"Init Lfo: OPLL";
+		static inline const juce::String pan = u8"Pan";
+		static inline const juce::String panpot = u8"Panpot";
+		static inline const juce::String panpotEnable = u8"Enable";
+
+		namespace Pan
+		{
+			static inline const juce::String l = u8"L";
+			static inline const juce::String c = u8"C";
+			static inline const juce::String r = u8"R";
+		}
 
 		namespace Op
 		{
@@ -197,11 +208,11 @@ namespace GuiText
 			static inline const juce::String Ws = u8"Ws";
 			static inline const juce::String FreqTo0 = u8"Freq -> 0Hz";
 			static inline const juce::String FreqTo440 = u8"Freq -> 440Hz";
-			static inline const juce::String Opzx3FreqTo0 = u8"->0";
-			static inline const juce::String Opzx3FreqTo05 = u8"->0.5";
-			static inline const juce::String Opzx3FreqTo1 = u8"->1";
-			static inline const juce::String Opzx3FreqTo2 = u8"->2";
-			static inline const juce::String Opzx3FreqTo440 = u8"->440";
+			static inline const juce::String Opzx7FreqTo0 = u8"->0";
+			static inline const juce::String Opzx7FreqTo05 = u8"->0.5";
+			static inline const juce::String Opzx7FreqTo1 = u8"->1";
+			static inline const juce::String Opzx7FreqTo2 = u8"->2";
+			static inline const juce::String Opzx7FreqTo440 = u8"->440";
 			static inline const juce::String ArTo000 = u8"-> 0.00";
 			static inline const juce::String ArTo003 = u8"-> 0.03";
 			static inline const juce::String RrTo000 = u8"-> 0.00";
@@ -211,6 +222,7 @@ namespace GuiText
 			static inline const juce::String RgEn = u8"Register Mode";
 
 			static inline const juce::String sus = u8"Sus";
+			static inline const juce::String xof = u8"Xof";
 
 			static inline const juce::String phaseOffset = u8"P.Offset";
 		}

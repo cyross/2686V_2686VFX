@@ -78,17 +78,17 @@ namespace mmlValues
 		static inline constexpr int ks = 3;
 		static inline constexpr int mask = 1;
 	};
-	namespace opzx3
+	namespace opzx7
 	{
 		static inline constexpr int mul = 15;
-		static inline constexpr int dt1 = 7;
+		static inline constexpr int dt1 = 15;
 		static inline constexpr int dt2 = 3;
 		static inline constexpr int ar = 31;
 		static inline constexpr int d1r = 31;
 		static inline constexpr int d1l = 15;
 		static inline constexpr int d2r = 31;
-		static inline constexpr int rr = 15;
-		static inline constexpr int tl = 127;
+		static inline constexpr int rr = 31;
+		static inline constexpr int tl = 63;
 		static inline constexpr int ks = 3;
 		static inline constexpr int mask = 1;
 	};

@@ -53,7 +53,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune, params.ssg.detune2);
+    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, 1);
 
     m_waveform = params.ssg.waveform;
 
@@ -92,7 +92,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
-    m_currentFrequency = m_detune.noteOn(freq, 1);
+    m_currentFrequency = m_detune.noteOn(freq);
     m_phase = 0.0f;
 
     m_noiseGen.updateFrequency(m_currentFrequency);
@@ -316,8 +316,8 @@ void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += sample * 0.5; // モノラルなので、ステレオで言うCと同じ計算
+    outR[startSample + sampleIdx] += sample * 0.5; // モノラルなので、ステレオで言うCと同じ計算
 
     isActive = isPlaying();
 }

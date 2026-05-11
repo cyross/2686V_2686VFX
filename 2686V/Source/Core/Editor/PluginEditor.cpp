@@ -33,7 +33,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	oplGui = std::make_unique<GuiOpl>(context);
 	opl3Gui = std::make_unique<GuiOpl3>(context);
 	opmGui = std::make_unique<GuiOpm>(context);
-	opzx3Gui = std::make_unique<GuiOpzx3>(context);
+	opzx7Gui = std::make_unique<GuiOpzx7>(context);
 	ssgGui = std::make_unique<GuiSsg>(context);
 	wtGui = std::make_unique<GuiWt>(context);
 	rhythmGui = std::make_unique<GuiRhythm>(context);
@@ -57,7 +57,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     oplGui->setup();
     opl3Gui->setup();
     opmGui->setup();
-    opzx3Gui->setup();
+    opzx7Gui->setup();
     ssgGui->setup();
     wtGui->setup();
     rhythmGui->setup();
@@ -324,7 +324,7 @@ void AudioPlugin2686VEditor::resized()
     oplGui->layout(content);
     opl3Gui->layout(content);
     opmGui->layout(content);
-    opzx3Gui->layout(content);
+    opzx7Gui->layout(content);
     ssgGui->layout(content);
     wtGui->layout(content);
     rhythmGui->layout(content);
@@ -420,7 +420,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(GuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
     tabs.addTab(GuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
     tabs.addTab(GuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
-    tabs.addTab(GuiText::Tab::opzx3, juce::Colours::transparentBlack, opzx3Gui.get(), true);
+    tabs.addTab(GuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
     tabs.addTab(GuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
     tabs.addTab(GuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
     tabs.addTab(GuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
@@ -446,9 +446,9 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     // 2. ADPCMのファイル名を復元
     updateAdpcmFileName("Reload");
 
-    // 3. OPZX3のPCMファイル名を復元
+    // 3. OPZX7のPCMファイル名を復元
     for (int i = 0; i < 4; ++i) {
-        juce::String path = audioProcessor.opzx3PcmFilePaths[i];
+        juce::String path = audioProcessor.opzx7PcmFilePaths[i];
         juce::String text = Io::empty;
 
         if (path.isNotEmpty()) {
@@ -457,7 +457,7 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
             text = f.getFileName();
         }
 
-        opzx3Gui->updatePcmFileName(i, text);
+        opzx7Gui->updatePcmFileName(i, text);
     }
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
@@ -601,7 +601,7 @@ void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     oplGui->updatePresetName(pName);
     opl3Gui->updatePresetName(pName);
     opmGui->updatePresetName(pName);
-    opzx3Gui->updatePresetName(pName);
+    opzx7Gui->updatePresetName(pName);
     ssgGui->updatePresetName(pName);
     wtGui->updatePresetName(pName);
     rhythmGui->updatePresetName(pName);
@@ -803,19 +803,19 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
     }
 }
 
-void AudioPlugin2686VEditor::updateOpzx3FileNames(const juce::String filename)
+void AudioPlugin2686VEditor::updateOpzx7FileNames(const juce::String filename)
 {
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
         {
-            opzx3Gui->updatePcmFileName(i, filename);
+            opzx7Gui->updatePcmFileName(i, filename);
         }
 
     }
     else {
         for (int i = 0; i < 4; ++i)
         {
-            juce::String path = audioProcessor.opzx3PcmFilePaths[i];
+            juce::String path = audioProcessor.opzx7PcmFilePaths[i];
             juce::String text = Io::empty;
 
             if (path.isNotEmpty())
@@ -826,7 +826,7 @@ void AudioPlugin2686VEditor::updateOpzx3FileNames(const juce::String filename)
                 text = f.getFileName();
             }
 
-            opzx3Gui->updatePcmFileName(i, text);
+            opzx7Gui->updatePcmFileName(i, text);
         }
     }
 }
@@ -1003,7 +1003,7 @@ void AudioPlugin2686VEditor::updateParameterCopyPasteButtons()
     // 表示しているタブがFM音源のタブか
     // 0:OPNA, 1:OPN, 2:OPL, ...
     int targetMode = tabs.getCurrentTabIndex();
-    bool isFmTab = targetMode >= 0 && targetMode <= (int)OscMode::OPZX3;
+    bool isFmTab = targetMode >= 0 && targetMode <= (int)OscMode::OPZX7;
 
     copyParamsButton.setEnabled(isFmTab);
     pasteParamsButton.setEnabled(isFmTab);
@@ -1040,8 +1040,8 @@ void AudioPlugin2686VEditor::copyFmParamsToString()
     case OscMode::OPM:
         opmGui->copyFmParamsToString();
         break;
-    case OscMode::OPZX3:
-        opzx3Gui->copyFmParamsToString();
+    case OscMode::OPZX7:
+        opzx7Gui->copyFmParamsToString();
         break;
     };
 }
@@ -1067,8 +1067,8 @@ void AudioPlugin2686VEditor::copyFmParamsToObject()
     case OscMode::OPM:
         opmGui->copyFmParamsToObject();
         break;
-    case OscMode::OPZX3:
-        opzx3Gui->copyFmParamsToObject();
+    case OscMode::OPZX7:
+        opzx7Gui->copyFmParamsToObject();
         break;
     };
 }
@@ -1094,8 +1094,8 @@ void AudioPlugin2686VEditor::pasteFmParamsFromObject()
     case OscMode::OPM:
         opmGui->pasteFmParamsFromObject();
         break;
-    case OscMode::OPZX3:
-        opzx3Gui->pasteFmParamsFromObject();
+    case OscMode::OPZX7:
+        opzx7Gui->pasteFmParamsFromObject();
         break;
     };
 }
@@ -1126,8 +1126,8 @@ void AudioPlugin2686VEditor::initParams()
     case OscMode::OPM:
         opmGui->initParams();
         break;
-    case OscMode::OPZX3:
-        opzx3Gui->initParams();
+    case OscMode::OPZX7:
+        opzx7Gui->initParams();
         break;
     case OscMode::SSG:
         ssgGui->initParams();

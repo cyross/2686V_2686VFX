@@ -43,6 +43,25 @@ static std::vector<SelectItem> opl3AlgItems = {
     {.name = "03: <OPL3-03>", .value = 4 },
 };
 
+static std::vector<SelectItem> multems = {
+    {.name = " 0:   0.5x", .value = 1 },
+    {.name = " 1:   1x", .value = 2 },
+    {.name = " 2:   2x", .value = 3 },
+    {.name = " 3:   3x", .value = 4 },
+    {.name = " 4:   4x", .value = 5 },
+    {.name = " 5:   5x", .value = 6 },
+    {.name = " 6:   6x", .value = 7 },
+    {.name = " 7:   7x", .value = 8 },
+    {.name = " 8:   8x", .value = 9 },
+    {.name = " 9:   9x", .value = 10 },
+    {.name = "10:  10x", .value = 11 },
+    {.name = "11:  11x", .value = 12 },
+    {.name = "12:  12x", .value = 13 },
+    {.name = "13:  13x", .value = 14 },
+    {.name = "14:  14x", .value = 15 },
+    {.name = "15:  15x", .value = 16 }
+};
+
 static std::vector<SelectItem> kslItems = {
     {.name = "KSL: 0", .value = 1},
     {.name = "KSL: 1", .value = 2},
@@ -74,46 +93,38 @@ void GuiOpl3::setup()
     mainGroup.setup(*this, GuiText::Group::mainGroup);
 
     presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
-
     bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
-
     rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
-
     algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opl3AlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
     algSelector.setExplicitFocusOrder(++tabOrder);
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
-
     feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
-
     feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
-
     monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
     mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
-
     masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
@@ -144,7 +155,7 @@ void GuiOpl3::setup()
 
         catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
 
-        mul[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
@@ -351,8 +362,8 @@ void GuiOpl3::applyMmlString(const juce::String& mml, int opIndex)
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
         // --- 基本パラメータ ---
-        { mmlPrefixMul,  [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
-        { mmlPrefixMl,   [&](int v) { mul[opIndex].setValue(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMul,  [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
+        { mmlPrefixMl,   [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertOplMul(v), juce::sendNotification); } },
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
         { mmlPrefixAm,   [&](int v) { am[opIndex].setToggleState(RegisterConverter::convertOplAm(v), juce::sendNotification); } },
         { mmlPrefixVib,   [&](int v) { vib[opIndex].setToggleState(RegisterConverter::convertOplVib(v), juce::sendNotification); } },
@@ -521,7 +532,7 @@ void GuiOpl3::copyFmParamsToString()
         // ' MUL AR DR SL RR  TL KSR KSL AM VIB WS EGTYPE PMS PMD AMS AMD
         return juce::String::formatted(
             u8"  %3d, %2d, %2d, %2d, %2d, %3d,  %1d,  %1d, %1d,  %1d, %1d,     %1d, %5.2f, %5.2f, %5.2f, %5.2f\n",
-            (int)this->mul[index].getValue(),                      // MUL
+            (int)this->mul[index].getSelectedId() - 1,             // MUL
             (int)this->rgAr[index].getValue(),                     // AR
             (int)this->rgDr[index].getValue(),                     // DR
             (int)this->rgSl[index].getValue(),                     // SL
@@ -546,7 +557,7 @@ void GuiOpl3::copyFmParamsToString()
         // ' MUL AR DR SL RR TL KSR KSL
         return juce::String::formatted(
             u8"mul%d ar%d dr%d rr%d sl%d tl%d ksr%d ksl%d\n",
-            (int)this->mul[index].getValue(),
+            (int)this->mul[index].getSelectedId() - 1,
             (int)this->rgAr[index].getValue(),
             (int)this->rgDr[index].getValue(),
             (int)this->rgSl[index].getValue(),

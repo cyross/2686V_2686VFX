@@ -7,7 +7,7 @@ SynthVoice::SynthVoice()
     coreMap[OscMode::OPL] = &m_oplCore;
     coreMap[OscMode::OPL3] = &m_opl3Core;
     coreMap[OscMode::OPM] = &m_opmCore;
-    coreMap[OscMode::OPZX3] = &m_opzx3Core;
+    coreMap[OscMode::OPZX7] = &m_opzx7Core;
     coreMap[OscMode::SSG] = &m_ssgCore;
     coreMap[OscMode::WAVETABLE] = &m_wtCore;
     coreMap[OscMode::RHYTHM] = &m_rhythmCore;
@@ -96,12 +96,12 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
     }
 }
 
-void SynthVoice::setOpzx3PcmBuffer(int opIndex, const std::vector<float>* pcmData)
+void SynthVoice::setOpzx7PcmBuffer(int opIndex, const std::vector<float>* pcmData)
 {
-    m_opzx3Core.setPcmBuffer(opIndex, pcmData);
+    m_opzx7Core.setPcmBuffer(opIndex, pcmData);
 }
 
-void SynthVoice::setOpzx3WtBuffer(int opIndex, const std::vector<float>* wtData)
+void SynthVoice::setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData)
 {
-    m_opzx3Core.setWtBuffer(opIndex, wtData);
+    m_opzx7Core.setWtBuffer(opIndex, wtData);
 }

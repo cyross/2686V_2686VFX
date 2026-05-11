@@ -7,7 +7,7 @@ void OpmOperator::setParameters(const FmOpParams& params, float feedback)
     m_ssgEgFreq = 1.0f;
     m_params.ssgEg = 0;
     m_params.waveSelect = 0;
-	m_detune.setParameters(params.detune, params.detune2);
+	m_detune.setParameters(params.detune, params.detune2, params.multiple);
 	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
 }
 
@@ -26,7 +26,7 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
     float baseFreq = m_fixMode.noteOn(frequency);
 
     // 基本周波数にデチューン成分を加算
-    float finalFreq = m_detune.noteOn(baseFreq, m_params.multiple);
+    float finalFreq = m_detune.noteOn(baseFreq);
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 

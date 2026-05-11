@@ -64,9 +64,9 @@ set(FM_OPL3_ALG_FILES
     "Source/Generator/Fm/Alg/Opl3/Core.cpp"
 )
 
-set(FM_OPZX3_ALG_FILES
-    "Source/Generator/Fm/Alg/Opzx3/Core.h"
-    "Source/Generator/Fm/Alg/Opzx3/Core.cpp"
+set(FM_OPZX7_ALG_FILES
+    "Source/Generator/Fm/Alg/Opzx7/Core.h"
+    "Source/Generator/Fm/Alg/Opzx7/Core.cpp"
 )
 
 set(FM_FIX_FILES
@@ -146,9 +146,19 @@ set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Core.cpp"
 )
 
+set(OPN_DETUNE_FILES
+    "Source/Effect/Detune/Opn/Core.h"
+    "Source/Effect/Detune/Opn/Core.cpp"
+)
+
 set(OPM_DETUNE_FILES
     "Source/Effect/Detune/Opm/Core.h"
     "Source/Effect/Detune/Opm/Core.cpp"
+)
+
+set(OPZX7_DETUNE_FILES
+    "Source/Effect/Detune/Opzx7/Core.h"
+    "Source/Effect/Detune/Opzx7/Core.cpp"
 )
 
 set(OPNA_SYNTH_FILES
@@ -256,25 +266,25 @@ set(OPM_GUI_FILES
     "Source/Gui/Opm/Core.cpp"
 )
 
-set(OPZX3_SYNTH_FILES
-    "Source/Synth/Opzx3/Core.h"
-    "Source/Synth/Opzx3/Core.cpp"
-    "Source/Synth/Opzx3/Params.h"
+set(OPZX7_SYNTH_FILES
+    "Source/Synth/Opzx7/Core.h"
+    "Source/Synth/Opzx7/Core.cpp"
+    "Source/Synth/Opzx7/Params.h"
 )
 
-set(OPZX3_OPERATOR_FILES
-    "Source/Synth/Opzx3/Operator/Core.h"
-    "Source/Synth/Opzx3/Operator/Core.cpp"
+set(OPZX7_OPERATOR_FILES
+    "Source/Synth/Opzx7/Operator/Core.h"
+    "Source/Synth/Opzx7/Operator/Core.cpp"
 )
 
-set(OPZX3_PROCESSOR_FILES
-    "Source/Processor/Opzx3/Core.h"
-    "Source/Processor/Opzx3/Core.cpp"
+set(OPZX7_PROCESSOR_FILES
+    "Source/Processor/Opzx7/Core.h"
+    "Source/Processor/Opzx7/Core.cpp"
 )
 
-set(OPZX3_GUI_FILES
-    "Source/Gui/Opzx3/Core.h"
-    "Source/Gui/Opzx3/Core.cpp"
+set(OPZX7_GUI_FILES
+    "Source/Gui/Opzx7/Core.h"
+    "Source/Gui/Opzx7/Core.cpp"
 )
 
 set(SSG_SYNTH_FILES
@@ -404,20 +414,20 @@ source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
 source_group("2686V\\Generator\\Fm\\Alg\\Basic" FILES ${FM_BASIC_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Alg\\Opl" FILES ${FM_OPL_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Alg\\Opl3" FILES ${FM_OPL3_ALG_FILES})
-source_group("2686V\\Generator\\Fm\\Alg\\Opzx3" FILES ${FM_OPZX3_ALG_FILES})
+source_group("2686V\\Generator\\Fm\\Alg\\Opzx7" FILES ${FM_OPZX7_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686V\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
 source_group("2686V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
 source_group("2686V\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
 source_group("2686V\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
 source_group("2686V\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
-source_group("2686V\\Synth\\Opzx3" FILES ${OPZX3_SYNTH_FILES})
+source_group("2686V\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
 source_group("2686V\\Synth\\Opna\\Operator" FILES ${OPNA_OPERATOR_FILES})
 source_group("2686V\\Synth\\Opn\\Operator" FILES ${OPN_OPERATOR_FILES})
 source_group("2686V\\Synth\\Opl\\Operator" FILES ${OPL_OPERATOR_FILES})
 source_group("2686V\\Synth\\Opl3\\Operator" FILES ${OPL3_OPERATOR_FILES})
 source_group("2686V\\Synth\\Opm\\Operator" FILES ${OPM_OPERATOR_FILES})
-source_group("2686V\\Synth\\Opzx3\\Operator" FILES ${OPZX3_OPERATOR_FILES})
+source_group("2686V\\Synth\\Opzx7\\Operator" FILES ${OPZX7_OPERATOR_FILES})
 source_group("2686V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
 source_group("2686V\\Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
 source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
@@ -426,13 +436,15 @@ source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
+source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
+source_group("2686V\\Effect\\Detune\\Opzx7" FILES ${OPZX7_DETUNE_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
-source_group("2686V\\Processor\\Opzx3" FILES ${OPZX3_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Wavetable" FILES ${WT_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
@@ -444,7 +456,7 @@ source_group("2686V\\Gui\\Opn" FILES ${OPN_GUI_FILES})
 source_group("2686V\\Gui\\Opl" FILES ${OPL_GUI_FILES})
 source_group("2686V\\Gui\\Opl3" FILES ${OPL3_GUI_FILES})
 source_group("2686V\\Gui\\Opm" FILES ${OPM_GUI_FILES})
-source_group("2686V\\Gui\\Opzx3" FILES ${OPZX3_GUI_FILES})
+source_group("2686V\\Gui\\Opzx7" FILES ${OPZX7_GUI_FILES})
 source_group("2686V\\Gui\\Ssg" FILES ${SSG_GUI_FILES})
 source_group("2686V\\Gui\\Wavetable" FILES ${WT_GUI_FILES})
 source_group("2686V\\Gui\\Rhythm" FILES ${RHYTHM_GUI_FILES})
@@ -486,7 +498,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${FM_BASIC_ALG_FILES}
         ${FM_OPL_ALG_FILES}
         ${FM_OPL3_ALG_FILES}
-        ${FM_OPZX3_ALG_FILES}
+        ${FM_OPZX7_ALG_FILES}
         ${FM_FIX_FILES}
         ${LFSR_NOISE_GEN_FILES}
         ${SSG_NOISE_GEN_FILES}
@@ -498,18 +510,20 @@ function(create_cyross_plugin TARGET_NAME)
         ${AMP_ADSR_ENVELOPE_FILES}
         ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPM_DETUNE_FILES}
+        ${OPN_DETUNE_FILES}
+        ${OPZX7_DETUNE_FILES}
         ${OPNA_SYNTH_FILES}
         ${OPN_SYNTH_FILES}
         ${OPL_SYNTH_FILES}
         ${OPL3_SYNTH_FILES}
         ${OPM_SYNTH_FILES}
-        ${OPZX3_SYNTH_FILES}
+        ${OPZX7_SYNTH_FILES}
         ${OPNA_OPERATOR_FILES}
         ${OPN_OPERATOR_FILES}
         ${OPL_OPERATOR_FILES}
         ${OPL3_OPERATOR_FILES}
         ${OPM_OPERATOR_FILES}
-        ${OPZX3_OPERATOR_FILES}
+        ${OPZX7_OPERATOR_FILES}
         ${SSG_SYNTH_FILES}
         ${WT_SYNTH_FILES}
         ${RHYTHM_SYNTH_FILES}
@@ -521,7 +535,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${OPL_PROCESSOR_FILES}
         ${OPL3_PROCESSOR_FILES}
         ${OPM_PROCESSOR_FILES}
-        ${OPZX3_PROCESSOR_FILES}
+        ${OPZX7_PROCESSOR_FILES}
         ${SSG_PROCESSOR_FILES}
         ${WT_PROCESSOR_FILES}
         ${RHYTHM_PROCESSOR_FILES}
@@ -533,7 +547,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${OPL_GUI_FILES}
         ${OPL3_GUI_FILES}
         ${OPM_GUI_FILES}
-        ${OPZX3_GUI_FILES}
+        ${OPZX7_GUI_FILES}
         ${SSG_GUI_FILES}
         ${WT_GUI_FILES}
         ${RHYTHM_GUI_FILES}

@@ -10,7 +10,7 @@
 #include "../../Processor/Opl/Core.h"
 #include "../../Processor/Opl3/Core.h"
 #include "../../Processor/Opm/Core.h"
-#include "../../Processor/Opzx3/Core.h"
+#include "../../Processor/Opzx7/Core.h"
 #include "../../Processor/Ssg/Core.h"
 #include "../../Processor/Wavetable/Core.h"
 #include "../../Processor/RHYTHM/Core.h"
@@ -133,19 +133,19 @@ public:
 
     void initParams(const juce::String& code);
 
-    // --- OPZX3 PCM File ---
-    std::array<std::vector<float>, 4> opzx3PcmBuffers;
-    std::array<juce::String, 4> opzx3PcmFilePaths;
+    // --- OPZX7 PCM File ---
+    std::array<std::vector<float>, 4> opzx7PcmBuffers;
+    std::array<juce::String, 4> opzx7PcmFilePaths;
 
-    void loadOpzx3PcmFile(int opIndex, const juce::File& file);
-    void unloadOpzx3PcmFile(int opIndex);
+    void loadOpzx7PcmFile(int opIndex, const juce::File& file);
+    void unloadOpzx7PcmFile(int opIndex);
 
-    // --- OPZX3 Wavetable ---
-    std::array<std::vector<float>, 4> opzx3WtBuffers;
-    std::array<juce::String, 4> opzx3WtFilePaths;
+    // --- OPZX7 Wavetable ---
+    std::array<std::vector<float>, 4> opzx7WtBuffers;
+    std::array<juce::String, 4> opzx7WtFilePaths;
 
-    void loadOpzx3WtFile(int opIndex, const juce::File& file);
-    void unloadOpzx3WtFile(int opIndex);
+    void loadOpzx7WtFile(int opIndex, const juce::File& file);
+    void unloadOpzx7WtFile(int opIndex);
 
     // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>& destBuffer);
@@ -186,7 +186,7 @@ private:
     OplProcessor prOpl;
     Opl3Processor prOpl3;
     OpmProcessor prOpm;
-    Opzx3Processor prOpzx3;
+    Opzx7Processor prOpzx7;
     SsgProcessor prSsg;
     WtProcessor prWt;
     RhythmProcessor prRhythm;

@@ -11,6 +11,7 @@ void OpnaOperator::setParameters(const FmOpParams& params, float feedback)
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = 0;
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_detune.setParameters(params.detune, params.multiple);
 }
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
@@ -37,13 +38,8 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     float baseFreq = m_fixMode.noteOn(frequency);
 
-    float detunedBaseFreq = baseFreq + baseFreq * dtScales[m_params.detune & 7];
-
-    // Multi & Detune
-    float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-
-    // Final Frequency = (Base + DT1) * MUL
-    float finalFreq = detunedBaseFreq * mul;
+    // 基本周波数にデチューン成分を加算
+    float finalFreq = m_detune.noteOn(baseFreq);
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 

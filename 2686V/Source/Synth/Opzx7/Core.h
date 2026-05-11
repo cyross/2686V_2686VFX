@@ -7,27 +7,27 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Generator/Noise/Lfsr/Core.h"
-#include "../../Generator/Fm/Alg/Opzx3/Core.h"
+#include "../../Generator/Fm/Alg/Opzx7/Core.h"
 
 #include "./Operator/Core.h"
 
 // ==========================================================
-// OPZX3 Core
-// Base: OPM (YM2151) / OPZ (YM2414)
-// Extension: OPX (YMF271) Algorithms & MA-5 Waveforms
+// OPZX7 Core
+// Base: OPZ (YM2414)
+// Extension: OPX (YMF271) Algorithms & MA-7 Waveforms
 // ==========================================================
-class Opzx3Core : public FmCore
+class Opzx7Core : public FmCore
 {
 public:
-    Opzx3Core() : FmCore() {}
+    Opzx7Core() : FmCore() {}
 
-    using Opzx3LfoCalculator = float(*)(double phase, float noise);
+    using Opzx7LfoCalculator = float(*)(double phase, float noise);
 
     // OPM/PG-LFO波形の計算アルゴリズム配列
-    static const std::array<Opzx3LfoCalculator, 8> lfoPgStrategies;
+    static const std::array<Opzx7LfoCalculator, 8> lfoPgStrategies;
 
     // OPM/EG-LFO波形の計算アルゴリズム配列
-    static const std::array<Opzx3LfoCalculator, 8> lfoEgStrategies;
+    static const std::array<Opzx7LfoCalculator, 8> lfoEgStrategies;
 
     void prepare(double sampleRate) override;
     void setParameters(const SynthParams& params);
@@ -42,10 +42,10 @@ public:
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setSampleRate(double sampleRate) override ;
 private:
-    std::array<Opzx3Operator, 4> m_operators;
+    std::array<Opzx7Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
-    std::array<Opzx3Alg::OpGetSampleFunc, 4> opGetSamples;
-    Opzx3Alg alg;
+    std::array<Opzx7Alg::OpGetSampleFunc, 4> opGetSamples;
+    Opzx7Alg alg;
     LfsrNoiseGen m_noiseGen;
 
     double m_hostSampleRate = 44100.0;
@@ -94,4 +94,9 @@ private:
     };
 
     static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
+
+    int m_panpot = 0;
+    bool m_panpot_enable = false;
+    float m_panpot_l_rate = 1.0f;
+    float m_panpot_r_rate = 1.0f;
 };

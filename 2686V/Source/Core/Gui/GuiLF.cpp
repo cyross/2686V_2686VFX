@@ -56,7 +56,7 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     case 2: return juce::Colours::darkgreen;      // OPL
     case 3: return juce::Colours::darkgreen;      // OPL3
     case 4: return juce::Colours::darkgreen;      // OPM
-    case 5: return juce::Colours::darkgreen;      // OPZX3
+    case 5: return juce::Colours::darkgreen;      // OPZX7
     case 6: return juce::Colours::darkcyan;       // SSG
     case 7: return juce::Colours::darkcyan;       // WT
     case 8: return juce::Colours::darkcyan;       // RHYTHM

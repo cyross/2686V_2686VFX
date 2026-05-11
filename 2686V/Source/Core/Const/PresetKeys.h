@@ -65,6 +65,6 @@ namespace PresetKey
 	static inline const juce::String puginVersion = "pluginVersion";
 	static inline const juce::String adpcmPath = "adpcmPath";
 	static inline const juce::String rhythmPathPrefix = "rhythmPath";
-	static inline const juce::String opzx3PathPrefix = "opzx3PcmPath";
-	static inline const juce::String opzx3WtPathPrefix = "opzx3WtPath";
+	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
+	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
 };

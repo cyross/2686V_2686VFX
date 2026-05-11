@@ -9,7 +9,7 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
 
-class GuiOpzx3 : public GuiBase
+class GuiOpzx7 : public GuiBase
 {
     /*
      * アルゴリズムのオペレータ表記凡例
@@ -119,6 +119,13 @@ class GuiOpzx3 : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    GuiCategoryLabel panCat;
+    GuiToggleButton panpotEnableToggle;
+    GuiSlider panpotSlider;
+    GuiTextButton panToLBtn;
+    GuiTextButton panToCBtn;
+    GuiTextButton panToRBtn;
+
     // LFO
     GuiCategoryLabel lfoCat;
     GuiSlider lfoFreqSlider;
@@ -151,8 +158,8 @@ class GuiOpzx3 : public GuiBase
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
-    std::array<GuiSlider, Global::Fm::Op4> mul;
-    std::array<GuiComboBox, Global::Fm::Op4> dt1;
+    std::array<GuiComboBox, Global::Fm::Op4> mul;
+    std::array<GuiSlider, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
     std::array<GuiSlider, Global::Fm::Op4> tl;
     std::array<GuiSlider, Global::Fm::Op4> ar;
@@ -217,9 +224,12 @@ class GuiOpzx3 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgRr;
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
 
+    std::array<GuiToggleButton, Global::Fm::Op4> sus; // Sus
+    std::array<GuiToggleButton, Global::Fm::Op4> xof; // Xof
+
     void applyMmlString(const juce::String& mml, int opIndex);
 public:
-	GuiOpzx3(const GuiContext& context) :
+	GuiOpzx7(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
@@ -232,6 +242,12 @@ public:
         feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
+        panCat(context),
+        panpotEnableToggle(context),
+        panpotSlider(context),
+        panToLBtn(context),
+        panToCBtn(context),
+        panToRBtn(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoSyncDelaySlider(context),
@@ -249,8 +265,8 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -313,6 +329,8 @@ public:
         rgD1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         monoModeToggle(context),
         presetNameLabel(context)
     {

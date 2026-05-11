@@ -25,6 +25,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::pmd, code + PrName::Fm::Post::Lfo::pmd, PrValue::Lfo::N88Pmd::min, PrValue::Lfo::N88Pmd::max, PrValue::Lfo::N88Pmd::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::amd, code + PrName::Fm::Post::Lfo::amd, PrValue::Lfo::N88Amd::min, PrValue::Lfo::N88Amd::max, PrValue::Lfo::N88Amd::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::Lfo::syncDelay, code + PrName::Fm::Post::Lfo::syncDelay, PrValue::Lfo::SyncDelay::min, PrValue::Lfo::SyncDelay::max, PrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::Post::Fm::pan, code + PrName::Fm::Post::pan, PrValue::Opna::Pan::min, PrValue::Opna::Pan::max, PrValue::Opna::Pan::initial));
 
     for (int op = 0; op < PrValue::Opna::ops; ++op)
     {
@@ -86,6 +87,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.opna.lfoAmd = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::amd);
     params.opna.lfoAms = 0; // グローバルAMSはN88-BASICには存在しないので0固定
     params.opna.lfoSyncDelay = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::Lfo::syncDelay);
+    params.opna.pan = (int)*apvts.getRawParameterValue(code + PrKey::Post::Fm::pan);
 
     for (int op = 0; op < PrValue::Opna::ops; ++op)
     {

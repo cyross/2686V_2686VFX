@@ -2,9 +2,9 @@
 
 #include <array>
 
-class OpmDetune
+class Opzx7Detune
 {
-	static const std::array<float, 8> dtScales;
+	static const std::array<float, 16> dtScales;
 	static const std::array<float, 4> dt2Scales;
 
 	int detune;

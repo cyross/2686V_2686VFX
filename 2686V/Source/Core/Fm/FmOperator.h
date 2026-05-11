@@ -38,9 +38,9 @@ public:
     void virtual getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f) {};
     void virtual setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
-    // OPZX3 の外部 PCM データ用
+    // OPZX7 の外部 PCM データ用
     void virtual setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
-    // OPZX3 の波形データ用
+    // OPZX7 の波形データ用
     void virtual setWtBuffer(const std::vector<float>* wtData) { m_wtBuffer = wtData; }
     float virtual calcWaveform(double phase, int wave);
     void virtual updateIncrementsWithKeyScale();
@@ -80,9 +80,9 @@ protected:
     double m_lfoPhase = 0.0;
     float  m_amSmooth = 0.0f;
 
-    // OPZX3 の外部 PCM データ用
+    // OPZX7 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;
-    // OPZX3 の波形データ用
+    // OPZX7 の波形データ用
     const std::vector<float>* m_wtBuffer = nullptr;
 
     void updateEnvelopeState();

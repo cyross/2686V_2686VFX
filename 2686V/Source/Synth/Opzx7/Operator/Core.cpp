@@ -233,15 +233,15 @@ namespace {
     } };
 }
 
-void Opzx3Operator::prepare(double sampleRate) {
+void Opzx7Operator::prepare(double sampleRate) {
     m_pitchAdsr.prepare(sampleRate);
 }
 
-void Opzx3Operator::updateSampleRate(double newSampleRate) {
+void Opzx7Operator::updateSampleRate(double newSampleRate) {
     m_pitchAdsr.updateSampleRate(newSampleRate);
 }
 
-void Opzx3Operator::setParameters(const FmOpParams& params, float feedback)
+void Opzx7Operator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
     m_lfoSyncDelayParam = params.lfoSyncDelay;
@@ -249,12 +249,12 @@ void Opzx3Operator::setParameters(const FmOpParams& params, float feedback)
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = params.waveSelect;
-	m_detune.setParameters(params.detune, params.detune2);
-	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_detune.setParameters(params.detune, params.detune2, params.multiple);
+    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_pitchAdsr.setParameters(params.pitchAdsr);
 }
 
-void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
+void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber)
 {
     m_phase = m_params.phaseOffset;
     m_ssgPhase = 0.0;
@@ -287,7 +287,7 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     // ========================================================
     float baseFreq = frequency;
 
-    if (m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_params.waveSelect == PrValue::Opzx7::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // オフセットとレシオを考慮した再生区間の計算
         size_t totalSize = m_pcmBuffer->size();
@@ -315,7 +315,7 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     }
 
     // 基本周波数にデチューン成分を加算
-    float finalFreq = m_detune.noteOn(baseFreq, m_params.multiple);
+    float finalFreq = m_detune.noteOn(baseFreq);
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
@@ -336,16 +336,28 @@ void Opzx3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_pitchAdsr.noteOn();
 }
 
-void Opzx3Operator::noteOff()
+void Opzx7Operator::noteOff()
 {
+    // XOFが有効なときはノートオフ処理を無効化
+    if (m_params.xofEnable)
+    {
+        return;
+    }
+
     m_state = State::Release;
 
-    m_currentReleaseDec = m_releaseDec;
+    // キーを離した瞬間、SUSがONならSRを維持する
+    if (m_params.susEnable) {
+        m_currentReleaseDec = 0.0f;
+    }
+    else {
+        m_currentReleaseDec = m_releaseDec;
+    }
 
     m_pitchAdsr.noteOff();
 }
 
-void Opzx3Operator::getSample(float& output, float modulator,
+void Opzx7Operator::getSample(float& output, float modulator,
     float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
@@ -385,13 +397,13 @@ void Opzx3Operator::getSample(float& output, float modulator,
                 m_currentNoiseSample = m_noiseGen.generate();
             }
 
-            // Opzx3Core の静的波形配列を使って波形を算出
+            // Opzx7Core の静的波形配列を使って波形を算出
             int pgIdx = std::clamp(m_params.pgLfoWave, 0, 7);
             int egIdx = std::clamp(m_params.egLfoWave, 0, 7);
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            localPmLfo = Opzx3Core::lfoPgStrategies[pgIdx](m_lfoPhase, m_currentNoiseSample);
-            localAmLfo = Opzx3Core::lfoEgStrategies[egIdx](m_lfoPhase, m_currentNoiseSample);
+            localPmLfo = Opzx7Core::lfoPgStrategies[pgIdx](m_lfoPhase, m_currentNoiseSample);
+            localAmLfo = Opzx7Core::lfoEgStrategies[egIdx](m_lfoPhase, m_currentNoiseSample);
 
             // ワンショット波形 (6, 7) のミュート処理
             if ((pgIdx == 6 || pgIdx == 7) && m_lfoCycleCount > 0) localPmLfo = 0.0f;
@@ -464,7 +476,7 @@ void Opzx3Operator::getSample(float& output, float modulator,
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_params.waveSelect == PrValue::Opzx3::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_params.waveSelect == PrValue::Opzx7::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         size_t totalSize = m_pcmBuffer->size();
         size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
@@ -495,7 +507,7 @@ void Opzx3Operator::getSample(float& output, float modulator,
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
 
-float Opzx3Operator::calcWaveform(double phase, int wave)
+float Opzx7Operator::calcWaveform(double phase, int wave)
 {
     // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
     float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
@@ -548,7 +560,7 @@ float Opzx3Operator::calcWaveform(double phase, int wave)
     // =================================================================
     // 波形メモリの特別処理 (メンバ変数へのアクセスが必要なため分離)
     // =================================================================
-    if (m_params.waveSelect == PrValue::Opzx3::wtIndex)
+    if (m_params.waveSelect == PrValue::Opzx7::wtIndex)
     {
         if (m_wtBuffer != nullptr && !m_wtBuffer->empty())
         {
@@ -580,7 +592,7 @@ float Opzx3Operator::calcWaveform(double phase, int wave)
     return waveStrategies[safeWave](p, normPhase, s);
 }
 
-void Opzx3Operator::updateIncrementsWithKeyScale()
+void Opzx7Operator::updateIncrementsWithKeyScale()
 {
     if (m_sampleRate <= 0.0) return;
 

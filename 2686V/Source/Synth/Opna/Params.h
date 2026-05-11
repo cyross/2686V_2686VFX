@@ -25,7 +25,7 @@ struct OpnaParams
     // Default: 55.5kHz (Typical FM Chip Rate)
     int fmRateIndex = 1;
 
-    // -- OPNA/OPM/OPZX3 LFO(Global) ---
+    // -- OPNA/OPM/OPZX7 LFO(Global) ---
 
     // LFO Speed Freq (approx 3Hz - 30Hz)
     float lfoFreq = 5.0f;
@@ -61,6 +61,8 @@ struct OpnaParams
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index
+
+    int pan = 0;
 
     // Parameters for Operator
     std::array<FmOpParams, 4> op;

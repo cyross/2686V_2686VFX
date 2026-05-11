@@ -323,3 +323,27 @@ std::vector<RegisterUnit> RegisterConverter::convertToRegisterUnit(const juce::S
 
     return units;
 }
+
+float RegisterConverter::convertFmRrOpzx7(int regValue)
+{
+    return convertFmParam31(regValue).value_or(5.0f);
+}
+
+float RegisterConverter::convertFmTlOpzx7(int regValue)
+{
+    int v = std::clamp(regValue, 0, 63);
+    // Reg 0 -> Param 0.0 (Max Gain)
+    // Reg 63 -> Param 1.0 (Min Gain)
+    // 線形でOK
+    return (float)v / 63.0f;
+}
+
+int RegisterConverter::convertFmMulOpzx7(int regValue)
+{
+    return std::clamp(regValue, 0, 20);
+}
+
+int RegisterConverter::convertFmDtOpzx7(int regValue)
+{
+    return std::clamp(regValue, 0, 15);
+}

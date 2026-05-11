@@ -13,7 +13,7 @@
 #include "../../Gui/Opl/Core.h"
 #include "../../Gui/Opl3/Core.h"
 #include "../../Gui/Opm/Core.h"
-#include "../../Gui/Opzx3/Core.h"
+#include "../../Gui/Opzx7/Core.h"
 #include "../../Gui/Ssg/Core.h"
 #include "../../Gui/Wavetable/Core.h"
 #include "../../Gui/Rhythm/Core.h"
@@ -77,7 +77,7 @@ public:
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames(const juce::String finename);
     void updateAdpcmFileName(const juce::String finename);
-    void updateOpzx3FileNames(const juce::String finename);
+    void updateOpzx7FileNames(const juce::String finename);
     void setupLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
@@ -166,7 +166,7 @@ private:
     std::unique_ptr<GuiOpl> oplGui; // OPL
     std::unique_ptr<GuiOpl3> opl3Gui; // OPL3
     std::unique_ptr<GuiOpm> opmGui; // OPM
-    std::unique_ptr<GuiOpzx3> opzx3Gui; // OPZX3
+    std::unique_ptr<GuiOpzx7> opzx7Gui; // OPZX7
     std::unique_ptr<GuiSsg> ssgGui; // SSG
     std::unique_ptr<GuiWt> wtGui; // Wavetable
     std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm

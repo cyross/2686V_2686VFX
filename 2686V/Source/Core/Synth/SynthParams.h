@@ -9,7 +9,7 @@
 #include "../../Synth/Opl/Params.h"
 #include "../../Synth/Opl3/Params.h"
 #include "../../Synth/Opm/Params.h"
-#include "../../Synth/Opzx3/Params.h"
+#include "../../Synth/Opzx7/Params.h"
 #include "../../Synth/Ssg/Params.h"
 #include "../../Synth/Wavetable/Params.h"
 #include "../../Synth/Rhythm/Params.h"
@@ -29,7 +29,7 @@ struct SynthParams
     OplParams opl;
     Opl3Params opl3;
     OpmParams opm;
-    Opzx3Params opzx3;
+    Opzx7Params opzx7;
     SsgParams ssg;
     WtParams wt;
     RhythmParams rhythm;

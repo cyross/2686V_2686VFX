@@ -50,6 +50,12 @@ class GuiOpm : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    GuiCategoryLabel panCat;
+    GuiSlider panSlider;
+    GuiTextButton panToLBtn;
+    GuiTextButton panToCBtn;
+    GuiTextButton panToRBtn;
+
     GuiCategoryLabel lfoCat;
 
     // OPM LFO
@@ -84,8 +90,8 @@ class GuiOpm : public GuiBase
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
-    std::array<GuiSlider, Global::Fm::Op4> mul;
-    std::array<GuiComboBox, Global::Fm::Op4> dt1;
+    std::array<GuiComboBox, Global::Fm::Op4> mul;
+    std::array<GuiSlider, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafLfo;
@@ -122,6 +128,11 @@ public:
         feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
+        panCat(context),
+        panSlider(context),
+        panToLBtn(context),
+        panToCBtn(context),
+        panToRBtn(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoAmSmRtSlider(context),
@@ -139,8 +150,8 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mul{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt1{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         cafLfo{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

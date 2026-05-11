@@ -85,6 +85,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_amSmoothRate = params.opm.lfoAmSmRt;
 	m_lfoSyncDelayParam = params.opm.lfoSyncDelay;
     m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
+    m_pan = params.opm.pan;
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
@@ -274,8 +275,8 @@ void OpmCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += ((m_pan == 1) ? 0.0f : sample) * 0.5f;
+    outR[startSample + sampleIdx] += ((m_pan == -1) ? 0.0f : sample) * 0.5f;
 
     isActive = isPlaying();
 }

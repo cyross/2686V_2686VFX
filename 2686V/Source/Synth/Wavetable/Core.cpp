@@ -25,7 +25,7 @@ void WtCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
-	m_detune.setParameters(params.wt.detune, params.wt.detune2);
+	m_detune.setParameters(params.wt.detune, params.wt.detune2, 1);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.bitDepth);
@@ -72,7 +72,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
-    float finalFreq = m_detune.noteOn(freq, 1);
+    float finalFreq = m_detune.noteOn(freq);
 
     double targetRate = getTargetRate(m_rateIndex);
     if (targetRate > 0.0) {
@@ -279,8 +279,8 @@ void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int samp
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
+    outR[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
 
     isActive = isPlaying();
 }

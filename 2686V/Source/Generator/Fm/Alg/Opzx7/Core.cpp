@@ -2,7 +2,7 @@
 
 #include "./Core.h"
 
-const std::array<Opzx3Alg::AlgRouting, 36> Opzx3Alg::routings = { {
+const std::array<Opzx7Alg::AlgRouting, 36> Opzx7Alg::routings = { {
         // in2_1, fb2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4
         { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 00
         { 1.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 01
@@ -42,7 +42,7 @@ const std::array<Opzx3Alg::AlgRouting, 36> Opzx3Alg::routings = { {
         { 0.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }  // 35
     } };
 
-float Opzx3Alg::process(std::array<OpGetSampleFunc, 4>& gsFuncs, std::array<OpFbPushBack, 4>& fpbFuncs, float pmLfoVal) const {
+float Opzx7Alg::process(std::array<OpGetSampleFunc, 4>& gsFuncs, std::array<OpFbPushBack, 4>& fpbFuncs, float pmLfoVal) const {
     // ========================================================
     // 2. オペレーターの処理とルーティング
     // ========================================================
@@ -86,7 +86,7 @@ float Opzx3Alg::process(std::array<OpGetSampleFunc, 4>& gsFuncs, std::array<OpFb
     return ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 0.25f;
 }
 
-bool Opzx3Alg::isUseExtFb() const {
+bool Opzx7Alg::isUseExtFb() const {
     if (idx == 1 || idx == 5 || idx == 7 || idx == 11) return true; // 4OP: OP1->OP0 FB
     if (idx == 17 || idx == 21) return true; // 3OP: OP2->OP0 FB
     if (idx == 25) return true; // 2OP: OP1->OP0 FB

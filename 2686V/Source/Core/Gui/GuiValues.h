@@ -305,7 +305,7 @@ namespace GuiValue
 			}
 		}
 
-		namespace Opzx3Pcm
+		namespace Opzx7Pcm
 		{
 			namespace LoadBtn
 			{
@@ -422,7 +422,7 @@ namespace GuiValue
 					namespace Freq
 					{
 						static constexpr int width = 120;
-						static constexpr int opzx3Width = 45;
+						static constexpr int opzx7Width = 45;
 					}
 
 					namespace Pan

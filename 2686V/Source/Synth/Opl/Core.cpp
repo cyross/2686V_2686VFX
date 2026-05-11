@@ -166,8 +166,8 @@ void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample;
-    outR[startSample + sampleIdx] += sample;
+    outL[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
+    outR[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
 
     isActive = isPlaying();
 }

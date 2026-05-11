@@ -281,7 +281,7 @@ void GuiPreset::setup()
                     // ファイル名表示のクリア
                     ctx.editor.updateRhythmFileNames(Io::empty);
                     ctx.editor.updateAdpcmFileName(Io::empty);
-                    ctx.editor.updateOpzx3FileNames(Io::empty);
+                    ctx.editor.updateOpzx7FileNames(Io::empty);
 
                     // 各タブのプリセット名をリセット
                     ctx.editor.updatePresetNameToTabs(ctx.audioProcessor.presetName);

@@ -172,7 +172,7 @@ void FmOperator::updateEnvelopeState()
             m_currentLevel -= m_releaseDec;
             if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
         }
-        // OPN/OPM/OPZX3、または OPL系の持続モード(EG-TYP=ON) の場合
+        // OPN/OPM/OPZX7、または OPL系の持続モード(EG-TYP=ON) の場合
         else {
             // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
             if (m_sustainRateDec > 0.0f) {

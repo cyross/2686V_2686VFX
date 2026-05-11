@@ -11,7 +11,7 @@
 // 5: +0.1% (approx)
 // 6: +0.25%
 // 7: +0.45%
-const std::array<float, 8> OpmDetune::dtScales = { 0.0f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f };
+const std::array<float, 16> Opzx7Detune::dtScales = { 0.0f, -0.1f, -0.05f, -0.02f, -0.01f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f, 0.01f, 0.02f, 0.05f, 0.1f };
 
 // DT2 (OPM Coarse Detune)
 // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
@@ -19,21 +19,43 @@ const std::array<float, 8> OpmDetune::dtScales = { 0.0f, -0.0045f, -0.0025f, -0.
 // 1: x1.41 (600 cent up)
 // 2: x1.58 (780 cent up)
 // 3: x1.78 (950 cent up)
-const std::array<float, 4> OpmDetune::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
+const std::array<float, 4> Opzx7Detune::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
 
-void OpmDetune::setParameters(int dt, int dt2, int mul)
+void Opzx7Detune::setParameters(int dt, int dt2, int mul)
 {
-    detune = dt & 7;
+    detune = dt & 15;
     realDetune = dtScales[detune];
 
     detune2 = dt2 & 3;
     realDetune2 = dt2Scales[detune2];
 
     multiple = mul;
-    realMultiple = (multiple == 0) ? 0.5f : (float)multiple;
+
+    switch (multiple) {
+    case 0:
+        realMultiple = 0.5f;
+        break;
+    case 16:
+        realMultiple = 0.891f;
+        break;
+    case 17:
+        realMultiple = 1.414f;
+        break;
+    case 18:
+        realMultiple = 1.498f;
+        break;
+    case 19:
+        realMultiple = 1.581f;
+        break;
+    case 20:
+        realMultiple = 1.781f;
+        break;
+    default:
+        realMultiple = (float)multiple;
+    }
 }
 
-float OpmDetune::noteOn(float baseFreq) const
+float Opzx7Detune::noteOn(float baseFreq) const
 {
     // 基本周波数にデチューン成分を加算
     float detunedBaseFreq = baseFreq + baseFreq * realDetune;

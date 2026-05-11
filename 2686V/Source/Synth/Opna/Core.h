@@ -63,4 +63,6 @@ private:
     double m_lfoTimerAcc = 0.0;
     float m_steppedPmLfoVal = 0.0f;
     float m_steppedAmLfoVal = 0.0f;
+
+    int m_pan = 0;
 };

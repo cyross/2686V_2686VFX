@@ -356,6 +356,13 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
+		namespace SyncDelayOpm
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 127;
+			inline constexpr int initial = 0;
+		}
+
 		namespace PgShape
 		{
 			inline constexpr int min = 0;
@@ -685,6 +692,13 @@ namespace PrValue
 			inline constexpr int max = 5;
 			inline constexpr int initial = 0;
 		}
+
+		namespace Pan
+		{
+			inline constexpr int min = -1; // 最小値
+			inline constexpr int max = 1; // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
 	}
 
 	namespace Opn
@@ -703,6 +717,13 @@ namespace PrValue
 			inline constexpr int min = 0;
 			inline constexpr int max = 5;
 			inline constexpr int initial = 0;
+		}
+
+		namespace Pan
+		{
+			inline constexpr int min = -1; // 最小値
+			inline constexpr int max = 1; // 最大値
+			inline constexpr int initial = 0; // 初期値
 		}
 	}
 
@@ -766,6 +787,13 @@ namespace PrValue
 			inline constexpr int initial = 7; // 初期値
 		}
 
+		namespace Pan
+		{
+			inline constexpr int min = -1; // 最小値
+			inline constexpr int max = 1; // 最大値
+			inline constexpr int initial = 0; // 初期値
+		}
+
 		namespace Lfo
 		{
 			namespace Freq
@@ -777,7 +805,7 @@ namespace PrValue
 		}
 	}
 
-	namespace Opzx3
+	namespace Opzx7
 	{
 		inline constexpr int ops = 4;
 		inline constexpr int pcmIndex = 31;
@@ -797,6 +825,18 @@ namespace PrValue
 			inline constexpr int initial = 0;
 		}
 
+		namespace Panpot
+		{
+			inline constexpr int min = 0; // 最小値
+			inline constexpr int max = 31; // 最大値
+			inline constexpr int initial = 15; // 初期値
+		}
+
+		namespace PanpotEnable
+		{
+			inline constexpr bool initial = false; // 初期値
+		}
+
 		namespace Op
 		{
 			namespace PhaseOffset
@@ -810,6 +850,79 @@ namespace PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 72;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Mul
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 20;
+				inline constexpr int initial = 1;
+			}
+
+			namespace Dt1
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Dt2
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
+			namespace Sus
+			{
+				inline constexpr bool initial = false;
+			}
+
+			namespace Xof
+			{
+				inline constexpr bool initial = false;
+			}
+
+			namespace Ar
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace Rr
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 31;
+			}
+
+			namespace Tl
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 63;
+				inline constexpr int initial = 0;
+			}
+
+			namespace D1r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
+				inline constexpr int initial = 0;
+			}
+
+			namespace D1l
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 15;
+				inline constexpr int initial = 15;
+			}
+
+			namespace D2r
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 31;
 				inline constexpr int initial = 0;
 			}
 		}
