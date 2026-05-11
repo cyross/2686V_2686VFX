@@ -1,4 +1,4 @@
-# Retro Sound Module Style VST "2686V"
+# Retro Sound Module Style VST "2686V" version 2.0
 
 (C)2026 CYROSS
 
@@ -32,54 +32,47 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * Operator masking support.
 * Sound effect (SE) mode applicable to all operators.
 * (OPL/OPM) LFO parameters separated for global vs. individual operators.
-* **Original FM Operator "OPZX3" Support**
-* An operator incorporating OPZ operators, OPX algorithms, and MA-3 (SD-1) source waveforms.
-* Since there are many unknown parts (especially regarding the OPX algorithms), this is an approximate implementation.
 
+* **Original FM Operator "OPZX7" Support**
+* An operator incorporating OPZ operators, OPX operators, and MA-7 operators.
+* Since there are many unknown parts (especially regarding the OPX algorithms), this is an approximate implementation.
+* Added Pitch Envelopes in each operators.
 
 * Furthermore, it includes a mode to use PCM sound sources (audio files) as operator waveforms, similar to the OPX.
 * Moreover, by including numerous original waveforms recommended by Gemini, **over 60 types** of waveforms are available.
+* Furthermore, it includes a mode to use Wavetable sound sources as operator waveforms, similar to the MA-7.
 
-
-* (OPNA/OPM/OPZX3) Reorganization of hardware LFO specifications and addition of Software LFOs.
+* (OPNA/OPM/OPZX7) Reorganization of hardware LFO specifications and addition of Software LFOs.
 * Separated and implemented global (entire synth) LFOs and channel-specific LFOs, which were previously mixed up in hardware specs.
 
 * **SSG (style sound module) Support**
 * An enhanced version incorporating PSG features, rather than a perfect reproduction.
 * Pulse waves support duty cycles not only for SSG but also for Famicom (NES) and KONAMI VRC VI.
 * Phase inversion capability.
-
+* Added Pitch Envelope and Detune.
 
 * **Wavetable (style sound module) Support**
 * Supports multiple bit rates and 32/64/128/256 samples.
 * Preset wavetable memories.
-
+* Added Pitch Envelope and Detune.
 
 * **Rhythm Sound Module (style) Support**
 * Drum machine with a built-in bitcrusher.
 * Adjustable bit rate and sampling rate.
 * Selectable between linear PCM and ADPCM when in 4-bit mode.
 
-
 * Includes 8 pads (expanded from the 6 pads in the 2608B).
 * Audio file assignment support for each pad.
 * MIDI CC assignment support.
-
-
-
 
 * **ADPCM (style sound module) Support**
 * Can play a single audio file like a sampler.
 * Adjustable bit rate and sampling rate.
 * Selectable between linear PCM and ADPCM when in 4-bit mode.
 
-
-
-
 * **BEEP Sound Support**
 * Two modes available: musical scale playback mode and specified fixed frequency mode.
 * ADSR envelope support.
-
 
 * **Independent Effects Support**
 * Included effects:
@@ -90,35 +83,28 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * Delay
 * Modern Bit Crusher
 
-
 * Bypass support for individual FX and global bypass.
-
 
 * **Master Volume Support**
 * Default: -3.0dB.
-
 
 * **Value Range Check**
 * Hovering over a slider button displays its range.
 * Can be toggled ON/OFF in the settings screen.
 
-
 * **Polyphonic Playback**
 * Up to 32 simultaneous voices.
 * Adjustable headroom gain.
-
 
 * **Automation Support** (Of course!)
 * **MIDI Keyboard Pitch Bend & Modulation Wheel Support**
 * **Preset Save/Load Support**
 * Saves ADPCM/Rhythm audio files with relative directory paths.
 
-
 * **Custom Wallpaper Support**
 * **Waveform Preview Feature**
 * Static timbre preview.
 * Real-time preview.
-
 
 * **Virtual MIDI Keyboard Support**
 
@@ -153,12 +139,9 @@ I wanted to create tracks simulating the "PC-9801-26" and "PC-9801-86" sound boa
 * An environment where `Developer PowerShell` or `Developer Command Prompt` can be launched.
 * Command-line tools like `CMake` must be installed.
 
-
 * `Git`
 * Ensure it is added to your PATH.
 * Ensure you have access to GitHub.
-
-
 
 ### Step 1: Open the Terminal
 
