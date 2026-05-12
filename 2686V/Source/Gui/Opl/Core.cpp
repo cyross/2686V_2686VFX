@@ -447,30 +447,23 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
-    mul[idx].setEnabled(enable);
-    mul[idx].label.setEnabled(enable);
+    mul[idx].setEnabledWithLabel(enable);
     ksr[idx].setEnabled(enable);
-    ksl[idx].setEnabled(enable);
-    ksl[idx].label.setEnabled(enable);
+    ksl[idx].setEnabledWithLabel(enable);
     egType[idx].setEnabled(enable);
-    eg[idx].setEnabled(enable);
-    eg[idx].label.setEnabled(enable);
+    eg[idx].setEnabledWithLabel(enable);
     catShape[idx].setEnabled(enable);
     catLfo[idx].setEnabled(enable);
     vib[idx].setEnabled(enable);
-    pms[idx].setEnabled(enable);
-    pms[idx].label.setEnabled(enable);
+    pms[idx].setEnabledWithLabel(enable);
     pmsTo64[idx].setEnabled(enable);
-    pmd[idx].setEnabled(enable);
-    pmd[idx].label.setEnabled(enable);
+    pmd[idx].setEnabledWithLabel(enable);
     pmdTo7[idx].setEnabled(enable);
     pmdTo14[idx].setEnabled(enable);
     am[idx].setEnabled(enable);
-    ams[idx].setEnabled(enable);
-    ams[idx].label.setEnabled(enable);
+    ams[idx].setEnabledWithLabel(enable);
     amsTo37[idx].setEnabled(enable);
-    amd[idx].setEnabled(enable);
-    amd[idx].label.setEnabled(enable);
+    amd[idx].setEnabledWithLabel(enable);
     amdTo1[idx].setEnabled(enable);
     amdTo48[idx].setEnabled(enable);
     catMask[idx].setEnabled(enable);
@@ -510,16 +503,11 @@ void GuiOpl::updateAlgorithmDisplay()
 
 void GuiOpl::updateRgDisplayAsOp(int idx, bool rgMode)
 {
-    rgAr[idx].label.setVisible(rgMode);
-    rgAr[idx].setVisible(rgMode);
-    rgDr[idx].label.setVisible(rgMode);
-    rgDr[idx].setVisible(rgMode);
-    rgSl[idx].label.setVisible(rgMode);
-    rgSl[idx].setVisible(rgMode);
-    rgRr[idx].label.setVisible(rgMode);
-    rgRr[idx].setVisible(rgMode);
-    rgTl[idx].label.setVisible(rgMode);
-    rgTl[idx].setVisible(rgMode);
+    rgAr[idx].setVisibleWithLabel(rgMode);
+    rgDr[idx].setVisibleWithLabel(rgMode);
+    rgSl[idx].setVisibleWithLabel(rgMode);
+    rgRr[idx].setVisibleWithLabel(rgMode);
+    rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
 void GuiOpl::updatePresetName(const juce::String& presetName)

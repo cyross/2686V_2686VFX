@@ -529,18 +529,13 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
-    mul[idx].setEnabled(enable);
-    mul[idx].label.setEnabled(enable);
-    dt1[idx].setEnabled(enable);
-    dt1[idx].label.setEnabled(enable);
-    dt2[idx].setEnabled(enable);
-    dt2[idx].label.setEnabled(enable);
-    ks[idx].setEnabled(enable);
-    ks[idx].label.setEnabled(enable);
+    mul[idx].setEnabledWithLabel(enable);
+    dt1[idx].setEnabledWithLabel(enable);
+    dt2[idx].setEnabledWithLabel(enable);
+    ks[idx].setEnabledWithLabel(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
-    freq[idx].setEnabled(enable);
-    freq[idx].label.setEnabled(enable);
+    freq[idx].setEnabledWithLabel(enable);
     freqToZero[idx].setEnabled(enable);
     freqTo440[idx].setEnabled(enable);
     catMask[idx].setEnabled(enable);
@@ -580,18 +575,12 @@ void GuiOpm::updateAlgorithmDisplay()
 
 void GuiOpm::updateRgDisplayAsOp(int idx, bool rgMode)
 {
-    rgAr[idx].label.setVisible(rgMode);
-    rgAr[idx].setVisible(rgMode);
-    rgD1r[idx].label.setVisible(rgMode);
-    rgD1r[idx].setVisible(rgMode);
-    rgD1l[idx].label.setVisible(rgMode);
-    rgD1l[idx].setVisible(rgMode);
-    rgD2r[idx].label.setVisible(rgMode);
-    rgD2r[idx].setVisible(rgMode);
-    rgRr[idx].label.setVisible(rgMode);
-    rgRr[idx].setVisible(rgMode);
-    rgTl[idx].label.setVisible(rgMode);
-    rgTl[idx].setVisible(rgMode);
+    rgAr[idx].setVisibleWithLabel(rgMode);
+    rgD1r[idx].setVisibleWithLabel(rgMode);
+    rgD1l[idx].setVisibleWithLabel(rgMode);
+    rgD2r[idx].setVisibleWithLabel(rgMode);
+    rgRr[idx].setVisibleWithLabel(rgMode);
+    rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
 void GuiOpm::updatePresetName(const juce::String& presetName)

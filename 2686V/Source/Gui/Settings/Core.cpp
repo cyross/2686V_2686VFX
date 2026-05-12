@@ -161,7 +161,7 @@ void GuiSettings::setup()
     useHeadroomToggle.onClick = [this] {
         bool state = useHeadroomToggle.getToggleState();
         ctx.audioProcessor.useHeadroom = state;
-        headroomGainSlider.setEnabled(state); // OFFならスライダーも無効化
+        headroomGainSlider.setEnabledWithLabel(state); // OFFならスライダーも無効化
         };
 
     // --- Headroom Gain Slider---
@@ -173,7 +173,7 @@ void GuiSettings::setup()
     headroomGainSlider.setRange(0.0, 1.0, 0.01); // 0.0 ~ 1.0
     // プロセッサの値で初期化
     headroomGainSlider.setValue(ctx.audioProcessor.headroomGain, juce::dontSendNotification);
-    headroomGainSlider.setEnabled(ctx.audioProcessor.useHeadroom);
+    headroomGainSlider.setEnabledWithLabel(ctx.audioProcessor.useHeadroom);
 
     headroomGainSlider.onValueChange = [this] {
         ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
