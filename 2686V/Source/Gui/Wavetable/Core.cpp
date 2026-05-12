@@ -453,16 +453,13 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
 
     bool isMod = modEnableButton.getToggleState();
-    modDepthSlider.setEnabled(isMod);
-    modDepthSlider.label.setEnabled(isMod);
-    modSpeedSlider.setEnabled(isMod);
-    modSpeedSlider.label.setEnabled(isMod);
+    modDepthSlider.setEnabledWithLabel(isMod);
+    modSpeedSlider.setEnabledWithLabel(isMod);
 
     // 波形がカスタム以外の時は波形精度選択を Disabled に
     bool isCustomWave = (waveSelector.getSelectedId() == 9);
 
-    sizeSelector.setEnabled(isCustomWave);
-    sizeSelector.label.setEnabled(isCustomWave);
+    sizeSelector.setEnabledWithLabel(isCustomWave);
     customSliders32.setEnabled(isCustomWave);
     customSliders64.setEnabled(isCustomWave);
     customSliders128.setEnabled(isCustomWave);
@@ -574,10 +571,8 @@ void GuiWt::updateCustomWaveCatOnChange()
     int index = waveSelector.getSelectedId();
     bool visible = index == 9; // custom
 
-    sizeSelector.setVisible(visible);
-    sizeSelector.label.setVisible(visible);
-    stepsSelector.setVisible(visible);
-    stepsSelector.label.setVisible(visible);
+    sizeSelector.setVisibleWithLabel(visible);
+    stepsSelector.setVisibleWithLabel(visible);
 }
 
 // ==============================================================================

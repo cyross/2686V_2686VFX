@@ -840,8 +840,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         bool visibleFix = cafFix[i].isDetailVisible();
 
         fix[i].setVisible(visibleFix);
-        freq[i].setVisible(visibleFix);
-        freq[i].label.setVisible(visibleFix);
+        freq[i].setVisibleWithLabel(visibleFix);
         freqToZero[i].setVisible(visibleFix);
         freqTo440[i].setVisible(visibleFix);
 
@@ -946,62 +945,74 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
-    mul[idx].setEnabled(enable);
-    mul[idx].label.setEnabled(enable);
-    dt1[idx].setEnabled(enable);
-    dt1[idx].label.setEnabled(enable);
-    dt2[idx].setEnabled(enable);
-    dt2[idx].label.setEnabled(enable);
-    ar[idx].setEnabled(enable);
-    ar[idx].label.setEnabled(enable);
-    d1r[idx].setEnabled(enable);
-    d1r[idx].label.setEnabled(enable);
-    d1l[idx].setEnabled(enable);
-    d1l[idx].label.setEnabled(enable);
-    rr[idx].setEnabled(enable);
-    rr[idx].label.setEnabled(enable);
-    d2r[idx].setEnabled(enable);
-    d2r[idx].label.setEnabled(enable);
-    tl[idx].setEnabled(enable);
-    tl[idx].label.setEnabled(enable);
-    ks[idx].setEnabled(enable);
-    ks[idx].label.setEnabled(enable);
-    phaseOffset[idx].setEnabled(enable);
-    phaseOffset[idx].label.setEnabled(enable);
+    mul[idx].setEnabledWithLabel(enable);
+    dt1[idx].setEnabledWithLabel(enable);
+    dt2[idx].setEnabledWithLabel(enable);
+    ar[idx].setEnabledWithLabel(enable);
+    d1r[idx].setEnabledWithLabel(enable);
+    d1l[idx].setEnabledWithLabel(enable);
+    rr[idx].setEnabledWithLabel(enable);
+    d2r[idx].setEnabledWithLabel(enable);
+    tl[idx].setEnabledWithLabel(enable);
+    ks[idx].setEnabledWithLabel(enable);
+    phaseOffset[idx].setEnabledWithLabel(enable);
     catShape[idx].setEnabled(enable);
-    se[idx].setEnabled(enable);
-    se[idx].label.setEnabled(enable);
-    seFreq[idx].setEnabled(enable);
-    seFreq[idx].label.setEnabled(enable);
+    se[idx].setEnabledWithLabel(enable);
+    seFreq[idx].setEnabledWithLabel(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
-    freq[idx].setEnabled(enable);
-    freq[idx].label.setEnabled(enable);
+    freq[idx].setEnabledWithLabel(enable);
     freqToZero[idx].setEnabled(enable);
     freqTo05[idx].setEnabled(enable);
     freqTo1[idx].setEnabled(enable);
     freqTo2[idx].setEnabled(enable);
     freqTo440[idx].setEnabled(enable);
     catLfo[idx].setEnabled(enable);
+    lFreq[idx].setEnabledWithLabel(enable);
+    syncDelay[idx].setEnabledWithLabel(enable);
+    syncDelayToZero[idx].setEnabled(enable);
+    syncDelayToOne[idx].setEnabled(enable);
     pm[idx].setEnabled(enable);
-    pms[idx].setEnabled(enable);
-    pms[idx].label.setEnabled(enable);
+    pgShape[idx].setEnabledWithLabel(enable);
+    pms[idx].setEnabledWithLabel(enable);
+    pmd[idx].setEnabledWithLabel(enable);
     am[idx].setEnabled(enable);
-    ams[idx].setEnabled(enable);
-    ams[idx].label.setEnabled(enable);
-    ws[idx].setEnabled(enable);
-    ws[idx].label.setEnabled(enable);
+    egShape[idx].setEnabledWithLabel(enable);
+    ams[idx].setEnabledWithLabel(enable);
+    amd[idx].setEnabledWithLabel(enable);
+    ws[idx].setEnabledWithLabel(enable);
     loadPcmBtn[idx].setEnabled(enable);
     clearPcmBtn[idx].setEnabled(enable);
     pcmFileNameLabel[idx].setEnabled(enable);
-    pcmOffset[idx].setEnabled(enable);
-    pcmOffset[idx].label.setEnabled(enable);
-    pcmRatio[idx].setEnabled(enable);
-    pcmRatio[idx].label.setEnabled(enable);
+    pcmOffset[idx].setEnabledWithLabel(enable);
+    pcmRatio[idx].setEnabledWithLabel(enable);
     catMask[idx].setEnabled(enable);
     mask[idx].setEnabled(enable);
     catMml[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
+    rgEn[idx].setEnabled(enable);
+    rgAr[idx].setEnabledWithLabel(enable);
+    rgD1r[idx].setEnabledWithLabel(enable);
+    rgD1r[idx].setEnabledWithLabel(enable);
+    rgD1l[idx].setEnabledWithLabel(enable);
+    rgD1l[idx].setEnabledWithLabel(enable);
+    rgD2r[idx].setEnabledWithLabel(enable);
+    rgD2r[idx].setEnabledWithLabel(enable);
+    rgRr[idx].setEnabledWithLabel(enable);
+    rgRr[idx].setEnabled(enable);
+    rgTl[idx].setEnabledWithLabel(enable);
+    rgTl[idx].setEnabled(enable);
+    sus[idx].setEnabled(enable);
+    xof[idx].setEnabled(enable);
+    catPitchEnv[idx].setEnabled(enable);
+    pitchEnvEnable[idx].setEnabled(enable);
+    pitchAttack[idx].setEnabledWithLabel(enable);
+    pitchDecay[idx].setEnabledWithLabel(enable);
+    pitchRelease[idx].setEnabledWithLabel(enable);
+    pitchStartLevel[idx].setEnabledWithLabel(enable);
+    pitchAttackLevel[idx].setEnabledWithLabel(enable);
+    pitchSustainLevel[idx].setEnabledWithLabel(enable);
+    pitchReleaseLevel[idx].setEnabledWithLabel(enable);
 }
 
 void GuiOpzx7::updateOnWsChange(int idx)
@@ -1012,10 +1023,8 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
-        pcmOffset[idx].setVisible(false);
-        pcmOffset[idx].label.setVisible(false);
-        pcmRatio[idx].setVisible(false);
-        pcmRatio[idx].label.setVisible(false);
+        pcmOffset[idx].setVisibleWithLabel(false);
+        pcmRatio[idx].setVisibleWithLabel(false);
         loadWtBtn[idx].setVisible(true);
         clearWtBtn[idx].setVisible(true);
         wtFileNameLabel[idx].setVisible(true);
@@ -1025,10 +1034,8 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadPcmBtn[idx].setVisible(true);
         clearPcmBtn[idx].setVisible(true);
         pcmFileNameLabel[idx].setVisible(true);
-        pcmOffset[idx].setVisible(true);
-        pcmOffset[idx].label.setVisible(true);
-        pcmRatio[idx].setVisible(true);
-        pcmRatio[idx].label.setVisible(true);
+        pcmOffset[idx].setVisibleWithLabel(true);
+        pcmRatio[idx].setVisibleWithLabel(true);
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
@@ -1037,10 +1044,8 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
-        pcmOffset[idx].setVisible(false);
-        pcmOffset[idx].label.setVisible(false);
-        pcmRatio[idx].setVisible(false);
-        pcmRatio[idx].label.setVisible(false);
+        pcmOffset[idx].setVisibleWithLabel(false);
+        pcmRatio[idx].setVisibleWithLabel(false);
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
@@ -1082,31 +1087,19 @@ void GuiOpzx7::updateAlgorithmDisplay()
 
 void GuiOpzx7::updateRgDisplayAsOp(int idx, bool rgMode)
 {
-    rgAr[idx].label.setVisible(rgMode);
-    rgAr[idx].setVisible(rgMode);
-    rgD1r[idx].label.setVisible(rgMode);
-    rgD1r[idx].setVisible(rgMode);
-    rgD1l[idx].label.setVisible(rgMode);
-    rgD1l[idx].setVisible(rgMode);
-    rgD2r[idx].label.setVisible(rgMode);
-    rgD2r[idx].setVisible(rgMode);
-    rgRr[idx].label.setVisible(rgMode);
-    rgRr[idx].setVisible(rgMode);
-    rgTl[idx].label.setVisible(rgMode);
-    rgTl[idx].setVisible(rgMode);
+    rgAr[idx].setVisibleWithLabel(rgMode);
+    rgD1r[idx].setVisibleWithLabel(rgMode);
+    rgD1l[idx].setVisibleWithLabel(rgMode);
+    rgD2r[idx].setVisibleWithLabel(rgMode);
+    rgRr[idx].setVisibleWithLabel(rgMode);
+    rgTl[idx].setVisibleWithLabel(rgMode);
 
-    ar[idx].label.setVisible(!rgMode);
-    ar[idx].setVisible(!rgMode);
-    d1r[idx].label.setVisible(!rgMode);
-    d1r[idx].setVisible(!rgMode);
-    d1l[idx].label.setVisible(!rgMode);
-    d1l[idx].setVisible(!rgMode);
-    d2r[idx].label.setVisible(!rgMode);
-    d2r[idx].setVisible(!rgMode);
-    rr[idx].label.setVisible(!rgMode);
-    rr[idx].setVisible(!rgMode);
-    tl[idx].label.setVisible(!rgMode);
-    tl[idx].setVisible(!rgMode);
+    ar[idx].setVisibleWithLabel(!rgMode);
+    d1r[idx].setVisibleWithLabel(!rgMode);
+    d1l[idx].setVisibleWithLabel(!rgMode);
+    d2r[idx].setVisibleWithLabel(!rgMode);
+    rr[idx].setVisibleWithLabel(!rgMode);
+    tl[idx].setVisibleWithLabel(!rgMode);
 }
 
 void GuiOpzx7::updatePresetName(const juce::String& presetName)
@@ -1121,6 +1114,7 @@ bool GuiOpzx7::keyPressed(const juce::KeyPress& key)
 {
     int opIndex = -1;
     int code = key.getKeyCode();
+    juce::ModifierKeys metaKeys = key.getModifiers();
 
     // 通常の 1〜4キー、または テンキーの 1〜4 を判定
     if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
@@ -1128,13 +1122,18 @@ bool GuiOpzx7::keyPressed(const juce::KeyPress& key)
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
 
-    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)
     {
+        // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MMLボタンクリック
         // 該当オペレータが有効(Enabled)な時のみ反応させる
-        if (mml[opIndex].isEnabled()) {
+        if (metaKeys.isAltDown() && mask[opIndex].isEnabled()) {
+            mask[opIndex].setToggleState(!mask[opIndex].getToggleState(), juce::sendNotification);
+        }
+        else if (mml[opIndex].isEnabled()) {
             mml[opIndex].triggerClick();
         }
+
         return true; // キー入力を消費したことをJUCEに伝える
     }
 

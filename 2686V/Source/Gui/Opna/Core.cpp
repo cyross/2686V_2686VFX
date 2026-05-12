@@ -558,8 +558,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         bool visibleFix = cafFix[i].isDetailVisible();
 
         fix[i].setVisible(visibleFix);
-        freq[i].setVisible(visibleFix);
-        freq[i].label.setVisible(visibleFix);
+        freq[i].setVisibleWithLabel(visibleFix);
         freqToZero[i].setVisible(visibleFix);
         freqTo440[i].setVisible(visibleFix);
 
@@ -634,30 +633,22 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
-    mul[idx].setEnabled(enable);
-    mul[idx].label.setEnabled(enable);
-    dt[idx].setEnabled(enable);
-    dt[idx].label.setEnabled(enable);
-    ks[idx].setEnabled(enable);
-    ks[idx].label.setEnabled(enable);
+    mul[idx].setEnabledWithLabel(enable);
+    dt[idx].setEnabledWithLabel(enable);
+    ks[idx].setEnabledWithLabel(enable);
     catShape[idx].setEnabled(enable);
-    se[idx].setEnabled(enable);
-    se[idx].label.setEnabled(enable);
-    seFreq[idx].setEnabled(enable);
-    seFreq[idx].label.setEnabled(enable);
+    se[idx].setEnabledWithLabel(enable);
+    seFreq[idx].setEnabledWithLabel(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
-    freq[idx].setEnabled(enable);
-    freq[idx].label.setEnabled(enable);
+    freq[idx].setEnabledWithLabel(enable);
     freqToZero[idx].setEnabled(enable);
     freqTo440[idx].setEnabled(enable);
     catLfo[idx].setEnabled(enable);
     pm[idx].setEnabled(enable);
-    pms[idx].setEnabled(enable);
-    pms[idx].label.setEnabled(enable);
+    pms[idx].setEnabledWithLabel(enable);
     am[idx].setEnabled(enable);
-    ams[idx].setEnabled(enable);
-    ams[idx].label.setEnabled(enable);
+    ams[idx].setEnabledWithLabel(enable);
     catMask[idx].setEnabled(enable);
     mask[idx].setEnabled(enable);
     catMml[idx].setEnabled(enable);
@@ -666,18 +657,12 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
 
 void GuiOpna::updateRgDisplayAsOp(int idx, bool rgMode)
 {
-    rgAr[idx].label.setVisible(rgMode);
-    rgAr[idx].setVisible(rgMode);
-    rgDr[idx].label.setVisible(rgMode);
-    rgDr[idx].setVisible(rgMode);
-    rgSl[idx].label.setVisible(rgMode);
-    rgSl[idx].setVisible(rgMode);
-    rgSr[idx].label.setVisible(rgMode);
-    rgSr[idx].setVisible(rgMode);
-    rgRr[idx].label.setVisible(rgMode);
-    rgRr[idx].setVisible(rgMode);
-    rgTl[idx].label.setVisible(rgMode);
-    rgTl[idx].setVisible(rgMode);
+    rgAr[idx].setVisibleWithLabel(rgMode);
+    rgDr[idx].setVisibleWithLabel(rgMode);
+    rgSl[idx].setVisibleWithLabel(rgMode);
+    rgSr[idx].setVisibleWithLabel(rgMode);
+    rgRr[idx].setVisibleWithLabel(rgMode);
+    rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
 void GuiOpna::updatePresetName(const juce::String& presetName)
@@ -721,6 +706,7 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
 {
     int opIndex = -1;
     int code = key.getKeyCode();
+    juce::ModifierKeys metaKeys = key.getModifiers();
 
     // 通常の 1〜4キー、または テンキーの 1〜4 を判定
     if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
@@ -728,13 +714,18 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
 
-    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)
     {
+        // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MMLボタンクリック
         // 該当オペレータが有効(Enabled)な時のみ反応させる
-        if (mml[opIndex].isEnabled()) {
+        if (metaKeys.isAltDown() && mask[opIndex].isEnabled()) {
+            mask[opIndex].setToggleState(!mask[opIndex].getToggleState(), juce::sendNotification);
+        }
+        else if (mml[opIndex].isEnabled()) {
             mml[opIndex].triggerClick();
         }
+
         return true; // キー入力を消費したことをJUCEに伝える
     }
 

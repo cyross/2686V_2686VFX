@@ -529,18 +529,13 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
     catMain[idx].setEnabled(enable);
-    mul[idx].setEnabled(enable);
-    mul[idx].label.setEnabled(enable);
-    dt1[idx].setEnabled(enable);
-    dt1[idx].label.setEnabled(enable);
-    dt2[idx].setEnabled(enable);
-    dt2[idx].label.setEnabled(enable);
-    ks[idx].setEnabled(enable);
-    ks[idx].label.setEnabled(enable);
+    mul[idx].setEnabledWithLabel(enable);
+    dt1[idx].setEnabledWithLabel(enable);
+    dt2[idx].setEnabledWithLabel(enable);
+    ks[idx].setEnabledWithLabel(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
-    freq[idx].setEnabled(enable);
-    freq[idx].label.setEnabled(enable);
+    freq[idx].setEnabledWithLabel(enable);
     freqToZero[idx].setEnabled(enable);
     freqTo440[idx].setEnabled(enable);
     catMask[idx].setEnabled(enable);
@@ -580,18 +575,12 @@ void GuiOpm::updateAlgorithmDisplay()
 
 void GuiOpm::updateRgDisplayAsOp(int idx, bool rgMode)
 {
-    rgAr[idx].label.setVisible(rgMode);
-    rgAr[idx].setVisible(rgMode);
-    rgD1r[idx].label.setVisible(rgMode);
-    rgD1r[idx].setVisible(rgMode);
-    rgD1l[idx].label.setVisible(rgMode);
-    rgD1l[idx].setVisible(rgMode);
-    rgD2r[idx].label.setVisible(rgMode);
-    rgD2r[idx].setVisible(rgMode);
-    rgRr[idx].label.setVisible(rgMode);
-    rgRr[idx].setVisible(rgMode);
-    rgTl[idx].label.setVisible(rgMode);
-    rgTl[idx].setVisible(rgMode);
+    rgAr[idx].setVisibleWithLabel(rgMode);
+    rgD1r[idx].setVisibleWithLabel(rgMode);
+    rgD1l[idx].setVisibleWithLabel(rgMode);
+    rgD2r[idx].setVisibleWithLabel(rgMode);
+    rgRr[idx].setVisibleWithLabel(rgMode);
+    rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
 void GuiOpm::updatePresetName(const juce::String& presetName)
@@ -606,6 +595,7 @@ bool GuiOpm::keyPressed(const juce::KeyPress& key)
 {
     int opIndex = -1;
     int code = key.getKeyCode();
+    juce::ModifierKeys metaKeys = key.getModifiers();
 
     // 通常の 1〜4キー、または テンキーの 1〜4 を判定
     if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
@@ -613,13 +603,18 @@ bool GuiOpm::keyPressed(const juce::KeyPress& key)
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
 
-    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)
     {
+        // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MMLボタンクリック
         // 該当オペレータが有効(Enabled)な時のみ反応させる
-        if (mml[opIndex].isEnabled()) {
+        if (metaKeys.isAltDown() && mask[opIndex].isEnabled()) {
+            mask[opIndex].setToggleState(!mask[opIndex].getToggleState(), juce::sendNotification);
+        }
+        else if (mml[opIndex].isEnabled()) {
             mml[opIndex].triggerClick();
         }
+
         return true; // キー入力を消費したことをJUCEに伝える
     }
 

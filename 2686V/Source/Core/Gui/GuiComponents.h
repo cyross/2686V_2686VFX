@@ -190,6 +190,18 @@ public:
 
         juce::Slider::mouseDrag(e);             // 左ドラッグなら通常の処理を継続
     }
+
+    inline void setEnabledWithLabel(bool enable)
+    {
+        this->setEnabled(enable);
+        this->label.setEnabled(enable);
+    }
+
+    inline void setVisibleWithLabel(bool visible)
+    {
+        this->setVisible(visible);
+        this->label.setVisible(visible);
+    }
 };
 
 class GuiComboBox : public juce::ComboBox, public GuiBaseComponent
@@ -265,6 +277,18 @@ public:
     };
 
     void setup(const Config& c);
+
+    inline void setEnabledWithLabel(bool enable)
+    {
+        this->setEnabled(enable);
+        this->label.setEnabled(enable);
+    }
+
+    inline void setVisibleWithLabel(bool visible)
+    {
+        this->setVisible(visible);
+        this->label.setVisible(visible);
+    }
 };
 
 class GuiToggleButton : public juce::ToggleButton, public GuiBaseComponent
@@ -444,6 +468,18 @@ public:
     };
 
     void setup(const Config& c);
+
+    inline void setEnabledWithLabel(bool enable)
+    {
+        this->setEnabled(enable);
+        this->label.setEnabled(enable);
+    }
+
+    inline void setVisibleWithLabel(bool visible)
+    {
+        this->setVisible(visible);
+        this->label.setVisible(visible);
+    }
 };
 
 class GuiFbSlider : public GuiSlider

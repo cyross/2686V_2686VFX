@@ -102,8 +102,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     bool visibleFix = catFix.isDetailVisible();
 
     fixToggle.setVisible(visibleFix);
-    freqSlider.setVisible(visibleFix);
-    freqSlider.label.setVisible(visibleFix);
+    freqSlider.setVisibleWithLabel(visibleFix);
     freqTo2kBtn.setVisible(visibleFix);
 
     if (visibleFix)

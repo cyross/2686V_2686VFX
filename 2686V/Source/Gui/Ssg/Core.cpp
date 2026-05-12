@@ -380,18 +380,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triCat.setVisible(false);
         triKeyTrackButton.setVisible(false);
         triPeakCat.setVisible(false);
-        triPeakSlider.setVisible(false);
-        triPeakSlider.label.setVisible(false);
-        triFreqSlider.setVisible(false);
-        triFreqSlider.label.setVisible(false);
+        triPeakSlider.setVisibleWithLabel(false);
+        triFreqSlider.setVisibleWithLabel(false);
         triSetSawDown.setVisible(false);
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
         pulseDutyCat.setVisible(true);
         pulseInvCat.setVisible(true);
-        dutyModeSelector.setVisible(true);
-        dutyModeSelector.label.setVisible(true);
+        dutyModeSelector.setVisibleWithLabel(true);
         dutyVarSlider.setValue(true);
         dutyVarSlider.label.setVisible(true);
         dutyInvertButton.setVisible(true);
@@ -406,17 +403,13 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
         if (dutyModeVal < 0.5f) {
-            dutyPresetSelector.setVisible(true);
-            dutyPresetSelector.label.setVisible(true);
-            dutyVarSlider.setVisible(false);
-            dutyVarSlider.label.setVisible(false);
+            dutyPresetSelector.setVisibleWithLabel(true);
+            dutyVarSlider.setVisibleWithLabel(false);
             layoutRow({ .rowRect = dRect, .label = &dutyPresetSelector.label, .component = &dutyPresetSelector, });
         }
         else {
-            dutyPresetSelector.setVisible(false);
-            dutyPresetSelector.label.setVisible(false);
-            dutyVarSlider.setVisible(true);
-            dutyVarSlider.label.setVisible(true);
+            dutyPresetSelector.setVisibleWithLabel(false);
+            dutyVarSlider.setVisibleWithLabel(true);
             layoutRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, });
         }
 
@@ -430,21 +423,17 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         pulseDutyCat.setVisible(false);
         pulseInvCat.setVisible(false);
-        dutyModeSelector.setVisible(false);
-        dutyModeSelector.label.setVisible(false);
+        dutyModeSelector.setVisibleWithLabel(false);
         dutyInvertButton.setVisible(false);
-        dutyPresetSelector.setVisible(false);
-        dutyPresetSelector.label.setVisible(false);
+        dutyPresetSelector.setVisibleWithLabel(false);
         dutyVarSlider.setVisible(false);
         dutyVarSlider.label.setVisible(false);
 
         triCat.setVisible(true);
         triKeyTrackButton.setVisible(true);
-        triFreqSlider.setVisible(true);
-        triFreqSlider.label.setVisible(true);
+        triFreqSlider.setVisibleWithLabel(true);
         triPeakCat.setVisible(true);
-        triPeakSlider.setVisible(true);
-        triPeakSlider.label.setVisible(true);
+        triPeakSlider.setVisibleWithLabel(true);
         triSetSawDown.setVisible(true);
         triSetTri.setVisible(true);
         triSetSawUp.setVisible(true);
@@ -458,8 +447,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
-        triFreqSlider.setVisible(!isKeyTrack);
-        triFreqSlider.label.setVisible(!isKeyTrack);
+        triFreqSlider.setVisibleWithLabel(!isKeyTrack);
 
         if (!isKeyTrack) {
             layoutRow({ .rowRect = tRect, .label = &triFreqSlider.label, .component = &triFreqSlider, });
