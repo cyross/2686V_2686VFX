@@ -721,6 +721,7 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
 {
     int opIndex = -1;
     int code = key.getKeyCode();
+    juce::ModifierKeys metaKeys = key.getModifiers();
 
     // 通常の 1〜4キー、または テンキーの 1〜4 を判定
     if (code == '1' || code == juce::KeyPress::numberPad1) opIndex = 0;
@@ -728,13 +729,18 @@ bool GuiOpna::keyPressed(const juce::KeyPress& key)
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
 
-    // 対応するキーが押されていたら、MMLボタンを強制クリック
+    // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)
     {
+        // Altキーを押しながら -> マスクのON/OFF、それ以外 -> MMLボタンクリック
         // 該当オペレータが有効(Enabled)な時のみ反応させる
-        if (mml[opIndex].isEnabled()) {
+        if (metaKeys.isAltDown() && mask[opIndex].isEnabled()) {
+            mask[opIndex].setToggleState(!mask[opIndex].getToggleState(), juce::sendNotification);
+        }
+        else if (mml[opIndex].isEnabled()) {
             mml[opIndex].triggerClick();
         }
+
         return true; // キー入力を消費したことをJUCEに伝える
     }
 
