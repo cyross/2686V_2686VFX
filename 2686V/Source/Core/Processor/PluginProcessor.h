@@ -175,6 +175,8 @@ public:
 
     juce::String makePathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
     juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
+    juce::String makeWtPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolveWtPath(const juce::String& pathStr); // 相対ディレクトリからの展開
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);

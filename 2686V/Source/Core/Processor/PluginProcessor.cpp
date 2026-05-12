@@ -365,7 +365,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 
     // サンプルパス保存 (OPZX7 WT)
     for (int i = 0; i < 4; ++i) {
-        xml->setAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i), makePathRelative(juce::File(opzx7WtFilePaths[i])));
+        xml->setAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i), makeWtPathRelative(juce::File(opzx7WtFilePaths[i])));
     }
 };
 
@@ -411,7 +411,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
 
         for (int i = 0; i < 4; ++i) {
             juce::String storedPath = xmlState->getStringAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i));
-            juce::File file = resolvePath(storedPath);
+            juce::File file = resolveWtPath(storedPath);
             if (file.existsAsFile()) {
                 loadOpzx7WtFile(i, file);
             }
@@ -702,6 +702,43 @@ juce::File AudioPlugin2686V::resolvePath(const juce::String& pathStr)
     if (defaultSampleDir.isNotEmpty())
     {
         juce::File baseDir(defaultSampleDir);
+
+        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
+        return baseDir.getChildFile(pathStr);
+    }
+
+    // ベースディレクトリがない場合は一応そのまま返す
+    return juce::File(pathStr);
+}
+
+// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
+juce::String AudioPlugin2686V::makeWtPathRelative(const juce::File& targetFile)
+{
+    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
+    if (targetFile == juce::File() || defaultWavetableDir.isEmpty())
+        return targetFile.getFullPathName();
+
+    juce::File baseDir(defaultWavetableDir);
+
+    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
+    return targetFile.getRelativePathFrom(baseDir);
+}
+
+// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
+juce::File AudioPlugin2686V::resolveWtPath(const juce::String& pathStr)
+{
+    if (pathStr.isEmpty()) return juce::File();
+
+    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
+    if (juce::File::isAbsolutePath(pathStr))
+    {
+        return juce::File(pathStr);
+    }
+
+    // 相対パスの場合は defaultSampleDir と結合する
+    if (defaultWavetableDir.isNotEmpty())
+    {
+        juce::File baseDir(defaultWavetableDir);
 
         // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
         return baseDir.getChildFile(pathStr);
