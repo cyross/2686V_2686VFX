@@ -11,7 +11,10 @@
 // 5: +0.1% (approx)
 // 6: +0.25%
 // 7: +0.45%
-const std::array<float, 16> Opzx7Detune::dtScales = { 0.0f, -0.1f, -0.05f, -0.02f, -0.01f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f, 0.01f, 0.02f, 0.05f, 0.1f };
+const std::array<float, 16> Opzx7Detune::dtScales = {
+    0.0f, -0.008119f, -0.00696f, -0.00579f, -0.00463f, -0.00347f, -0.00231f, -0.00116f,
+    0.0f, 0.00116f, 0.00231f, 0.00347f, 0.00463f, 0.00579f, 0.00696f, 0.008119f
+};
 
 // DT2 (OPM Coarse Detune)
 // YM2151: 0=0, 1=+approx 1.414, 2=+approx 1.58, 3=+approx 1.73
