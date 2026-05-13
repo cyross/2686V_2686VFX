@@ -45,6 +45,8 @@ struct FmOpParams
     float ams = 0; // 個別 Amp Mod Sensitivity (0-3)
     float amd = 0;
 
+    int n88Ams = 0;
+
     // --- OPL/OPL3 LFO Settings ---
     float oplAms = 3.7f;  // AM Speed (Hz)
     float oplAmd = 4.8f;  // AM Depth (dB)

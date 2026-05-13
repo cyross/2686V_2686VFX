@@ -122,7 +122,7 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
     if (globalAm) {
         // グローバルAMS (-127〜127) と OP毎のAMD (0〜15) を合成
         float amSign = (globalAmd < 0) ? -1.0f : 1.0f;
-        float amDepthNorm = (std::abs((float)globalAmd) / 127.0f) * ((float)m_params.ams / 15.0f);
+        float amDepthNorm = (std::abs((float)globalAmd) / 127.0f) * ((float)m_params.n88Ams / 15.0f);
 
         // amLfoVal は 0.0 ~ 1.0。AMSがマイナスの場合は波形を反転(1.0 - x)させる
         float unipolarLfo = (amSign > 0.0f) ? amLfoVal : (1.0f - amLfoVal);

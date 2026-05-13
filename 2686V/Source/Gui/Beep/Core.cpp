@@ -2,15 +2,15 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Beep/Keys.h"
+#include "../../Processor/Beep/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 
 void GuiBeep::setup() {
-    juce::String code = PrKey::Prefix::beep;
+    juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup); // GuiText 等に置換
@@ -23,17 +23,17 @@ void GuiBeep::setup() {
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Beep::Level, .isReset = true });
+    volSlider.setup({ .parent = *this, .id = code + PrKey::level, .title = GuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
     catFix.setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
-    fixToggle.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fix, .title = GuiText::Beep::Fix, .isReset = true });
+    fixToggle.setup({ .parent = *this, .id = code + PrKey::fix, .title = GuiText::Beep::Fix, .isReset = true });
     fixToggle.setWantsKeyboardFocus(true);
     fixToggle.setExplicitFocusOrder(++tabOrder);
 
-    freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
+    freqSlider.setup({ .parent = *this, .id = code + PrKey::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
     freqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freqSlider.setWantsKeyboardFocus(true);
     freqSlider.setExplicitFocusOrder(++tabOrder);
@@ -48,23 +48,23 @@ void GuiBeep::setup() {
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
-    bypassToggle.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Beep::Adsr::Bypass, .isReset = true });
+    bypassToggle.setup({ .parent = *this, .id = code + PrKey::adsr + PrKey::bypass, .title = GuiText::Beep::Adsr::Bypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
-    ar.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Beep::Adsr::Ar, .isReset = true });
+    ar.setup({ .parent = *this, .id = code + PrKey::Adsr::ar, .title = GuiText::Beep::Adsr::Ar, .isReset = true });
     ar.setWantsKeyboardFocus(true);
     ar.setExplicitFocusOrder(++tabOrder);
 
-    dr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Beep::Adsr::Dr, .isReset = true });
+    dr.setup({ .parent = *this, .id = code + PrKey::Adsr::dr, .title = GuiText::Beep::Adsr::Dr, .isReset = true });
     dr.setWantsKeyboardFocus(true);
     dr.setExplicitFocusOrder(++tabOrder);
 
-    sl.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Beep::Adsr::Sl, .isReset = true });
+    sl.setup({ .parent = *this, .id = code + PrKey::Adsr::sl, .title = GuiText::Beep::Adsr::Sl, .isReset = true });
     sl.setWantsKeyboardFocus(true);
     sl.setExplicitFocusOrder(++tabOrder);
 
-    rr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Beep::Adsr::Rr, .isReset = true });
+    rr.setup({ .parent = *this, .id = code + PrKey::Adsr::rr, .title = GuiText::Beep::Adsr::Rr, .isReset = true });
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 

@@ -2,12 +2,12 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Adpcm/Keys.h"
+#include "../../Processor/Adpcm/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> qualityItems = {
@@ -32,7 +32,7 @@ static std::vector<SelectItem> rateItems = {
 
 void GuiAdpcm::setup()
 {
-    const juce::String code = PrKey::Prefix::adpcm;
+    const juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
@@ -45,38 +45,38 @@ void GuiAdpcm::setup()
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
 
-    modeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::mode, .title = GuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = *this, .id = code + PrKey::mode, .title = GuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::rate, .title = GuiText::Adpcm::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::rate, .title = GuiText::Adpcm::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
     // 出力レベル
-	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::level, .title = GuiText::Adpcm::level, .isReset = true });
+	levelSlider.setup({ .parent = *this, .id = code + PrKey::level, .title = GuiText::Adpcm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
     // ループトグルボタン
-    loopButton.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::loop, .title = GuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = *this, .id = code + PrKey::loop, .title = GuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmOffset, .title = GuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::pcmOffset, .title = GuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmRatio, .title = GuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::pcmRatio, .title = GuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
     panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
 
-    panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::pan, .title = GuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = *this, .id = code + PrKey::pan, .title = GuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
@@ -95,23 +95,23 @@ void GuiAdpcm::setup()
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
-    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::adsr + PrKey::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::ar, .title = GuiText::Adpcm::Adsr::ar, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::ar, .title = GuiText::Adpcm::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::dr, .title = GuiText::Adpcm::Adsr::dr, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + PrKey::Adsr::dr, .title = GuiText::Adpcm::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::sl, .title = GuiText::Adpcm::Adsr::sl, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::sl, .title = GuiText::Adpcm::Adsr::sl, .isReset = true });
     sustainSlider.setWantsKeyboardFocus(true);
     sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::rr, .title = GuiText::Adpcm::Adsr::rr, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::rr, .title = GuiText::Adpcm::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 

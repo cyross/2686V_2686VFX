@@ -4,12 +4,12 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Ssg/Keys.h"
+#include "../../Processor/Ssg/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> bdItems = {
@@ -78,7 +78,7 @@ static std::vector<SelectItem> dtItems = {
 
 void GuiSsg::setup()
 {
-    const juce::String code = PrKey::Prefix::ssg;
+    const juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
@@ -91,77 +91,77 @@ void GuiSsg::setup()
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
 
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
-    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::adsr + PrKey::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr , .title = GuiText::Adsr::dr, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + PrKey::Adsr::dr , .title = GuiText::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
     sustainSlider.setWantsKeyboardFocus(true);
     sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
     pitchAdsrCat.setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
 
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::pitchAdsr + PrKey::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
     pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
     pitchAttackSlider.setWantsKeyboardFocus(true);
     pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
     pitchDecaySlider.setWantsKeyboardFocus(true);
     pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
     pitchReleaseSlider.setWantsKeyboardFocus(true);
     pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
     pitchStartLevelSlider.setWantsKeyboardFocus(true);
     pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
     pitchAttackLevelSlider.setWantsKeyboardFocus(true);
     pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
     pitchSustainLevelSlider.setWantsKeyboardFocus(true);
     pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
     detuneCat.setup({ .parent = *this, .title = GuiText::Category::detune });
 
-    dt1.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = *this, .id = code + PrKey::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setup({ .parent = *this, .id = code + PrKey::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
@@ -182,34 +182,34 @@ void GuiSsg::setup()
 
     shapeCat.setup({ .parent = *this, .title = GuiText::Category::shape });
 
-    waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::wveform, .title = GuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = *this, .id = code + PrKey::wveform, .title = GuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
     toneCat.setup({ .parent = *this, .title = GuiText::Category::ssgTone });
 
-    levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::tone, .title = GuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    levelSlider.setup({ .parent = *this, .id = code + PrKey::tone, .title = GuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
     noiseCat.setup({ .parent = *this, .title = GuiText::Category::ssgNoise });
 
-    noiseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noise, .title = GuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = *this, .id = code + PrKey::noise, .title = GuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseFreq, .title = GuiText::Ssg::Voice::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = *this, .id = code + PrKey::noiseFreq, .title = GuiText::Ssg::Voice::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseOnNote, .title = GuiText::Ssg::Voice::noiseOnNote, .isReset = true });
+    noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::noiseOnNote, .title = GuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
 
     mixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
     // 初期状態反映
-    mixSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::mix , .title = GuiText::Ssg::Voice::mix, .isReset = true });
+    mixSlider.setup({ .parent = *this, .id = code + PrKey::mix , .title = GuiText::Ssg::Voice::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -233,21 +233,21 @@ void GuiSsg::setup()
 
     pulseDutyCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    dutyModeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::mode, .title = GuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+    dutyModeSelector.setup({ .parent = *this, .id = code + PrKey::Duty::mode, .title = GuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyPresetSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::preset, .title = GuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+    dutyPresetSelector.setup({ .parent = *this, .id = code + PrKey::Duty::preset, .title = GuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
     dutyPresetSelector.setWantsKeyboardFocus(true);
     dutyPresetSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyVarSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::var, .title = GuiText::Ssg::Duty::var, .isReset = true });
+    dutyVarSlider.setup({ .parent = *this, .id = code + PrKey::Duty::var, .title = GuiText::Ssg::Duty::var, .isReset = true });
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
     pulseInvCat.setup({ .parent = *this, .title = GuiText::Category::invert });
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::inv, .title = GuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
+    dutyInvertButton.setup({ .parent = *this, .id = code + PrKey::Duty::inv, .title = GuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
@@ -255,17 +255,17 @@ void GuiSsg::setup()
 
     triCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    triKeyTrackButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::keyTrk, .title = GuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+    triKeyTrackButton.setup({ .parent = *this, .id = code + PrKey::Tri::keyTrk, .title = GuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
     triKeyTrackButton.setExplicitFocusOrder(++tabOrder);
 
-    triFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::freq, .title = GuiText::Ssg::Tri::manualFreq, .isReset = true });
+    triFreqSlider.setup({ .parent = *this, .id = code + PrKey::Tri::freq, .title = GuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     triPeakCat.setup({ .parent = *this, .title = GuiText::Category::peak });
 
-    triPeakSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::peak, .title = GuiText::Ssg::Tri::peak, .isReset = true });
+    triPeakSlider.setup({ .parent = *this, .id = code + PrKey::Tri::peak, .title = GuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);
     triPeakSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -289,22 +289,22 @@ void GuiSsg::setup()
 
     hwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    envEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::enable, .title = GuiText::Ssg::HwEnv::enable, .isReset = true });
+    envEnableButton.setup({ .parent = *this, .id = code + PrKey::HwEnv::enable, .title = GuiText::Ssg::HwEnv::enable, .isReset = true });
     envEnableButton.setWantsKeyboardFocus(true);
     envEnableButton.setExplicitFocusOrder(++tabOrder);
     
-    shapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::shape, .title = GuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+    shapeSelector.setup({ .parent = *this, .id = code + PrKey::HwEnv::shape, .title = GuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
     
-    periodSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::period, .title = GuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
+    periodSlider.setup({ .parent = *this, .id = code + PrKey::HwEnv::period, .title = GuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)
 {
-    juce::String code = PrKey::Prefix::ssg;
+    juce::String code = PrKey::prefix;
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
@@ -368,7 +368,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = vRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
-    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
+    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::wveform);
     int waveMode = (waveParam > PrValue::boolThread) ? 1 : 0;
     auto waveArea = paramArea.removeFromTop(140);
 
@@ -401,7 +401,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRowCategory({ .rowRect = dRect, .label = &pulseDutyCat });
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
-        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
+        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Duty::mode);
         if (dutyModeVal < 0.5f) {
             dutyPresetSelector.setVisibleWithLabel(true);
             dutyVarSlider.setVisibleWithLabel(false);

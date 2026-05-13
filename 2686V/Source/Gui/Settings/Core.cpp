@@ -5,14 +5,14 @@
 #include "../../Core/Editor/PluginEditor.h"
 #include "../../Core/Gui/GuiColor.h"
 
-#include "../../Core/Const/FileValues.h"
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/SettingsKeys.h"
-#include "../../Core/Const/SettingsValues.h"
+#include "../../Core/Processor/Keys.h"
+#include "../../Core/Processor/Values.h"
+#include "./Keys.h"
+#include "./Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 void GuiSettings::setup()

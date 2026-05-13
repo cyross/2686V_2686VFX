@@ -3,14 +3,14 @@
 #include "../../Core/Processor/PluginProcessor.h"
 
 #include "../../Core/Const/Global.h"
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Core/Processor/Base.h"
+#include "../../Core/Processor/Values.h"
 #include "../../Core/Const/FileValues.h"
-#include "../../Core/Const/PresetKeys.h"
-#include "../../Core/Const/PresetValues.h"
+#include "./Keys.h"
+#include "./Values.h"
 
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 juce::File GuiPreset::getSelectedFile() const
