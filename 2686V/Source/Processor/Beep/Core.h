@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 
 #include "../../Core/Synth/SynthParams.h"
-#include "../../Core/Processor/PrBase.h"
+#include "../../Core/Processor/Base.h"
 
 class BeepProcessor : PrBase {
 public:

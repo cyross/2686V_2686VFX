@@ -2,12 +2,12 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Fx/Keys.h"
+#include "../../Processor/Fx/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> flTypeItems = {
@@ -18,7 +18,7 @@ static std::vector<SelectItem> flTypeItems = {
 
 void GuiFx::setup()
 {
-    const juce::String code = PrKey::Prefix::fx;
+    const juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     // MainGroup
@@ -26,7 +26,7 @@ void GuiFx::setup()
 
     bypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-	bypassToggle.setup({ .parent = *this, .id = code + PrKey::Post::bypass, .title = GuiText::Fx::masterBypass, .isReset = true });
+	bypassToggle.setup({ .parent = *this, .id = code + PrKey::bypass, .title = GuiText::Fx::masterBypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
@@ -38,30 +38,30 @@ void GuiFx::setup()
 
     // Filter Group
     filterGroup.setup(*this, GuiText::Group::fxFilter);
-    const juce::String filterPrefix = code + PrKey::Innder::Fx::fil;
+    const juce::String filterPrefix = code + PrKey::fil;
     flBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    flBypassBtn.setup({ .parent = *this, .id = filterPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    flBypassBtn.setup({ .parent = *this, .id = filterPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     flBypassBtn.setWantsKeyboardFocus(true);
     flBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     flMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    flTypeSelector.setup({ .parent = *this, .id = filterPrefix + PrKey::Post::Fx::Filter::type, .title = GuiText::Fx::Filter::type, .items = flTypeItems, .isReset = true });
+    flTypeSelector.setup({ .parent = *this, .id = filterPrefix + PrKey::Filter::type, .title = GuiText::Fx::Filter::type, .items = flTypeItems, .isReset = true });
     flTypeSelector.setWantsKeyboardFocus(true);
     flTypeSelector.setExplicitFocusOrder(++tabOrder);
 
-    flFreqSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::Post::Fx::Filter::freq, .title = GuiText::Fx::Filter::freq, .isReset = true });
+    flFreqSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::Filter::freq, .title = GuiText::Fx::Filter::freq, .isReset = true });
     flFreqSlider.setWantsKeyboardFocus(true);
     flFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    flQSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::Post::Fx::Filter::q, .title = GuiText::Fx::Filter::q, .isReset = true });
+    flQSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::Filter::q, .title = GuiText::Fx::Filter::q, .isReset = true });
     flQSlider.setWantsKeyboardFocus(true);
     flQSlider.setExplicitFocusOrder(++tabOrder);
 
     flMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    flMixSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    flMixSlider.setup({ .parent = *this, .id = filterPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     flMixSlider.setWantsKeyboardFocus(true);
     flMixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -82,27 +82,27 @@ void GuiFx::setup()
 
     // Tremolo Group
 	tremGroup.setup(*this, GuiText::Group::fxTremolo);
-    const juce::String trmPrefix = code + PrKey::Innder::Fx::trm;
+    const juce::String trmPrefix = code + PrKey::trm;
 
     tBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    tBypassBtn.setup({ .parent = *this, .id = trmPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    tBypassBtn.setup({ .parent = *this, .id = trmPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     tBypassBtn.setWantsKeyboardFocus(true);
     tBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     tMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    tRateSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::Post::Fx::Tremolo::rate, .title = GuiText::Fx::Tremolo::rate, .isReset = true });
+    tRateSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::Tremolo::rate, .title = GuiText::Fx::Tremolo::rate, .isReset = true });
     tRateSlider.setWantsKeyboardFocus(true);
     tRateSlider.setExplicitFocusOrder(++tabOrder);
 
-    tDepthSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::Post::Fx::Tremolo::depth, .title = GuiText::Fx::Tremolo::depth, .isReset = true });
+    tDepthSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::Tremolo::depth, .title = GuiText::Fx::Tremolo::depth, .isReset = true });
     tDepthSlider.setWantsKeyboardFocus(true);
     tDepthSlider.setExplicitFocusOrder(++tabOrder);
 
     tMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    tMixSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    tMixSlider.setup({ .parent = *this, .id = trmPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     tMixSlider.setWantsKeyboardFocus(true);
     tMixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -123,26 +123,26 @@ void GuiFx::setup()
 
     // Vibrato Group
 	vibGroup.setup(*this, GuiText::Group::fxVibrato);
-    const juce::String vibPrefix = code + PrKey::Innder::Fx::vib;
+    const juce::String vibPrefix = code + PrKey::vib;
     vBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    vBypassBtn.setup({ .parent = *this, .id = vibPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    vBypassBtn.setup({ .parent = *this, .id = vibPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     vBypassBtn.setWantsKeyboardFocus(true);
     vBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     vMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    vRateSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::Post::Fx::Vibrato::rate, .title = GuiText::Fx::Vibrate::rate, .isReset = true });
+    vRateSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::Vibrato::rate, .title = GuiText::Fx::Vibrate::rate, .isReset = true });
     vRateSlider.setWantsKeyboardFocus(true);
     vRateSlider.setExplicitFocusOrder(++tabOrder);
 
-    vDepthSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::Post::Fx::Vibrato::depth, .title = GuiText::Fx::Vibrate::depth, .isReset = true });
+    vDepthSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::Vibrato::depth, .title = GuiText::Fx::Vibrate::depth, .isReset = true });
     vDepthSlider.setWantsKeyboardFocus(true);
     vDepthSlider.setExplicitFocusOrder(++tabOrder);
 
     vMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    vMixSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    vMixSlider.setup({ .parent = *this, .id = vibPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     vMixSlider.setWantsKeyboardFocus(true);
     vMixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -163,26 +163,26 @@ void GuiFx::setup()
 
     // Modern Bit Crusher Group
 	mbcGroup.setup(*this, GuiText::Group::fxMbc);
-    const juce::String mbcPrefix = code + PrKey::Innder::Fx::mbc;
+    const juce::String mbcPrefix = code + PrKey::mbc;
     mbcBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    mbcBypassBtn.setup({ .parent = *this, .id = mbcPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    mbcBypassBtn.setup({ .parent = *this, .id = mbcPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     mbcBypassBtn.setWantsKeyboardFocus(true);
     mbcBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     mbcMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    mbcBitsSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::Post::Fx::Mbc::bit, .title = GuiText::Fx::Mbc::bit, .isReset = true });
+    mbcBitsSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::Mbc::bit, .title = GuiText::Fx::Mbc::bit, .isReset = true });
     mbcBitsSlider.setWantsKeyboardFocus(true);
     mbcBitsSlider.setExplicitFocusOrder(++tabOrder);
 
-    mbcRateSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::Post::Fx::Mbc::rate, .title = GuiText::Fx::Mbc::rate, .isReset = true });
+    mbcRateSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::Mbc::rate, .title = GuiText::Fx::Mbc::rate, .isReset = true });
     mbcRateSlider.setWantsKeyboardFocus(true);
     mbcRateSlider.setExplicitFocusOrder(++tabOrder);
 
     mbcMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    mbcMixSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    mbcMixSlider.setup({ .parent = *this, .id = mbcPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     mbcMixSlider.setWantsKeyboardFocus(true);
     mbcMixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -206,26 +206,26 @@ void GuiFx::setup()
 
     // Delay Group
 	delayGroup.setup(*this, GuiText::Group::fxDelay);
-    const juce::String dlyPrefix = code + PrKey::Innder::Fx::dly;
+    const juce::String dlyPrefix = code + PrKey::dly;
     dBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    dBypassBtn.setup({ .parent = *this, .id = dlyPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    dBypassBtn.setup({ .parent = *this, .id = dlyPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     dBypassBtn.setWantsKeyboardFocus(true);
     dBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     dMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    dTimeSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::Post::Fx::Delay::time, .title = GuiText::Fx::Delay::time, .isReset = true });
+    dTimeSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::Delay::time, .title = GuiText::Fx::Delay::time, .isReset = true });
     dTimeSlider.setWantsKeyboardFocus(true);
     dTimeSlider.setExplicitFocusOrder(++tabOrder);
 
-    dFbSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::Post::Fx::Delay::fb, .title = GuiText::Fx::Delay::fb, .isReset = true });
+    dFbSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::Delay::fb, .title = GuiText::Fx::Delay::fb, .isReset = true });
     dFbSlider.setWantsKeyboardFocus(true);
     dFbSlider.setExplicitFocusOrder(++tabOrder);
 
     dMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    dMixSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    dMixSlider.setup({ .parent = *this, .id = dlyPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     dMixSlider.setWantsKeyboardFocus(true);
     dMixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -246,26 +246,26 @@ void GuiFx::setup()
 
     // Reverb Group
 	reverbGroup.setup(*this, GuiText::Group::fxReverb);
-    const juce::String rvbPrefix = code + PrKey::Innder::Fx::rvb;
+    const juce::String rvbPrefix = code + PrKey::rvb;
     rBypassCat.setup({ .parent = *this, .title = GuiText::Category::bypass });
 
-    rBypassBtn.setup({ .parent = *this, .id = rvbPrefix + PrKey::Post::bypass, .title = GuiText::Fx::bypass, .isReset = true });
+    rBypassBtn.setup({ .parent = *this, .id = rvbPrefix + PrKey::bypass, .title = GuiText::Fx::bypass, .isReset = true });
     rBypassBtn.setWantsKeyboardFocus(true);
     rBypassBtn.setExplicitFocusOrder(++tabOrder);
 
     rMainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    rSizeSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::Post::Fx::Reverb::size, .title = GuiText::Fx::Reverb::size, .isReset = true });
+    rSizeSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::Reverb::size, .title = GuiText::Fx::Reverb::size, .isReset = true });
     rSizeSlider.setWantsKeyboardFocus(true);
     rSizeSlider.setExplicitFocusOrder(++tabOrder);
 
-    rDampSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::Post::Fx::Reverb::damp, .title = GuiText::Fx::Reverb::damp, .isReset = true });
+    rDampSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::Reverb::damp, .title = GuiText::Fx::Reverb::damp, .isReset = true });
     rDampSlider.setWantsKeyboardFocus(true);
     rDampSlider.setExplicitFocusOrder(++tabOrder);
 
     rMixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
 
-    rMixSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::Post::Fx::mix, .title = GuiText::Fx::mix, .isReset = true });
+    rMixSlider.setup({ .parent = *this, .id = rvbPrefix + PrKey::mix, .title = GuiText::Fx::mix, .isReset = true });
     rMixSlider.setWantsKeyboardFocus(true);
     rMixSlider.setExplicitFocusOrder(++tabOrder);
 

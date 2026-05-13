@@ -5,12 +5,12 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Rhythm/Keys.h"
+#include "../../Processor/Rhythm/Values.h"
 #include "../../Core/Const/FileValues.h"
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> qualityItems = {
@@ -43,7 +43,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 {
     parent.addAndMakeVisible(this);
 
-    juce::String padPrefix = PrKey::Prefix::rhythm + PrKey::Innder::pad + juce::String(index);
+    juce::String padPrefix = PrKey::prefix + PrKey::pad + juce::String(index);
     juce::String padTitle = "Pad " + juce::String(index + 1) + " (" + padName + ")";
 
     // メイングループ
@@ -51,11 +51,11 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
 
-    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::mode, .title = GuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::mode, .title = GuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rate, .title = GuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::rate, .title = GuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
@@ -86,26 +86,26 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmOffset, .title = GuiText::Rhythm::Pad::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Pad::pcmOffset, .title = GuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + PrKey::Pad::pcmRatio, .title = GuiText::Rhythm::Pad::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // Vol
-    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::volume, .title = GuiText::Rhythm::Pad::vol, .isReset = true });
+    volSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::volume, .title = GuiText::Rhythm::Pad::vol, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
     // ワンショット機能トグル
-    oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::oneShot, .title = GuiText::Rhythm::Pad::oneShot, .isReset = true });
+    oneShotButton.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::oneShot, .title = GuiText::Rhythm::Pad::oneShot, .isReset = true });
     oneShotButton.setWantsKeyboardFocus(true);
     oneShotButton.setExplicitFocusOrder(++tabOrder);
 
     // 割り当てキーノート番号
-    noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::note, .title = GuiText::Rhythm::Pad::note, .isReset = true });
+    noteSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::note, .title = GuiText::Rhythm::Pad::note, .isReset = true });
     noteSlider.setRange(0, 127, 1);
     noteSlider.setWantsKeyboardFocus(true);
     noteSlider.setExplicitFocusOrder(++tabOrder);
@@ -117,7 +117,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
 
     // パンポット
-    panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::pan, .title = GuiText::Rhythm::Pad::pan, .isReset = true });
+    panSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::pan, .title = GuiText::Rhythm::Pad::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
@@ -140,7 +140,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
 
     // RR
-    rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Post::Rhythm::Pad::rr, .title = GuiText::Rhythm::Pad::rr, .isReset = true });
+    rrSlider.setup({ .parent = *this, .id = padPrefix + PrKey::Pad::rr, .title = GuiText::Rhythm::Pad::rr, .isReset = true });
     rrSlider.setWantsKeyboardFocus(true);
     rrSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -198,7 +198,7 @@ bool RhythmPadGui::isThis(juce::Button* button)
 
 void GuiRhythm::setup()
 {
-    const juce::String code = PrKey::Prefix::rhythm;
+    const juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     // パッド名定義
@@ -214,7 +214,7 @@ void GuiRhythm::setup()
 
     mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
 
-    levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Rhythm::level, .title = GuiText::Rhythm::vol, .isReset = true });
+    levelSlider.setup({ .parent = *this, .id = code + PrKey::level, .title = GuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 

@@ -7,9 +7,9 @@
 
 #include "../Processor/PluginProcessor.h"
 
-#include "../Const/PrKeys.h"
+#include "../Processor/Keys.h"
 #include "../Const/FileValues.h"
-#include "../Const/PresetKeys.h"
+#include "../../Gui/Preset/Keys.h"
 
 #include "../Fm/SliderRegMap.h"
 #include "../Fm/RegisterConverter.h"
@@ -48,7 +48,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
-    audioProcessor.apvts.addParameterListener(PrKey::mode, this);
+    audioProcessor.apvts.addParameterListener(CorePrKey::mode, this);
 
     setupLogo();
 
@@ -75,7 +75,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     setupTabs(tabs);
 
-    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(PrKey::mode);
+    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CorePrKey::mode);
     tabs.setCurrentTabIndex(currentMode);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
@@ -115,8 +115,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
 
         // ウィンドウの幅を動的に変更
-        int newWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
-        int height = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
+        int newWidth = isPreviewVisible ? CoreGuiValue::Window::width + CoreGuiValue::Preview::extraWidth : CoreGuiValue::Window::width;
+        int height = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
         setSize(newWidth, height); // 高さは固定、幅を伸縮
 
         // タイマーのON/OFFを切り替え
@@ -214,8 +214,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
 
-    int initialHeight = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
-    setSize(GuiValue::Window::width, initialHeight);
+    int initialHeight = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
+    setSize(CoreGuiValue::Window::width, initialHeight);
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -229,7 +229,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 
     rhythmGui->removeLoadButtonListener(this);
 
-    audioProcessor.apvts.removeParameterListener(PrKey::mode, this);
+    audioProcessor.apvts.removeParameterListener(CorePrKey::mode, this);
 
     audioProcessor.undoManager.removeChangeListener(this);
 
@@ -248,7 +248,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
             audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
 
-            auto* param = audioProcessor.apvts.getParameter(PrKey::mode);
+            auto* param = audioProcessor.apvts.getParameter(CorePrKey::mode);
             if (param != nullptr)
             {
                 float normalizedValue = param->getNormalisableRange().convertTo0to1((float)targetMode);
@@ -286,18 +286,18 @@ void AudioPlugin2686VEditor::resized()
     // 画面の一番下を鍵盤UIに割り当てる
     if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
     {
-        midiKeyboard->setBounds(area.removeFromBottom(GuiValue::KeyboardHeight));
+        midiKeyboard->setBounds(area.removeFromBottom(CoreGuiValue::KeyboardHeight));
     }
 
     if (isPreviewVisible)
     {
-        auto rightArea = area.removeFromRight(GuiValue::Preview::extraWidth);
+        auto rightArea = area.removeFromRight(CoreGuiValue::Preview::extraWidth);
         // 上下に並べる
-        staticPreview.setBounds(rightArea.getX() + 4, 30, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
-        realtimePreview.setBounds(rightArea.getX() + 4, 330, GuiValue::Preview::drawSize, GuiValue::Preview::drawSize);
+        staticPreview.setBounds(rightArea.getX() + 4, 30, CoreGuiValue::Preview::drawSize, CoreGuiValue::Preview::drawSize);
+        realtimePreview.setBounds(rightArea.getX() + 4, 330, CoreGuiValue::Preview::drawSize, CoreGuiValue::Preview::drawSize);
     }
 
-    int previewPaddingRight = isPreviewVisible ? GuiValue::Preview::drawSize + 8: 0;
+    int previewPaddingRight = isPreviewVisible ? CoreGuiValue::Preview::drawSize + 8: 0;
     togglePreviewBtn.setBounds(getWidth() - 45, 5, 40, 20);
     panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
@@ -311,13 +311,13 @@ void AudioPlugin2686VEditor::resized()
     initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
 #endif
 
-    logoLabel.setBounds(area.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height));
+    logoLabel.setBounds(area.reduced(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height));
 
     tabs.setBounds(area);
 
     // タブの中身（コンテンツ領域）
     auto content = tabs.getLocalBounds();
-    content.removeFromTop(tabs.getTabBarDepth()).reduce(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height); // 全体の余白
+    content.removeFromTop(tabs.getTabBarDepth()).reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
 
     opnaGui->layout(content);
     opnGui->layout(content);
@@ -341,7 +341,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
     auto fullArea = getLocalBounds().toFloat();
 
     // 拡張パネルを含まない、本来のメイン画面の固定サイズ
-    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)GuiValue::Window::width, (float)GuiValue::Window::height);
+    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)CoreGuiValue::Window::width, (float)CoreGuiValue::Window::height);
 
     if (backgroundImage.isValid())
     {
@@ -398,13 +398,13 @@ void AudioPlugin2686VEditor::setupLogo()
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
-    logoLabel.setFont(juce::Font(GuiValue::WaterMarkLogo::fontFamily, GuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(CoreGuiValue::WaterMarkLogo::fontFamily, CoreGuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
 
     // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
 
     // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(GuiValue::WaterMarkLogo::fontAlpha));
+    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(CoreGuiValue::WaterMarkLogo::fontAlpha));
 
     addAndMakeVisible(logoLabel);
 
@@ -415,21 +415,21 @@ void AudioPlugin2686VEditor::setupLogo()
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
-    tabs.addTab(GuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
-    tabs.addTab(GuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
-    tabs.addTab(GuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
-    tabs.addTab(GuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
-    tabs.addTab(GuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
-    tabs.addTab(GuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
-    tabs.addTab(GuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
-    tabs.addTab(GuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
-    tabs.addTab(GuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
-    tabs.addTab(GuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
-    tabs.addTab(GuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
-    tabs.addTab(GuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
-    tabs.addTab(GuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
-    tabs.addTab(GuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(GuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
+    tabs.addTab(CoreGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
 }
 
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
@@ -461,7 +461,7 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     }
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
-    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(PrKey::mode);
+    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CorePrKey::mode);
     if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
         audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
         tabs.setCurrentTabIndex(loadedMode);
@@ -653,7 +653,7 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
     {
         auto content = tabs.getLocalBounds();
         content.removeFromTop(tabs.getTabBarDepth());
-        content.reduce(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height); // 全体の余白
+        content.reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
 
         wtGui->layout(content);
     }
@@ -860,8 +860,8 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
     }
 
     // プレビューの開閉状態（幅）と、キーボードの開閉状態（高さ）を両方考慮してリサイズ
-    int targetWidth = isPreviewVisible ? GuiValue::Window::width + GuiValue::Preview::extraWidth : GuiValue::Window::width;
-    int targetHeight = audioProcessor.showVirtualKeyboard ? GuiValue::Window::height + GuiValue::KeyboardHeight : GuiValue::Window::height;
+    int targetWidth = isPreviewVisible ? CoreGuiValue::Window::width + CoreGuiValue::Preview::extraWidth : CoreGuiValue::Window::width;
+    int targetHeight = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
 
     setSize(targetWidth, targetHeight);
 }
@@ -904,7 +904,7 @@ void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    if (parameterID == PrKey::mode)
+    if (parameterID == CorePrKey::mode)
     {
         int idx = (int)newValue;
 

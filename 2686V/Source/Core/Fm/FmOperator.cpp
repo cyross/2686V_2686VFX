@@ -1,7 +1,6 @@
 ﻿#include <array>
 
 #include "./FmOperator.h"
-#include "../Const/PrValues.h"
 
 // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
 // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。

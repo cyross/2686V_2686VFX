@@ -5,8 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 
 #include "../../Core/Const/FileValues.h"
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Opna/Keys.h"
+#include "../../Processor/Opna/Values.h"
 #include "../../Core/Const/MmlKeys.h"
 #include "../../Core/Const/MmlValues.h"
 
@@ -14,9 +14,9 @@
 #include "../../Core/Fm/FmMmlFormatter.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
-#include "../../Core/Gui/GuiText.h"
 
 static std::vector<SelectItem> bdItems = {
     {.name = "1: 4-bit (16 steps)",  .value = 1 },
@@ -178,7 +178,7 @@ void GuiOpna::setup()
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
     setWantsKeyboardFocus(true);
 
-    const juce::String code = PrKey::Prefix::opna;
+    const juce::String code = PrKey::prefix;
     int tabOrder = 1;
 
     mainGroup.setup(*this, GuiText::Group::mainGroup);
@@ -191,34 +191,34 @@ void GuiOpna::setup()
 
     qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
 
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = *this, .id = code + PrKey::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + PrKey::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     algFbCat.setup({ .parent = *this, .title = GuiText::Category::algFb });
 
-    algSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::alg, .title = GuiText::Fm::alg, .items = opnaAlgItems, .isReset = true });
+    algSelector.setup({ .parent = *this, .id = code + PrKey::alg, .title = GuiText::Fm::alg, .items = opnaAlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
     algSelector.setExplicitFocusOrder(++tabOrder);
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
     };
 
-    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb0, .title = GuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + PrKey::fb0, .title = GuiText::Fm::fb0, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    feedback2Slider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::fb2, .title = GuiText::Fm::fb2, .isReset = true });
+    feedback2Slider.setup({ .parent = *this, .id = code + PrKey::fb2, .title = GuiText::Fm::fb2, .isReset = true });
     feedback2Slider.setWantsKeyboardFocus(true);
     feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
 
-    panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::pan, .title = GuiText::Fm::pan, .isReset = true });
+    panSlider.setup({ .parent = *this, .id = code + PrKey::pan, .title = GuiText::Fm::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -245,20 +245,20 @@ void GuiOpna::setup()
 
     lfoCat.setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::freq, .title = GuiText::Fm::lfoSpeed, .isReset = true });
+    lfoFreqSlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::freq, .title = GuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
+    lfoShapeSelector.setup({ .parent = *this, .id = code + PrKey::N88Lfo::shape, .title = GuiText::Fm::lfoShape, .items = lfoShapeItems, .isReset = true });
     lfoShapeSelector.setWantsKeyboardFocus(true);
     lfoShapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::amSmoothRatio, .title = GuiText::Fm::amSmoothRatio, .isReset = true });
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::syncDelay, .title = GuiText::Fm::lfoSyncDelay, .isReset = true });
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::syncDelay, .title = GuiText::Fm::lfoSyncDelay, .isReset = true });
     lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoSyncDelaySlider.setWantsKeyboardFocus(true);
     lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
@@ -277,23 +277,23 @@ void GuiOpna::setup()
         lfoSyncDelaySlider.setValue(1.0f);
         };
 
-    lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
+    lfoPmToggle.setup({ .parent = *this, .id = code + PrKey::N88Lfo::pm, .title = GuiText::Fm::pmEn, .isReset = true });
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
+    lfoPmdSlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::pmd, .title = GuiText::Fm::pmd, .isReset = true });
     lfoPmdSlider.setWantsKeyboardFocus(true);
     lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
+    lfoPmsSlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::pms, .title = GuiText::Fm::pms, .isReset = true });
     lfoPmsSlider.setWantsKeyboardFocus(true);
     lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
+    lfoAmToggle.setup({ .parent = *this, .id = code + PrKey::N88Lfo::am, .title = GuiText::Fm::amEn, .isReset = true });
     lfoAmToggle.setWantsKeyboardFocus(true);
     lfoAmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
+    lfoAmdSlider.setup({ .parent = *this, .id = code + PrKey::N88Lfo::amd, .title = GuiText::Fm::amd, .isReset = true });
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -326,7 +326,7 @@ void GuiOpna::setup()
     // 画像コンポーネントを画面に追加
     addAndMakeVisible(algImageComp);
 
-    const juce::String opCode = code + PrKey::Innder::op;
+    const juce::String opCode = code + PrKey::op;
 
     for (int i = 0; i < 4; ++i)
     {
@@ -336,59 +336,59 @@ void GuiOpna::setup()
 
         catMain[i].setup({ .parent = *this, .title = GuiText::Category::m });
 
-        mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mul, .title = GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::mul, .title = GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
-        dt[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
+        dt[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::dt, .title = GuiText::Fm::Op::Dt, .items = dtItems, .isReset = true, .regType = RegisterType::FmDt });
         dt[i].setWantsKeyboardFocus(true);
         dt[i].setExplicitFocusOrder(++tabOrder);
 
-        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
+        rgAr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgAr, .title = GuiText::Fm::Op::Ar, .isReset = true });
         rgAr[i].setWantsKeyboardFocus(true);
         rgAr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgDr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgDr, .title = GuiText::Fm::Op::Dr, .isReset = true });
+        rgDr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgDr, .title = GuiText::Fm::Op::Dr, .isReset = true });
         rgDr[i].setWantsKeyboardFocus(true);
         rgDr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
+        rgSl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgSl, .title = GuiText::Fm::Op::Sl, .isReset = true });
         rgSl[i].setWantsKeyboardFocus(true);
         rgSl[i].setExplicitFocusOrder(++tabOrder);
 
-        rgSr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgSr, .title = GuiText::Fm::Op::Sr, .isReset = true });
+        rgSr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgSr, .title = GuiText::Fm::Op::Sr, .isReset = true });
         rgSr[i].setWantsKeyboardFocus(true);
         rgSr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgRr, .title = GuiText::Fm::Op::Rr, .isReset = true });
         rgRr[i].setWantsKeyboardFocus(true);
         rgRr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::rgTl, .title = GuiText::Fm::Op::Tl, .isReset = true });
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
-        ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ks, .title = GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true, .regType = RegisterType::FmKs });
+        ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::ks, .title = GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true, .regType = RegisterType::FmKs });
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
         catShape[i].setup({ .parent = *this, .title = GuiText::Category::shape });
 
-        se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::se, .title = GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
+        se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::se, .title = GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
         se[i].setWantsKeyboardFocus(true);
         se[i].setExplicitFocusOrder(++tabOrder);
 
-        seFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::seFreq, .title = GuiText::Fm::Op::SFreq, .isReset = true });
+        seFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::seFreq, .title = GuiText::Fm::Op::SFreq, .isReset = true });
         seFreq[i].setWantsKeyboardFocus(true);
         seFreq[i].setExplicitFocusOrder(++tabOrder);
 
         catLfo[i].setup({ .parent = *this, .title = GuiText::Category::hwLfo });
 
-        freqs[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::freqs, .title = GuiText::Fm::Op::Freqs, .items = lfoFreqsItems, .isReset = true });
+        freqs[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::freqs, .title = GuiText::Fm::Op::Freqs, .items = lfoFreqsItems, .isReset = true });
         freqs[i].setWantsKeyboardFocus(true);
         freqs[i].setExplicitFocusOrder(++tabOrder);
 
-        syncDelay[i].setup({.parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::syncDelay, .title = GuiText::Fm::Op::SyncDelay, .isReset = true});
+        syncDelay[i].setup({.parent = *this, .id = paramPrefix + PrKey::syncDelay, .title = GuiText::Fm::Op::SyncDelay, .isReset = true});
         syncDelay[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         syncDelay[i].setWantsKeyboardFocus(true);
         syncDelay[i].setExplicitFocusOrder(++tabOrder);
@@ -407,35 +407,35 @@ void GuiOpna::setup()
             syncDelay[i].setValue(1.0f);
             };
 
-        pm[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::vib, .title = GuiText::Fm::Op::PmEn, .isReset = true });
+        pm[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::vib, .title = GuiText::Fm::Op::PmEn, .isReset = true });
         pm[i].setWantsKeyboardFocus(true);
         pm[i].setExplicitFocusOrder(++tabOrder);
 
-        pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::pms, .title = GuiText::Fm::Op::Pms, .items = hwPmsItems, .isReset = true });
+        pms[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::pms, .title = GuiText::Fm::Op::Pms, .items = hwPmsItems, .isReset = true });
         pms[i].setWantsKeyboardFocus(true);
         pms[i].setExplicitFocusOrder(++tabOrder);
 
-        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::am, .title = GuiText::Fm::Op::AmEn, .isReset = true });
+        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::am, .title = GuiText::Fm::Op::AmEn, .isReset = true });
         am[i].setWantsKeyboardFocus(true);
         am[i].setExplicitFocusOrder(++tabOrder);
 
-        ams[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::ams, .title = GuiText::Fm::Op::Ams, .items = hwAmsItems, .isReset = true });
+        ams[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + PrKey::ams, .title = GuiText::Fm::Op::Ams, .items = hwAmsItems, .isReset = true });
         ams[i].setWantsKeyboardFocus(true);
         ams[i].setExplicitFocusOrder(++tabOrder);
 
         catN88Lfo[i].setup({ .parent = *this, .title = GuiText::Category::n88Lfo });
 
-        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::n88Ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
+        n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::n88Ams, .title = GuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
         cafFix[i].setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
-        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
+        fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::fix, .title = GuiText::Fm::Op::Fix, .isReset = true });
         fix[i].setWantsKeyboardFocus(true);
         fix[i].setExplicitFocusOrder(++tabOrder);
 
-        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
+        freq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + PrKey::fixFreq, .title = GuiText::Fm::Op::FFreq, .isReset = true });
         freq[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         freq[i].setWantsKeyboardFocus(true);
         freq[i].setExplicitFocusOrder(++tabOrder);
@@ -452,7 +452,7 @@ void GuiOpna::setup()
 
         catMask[i].setup({ .parent = *this, .title = GuiText::Category::visibleMask, .invisibleTitle = GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
-        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::Post::Fm::Op::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
+        mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + PrKey::mask, .title = GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 

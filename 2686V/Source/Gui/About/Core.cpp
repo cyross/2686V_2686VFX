@@ -1,7 +1,7 @@
 ﻿#include "./Core.h"
 
 #include "../../Core/Const/Global.h"
-#include "../../Core/Gui/GuiValues.h"
+#include "./GuiValues.h"
 
 void GuiAbout::setup()
 {

@@ -383,7 +383,7 @@ void GuiFbSlider::setup(const GuiSlider::Config& c)
 void GuiMasterVolumeSlider::setup(const GuiSlider::Config& c)
 {
     GuiSlider::setup(c);
-    GuiSlider::setTextValueSuffix(GuiText::MasterVol::unit); // 単位表示
+    GuiSlider::setTextValueSuffix(CoreGuiText::MasterVol::unit); // 単位表示
 }
 
 void GuiMmlButton::setupMml(const MmlConfig& c)

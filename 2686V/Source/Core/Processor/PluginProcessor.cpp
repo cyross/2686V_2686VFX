@@ -1,8 +1,8 @@
 ﻿#include "PluginProcessor.h"
 
-#include "../Const/PrNames.h"
-#include "../Const/SettingsKeys.h"
-#include "../Const/SettingsValues.h"
+#include "../Processor/Names.h"
+#include "../../Gui/Settings/Keys.h"
+#include "../../Gui/Settings/Values.h"
 
 #include "../Gui/GuiValues.h"
 
@@ -44,7 +44,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(PrKey::mode, PrName::mode, 0, GuiValue::TabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(CorePrKey::mode, CorePrName::mode, 0, CoreGuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
 	prOpn.createLayout(layout);
@@ -63,16 +63,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
     // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        PrKey::masterVol,      // パラメータID
-        PrName::master_vol,      // 表示名
-        juce::NormalisableRange<float>(PrValue::MasterVol::min, PrValue::MasterVol::max, PrValue::MasterVol::interval, PrValue::MasterVol::skew), // 範囲とステップ
-        PrValue::MasterVol::initial              // デフォルト値
+        CorePrKey::masterVol,      // パラメータID
+        CorePrName::master_vol,      // 表示名
+        juce::NormalisableRange<float>(CorePrValue::MasterVol::min, CorePrValue::MasterVol::max, CorePrValue::MasterVol::interval, CorePrValue::MasterVol::skew), // 範囲とステップ
+        CorePrValue::MasterVol::initial              // デフォルト値
     ));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        PrKey::monoMode,
-        PrName::monoMode,
-        PrValue::MonoMode::initial
+        CorePrKey::monoMode,
+        CorePrName::monoMode,
+        CorePrValue::MonoMode::initial
     ));
 
     return layout;
@@ -126,7 +126,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     buffer.clear();
 
     // --- Global ---
-    int m = (int)*apvts.getRawParameterValue(PrKey::mode);
+    int m = (int)*apvts.getRawParameterValue(CorePrKey::mode);
     params.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
     switch (params.mode)
@@ -166,7 +166,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         break;
     }
 
-    bool isMono = (*apvts.getRawParameterValue(PrKey::monoMode) > 0.5f);
+    bool isMono = (*apvts.getRawParameterValue(CorePrKey::monoMode) > 0.5f);
 
     m_synth.isMonoMode = isMono;
     params.monoMode = isMono;
@@ -191,7 +191,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
 	prFx.processBlock(buffer, params, apvts);
 
-    float dbValue = *apvts.getRawParameterValue(PrKey::masterVol);
+    float dbValue = *apvts.getRawParameterValue(CorePrKey::masterVol);
 
     // 2. dBをリニアな倍率(0.0 ～ 2.0くらい)に変換
     // -60dBなら 0.001, 0dBなら 1.0, +6dBなら 2.0
@@ -336,7 +336,7 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
-    int currentMode = (int)*apvts.getRawParameterValue(PrKey::mode);
+    int currentMode = (int)*apvts.getRawParameterValue(CorePrKey::mode);
     if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
         lastActiveSynthMode = (OscMode)currentMode;
     }
@@ -505,10 +505,10 @@ void AudioPlugin2686V::loadPreset(const juce::File& file)
 
 void AudioPlugin2686V::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
 {
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::ar, prefix + PrKey::Post::Adsr::ar, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::dr, prefix + PrKey::Post::Adsr::dr, PrValue::Adsr::Ar::min, PrValue::Adsr::Ar::max, PrValue::Adsr::Ar::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::sl, prefix + PrKey::Post::Adsr::sl, PrValue::Adsr::Sl::min, PrValue::Adsr::Sl::max, PrValue::Adsr::Sl::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + PrKey::Post::Adsr::rr, prefix + PrKey::Post::Adsr::rr, PrValue::Adsr::Rr::min, PrValue::Adsr::Rr::max, PrValue::Adsr::Rr::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::ar, prefix + CorePrKey::Post::Adsr::ar, CorePrValue::Adsr::Ar::min, CorePrValue::Adsr::Ar::max, CorePrValue::Adsr::Ar::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::dr, prefix + CorePrKey::Post::Adsr::dr, CorePrValue::Adsr::Ar::min, CorePrValue::Adsr::Ar::max, CorePrValue::Adsr::Ar::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::sl, prefix + CorePrKey::Post::Adsr::sl, CorePrValue::Adsr::Sl::min, CorePrValue::Adsr::Sl::max, CorePrValue::Adsr::Sl::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::rr, prefix + CorePrKey::Post::Adsr::rr, CorePrValue::Adsr::Rr::min, CorePrValue::Adsr::Rr::max, CorePrValue::Adsr::Rr::initial));
 }
 
 // 環境設定を保存
@@ -890,7 +890,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 {
     // 1. パラメータの取得と設定
     SynthParams currentParams;
-    int m = (int)*apvts.getRawParameterValue(PrKey::mode);
+    int m = (int)*apvts.getRawParameterValue(CorePrKey::mode);
     currentParams.mode = (OscMode)m;
 
     switch (currentParams.mode) {
@@ -936,7 +936,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     tempFx.processBlock(renderBuffer, currentParams, apvts);
 
     // マスターボリュームとソフトクリッパーの適用
-    float dbValue = *apvts.getRawParameterValue(PrKey::masterVol);
+    float dbValue = *apvts.getRawParameterValue(CorePrKey::masterVol);
     float linearGain = juce::Decibels::decibelsToGain(dbValue);
 
     for (int ch = 0; ch < renderBuffer.getNumChannels(); ++ch) {
