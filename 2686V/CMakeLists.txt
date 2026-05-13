@@ -432,6 +432,8 @@ set(FX_PROCESSOR_FILES
 )
 
 set(FX_GUI_FILES
+    "Source/Gui/Fx/GuiText.h"
+    "Source/Gui/Fx/GuiValues.h"
     "Source/Gui/Fx/Core.h"
     "Source/Gui/Fx/Core.cpp"
 )

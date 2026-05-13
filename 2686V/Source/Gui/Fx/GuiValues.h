@@ -567,9 +567,14 @@ namespace GuiValue
 	{
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
+		static inline constexpr int MainWidth = 300;
+		static inline constexpr int MainHeight = 60;
+		static inline constexpr int AreaWidth = 150;
 		static inline constexpr int AreaHeightBig = 190;
 		static inline constexpr int AreaHeightMini = 120;
 		static inline constexpr int AreaHeight = 170;
+		static inline constexpr int AreaLabelWidth = 40;
+		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;
 		static inline constexpr int BypassWidth = 120;
 		static inline constexpr int GroupHeight = 200;

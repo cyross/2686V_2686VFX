@@ -8,7 +8,7 @@ namespace CoreGuiValue
 {
 	namespace Window
 	{
-		static inline constexpr int width = 1280;
+		static inline constexpr int width = 1580;
 		static inline constexpr int height = 800;
 	}
 

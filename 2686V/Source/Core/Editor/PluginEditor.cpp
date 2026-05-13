@@ -214,6 +214,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
 
+    addAndMakeVisible(*fxGui);
+    fxGui->setVisible(true);
+
     int initialHeight = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
     setSize(CoreGuiValue::Window::width, initialHeight);
 }
@@ -317,23 +320,27 @@ void AudioPlugin2686VEditor::resized()
 
     // タブの中身（コンテンツ領域）
     auto content = tabs.getLocalBounds();
-    content.removeFromTop(tabs.getTabBarDepth()).reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
+    auto tabContent = content.removeFromLeft(content.getWidth() - 300);
+    tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
 
-    opnaGui->layout(content);
-    opnGui->layout(content);
-    oplGui->layout(content);
-    opl3Gui->layout(content);
-    opmGui->layout(content);
-    opzx7Gui->layout(content);
-    ssgGui->layout(content);
-    wtGui->layout(content);
-    rhythmGui->layout(content);
-    adpcmGui->layout(content);
-    beepGui->layout(content);
+    opnaGui->layout(tabContent);
+    opnGui->layout(tabContent);
+    oplGui->layout(tabContent);
+    opl3Gui->layout(tabContent);
+    opmGui->layout(tabContent);
+    opzx7Gui->layout(tabContent);
+    ssgGui->layout(tabContent);
+    wtGui->layout(tabContent);
+    rhythmGui->layout(tabContent);
+    adpcmGui->layout(tabContent);
+    beepGui->layout(tabContent);
+    presetGui->layout(tabContent);
+    settingsGui->layout(tabContent);
+    aboutGui->layout(tabContent);
+    
+    content.removeFromTop(tabs.getTabBarDepth());
+    fxGui->setBounds(content);
     fxGui->layout(content);
-    presetGui->layout(content);
-    settingsGui->layout(content);
-    aboutGui->layout(content);
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
@@ -426,7 +433,6 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(CoreGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(CoreGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(CoreGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::fx, juce::Colours::transparentBlack, fxGui.get(), true);
     tabs.addTab(CoreGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(CoreGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(CoreGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
@@ -1103,11 +1109,6 @@ void AudioPlugin2686VEditor::pasteFmParamsFromObject()
 void AudioPlugin2686VEditor::initParams()
 {
     int targetMode = tabs.getCurrentTabIndex();
-
-    if (targetMode == ((int)OscMode::BEEP + 1)) // FXタブ
-    {
-        fxGui->initParams();
-    }
 
     switch ((OscMode)targetMode)
     {

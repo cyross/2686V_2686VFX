@@ -83,7 +83,7 @@ namespace GuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = u8"Main";
+		static inline const juce::String mainGroup = u8"FX";
 		static inline const juce::String opPrefix = u8"Op";
 		static inline const juce::String voice = u8"Voice";
 		static inline const juce::String ssgDuty = u8"Pulse Width (Duty)";
@@ -367,6 +367,7 @@ namespace GuiText
 	{
 		static inline const juce::String masterBypass = u8"Bypass";
 		static inline const juce::String bypass = u8"Bypass";
+		static inline const juce::String reset = u8"Reset";
 		static inline const juce::String mix = u8"Mix";
 		
 		namespace Mix
