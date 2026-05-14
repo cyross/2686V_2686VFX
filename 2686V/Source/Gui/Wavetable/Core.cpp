@@ -176,12 +176,6 @@ void GuiWt::setup()
     stepsSelector.setWantsKeyboardFocus(true);
     stepsSelector.setExplicitFocusOrder(++tabOrder);
     stepsSelector.onChange = [this] {
-        // ステップ数が変わると、段階による値が変わるため、いったんリセットする
-        customSliders32.setAllValues(0.0f);
-        customSliders64.setAllValues(0.0f);
-        customSliders128.setAllValues(0.0f);
-        customSliders256.setAllValues(0.0f);
-
         auto applySteps = [this] {
             int stepsIndex = stepsSelector.getSelectedId() - 1;
             int steps = 0;
