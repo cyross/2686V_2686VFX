@@ -448,6 +448,8 @@ set(PRESET_GUI_FILES
 )
 
 set(SETTINGS_GUI_FILES
+    "Source/Gui/Settings/GuiText.h"
+    "Source/Gui/Settings/GuiValues.h"
     "Source/Gui/Settings/Keys.h"
     "Source/Gui/Settings/Values.h"
     "Source/Gui/Settings/Core.h"

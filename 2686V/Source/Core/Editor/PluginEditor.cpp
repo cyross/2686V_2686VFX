@@ -1136,6 +1136,9 @@ void AudioPlugin2686VEditor::initParams()
     case OscMode::WAVETABLE:
         wtGui->initParams();
         break;
+    case OscMode::RHYTHM:
+        rhythmGui->initParams();
+        break;
     case OscMode::ADPCM:
         adpcmGui->initParams();
         break;

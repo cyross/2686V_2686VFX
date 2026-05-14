@@ -4,7 +4,7 @@
 
 #include <JuceHeader.h>
 
-namespace GuiValue
+namespace Opzx7GuiValue
 {
 	namespace Window
 	{

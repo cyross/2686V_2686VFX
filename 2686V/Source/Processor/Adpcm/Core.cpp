@@ -6,42 +6,42 @@
 
 void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = PrKey::prefix;
+    const juce::String code = AdpcmPrKey::prefix;
 
     // ==========================================
     // ADPCM Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::level, code + PrName::level, PrValue::Level::min, PrValue::Level::max, PrValue::Level::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::pan, code + PrName::pan, PrValue::Pan::min, PrValue::Pan::max, PrValue::Pan::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::loop, code + PrName::loop, PrValue::Loop::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::mode, code + PrName::bit, PrValue::Bit::min, PrValue::Bit::max, PrValue::Bit::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + PrKey::rate, code + PrName::rate, PrValue::Rate::min, PrValue::Rate::max, PrValue::Rate::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::pcmOffset, code + PrName::pcmOffset, PrValue::Offset::min, PrValue::Offset::max, PrValue::Offset::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + PrKey::pcmRatio, code + PrName::pcmRatio, PrValue::Ratio::min, PrValue::Ratio::max, PrValue::Ratio::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::level, code + AdpcmPrName::level, AdpcmPrValue::Level::min, AdpcmPrValue::Level::max, AdpcmPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pan, code + AdpcmPrName::pan, AdpcmPrValue::Pan::min, AdpcmPrValue::Pan::max, AdpcmPrValue::Pan::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::loop, code + AdpcmPrName::loop, AdpcmPrValue::Loop::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::mode, code + AdpcmPrName::bit, AdpcmPrValue::Bit::min, AdpcmPrValue::Bit::max, AdpcmPrValue::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::rate, code + AdpcmPrName::rate, AdpcmPrValue::Rate::min, AdpcmPrValue::Rate::max, AdpcmPrValue::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmOffset, code + AdpcmPrName::pcmOffset, AdpcmPrValue::Offset::min, AdpcmPrValue::Offset::max, AdpcmPrValue::Offset::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmRatio, code + AdpcmPrName::pcmRatio, AdpcmPrValue::Ratio::min, AdpcmPrValue::Ratio::max, AdpcmPrValue::Ratio::initial));
 
     // ADSR Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::adsr + PrKey::bypass, code + PrName::Adsr::bypass, PrValue::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, code + AdpcmPrName::Adsr::bypass, AdpcmPrValue::Adsr::Bypass::initial));
 
     addEnvParameters(layout, code);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = PrKey::prefix;
+    const juce::String code = AdpcmPrKey::prefix;
 
     // get Bool value
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
-    params.adpcm.level = *apvts.getRawParameterValue(code + PrKey::level);
-    params.adpcm.pan = *apvts.getRawParameterValue(code + PrKey::pan);
-    params.adpcm.loop = (*apvts.getRawParameterValue(code + PrKey::loop) > PrValue::boolThread);
-    params.adpcm.qualityMode = (int)*apvts.getRawParameterValue(code + PrKey::mode);
-    params.adpcm.rateIndex = (int)*apvts.getRawParameterValue(code + PrKey::rate);
-    params.adpcm.offset = *apvts.getRawParameterValue(code + PrKey::pcmOffset);
-    params.adpcm.ratio = *apvts.getRawParameterValue(code + PrKey::pcmRatio);
+    params.adpcm.level = *apvts.getRawParameterValue(code + AdpcmPrKey::level);
+    params.adpcm.pan = *apvts.getRawParameterValue(code + AdpcmPrKey::pan);
+    params.adpcm.loop = (*apvts.getRawParameterValue(code + AdpcmPrKey::loop) > AdpcmPrValue::boolThread);
+    params.adpcm.qualityMode = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::mode);
+    params.adpcm.rateIndex = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::rate);
+    params.adpcm.offset = *apvts.getRawParameterValue(code + AdpcmPrKey::pcmOffset);
+    params.adpcm.ratio = *apvts.getRawParameterValue(code + AdpcmPrKey::pcmRatio);
 
-    params.adpcm.adsr.bypass = (*apvts.getRawParameterValue(code + PrKey::adsr + PrKey::bypass) > PrValue::boolThread);
-    params.adpcm.adsr.ar = *apvts.getRawParameterValue(code + PrKey::Adsr::ar);
-    params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + PrKey::Adsr::dr);
-    params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + PrKey::Adsr::sl);
-    params.adpcm.adsr.rr = *apvts.getRawParameterValue(code + PrKey::Adsr::rr);
+    params.adpcm.adsr.bypass = (*apvts.getRawParameterValue(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass) > AdpcmPrValue::boolThread);
+    params.adpcm.adsr.ar = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::ar);
+    params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::dr);
+    params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::sl);
+    params.adpcm.adsr.rr = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::rr);
 }

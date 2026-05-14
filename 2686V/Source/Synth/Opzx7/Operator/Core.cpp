@@ -287,7 +287,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber)
     // ========================================================
     float baseFreq = frequency;
 
-    if (m_params.waveSelect == PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         // オフセットとレシオを考慮した再生区間の計算
         size_t totalSize = m_pcmBuffer->size();
@@ -476,7 +476,7 @@ void Opzx7Operator::getSample(float& output, float modulator,
     // --------------------------------------------------------
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    if (m_params.waveSelect == PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         size_t totalSize = m_pcmBuffer->size();
         size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
@@ -560,7 +560,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     // =================================================================
     // 波形メモリの特別処理 (メンバ変数へのアクセスが必要なため分離)
     // =================================================================
-    if (m_params.waveSelect == PrValue::wtIndex)
+    if (m_params.waveSelect == Opzx7PrValue::wtIndex)
     {
         if (m_wtBuffer != nullptr && !m_wtBuffer->empty())
         {

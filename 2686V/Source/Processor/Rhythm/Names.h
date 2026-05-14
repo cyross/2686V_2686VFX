@@ -5,7 +5,7 @@
 #include "../../Core/Processor/Names.h"
 
 // UI上に表示するタイトル等を管理
-namespace PrName
+namespace RhythmPrName
 {
 	static inline const juce::String vol = " Vol";
 	static inline const juce::String pad = " Pad";

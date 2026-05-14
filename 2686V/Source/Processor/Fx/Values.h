@@ -4,7 +4,7 @@
 
 #include "../../Core/Processor/Values.h"
 
-namespace PrValue
+namespace FxPrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 

@@ -5,7 +5,7 @@
 #include "../../Core/Processor/Names.h"
 
 // UI上に表示するタイトル等を管理
-namespace PrName
+namespace AdpcmPrName
 {
 	static inline const juce::String pan = " Pan";
 	static inline const juce::String rate = " Rate";

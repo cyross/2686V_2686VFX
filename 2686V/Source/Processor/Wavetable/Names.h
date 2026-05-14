@@ -5,7 +5,7 @@
 #include "../../Core/Processor/Names.h"
 
 // UI上に表示するタイトル等を管理
-namespace PrName
+namespace WtPrName
 {
 	static inline const juce::String custom32 = " Custom32 ";
 	static inline const juce::String custom64 = " Custom64 ";

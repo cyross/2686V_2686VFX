@@ -6,7 +6,7 @@
 
 #include "../../Core/Processor/Keys.h"
 
-namespace PrKey
+namespace OpnaPrKey
 {
 	static inline const juce::String prefix = "OPNA";
 

@@ -14,8 +14,8 @@ struct SsgParams
     int bitDepth = 3; // Default 8bit (or 4bit to be like real hardware volume steps?)
 
     // --- Sampling Rate ---
-    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    int rateIndex = 1; // Default 55.5kHz (Standard SSG/OPNA rate)
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
+    int rateIndex = 3; // Default 49.7kHz
 
     // --- Tone Level ---
     float level = 1.0f;

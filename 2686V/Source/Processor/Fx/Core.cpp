@@ -11,117 +11,117 @@ void FxProcessor::prepare(double sampleRate)
 
 void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = PrKey::prefix;
+    const juce::String code = FxPrKey::prefix;
 
     // --- Bypass ---
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + PrKey::bypass, code + PrName::masterBypass, PrValue::MBypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + FxPrKey::bypass, code + FxPrName::masterBypass, FxPrValue::MBypass::initial));
 
     // --- Filter ---
-    const juce::String filterPrefix = code + PrKey::fil;
-    const juce::String filterLPrefix = code + PrName::filter;
-    layout.add(std::make_unique<juce::AudioParameterBool>(filterPrefix + PrKey::bypass, filterLPrefix + PrName::Filter::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(filterPrefix + PrKey::Filter::type, filterLPrefix + PrName::Filter::type, PrValue::Filter::Type::min, PrValue::Filter::Type::max, PrValue::Filter::Type::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + PrKey::Filter::freq, filterLPrefix + PrName::Filter::freq, PrValue::Filter::Freq::min, PrValue::Filter::Freq::max, PrValue::Filter::Freq::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + PrKey::Filter::q, filterLPrefix + PrName::Filter::q, PrValue::Filter::Q::min, PrValue::Filter::Q::max, PrValue::Filter::Q::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + PrKey::mix, filterLPrefix + PrName::Filter::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String filterPrefix = code + FxPrKey::fil;
+    const juce::String filterLPrefix = code + FxPrName::filter;
+    layout.add(std::make_unique<juce::AudioParameterBool>(filterPrefix + FxPrKey::bypass, filterLPrefix + FxPrName::Filter::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(filterPrefix + FxPrKey::Filter::type, filterLPrefix + FxPrName::Filter::type, FxPrValue::Filter::Type::min, FxPrValue::Filter::Type::max, FxPrValue::Filter::Type::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + FxPrKey::Filter::freq, filterLPrefix + FxPrName::Filter::freq, FxPrValue::Filter::Freq::min, FxPrValue::Filter::Freq::max, FxPrValue::Filter::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + FxPrKey::Filter::q, filterLPrefix + FxPrName::Filter::q, FxPrValue::Filter::Q::min, FxPrValue::Filter::Q::max, FxPrValue::Filter::Q::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(filterPrefix + FxPrKey::mix, filterLPrefix + FxPrName::Filter::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
     // --- Tremolo ---
-    const juce::String trmPrefix = code + PrKey::trm;
-    const juce::String trmLPrefix = code + PrName::tremolo;
-    layout.add(std::make_unique<juce::AudioParameterBool>(trmPrefix + PrKey::bypass, trmLPrefix + PrName::Tremolo::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + PrKey::Tremolo::rate, trmLPrefix + PrName::Tremolo::rate, PrValue::Tremolo::Rate::min, PrValue::Tremolo::Rate::max, PrValue::Tremolo::Rate::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + PrKey::Tremolo::depth, trmLPrefix + PrName::Tremolo::depth, PrValue::Tremolo::Depth::min, PrValue::Tremolo::Depth::max, PrValue::Filter::Freq::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + PrKey::mix, trmLPrefix + PrName::Tremolo::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String trmPrefix = code + FxPrKey::trm;
+    const juce::String trmLPrefix = code + FxPrName::tremolo;
+    layout.add(std::make_unique<juce::AudioParameterBool>(trmPrefix + FxPrKey::bypass, trmLPrefix + FxPrName::Tremolo::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + FxPrKey::Tremolo::rate, trmLPrefix + FxPrName::Tremolo::rate, FxPrValue::Tremolo::Rate::min, FxPrValue::Tremolo::Rate::max, FxPrValue::Tremolo::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + FxPrKey::Tremolo::depth, trmLPrefix + FxPrName::Tremolo::depth, FxPrValue::Tremolo::Depth::min, FxPrValue::Tremolo::Depth::max, FxPrValue::Filter::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(trmPrefix + FxPrKey::mix, trmLPrefix + FxPrName::Tremolo::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
     // --- Vibrato / Detune ---
-    const juce::String vibPrefix = code + PrKey::vib;
-    const juce::String vibLPrefix = code + PrName::vibrato;
-    layout.add(std::make_unique<juce::AudioParameterBool>(vibPrefix + PrKey::bypass, vibLPrefix + PrName::Vibrato::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + PrKey::Vibrato::rate, vibLPrefix + PrName::Vibrato::rate, PrValue::Vibrato::Rate::min, PrValue::Vibrato::Rate::max, PrValue::Vibrato::Rate::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + PrKey::Vibrato::depth, vibLPrefix + PrName::Vibrato::depth, PrValue::Vibrato::Dept::min, PrValue::Vibrato::Dept::max, PrValue::Vibrato::Dept::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + PrKey::mix, vibLPrefix + PrName::Vibrato::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String vibPrefix = code + FxPrKey::vib;
+    const juce::String vibLPrefix = code + FxPrName::vibrato;
+    layout.add(std::make_unique<juce::AudioParameterBool>(vibPrefix + FxPrKey::bypass, vibLPrefix + FxPrName::Vibrato::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + FxPrKey::Vibrato::rate, vibLPrefix + FxPrName::Vibrato::rate, FxPrValue::Vibrato::Rate::min, FxPrValue::Vibrato::Rate::max, FxPrValue::Vibrato::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + FxPrKey::Vibrato::depth, vibLPrefix + FxPrName::Vibrato::depth, FxPrValue::Vibrato::Dept::min, FxPrValue::Vibrato::Dept::max, FxPrValue::Vibrato::Dept::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(vibPrefix + FxPrKey::mix, vibLPrefix + FxPrName::Vibrato::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
     // --- Modern Bit Crusher ---
-    const juce::String mbcPrefix = code + PrKey::mbc;
-    const juce::String mbcLPrefix = code + PrName::mbc;
-    layout.add(std::make_unique<juce::AudioParameterBool>(mbcPrefix + PrKey::bypass, mbcLPrefix + PrName::Mbc::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + PrKey::Mbc::rate, mbcLPrefix + PrName::Mbc::rate, PrValue::Mbc::Rate::min, PrValue::Mbc::Rate::max, PrValue::Mbc::Rate::initial)); // Rate: 1(High) ～ 50(Low)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + PrKey::Mbc::bit, mbcLPrefix + PrName::Mbc::bit, PrValue::Mbc::Bit::min, PrValue::Mbc::Bit::max, PrValue::Mbc::Bit::initial)); // Bits: 24(Clean) ～ 2(Noisy)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + PrKey::mix, mbcLPrefix + PrName::Mbc::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String mbcPrefix = code + FxPrKey::mbc;
+    const juce::String mbcLPrefix = code + FxPrName::mbc;
+    layout.add(std::make_unique<juce::AudioParameterBool>(mbcPrefix + FxPrKey::bypass, mbcLPrefix + FxPrName::Mbc::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + FxPrKey::Mbc::rate, mbcLPrefix + FxPrName::Mbc::rate, FxPrValue::Mbc::Rate::min, FxPrValue::Mbc::Rate::max, FxPrValue::Mbc::Rate::initial)); // Rate: 1(High) ～ 50(Low)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + FxPrKey::Mbc::bit, mbcLPrefix + FxPrName::Mbc::bit, FxPrValue::Mbc::Bit::min, FxPrValue::Mbc::Bit::max, FxPrValue::Mbc::Bit::initial)); // Bits: 24(Clean) ～ 2(Noisy)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(mbcPrefix + FxPrKey::mix, mbcLPrefix + FxPrName::Mbc::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
     // --- Delay ---
-    const juce::String dlyPrefix = code + PrKey::dly;
-    const juce::String dlyLPrefix = code + PrName::delay;
-    layout.add(std::make_unique<juce::AudioParameterBool>(dlyPrefix + PrKey::bypass, dlyLPrefix + PrName::Delay::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + PrKey::Delay::time, dlyLPrefix + PrName::Delay::time, PrValue::Delay::Time::min, PrValue::Delay::Time::max, PrValue::Delay::Time::initial)); // ms
-    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + PrKey::Delay::fb, dlyLPrefix + PrName::Delay::fb, PrValue::Delay::Fb::min, PrValue::Delay::Fb::max, PrValue::Delay::Fb::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + PrKey::mix, dlyLPrefix + PrName::Delay::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String dlyPrefix = code + FxPrKey::dly;
+    const juce::String dlyLPrefix = code + FxPrName::delay;
+    layout.add(std::make_unique<juce::AudioParameterBool>(dlyPrefix + FxPrKey::bypass, dlyLPrefix + FxPrName::Delay::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + FxPrKey::Delay::time, dlyLPrefix + FxPrName::Delay::time, FxPrValue::Delay::Time::min, FxPrValue::Delay::Time::max, FxPrValue::Delay::Time::initial)); // ms
+    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + FxPrKey::Delay::fb, dlyLPrefix + FxPrName::Delay::fb, FxPrValue::Delay::Fb::min, FxPrValue::Delay::Fb::max, FxPrValue::Delay::Fb::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(dlyPrefix + FxPrKey::mix, dlyLPrefix + FxPrName::Delay::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 
     // --- Reverb ---
-    const juce::String rvbPrefix = code + PrKey::rvb;
-    const juce::String rvbLPrefix = code + PrName::reverb;
-    layout.add(std::make_unique<juce::AudioParameterBool>(rvbPrefix + PrKey::bypass, rvbLPrefix + PrName::Reverb::bypass, PrValue::Bypass::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::Reverb::size, rvbLPrefix + PrName::Reverb::size, PrValue::Reverb::Size::min, PrValue::Reverb::Size::max, PrValue::Reverb::Size::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::Reverb::damp, rvbLPrefix + PrName::Reverb::damp, PrValue::Reverb::Damp::min, PrValue::Reverb::Damp::max, PrValue::Reverb::Damp::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + PrKey::mix, rvbLPrefix + PrName::Reverb::mix, PrValue::Mix::min, PrValue::Mix::max, PrValue::Mix::initial));
+    const juce::String rvbPrefix = code + FxPrKey::rvb;
+    const juce::String rvbLPrefix = code + FxPrName::reverb;
+    layout.add(std::make_unique<juce::AudioParameterBool>(rvbPrefix + FxPrKey::bypass, rvbLPrefix + FxPrName::Reverb::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::Reverb::size, rvbLPrefix + FxPrName::Reverb::size, FxPrValue::Reverb::Size::min, FxPrValue::Reverb::Size::max, FxPrValue::Reverb::Size::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::Reverb::damp, rvbLPrefix + FxPrName::Reverb::damp, FxPrValue::Reverb::Damp::min, FxPrValue::Reverb::Damp::max, FxPrValue::Reverb::Damp::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::mix, rvbLPrefix + FxPrName::Reverb::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = PrKey::prefix;
+    const juce::String code = FxPrKey::prefix;
 
-    if (*apvts.getRawParameterValue(code + PrKey::bypass) > PrValue::boolThread)
+    if (*apvts.getRawParameterValue(code + FxPrKey::bypass) > FxPrValue::boolThread)
     {
         return;
     }
 
     // Filter
-    const juce::String filterPrefix = code + PrKey::fil;
-    bool flB = *apvts.getRawParameterValue(filterPrefix + PrKey::bypass) > PrValue::boolThread;
-    int flType = (int)*apvts.getRawParameterValue(filterPrefix + PrKey::Filter::type);
-    float flFreq = *apvts.getRawParameterValue(filterPrefix + PrKey::Filter::freq);
-    float flQ = *apvts.getRawParameterValue(filterPrefix + PrKey::Filter::q);
-    float flMix = *apvts.getRawParameterValue(filterPrefix + PrKey::mix);
+    const juce::String filterPrefix = code + FxPrKey::fil;
+    bool flB = *apvts.getRawParameterValue(filterPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    int flType = (int)*apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::type);
+    float flFreq = *apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::freq);
+    float flQ = *apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::q);
+    float flMix = *apvts.getRawParameterValue(filterPrefix + FxPrKey::mix);
     effects.setFilterParams(flType, flFreq, flQ, flMix);
 
     // Vibrato
-    const juce::String vibPrefix = code + PrKey::vib;
-    bool vB = *apvts.getRawParameterValue(vibPrefix + PrKey::bypass) > PrValue::boolThread;
-    float vRate = *apvts.getRawParameterValue(vibPrefix + PrKey::Tremolo::rate);
-    float vDepth = *apvts.getRawParameterValue(vibPrefix + PrKey::Tremolo::depth);
-    float vMix = *apvts.getRawParameterValue(vibPrefix + PrKey::mix);
+    const juce::String vibPrefix = code + FxPrKey::vib;
+    bool vB = *apvts.getRawParameterValue(vibPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float vRate = *apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::rate);
+    float vDepth = *apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::depth);
+    float vMix = *apvts.getRawParameterValue(vibPrefix + FxPrKey::mix);
     effects.setVibratoParams(vRate, vDepth, vMix);
 
     // Tremolo
-    const juce::String trmPrefix = code + PrKey::trm;
-    bool tB = *apvts.getRawParameterValue(trmPrefix + PrKey::bypass) > PrValue::boolThread;
-    float tRate = *apvts.getRawParameterValue(trmPrefix + PrKey::Vibrato::rate);
-    float tDepth = *apvts.getRawParameterValue(trmPrefix + PrKey::Vibrato::depth);
-    float tMix = *apvts.getRawParameterValue(trmPrefix + PrKey::mix);
+    const juce::String trmPrefix = code + FxPrKey::trm;
+    bool tB = *apvts.getRawParameterValue(trmPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float tRate = *apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::rate);
+    float tDepth = *apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::depth);
+    float tMix = *apvts.getRawParameterValue(trmPrefix + FxPrKey::mix);
     effects.setTremoloParams(tRate, tDepth, tMix);
 
     // Modern Bit Crusher
-    const juce::String mbcPrefix = code + PrKey::mbc;
-    bool mcB = *apvts.getRawParameterValue(mbcPrefix + PrKey::bypass) > PrValue::boolThread;
-    float mbcRate = *apvts.getRawParameterValue(mbcPrefix + PrKey::Mbc::rate);
-    float mbcBits = *apvts.getRawParameterValue(mbcPrefix + PrKey::Mbc::bit);
-    float mbcMix = *apvts.getRawParameterValue(mbcPrefix + PrKey::mix);
+    const juce::String mbcPrefix = code + FxPrKey::mbc;
+    bool mcB = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float mbcRate = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::rate);
+    float mbcBits = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::bit);
+    float mbcMix = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::mix);
     effects.setModernBitCrusherParams(mbcRate, mbcBits, mbcMix);
 
     // Delay
-    const juce::String dlyPrefix = code + PrKey::dly;
-    bool dB = *apvts.getRawParameterValue(dlyPrefix + PrKey::bypass) > PrValue::boolThread;
-    float dTime = *apvts.getRawParameterValue(dlyPrefix + PrKey::Delay::time);
-    float dFb = *apvts.getRawParameterValue(dlyPrefix + PrKey::Delay::fb);
-    float dMix = *apvts.getRawParameterValue(dlyPrefix + PrKey::mix);
+    const juce::String dlyPrefix = code + FxPrKey::dly;
+    bool dB = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float dTime = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::time);
+    float dFb = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::fb);
+    float dMix = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::mix);
     effects.setDelayParams(dTime, dFb, dMix);
 
     // Reverb
-    const juce::String rvbPrefix = code + PrKey::rvb;
-    bool rB = *apvts.getRawParameterValue(rvbPrefix + PrKey::bypass) > PrValue::boolThread;
-    float rSize = *apvts.getRawParameterValue(rvbPrefix + PrKey::Reverb::size);
-    float rDamp = *apvts.getRawParameterValue(rvbPrefix + PrKey::Reverb::damp);
-    float rMix = *apvts.getRawParameterValue(rvbPrefix + PrKey::mix);
+    const juce::String rvbPrefix = code + FxPrKey::rvb;
+    bool rB = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float rSize = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::size);
+    float rDamp = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::damp);
+    float rMix = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::mix);
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
     // バイパス設定

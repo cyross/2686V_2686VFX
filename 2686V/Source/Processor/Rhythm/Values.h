@@ -4,7 +4,7 @@
 
 #include "../../Core/Processor/Values.h"
 
-namespace PrValue
+namespace RhythmPrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
@@ -47,6 +47,7 @@ namespace PrValue
 
 		namespace Rate
 		{
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 11k 9: 8k 10: 5.5k 11: 4k 12: 2k
 			inline constexpr int min = CorePrValue::Pcm::Rate::min;
 			inline constexpr int max = CorePrValue::Pcm::Rate::max;
 			inline constexpr int initial = CorePrValue::Pcm::Rate::initial;

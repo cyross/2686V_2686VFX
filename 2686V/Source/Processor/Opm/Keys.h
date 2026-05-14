@@ -6,7 +6,7 @@
 
 #include "../../Core/Processor/Keys.h"
 
-namespace PrKey
+namespace OpmPrKey
 {
 	static inline const juce::String prefix = "OPM";
 

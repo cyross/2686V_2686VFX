@@ -5,7 +5,7 @@
 #include "../../Core/Processor/Names.h"
 
 // UI上に表示するタイトル等を管理
-namespace PrName
+namespace SsgPrName
 {
 	static inline const juce::String tone = " Tone";
 	static inline const juce::String toneNoiseMix = " Tone/Noise Mix";

@@ -164,9 +164,9 @@ namespace CorePrValue
 
 		namespace Rate
 		{
-			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 7; // 最大値
-			inline constexpr int initial = 2; // 初期値
+			inline constexpr int min = 1; // 96kHz
+			inline constexpr int max = 13; // 2kHz
+			inline constexpr int initial = 2; // 55.5kHz
 		}
 	}
 
@@ -181,9 +181,9 @@ namespace CorePrValue
 
 		namespace Rate
 		{
-			inline constexpr int min = 1; // 最小値
-			inline constexpr int max = 7; // 最大値
-			inline constexpr int initial = 6; // 初期値
+			inline constexpr int min = 1; // 2kHz
+			inline constexpr int max = 13; // 96kHz
+			inline constexpr int initial = 7; // 16kHz
 		}
 
 		namespace Offset

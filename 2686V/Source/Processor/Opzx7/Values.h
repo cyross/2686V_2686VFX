@@ -4,7 +4,7 @@
 
 #include "../../Core/Processor/Values.h"
 
-namespace PrValue
+namespace Opzx7PrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
@@ -21,6 +21,7 @@ namespace PrValue
 
 	namespace Rate
 	{
+		// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
 		inline constexpr int min = CorePrValue::Quality::Rate::min;
 		inline constexpr int max = CorePrValue::Quality::Rate::max;
 		inline constexpr int initial = CorePrValue::Quality::Rate::initial;

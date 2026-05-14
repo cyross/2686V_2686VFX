@@ -21,9 +21,9 @@ struct Opzx7Params
     int fmBitDepth = 4;
 
     // --- Sampling Rate ---
-    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
     // Default: 55.5kHz (Typical FM Chip Rate)
-    int fmRateIndex = 1;
+    int fmRateIndex = 2;
 
     // -- OPNA/OPM/OPZX7 LFO(Global) ---
 

@@ -4,7 +4,7 @@
 
 #include<JuceHeader.h>
 
-namespace GuiText
+namespace PresetGuiText
 {
 	static inline const juce::String mode = u8"Mode";
 

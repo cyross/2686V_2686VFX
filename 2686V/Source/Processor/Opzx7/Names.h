@@ -5,7 +5,7 @@
 #include "../../Core/Processor/Names.h"
 
 // UI上に表示するタイトル等を管理
-namespace PrName
+namespace Opzx7PrName
 {
 	static inline const juce::String bit = " BIT";
 	static inline const juce::String rate = " RATE";
