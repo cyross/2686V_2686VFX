@@ -177,6 +177,7 @@ namespace Opzx7GuiText
 			static inline const juce::String D1l = u8"D1l";
 			static inline const juce::String D2r = u8"D2r";
 			static inline const juce::String Mul = u8"Mul";
+			static inline const juce::String MulRatio = u8"M.Ratio";
 			static inline const juce::String Tl = u8"Tl";
 			static inline const juce::String Dt = u8"Dt";
 			static inline const juce::String Dt1 = u8"Dt1";

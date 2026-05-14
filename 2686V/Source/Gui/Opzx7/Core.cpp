@@ -82,27 +82,28 @@ static std::vector<SelectItem> opzx7AlgItems = {
 };
 
 static std::vector<SelectItem> multems = {
-    {.name = " 0:   0.5x", .value = 1 },
-    {.name = " 1:   1x", .value = 2 },
-    {.name = " 2:   2x", .value = 3 },
-    {.name = " 3:   3x", .value = 4 },
-    {.name = " 4:   4x", .value = 5 },
-    {.name = " 5:   5x", .value = 6 },
-    {.name = " 6:   6x", .value = 7 },
-    {.name = " 7:   7x", .value = 8 },
-    {.name = " 8:   8x", .value = 9 },
-    {.name = " 9:   9x", .value = 10 },
-    {.name = "10:  10x", .value = 11 },
-    {.name = "11:  11x", .value = 12 },
-    {.name = "12:  12x", .value = 13 },
-    {.name = "13:  13x", .value = 14 },
-    {.name = "14:  14x", .value = 15 },
-    {.name = "15:  15x", .value = 16 },
-    {.name = "16:   0.891x", .value = 17 },
-    {.name = "17:   1.414x", .value = 18 },
-    {.name = "18:   1.498x", .value = 19 },
-    {.name = "19:   1.581x", .value = 20 },
-    {.name = "20:   1.781x", .value = 21 }
+    { .name = " 0: x  0.5",    .value =  1 },
+    { .name = " 1: x  0.891",  .value =  2 },
+    { .name = " 2: x  1",      .value =  3 },
+    { .name = " 3: x  1.414",  .value =  4 },
+    { .name = " 4: x  1.498",  .value =  5 },
+    { .name = " 5: x  1.581",  .value =  6 },
+    { .name = " 6: x  1.781",  .value =  7 },
+    { .name = " 7: x  2",      .value =  8 },
+    { .name = " 8: x  3",      .value =  9 },
+    { .name = " 9: x  4",      .value = 10 },
+    { .name = "10: x  5",      .value = 11 },
+    { .name = "11: x  6",      .value = 12 },
+    { .name = "12: x  7",      .value = 13 },
+    { .name = "13: x  8",      .value = 14 },
+    { .name = "14: x  9",      .value = 15 },
+    { .name = "15: x 10",      .value = 16 },
+    { .name = "16: x 11",      .value = 17 },
+    { .name = "17: x 12",      .value = 18 },
+    { .name = "18: x 13",      .value = 19 },
+    { .name = "19: x 14",      .value = 20 },
+    { .name = "20: x 15",      .value = 21 },
+    { .name = "21: Use Ratio", .value = 22 }
 };
 
 static std::vector<SelectItem> ksItems = {
@@ -213,6 +214,14 @@ static std::vector<SelectItem> opzx7WsItems = {
 
 void GuiOpzx7::setup()
 {
+    auto updateMulRatioEnable = [this](int idx) {
+        int mulIndex = mul[idx].getSelectedId() - 1;
+        bool enableMulRatio = mulIndex == 21; // mul = Ratio
+
+        mulRatio[idx].setEnabled(enableMulRatio);
+        mulRatio[idx].label.setEnabled(enableMulRatio);
+        };
+
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
     setWantsKeyboardFocus(true);
 
@@ -392,6 +401,13 @@ void GuiOpzx7::setup()
         mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::mul, .title = Opzx7GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
+        mul[i].onChange = [this, i, updateMulRatioEnable] {
+            updateMulRatioEnable(i);
+            };
+
+        mulRatio[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::mulRatio, .title = Opzx7GuiText::Fm::Op::MulRatio, .isReset = true });
+        mulRatio[i].setWantsKeyboardFocus(true);
+        mulRatio[i].setExplicitFocusOrder(++tabOrder);
 
         dt1[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::dt, .title = Opzx7GuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
         dt1[i].setWantsKeyboardFocus(true);
@@ -707,6 +723,8 @@ void GuiOpzx7::setup()
             .hintMessage = "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT1:0 DT2:0",
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
+
+        updateMulRatioEnable(i);
     }
 }
 
@@ -778,6 +796,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
         layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });

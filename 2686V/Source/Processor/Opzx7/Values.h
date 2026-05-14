@@ -79,8 +79,15 @@ namespace Opzx7PrValue
 		namespace Mul
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 20;
-			inline constexpr int initial = 1;
+			inline constexpr int max = 21;
+			inline constexpr int initial = 2; // x 1.0
+		}
+
+		namespace MulRatio
+		{
+			inline constexpr float min = 0.5f;
+			inline constexpr float max = 27.57f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace Dt1

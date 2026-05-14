@@ -10,8 +10,8 @@ namespace SsgPrName
 	static inline const juce::String tone = " Tone";
 	static inline const juce::String toneNoiseMix = " Tone/Noise Mix";
 	static inline const juce::String waveform = " Waveform";
-	static inline const juce::String bit = " BIT";
-	static inline const juce::String rate = " RATE";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String rate = " Rate";
 
 	namespace Noise
 	{
@@ -46,14 +46,14 @@ namespace SsgPrName
 
 	namespace HwEnv
 	{
-		static inline const juce::String enable = " HW Env Enable";
-		static inline const juce::String shape = " Env Shape";
-		static inline const juce::String period = " Env Period";
+		static inline const juce::String enable = " Hardware Env Enable";
+		static inline const juce::String shape = " Hardware Env Shape";
+		static inline const juce::String period = " Hardware Env Period";
 	}
 
 	namespace PitchAdsr
 	{
-		static inline const juce::String bypass = " PITCH-ENV Bypass";
+		static inline const juce::String bypass = " PitchEnv Bypass";
 	};
 
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;

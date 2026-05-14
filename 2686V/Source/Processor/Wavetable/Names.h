@@ -16,8 +16,8 @@ namespace WtPrName
 	static inline const juce::String sampleSize = " Sample Size";
 	static inline const juce::String steps = " Steps";
 	static inline const juce::String waveform = " Waveform";
-	static inline const juce::String bit = " BIT";
-	static inline const juce::String rate = " RATE";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String rate = " Rate";
 
 	namespace Mod
 	{
@@ -33,7 +33,7 @@ namespace WtPrName
 
 	namespace PitchAdsr
 	{
-		static inline const juce::String bypass = " PITCH-ENV Bypass";
+		static inline const juce::String bypass = " PitchEnv Bypass";
 	};
 
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;

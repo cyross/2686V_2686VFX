@@ -7,11 +7,11 @@
 // UI上に表示するタイトル等を管理
 namespace OpnPrName
 {
-	static inline const juce::String bit = " BIT";
-	static inline const juce::String rate = " RATE";
-	static inline const juce::String alg = " ALG";
-	static inline const juce::String fb0 = " FB1";
-	static inline const juce::String fb2 = " FB3";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String rate = " Rate";
+	static inline const juce::String alg = " Algorithm";
+	static inline const juce::String fb0 = " Feedback 1";
+	static inline const juce::String fb2 = " Feedback 3";
 
 	static inline const juce::String op = CorePrName::Fm::Op::key;
 
@@ -31,17 +31,17 @@ namespace OpnPrName
 
 	namespace N88Lfo
 	{
-		static inline const juce::String freq = " L.SPEED";
-		static inline const juce::String shape = " L.SHAPE";
-		static inline const juce::String pgShape = " L.P.SHAPE";
-		static inline const juce::String egShape = " L.A.SHAPE";
-		static inline const juce::String am = " LFO.AM";
-		static inline const juce::String pm = " LFO.PM";
-		static inline const juce::String ams = " L.AMS";
-		static inline const juce::String pms = " L.PMS";
-		static inline const juce::String pmd = " L.PMD";
-		static inline const juce::String amd = " L.AMD";
-		static inline const juce::String amSmoothRatio = " L.ASMRT";
-		static inline const juce::String syncDelay = " L.S.Delay";
+		static inline const juce::String freq = " N88 LFO Speed";
+		static inline const juce::String shape = " N88 LFO Shape";
+		static inline const juce::String pgShape = " N88 LFO PM Shape";
+		static inline const juce::String egShape = " N88 LFO AM Shape";
+		static inline const juce::String am = " N88 LFO AM Enable";
+		static inline const juce::String pm = " N88 LFO PM Enable";
+		static inline const juce::String ams = " N88 LFO AMS";
+		static inline const juce::String pms = " N88 LFO PMS";
+		static inline const juce::String pmd = " N88 LFO PMD";
+		static inline const juce::String amd = " N88 LFO AMD";
+		static inline const juce::String amSmoothRatio = " N88 LFO ASMRT";
+		static inline const juce::String syncDelay = " N88 LFO Sync Delay";
 	}
 }

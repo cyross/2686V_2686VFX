@@ -37,6 +37,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         juce::String namePrefix = code + Opzx7PrName::op + juce::String(op + 1);
 
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::mul, namePrefix + Opzx7PrName::mul, Opzx7PrValue::Op::Mul::min, Opzx7PrValue::Op::Mul::max, Opzx7PrValue::Op::Mul::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::mulRatio, namePrefix + Opzx7PrName::mulRatio, Opzx7PrValue::Op::MulRatio::min, Opzx7PrValue::Op::MulRatio::max, Opzx7PrValue::Op::MulRatio::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::dt, namePrefix + Opzx7PrName::dt1, Opzx7PrValue::Op::Dt1::min, Opzx7PrValue::Op::Dt1::max, Opzx7PrValue::Op::Dt1::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::dt2, namePrefix + Opzx7PrName::dt2, Opzx7PrValue::Op::Dt2::min, Opzx7PrValue::Op::Dt2::max, Opzx7PrValue::Op::Dt2::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::tl, namePrefix + Opzx7PrName::tl, Opzx7PrValue::Op::Adsr::Tl::min, Opzx7PrValue::Op::Adsr::Tl::max, Opzx7PrValue::Op::Adsr::Tl::initial));
@@ -118,6 +119,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         juce::String p = code + Opzx7PrKey::op + juce::String(op);
 
         params.opzx7.op[op].multiple = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::mul);
+        params.opzx7.op[op].mutipleRatio = *apvts.getRawParameterValue(p + Opzx7PrKey::mulRatio);
         params.opzx7.op[op].detune = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::dt);
         params.opzx7.op[op].detune2 = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::dt2);
         params.opzx7.op[op].attack = *apvts.getRawParameterValue(p + Opzx7PrKey::ar);

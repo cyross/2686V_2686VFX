@@ -7,13 +7,13 @@
 // UI上に表示するタイトル等を管理
 namespace Opzx7PrName
 {
-	static inline const juce::String bit = " BIT";
-	static inline const juce::String rate = " RATE";
-	static inline const juce::String alg = " ALG";
-	static inline const juce::String fb0 = " FB1";
-	static inline const juce::String fb2 = " FB3";
-	static inline const juce::String panpot = " PANPOT";
-	static inline const juce::String panpot_en = " PANPOT Eable";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String rate = " Rate";
+	static inline const juce::String alg = " Algorithm";
+	static inline const juce::String fb0 = " Feedback 1/2";
+	static inline const juce::String fb2 = " Feedback 3";
+	static inline const juce::String panpot = " Panpot";
+	static inline const juce::String panpot_en = " Panpot Eable";
 
 	static inline const juce::String op = CorePrName::Fm::Op::key;
 
@@ -23,6 +23,7 @@ namespace Opzx7PrName
 	static inline const juce::String d1l = CorePrName::Fm::Op::d1l;
 	static inline const juce::String d2r = CorePrName::Fm::Op::d2r;
 	static inline const juce::String mul = CorePrName::Fm::Op::mul;
+	static inline const juce::String mulRatio = " MUL Ratio";
 	static inline const juce::String tl = CorePrName::Fm::Op::tl;
 	static inline const juce::String dt = CorePrName::Fm::Op::dt;
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;
@@ -75,33 +76,33 @@ namespace Opzx7PrName
 	static inline const juce::String sus = " SUS";
 	static inline const juce::String xof = " XOF";
 
-	static inline const juce::String phaseOffset = "PHASE OFFSET";
+	static inline const juce::String phaseOffset = "Phase Offset";
 
 	namespace PitchAdsr
 	{
-		static inline const juce::String enable = " PITCH-ENV Enable";
-		static inline const juce::String ar = " PITCH-ENV AR";
-		static inline const juce::String dr = " PITCH-ENV DR";
-		static inline const juce::String rr = " PITCH-ENV RR";
-		static inline const juce::String stl = " PITCH-ENV STL";
-		static inline const juce::String atl = " PITCH-ENV ATL";
-		static inline const juce::String ssl = " PITCH-ENV SSL";
-		static inline const juce::String rll = " PITCH-ENV RLL";
+		static inline const juce::String enable = " PitchEnv Enable";
+		static inline const juce::String ar = " PitchEnv Ar";
+		static inline const juce::String dr = " PitchEnv Dr";
+		static inline const juce::String rr = " PitchEnv Rr";
+		static inline const juce::String stl = " PitchEnv Stl";
+		static inline const juce::String atl = " PitchEnv Atl";
+		static inline const juce::String ssl = " PitchEnv Ssl";
+		static inline const juce::String rll = " PitchEnv Rll";
 	};
 
 	namespace GlLfo
 	{
-		static inline const juce::String freq = " L.SPEED";
-		static inline const juce::String shape = " L.SHAPE";
-		static inline const juce::String pgShape = " L.P.SHAPE";
-		static inline const juce::String egShape = " L.A.SHAPE";
-		static inline const juce::String am = " LFO.AM";
-		static inline const juce::String pm = " LFO.PM";
-		static inline const juce::String ams = " L.AMS";
-		static inline const juce::String pms = " L.PMS";
-		static inline const juce::String pmd = " L.PMD";
-		static inline const juce::String amd = " L.AMD";
-		static inline const juce::String amSmoothRatio = " L.ASMRT";
-		static inline const juce::String syncDelay = " L.S.Delay";
+		static inline const juce::String freq = " Global LFO Speed";
+		static inline const juce::String shape = " Global LFO Shape";
+		static inline const juce::String pgShape = " Global LFO PM Shape";
+		static inline const juce::String egShape = " Global LFO AM Shape";
+		static inline const juce::String am = " Global LFO Am Enable";
+		static inline const juce::String pm = " Global LFO Pm Enable";
+		static inline const juce::String ams = " Global LFO AMS";
+		static inline const juce::String pms = " Global LFO PMS";
+		static inline const juce::String pmd = " Global LFO PMD";
+		static inline const juce::String amd = " Global LFO AMD";
+		static inline const juce::String amSmoothRatio = " Global LFO ASMRT";
+		static inline const juce::String syncDelay = " Global LFO Sync Delay";
 	}
 }

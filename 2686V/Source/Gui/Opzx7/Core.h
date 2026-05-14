@@ -159,6 +159,7 @@ class GuiOpzx7 : public GuiBase
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiComboBox, Global::Fm::Op4> mul;
+    std::array<GuiSlider, Global::Fm::Op4> mulRatio;
     std::array<GuiSlider, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
     std::array<GuiSlider, Global::Fm::Op4> tl;
@@ -266,6 +267,7 @@ public:
         masterVolSlider(context),
         catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

@@ -25,6 +25,7 @@ namespace Opzx7PrKey
 	static inline const juce::String panpot_en = "_PANPOT_EN";
 
 	static inline const juce::String mul = CorePrKey::Post::Fm::Op::mul;
+	static inline const juce::String mulRatio = "_MUL_RATIO";
 	static inline const juce::String dt = CorePrKey::Post::Fm::Op::dt;
 	static inline const juce::String dt2 = CorePrKey::Post::Fm::Op::dt2;
 	static inline const juce::String tl = CorePrKey::Post::Fm::Op::tl;

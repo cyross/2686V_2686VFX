@@ -7,17 +7,14 @@
 // UI上に表示するタイトル等を管理
 namespace FxPrName
 {
-	static inline const juce::String masterBypass = "M.Bypass";
+	static inline const juce::String masterBypass = " Master Bypass";
 
-	static inline const juce::String rlfo = " Retro LFO";
 	static inline const juce::String tremolo = " Tremolo";
 	static inline const juce::String vibrato = " Vibrato";
 	static inline const juce::String mbc = " Modern BC";
 	static inline const juce::String delay = " Delay";
 	static inline const juce::String reverb = " Reverb";
-	static inline const juce::String rbc = " Retro BC";
 	static inline const juce::String filter = " Filter";
-	static inline const juce::String softClipper = " Soft Clipper";
 
 	namespace Tremolo
 	{

@@ -8,8 +8,8 @@
 namespace BeepPrName
 {
 	static inline const juce::String level = " Level";
-	static inline const juce::String fix = " FIX";
-	static inline const juce::String fixFreq = " FREQ";
+	static inline const juce::String fix = " Fix Enable";
+	static inline const juce::String fixFreq = " Fix Freq";
 
 	namespace Adsr
 	{

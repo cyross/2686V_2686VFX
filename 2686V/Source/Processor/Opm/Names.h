@@ -7,12 +7,12 @@
 // UI上に表示するタイトル等を管理
 namespace OpmPrName
 {
-	static inline const juce::String bit = " BIT";
-	static inline const juce::String rate = " RATE";
-	static inline const juce::String alg = " ALG";
-	static inline const juce::String fb0 = " FB1";
-	static inline const juce::String fb2 = " FB3";
-	static inline const juce::String pan = " PAN";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String rate = " Rate";
+	static inline const juce::String alg = " Algorithm";
+	static inline const juce::String fb0 = " Feedback 1";
+	static inline const juce::String fb2 = " Feedback 3";
+	static inline const juce::String pan = " Pan";
 
 	static inline const juce::String op = CorePrName::Fm::Op::key;
 
@@ -36,17 +36,17 @@ namespace OpmPrName
 
 	namespace Lfo
 	{
-		static inline const juce::String freq = " L.SPEED";
-		static inline const juce::String shape = " L.SHAPE";
-		static inline const juce::String pgShape = " L.P.SHAPE";
-		static inline const juce::String egShape = " L.A.SHAPE";
-		static inline const juce::String am = " LFO.AM";
-		static inline const juce::String pm = " LFO.PM";
-		static inline const juce::String ams = " L.AMS";
-		static inline const juce::String pms = " L.PMS";
-		static inline const juce::String pmd = " L.PMD";
-		static inline const juce::String amd = " L.AMD";
-		static inline const juce::String amSmoothRatio = " L.ASMRT";
-		static inline const juce::String syncDelay = " L.S.Delay";
+		static inline const juce::String freq = " LFO Speed";
+		static inline const juce::String shape = " LFO Shape";
+		static inline const juce::String pgShape = " LFO PM Shape";
+		static inline const juce::String egShape = " LFO AM Shape";
+		static inline const juce::String am = " LFO AM Enable";
+		static inline const juce::String pm = " LFO PM Enable";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
+		static inline const juce::String amSmoothRatio = " LFO ASMRT";
+		static inline const juce::String syncDelay = " LFO Sync Delay";
 	}
 }

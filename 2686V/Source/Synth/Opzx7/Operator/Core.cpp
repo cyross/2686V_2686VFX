@@ -249,7 +249,7 @@ void Opzx7Operator::setParameters(const FmOpParams& params, float feedback)
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = params.waveSelect;
-    m_detune.setParameters(params.detune, params.detune2, params.multiple);
+    m_detune.setParameters(params.detune, params.detune2, params.multiple, params.mutipleRatio);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_pitchAdsr.setParameters(params.pitchAdsr);
 }
