@@ -32,34 +32,12 @@ set(CONST_FILES
 
 set(SYNTH_FILES
     "Source/Core/Synth/Mode.h"
-    "Source/Core/Synth/Mode.cpp"
     "Source/Core/Synth/SynthCore.h"
-    "Source/Core/Synth/SynthCore.cpp"
     "Source/Core/Synth/SynthParams.h"
     "Source/Core/Synth/SynthVoice.h"
     "Source/Core/Synth/SynthVoice.cpp"
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
-)
-
-set(FM_BASIC_ALG_FILES
-    "Source/Generator/Fm/Alg/Basic/Core.h"
-    "Source/Generator/Fm/Alg/Basic/Core.cpp"
-)
-
-set(FM_OPL_ALG_FILES
-    "Source/Generator/Fm/Alg/Opl/Core.h"
-    "Source/Generator/Fm/Alg/Opl/Core.cpp"
-)
-
-set(FM_OPL3_ALG_FILES
-    "Source/Generator/Fm/Alg/Opl3/Core.h"
-    "Source/Generator/Fm/Alg/Opl3/Core.cpp"
-)
-
-set(FM_OPZX7_ALG_FILES
-    "Source/Generator/Fm/Alg/Opzx7/Core.h"
-    "Source/Generator/Fm/Alg/Opzx7/Core.cpp"
 )
 
 set(FM_FIX_FILES
@@ -85,7 +63,6 @@ set(PCM_GENERATOR_FILES
 
 set(FM_FILES
     "Source/Core/Fm/FmClipboard.h"
-    "Source/Core/Fm/FmClipboard.cpp"
     "Source/Core/Fm/FmCore.h"
     "Source/Core/Fm/FmCore.cpp"
     "Source/Core/Fm/FmOperator.h"
@@ -101,7 +78,6 @@ set(FM_FILES
 
 set(GUI_FILES
     "Source/Core/Gui/GuiBase.h"
-    "Source/Core/Gui/GuiBase.cpp"
     "Source/Core/Gui/GuiColor.h"
     "Source/Core/Gui/GuiComponents.h"
     "Source/Core/Gui/GuiComponents.cpp"
@@ -489,10 +465,6 @@ source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
-source_group("2686V\\Generator\\Fm\\Alg\\Basic" FILES ${FM_BASIC_ALG_FILES})
-source_group("2686V\\Generator\\Fm\\Alg\\Opl" FILES ${FM_OPL_ALG_FILES})
-source_group("2686V\\Generator\\Fm\\Alg\\Opl3" FILES ${FM_OPL3_ALG_FILES})
-source_group("2686V\\Generator\\Fm\\Alg\\Opzx7" FILES ${FM_OPZX7_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686V\\Synth\\Fm" FILES ${FM_FILES})
@@ -579,10 +551,6 @@ function(create_cyross_plugin TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         ${CONST_FILES}
         ${SYNTH_FILES}
-        ${FM_BASIC_ALG_FILES}
-        ${FM_OPL_ALG_FILES}
-        ${FM_OPL3_ALG_FILES}
-        ${FM_OPZX7_ALG_FILES}
         ${FM_FIX_FILES}
         ${LFSR_NOISE_GEN_FILES}
         ${SSG_NOISE_GEN_FILES}

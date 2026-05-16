@@ -2,7 +2,6 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Generator/Noise/Lfsr/Core.h"
-#include "../../Generator/Fm/Alg/Basic/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -27,8 +26,6 @@ public:
 private:
     std::array<OpnOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
-    std::array<BasicAlg::OpGetSampleFunc, 4> opGetSamples;
-    BasicAlg alg;
     LfsrNoiseGen m_noiseGen;
 
     int m_algorithm = 0;

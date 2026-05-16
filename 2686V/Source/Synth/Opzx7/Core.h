@@ -7,7 +7,6 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Generator/Noise/Lfsr/Core.h"
-#include "../../Generator/Fm/Alg/Opzx7/Core.h"
 #include "../../Effect/LFO/Opzx7/Core.h"
 
 #include "./Operator/Core.h"
@@ -45,8 +44,6 @@ public:
 private:
     std::array<Opzx7Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
-    std::array<Opzx7Alg::OpGetSampleFunc, 4> opGetSamples;
-    Opzx7Alg alg;
     Opzx7LfoCore m_lfo;
 
     double m_hostSampleRate = 44100.0;
