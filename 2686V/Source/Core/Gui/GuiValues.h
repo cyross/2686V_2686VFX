@@ -190,7 +190,7 @@ namespace CoreGuiValue
 		namespace Row
 		{
 			static inline constexpr int width = 226;
-			static inline constexpr int height = 12;
+			static inline constexpr int height = 14;
 			static inline constexpr int paddingTop = 3;
 			static inline constexpr int paddingBottom = 0;
 			static inline constexpr int paddingRight = 0;

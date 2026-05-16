@@ -21,21 +21,21 @@ namespace OpnGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleQuality = u8"[▲]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[▼]--- QUALITY ---";
+		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
+		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
 		static inline const juce::String m = u8"--- BASIC ---";
-		static inline const juce::String visibleN88Lfo = u8"[▲]--- N88 LFO ---";
-		static inline const juce::String invisibleN88Lfo = u8"[▼]--- N88 LFO ---";
-		static inline const juce::String visibleFix = u8"[▲]--- FIX ---";
-		static inline const juce::String invisibleFix = u8"[▼]--- FIX ---";
-		static inline const juce::String visibleMvol = u8"[▲]--- MASTER VOLUME ---";
-		static inline const juce::String invisibleMvol = u8"[▼]--- MASTER VOLUME ---";
-		static inline const juce::String visibleMask = u8"[▲]--- MASK ---";
-		static inline const juce::String invisibleMask = u8"[▼]--- MASK ---";
+		static inline const juce::String visibleN88Lfo = u8"[■]--- N88 LFO ---";
+		static inline const juce::String invisibleN88Lfo = u8"[□]--- N88 LFO ---";
+		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
+		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
+		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
+		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
+		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
+		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String mml = u8"--- MML ---";
-		static inline const juce::String visibleMonoMode = u8"[▲]--- MONO/POLY ---";
-		static inline const juce::String invisibleMonoMode = u8"[▼]--- MONO/POLY ---";
+		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
+		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 
