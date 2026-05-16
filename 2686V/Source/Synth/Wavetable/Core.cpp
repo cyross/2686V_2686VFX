@@ -92,20 +92,13 @@ void WtCore::setParameters(const SynthParams& params)
 
 void WtCore::noteOn(float freq, float velocity, int midiNote)
 {
+    // 基本周波数にデチューン成分を加算
+    // Save for recalculation
+    m_currentFrequency = m_detune.noteOn(freq);
     m_phase = 0.0f;
     m_modPhase = 0.0f;
 
-    // 基本周波数にデチューン成分を加算
-    // Save for recalculation
-    float finalFreq = m_detune.noteOn(freq);
-
-    double targetRate = getTargetRate(m_rateIndex);
-    if (targetRate > 0.0) {
-        m_phaseDelta = finalFreq / targetRate;
-    }
-    else {
-        m_phaseDelta = 0.0;
-    }
+    updatePhaseDelta();
 
     m_currentLevel = 0.0f;
     m_rateAccumulator = 1.0f; // Force update on first sample
@@ -320,10 +313,7 @@ void WtCore::generateWaveform(int type)
 
 void WtCore::updatePhaseDelta()
 {
-    double targetRate = getTargetRate(m_rateIndex);
-    if (targetRate > 0.0) {
-        m_phaseDelta = m_currentFrequency / targetRate;
-    }
+    m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
 void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
