@@ -19,11 +19,11 @@
 #include "../../Processor/Fx/Core.h"
 
 #include "../Const/Global.h"
-#include "../Const/PrKeys.h"
-#include "../Const/PrValues.h"
+#include "../Processor/Keys.h"
+#include "../Processor/Values.h"
 #include "../Const/FileValues.h"
-#include "../Const/PresetKeys.h"
-#include "../Const/PresetValues.h"
+#include "../../Gui/Preset/Keys.h"
+#include "../../Gui/Preset/Values.h"
 
 #include "../Editor/PluginEditor.h"
 

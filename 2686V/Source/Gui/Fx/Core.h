@@ -17,19 +17,12 @@ class GuiFx : public GuiBase
     GuiGroup reverbGroup;
     GuiGroup filterGroup;
 
-    GuiCategoryLabel bypassCat;
-
     GuiToggleButton bypassToggle;
-
-    GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
-    GuiMasterVolumeSlider masterVolSlider;
+    GuiTextButton resetBtn;
 
     // 以降、エフェクトごとの設定
 
     // トレモロ(Tremolo)
-    GuiCategoryLabel tBypassCat;
     GuiToggleButton tBypassBtn;
     GuiCategoryLabel tMainCat;
     GuiSlider tRateSlider, tDepthSlider;
@@ -38,7 +31,6 @@ class GuiFx : public GuiBase
     GuiTextButton tDryBtn, tHalfBtn, tWetBtn;
 
     // ビブラート(Vibrato)
-    GuiCategoryLabel vBypassCat;
     GuiToggleButton vBypassBtn;
     GuiCategoryLabel vMainCat;
     GuiSlider vRateSlider, vDepthSlider;
@@ -47,7 +39,6 @@ class GuiFx : public GuiBase
     GuiTextButton vDryBtn, vHalfBtn, vWetBtn;
 
     // ビットクラッシャー(Modern Bit Crusher)
-    GuiCategoryLabel mbcBypassCat;
     GuiToggleButton mbcBypassBtn;
     GuiCategoryLabel mbcMainCat;
     GuiSlider mbcRateSlider, mbcBitsSlider;
@@ -56,7 +47,6 @@ class GuiFx : public GuiBase
     GuiTextButton mbcDryBtn, mbcHalfBtn, mbcWetBtn;
 
     // ディレイ(Delay)
-    GuiCategoryLabel dBypassCat;
     GuiToggleButton dBypassBtn;
     GuiCategoryLabel dMainCat;
     GuiSlider dTimeSlider, dFbSlider;
@@ -65,7 +55,6 @@ class GuiFx : public GuiBase
     GuiTextButton dDryBtn, dHalfBtn, dWetBtn;
 
     // Reverb
-    GuiCategoryLabel rBypassCat;
     GuiToggleButton rBypassBtn;
     GuiCategoryLabel rMainCat;
     GuiSlider rSizeSlider, rDampSlider;
@@ -74,7 +63,6 @@ class GuiFx : public GuiBase
     GuiTextButton rDryBtn, rHalfBtn, rWetBtn;
 
     // Filter
-    GuiCategoryLabel flBypassCat;
     GuiToggleButton flBypassBtn;
     GuiCategoryLabel flMainCat;
     GuiComboBox flTypeSelector;
@@ -93,11 +81,8 @@ public:
         delayGroup(context),
         reverbGroup(context),
         filterGroup(context),
-        bypassCat(context),
         bypassToggle(context),
-        mvolCat(context),
-        masterVolSlider(context),
-        tBypassCat(context),
+        resetBtn(context),
         tBypassBtn(context),
         tMainCat(context),
         tRateSlider(context),
@@ -107,7 +92,6 @@ public:
         tDryBtn(context),
         tHalfBtn(context),
         tWetBtn(context),
-        vBypassCat(context),
         vBypassBtn(context),
         vMainCat(context),
         vRateSlider(context),
@@ -117,7 +101,6 @@ public:
         vDryBtn(context),
         vHalfBtn(context),
         vWetBtn(context),
-        mbcBypassCat(context),
         mbcBypassBtn(context),
         mbcMainCat(context),
         mbcRateSlider(context),
@@ -127,7 +110,6 @@ public:
         mbcDryBtn(context),
         mbcHalfBtn(context),
         mbcWetBtn(context),
-        dBypassCat(context),
         dBypassBtn(context),
         dMainCat(context),
         dTimeSlider(context),
@@ -137,7 +119,6 @@ public:
         dDryBtn(context),
         dHalfBtn(context),
         dWetBtn(context),
-        rBypassCat(context),
         rBypassBtn(context),
         rMainCat(context),
         rSizeSlider(context),
@@ -147,7 +128,6 @@ public:
         rDryBtn(context),
         rHalfBtn(context),
         rWetBtn(context),
-        flBypassCat(context),
         flBypassBtn(context),
         flMainCat(context),
         flTypeSelector(context),
@@ -164,5 +144,4 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void initParams();
 };

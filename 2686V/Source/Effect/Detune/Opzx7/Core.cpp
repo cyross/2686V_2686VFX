@@ -24,7 +24,7 @@ const std::array<float, 16> Opzx7Detune::dtScales = {
 // 3: x1.78 (950 cent up)
 const std::array<float, 4> Opzx7Detune::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
 
-void Opzx7Detune::setParameters(int dt, int dt2, int mul)
+void Opzx7Detune::setParameters(int dt, int dt2, int mul, float mulRatio)
 {
     detune = dt & 15;
     realDetune = dtScales[detune];
@@ -38,23 +38,29 @@ void Opzx7Detune::setParameters(int dt, int dt2, int mul)
     case 0:
         realMultiple = 0.5f;
         break;
-    case 16:
+    case 1: 
         realMultiple = 0.891f;
         break;
-    case 17:
+    case 2:
+        realMultiple = 1.0f;
+        break;
+    case 3:
         realMultiple = 1.414f;
         break;
-    case 18:
+    case 4:
         realMultiple = 1.498f;
         break;
-    case 19:
+    case 5:
         realMultiple = 1.581f;
         break;
-    case 20:
+    case 6:
         realMultiple = 1.781f;
         break;
+    case 21:
+        realMultiple = mulRatio;
+        break;
     default:
-        realMultiple = (float)multiple;
+        realMultiple = (float)(multiple - 5);
     }
 }
 

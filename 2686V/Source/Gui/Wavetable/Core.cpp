@@ -4,13 +4,13 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Wavetable/Keys.h"
+#include "../../Processor/Wavetable/Values.h"
 #include "../../Core/Const/FileValues.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> bdItems = {
@@ -23,13 +23,19 @@ static std::vector<SelectItem> bdItems = {
 };
 
 static std::vector<SelectItem> rateItems = {
-    {.name = "1: 96kHz",    .value = 1 },
-    {.name = "2: 55.5kHz",  .value = 2 },
-    {.name = "3: 48kHz",    .value = 3 },
-    {.name = "4: 44.1kHz",  .value = 4 },
-    {.name = "5: 22.05kHz", .value = 5 },
-    {.name = "6: 16kHz",    .value = 6 },
-    {.name = "7: 8kHz",     .value = 7 },
+    {.name = " 1: 96kHz",    .value = 1 },
+    {.name = " 2: 55.5kHz",  .value = 2 },
+    {.name = " 3: 49.7kHz",  .value = 3 },
+    {.name = " 4: 48kHz",    .value = 4 },
+    {.name = " 5: 44.1kHz",  .value = 5 },
+    {.name = " 6: 22.05kHz", .value = 6 },
+    {.name = " 7: 16kHz",    .value = 7 },
+    {.name = " 8: 12kHz",    .value = 8 },
+    {.name = " 9: 11kHz",    .value = 9 },
+    {.name = "10: 8kHz",     .value = 10 },
+    {.name = "11: 5.5kHz",   .value = 11 },
+    {.name = "12: 4kHz",     .value = 12 },
+    {.name = "13: 2kHz",     .value = 13 },
 };
 
 static std::vector<SelectItem> wtWsItems = {
@@ -78,6 +84,28 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+3", .value = 8 }
 };
 
+static std::vector<SelectItem> lfoPmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
+static std::vector<SelectItem> lfoAmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
 void GuiWt::setup()
 {
     auto applySteps = [this] {
@@ -123,35 +151,35 @@ void GuiWt::setup()
         customSliders128.steps = steps;
         customSliders256.steps = steps;
         };
-    const juce::String code = PrKey::Prefix::wt;
+    const juce::String code = WtPrKey::prefix;
     int tabOrder = 1;
 
-    mainGroup.setup(*this, GuiText::Group::mainGroup);
+    mainGroup.setup(*this, WtGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+    presetNameCat.setup({ .parent = *this, .title = WtGuiText::Category::preset });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = *this, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + WtPrKey::rate, .title = WtGuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    mainCat.setup({ .parent = *this, .title = WtGuiText::Category::m });
 
-    levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::level, .title = GuiText::Wt::level, .isReset = true });
+    levelSlider.setup({ .parent = *this, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
     // Waveform
-    waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::wave, .title = GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = *this, .id = code + WtPrKey::wave, .title = WtGuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
@@ -161,21 +189,15 @@ void GuiWt::setup()
         };
 
     // Custom Wave Size
-    sizeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::sampleSize, .title = GuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
+    sizeSelector.setup({ .parent = *this, .id = code + WtPrKey::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
     sizeSelector.setExplicitFocusOrder(++tabOrder);
 
     // Steps
-    stepsSelector.setup({ .parent = *this, .id = code + PrKey::Post::Wt::steps, .title = GuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
+    stepsSelector.setup({ .parent = *this, .id = code + WtPrKey::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
     stepsSelector.setWantsKeyboardFocus(true);
     stepsSelector.setExplicitFocusOrder(++tabOrder);
     stepsSelector.onChange = [this] {
-        // ステップ数が変わると、段階による値が変わるため、いったんリセットする
-        customSliders32.setAllValues(0.0f);
-        customSliders64.setAllValues(0.0f);
-        customSliders128.setAllValues(0.0f);
-        customSliders256.setAllValues(0.0f);
-
         auto applySteps = [this] {
             int stepsIndex = stepsSelector.getSelectedId() - 1;
             int steps = 0;
@@ -225,111 +247,178 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modCat.setup({ .parent = *this, .title = GuiText::Category::mod });
+    modCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
-    modEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::enable, .title = GuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
+    modEnableButton.setup({ .parent = *this, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
     modEnableButton.setWantsKeyboardFocus(true);
     modEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    modDepthSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::depth, .title = GuiText::Wt::Mod::depth, .isReset = true });
+    modDepthSlider.setup({ .parent = *this, .id = code + WtPrKey::Mod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
     modDepthSlider.setWantsKeyboardFocus(true);
     modDepthSlider.setExplicitFocusOrder(++tabOrder);
 
-    modSpeedSlider.setup({ .parent = *this, .id = code + PrKey::Post::Wt::Mod::speed, .title = GuiText::Wt::Mod::speed, .isReset = true });
+    modSpeedSlider.setup({ .parent = *this, .id = code + WtPrKey::Mod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleAdsr, .invisibleTitle = WtGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
-    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::adsr + WtPrKey::bypass, .title = WtGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::ar, .title = WtGuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Adsr::dr, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::dr, .title = WtGuiText::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::sl, .title = WtGuiText::Adsr::sl, .isReset = true });
     sustainSlider.setWantsKeyboardFocus(true);
     sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::rr, .title = WtGuiText::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
+    pitchAdsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visiblePitchAdsr, .invisibleTitle = WtGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::pitchAdsr + WtPrKey::bypass, .title = WtGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
     pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::ar, .title = WtGuiText::PitchAdsr::ar, .isReset = true });
     pitchAttackSlider.setWantsKeyboardFocus(true);
     pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::dr , .title = WtGuiText::PitchAdsr::dr, .isReset = true });
     pitchDecaySlider.setWantsKeyboardFocus(true);
     pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::rr, .title = WtGuiText::PitchAdsr::rr, .isReset = true });
     pitchReleaseSlider.setWantsKeyboardFocus(true);
     pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::stl, .title = WtGuiText::PitchAdsr::stl, .isReset = true });
     pitchStartLevelSlider.setWantsKeyboardFocus(true);
     pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::atl, .title = WtGuiText::PitchAdsr::atl, .isReset = true });
     pitchAttackLevelSlider.setWantsKeyboardFocus(true);
     pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::ssl, .title = WtGuiText::PitchAdsr::ssl, .isReset = true });
     pitchSustainLevelSlider.setWantsKeyboardFocus(true);
     pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + WtPrKey::PitchAdsr::rll, .title = WtGuiText::PitchAdsr::rll, .isReset = true });
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = GuiText::Category::detune });
+    detuneCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleDetune, .invisibleTitle = WtGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
-    dt1.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = *this, .id = code + WtPrKey::dt, .title = WtGuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setup({ .parent = *this, .id = code + WtPrKey::dt2, .title = WtGuiText::Fm::Op::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    lfoCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleLfo, .invisibleTitle = WtGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    lfoPmFreqSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmFreq, .title = WtGuiText::Lfo::pmSpeed, .isReset = true });
+    lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoPmFreqSlider.setWantsKeyboardFocus(true);
+    lfoPmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmFreqSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amFreq, .title = WtGuiText::Lfo::amSpeed, .isReset = true });
+    lfoAmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoAmFreqSlider.setWantsKeyboardFocus(true);
+    lfoAmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amSmoothRatio, .title = WtGuiText::Lfo::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
+    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::syncDelay, .title = WtGuiText::Lfo::syncDelay, .isReset = true });
+    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
+    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false });
+    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToZeroBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(0.0f);
+        };
+
+    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
+    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToOneBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(1.0f);
+        };
+
+    lfoPmToggle.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pm, .title = WtGuiText::Lfo::pmEn, .isReset = true });
+    lfoPmToggle.setWantsKeyboardFocus(true);
+    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmShapeSelector.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmShape, .title = WtGuiText::Lfo::pmShape, .items = lfoPmShapeItems, .isReset = true });
+    lfoPmShapeSelector.setWantsKeyboardFocus(true);
+    lfoPmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pms, .title = WtGuiText::Lfo::pms, .isReset = true });
+    lfoPmsSlider.setWantsKeyboardFocus(true);
+    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmdSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmd, .title = WtGuiText::Lfo::pmd, .isReset = true });
+    lfoPmdSlider.setWantsKeyboardFocus(true);
+    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmToggle.setup({ .parent = *this, .id = code + WtPrKey::Lfo::am, .title = WtGuiText::Lfo::amEn, .isReset = true });
+    lfoAmToggle.setWantsKeyboardFocus(true);
+    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmShapeSelector.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amShape, .title = WtGuiText::Lfo::amShape, .items = lfoAmShapeItems, .isReset = true });
+    lfoAmShapeSelector.setWantsKeyboardFocus(true);
+    lfoAmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmsSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::ams, .title = WtGuiText::Lfo::ams, .isReset = true });
+    lfoAmsSlider.setWantsKeyboardFocus(true);
+    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmdSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amd, .title = WtGuiText::Lfo::amd, .isReset = true });
+    lfoAmdSlider.setWantsKeyboardFocus(true);
+    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    monoPolyCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+
+    monoModeToggle.setup({ .parent = *this, .id = WtPrKey::monoMode, .title = WtGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMvol, .invisibleTitle = WtGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     // Master Volume
-	masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+	masterVolSlider.setup({ .parent = *this, .id = WtPrKey::masterVol, .title = WtGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
     // Custom Wave Group
-	customWaveGroup.setup(*this, GuiText::Group::wtCustom);
+	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
 
     // Custom Wave Sliders
-	customSliders32.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom32 });
-    customSliders64.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom64 });
-    customSliders128.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom128 });
-    customSliders256.setup({ .parent = *this, .idPrefix = code + PrKey::Innder::custom256 });
+	customSliders32.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom32 });
+    customSliders64.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom64 });
+    customSliders128.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom128 });
+    customSliders256.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom256 });
 
-	customWaveResetTo0Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
+	customWaveResetTo0Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
     customWaveResetTo0Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo0Btn.onClick = [this] {
@@ -340,7 +429,7 @@ void GuiWt::setup()
         ctx.editor.resized();
     };
 
-    customWaveResetTo1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::to1, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
+    customWaveResetTo1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to1, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
     customWaveResetTo1Btn.setWantsKeyboardFocus(true);
     customWaveResetTo1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo1Btn.onClick = [this] {
@@ -351,7 +440,7 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    customWaveResetToM1Btn.setup({ .parent = *this, .title = GuiText::Wt::Custom::toM1, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
+    customWaveResetToM1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::toM1, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
     customWaveResetToM1Btn.setWantsKeyboardFocus(true);
     customWaveResetToM1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetToM1Btn.onClick = [this] {
@@ -362,7 +451,7 @@ void GuiWt::setup()
         resized();
         };
 
-    customWaveSmoothBtn.setup({ .parent = *this, .title = GuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
     customWaveSmoothBtn.setWantsKeyboardFocus(true);
     customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
     customWaveSmoothBtn.onClick = [this] {
@@ -374,14 +463,14 @@ void GuiWt::setup()
         else if (sizeId == 4) customSliders256.applySmoothing();
         };
 
-    waveFileCat.setup({ .parent = *this, .title = GuiText::Category::waveFile });
+    waveFileCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleWaveFile, .invisibleTitle = WtGuiText::Category::invisibleWaveFile, .enableChangeDetailVisible = true });
 
-    customWaveImportBtn.setup({ .parent = *this, .title = GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveImportBtn.setup({ .parent = *this, .title = WtGuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
     customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveImportBtn.onClick = [this] { importWavetable(); };
 
-    customWaveExportBtn.setup({ .parent = *this, .title = GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveExportBtn.setup({ .parent = *this, .title = WtGuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
@@ -393,17 +482,17 @@ void GuiWt::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
+    auto mainArea = pageArea.removeFromLeft(WtGuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto mRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
+    mRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = WtGuiValue::PresetName::paddingBottom });
+
+    layoutQualityCat(mRect);
+
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
@@ -417,40 +506,21 @@ void GuiWt::layout(juce::Rectangle<int> content)
         layoutMain({ .mainRect = mRect, .label = &stepsSelector.label, .component = &stepsSelector, });
     }
 
-    layoutMainCategory({ .mainRect = mRect, .label = &modCat });
-    layoutMain({ .mainRect = mRect, .component = &modEnableButton });
-    layoutMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
-    layoutMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+    layoutModulationCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
-    layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
+    layoutAdsrCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
-    layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    layoutPitchEnvCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &detuneCat });
-    layoutMain({ .mainRect = mRect, .label = &dt1.label, .component = &dt1 });
-    layoutMain({ .mainRect = mRect, .label = &dt2.label, .component = &dt2 });
+    layoutDetuneCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &waveFileCat });
-    layoutMain({ .mainRect = mRect, .component = &customWaveImportBtn });
-    layoutMain({ .mainRect = mRect, .component = &customWaveExportBtn });
+    layoutLfoCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutWavefileCat(mRect);
+
+    layoutMonoModeCat(mRect);
+
+    layoutMvolCat(mRect);
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);
@@ -473,14 +543,14 @@ void GuiWt::layout(juce::Rectangle<int> content)
     // Custom Mode Layout
     // 中央に32/64本のスライダーを配置
     // 波形選択が Custom 以外の時は Disabled 表示
-    auto rightArea = pageArea.removeFromLeft(GuiValue::Wt::RightWidth).removeFromTop(GuiValue::Wt::RightHeight);
+    auto rightArea = pageArea.removeFromLeft(WtGuiValue::Wt::RightWidth).removeFromTop(WtGuiValue::Wt::RightHeight);
 
     customWaveGroup.setBounds(rightArea);
 
-    auto cwRect = customWaveGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    cwRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto cwRect = customWaveGroup.getBounds().reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
+    cwRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
-    auto containerArea = cwRect.removeFromTop(GuiValue::Wt::Custom::Slider::Height);
+    auto containerArea = cwRect.removeFromTop(WtGuiValue::Wt::Custom::Slider::Height);
 
     customSliders32.setBounds(containerArea);
     customSliders64.setBounds(containerArea);
@@ -550,12 +620,12 @@ void GuiWt::layout(juce::Rectangle<int> content)
         }
     }
 
-    cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
+    cwRect.removeFromTop(WtGuiValue::Wt::Custom::ResetBtn::Padding::Top);
 
     auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
     customWaveSmoothBtn.setBounds(smoothArea);
 
-    cwRect.removeFromTop(GuiValue::Wt::Custom::ResetBtn::Padding::Top);
+    cwRect.removeFromTop(WtGuiValue::Wt::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });
 
     updateCustomWaveCatOnChange();
@@ -684,4 +754,184 @@ void GuiWt::exportWavetable()
 void GuiWt::initParams()
 {
     this->ctx.audioProcessor.initParams("WT_");
+}
+
+void GuiWt::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    bitSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiWt::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiWt::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiWt::layoutModulationCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &modCat });
+
+    bool visible = modCat.isDetailVisible();
+
+    modEnableButton.setVisible(visible);
+    modDepthSlider.setVisibleWithLabel(visible);
+    modSpeedSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &modEnableButton });
+        layoutMain({ .mainRect = rect, .label = &modDepthSlider.label, .component = &modDepthSlider });
+        layoutMain({ .mainRect = rect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+    }
+}
+
+void GuiWt::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    adsrBypassButton.setVisible(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
+}
+
+void GuiWt::layoutPitchEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
+
+    bool visible = pitchAdsrCat.isDetailVisible();
+
+    pitchAdsrBypassButton.setVisible(visible);
+    pitchAttackSlider.setVisibleWithLabel(visible);
+    pitchDecaySlider.setVisibleWithLabel(visible);
+    pitchReleaseSlider.setVisibleWithLabel(visible);
+    pitchStartLevelSlider.setVisibleWithLabel(visible);
+    pitchAttackLevelSlider.setVisibleWithLabel(visible);
+    pitchSustainLevelSlider.setVisibleWithLabel(visible);
+    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void GuiWt::layoutDetuneCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &detuneCat });
+
+    bool visible = detuneCat.isDetailVisible();
+
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
+    }
+}
+
+void GuiWt::layoutWavefileCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &waveFileCat });
+
+    bool visible = waveFileCat.isDetailVisible();
+
+    customWaveImportBtn.setVisible(visible);
+    customWaveExportBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
+        layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
+    }
+}
+
+void GuiWt::layoutLfoCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
+
+    bool visible = lfoCat.isDetailVisible();
+
+    lfoPmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmSmRtSlider.setVisibleWithLabel(visible);
+    lfoSyncDelaySlider.setVisibleWithLabel(visible);
+    lfoSyncDelayToZeroBtn.setVisible(visible);
+    lfoSyncDelayToOneBtn.setVisible(visible);
+    lfoPmToggle.setVisible(visible);
+    lfoPmShapeSelector.setVisibleWithLabel(visible);
+    lfoPmsSlider.setVisibleWithLabel(visible);
+    lfoPmdSlider.setVisibleWithLabel(visible);
+    lfoAmToggle.setVisible(visible);
+    lfoAmShapeSelector.setVisibleWithLabel(visible);
+    lfoAmsSlider.setVisibleWithLabel(visible);
+    lfoAmdSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &lfoPmFreqSlider.label, .component = &lfoPmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmFreqSlider.label, .component = &lfoAmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
+        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoPmShapeSelector.label, .component = &lfoPmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoAmShapeSelector.label, .component = &lfoAmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+    }
 }

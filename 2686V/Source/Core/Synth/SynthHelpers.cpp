@@ -8,19 +8,31 @@
 double getTargetRate(int index, double defaultValue) {
     switch (index) {
         case 1:
-            return 96000.0;
+            return 96000.0; // 96kHz
         case 2:
-            return 55500.0;
+            return 55500.0; // 55.5kHz
         case 3:
-            return 48000.0;
+            return 49700.0; // 49.7kHz
         case 4:
-            return 44100.0;
+            return 48000.0; // 48kHz
         case 5:
-            return 22050.0;
+            return 44100.0; // 44.1kHz
         case 6:
-            return 16000.0;
+            return 22050.0; // 22.05kHz
         case 7:
-            return 8000.0;
+            return 16000.0; // 16kHz
+        case 8:
+            return 12000.0; // 12kHz
+        case 9:
+            return 11000.0; // 11.00kHz
+        case 10:
+            return 8000.0;  // 8kHz
+        case 11:
+            return 5550.0;  // 55.5kHz
+        case 12:
+            return 4410.0;  // 4kHz
+        case 13:
+            return 2205.0;  // 2kHz
     }
 
     return defaultValue;

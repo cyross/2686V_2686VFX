@@ -14,8 +14,8 @@ struct WtParams
     int  bitDepth = 3;
 
     // --- Sampling Rate ---
-    // 0:96k, 1:55.5k, 2:48k, 3:44.1k, 4:22.05k, 5:16k, 6:8k
-    int rateIndex = 6;
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
+    int rateIndex = 3; // Default 49.7kHz
 
     int tableSize = 0; // 0:32, 1:64
     int steps = 0;     // Steps : 0:Free, 1:16(+), 2:32(+), 3:64(+), 4:128(+), 5:256(+), 6:16(-), 7:32(-), 8:64(-), 9:128(-), 10:256(-)
@@ -44,4 +44,36 @@ struct WtParams
     // detune
     int detune = 0;
     int detune2 = 0;
+
+    // LFO Speed Freq (approx 3Hz - 30Hz)
+    float lfoAmFreq = 5.0f;
+    float lfoPmFreq = 5.0f;
+
+    // LFO Enable Flag
+    bool lfoAmEnable = false;
+    bool lfoPmEnable = false;
+
+    // LFO Sensitivity
+
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
+
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
+
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
+
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
+
+    // LFO Waveform
+    int lfoPmWave = 0;
+    int lfoAmWave = 0;
+
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
+    // LFO Sync Delay
+    int lfoSyncDelay = 0;
 };

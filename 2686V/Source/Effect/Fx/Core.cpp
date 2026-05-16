@@ -2,7 +2,7 @@
 
 #include "./Core.h"
 
-#include "../../Core/Const/PrKeys.h"
+#include "../../Core/Processor/Keys.h"
 
 void FxTremolo::prepare(double sampleRate)
 {

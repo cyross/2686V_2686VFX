@@ -21,6 +21,7 @@ class AmpAdsrEnv {
 	void updateIncrements();
 public:
 	void prepare(double sampleRate);
+	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(const AmpAdsrParams& params);
 	void noteOn();
 	void noteOff();

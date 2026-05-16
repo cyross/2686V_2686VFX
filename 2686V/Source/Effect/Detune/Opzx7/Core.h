@@ -14,6 +14,6 @@ class Opzx7Detune
 	int multiple;
 	float realMultiple;
 public:
-	void setParameters(int dt, int dt2, int mul);
+	void setParameters(int dt, int dt2, int mul, float mulRatio);
 	float noteOn(float baseFreq) const;
 };

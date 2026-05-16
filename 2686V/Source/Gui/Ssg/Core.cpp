@@ -4,12 +4,12 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Ssg/Keys.h"
+#include "../../Processor/Ssg/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> bdItems = {
@@ -22,13 +22,19 @@ static std::vector<SelectItem> bdItems = {
 };
 
 static std::vector<SelectItem> rateItems = {
-    {.name = "1: 96kHz",    .value = 1 },
-    {.name = "2: 55.5kHz",  .value = 2 },
-    {.name = "3: 48kHz",    .value = 3 },
-    {.name = "4: 44.1kHz",  .value = 4 },
-    {.name = "5: 22.05kHz", .value = 5 },
-    {.name = "6: 16kHz",    .value = 6 },
-    {.name = "7: 8kHz",     .value = 7 },
+    {.name = " 1: 96kHz",    .value = 1 },
+    {.name = " 2: 55.5kHz",  .value = 2 },
+    {.name = " 3: 49.7kHz",  .value = 3 },
+    {.name = " 4: 48kHz",    .value = 4 },
+    {.name = " 5: 44.1kHz",  .value = 5 },
+    {.name = " 6: 22.05kHz", .value = 6 },
+    {.name = " 7: 16kHz",    .value = 7 },
+    {.name = " 8: 12kHz",    .value = 8 },
+    {.name = " 9: 11kHz",    .value = 9 },
+    {.name = "10: 8kHz",     .value = 10 },
+    {.name = "11: 5.5kHz",   .value = 11 },
+    {.name = "12: 4kHz",     .value = 12 },
+    {.name = "13: 2kHz",     .value = 13 },
 };
 
 static std::vector<SelectItem> ssgEnvItems = {
@@ -76,284 +82,358 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+3", .value = 8 }
 };
 
+static std::vector<SelectItem> lfoPmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
+static std::vector<SelectItem> lfoAmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
 void GuiSsg::setup()
 {
-    const juce::String code = PrKey::Prefix::ssg;
+    const juce::String code = SsgPrKey::prefix;
     int tabOrder = 1;
 
-    mainGroup.setup(*this, GuiText::Group::mainGroup);
+    mainGroup.setup(*this, SsgGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+    presetNameCat.setup({ .parent = *this, .title = SsgGuiText::Category::preset });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::bit, .title = GuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = *this, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::rate, .title = GuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + SsgPrKey::rate, .title = SsgGuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleAdsr, .invisibleTitle = SsgGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
-    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::adsr + SsgPrKey::bypass, .title = SsgGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Adsr::ar, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::ar, .title = SsgGuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr , .title = GuiText::Adsr::dr, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::dr , .title = SsgGuiText::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Adsr::sl, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::sl, .title = SsgGuiText::Adsr::sl, .isReset = true });
     sustainSlider.setWantsKeyboardFocus(true);
     sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Adsr::rr, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::rr, .title = SsgGuiText::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = GuiText::Category::pitchAdsr });
+    pitchAdsrCat.setup({ .parent = *this, .title = SsgGuiText::Category::visiblePitchAdsr, .invisibleTitle = SsgGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::pitchAdsr + PrKey::Post::bypass, .title = GuiText::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::pitchAdsr + SsgPrKey::bypass, .title = SsgGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
     pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ar, .title = GuiText::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::ar, .title = SsgGuiText::PitchAdsr::ar, .isReset = true });
     pitchAttackSlider.setWantsKeyboardFocus(true);
     pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchDecaySlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::dr , .title = GuiText::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::dr , .title = SsgGuiText::PitchAdsr::dr, .isReset = true });
     pitchDecaySlider.setWantsKeyboardFocus(true);
     pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rr, .title = GuiText::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::rr, .title = SsgGuiText::PitchAdsr::rr, .isReset = true });
     pitchReleaseSlider.setWantsKeyboardFocus(true);
     pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchStartLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::stl, .title = GuiText::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::stl, .title = SsgGuiText::PitchAdsr::stl, .isReset = true });
     pitchStartLevelSlider.setWantsKeyboardFocus(true);
     pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::atl, .title = GuiText::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::atl, .title = SsgGuiText::PitchAdsr::atl, .isReset = true });
     pitchAttackLevelSlider.setWantsKeyboardFocus(true);
     pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::ssl, .title = GuiText::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::ssl, .title = SsgGuiText::PitchAdsr::ssl, .isReset = true });
     pitchSustainLevelSlider.setWantsKeyboardFocus(true);
     pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + PrKey::Post::PitchAdsr::rll, .title = GuiText::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::rll, .title = SsgGuiText::PitchAdsr::rll, .isReset = true });
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = GuiText::Category::detune });
+    detuneCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
-    dt1.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt, .title = GuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = *this, .id = code + PrKey::Post::Fm::Op::dt2, .title = GuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setup({ .parent = *this, .id = code + SsgPrKey::dt2, .title = SsgGuiText::Fm::Op::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    lfoCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleLfo, .invisibleTitle = SsgGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    lfoPmFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmFreq, .title = SsgGuiText::Lfo::pmSpeed, .isReset = true });
+    lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoPmFreqSlider.setWantsKeyboardFocus(true);
+    lfoPmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amFreq, .title = SsgGuiText::Lfo::amSpeed, .isReset = true });
+    lfoAmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoAmFreqSlider.setWantsKeyboardFocus(true);
+    lfoAmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amSmoothRatio, .title = SsgGuiText::Lfo::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
+    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::syncDelay, .title = SsgGuiText::Lfo::syncDelay, .isReset = true });
+    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
+    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false });
+    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToZeroBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(0.0f);
+        };
+
+    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
+    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToOneBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(1.0f);
+        };
+
+    lfoPmToggle.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pm, .title = SsgGuiText::Lfo::pmEn, .isReset = true });
+    lfoPmToggle.setWantsKeyboardFocus(true);
+    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmShapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmShape, .title = SsgGuiText::Lfo::pmShape, .items = lfoPmShapeItems, .isReset = true });
+    lfoPmShapeSelector.setWantsKeyboardFocus(true);
+    lfoPmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pms, .title = SsgGuiText::Lfo::pms, .isReset = true });
+    lfoPmsSlider.setWantsKeyboardFocus(true);
+    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmdSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmd, .title = SsgGuiText::Lfo::pmd, .isReset = true });
+    lfoPmdSlider.setWantsKeyboardFocus(true);
+    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmToggle.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::am, .title = SsgGuiText::Lfo::amEn, .isReset = true });
+    lfoAmToggle.setWantsKeyboardFocus(true);
+    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmShapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amShape, .title = SsgGuiText::Lfo::amShape, .items = lfoAmShapeItems, .isReset = true });
+    lfoAmShapeSelector.setWantsKeyboardFocus(true);
+    lfoAmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmsSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::ams, .title = SsgGuiText::Lfo::ams, .isReset = true });
+    lfoAmsSlider.setWantsKeyboardFocus(true);
+    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmdSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amd, .title = SsgGuiText::Lfo::amd, .isReset = true });
+    lfoAmdSlider.setWantsKeyboardFocus(true);
+    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    monoPolyCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleMonoMode, .invisibleTitle = SsgGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+
+    monoModeToggle.setup({ .parent = *this, .id = SsgPrKey::monoMode, .title = SsgGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleMvol, .invisibleTitle = SsgGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = SsgPrKey::masterVol, .title = SsgGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
-	voiceGroup.setup(*this, GuiText::Group::voice);
+	voiceGroup.setup(*this, SsgGuiText::Group::voice);
 
-    shapeCat.setup({ .parent = *this, .title = GuiText::Category::shape });
+    shapeCat.setup({ .parent = *this, .title = SsgGuiText::Category::shape });
 
-    waveSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::wveform, .title = GuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = *this, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneCat.setup({ .parent = *this, .title = GuiText::Category::ssgTone });
+    toneCat.setup({ .parent = *this, .title = SsgGuiText::Category::ssgTone });
 
-    levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::tone, .title = GuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    levelSlider.setup({ .parent = *this, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseCat.setup({ .parent = *this, .title = GuiText::Category::ssgNoise });
+    noiseCat.setup({ .parent = *this, .title = SsgGuiText::Category::ssgNoise });
 
-    noiseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noise, .title = GuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = *this, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseFreq, .title = GuiText::Ssg::Voice::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::noiseFreq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseOnNoteButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::noiseOnNote, .title = GuiText::Ssg::Voice::noiseOnNote, .isReset = true });
+    noiseOnNoteButton.setup({ .parent = *this, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
 
-    mixCat.setup({ .parent = *this, .title = GuiText::Category::mix });
+    mixCat.setup({ .parent = *this, .title = SsgGuiText::Category::mix });
 
     // 初期状態反映
-    mixSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::mix , .title = GuiText::Ssg::Voice::mix, .isReset = true });
+    mixSlider.setup({ .parent = *this, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
-    mixSetTone.setup({ .parent = *this, .title = GuiText::Ssg::Voice::tone, .isReset = false, .isResized = false });
+    mixSetTone.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::tone, .isReset = false, .isResized = false });
     mixSetTone.setWantsKeyboardFocus(true);
     mixSetTone.setExplicitFocusOrder(++tabOrder);
     mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
 
-    mixSetMix.setup({ .parent = *this, .title = GuiText::Ssg::Voice::mix, .isReset = false, .isResized = false });
+    mixSetMix.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::mix, .isReset = false, .isResized = false });
     mixSetMix.setWantsKeyboardFocus(true);
     mixSetMix.setExplicitFocusOrder(++tabOrder);
     mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
 
-    mixSetNoise.setup({ .parent = *this, .title = GuiText::Ssg::Voice::noise, .isReset = false, .isResized = false });
+    mixSetNoise.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::noise, .isReset = false, .isResized = false });
     mixSetNoise.setWantsKeyboardFocus(true);
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
     // Duty Controls Setup
-    dutyGroup.setup(*this, GuiText::Group::ssgDuty);
+    dutyGroup.setup(*this, SsgGuiText::Group::ssgDuty);
 
-    pulseDutyCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    pulseDutyCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
 
-    dutyModeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::mode, .title = GuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+    dutyModeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Duty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyPresetSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::preset, .title = GuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+    dutyPresetSelector.setup({ .parent = *this, .id = code + SsgPrKey::Duty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
     dutyPresetSelector.setWantsKeyboardFocus(true);
     dutyPresetSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyVarSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::var, .title = GuiText::Ssg::Duty::var, .isReset = true });
+    dutyVarSlider.setup({ .parent = *this, .id = code + SsgPrKey::Duty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
-    pulseInvCat.setup({ .parent = *this, .title = GuiText::Category::invert });
+    pulseInvCat.setup({ .parent = *this, .title = SsgGuiText::Category::invert });
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Duty::inv, .title = GuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
+    dutyInvertButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
-    triGroup.setup(*this, GuiText::Group::ssgTri);
+    triGroup.setup(*this, SsgGuiText::Group::ssgTri);
 
-    triCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    triCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
 
-    triKeyTrackButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::keyTrk, .title = GuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+    triKeyTrackButton.setup({ .parent = *this, .id = code + SsgPrKey::Tri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
     triKeyTrackButton.setExplicitFocusOrder(++tabOrder);
 
-    triFreqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::freq, .title = GuiText::Ssg::Tri::manualFreq, .isReset = true });
+    triFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Tri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    triPeakCat.setup({ .parent = *this, .title = GuiText::Category::peak });
+    triPeakCat.setup({ .parent = *this, .title = SsgGuiText::Category::peak });
 
-    triPeakSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::Tri::peak, .title = GuiText::Ssg::Tri::peak, .isReset = true });
+    triPeakSlider.setup({ .parent = *this, .id = code + SsgPrKey::Tri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);
     triPeakSlider.setExplicitFocusOrder(++tabOrder);
 
-    triSetSawDown.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
+    triSetSawDown.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo00, .isReset = false, .isResized = false });
     triSetSawDown.setWantsKeyboardFocus(true);
     triSetSawDown.setExplicitFocusOrder(++tabOrder);
     triSetSawDown.onClick = [this] { triPeakSlider.setValue(0.0, juce::sendNotification); };
 
-    triSetTri.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
+    triSetTri.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo05, .isReset = false, .isResized = false });
     triSetTri.setWantsKeyboardFocus(true);
     triSetTri.setExplicitFocusOrder(++tabOrder);
     triSetTri.onClick = [this] { triPeakSlider.setValue(0.5, juce::sendNotification); };
 
-    triSetSawUp.setup({ .parent = *this, .title = GuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
+    triSetSawUp.setup({ .parent = *this, .title = SsgGuiText::Ssg::Tri::peakTo10, .isReset = false, .isResized = false });
     triSetSawUp.setWantsKeyboardFocus(true);
     triSetSawUp.setExplicitFocusOrder(++tabOrder);
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
 
     // HW Env Group
-	envGroup.setup(*this, GuiText::Group::ssgHwEnv);
+	envGroup.setup(*this, SsgGuiText::Group::ssgHwEnv);
 
-    hwEnvCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    hwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
 
-    envEnableButton.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::enable, .title = GuiText::Ssg::HwEnv::enable, .isReset = true });
+    envEnableButton.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
     envEnableButton.setWantsKeyboardFocus(true);
     envEnableButton.setExplicitFocusOrder(++tabOrder);
     
-    shapeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::shape, .title = GuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+    shapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
     
-    periodSlider.setup({ .parent = *this, .id = code + PrKey::Post::Ssg::HwEnv::period, .title = GuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
+    periodSlider.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)
 {
-    juce::String code = PrKey::Prefix::ssg;
+    juce::String code = SsgPrKey::prefix;
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
+    auto mainArea = pageArea.removeFromLeft(SsgGuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto mRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
+    mRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = SsgGuiValue::PresetName::paddingBottom });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
-    layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
+    layoutQualityCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
-    layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    layoutAdsrCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &detuneCat });
-    layoutMain({ .mainRect = mRect, .label = &dt1.label, .component = &dt1 });
-    layoutMain({ .mainRect = mRect, .label = &dt2.label, .component = &dt2 });
+    layoutPitchEnvCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutDetuneCat(mRect);
 
-    auto paramArea = pageArea.removeFromLeft(GuiValue::Fm::Op::width);
+    layoutLfoCat(mRect);
+
+    layoutMonoModeCat(mRect);
+
+    layoutMvolCat(mRect);
+
+    auto paramArea = pageArea.removeFromLeft(SsgGuiValue::Fm::Op::width);
 
     // --- Voice Group ---
     auto voiceArea = paramArea.removeFromTop(230);
 
     voiceGroup.setBounds(voiceArea);
-    auto vRect = voiceGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    auto vRect = voiceGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-    vRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    vRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
     layoutRowCategory({ .rowRect = vRect, .label = &shapeCat });
     layoutRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, });
@@ -368,8 +448,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = vRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
-    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::wveform);
-    int waveMode = (waveParam > PrValue::boolThread) ? 1 : 0;
+    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::wveform);
+    int waveMode = (waveParam > SsgPrValue::boolThread) ? 1 : 0;
     auto waveArea = paramArea.removeFromTop(140);
 
     if (waveMode == 0) // Pulse
@@ -394,14 +474,14 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
-        auto dRect = dutyGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+        auto dRect = dutyGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        dRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+        dRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
         layoutRowCategory({ .rowRect = dRect, .label = &pulseDutyCat });
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
-        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + PrKey::Post::Ssg::Duty::mode);
+        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
         if (dutyModeVal < 0.5f) {
             dutyPresetSelector.setVisibleWithLabel(true);
             dutyVarSlider.setVisibleWithLabel(false);
@@ -439,9 +519,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetSawUp.setVisible(true);
 
         triGroup.setBounds(waveArea);
-        auto tRect = triGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+        auto tRect = triGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-        tRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+        tRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
         layoutRowCategory({ .rowRect = tRect, .label = &triCat });
         layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
@@ -454,7 +534,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         }
         else
         {
-            tRect.removeFromTop(GuiValue::Category::paddingTop);
+            tRect.removeFromTop(SsgGuiValue::Category::paddingTop);
         }
 
         layoutRowCategory({ .rowRect = tRect, .label = &triPeakCat });
@@ -465,9 +545,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // HW Env Group
     auto envArea = paramArea.removeFromTop(120);
     envGroup.setBounds(envArea);
-    auto eRect = envGroup.getBounds().reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    auto eRect = envGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
 
-    eRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    eRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
     layoutRowCategory({ .rowRect = eRect, .label = &hwEnvCat });
     layoutRow({ .rowRect = eRect, .component = &envEnableButton });
@@ -483,4 +563,150 @@ void GuiSsg::updatePresetName(const juce::String& presetName)
 void GuiSsg::initParams()
 {
     this->ctx.audioProcessor.initParams("SSG_");
+}
+
+void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    bitSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiSsg::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiSsg::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiSsg::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    adsrBypassButton.setVisible(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
+}
+
+void GuiSsg::layoutPitchEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
+
+    bool visible = pitchAdsrCat.isDetailVisible();
+
+    pitchAdsrBypassButton.setVisible(visible);
+    pitchAttackSlider.setVisibleWithLabel(visible);
+    pitchDecaySlider.setVisibleWithLabel(visible);
+    pitchReleaseSlider.setVisibleWithLabel(visible);
+    pitchStartLevelSlider.setVisibleWithLabel(visible);
+    pitchAttackLevelSlider.setVisibleWithLabel(visible);
+    pitchSustainLevelSlider.setVisibleWithLabel(visible);
+    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void GuiSsg::layoutDetuneCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &detuneCat });
+
+    bool visible = detuneCat.isDetailVisible();
+
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
+    }
+}
+
+void GuiSsg::layoutLfoCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
+
+    bool visible = lfoCat.isDetailVisible();
+
+    lfoPmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmSmRtSlider.setVisibleWithLabel(visible);
+    lfoSyncDelaySlider.setVisibleWithLabel(visible);
+    lfoSyncDelayToZeroBtn.setVisible(visible);
+    lfoSyncDelayToOneBtn.setVisible(visible);
+    lfoPmToggle.setVisible(visible);
+    lfoPmShapeSelector.setVisibleWithLabel(visible);
+    lfoPmsSlider.setVisibleWithLabel(visible);
+    lfoPmdSlider.setVisibleWithLabel(visible);
+    lfoAmToggle.setVisible(visible);
+    lfoAmShapeSelector.setVisibleWithLabel(visible);
+    lfoAmsSlider.setVisibleWithLabel(visible);
+    lfoAmdSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &lfoPmFreqSlider.label, .component = &lfoPmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmFreqSlider.label, .component = &lfoAmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
+        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoPmShapeSelector.label, .component = &lfoPmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoAmShapeSelector.label, .component = &lfoAmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+    }
 }

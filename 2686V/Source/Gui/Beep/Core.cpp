@@ -2,43 +2,43 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Beep/Keys.h"
+#include "../../Processor/Beep/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 
 void GuiBeep::setup() {
-    juce::String code = PrKey::Prefix::beep;
+    juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
 
-    mainGroup.setup(*this, GuiText::Group::mainGroup); // GuiText 等に置換
+    mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+    presetNameCat.setup({ .parent = *this, .title = BeepGuiText::Category::preset });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    mainCat.setup({ .parent = *this, .title = BeepGuiText::Category::m });
 
-    volSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::level, .title = GuiText::Beep::Level, .isReset = true });
+    volSlider.setup({ .parent = *this, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
-    catFix.setup({ .parent = *this, .title = GuiText::Category::visibleFix, .invisibleTitle = GuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
+    catFix.setup({ .parent = *this, .title = BeepGuiText::Category::visibleFix, .invisibleTitle = BeepGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
-    fixToggle.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fix, .title = GuiText::Beep::Fix, .isReset = true });
+    fixToggle.setup({ .parent = *this, .id = code + BeepPrKey::fix, .title = BeepGuiText::Beep::Fix, .isReset = true });
     fixToggle.setWantsKeyboardFocus(true);
     fixToggle.setExplicitFocusOrder(++tabOrder);
 
-    freqSlider.setup({ .parent = *this, .id = code + PrKey::Post::Beep::fixFreq, .title = GuiText::Beep::FFreq, .isReset = true });
+    freqSlider.setup({ .parent = *this, .id = code + BeepPrKey::fixFreq, .title = BeepGuiText::Beep::FFreq, .isReset = true });
     freqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freqSlider.setWantsKeyboardFocus(true);
     freqSlider.setExplicitFocusOrder(++tabOrder);
 
-    freqTo2kBtn.setup({ .parent = *this, .title = GuiText::Beep::To2k, .isReset = false, .isResized = false });
+    freqTo2kBtn.setup({ .parent = *this, .title = BeepGuiText::Beep::To2k, .isReset = false, .isResized = false });
     freqTo2kBtn.setWantsKeyboardFocus(true);
     freqTo2kBtn.setExplicitFocusOrder(++tabOrder);
 
@@ -46,37 +46,37 @@ void GuiBeep::setup() {
     freqTo2kBtn.setWantsKeyboardFocus(true);
     freqTo2kBtn.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleAdsr, .invisibleTitle = BeepGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
-    bypassToggle.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Beep::Adsr::Bypass, .isReset = true });
+    bypassToggle.setup({ .parent = *this, .id = code + BeepPrKey::adsr + BeepPrKey::bypass, .title = BeepGuiText::Beep::Adsr::Bypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
-    ar.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::ar, .title = GuiText::Beep::Adsr::Ar, .isReset = true });
+    ar.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::ar, .title = BeepGuiText::Beep::Adsr::Ar, .isReset = true });
     ar.setWantsKeyboardFocus(true);
     ar.setExplicitFocusOrder(++tabOrder);
 
-    dr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::dr, .title = GuiText::Beep::Adsr::Dr, .isReset = true });
+    dr.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::dr, .title = BeepGuiText::Beep::Adsr::Dr, .isReset = true });
     dr.setWantsKeyboardFocus(true);
     dr.setExplicitFocusOrder(++tabOrder);
 
-    sl.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::sl, .title = GuiText::Beep::Adsr::Sl, .isReset = true });
+    sl.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::sl, .title = BeepGuiText::Beep::Adsr::Sl, .isReset = true });
     sl.setWantsKeyboardFocus(true);
     sl.setExplicitFocusOrder(++tabOrder);
 
-    rr.setup({ .parent = *this, .id = code + PrKey::Post::Adsr::rr, .title = GuiText::Beep::Adsr::Rr, .isReset = true });
+    rr.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::rr, .title = BeepGuiText::Beep::Adsr::Rr, .isReset = true });
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = GuiText::Category::monoMode });
+    monoPolyCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMonoMode, .invisibleTitle = BeepGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
-    monoModeToggle.setup({ .parent = *this, .id = PrKey::monoMode, .title = GuiText::monoPoly, .isReset = true });
+    monoModeToggle.setup({ .parent = *this, .id = BeepPrKey::monoMode, .title = BeepGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMvol, .invisibleTitle = BeepGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = BeepPrKey::masterVol, .title = BeepGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
@@ -85,43 +85,24 @@ void GuiBeep::setup() {
 void GuiBeep::layout(juce::Rectangle<int> content) {
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
+    auto mainArea = pageArea.removeFromLeft(BeepGuiValue::MainGroup::width);
     mainGroup.setBounds(mainArea);
 
-    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto mRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
+    mRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = BeepGuiValue::PresetName::paddingBottom });
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &catFix });
+    layoutFixCat(mRect);
 
+    layoutAdsrCat(mRect);
 
-    bool visibleFix = catFix.isDetailVisible();
+    layoutMonoModeCat(mRect);
 
-    fixToggle.setVisible(visibleFix);
-    freqSlider.setVisibleWithLabel(visibleFix);
-    freqTo2kBtn.setVisible(visibleFix);
-
-    if (visibleFix)
-    {
-        layoutMain({ .mainRect = mRect, .component = &fixToggle });
-        layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider });
-        layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
-    }
-
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &bypassToggle });
-    layoutMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });
-    layoutMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
-    layoutMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
-    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutMvolCat(mRect);
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)
@@ -132,4 +113,70 @@ void GuiBeep::updatePresetName(const juce::String& presetName)
 void GuiBeep::initParams()
 {
     this->ctx.audioProcessor.initParams("BEEP_");
+}
+
+void GuiBeep::layoutFixCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &catFix });
+
+    bool visibleFix = catFix.isDetailVisible();
+
+    fixToggle.setVisible(visibleFix);
+    freqSlider.setVisibleWithLabel(visibleFix);
+    freqTo2kBtn.setVisible(visibleFix);
+
+    if (visibleFix)
+    {
+        layoutMain({ .mainRect = rect, .component = &fixToggle });
+        layoutMain({ .mainRect = rect, .label = &freqSlider.label, .component = &freqSlider });
+        layoutMain({ .mainRect = rect, .component = &freqTo2kBtn, });
+    }
+}
+
+void GuiBeep::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiBeep::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiBeep::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    bypassToggle.setVisible(visible);
+    ar.setVisibleWithLabel(visible);
+    dr.setVisibleWithLabel(visible);
+    sl.setVisibleWithLabel(visible);
+    rr.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &bypassToggle });
+        layoutMain({ .mainRect = rect, .label = &ar.label, .component = &ar });
+        layoutMain({ .mainRect = rect, .label = &dr.label, .component = &dr });
+        layoutMain({ .mainRect = rect, .label = &sl.label, .component = &sl });
+        layoutMain({ .mainRect = rect, .label = &rr.label, .component = &rr });
+    }
 }

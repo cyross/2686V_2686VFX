@@ -488,6 +488,23 @@ class GuiWt : public GuiBase
     GuiComboBox dt1;
     GuiSlider dt2;
 
+    // LFO
+    GuiCategoryLabel lfoCat;
+    GuiSlider lfoPmFreqSlider;
+    GuiSlider lfoAmFreqSlider;
+    GuiSlider lfoSyncDelaySlider;
+    GuiTextButton lfoSyncDelayToZeroBtn;
+    GuiTextButton lfoSyncDelayToOneBtn;
+    GuiSlider lfoAmSmRtSlider;
+    GuiComboBox lfoPmShapeSelector;
+    GuiComboBox lfoAmShapeSelector;
+    GuiToggleButton lfoPmToggle;
+    GuiToggleButton lfoAmToggle;
+    GuiSlider lfoPmsSlider;
+    GuiSlider lfoAmsSlider;
+    GuiSlider lfoPmdSlider;
+    GuiSlider lfoAmdSlider;
+
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
     GuiComboBox sizeSelector;
@@ -555,6 +572,21 @@ public:
         detuneCat(context),
         dt1(context),
         dt2(context),
+        lfoCat(context),
+        lfoPmFreqSlider(context),
+        lfoAmFreqSlider(context),
+        lfoSyncDelaySlider(context),
+        lfoSyncDelayToZeroBtn(context),
+        lfoSyncDelayToOneBtn(context),
+        lfoAmSmRtSlider(context),
+        lfoPmShapeSelector(context),
+        lfoAmShapeSelector(context),
+        lfoPmToggle(context),
+        lfoAmToggle(context),
+        lfoPmsSlider(context),
+        lfoAmsSlider(context),
+        lfoPmdSlider(context),
+        lfoAmdSlider(context),
         bitSelector(context),
         rateSelector(context),
 		waveFileCat(context),
@@ -585,4 +617,13 @@ public:
     void importWavetable();
     void exportWavetable();
     void initParams();
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutMonoModeCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutModulationCat(juce::Rectangle<int>& rect);
+    void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutDetuneCat(juce::Rectangle<int>& rect);
+    void layoutWavefileCat(juce::Rectangle<int>& rect);
+    void layoutLfoCat(juce::Rectangle<int>& rect);
 };

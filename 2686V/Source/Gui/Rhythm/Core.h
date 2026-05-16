@@ -32,9 +32,9 @@ class RhythmPadGui: public GuiBase
 
     GuiSlider panSlider;
 
-    GuiTextButton btnPanL;
-    GuiTextButton btnPanC;
-    GuiTextButton btnPanR;
+    GuiTextButton panToLBtn;
+    GuiTextButton panToCBtn;
+    GuiTextButton panToRBtn;
 
     GuiSlider volSlider;
 
@@ -61,9 +61,9 @@ public:
         modeSelector(context),
         rateSelector(context),
         panSlider(context),
-        btnPanL(context),
-        btnPanC(context),
-        btnPanR(context),
+        panToLBtn(context),
+        panToCBtn(context),
+        panToRBtn(context),
         volSlider(context),
         oneShotButton(context),
         adsrCat(context),
@@ -78,6 +78,9 @@ public:
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutPanCat(juce::Rectangle<int>& rect);
+    void layoutAdsrCat(juce::Rectangle<int>& rect);
 };
 
 class GuiRhythm : public GuiBase
@@ -123,4 +126,5 @@ public:
     bool isThis(int padIndex, juce::Button* button);
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutMvolCat(juce::Rectangle<int>& rect);
 };

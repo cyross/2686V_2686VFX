@@ -58,4 +58,8 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutFixCat(juce::Rectangle<int>& rect);
+    void layoutMonoModeCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutAdsrCat(juce::Rectangle<int>& rect);
 };

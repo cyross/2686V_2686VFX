@@ -17,6 +17,7 @@ struct FmOpParams
     float sustainRate = 0.0f; // SR: Sustain Rate
 
     int multiple = 1;      // MULTI: 0~15
+    float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;        // DT: 0~7
     int detune2 = 0;       // DT2: OPL3/OPM Only
     float totalLevel = 0.0f;
@@ -44,6 +45,8 @@ struct FmOpParams
     float pmd = 0;
     float ams = 0; // 個別 Amp Mod Sensitivity (0-3)
     float amd = 0;
+
+    int n88Ams = 0;
 
     // --- OPL/OPL3 LFO Settings ---
     float oplAms = 3.7f;  // AM Speed (Hz)

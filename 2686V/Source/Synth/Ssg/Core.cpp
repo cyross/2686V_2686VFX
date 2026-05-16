@@ -31,19 +31,18 @@ void SsgCore::prepare(double sampleRate) {
         m_sampleRate = sampleRate;
     }
 
-    m_noiseGen.prepare(getTargetRate(m_rateIndex));
+    m_targetRate = getTargetRate(m_rateIndex);
 
-    m_adsr.prepare(m_sampleRate);
-	m_pitchAdsr.prepare(m_sampleRate);
+    m_noiseGen.prepare(m_targetRate);
+    m_adsr.prepare(m_targetRate);
+	m_pitchAdsr.prepare(m_targetRate);
+    m_lfo.prepare(m_targetRate);
 
     updatePhaseDelta();
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
-
-    m_adsr.updateSampleRate(m_sampleRate);
-    m_pitchAdsr.updateSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthParams& params)
@@ -54,6 +53,15 @@ void SsgCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
     m_detune.setParameters(params.ssg.detune, params.ssg.detune2, 1);
+    m_lfo.setParameters(
+        params.ssg.lfoSyncDelay,
+        params.ssg.lfoPmEnable, params.ssg.lfoAmEnable,
+        params.ssg.lfoPmFreq, params.ssg.lfoAmFreq,
+        params.ssg.lfoPmWave, params.ssg.lfoAmWave,
+        params.ssg.lfoPms, params.ssg.lfoPmd,
+        params.ssg.lfoAms, params.ssg.lfoAmd,
+        params.ssg.lfoAmSmRt
+    );
 
     m_waveform = params.ssg.waveform;
 
@@ -75,9 +83,12 @@ void SsgCore::setParameters(const SynthParams& params)
     if (m_rateIndex != params.ssg.rateIndex) {
         m_rateIndex = params.ssg.rateIndex;
 
-        double newRate = getTargetRate(m_rateIndex);
+        m_targetRate = getTargetRate(m_rateIndex);
 
-        m_noiseGen.updateTargetRate(newRate);
+        m_noiseGen.updateTargetRate(m_targetRate);
+        m_adsr.updateSampleRate(m_targetRate);
+        m_pitchAdsr.updateSampleRate(m_targetRate);
+        m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
     m_noiseGen.updateFrequency(m_currentFrequency);
@@ -109,6 +120,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
 
     m_adsr.noteOn();
 	m_pitchAdsr.noteOn();
+    m_lfo.noteOn();
 }
 
 void SsgCore::noteOff()
@@ -169,11 +181,10 @@ float SsgCore::getSample()
     }
 
     // --- Sample Rate Emulation ---
-    double targetRate = getTargetRate(m_rateIndex);
-    double stepSize = targetRate / m_sampleRate;
+    double stepSize = m_targetRate / m_sampleRate;
     m_rateAccumulator += stepSize;
 
-    // ★修正: SSG（矩形波）の場合は、線形補間ではなく「平均化(アベレージング)」が正解
+    // SSG（矩形波）の場合は、線形補間ではなく「平均化(アベレージング)」が正解
     int steps = 0;
     float sumOut = 0.0f;
 	float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
@@ -183,10 +194,36 @@ float SsgCore::getSample()
     {
         m_rateAccumulator -= 1.0;
 
+        m_lfo.getSample();
+
+        // ==========================================
+        // Opzx7 LFO の計算 (AM / PM)
+        // ==========================================
+
+        // 1. Amplitude Modulation (AM / 音量)
+        float amMultiplier = 1.0f;
+
+        if (m_lfo.amEnable) {
+            // depthDb はセットアップ時に計算済みなので、そのままdB減衰に変換
+            float attenDb = m_lfo.value.am * m_lfo.depthDb;
+            amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
+        }
+
+        // 2. Pitch Modulation (PM / 音程)
+        float pitchModCents = 0.0f;
+
+        if (m_lfo.pmEnable) {
+            // depthCent も計算済みなので、そのままセント値に変換
+            pitchModCents += m_lfo.value.pm * m_lfo.depthCent;
+        }
+
+        // セントを周波数倍率(レシオ)に変換
+        float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+ 
         // ==========================================
         // LFO Calculation (Software Vibrato)
         // ==========================================
-        double lfoInc = m_lfoFreq / targetRate;
+        double lfoInc = m_lfoFreq / m_targetRate;
         m_lfoPhase += lfoInc;
         if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
 
@@ -196,12 +233,17 @@ float SsgCore::getSample()
         else                        lfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
 
         float modDepth = m_modWheel * 0.03f;
-        float lfoPitchMod = 1.0f + (lfoVal * modDepth);
-        float freqMult = m_pitchBendRatio * lfoPitchMod;
+        float mwPitchMod = 1.0f + (lfoVal * modDepth);
+
+        // ==========================================
+        // 周波数倍率の決定
+        // (PitchBend × Opzx7のPM × ModWheelのPM)
+        // ==========================================
+        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
 
         float phaseInc = 0.0f;
         if (m_waveform == 1 && !m_triKeyTrack) {
-            phaseInc = (m_triFreq / (float)targetRate) * freqMult;
+            phaseInc = (m_triFreq / (float)m_targetRate) * freqMult;
         }
         else {
             phaseInc = newPhaseDelta * freqMult;
@@ -210,10 +252,10 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvDelta = m_envFreq / (float)targetRate;
+        float hwEnvDelta = m_envFreq / (float)m_targetRate;
         m_hwEnvPhase += hwEnvDelta;
 
-        // ★修正: 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
+        // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
         if (m_hwEnvPhase >= 2.0) {
             if (m_envShape % 2 == 0) m_hwEnvPhase -= 2.0;
             else m_hwEnvPhase = 2.0;
@@ -274,7 +316,8 @@ float SsgCore::getSample()
         float noiseGain = m_mix;
         float rawMixed = (toneSample * m_level * toneGain) + m_noiseGen.generateSample(noiseGain);
 
-        rawMixed *= hwEnvGain;
+        // AM（トレモロ効果）をここで掛け合わせる
+        rawMixed *= hwEnvGain * amMultiplier;
 
         // ==========================================
         // 5. Quantize (Bit Depth)
@@ -305,11 +348,7 @@ float SsgCore::getSample()
 }
 
 void SsgCore::updatePhaseDelta() {
-    double targetRate = getTargetRate(m_rateIndex);
-
-    if (targetRate > 0.0) {
-        m_phaseDelta = m_currentFrequency / targetRate;
-    }
+    m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
 void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

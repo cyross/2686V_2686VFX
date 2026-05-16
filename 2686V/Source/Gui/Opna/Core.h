@@ -88,7 +88,7 @@ class GuiOpna : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> mul;
     std::array<GuiComboBox, Global::Fm::Op4> dt;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catShape;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catSsgEnv;
     std::array<GuiComboBox, Global::Fm::Op4> se;
     std::array<GuiSlider, Global::Fm::Op4> seFreq;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
@@ -159,7 +159,7 @@ public:
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -205,4 +205,14 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutMonoModeCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutPanCat(juce::Rectangle<int>& rect);
+    void layoutN88LfoCat(juce::Rectangle<int>& rect);
+    void layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
 };

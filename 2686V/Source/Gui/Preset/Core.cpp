@@ -3,14 +3,14 @@
 #include "../../Core/Processor/PluginProcessor.h"
 
 #include "../../Core/Const/Global.h"
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Core/Processor/Base.h"
+#include "../../Core/Processor/Values.h"
 #include "../../Core/Const/FileValues.h"
-#include "../../Core/Const/PresetKeys.h"
-#include "../../Core/Const/PresetValues.h"
+#include "./Keys.h"
+#include "./Values.h"
 
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 juce::File GuiPreset::getSelectedFile() const
@@ -75,12 +75,12 @@ void GuiPreset::setup()
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
     table.setWantsKeyboardFocus(false);
-    table.addColumn(PresetKey::Table::ColName::genre, 1, GuiValue::Preset::Table::ColWidth::Genre);
-    table.addColumn(PresetKey::Table::ColName::name, 2, GuiValue::Preset::Table::ColWidth::PresetName);
-    table.addColumn(PresetKey::Table::ColName::author, 3, GuiValue::Preset::Table::ColWidth::Author);
-    table.addColumn(PresetKey::Table::ColName::version, 4, GuiValue::Preset::Table::ColWidth::Version);
-    table.addColumn(PresetKey::Table::ColName::mode, 5, GuiValue::Preset::Table::ColWidth::Mode);
-    table.addColumn(PresetKey::Table::ColName::lastModified, 6, GuiValue::Preset::Table::ColWidth::LastModified);
+    table.addColumn(PresetKey::Table::ColName::genre, 1, PresetGuiValue::Preset::Table::ColWidth::Genre);
+    table.addColumn(PresetKey::Table::ColName::name, 2, PresetGuiValue::Preset::Table::ColWidth::PresetName);
+    table.addColumn(PresetKey::Table::ColName::author, 3, PresetGuiValue::Preset::Table::ColWidth::Author);
+    table.addColumn(PresetKey::Table::ColName::version, 4, PresetGuiValue::Preset::Table::ColWidth::Version);
+    table.addColumn(PresetKey::Table::ColName::mode, 5, PresetGuiValue::Preset::Table::ColWidth::Mode);
+    table.addColumn(PresetKey::Table::ColName::lastModified, 6, PresetGuiValue::Preset::Table::ColWidth::LastModified);
 
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
@@ -260,10 +260,10 @@ void GuiPreset::setup()
         // 確認ダイアログを表示
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle(GuiText::Preset::Dialog::initPreset)
-            .withMessage(GuiText::Preset::Dialog::initPresetNotice)
-            .withButton(GuiText::Preset::Dialog::initPresetSuccedBtn)
-            .withButton(GuiText::Preset::Dialog::initPresetCancelBtn),
+            .withTitle(PresetGuiText::Preset::Dialog::initPreset)
+            .withMessage(PresetGuiText::Preset::Dialog::initPresetNotice)
+            .withButton(PresetGuiText::Preset::Dialog::initPresetSuccedBtn)
+            .withButton(PresetGuiText::Preset::Dialog::initPresetCancelBtn),
             [this](int result) {
                 if (result == 1) { // Initializeボタンが押された
                     // 1. プロセッサ側の初期化実行
@@ -325,10 +325,10 @@ void GuiPreset::setup()
             // 確認ダイアログ
             juce::AlertWindow::showAsync(juce::MessageBoxOptions()
                 .withIconType(juce::MessageBoxIconType::WarningIcon)
-                .withTitle(GuiText::Preset::Dialog::deletePreset)
-                .withMessage(GuiText::Preset::Dialog::deletePresetNotice + file.getFileName() + "?")
-                .withButton(GuiText::Preset::Dialog::deletePresetSuccedBtn)
-                .withButton(GuiText::Preset::Dialog::deletePresetCancelBtn),
+                .withTitle(PresetGuiText::Preset::Dialog::deletePreset)
+                .withMessage(PresetGuiText::Preset::Dialog::deletePresetNotice + file.getFileName() + "?")
+                .withButton(PresetGuiText::Preset::Dialog::deletePresetSuccedBtn)
+                .withButton(PresetGuiText::Preset::Dialog::deletePresetCancelBtn),
                 [this, file](int result) {
                     if (result == 1) { // Delete
                         file.deleteFile();
@@ -349,7 +349,7 @@ void GuiPreset::setup()
 	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .font = juce::Font(16.0f), .isReset = false });
     reflectButton.setWantsKeyboardFocus(true);
     reflectButton.setExplicitFocusOrder(++tabOrder);
-    reflectButton.setTooltip(GuiText::Preset::Dialog::reflectPresetToolTipMessage);
+    reflectButton.setTooltip(PresetGuiText::Preset::Dialog::reflectPresetToolTipMessage);
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
 
@@ -391,114 +391,114 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     // Path Label (Top)
-    pathLabel.setBounds(pageArea.removeFromTop(GuiValue::Preset::FileLabelHeight));
+    pathLabel.setBounds(pageArea.removeFromTop(PresetGuiValue::Preset::FileLabelHeight));
 
     // Left: List
-    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * GuiValue::Preset::Table::WidthRate);
+    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetGuiValue::Preset::Table::WidthRate);
 
     // リストのすぐ上に検索ボックスを配置する
-    auto searchArea = listArea.removeFromTop(GuiValue::Preset::Search::Row::Height).reduced(GuiValue::Preset::Table::PaddingWidth, 0);
+    auto searchArea = listArea.removeFromTop(PresetGuiValue::Preset::Search::Row::Height).reduced(PresetGuiValue::Preset::Table::PaddingWidth, 0);
 
-    searchBox.label.setBounds(searchArea.removeFromLeft(GuiValue::Preset::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
+    searchBox.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::Preset::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
 
-    clearSearchButton.setBounds(searchArea.removeFromRight(GuiValue::Preset::Search::Row::Button::Clear::Width));
+    clearSearchButton.setBounds(searchArea.removeFromRight(PresetGuiValue::Preset::Search::Row::Button::Clear::Width));
 
-    searchArea.removeFromRight(GuiValue::Preset::Search::Row::Padding::Right);
+    searchArea.removeFromRight(PresetGuiValue::Preset::Search::Row::Padding::Right);
 
     searchBox.setBounds(searchArea);
 
-    listArea.removeFromTop(GuiValue::Preset::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
+    listArea.removeFromTop(PresetGuiValue::Preset::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
 
-    table.setBounds(listArea.reduced(GuiValue::Preset::Table::PaddingWidth, GuiValue::Preset::Table::PaddingHeight));
+    table.setBounds(listArea.reduced(PresetGuiValue::Preset::Table::PaddingWidth, PresetGuiValue::Preset::Table::PaddingHeight));
 
     // Right: Info & Buttons
     auto rightArea = pageArea;
 
     // Metadata Group
-    auto metaArea = rightArea.removeFromTop(GuiValue::Preset::Meta::AreaHeight);
+    auto metaArea = rightArea.removeFromTop(PresetGuiValue::Preset::Meta::AreaHeight);
 
     metaGroup.setBounds(metaArea);
 
-    auto mRect = metaArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
+    auto mRect = metaArea.reduced(PresetGuiValue::Group::Padding::width, PresetGuiValue::Group::Padding::height);
 
-    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    mRect.removeFromTop(PresetGuiValue::Group::TitlePaddingTop);
 
     // File Path
-    auto row1 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    filePathEditor.label.setBounds(row1.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    auto row1 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    filePathEditor.label.setBounds(row1.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
     filePathEditor.setBounds(row1);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight2);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight2);
 
     // Genre
-    auto row2 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    genreEditor.label.setBounds(row2.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    auto row2 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    genreEditor.label.setBounds(row2.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
     genreEditor.setBounds(row2);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
 
     // Name
-    auto row3 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    nameEditor.label.setBounds(row3.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    auto row3 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    nameEditor.label.setBounds(row3.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
     nameEditor.setBounds(row3);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
 
     // Author
-    auto row4 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    authorEditor.label.setBounds(row4.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    auto row4 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    authorEditor.label.setBounds(row4.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
     authorEditor.setBounds(row4);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
 
     // Version
-    auto row5 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
-    versionEditor.label.setBounds(row5.removeFromLeft(GuiValue::Preset::Meta::LabelWidth));
+    auto row5 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    versionEditor.label.setBounds(row5.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
     versionEditor.setBounds(row5);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
 
     // Comment
-    auto row6 = mRect.removeFromTop(GuiValue::Preset::Meta::RowHeight).reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    auto row6 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
     commentEditor.label.setBounds(row6);
 
-    mRect.removeFromTop(GuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
 
-    auto row7 = mRect.reduced(GuiValue::Preset::Meta::PaddingWidth, 0);
+    auto row7 = mRect.reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
     commentEditor.setBounds(row7);
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingTop);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingTop);
 
     // Buttons
-    initButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    initButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    loadButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    loadButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    saveButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    saveButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    saveAsButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    saveAsButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    deleteButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    deleteButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    refreshButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    refreshButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    reflectButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    reflectButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 
-    rightArea.removeFromTop(GuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
 
-    copyButton.setBounds(rightArea.removeFromTop(GuiValue::Preset::Button::Height));
+    copyButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
 }
 
 void GuiPreset::setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment, const juce::String& genre, const juce::String& filePath)

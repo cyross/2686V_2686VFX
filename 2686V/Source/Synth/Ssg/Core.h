@@ -10,6 +10,7 @@
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Generator/Noise/Ssg/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
+#include "../../Effect/Lfo/Opzx7/Core.h"
 
 class SsgCore : public SynthCore
 {
@@ -40,6 +41,7 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
     OpmDetune m_detune;
+    Opzx7LfoCore m_lfo;
 
     // HW Env Params
     bool m_useHwEnv = false;

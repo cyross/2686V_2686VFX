@@ -100,7 +100,7 @@ void layoutRow(
     // ラベルのみ配置
     if (component == nullptr)
     {
-        int newLabelWidth = labelWidth == -1 ? GuiValue::MainGroup::Comps::One::width : labelWidth;
+        int newLabelWidth = labelWidth == -1 ? CoreGuiValue::MainGroup::Comps::One::width : labelWidth;
         int newLabelPaddingRight = labelPaddingRight == -1 ? 0 : labelPaddingRight;
 
         layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
@@ -108,7 +108,7 @@ void layoutRow(
     // コンポーネントのみ配置
     else if (label == nullptr)
     {
-        int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Comps::One::width : compWidth;
+        int newCompWidth = compWidth == -1 ? CoreGuiValue::MainGroup::Comps::One::width : compWidth;
         int newCompPaddingRight = compPaddingRight == -1 ? 0 : compPaddingRight;
 
         layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, component, newCompWidth, newCompPaddingRight);
@@ -116,9 +116,9 @@ void layoutRow(
     // 両方配置
     else
     {
-        int newLabelWidth = labelWidth == -1 ? GuiValue::MainGroup::Label::width : labelWidth;
-        int newLabelPaddingRight = labelPaddingRight == -1 ? GuiValue::MainGroup::Row::Padding::right : labelPaddingRight;
-        int newCompWidth = compWidth == -1 ? GuiValue::MainGroup::Value::width : compWidth;
+        int newLabelWidth = labelWidth == -1 ? CoreGuiValue::MainGroup::Label::width : labelWidth;
+        int newLabelPaddingRight = labelPaddingRight == -1 ? CoreGuiValue::MainGroup::Row::Padding::right : labelPaddingRight;
+        int newCompWidth = compWidth == -1 ? CoreGuiValue::MainGroup::Value::width : compWidth;
 
         layoutRowBoth(rect, rowHeight, paddingTop, paddingBottom, label, newLabelWidth, newLabelPaddingRight, component, newCompWidth, compPaddingRight);
     }

@@ -1,0 +1,65 @@
+﻿// オートメーションで使用するパラメータキー(パラメータ名)を構成する文字列を管理
+
+#pragma once
+
+#include <JuceHeader.h>
+
+#include "../../Core/Processor/Keys.h"
+
+namespace FxPrKey
+{
+	static inline const juce::String prefix = "FX";
+
+	static inline const juce::String masterVol = CorePrKey::masterVol;
+	static inline const juce::String monoMode = CorePrKey::monoMode;
+
+	static inline const juce::String bypass = CorePrKey::bypass;
+
+	static inline const juce::String vib = "_VIB";
+	static inline const juce::String trm = "_TRM";
+	static inline const juce::String dly = "_DLY";
+	static inline const juce::String rvb = "_RVB";
+	static inline const juce::String mbc = "_MBC";
+	static inline const juce::String fil = "_FIL";
+	static inline const juce::String scl = "_SCL";
+
+	static inline const juce::String mix = "_MIX";
+
+	namespace Tremolo
+	{
+		static inline const juce::String rate = "_RATE";
+		static inline const juce::String depth = "_DEPTH";
+	};
+
+	namespace Vibrato
+	{
+		static inline const juce::String rate = "_RATE";
+		static inline const juce::String depth = "_DEPTH";
+	};
+
+	namespace Delay
+	{
+		static inline const juce::String time = "_TIME";
+		static inline const juce::String fb = "_FB";
+	};
+
+	namespace Reverb
+	{
+		static inline const juce::String size = "_SIZE";
+		static inline const juce::String damp = "_DAMP";
+	};
+
+	namespace Mbc
+	{
+		static inline const juce::String rate = "_RATE";
+		static inline const juce::String bit = "_BITS";
+	};
+
+	namespace Filter
+	{
+		static inline const juce::String type = "_TYPE";
+		static inline const juce::String freq = "_FREQ";
+		static inline const juce::String q = "_Q";
+	};
+};
+

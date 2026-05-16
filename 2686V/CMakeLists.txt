@@ -28,13 +28,6 @@ set(CONST_FILES
     "Source/Core/Const/FileValues.h"
     "Source/Core/Const/MmlKeys.h"
     "Source/Core/Const/MmlValues.h"
-    "Source/Core/Const/PrKeys.h"
-    "Source/Core/Const/PrNames.h"
-    "Source/Core/Const/PrValues.h"
-    "Source/Core/Const/PresetKeys.h"
-    "Source/Core/Const/PresetValues.h"
-    "Source/Core/Const/SettingsKeys.h"
-    "Source/Core/Const/SettingsValues.h"
 )
 
 set(SYNTH_FILES
@@ -123,8 +116,11 @@ set(GUI_FILES
 )
 
 set(PROCESSOR_FILES
-    "Source/Core/Processor/PrBase.h"
-    "Source/Core/Processor/PrBase.cpp"
+    "Source/Core/Processor/Keys.h"
+    "Source/Core/Processor/Names.h"
+    "Source/Core/Processor/Values.h"
+    "Source/Core/Processor/Base.h"
+    "Source/Core/Processor/Base.cpp"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
 )
@@ -161,6 +157,11 @@ set(OPZX7_DETUNE_FILES
     "Source/Effect/Detune/Opzx7/Core.cpp"
 )
 
+set(OPZX7_LFO_FILES
+    "Source/Effect/Lfo/Opzx7/Core.h"
+    "Source/Effect/Lfo/Opzx7/Core.cpp"
+)
+
 set(OPNA_SYNTH_FILES
     "Source/Synth/Opna/Core.h"
     "Source/Synth/Opna/Core.cpp"
@@ -173,11 +174,16 @@ set(OPNA_OPERATOR_FILES
 )
 
 set(OPNA_PROCESSOR_FILES
+    "Source/Processor/Opna/Keys.h"
+    "Source/Processor/Opna/Names.h"
+    "Source/Processor/Opna/Values.h"
     "Source/Processor/Opna/Core.h"
     "Source/Processor/Opna/Core.cpp"
 )
 
 set(OPNA_GUI_FILES
+    "Source/Gui/Opna/GuiText.h"
+    "Source/Gui/Opna/GuiValues.h"
     "Source/Gui/Opna/Core.h"
     "Source/Gui/Opna/Core.cpp"
 )
@@ -194,11 +200,16 @@ set(OPN_OPERATOR_FILES
 )
 
 set(OPN_PROCESSOR_FILES
+    "Source/Processor/Opn/Keys.h"
+    "Source/Processor/Opn/Names.h"
+    "Source/Processor/Opn/Values.h"
     "Source/Processor/Opn/Core.h"
     "Source/Processor/Opn/Core.cpp"
 )
 
 set(OPN_GUI_FILES
+    "Source/Gui/Opn/GuiText.h"
+    "Source/Gui/Opn/GuiValues.h"
     "Source/Gui/Opn/Core.h"
     "Source/Gui/Opn/Core.cpp"
 )
@@ -215,11 +226,16 @@ set(OPL_OPERATOR_FILES
 )
 
 set(OPL_PROCESSOR_FILES
+    "Source/Processor/Opl/Keys.h"
+    "Source/Processor/Opl/Names.h"
+    "Source/Processor/Opl/Values.h"
     "Source/Processor/Opl/Core.h"
     "Source/Processor/Opl/Core.cpp"
 )
 
 set(OPL_GUI_FILES
+    "Source/Gui/Opl/GuiText.h"
+    "Source/Gui/Opl/GuiValues.h"
     "Source/Gui/Opl/Core.h"
     "Source/Gui/Opl/Core.cpp"
 )
@@ -236,11 +252,16 @@ set(OPL3_OPERATOR_FILES
 )
 
 set(OPL3_PROCESSOR_FILES
+    "Source/Processor/Opl3/Keys.h"
+    "Source/Processor/Opl3/Names.h"
+    "Source/Processor/Opl3/Values.h"
     "Source/Processor/Opl3/Core.h"
     "Source/Processor/Opl3/Core.cpp"
 )
 
 set(OPL3_GUI_FILES
+    "Source/Gui/Opl3/GuiText.h"
+    "Source/Gui/Opl3/GuiValues.h"
     "Source/Gui/Opl3/Core.h"
     "Source/Gui/Opl3/Core.cpp"
 )
@@ -257,11 +278,16 @@ set(OPM_OPERATOR_FILES
 )
 
 set(OPM_PROCESSOR_FILES
+    "Source/Processor/Opm/Keys.h"
+    "Source/Processor/Opm/Names.h"
+    "Source/Processor/Opm/Values.h"
     "Source/Processor/Opm/Core.h"
     "Source/Processor/Opm/Core.cpp"
 )
 
 set(OPM_GUI_FILES
+    "Source/Gui/Opm/GuiText.h"
+    "Source/Gui/Opm/GuiValues.h"
     "Source/Gui/Opm/Core.h"
     "Source/Gui/Opm/Core.cpp"
 )
@@ -278,11 +304,16 @@ set(OPZX7_OPERATOR_FILES
 )
 
 set(OPZX7_PROCESSOR_FILES
+    "Source/Processor/Opzx7/Keys.h"
+    "Source/Processor/Opzx7/Names.h"
+    "Source/Processor/Opzx7/Values.h"
     "Source/Processor/Opzx7/Core.h"
     "Source/Processor/Opzx7/Core.cpp"
 )
 
 set(OPZX7_GUI_FILES
+    "Source/Gui/Opzx7/GuiText.h"
+    "Source/Gui/Opzx7/GuiValues.h"
     "Source/Gui/Opzx7/Core.h"
     "Source/Gui/Opzx7/Core.cpp"
 )
@@ -294,11 +325,16 @@ set(SSG_SYNTH_FILES
 )
 
 set(SSG_PROCESSOR_FILES
+    "Source/Processor/Ssg/Keys.h"
+    "Source/Processor/Ssg/Names.h"
+    "Source/Processor/Ssg/Values.h"
     "Source/Processor/Ssg/Core.h"
     "Source/Processor/Ssg/Core.cpp"
 )
 
 set(SSG_GUI_FILES
+    "Source/Gui/Ssg/GuiText.h"
+    "Source/Gui/Ssg/GuiValues.h"
     "Source/Gui/Ssg/Core.h"
     "Source/Gui/Ssg/Core.cpp"
 )
@@ -310,11 +346,16 @@ set(WT_SYNTH_FILES
 )
 
 set(WT_PROCESSOR_FILES
+    "Source/Processor/Wavetable/Keys.h"
+    "Source/Processor/Wavetable/Names.h"
+    "Source/Processor/Wavetable/Values.h"
     "Source/Processor/Wavetable/Core.h"
     "Source/Processor/Wavetable/Core.cpp"
 )
 
 set(WT_GUI_FILES
+    "Source/Gui/Wavetable/GuiText.h"
+    "Source/Gui/Wavetable/GuiValues.h"
     "Source/Gui/Wavetable/Core.h"
     "Source/Gui/Wavetable/Core.cpp"
 )
@@ -326,11 +367,16 @@ set(RHYTHM_SYNTH_FILES
 )
 
 set(RHYTHM_PROCESSOR_FILES
+    "Source/Processor/Rhythm/Keys.h"
+    "Source/Processor/Rhythm/Names.h"
+    "Source/Processor/Rhythm/Values.h"
     "Source/Processor/Rhythm/Core.h"
     "Source/Processor/Rhythm/Core.cpp"
 )
 
 set(RHYTHM_GUI_FILES
+    "Source/Gui/Rhythm/GuiText.h"
+    "Source/Gui/Rhythm/GuiValues.h"
     "Source/Gui/Rhythm/Core.h"
     "Source/Gui/Rhythm/Core.cpp"
 )
@@ -342,11 +388,16 @@ set(ADPCM_SYNTH_FILES
 )
 
 set(ADPCM_PROCESSOR_FILES
+    "Source/Processor/Adpcm/Keys.h"
+    "Source/Processor/Adpcm/Names.h"
+    "Source/Processor/Adpcm/Values.h"
     "Source/Processor/Adpcm/Core.h"
     "Source/Processor/Adpcm/Core.cpp"
 )
 
 set(ADPCM_GUI_FILES
+    "Source/Gui/Adpcm/GuiText.h"
+    "Source/Gui/Adpcm/GuiValues.h"
     "Source/Gui/Adpcm/Core.h"
     "Source/Gui/Adpcm/Core.cpp"
 )
@@ -358,11 +409,16 @@ set(BEEP_SYNTH_FILES
 )
 
 set(BEEP_PROCESSOR_FILES
+    "Source/Processor/Beep/Keys.h"
+    "Source/Processor/Beep/Names.h"
+    "Source/Processor/Beep/Values.h"
     "Source/Processor/Beep/Core.h"
     "Source/Processor/Beep/Core.cpp"
 )
 
 set(BEEP_GUI_FILES
+    "Source/Gui/Beep/GuiText.h"
+    "Source/Gui/Beep/GuiValues.h"
     "Source/Gui/Beep/Core.h"
     "Source/Gui/Beep/Core.cpp"
 )
@@ -373,26 +429,41 @@ set(FX_EFFECT_FILES
 )
 
 set(FX_PROCESSOR_FILES
+    "Source/Processor/Fx/Keys.h"
+    "Source/Processor/Fx/Names.h"
+    "Source/Processor/Fx/Values.h"
     "Source/Processor/Fx/Core.h"
     "Source/Processor/Fx/Core.cpp"
 )
 
 set(FX_GUI_FILES
+    "Source/Gui/Fx/GuiText.h"
+    "Source/Gui/Fx/GuiValues.h"
     "Source/Gui/Fx/Core.h"
     "Source/Gui/Fx/Core.cpp"
 )
 
 set(PRESET_GUI_FILES
+    "Source/Gui/Preset/GuiText.h"
+    "Source/Gui/Preset/GuiValues.h"
+    "Source/Gui/Preset/Keys.h"
+    "Source/Gui/Preset/Values.h"
     "Source/Gui/Preset/Core.h"
     "Source/Gui/Preset/Core.cpp"
 )
 
 set(SETTINGS_GUI_FILES
+    "Source/Gui/Settings/GuiText.h"
+    "Source/Gui/Settings/GuiValues.h"
+    "Source/Gui/Settings/Keys.h"
+    "Source/Gui/Settings/Values.h"
     "Source/Gui/Settings/Core.h"
     "Source/Gui/Settings/Core.cpp"
 )
 
 set(ABOUT_GUI_FILES
+    "Source/Gui/About/GuiText.h"
+    "Source/Gui/About/GuiValues.h"
     "Source/Gui/About/Core.h"
     "Source/Gui/About/Core.cpp"
 )
@@ -400,13 +471,8 @@ set(ABOUT_GUI_FILES
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
-source_group("2686V\\Core\\Const" FILES ${CONST_FILES})
-source_group("2686V\\Core\\Synth" FILES ${SYNTH_FILES})
-source_group("2686V\\Core\\Fm" FILES ${FM_FILES})
-source_group("2686V\\Core\\Gui" FILES ${GUI_FILES})
-source_group("2686V\\Core\\Processor" FILES ${PROCESSOR_FILES})
-source_group("2686V\\Core\\Editor" FILES ${EDITOR_FILES})
-source_group("2686V\\Core\\Docs" FILES ${DOCUMENT_FILES})
+source_group("2686V\\Constants" FILES ${CONST_FILES})
+source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
@@ -416,6 +482,8 @@ source_group("2686V\\Generator\\Fm\\Alg\\Opl" FILES ${FM_OPL_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Alg\\Opl3" FILES ${FM_OPL3_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Alg\\Opzx7" FILES ${FM_OPZX7_ALG_FILES})
 source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
+source_group("2686V\\Synth\\Core" FILES ${SYNTH_FILES})
+source_group("2686V\\Synth\\Fm" FILES ${FM_FILES})
 source_group("2686V\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
 source_group("2686V\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
 source_group("2686V\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
@@ -438,7 +506,9 @@ source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opzx7" FILES ${OPZX7_DETUNE_FILES})
+source_group("2686V\\Effect\\Lfo\\Opzx7" FILES ${OPZX7_LFO_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
+source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
@@ -451,21 +521,23 @@ source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
-source_group("2686V\\Gui\\Opna" FILES ${OPNA_GUI_FILES})
-source_group("2686V\\Gui\\Opn" FILES ${OPN_GUI_FILES})
-source_group("2686V\\Gui\\Opl" FILES ${OPL_GUI_FILES})
-source_group("2686V\\Gui\\Opl3" FILES ${OPL3_GUI_FILES})
-source_group("2686V\\Gui\\Opm" FILES ${OPM_GUI_FILES})
-source_group("2686V\\Gui\\Opzx7" FILES ${OPZX7_GUI_FILES})
-source_group("2686V\\Gui\\Ssg" FILES ${SSG_GUI_FILES})
-source_group("2686V\\Gui\\Wavetable" FILES ${WT_GUI_FILES})
-source_group("2686V\\Gui\\Rhythm" FILES ${RHYTHM_GUI_FILES})
-source_group("2686V\\Gui\\Adpcm" FILES ${ADPCM_GUI_FILES})
-source_group("2686V\\Gui\\Beep" FILES ${BEEP_GUI_FILES})
-source_group("2686V\\Gui\\Fx" FILES ${FX_GUI_FILES})
-source_group("2686V\\Gui\\Preset" FILES ${PRESET_GUI_FILES})
-source_group("2686V\\Gui\\Settings" FILES ${SETTINGS_GUI_FILES})
-source_group("2686V\\Gui\\About" FILES ${ABOUT_GUI_FILES})
+source_group("2686V\\Gui\\Core" FILES ${GUI_FILES})
+source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
+source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Opl" FILES ${OPL_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Opl3" FILES ${OPL3_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Opm" FILES ${OPM_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Ssg" FILES ${SSG_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Wavetable" FILES ${WT_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Rhythm" FILES ${RHYTHM_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Adpcm" FILES ${ADPCM_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Beep" FILES ${BEEP_GUI_FILES})
+source_group("2686V\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
+source_group("2686V\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
+source_group("2686V\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
+source_group("2686V\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
 
 # ==============================================================================
 # プラグイン生成関数 (関数化して使い回す)
@@ -512,6 +584,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}
         ${OPZX7_DETUNE_FILES}
+        ${OPZX7_LFO_FILES}
         ${OPNA_SYNTH_FILES}
         ${OPN_SYNTH_FILES}
         ${OPL_SYNTH_FILES}

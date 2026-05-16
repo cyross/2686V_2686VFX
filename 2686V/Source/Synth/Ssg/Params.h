@@ -14,8 +14,8 @@ struct SsgParams
     int bitDepth = 3; // Default 8bit (or 4bit to be like real hardware volume steps?)
 
     // --- Sampling Rate ---
-    // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    int rateIndex = 1; // Default 55.5kHz (Standard SSG/OPNA rate)
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
+    int rateIndex = 3; // Default 49.7kHz
 
     // --- Tone Level ---
     float level = 1.0f;
@@ -89,4 +89,36 @@ struct SsgParams
     // detune
     int detune = 0;
     int detune2 = 0;
+
+    // LFO Speed Freq (approx 3Hz - 30Hz)
+    float lfoAmFreq = 5.0f;
+    float lfoPmFreq = 5.0f;
+
+    // LFO Enable Flag
+    bool lfoAmEnable = false;
+    bool lfoPmEnable = false;
+
+    // LFO Sensitivity
+
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
+
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
+
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
+
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
+
+    // LFO Waveform
+    int lfoPmWave = 0;
+    int lfoAmWave = 0;
+
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
+    // LFO Sync Delay
+    int lfoSyncDelay = 0;
 };

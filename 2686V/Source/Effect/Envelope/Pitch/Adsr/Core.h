@@ -28,6 +28,7 @@ class PitchAdsrEnv {
 	void updateIncrements();
 public:
 	void prepare(double sampleRate);
+	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(const PitchAdsrParams& params);
 	void noteOn();
 	void noteOff();

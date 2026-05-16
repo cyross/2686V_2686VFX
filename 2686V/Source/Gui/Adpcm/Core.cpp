@@ -2,12 +2,12 @@
 
 #include "../../Core/Processor/PluginProcessor.h"
 
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/PrValues.h"
+#include "../../Processor/Adpcm/Keys.h"
+#include "../../Processor/Adpcm/Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> qualityItems = {
@@ -21,109 +21,116 @@ static std::vector<SelectItem> qualityItems = {
 };
 
 static std::vector<SelectItem> rateItems = {
-    {.name = "1: 96kHz",    .value = 1 },
-    {.name = "2: 55.5kHz",  .value = 2 },
-    {.name = "3: 48kHz",    .value = 3 },
-    {.name = "4: 44.1kHz",  .value = 4 },
-    {.name = "5: 22.05kHz", .value = 5 },
-    {.name = "6: 16kHz",    .value = 6 },
-    {.name = "7: 8kHz",     .value = 7 },
+    {.name = " 1: 96kHz",    .value =  1 },
+    {.name = " 2: 55.5kHz",  .value =  2 },
+    {.name = " 3: 49.7kHz",  .value =  3 },
+    {.name = " 4: 48kHz",    .value =  4 },
+    {.name = " 5: 44.1kHz",  .value =  5 },
+    {.name = " 6: 22.05kHz", .value =  6 },
+    {.name = " 7: 16kHz",    .value =  7 },
+    {.name = " 8: 12kHz",    .value =  8 },
+    {.name = " 9: 11kHz",    .value =  9 },
+    {.name = "10: 8kHz",     .value = 10 },
+    {.name = "11: 5.5kHz",   .value = 11 },
+    {.name = "12: 4kHz",     .value = 12 },
+    {.name = "13: 2kHz",     .value = 13 },
 };
 
 void GuiAdpcm::setup()
 {
-    const juce::String code = PrKey::Prefix::adpcm;
+    auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
+        {
+            addAndMakeVisible(btn);
+            btn.setButtonText(text);
+            btn.addListener(&ctx.editor);
+            btn.setWantsKeyboardFocus(true);
+            btn.setExplicitFocusOrder(++tabOrder);
+        };
+
+    const juce::String code = AdpcmPrKey::prefix;
     int tabOrder = 1;
 
-    mainGroup.setup(*this, GuiText::Group::mainGroup);
+    mainGroup.setup(*this, AdpcmGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = GuiText::Category::preset });
+    presetNameCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::preset });
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = GuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::mode, .title = GuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::rate, .title = GuiText::Adpcm::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    mainCat.setup({ .parent = *this, .title = GuiText::Category::m });
+    mainCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::m });
 
     // 出力レベル
-	levelSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::level, .title = GuiText::Adpcm::level, .isReset = true });
+	levelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
     // ループトグルボタン
-    loopButton.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::loop, .title = GuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = *this, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmOffset, .title = GuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + AdpcmPrKey::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + PrKey::Post::Adpcm::pcmRatio, .title = GuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + AdpcmPrKey::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
-    panCat.setup({ .parent = *this, .title = GuiText::Category::pan });
+    panCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::pan, .title = GuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
-    addAndMakeVisible(btnPanL); btnPanL.setButtonText(GuiText::Adpcm::Pan::l); btnPanL.addListener(&ctx.editor);
-    btnPanL.setWantsKeyboardFocus(true);
-    btnPanL.setExplicitFocusOrder(++tabOrder);
+    setupPanBtn(panToLBtn, AdpcmGuiText::Adpcm::Pan::l, tabOrder);
+    setupPanBtn(panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
+    setupPanBtn(panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
 
-    addAndMakeVisible(btnPanC); btnPanC.setButtonText(GuiText::Adpcm::Pan::c); btnPanC.addListener(&ctx.editor);
-    btnPanC.setWantsKeyboardFocus(true);
-    btnPanC.setExplicitFocusOrder(++tabOrder);
+    adsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleAdsr, .invisibleTitle = AdpcmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
-    addAndMakeVisible(btnPanR); btnPanR.setButtonText(GuiText::Adpcm::Pan::r); btnPanR.addListener(&ctx.editor);
-    btnPanR.setWantsKeyboardFocus(true);
-    btnPanR.setExplicitFocusOrder(++tabOrder);
-
-    adsrCat.setup({ .parent = *this, .title = GuiText::Category::adsr });
-
-    adsrBypassButton.setup({ .parent = *this, .id = code + PrKey::Innder::adsr + PrKey::Post::bypass, .title = GuiText::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, .title = AdpcmGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
-    attackSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::ar, .title = GuiText::Adpcm::Adsr::ar, .isReset = true });
+    attackSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::ar, .title = AdpcmGuiText::Adpcm::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    decaySlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::dr, .title = GuiText::Adpcm::Adsr::dr, .isReset = true });
+    decaySlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::dr, .title = AdpcmGuiText::Adpcm::Adsr::dr, .isReset = true });
     decaySlider.setWantsKeyboardFocus(true);
     decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sustainSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::sl, .title = GuiText::Adpcm::Adsr::sl, .isReset = true });
+    sustainSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::sl, .title = AdpcmGuiText::Adpcm::Adsr::sl, .isReset = true });
     sustainSlider.setWantsKeyboardFocus(true);
     sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    releaseSlider.setup({ .parent = *this, .id = code + PrKey::Post::Adpcm::Adsr::rr, .title = GuiText::Adpcm::Adsr::rr, .isReset = true });
+    releaseSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::rr, .title = AdpcmGuiText::Adpcm::Adsr::rr, .isReset = true });
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = GuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
-    masterVolSlider.setup({ .parent = *this, .id = PrKey::masterVol, .title = GuiText::MasterVol::title, .isReset = true });
+    masterVolSlider.setup({ .parent = *this, .id = AdpcmPrKey::masterVol, .title = AdpcmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
 
     // 音声ファイル読み込みボタン
-    loadButton.setup({ .parent = *this, .title = GuiText::File::load , .isReset = false });
+    loadButton.setup({ .parent = *this, .title = AdpcmGuiText::File::load , .isReset = false });
     loadButton.addListener(&ctx.editor);
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
@@ -134,7 +141,7 @@ void GuiAdpcm::setup()
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = *this, .title = GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = *this, .title = AdpcmGuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]
@@ -151,33 +158,28 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 {
     auto pageArea = content.withZeroOrigin();
 
-    auto mainArea = pageArea.removeFromLeft(GuiValue::MainGroup::width);
+    auto mainArea = pageArea.removeFromLeft(AdpcmGuiValue::MainGroup::width);
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    mRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto mRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
+    mRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = GuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = AdpcmGuiValue::PresetName::paddingBottom });
+
+    layoutQualityCat(mRect);
+
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutMain({ .mainRect = mRect, .component = &loopButton });
     layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
     layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
-    layoutMainCategory({ .mainRect = mRect, .label = &panCat });
-    layoutMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR, });
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
-    layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+
+    layoutPanCat(mRect);
+
+    layoutAdsrCat(mRect);
+
+    layoutMvolCat(mRect);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)
@@ -192,17 +194,17 @@ bool GuiAdpcm::isThis(juce::Button* button)
 
 bool GuiAdpcm::isBtnPanL(juce::Button* button)
 {
-    return button == &btnPanL;
+    return button == &panToLBtn;
 }
 
 bool GuiAdpcm::isBtnPanC(juce::Button* button)
 {
-    return button == &btnPanC;
+    return button == &panToCBtn;
 }
 
 bool GuiAdpcm::isBtnPanR(juce::Button* button)
 {
-    return button == &btnPanR;
+    return button == &panToRBtn;
 }
 
 void GuiAdpcm::setPan(float pan)
@@ -223,4 +225,74 @@ void GuiAdpcm::updatePresetName(const juce::String& presetName)
 void GuiAdpcm::initParams()
 {
     this->ctx.audioProcessor.initParams("ADPCM_");
+    this->ctx.audioProcessor.unloadAdpcmFile();
+    updateFileName(Io::empty);
+}
+
+void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    modeSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiAdpcm::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiAdpcm::layoutPanCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &panCat });
+
+    bool visible = panCat.isDetailVisible();
+
+    panSlider.setVisibleWithLabel(visible);
+    panToLBtn.setVisible(visible);
+    panToCBtn.setVisible(visible);
+    panToRBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &panSlider.label, .component = &panSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn, });
+    }
+}
+
+void GuiAdpcm::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    adsrBypassButton.setVisible(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
 }

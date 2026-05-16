@@ -5,14 +5,14 @@
 #include "../../Core/Editor/PluginEditor.h"
 #include "../../Core/Gui/GuiColor.h"
 
-#include "../../Core/Const/FileValues.h"
-#include "../../Core/Const/PrKeys.h"
-#include "../../Core/Const/SettingsKeys.h"
-#include "../../Core/Const/SettingsValues.h"
+#include "../../Core/Processor/Keys.h"
+#include "../../Core/Processor/Values.h"
+#include "./Keys.h"
+#include "./Values.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
-#include "../../Core/Gui/GuiValues.h"
-#include "../../Core/Gui/GuiText.h"
+#include "./GuiValues.h"
+#include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
 void GuiSettings::setup()
@@ -26,7 +26,7 @@ void GuiSettings::setup()
 
     int tabOrder = 1;
 
-    mainGroup.setup(*this, GuiText::Group::settingEnv);
+    mainGroup.setup(*this, SettingsGuiText::Group::settingEnv);
 
     auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
 		lbl.setup({ .parent = *this, .title = title });
@@ -306,83 +306,83 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     mainGroup.setBounds(pageArea);
 
-    auto sRect = pageArea.reduced(GuiValue::Group::Padding::width, GuiValue::Group::Padding::height);
-    sRect.removeFromTop(GuiValue::Group::TitlePaddingTop);
+    auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
+    sRect.removeFromTop(SettingsGuiValue::Group::TitlePaddingTop);
 
     // 1. WallpaperPath
-    auto rowWpPath = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    wallpaperLabel.setBounds(rowWpPath.removeFromLeft(GuiValue::Settings::LabelWidth));
-    wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(GuiValue::Settings::ClearButtonWidth));
-    wallpaperBrowseBtn.setBounds(rowWpPath.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
+    auto rowWpPath = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    wallpaperLabel.setBounds(rowWpPath.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(SettingsGuiValue::Settings::ClearButtonWidth));
+    wallpaperBrowseBtn.setBounds(rowWpPath.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     wallpaperPathLabel.setBounds(rowWpPath);
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 2. WallpaperMode
-    auto rowWpMode = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(GuiValue::Settings::LabelWidth));
-    wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(GuiValue::Settings::ModeSelectorWidth));
+    auto rowWpMode = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(SettingsGuiValue::Settings::ModeSelectorWidth));
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 3. ADPCM Dir
-    auto rowAdpcmDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(GuiValue::Settings::LabelWidth));
-    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
+    auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     sampleDirPathLabel.setBounds(rowAdpcmDir);
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 4. Preset Dir
-    auto rowPresetDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(GuiValue::Settings::LabelWidth));
-    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
+    auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     presetDirPathLabel.setBounds(rowPresetDir);
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 5. Wavetable Dir
-    auto rowWavetableDir = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(GuiValue::Settings::LabelWidth));
-    wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(GuiValue::Settings::BrowseButtonWidth));
+    auto rowWavetableDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     wavetableDirPathLabel.setBounds(rowWavetableDir);
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 6. Tooltip Visible Row
-    auto rowTooltip = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    tooltipToggle.setBounds(rowTooltip.removeFromLeft(GuiValue::Settings::ToggleWidth));
+    auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 6. Headroom Row
-    auto rowHeadroom = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(GuiValue::Settings::ToggleWidth));
+    auto rowHeadroom = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 7. Headroom Row
-    auto rowHeadroomGain = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(GuiValue::Settings::LabelWidth));
-    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(GuiValue::Settings::HeadroomGainSliderWidth));
+    auto rowHeadroomGain = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 8. Virtual Keyboard Row
-    auto rowVirtualMidiKeyboard = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(GuiValue::Settings::ToggleWidth));
+    auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight);
-
-    // 9. Config IO Buttons (Fixed Layout)
-    auto rowIoBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-
-    layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = GuiValue::Settings::RowHeight });
-
-    sRect.removeFromTop(GuiValue::Settings::PaddingHeight + 8);
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
     // 9. Config IO Buttons (Fixed Layout)
-    auto rowClearHistoryBtns = sRect.removeFromTop(GuiValue::Settings::RowHeight);
-    layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = GuiValue::Settings::RowHeight});
+    auto rowIoBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+
+    layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight });
+
+    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight + 8);
+
+    // 9. Config IO Buttons (Fixed Layout)
+    auto rowClearHistoryBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }
 
 void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)

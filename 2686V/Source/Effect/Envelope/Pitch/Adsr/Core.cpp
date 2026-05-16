@@ -4,7 +4,12 @@
 #include "./Core.h"
 
 void PitchAdsrEnv::prepare(double sampleRate) {
-	this->sampleRate = sampleRate;
+    updateTargetSampleRate(sampleRate);
+}
+
+void PitchAdsrEnv::updateTargetSampleRate(double newSampleRate)
+{
+    this->sampleRate = sampleRate;
     this->updateIncrements();
 }
 
