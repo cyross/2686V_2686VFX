@@ -157,6 +157,11 @@ set(OPZX7_DETUNE_FILES
     "Source/Effect/Detune/Opzx7/Core.cpp"
 )
 
+set(OPZX7_LFO_FILES
+    "Source/Effect/Lfo/Opzx7/Core.h"
+    "Source/Effect/Lfo/Opzx7/Core.cpp"
+)
+
 set(OPNA_SYNTH_FILES
     "Source/Synth/Opna/Core.h"
     "Source/Synth/Opna/Core.cpp"
@@ -501,6 +506,7 @@ source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opzx7" FILES ${OPZX7_DETUNE_FILES})
+source_group("2686V\\Effect\\Lfo\\Opzx7" FILES ${OPZX7_LFO_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
@@ -578,6 +584,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}
         ${OPZX7_DETUNE_FILES}
+        ${OPZX7_LFO_FILES}
         ${OPNA_SYNTH_FILES}
         ${OPN_SYNTH_FILES}
         ${OPL_SYNTH_FILES}
