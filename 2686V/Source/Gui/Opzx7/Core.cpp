@@ -16,6 +16,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "./GuiHelpers.h"
 
 static std::vector<SelectItem> bdItems = {
     {.name = "1: 4-bit (16 steps)",  .value = 1 },
@@ -808,13 +809,13 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
         if (selectedWs == 32)
         {
-            layoutRowOpzx7Pcm({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
             layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
             layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
         }
         if (selectedWs == 16)
         {
-            layoutRowOpzx7Pcm({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
         }
 
         layoutRow({ .rowRect = innerRect, .component = &sus[i] });

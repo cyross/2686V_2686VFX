@@ -22,7 +22,7 @@ void GuiBeep::setup() {
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
     mainCat.setup({ .parent = *this, .title = BeepGuiText::Category::m });
-
+    
     volSlider.setup({ .parent = *this, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);

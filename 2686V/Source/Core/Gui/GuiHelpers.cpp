@@ -145,82 +145,6 @@ void layoutRowCategory(const RowConfigCategory& c)
     layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
-void layoutRowOpzx7Pcm(const RowConfigOpzx7Pcm& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.rect.removeFromTop(c.paddingTop);
-
-    c.loadPcmBtn->setBounds(area.removeFromLeft(c.loadPcmBtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.pcmFileNameLabel->setBounds(area.removeFromLeft(c.pcmFileNameLabelWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.clearPcmBtn->setBounds(area.removeFromLeft(c.clearPcmBtnWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-void layoutRowWtWaveValueUpdate(const RowConfigWtWaveValueUpdate& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.rect.removeFromTop(c.paddingTop);
-
-    c.resetTo0Btn->setBounds(area.removeFromLeft(c.resetTo0BtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.resetTo1Btn->setBounds(area.removeFromLeft(c.resetTo1Width));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.resetToM1Btn->setBounds(area.removeFromLeft(c.resetToM1Width));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-void layoutRowRhythmPadPcmFile(const RowConfigRhythmPadPcmFile& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.rect.removeFromTop(c.paddingTop);
-
-    c.loadBtn->setBounds(area.removeFromLeft(c.loadBtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.filenameLabel->setBounds(area.removeFromLeft(c.filenameLabelWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.clearBtn->setBounds(area.removeFromLeft(c.clearBtnWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-void layoutRowSettingsIo(const RowConfigSettingsIo& c)
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.rect.removeFromTop(c.paddingTop);
-
-    c.loadSettingsBtn->setBounds(area.removeFromLeft(c.loadSettingsBtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.saveSettingsBtn->setBounds(area.removeFromLeft(c.saveSettingsBtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.saveStartupSettingsBtn->setBounds(area.removeFromLeft(c.saveStartupSettingsBtnWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
 void layoutRowOneComp(const RowConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
@@ -368,26 +292,6 @@ void layoutMainThreeComps(const MainConfigThreeComps& c)
     area.removeFromLeft(c.compPaddingRight);
 
     c.comp3->setBounds(area.removeFromLeft(c.compWidth));
-
-    c.rect.removeFromTop(c.paddingBottom);
-}
-
-// メイングループにPCMコンポーネントを貼り付け
-void layoutMainPcm(const MainConfigPcm& c) 
-{
-    auto area = c.rect.removeFromTop(c.rowHeight);
-
-    c.rect.removeFromTop(c.paddingTop);
-
-    c.loadPcmBtn->setBounds(area.removeFromLeft(c.loadPcmBtnWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.pcmFileNameLabel->setBounds(area.removeFromLeft(c.pcmFileNameLabelWidth));
-
-    area.removeFromLeft(c.paddingRight);
-
-    c.clearPcmBtn->setBounds(area.removeFromLeft(c.clearPcmBtnWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }

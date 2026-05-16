@@ -43,8 +43,6 @@ class RhythmPadGui: public GuiBase
     GuiCategoryLabel adsrCat;
 
     GuiSlider rrSlider;
-    GuiTextButton rrTo000Button;
-    GuiTextButton rrTo003Button;
 public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
@@ -67,9 +65,7 @@ public:
         volSlider(context),
         oneShotButton(context),
         adsrCat(context),
-        rrSlider(context),
-        rrTo000Button(context),
-        rrTo003Button(context)
+        rrSlider(context)
     {
 	}
 

@@ -185,11 +185,11 @@ void GuiSsg::setup()
 
     detuneCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
-    dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Ssg::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = *this, .id = code + SsgPrKey::dt2, .title = SsgGuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setup({ .parent = *this, .id = code + SsgPrKey::dt2, .title = SsgGuiText::Ssg::Detune::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
@@ -425,7 +425,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutMvolCat(mRect);
 
-    auto paramArea = pageArea.removeFromLeft(SsgGuiValue::Fm::Op::width);
+    auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
 
     // --- Voice Group ---
     auto voiceArea = paramArea.removeFromTop(230);

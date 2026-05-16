@@ -14,8 +14,7 @@
 #include "../Fm/SliderRegMap.h"
 #include "../Fm/RegisterConverter.h"
 
-#include "../Gui/GuiText.h"
-#include "../Gui/GuiValues.h"
+#include "./GuiValues.h"
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
 
@@ -100,8 +99,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     // プレビュー表示切替ボタン
     addAndMakeVisible(togglePreviewBtn);
-    togglePreviewBtn.setButtonText(isPreviewVisible ? u8"<<" : u8">>");
-    togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
+    togglePreviewBtn.setButtonText(getPreviewButtonText());
+    togglePreviewBtn.setTooltip(getPreviewTooltipText());
     togglePreviewBtn.setLookAndFeel(&togglePreviewButtonLF);
     togglePreviewBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green.withAlpha(0.9f));
@@ -111,12 +110,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
         staticPreview.setVisible(isPreviewVisible);
         realtimePreview.setVisible(isPreviewVisible);
-        togglePreviewBtn.setButtonText(isPreviewVisible ? u8"<<" : u8">>");
-        togglePreviewBtn.setTooltip(isPreviewVisible ? u8"Hide Preview" : u8"Show Preview");
+        togglePreviewBtn.setButtonText(getPreviewButtonText());
+        togglePreviewBtn.setTooltip(getPreviewTooltipText());
 
         // ウィンドウの幅を動的に変更
-        int newWidth = isPreviewVisible ? CoreGuiValue::Window::width + CoreGuiValue::Preview::extraWidth : CoreGuiValue::Window::width;
-        int height = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
+        int newWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
+        int height = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
         setSize(newWidth, height); // 高さは固定、幅を伸縮
 
         // タイマーのON/OFFを切り替え
@@ -126,8 +125,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パニックボタン
     addAndMakeVisible(panicButton);
     panicButton.setVisible(true);
-    panicButton.setButtonText("!");
-    panicButton.setTooltip(u8"Reset Audio Engine");
+    panicButton.setButtonText(EditorGuiText::Panic::title);
+    panicButton.setTooltip(EditorGuiText::Panic::tooltip);
     panicButton.setLookAndFeel(&panicButtonLF);
     panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.9f));
@@ -139,8 +138,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // アンドゥボタンボタン
     addAndMakeVisible(undoButton);
     undoButton.setVisible(true);
-    undoButton.setButtonText(u8"Un");
-    undoButton.setTooltip("Nothing to undo");
+    undoButton.setButtonText(EditorGuiText::Undo::title);
+    undoButton.setTooltip(getUndoTooltipText());
     undoButton.setLookAndFeel(&undoButtonLF);
     undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::yellow);
     undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
@@ -151,8 +150,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // リドゥボタン
     addAndMakeVisible(redoButton);
     redoButton.setVisible(true);
-    redoButton.setButtonText(u8"Re");
-    redoButton.setTooltip("Nothing to Redo");
+    redoButton.setButtonText(EditorGuiText::Redo::title);
+    redoButton.setTooltip(getRedoTooltipText());
     redoButton.setLookAndFeel(&redoButtonLF);
     redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
@@ -167,8 +166,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーターコピーボタン
     addAndMakeVisible(copyParamsButton);
     copyParamsButton.setVisible(true);
-    copyParamsButton.setButtonText(u8"C");
-    copyParamsButton.setTooltip("Copy FM Parameters");
+    copyParamsButton.setButtonText(EditorGuiText::Copy::title);
+    copyParamsButton.setTooltip(EditorGuiText::Copy::tooltip);
     copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
     copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
@@ -180,8 +179,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーターペーストボタン
     addAndMakeVisible(pasteParamsButton);
     pasteParamsButton.setVisible(true);
-    pasteParamsButton.setButtonText(u8"P");
-    pasteParamsButton.setTooltip("Paste FM Parameters");
+    pasteParamsButton.setButtonText(EditorGuiText::Paste::title);
+    pasteParamsButton.setTooltip(EditorGuiText::Paste::tooltip);
     pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
     pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
@@ -194,8 +193,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // パラメーター初期化ボタン
     addAndMakeVisible(initParamsButton);
     initParamsButton.setVisible(true);
-    initParamsButton.setButtonText(u8"Reset");
-    initParamsButton.setTooltip("Reset Parameters");
+    initParamsButton.setButtonText(EditorGuiText::Reset::title);
+    initParamsButton.setTooltip(EditorGuiText::Redo::tooltip);
     initParamsButton.setLookAndFeel(&initParamsButtonLF);
     initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white.darker(0.8f));
     initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
@@ -217,8 +216,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addAndMakeVisible(*fxGui);
     fxGui->setVisible(true);
 
-    int initialHeight = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
-    setSize(CoreGuiValue::Window::width, initialHeight);
+    int initialHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
+    setSize(EditorGuiValue::Window::width, initialHeight);
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -289,18 +288,18 @@ void AudioPlugin2686VEditor::resized()
     // 画面の一番下を鍵盤UIに割り当てる
     if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
     {
-        midiKeyboard->setBounds(area.removeFromBottom(CoreGuiValue::KeyboardHeight));
+        midiKeyboard->setBounds(area.removeFromBottom(EditorGuiValue::KeyboardHeight));
     }
 
     if (isPreviewVisible)
     {
-        auto rightArea = area.removeFromRight(CoreGuiValue::Preview::extraWidth);
+        auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
         // 上下に並べる
-        staticPreview.setBounds(rightArea.getX() + 4, 30, CoreGuiValue::Preview::drawSize, CoreGuiValue::Preview::drawSize);
-        realtimePreview.setBounds(rightArea.getX() + 4, 330, CoreGuiValue::Preview::drawSize, CoreGuiValue::Preview::drawSize);
+        staticPreview.setBounds(rightArea.getX() + 4, 30, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
+        realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
     }
 
-    int previewPaddingRight = isPreviewVisible ? CoreGuiValue::Preview::drawSize + 8: 0;
+    int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8: 0;
     togglePreviewBtn.setBounds(getWidth() - 45, 5, 40, 20);
     panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
@@ -314,14 +313,14 @@ void AudioPlugin2686VEditor::resized()
     initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
 #endif
 
-    logoLabel.setBounds(area.reduced(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height));
+    logoLabel.setBounds(area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height));
 
     tabs.setBounds(area);
 
     // タブの中身（コンテンツ領域）
     auto content = tabs.getLocalBounds();
     auto tabContent = content.removeFromLeft(content.getWidth() - 300);
-    tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
+    tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height); // 全体の余白
 
     opnaGui->layout(tabContent);
     opnGui->layout(tabContent);
@@ -348,7 +347,7 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
     auto fullArea = getLocalBounds().toFloat();
 
     // 拡張パネルを含まない、本来のメイン画面の固定サイズ
-    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)CoreGuiValue::Window::width, (float)CoreGuiValue::Window::height);
+    juce::Rectangle<float> baseArea(0.0f, 0.0f, (float)EditorGuiValue::Window::width, (float)EditorGuiValue::Window::height);
 
     if (backgroundImage.isValid())
     {
@@ -405,13 +404,13 @@ void AudioPlugin2686VEditor::setupLogo()
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
 
     // フォント変更: Bold + Italic, サイズ 128.0f
-    logoLabel.setFont(juce::Font(CoreGuiValue::WaterMarkLogo::fontFamily, CoreGuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, EditorGuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
 
     // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
 
     // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(CoreGuiValue::WaterMarkLogo::fontAlpha));
+    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
 
     addAndMakeVisible(logoLabel);
 
@@ -422,20 +421,20 @@ void AudioPlugin2686VEditor::setupLogo()
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
-    tabs.addTab(CoreGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
-    tabs.addTab(CoreGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
 }
 
 void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
@@ -659,7 +658,7 @@ void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component,
     {
         auto content = tabs.getLocalBounds();
         content.removeFromTop(tabs.getTabBarDepth());
-        content.reduce(CoreGuiValue::Group::Padding::width, CoreGuiValue::Group::Padding::height); // 全体の余白
+        content.reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height); // 全体の余白
 
         wtGui->layout(content);
     }
@@ -866,8 +865,8 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
     }
 
     // プレビューの開閉状態（幅）と、キーボードの開閉状態（高さ）を両方考慮してリサイズ
-    int targetWidth = isPreviewVisible ? CoreGuiValue::Window::width + CoreGuiValue::Preview::extraWidth : CoreGuiValue::Window::width;
-    int targetHeight = audioProcessor.showVirtualKeyboard ? CoreGuiValue::Window::height + CoreGuiValue::KeyboardHeight : CoreGuiValue::Window::height;
+    int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
+    int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
 
     setSize(targetWidth, targetHeight);
 }
@@ -992,16 +991,8 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
     // canUndo / canRedo は履歴の有無を bool で返してくれる
     undoButton.setEnabled(audioProcessor.undoManager.canUndo());
     redoButton.setEnabled(audioProcessor.undoManager.canRedo());
-
-    if (audioProcessor.undoManager.canUndo())
-        undoButton.setTooltip("Undo");
-    else
-        undoButton.setTooltip("Nothing to undo");
-
-    if (audioProcessor.undoManager.canRedo())
-        redoButton.setTooltip("Redo");
-    else
-        redoButton.setTooltip("Nothing to redo");
+    undoButton.setTooltip(getUndoTooltipText());
+    redoButton.setTooltip(getRedoTooltipText());
 }
 
 void AudioPlugin2686VEditor::updateParameterCopyPasteButtons()
@@ -1146,4 +1137,24 @@ void AudioPlugin2686VEditor::initParams()
         beepGui->initParams();
         break;
     };
+}
+
+inline juce::String AudioPlugin2686VEditor::getPreviewButtonText()
+{
+    return isPreviewVisible ? EditorGuiText::Preview::hide : EditorGuiText::Preview::show;
+}
+
+inline juce::String AudioPlugin2686VEditor::getPreviewTooltipText()
+{
+    return isPreviewVisible ? EditorGuiText::Preview::tooltipHide : EditorGuiText::Preview::tooltipShow;
+}
+
+inline juce::String AudioPlugin2686VEditor::getUndoTooltipText()
+{
+    return audioProcessor.undoManager.canUndo() ? EditorGuiText::Undo::tooltip : EditorGuiText::Undo::tooltipNone;
+}
+
+inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
+{
+    return audioProcessor.undoManager.canRedo() ? EditorGuiText::Redo::tooltip : EditorGuiText::Redo::tooltipNone;
 }

@@ -9,6 +9,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "./GuiHelpers.h"
 
 static std::vector<SelectItem> qualityItems = {
     {.name = "1: Raw (32bit)", .value = 1 },

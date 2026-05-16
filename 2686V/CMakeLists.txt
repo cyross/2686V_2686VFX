@@ -126,6 +126,8 @@ set(PROCESSOR_FILES
 )
 
 set(EDITOR_FILES
+    "Source/Core/Editor/GuiText.h"
+    "Source/Core/Editor/GuiValues.h"
     "Source/Core/Editor/PluginEditor.h"
     "Source/Core/Editor/PluginEditor.cpp"
 )
@@ -312,6 +314,8 @@ set(OPZX7_PROCESSOR_FILES
 )
 
 set(OPZX7_GUI_FILES
+    "Source/Gui/Opzx7/GuiHelpers.h"
+    "Source/Gui/Opzx7/GuiHelpers.cpp"
     "Source/Gui/Opzx7/GuiText.h"
     "Source/Gui/Opzx7/GuiValues.h"
     "Source/Gui/Opzx7/Core.h"
@@ -354,6 +358,8 @@ set(WT_PROCESSOR_FILES
 )
 
 set(WT_GUI_FILES
+    "Source/Gui/Wavetable/GuiHelpers.h"
+    "Source/Gui/Wavetable/GuiHelpers.cpp"
     "Source/Gui/Wavetable/GuiText.h"
     "Source/Gui/Wavetable/GuiValues.h"
     "Source/Gui/Wavetable/Core.h"
@@ -375,6 +381,8 @@ set(RHYTHM_PROCESSOR_FILES
 )
 
 set(RHYTHM_GUI_FILES
+    "Source/Gui/Rhythm/GuiHelpers.h"
+    "Source/Gui/Rhythm/GuiHelpers.cpp"
     "Source/Gui/Rhythm/GuiText.h"
     "Source/Gui/Rhythm/GuiValues.h"
     "Source/Gui/Rhythm/Core.h"
@@ -396,6 +404,8 @@ set(ADPCM_PROCESSOR_FILES
 )
 
 set(ADPCM_GUI_FILES
+    "Source/Gui/Adpcm/GuiHelpers.h"
+    "Source/Gui/Adpcm/GuiHelpers.cpp"
     "Source/Gui/Adpcm/GuiText.h"
     "Source/Gui/Adpcm/GuiValues.h"
     "Source/Gui/Adpcm/Core.h"
@@ -453,6 +463,8 @@ set(PRESET_GUI_FILES
 )
 
 set(SETTINGS_GUI_FILES
+    "Source/Gui/Settings/GuiHelpers.h"
+    "Source/Gui/Settings/GuiHelpers.cpp"
     "Source/Gui/Settings/GuiText.h"
     "Source/Gui/Settings/GuiValues.h"
     "Source/Gui/Settings/Keys.h"

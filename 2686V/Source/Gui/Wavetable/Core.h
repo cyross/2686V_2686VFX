@@ -7,7 +7,6 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
-#include "../../Core/Gui/GuiValues.h"
 
 // ==========================================================
 // Waveform Drawing Container (Super Lightweight Custom Paint)

@@ -12,6 +12,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "./GuiHelpers.h"
 
 static std::vector<SelectItem> qualityItems = {
     {.name = "1: Raw (32bit)", .value = 1 },
@@ -59,7 +60,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     parent.addAndMakeVisible(this);
 
     juce::String padPrefix = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
-    juce::String padTitle = "Pad " + juce::String(index + 1) + " (" + padName + ")";
+    juce::String padTitle = RhythmGuiText::Group::padPrefix +  " " + juce::String(index + 1) + " (" + padName + ")";
 
     // メイングループ
     mainGroup.setup(*this, padTitle);
@@ -147,16 +148,6 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     rrSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::rr, .title = RhythmGuiText::Rhythm::Pad::rr, .isReset = true });
     rrSlider.setWantsKeyboardFocus(true);
     rrSlider.setExplicitFocusOrder(++tabOrder);
-
-    rrTo000Button.setup(GuiTextButton::Config{ .parent = *this, .title = RhythmGuiText::Fm::Op::ArTo000, .isReset = false, .isResized = false });
-    rrTo000Button.setWantsKeyboardFocus(true);
-    rrTo000Button.setExplicitFocusOrder(++tabOrder);
-    rrTo000Button.onClick = [this] { rrSlider.setValue(0.00, juce::sendNotification); };
-
-    rrTo003Button.setup(GuiTextButton::Config{ .parent = *this, .title = RhythmGuiText::Fm::Op::ArTo003, .isReset = false, .isResized = false });
-    rrTo003Button.setWantsKeyboardFocus(true);
-    rrTo003Button.setExplicitFocusOrder(++tabOrder);
-    rrTo003Button.onClick = [this] { rrSlider.setValue(0.03, juce::sendNotification); };
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -237,13 +228,10 @@ void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     rrSlider.setVisibleWithLabel(visible);
-    rrTo000Button.setVisible(visible);
-    rrTo003Button.setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
     }
 }
 
