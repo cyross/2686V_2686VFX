@@ -38,6 +38,15 @@ static std::vector<SelectItem> rateItems = {
 
 void GuiAdpcm::setup()
 {
+    auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
+        {
+            addAndMakeVisible(btn);
+            btn.setButtonText(text);
+            btn.addListener(&ctx.editor);
+            btn.setWantsKeyboardFocus(true);
+            btn.setExplicitFocusOrder(++tabOrder);
+        };
+
     const juce::String code = AdpcmPrKey::prefix;
     int tabOrder = 1;
 
@@ -49,7 +58,7 @@ void GuiAdpcm::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
@@ -80,26 +89,18 @@ void GuiAdpcm::setup()
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
-    panCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::pan });
+    panCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
-    addAndMakeVisible(btnPanL); btnPanL.setButtonText(AdpcmGuiText::Adpcm::Pan::l); btnPanL.addListener(&ctx.editor);
-    btnPanL.setWantsKeyboardFocus(true);
-    btnPanL.setExplicitFocusOrder(++tabOrder);
+    setupPanBtn(panToLBtn, AdpcmGuiText::Adpcm::Pan::l, tabOrder);
+    setupPanBtn(panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
+    setupPanBtn(panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
 
-    addAndMakeVisible(btnPanC); btnPanC.setButtonText(AdpcmGuiText::Adpcm::Pan::c); btnPanC.addListener(&ctx.editor);
-    btnPanC.setWantsKeyboardFocus(true);
-    btnPanC.setExplicitFocusOrder(++tabOrder);
-
-    addAndMakeVisible(btnPanR); btnPanR.setButtonText(AdpcmGuiText::Adpcm::Pan::r); btnPanR.addListener(&ctx.editor);
-    btnPanR.setWantsKeyboardFocus(true);
-    btnPanR.setExplicitFocusOrder(++tabOrder);
-
-    adsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleAdsr, .invisibleTitle = AdpcmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, .title = AdpcmGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -121,7 +122,7 @@ void GuiAdpcm::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = AdpcmPrKey::masterVol, .title = AdpcmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -164,26 +165,21 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = AdpcmGuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+
+    layoutQualityCat(mRect);
+
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutMain({ .mainRect = mRect, .component = &loopButton });
     layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
     layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
-    layoutMainCategory({ .mainRect = mRect, .label = &panCat });
-    layoutMain({ .mainRect = mRect, .label = &panSlider.label, .component = &panSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR, });
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
-    layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+
+    layoutPanCat(mRect);
+
+    layoutAdsrCat(mRect);
+
+    layoutMvolCat(mRect);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)
@@ -198,17 +194,17 @@ bool GuiAdpcm::isThis(juce::Button* button)
 
 bool GuiAdpcm::isBtnPanL(juce::Button* button)
 {
-    return button == &btnPanL;
+    return button == &panToLBtn;
 }
 
 bool GuiAdpcm::isBtnPanC(juce::Button* button)
 {
-    return button == &btnPanC;
+    return button == &panToCBtn;
 }
 
 bool GuiAdpcm::isBtnPanR(juce::Button* button)
 {
-    return button == &btnPanR;
+    return button == &panToRBtn;
 }
 
 void GuiAdpcm::setPan(float pan)
@@ -231,4 +227,72 @@ void GuiAdpcm::initParams()
     this->ctx.audioProcessor.initParams("ADPCM_");
     this->ctx.audioProcessor.unloadAdpcmFile();
     updateFileName(Io::empty);
+}
+
+void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    modeSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiAdpcm::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiAdpcm::layoutPanCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &panCat });
+
+    bool visible = panCat.isDetailVisible();
+
+    panSlider.setVisibleWithLabel(visible);
+    panToLBtn.setVisible(visible);
+    panToCBtn.setVisible(visible);
+    panToRBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &panSlider.label, .component = &panSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn, });
+    }
+}
+
+void GuiAdpcm::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    adsrBypassButton.setVisible(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
 }

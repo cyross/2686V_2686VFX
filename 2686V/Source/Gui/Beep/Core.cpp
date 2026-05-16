@@ -46,7 +46,7 @@ void GuiBeep::setup() {
     freqTo2kBtn.setWantsKeyboardFocus(true);
     freqTo2kBtn.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = BeepGuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleAdsr, .invisibleTitle = BeepGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     bypassToggle.setup({ .parent = *this, .id = code + BeepPrKey::adsr + BeepPrKey::bypass, .title = BeepGuiText::Beep::Adsr::Bypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
@@ -68,13 +68,13 @@ void GuiBeep::setup() {
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = BeepGuiText::Category::monoMode });
+    monoPolyCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMonoMode, .invisibleTitle = BeepGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = BeepPrKey::monoMode, .title = BeepGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = BeepGuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMvol, .invisibleTitle = BeepGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = BeepPrKey::masterVol, .title = BeepGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -96,32 +96,13 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &catFix });
+    layoutFixCat(mRect);
 
+    layoutAdsrCat(mRect);
 
-    bool visibleFix = catFix.isDetailVisible();
+    layoutMonoModeCat(mRect);
 
-    fixToggle.setVisible(visibleFix);
-    freqSlider.setVisibleWithLabel(visibleFix);
-    freqTo2kBtn.setVisible(visibleFix);
-
-    if (visibleFix)
-    {
-        layoutMain({ .mainRect = mRect, .component = &fixToggle });
-        layoutMain({ .mainRect = mRect, .label = &freqSlider.label, .component = &freqSlider });
-        layoutMain({ .mainRect = mRect, .component = &freqTo2kBtn, });
-    }
-
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &bypassToggle });
-    layoutMain({ .mainRect = mRect, .label = &ar.label, .component = &ar });
-    layoutMain({ .mainRect = mRect, .label = &dr.label, .component = &dr });
-    layoutMain({ .mainRect = mRect, .label = &sl.label, .component = &sl });
-    layoutMain({ .mainRect = mRect, .label = &rr.label, .component = &rr });
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutMvolCat(mRect);
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)
@@ -132,4 +113,70 @@ void GuiBeep::updatePresetName(const juce::String& presetName)
 void GuiBeep::initParams()
 {
     this->ctx.audioProcessor.initParams("BEEP_");
+}
+
+void GuiBeep::layoutFixCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &catFix });
+
+    bool visibleFix = catFix.isDetailVisible();
+
+    fixToggle.setVisible(visibleFix);
+    freqSlider.setVisibleWithLabel(visibleFix);
+    freqTo2kBtn.setVisible(visibleFix);
+
+    if (visibleFix)
+    {
+        layoutMain({ .mainRect = rect, .component = &fixToggle });
+        layoutMain({ .mainRect = rect, .label = &freqSlider.label, .component = &freqSlider });
+        layoutMain({ .mainRect = rect, .component = &freqTo2kBtn, });
+    }
+}
+
+void GuiBeep::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiBeep::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiBeep::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    bypassToggle.setVisible(visible);
+    ar.setVisibleWithLabel(visible);
+    dr.setVisibleWithLabel(visible);
+    sl.setVisibleWithLabel(visible);
+    rr.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &bypassToggle });
+        layoutMain({ .mainRect = rect, .label = &ar.label, .component = &ar });
+        layoutMain({ .mainRect = rect, .label = &dr.label, .component = &dr });
+        layoutMain({ .mainRect = rect, .label = &sl.label, .component = &sl });
+        layoutMain({ .mainRect = rect, .label = &rr.label, .component = &rr });
+    }
 }

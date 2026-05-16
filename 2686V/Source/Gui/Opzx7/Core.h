@@ -178,7 +178,6 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> freqTo1;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo2;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catShape;
     std::array<GuiComboBox, Global::Fm::Op4> ws;
     std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
     std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
@@ -188,6 +187,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> loadWtBtn;
     std::array<GuiTextButton, Global::Fm::Op4> clearWtBtn;
     std::array<GuiLabel, Global::Fm::Op4> wtFileNameLabel;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catSsgEnv;
     std::array<GuiComboBox, Global::Fm::Op4> se;
     std::array<GuiSlider, Global::Fm::Op4> seFreq;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
@@ -286,7 +286,6 @@ public:
         freqTo1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo2{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
-        catShape{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
@@ -296,6 +295,7 @@ public:
         loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -363,4 +363,14 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutMonoModeCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutPanpotCat(juce::Rectangle<int>& rect);
+    void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutLfoCat(juce::Rectangle<int>& rect);
+    void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
 };

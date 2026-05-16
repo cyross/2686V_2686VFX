@@ -96,7 +96,7 @@ void GuiOpl::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = OplGuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = OplGuiText::Category::visibleQuality, .invisibleTitle = OplGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
     bitSelector.setup({ .parent = *this, .id = code + OplPrKey::bit, .title = OplGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
@@ -115,7 +115,8 @@ void GuiOpl::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    initCat.setup({ .parent = *this, .title = OplGuiText::Category::initialize });
+    initCat.setup({ .parent = *this, .title = OplGuiText::Category::visibleInitialize, .invisibleTitle = OplGuiText::Category::invisibleInitialize, .enableChangeDetailVisible = true });
+
     initLfoToOplBtn.setup({ .parent = *this, .title = OplGuiText::Fm::initLfoToOpl });
     initLfoToOplBtn.setWantsKeyboardFocus(true);
     initLfoToOplBtn.setExplicitFocusOrder(++tabOrder);
@@ -143,12 +144,12 @@ void GuiOpl::setup()
         }
         };
 
-    monoPolyCat.setup({ .parent = *this, .title = OplGuiText::Category::monoMode });
+    monoPolyCat.setup({ .parent = *this, .title = OplGuiText::Category::visibleMonoMode, .invisibleTitle = OplGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
     monoModeToggle.setup({ .parent = *this, .id = OplPrKey::monoMode, .title = OplGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = OplGuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = OplGuiText::Category::visibleMvol, .invisibleTitle = OplGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
     masterVolSlider.setup({ .parent = *this, .id = OplPrKey::masterVol, .title = OplGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
@@ -221,11 +222,11 @@ void GuiOpl::setup()
         eg[i].setWantsKeyboardFocus(true);
         eg[i].setExplicitFocusOrder(++tabOrder);
 
-        adsrCat[i].setup({ .parent = *this, .title = OplGuiText::Category::adsr });
+        adsrCat[i].setup({ .parent = *this, .title = OplGuiText::Category::visibleAdsr, .invisibleTitle = OplGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
         sus[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OplPrKey::sus, .title = OplGuiText::Fm::Op::sus, .isReset = true });
 
-        catLfo[i].setup({ .parent = *this, .title = OplGuiText::Category::lfo });
+        catLfo[i].setup({ .parent = *this, .title = OplGuiText::Category::visibleLfo, .invisibleTitle = OplGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
         am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OplPrKey::am, .title = OplGuiText::Fm::Op::Am, .isReset = true });
         am[i].setWantsKeyboardFocus(true);
@@ -330,19 +331,18 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = OplGuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector });
+
+    layoutQualityCat(mRect);
+
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutMainCategory({ .mainRect = mRect, .label = &initCat });
-    layoutMain({ .mainRect = mRect, .component = &initLfoToOplBtn });
-    layoutMain({ .mainRect = mRect, .component = &initLfoToOpllBtn });
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+
+    layoutInitializeCat(mRect);
+
+    layoutMonoModeCat(mRect);
+
+    layoutMvolCat(mRect);
 
     auto imgArea = mRect.removeFromBottom(100);
     algImageComp.setBounds(imgArea);
@@ -360,39 +360,24 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
         updateRgDisplayAsOp(i, true);
+
         layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
+
         layoutRow({ .rowRect = innerRect, .component = &egType[i] });
         layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
         layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
         layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
         layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
-        layoutRowCategory({ .rowRect = innerRect, .component = &adsrCat[i] });
-        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
-        layoutRowCategory({ .rowRect = innerRect, .component = &catLfo[i] });
-        layoutRow({ .rowRect = innerRect, .component = &am[i] });
-        layoutRow({ .rowRect = innerRect, .label = &ams[i].label, .component = &ams[i] });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &amsTo37[i], .comp2 = &amsTo606[i]});
-        layoutRow({ .rowRect = innerRect, .label = &amd[i].label, .component = &amd[i] });
-        layoutRowThreeComps({ .rect = innerRect, .comp1 = &amdTo1[i], .comp2 = &amdTo12[i], .comp3 = &amdTo48[i]});
-        layoutRow({ .rowRect = innerRect, .component = &vib[i] });
-        layoutRow({ .rowRect = innerRect, .label = &pms[i].label, .component = &pms[i] });
-        layoutRowTwoComps({ .rect = innerRect, .comp1 = &pmsTo606[i], .comp2 = &pmsTo64[i]});
-        layoutRow({ .rowRect = innerRect, .label = &pmd[i].label, .component = &pmd[i] });
-        layoutRowThreeComps({ .rect = innerRect, .comp1 = &pmdTo7[i], .comp2 = &pmdTo137[i], .comp3 = &pmdTo14[i]});
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMask[i] });
 
-        bool visibleMask = catMask[i].isDetailVisible();
+        layoutOpAdsrCat(i, innerRect);
 
-        mask[i].setVisible(visibleMask);
+        layoutOpLfoCat(i, innerRect);
 
-        if (visibleMask)
-        {
-            layoutRow({ .rowRect = innerRect, .component = &mask[i] });
-        }
+        layoutOpMaskCat(i, innerRect);
 
         layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
@@ -635,4 +620,126 @@ void GuiOpl::pasteFmParamsFromObject()
 void GuiOpl::initParams()
 {
     this->ctx.audioProcessor.initParams("OPL_");
+}
+
+void GuiOpl::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catMask[opIndex] });
+
+    bool visibleMask = catMask[opIndex].isDetailVisible();
+
+    mask[opIndex].setVisible(visibleMask);
+
+    if (visibleMask)
+    {
+        layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+    }
+}
+
+void GuiOpl::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    bitSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiOpl::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiOpl::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiOpl::layoutInitializeCat(Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &initCat });
+
+    bool visible = initCat.isDetailVisible();
+
+    initLfoToOplBtn.setVisible(visible);
+    initLfoToOpllBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
+        layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
+    }
+}
+
+void GuiOpl::layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .component = &adsrCat[opIndex] });
+
+    bool visible = adsrCat[opIndex].isDetailVisible();
+
+    sus[opIndex].setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &sus[opIndex] });
+    }
+}
+
+void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .component = &catLfo[opIndex] });
+
+    bool visible = catLfo[opIndex].isDetailVisible();
+
+    am[opIndex].setVisible(visible);
+    ams[opIndex].setVisibleWithLabel(visible);
+    amsTo37[opIndex].setVisible(visible);
+    amsTo606[opIndex].setVisible(visible);
+    amd[opIndex].setVisibleWithLabel(visible);
+    amdTo1[opIndex].setVisible(visible);
+    amdTo12[opIndex].setVisible(visible);
+    amdTo48[opIndex].setVisible(visible);
+    vib[opIndex].setVisible(visible);
+    pms[opIndex].setVisibleWithLabel(visible);
+    pmsTo606[opIndex].setVisible(visible);
+    pmsTo64[opIndex].setVisible(visible);
+    pmd[opIndex].setVisibleWithLabel(visible);
+    pmdTo137[opIndex].setVisible(visible);
+    pmdTo14[opIndex].setVisible(visible);
+    pmdTo7[opIndex].setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &am[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ams[opIndex].label, .component = &ams[opIndex] });
+        layoutRowTwoComps({ .rect = rect, .comp1 = &amsTo37[opIndex], .comp2 = &amsTo606[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
+        layoutRowThreeComps({ .rect = rect, .comp1 = &amdTo1[opIndex], .comp2 = &amdTo12[opIndex], .comp3 = &amdTo48[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &vib[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pms[opIndex].label, .component = &pms[opIndex] });
+        layoutRowTwoComps({ .rect = rect, .comp1 = &pmsTo606[opIndex], .comp2 = &pmsTo64[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pmd[opIndex].label, .component = &pmd[opIndex] });
+        layoutRowThreeComps({ .rect = rect, .comp1 = &pmdTo7[opIndex], .comp2 = &pmdTo137[opIndex], .comp3 = &pmdTo14[opIndex] });
+    }
 }

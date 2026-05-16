@@ -26,9 +26,9 @@ class GuiAdpcm : public GuiBase
     GuiSlider levelSlider;
     GuiSlider panSlider;
 
-    GuiTextButton btnPanL;
-    GuiTextButton btnPanC;
-    GuiTextButton btnPanR;
+    GuiTextButton panToLBtn;
+    GuiTextButton panToCBtn;
+    GuiTextButton panToRBtn;
 
     // Loop Button
     GuiToggleButton loopButton;
@@ -68,9 +68,9 @@ public:
         pcmRatioSlider(context),
         levelSlider(context),
         panSlider(context),
-        btnPanL(context),
-        btnPanC(context),
-        btnPanR(context),
+        panToLBtn(context),
+        panToCBtn(context),
+        panToRBtn(context),
         loopButton(context),
         presetNameCat(context),
         qualityCat(context),
@@ -99,4 +99,8 @@ public:
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutPanCat(juce::Rectangle<int>& rect);
+    void layoutAdsrCat(juce::Rectangle<int>& rect);
 };

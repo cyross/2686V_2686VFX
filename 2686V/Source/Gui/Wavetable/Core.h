@@ -585,4 +585,12 @@ public:
     void importWavetable();
     void exportWavetable();
     void initParams();
+    void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutMonoModeCat(juce::Rectangle<int>& rect);
+    void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutModulationCat(juce::Rectangle<int>& rect);
+    void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutDetuneCat(juce::Rectangle<int>& rect);
+    void layoutWavefileCat(juce::Rectangle<int>& rect);
 };

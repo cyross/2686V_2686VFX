@@ -140,7 +140,7 @@ void GuiWt::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    qualityCat.setup({ .parent = *this, .title = WtGuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -225,7 +225,7 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modCat.setup({ .parent = *this, .title = WtGuiText::Category::mod });
+    modCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
     modEnableButton.setup({ .parent = *this, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
@@ -240,7 +240,7 @@ void GuiWt::setup()
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = WtGuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleAdsr, .invisibleTitle = WtGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::adsr + WtPrKey::bypass, .title = WtGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -262,7 +262,7 @@ void GuiWt::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = WtGuiText::Category::pitchAdsr });
+    pitchAdsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visiblePitchAdsr, .invisibleTitle = WtGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::pitchAdsr + WtPrKey::bypass, .title = WtGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -296,7 +296,7 @@ void GuiWt::setup()
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = WtGuiText::Category::detune });
+    detuneCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleDetune, .invisibleTitle = WtGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + WtPrKey::dt, .title = WtGuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
@@ -306,13 +306,13 @@ void GuiWt::setup()
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = WtGuiText::Category::monoMode });
+    monoPolyCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = WtPrKey::monoMode, .title = WtGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = WtGuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMvol, .invisibleTitle = WtGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     // Master Volume
 	masterVolSlider.setup({ .parent = *this, .id = WtPrKey::masterVol, .title = WtGuiText::MasterVol::title, .isReset = true });
@@ -374,7 +374,7 @@ void GuiWt::setup()
         else if (sizeId == 4) customSliders256.applySmoothing();
         };
 
-    waveFileCat.setup({ .parent = *this, .title = WtGuiText::Category::waveFile });
+    waveFileCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleWaveFile, .invisibleTitle = WtGuiText::Category::invisibleWaveFile, .enableChangeDetailVisible = true });
 
     customWaveImportBtn.setup({ .parent = *this, .title = WtGuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -401,9 +401,9 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = WtGuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &qualityCat });
-    layoutMain({ .mainRect = mRect, .label = &bitSelector.label, .component = &bitSelector });
-    layoutMain({ .mainRect = mRect, .label = &rateSelector.label, .component = &rateSelector, });
+
+    layoutQualityCat(mRect);
+
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
@@ -417,40 +417,19 @@ void GuiWt::layout(juce::Rectangle<int> content)
         layoutMain({ .mainRect = mRect, .label = &stepsSelector.label, .component = &stepsSelector, });
     }
 
-    layoutMainCategory({ .mainRect = mRect, .label = &modCat });
-    layoutMain({ .mainRect = mRect, .component = &modEnableButton });
-    layoutMain({ .mainRect = mRect, .label = &modDepthSlider.label, .component = &modDepthSlider });
-    layoutMain({ .mainRect = mRect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+    layoutModulationCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &adsrCat });
-    layoutMain({ .mainRect = mRect, .component = &adsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &attackSlider.label, .component = &attackSlider });
-    layoutMain({ .mainRect = mRect, .label = &decaySlider.label, .component = &decaySlider });
-    layoutMain({ .mainRect = mRect, .label = &sustainSlider.label, .component = &sustainSlider });
-    layoutMain({ .mainRect = mRect, .label = &releaseSlider.label, .component = &releaseSlider });
+    layoutAdsrCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &pitchAdsrCat });
-    layoutMain({ .mainRect = mRect, .component = &pitchAdsrBypassButton });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-    layoutMain({ .mainRect = mRect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    layoutPitchEnvCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &detuneCat });
-    layoutMain({ .mainRect = mRect, .label = &dt1.label, .component = &dt1 });
-    layoutMain({ .mainRect = mRect, .label = &dt2.label, .component = &dt2 });
+    layoutDetuneCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &waveFileCat });
-    layoutMain({ .mainRect = mRect, .component = &customWaveImportBtn });
-    layoutMain({ .mainRect = mRect, .component = &customWaveExportBtn });
+    layoutWavefileCat(mRect);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &monoPolyCat });
-    layoutMain({ .mainRect = mRect, .component = &monoModeToggle });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    layoutMonoModeCat(mRect);
+
+    layoutMvolCat(mRect);
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);
@@ -684,4 +663,145 @@ void GuiWt::exportWavetable()
 void GuiWt::initParams()
 {
     this->ctx.audioProcessor.initParams("WT_");
+}
+
+void GuiWt::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    bitSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
+        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiWt::layoutMonoModeCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
+
+    bool visible = monoPolyCat.isDetailVisible();
+
+    monoModeToggle.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
+    }
+}
+
+void GuiWt::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiWt::layoutModulationCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &modCat });
+
+    bool visible = modCat.isDetailVisible();
+
+    modEnableButton.setVisible(visible);
+    modDepthSlider.setVisibleWithLabel(visible);
+    modSpeedSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &modEnableButton });
+        layoutMain({ .mainRect = rect, .label = &modDepthSlider.label, .component = &modDepthSlider });
+        layoutMain({ .mainRect = rect, .label = &modSpeedSlider.label, .component = &modSpeedSlider, });
+    }
+}
+
+void GuiWt::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    adsrBypassButton.setVisible(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
+}
+
+void GuiWt::layoutPitchEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
+
+    bool visible = pitchAdsrCat.isDetailVisible();
+
+    pitchAdsrBypassButton.setVisible(visible);
+    pitchAttackSlider.setVisibleWithLabel(visible);
+    pitchDecaySlider.setVisibleWithLabel(visible);
+    pitchReleaseSlider.setVisibleWithLabel(visible);
+    pitchStartLevelSlider.setVisibleWithLabel(visible);
+    pitchAttackLevelSlider.setVisibleWithLabel(visible);
+    pitchSustainLevelSlider.setVisibleWithLabel(visible);
+    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void GuiWt::layoutDetuneCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &detuneCat });
+
+    bool visible = detuneCat.isDetailVisible();
+
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
+    }
+}
+
+void GuiWt::layoutWavefileCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &waveFileCat });
+
+    bool visible = waveFileCat.isDetailVisible();
+
+    customWaveImportBtn.setVisible(visible);
+    customWaveExportBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
+        layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
+    }
 }

@@ -47,6 +47,15 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
 {
+    auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
+        {
+            addAndMakeVisible(btn);
+            btn.setButtonText(text);
+            btn.addListener(&ctx.editor);
+            btn.setWantsKeyboardFocus(true);
+            btn.setExplicitFocusOrder(++tabOrder);
+        };
+
     parent.addAndMakeVisible(this);
 
     juce::String padPrefix = RhythmPrKey::prefix + RhythmPrKey::pad + juce::String(index);
@@ -55,7 +64,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // メイングループ
     mainGroup.setup(*this, padTitle);
 
-    qualityCat.setup({ .parent = *this, .title = RhythmGuiText::Category::quality });
+    qualityCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleQuality, .invisibleTitle = RhythmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::mode, .title = RhythmGuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
@@ -120,7 +129,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
         };
     noteSlider.updateText();
 
-    panCat.setup({ .parent = *this, .title = RhythmGuiText::Category::pan });
+    panCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visiblePan, .invisibleTitle = RhythmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     // パンポット
     panSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
@@ -128,22 +137,11 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
 
-    btnPanL.setup({ .parent = *this, .title = RhythmGuiText::Rhythm::Pad::Pan::l, .isReset = false });
-    btnPanL.setWantsKeyboardFocus(true);
-    btnPanL.setExplicitFocusOrder(++tabOrder);
-    btnPanL.addListener(&ctx.editor);
+    setupPanBtn(panToLBtn, RhythmGuiText::Rhythm::Pad::Pan::l, tabOrder);
+    setupPanBtn(panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
+    setupPanBtn(panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
 
-    btnPanC.setup({ .parent = *this, .title = RhythmGuiText::Rhythm::Pad::Pan::c, .isReset = false });
-    btnPanC.setWantsKeyboardFocus(true);
-    btnPanC.setExplicitFocusOrder(++tabOrder);
-    btnPanC.addListener(&ctx.editor);
-
-    btnPanR.setup({ .parent = *this, .title = RhythmGuiText::Rhythm::Pad::Pan::r, .isReset = false });
-    btnPanR.setWantsKeyboardFocus(true);
-    btnPanR.setExplicitFocusOrder(++tabOrder);
-    btnPanR.addListener(&ctx.editor);
-
-    adsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::adsr });
+    adsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleAdsr, .invisibleTitle = RhythmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     // RR
     rrSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::rr, .title = RhythmGuiText::Rhythm::Pad::rr, .isReset = true });
@@ -169,9 +167,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    layoutRowCategory({ .rowRect = padRect, .label = &qualityCat });
-    layoutRow({ .rowRect = padRect, .label = &modeSelector.label, .component = &modeSelector });
-    layoutRow({ .rowRect = padRect, .label = &rateSelector.label, .component = &rateSelector, });
+    layoutQualityCat(padRect);
+
     layoutRowCategory({ .rowRect = padRect, .label = &mainCat });
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
     layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
@@ -179,17 +176,10 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
     layoutRow({ .rowRect = padRect, .component = &oneShotButton });
     layoutRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, });
-    layoutRowCategory({ .rowRect = padRect, .label = &panCat });
-    layoutRow({ .rowRect = padRect, .label = &panSlider.label, .component = &panSlider });
-    layoutRowThreeComps({
-        .rect = padRect,
-        .comp1 = &btnPanL, .comp2 = &btnPanC, .comp3 = &btnPanR,
-        .compWidth = RhythmGuiValue::ParamGroup::RhythmPan::width,
-        .compPaddingRight = RhythmGuiValue::ParamGroup::RhythmPan::paddingRight
-    });
-    layoutRowCategory({ .rowRect = padRect, .label = &adsrCat });
-    layoutRow({ .rowRect = padRect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
-    layoutRowTwoComps({ .rect = padRect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+
+    layoutPanCat(padRect);
+
+    layoutAdsrCat(padRect);
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -200,6 +190,61 @@ void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 bool RhythmPadGui::isThis(juce::Button* button)
 {
     return button == &loadButton;
+}
+
+void RhythmPadGui::layoutQualityCat(juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .label = &qualityCat });
+
+    bool visibleQuality = qualityCat.isDetailVisible();
+
+    modeSelector.setVisibleWithLabel(visibleQuality);
+    rateSelector.setVisibleWithLabel(visibleQuality);
+
+    if (visibleQuality)
+    {
+        layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
+        layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void RhythmPadGui::layoutPanCat(juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .label = &panCat });
+
+    bool visible = panCat.isDetailVisible();
+
+    panSlider.setVisibleWithLabel(visible);
+    panToLBtn.setVisible(visible);
+    panToCBtn.setVisible(visible);
+    panToRBtn.setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .label = &panSlider.label, .component = &panSlider });
+        layoutRowThreeComps({
+            .rect = rect,
+            .comp1 = &panToLBtn, .comp2 = &panToCBtn, .comp3 = &panToRBtn,
+            .compWidth = RhythmGuiValue::ParamGroup::RhythmPan::width,
+            .compPaddingRight = RhythmGuiValue::ParamGroup::RhythmPan::paddingRight
+            });
+    }
+}
+
+void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .label = &adsrCat });
+
+    bool visible = adsrCat.isDetailVisible();
+
+    rrSlider.setVisibleWithLabel(visible);
+    rrTo000Button.setVisible(visible);
+    rrTo003Button.setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+        layoutRowTwoComps({ .rect = rect, .comp1 = &rrTo000Button, .comp2 = &rrTo003Button });
+    }
 }
 
 void GuiRhythm::setup()
@@ -224,7 +269,7 @@ void GuiRhythm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = RhythmGuiText::Category::mvol });
+    mvolCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleMvol, .invisibleTitle = RhythmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = RhythmPrKey::masterVol, .title = RhythmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -264,8 +309,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = RhythmGuiValue::PresetName::paddingBottom });
     layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMainCategory({ .mainRect = mRect, .label = &mvolCat });
-    layoutMain({ .mainRect = mRect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+
+    layoutMvolCat(mRect);
 
     auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
@@ -338,5 +383,18 @@ void GuiRhythm::initParams()
     {
         this->ctx.audioProcessor.unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);
+    }
+}
+
+void GuiRhythm::layoutMvolCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
+
+    bool visible = mvolCat.isDetailVisible();
+
+    masterVolSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
