@@ -149,14 +149,14 @@ namespace WtPrValue
 		namespace AmFreq
 		{
 			inline constexpr float min = 0.1f;
-			inline constexpr float max = 200.0f;
+			inline constexpr float max = 50.0f;
 			inline constexpr float initial = 5.0f;
 		}
 
 		namespace PmFreq
 		{
 			inline constexpr float min = 0.1f;
-			inline constexpr float max = 200.0f;
+			inline constexpr float max = 50.0f;
 			inline constexpr float initial = 5.0f;
 		}
 

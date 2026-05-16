@@ -213,8 +213,8 @@ void Opzx7LfoCore::getSample()
             }
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            pmVal = Opzx7LfoCore::lfoPgStrategies[this->m_pgWaveIndex](this->m_amPhase, this->m_currentNoiseSample);
-            amVal = Opzx7LfoCore::lfoEgStrategies[this->m_egWaveIndex](this->m_pmPhase, this->m_currentNoiseSample);
+            pmVal = Opzx7LfoCore::lfoPgStrategies[this->m_pgWaveIndex](this->m_pmPhase, this->m_currentNoiseSample);
+            amVal = Opzx7LfoCore::lfoEgStrategies[this->m_egWaveIndex](this->m_amPhase, this->m_currentNoiseSample);
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshotPg && this->m_pmCycleCount > 0) pmVal = 0.0f;
