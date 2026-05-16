@@ -75,12 +75,12 @@ void GuiPreset::setup()
 
 	table.setup({ .parent = *this, .title = PresetKey::Table::title, .canMultipleSelection = false });
     table.setWantsKeyboardFocus(false);
-    table.addColumn(PresetKey::Table::ColName::genre, 1, PresetGuiValue::Preset::Table::ColWidth::Genre);
-    table.addColumn(PresetKey::Table::ColName::name, 2, PresetGuiValue::Preset::Table::ColWidth::PresetName);
-    table.addColumn(PresetKey::Table::ColName::author, 3, PresetGuiValue::Preset::Table::ColWidth::Author);
-    table.addColumn(PresetKey::Table::ColName::version, 4, PresetGuiValue::Preset::Table::ColWidth::Version);
-    table.addColumn(PresetKey::Table::ColName::mode, 5, PresetGuiValue::Preset::Table::ColWidth::Mode);
-    table.addColumn(PresetKey::Table::ColName::lastModified, 6, PresetGuiValue::Preset::Table::ColWidth::LastModified);
+    table.addColumn(PresetKey::Table::ColName::genre, 1, PresetGuiValue::Table::ColWidth::Genre);
+    table.addColumn(PresetKey::Table::ColName::name, 2, PresetGuiValue::Table::ColWidth::PresetName);
+    table.addColumn(PresetKey::Table::ColName::author, 3, PresetGuiValue::Table::ColWidth::Author);
+    table.addColumn(PresetKey::Table::ColName::version, 4, PresetGuiValue::Table::ColWidth::Version);
+    table.addColumn(PresetKey::Table::ColName::mode, 5, PresetGuiValue::Table::ColWidth::Mode);
+    table.addColumn(PresetKey::Table::ColName::lastModified, 6, PresetGuiValue::Table::ColWidth::LastModified);
 
     table.onGetNumRows = [this]() {
         return (int)filteredItems.size();
@@ -391,31 +391,31 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     // Path Label (Top)
-    pathLabel.setBounds(pageArea.removeFromTop(PresetGuiValue::Preset::FileLabelHeight));
+    pathLabel.setBounds(pageArea.removeFromTop(PresetGuiValue::FileLabelHeight));
 
     // Left: List
-    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetGuiValue::Preset::Table::WidthRate);
+    auto listArea = pageArea.removeFromLeft(pageArea.getWidth() * PresetGuiValue::Table::WidthRate);
 
     // リストのすぐ上に検索ボックスを配置する
-    auto searchArea = listArea.removeFromTop(PresetGuiValue::Preset::Search::Row::Height).reduced(PresetGuiValue::Preset::Table::PaddingWidth, 0);
+    auto searchArea = listArea.removeFromTop(PresetGuiValue::Search::Row::Height).reduced(PresetGuiValue::Table::PaddingWidth, 0);
 
-    searchBox.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::Preset::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
+    searchBox.label.setBounds(searchArea.removeFromLeft(PresetGuiValue::Search::Row::Button::Search::Width)); // "Search" というラベルの幅
 
-    clearSearchButton.setBounds(searchArea.removeFromRight(PresetGuiValue::Preset::Search::Row::Button::Clear::Width));
+    clearSearchButton.setBounds(searchArea.removeFromRight(PresetGuiValue::Search::Row::Button::Clear::Width));
 
-    searchArea.removeFromRight(PresetGuiValue::Preset::Search::Row::Padding::Right);
+    searchArea.removeFromRight(PresetGuiValue::Search::Row::Padding::Right);
 
     searchBox.setBounds(searchArea);
 
-    listArea.removeFromTop(PresetGuiValue::Preset::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
+    listArea.removeFromTop(PresetGuiValue::Search::Padding::Botton); // 検索ボックスとリストの間の少しの余白
 
-    table.setBounds(listArea.reduced(PresetGuiValue::Preset::Table::PaddingWidth, PresetGuiValue::Preset::Table::PaddingHeight));
+    table.setBounds(listArea.reduced(PresetGuiValue::Table::PaddingWidth, PresetGuiValue::Table::PaddingHeight));
 
     // Right: Info & Buttons
     auto rightArea = pageArea;
 
     // Metadata Group
-    auto metaArea = rightArea.removeFromTop(PresetGuiValue::Preset::Meta::AreaHeight);
+    auto metaArea = rightArea.removeFromTop(PresetGuiValue::Meta::AreaHeight);
 
     metaGroup.setBounds(metaArea);
 
@@ -424,81 +424,81 @@ void GuiPreset::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(PresetGuiValue::Group::TitlePaddingTop);
 
     // File Path
-    auto row1 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
-    filePathEditor.label.setBounds(row1.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
+    auto row1 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
+    filePathEditor.label.setBounds(row1.removeFromLeft(PresetGuiValue::Meta::LabelWidth));
     filePathEditor.setBounds(row1);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight2);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight2);
 
     // Genre
-    auto row2 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
-    genreEditor.label.setBounds(row2.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
+    auto row2 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
+    genreEditor.label.setBounds(row2.removeFromLeft(PresetGuiValue::Meta::LabelWidth));
     genreEditor.setBounds(row2);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight);
 
     // Name
-    auto row3 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
-    nameEditor.label.setBounds(row3.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
+    auto row3 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
+    nameEditor.label.setBounds(row3.removeFromLeft(PresetGuiValue::Meta::LabelWidth));
     nameEditor.setBounds(row3);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight);
 
     // Author
-    auto row4 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
-    authorEditor.label.setBounds(row4.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
+    auto row4 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
+    authorEditor.label.setBounds(row4.removeFromLeft(PresetGuiValue::Meta::LabelWidth));
     authorEditor.setBounds(row4);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight);
 
     // Version
-    auto row5 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
-    versionEditor.label.setBounds(row5.removeFromLeft(PresetGuiValue::Preset::Meta::LabelWidth));
+    auto row5 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
+    versionEditor.label.setBounds(row5.removeFromLeft(PresetGuiValue::Meta::LabelWidth));
     versionEditor.setBounds(row5);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight);
 
     // Comment
-    auto row6 = mRect.removeFromTop(PresetGuiValue::Preset::Meta::RowHeight).reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    auto row6 = mRect.removeFromTop(PresetGuiValue::Meta::RowHeight).reduced(PresetGuiValue::Meta::PaddingWidth, 0);
     commentEditor.label.setBounds(row6);
 
-    mRect.removeFromTop(PresetGuiValue::Preset::Meta::PaddingHeight);
+    mRect.removeFromTop(PresetGuiValue::Meta::PaddingHeight);
 
-    auto row7 = mRect.reduced(PresetGuiValue::Preset::Meta::PaddingWidth, 0);
+    auto row7 = mRect.reduced(PresetGuiValue::Meta::PaddingWidth, 0);
     commentEditor.setBounds(row7);
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingTop);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingTop);
 
     // Buttons
-    initButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    initButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    loadButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    loadButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    saveButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    saveButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    saveAsButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    saveAsButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    deleteButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    deleteButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    refreshButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    refreshButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    reflectButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    reflectButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 
-    rightArea.removeFromTop(PresetGuiValue::Preset::Button::PaddingHeight);
+    rightArea.removeFromTop(PresetGuiValue::Button::PaddingHeight);
 
-    copyButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Preset::Button::Height));
+    copyButton.setBounds(rightArea.removeFromTop(PresetGuiValue::Button::Height));
 }
 
 void GuiPreset::setMetaData(const juce::String& name, const juce::String& author, const juce::String& version, const juce::String& comment, const juce::String& genre, const juce::String& filePath)

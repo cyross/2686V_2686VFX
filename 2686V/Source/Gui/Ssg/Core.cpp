@@ -425,7 +425,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutMvolCat(mRect);
 
-    auto paramArea = pageArea.removeFromLeft(SsgGuiValue::Fm::Op::width);
+    auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
 
     // --- Voice Group ---
     auto voiceArea = paramArea.removeFromTop(230);

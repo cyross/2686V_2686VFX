@@ -7,6 +7,7 @@
 #include "../Processor/PluginProcessor.h"
 #include "../Fm/SliderRegMap.h"
 #include "../Gui/GuiLF.h"
+#include "./GuiText.h"
 
 #include "../../Gui/Opna/Core.h"
 #include "../../Gui/Opn/Core.h"
@@ -179,7 +180,7 @@ private:
 
     // 波形プレビュー用
     SystemButtonLF togglePreviewButtonLF;
-    juce::TextButton togglePreviewBtn{ ">>" }; // 初期状態は閉じているので ">>"
+    juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
     // 青系のリアルタイムプレビュー
     GuiWaveformPreview staticPreview{ juce::Colour(0xff0a1a3a), juce::Colours::cyan };
     // 緑系のリアルタイムプレビュー
@@ -201,6 +202,11 @@ private:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+
+    inline juce::String getPreviewButtonText();
+    inline juce::String getPreviewTooltipText();
+    inline juce::String getUndoTooltipText();
+    inline juce::String getRedoTooltipText();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };

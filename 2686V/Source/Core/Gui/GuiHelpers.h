@@ -105,70 +105,6 @@ struct RowConfigCategory {
 
 void layoutRowCategory(const RowConfigCategory& c);
 
-struct RowConfigOpzx7Pcm {
-    juce::Rectangle<int>& rect;
-    juce::Component* loadPcmBtn;
-    juce::Component* pcmFileNameLabel;
-    juce::Component* clearPcmBtn;
-    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
-    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
-    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
-    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
-    int loadPcmBtnWidth = CoreGuiValue::ParamGroup::Opzx7Pcm::LoadBtn::width;
-    int pcmFileNameLabelWidth = CoreGuiValue::ParamGroup::Opzx7Pcm::FileLabel::width;
-    int clearPcmBtnWidth = CoreGuiValue::ParamGroup::Opzx7Pcm::ClearBtn::width;
-};
-
-void layoutRowOpzx7Pcm(const RowConfigOpzx7Pcm& c);
-
-struct RowConfigWtWaveValueUpdate {
-    juce::Rectangle<int>& rect;
-    juce::Component* resetTo0Btn;
-    juce::Component* resetTo1Btn;
-    juce::Component* resetToM1Btn;
-    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
-    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
-    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
-    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
-    int resetTo0BtnWidth = CoreGuiValue::Wt::Custom::ResetBtn::to0Width;
-    int resetTo1Width = CoreGuiValue::Wt::Custom::ResetBtn::to1Width;
-    int resetToM1Width = CoreGuiValue::Wt::Custom::ResetBtn::toM1Width;
-};
-
-void layoutRowWtWaveValueUpdate(const RowConfigWtWaveValueUpdate& c);
-
-struct RowConfigRhythmPadPcmFile {
-    juce::Rectangle<int>& rect;
-    juce::Component* loadBtn;
-    juce::Component* filenameLabel;
-    juce::Component* clearBtn;
-    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
-    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
-    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
-    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
-    int loadBtnWidth = CoreGuiValue::ParamGroup::RhythmPcm::LoadBtn::width;
-    int filenameLabelWidth = CoreGuiValue::ParamGroup::RhythmPcm::FileLabel::width;
-    int clearBtnWidth = CoreGuiValue::ParamGroup::RhythmPcm::ClearBtn::width;
-};
-
-void layoutRowRhythmPadPcmFile(const RowConfigRhythmPadPcmFile& c);
-
-struct RowConfigSettingsIo {
-    juce::Rectangle<int>& rect;
-    juce::Component* loadSettingsBtn;
-    juce::Component* saveSettingsBtn;
-    juce::Component* saveStartupSettingsBtn;
-    int rowHeight = CoreGuiValue::ParamGroup::Row::height;
-    int paddingTop = CoreGuiValue::ParamGroup::Row::paddingTop;
-    int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
-    int paddingRight = CoreGuiValue::ParamGroup::Row::paddingRight;
-    int loadSettingsBtnWidth = CoreGuiValue::Settings::ButtonWidth;
-    int saveSettingsBtnWidth = CoreGuiValue::Settings::ButtonWidth;
-    int saveStartupSettingsBtnWidth = CoreGuiValue::Settings::ButtonWidth;
-};
-
-void layoutRowSettingsIo(const RowConfigSettingsIo& c);
-
 struct RowConfigOneComp {
     juce::Rectangle<int>& rect;
     juce::Component* comp;
@@ -285,19 +221,3 @@ struct MainConfigThreeComps {
 };
 
 void layoutMainThreeComps(const MainConfigThreeComps& c);
-
-struct MainConfigPcm {
-    juce::Rectangle<int>& rect;
-    juce::Component* loadPcmBtn;
-    juce::Component* pcmFileNameLabel;
-    juce::Component* clearPcmBtn;
-    int rowHeight = CoreGuiValue::MainGroup::Row::height;
-    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
-    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
-    int paddingRight = CoreGuiValue::MainGroup::Row::paddingRight;
-    int loadPcmBtnWidth = CoreGuiValue::MainGroup::Row::Pcm::LoadBtn::width;
-    int pcmFileNameLabelWidth = CoreGuiValue::MainGroup::Row::Pcm::FileLabel::width;
-    int clearPcmBtnWidth = CoreGuiValue::MainGroup::Row::Pcm::ClearBtn::width;
-};
-
-void layoutMainPcm(const MainConfigPcm& c);

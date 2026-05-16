@@ -12,6 +12,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "./GuiHelpers.h"
 
 static std::vector<SelectItem> bdItems = {
     {.name = "1: 4-bit (16 steps)",  .value = 1 },
@@ -543,14 +544,14 @@ void GuiWt::layout(juce::Rectangle<int> content)
     // Custom Mode Layout
     // 中央に32/64本のスライダーを配置
     // 波形選択が Custom 以外の時は Disabled 表示
-    auto rightArea = pageArea.removeFromLeft(WtGuiValue::Wt::RightWidth).removeFromTop(WtGuiValue::Wt::RightHeight);
+    auto rightArea = pageArea.removeFromLeft(WtGuiValue::RightWidth).removeFromTop(WtGuiValue::RightHeight);
 
     customWaveGroup.setBounds(rightArea);
 
     auto cwRect = customWaveGroup.getBounds().reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
     cwRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
-    auto containerArea = cwRect.removeFromTop(WtGuiValue::Wt::Custom::Slider::Height);
+    auto containerArea = cwRect.removeFromTop(WtGuiValue::Custom::Slider::Height);
 
     customSliders32.setBounds(containerArea);
     customSliders64.setBounds(containerArea);
@@ -620,12 +621,12 @@ void GuiWt::layout(juce::Rectangle<int> content)
         }
     }
 
-    cwRect.removeFromTop(WtGuiValue::Wt::Custom::ResetBtn::Padding::Top);
+    cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::Padding::Top);
 
     auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
     customWaveSmoothBtn.setBounds(smoothArea);
 
-    cwRect.removeFromTop(WtGuiValue::Wt::Custom::ResetBtn::Padding::Top);
+    cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::Padding::Top);
     layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });
 
     updateCustomWaveCatOnChange();

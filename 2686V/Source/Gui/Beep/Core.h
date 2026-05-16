@@ -8,24 +8,23 @@
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel presetNameCat;
     GuiCategoryLabel mainCat;
+    GuiCategoryLabel catFix;
+    GuiCategoryLabel adsrCat;
+    GuiCategoryLabel monoPolyCat;
+    GuiCategoryLabel mvolCat;
 
     GuiSlider volSlider;
 
-    GuiCategoryLabel catFix;
 
     GuiToggleButton fixToggle;
     GuiSlider freqSlider;
     GuiTextButton freqTo2kBtn;
 
-    GuiCategoryLabel adsrCat;
 
     GuiToggleButton bypassToggle;
     GuiSlider ar, dr, sl, rr;
-
-    GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;

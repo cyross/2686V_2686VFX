@@ -14,6 +14,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
+#include "./GuiHelpers.h"
 
 void GuiSettings::setup()
 {
