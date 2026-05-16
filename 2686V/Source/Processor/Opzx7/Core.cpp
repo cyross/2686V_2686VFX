@@ -28,6 +28,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::ams, code + Opzx7PrName::GlLfo::ams, Opzx7PrValue::Lfo::AmsFloat::min, Opzx7PrValue::Lfo::AmsFloat::max, Opzx7PrValue::Lfo::AmsFloat::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::pmd, code + Opzx7PrName::GlLfo::pmd, Opzx7PrValue::Lfo::PmdFloat::min, Opzx7PrValue::Lfo::PmdFloat::max, Opzx7PrValue::Lfo::PmdFloat::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::amd, code + Opzx7PrName::GlLfo::amd, Opzx7PrValue::Lfo::AmdFloat::min, Opzx7PrValue::Lfo::AmdFloat::max, Opzx7PrValue::Lfo::AmdFloat::initial));
+
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::panpot, code + Opzx7PrName::panpot, Opzx7PrValue::Panpot::min, Opzx7PrValue::Panpot::max, Opzx7PrValue::Panpot::initial));
     layout.add(std::make_unique<juce::AudioParameterBool>(code + Opzx7PrKey::panpot_en, code + Opzx7PrName::panpot_en, Opzx7PrValue::PanpotEnable::initial)); // PM Enable (Switch)
 

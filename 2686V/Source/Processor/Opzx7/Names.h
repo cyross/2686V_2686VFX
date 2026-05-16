@@ -102,7 +102,7 @@ namespace Opzx7PrName
 		static inline const juce::String pms = " Global LFO PMS";
 		static inline const juce::String pmd = " Global LFO PMD";
 		static inline const juce::String amd = " Global LFO AMD";
-		static inline const juce::String amSmoothRatio = " Global LFO ASMRT";
+		static inline const juce::String amSmoothRatio = " Global LFO AM Smooth Rate";
 		static inline const juce::String syncDelay = " Global LFO Sync Delay";
 	}
 }

@@ -84,6 +84,28 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+3", .value = 8 }
 };
 
+static std::vector<SelectItem> lfoPmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
+static std::vector<SelectItem> lfoAmShapeItems = {
+    {.name = "0: Sine",                .value = 1 },
+    {.name = "1: Saw Up",              .value = 2 },
+    {.name = "2: Saw Down",            .value = 3 },
+    {.name = "3: Square",              .value = 4 },
+    {.name = "4: Triangle",            .value = 5 },
+    {.name = "5: Sample & Hold",       .value = 6 },
+    {.name = "6: Saw Down & One Shot", .value = 7 },
+    {.name = "7: Triangle & One Shot", .value = 8 },
+};
+
 void GuiWt::setup()
 {
     auto applySteps = [this] {
@@ -306,6 +328,73 @@ void GuiWt::setup()
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
+    lfoCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleLfo, .invisibleTitle = WtGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
+
+    lfoPmFreqSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmFreq, .title = WtGuiText::Lfo::pmSpeed, .isReset = true });
+    lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoPmFreqSlider.setWantsKeyboardFocus(true);
+    lfoPmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmFreqSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amFreq, .title = WtGuiText::Lfo::amSpeed, .isReset = true });
+    lfoAmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoAmFreqSlider.setWantsKeyboardFocus(true);
+    lfoAmFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amSmoothRatio, .title = WtGuiText::Lfo::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
+    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::syncDelay, .title = WtGuiText::Lfo::syncDelay, .isReset = true });
+    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
+    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false });
+    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToZeroBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(0.0f);
+        };
+
+    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
+    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
+    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
+    lfoSyncDelayToOneBtn.onClick = [this] {
+        lfoSyncDelaySlider.setValue(1.0f);
+        };
+
+    lfoPmToggle.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pm, .title = WtGuiText::Lfo::pmEn, .isReset = true });
+    lfoPmToggle.setWantsKeyboardFocus(true);
+    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmShapeSelector.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmShape, .title = WtGuiText::Lfo::pmShape, .items = lfoPmShapeItems, .isReset = true });
+    lfoPmShapeSelector.setWantsKeyboardFocus(true);
+    lfoPmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmsSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pms, .title = WtGuiText::Lfo::pms, .isReset = true });
+    lfoPmsSlider.setWantsKeyboardFocus(true);
+    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoPmdSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmd, .title = WtGuiText::Lfo::pmd, .isReset = true });
+    lfoPmdSlider.setWantsKeyboardFocus(true);
+    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmToggle.setup({ .parent = *this, .id = code + WtPrKey::Lfo::am, .title = WtGuiText::Lfo::amEn, .isReset = true });
+    lfoAmToggle.setWantsKeyboardFocus(true);
+    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmShapeSelector.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amShape, .title = WtGuiText::Lfo::amShape, .items = lfoAmShapeItems, .isReset = true });
+    lfoAmShapeSelector.setWantsKeyboardFocus(true);
+    lfoAmShapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmsSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::ams, .title = WtGuiText::Lfo::ams, .isReset = true });
+    lfoAmsSlider.setWantsKeyboardFocus(true);
+    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoAmdSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::amd, .title = WtGuiText::Lfo::amd, .isReset = true });
+    lfoAmdSlider.setWantsKeyboardFocus(true);
+    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
     monoPolyCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = WtPrKey::monoMode, .title = WtGuiText::monoPoly, .isReset = true });
@@ -424,6 +513,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutPitchEnvCat(mRect);
 
     layoutDetuneCat(mRect);
+
+    layoutLfoCat(mRect);
 
     layoutWavefileCat(mRect);
 
@@ -803,5 +894,44 @@ void GuiWt::layoutWavefileCat(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
         layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
+    }
+}
+
+void GuiWt::layoutLfoCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
+
+    bool visible = lfoCat.isDetailVisible();
+
+    lfoPmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmFreqSlider.setVisibleWithLabel(visible);
+    lfoAmSmRtSlider.setVisibleWithLabel(visible);
+    lfoSyncDelaySlider.setVisibleWithLabel(visible);
+    lfoSyncDelayToZeroBtn.setVisible(visible);
+    lfoSyncDelayToOneBtn.setVisible(visible);
+    lfoPmToggle.setVisible(visible);
+    lfoPmShapeSelector.setVisibleWithLabel(visible);
+    lfoPmsSlider.setVisibleWithLabel(visible);
+    lfoPmdSlider.setVisibleWithLabel(visible);
+    lfoAmToggle.setVisible(visible);
+    lfoAmShapeSelector.setVisibleWithLabel(visible);
+    lfoAmsSlider.setVisibleWithLabel(visible);
+    lfoAmdSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &lfoPmFreqSlider.label, .component = &lfoPmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmFreqSlider.label, .component = &lfoAmFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
+        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoPmShapeSelector.label, .component = &lfoPmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
+        layoutMain({ .mainRect = rect, .label = &lfoAmShapeSelector.label, .component = &lfoAmShapeSelector });
+        layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
+        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
     }
 }

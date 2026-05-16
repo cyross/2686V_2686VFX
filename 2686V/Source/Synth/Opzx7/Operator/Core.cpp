@@ -237,9 +237,9 @@ void Opzx7Operator::prepare(double sampleRate) {
     m_lfo.prepare(sampleRate);
 }
 
-void Opzx7Operator::updateSampleRate(double newSampleRate) {
+void Opzx7Operator::updateTargetSampleRate(double newSampleRate) {
     m_pitchAdsr.updateSampleRate(newSampleRate);
-    m_lfo.updateSampleRate(newSampleRate);
+    m_lfo.updateTargetSampleRate(newSampleRate);
 }
 
 void Opzx7Operator::setParameters(const FmOpParams& params, float feedback)

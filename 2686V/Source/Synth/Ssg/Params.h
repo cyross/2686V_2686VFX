@@ -89,4 +89,36 @@ struct SsgParams
     // detune
     int detune = 0;
     int detune2 = 0;
+
+    // LFO Speed Freq (approx 3Hz - 30Hz)
+    float lfoAmFreq = 5.0f;
+    float lfoPmFreq = 5.0f;
+
+    // LFO Enable Flag
+    bool lfoAmEnable = false;
+    bool lfoPmEnable = false;
+
+    // LFO Sensitivity
+
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
+
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
+
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
+
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
+
+    // LFO Waveform
+    int lfoPmWave = 0;
+    int lfoAmWave = 0;
+
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
+    // LFO Sync Delay
+    int lfoSyncDelay = 0;
 };

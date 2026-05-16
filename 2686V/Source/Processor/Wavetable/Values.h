@@ -143,4 +143,87 @@ namespace WtPrValue
 		inline constexpr int max = 3;
 		inline constexpr int initial = 0;
 	}
+
+	namespace Lfo
+	{
+		namespace AmFreq
+		{
+			inline constexpr float min = 0.1f;
+			inline constexpr float max = 200.0f;
+			inline constexpr float initial = 5.0f;
+		}
+
+		namespace PmFreq
+		{
+			inline constexpr float min = 0.1f;
+			inline constexpr float max = 200.0f;
+			inline constexpr float initial = 5.0f;
+		}
+
+		namespace AmSmRt
+		{
+			inline constexpr float min = 0.005f;
+			inline constexpr float max = 0.5f;
+			inline constexpr float initial = 0.005f;
+		}
+
+		namespace Am
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace Ams
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Amd
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Pm
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace Pms
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Pmd
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace SyncDelay
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 255;
+			inline constexpr int initial = 0;
+		}
+
+		namespace PmShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 7;
+			inline constexpr int initial = 0;
+		}
+
+		namespace AmShape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 7;
+			inline constexpr int initial = 0;
+		}
+	}
 }

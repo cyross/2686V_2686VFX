@@ -42,100 +42,6 @@ const std::array<Opzx7Core::AlgRouting, 36> Opzx7Core::routings = { {
     { 0.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }  // 35
 } };
 
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM PG)
-// -----------------------------------------------------------
-const std::array<Opzx7Core::Opzx7LfoCalculator, 8> Opzx7Core::lfoPgStrategies = { {
-    // 0: Sine
-    [](double phase, float /*noise*/) -> float {
-        return (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-    },
-    // 1: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.5) pm = (float)(phase * 2.0);
-        else             pm = (float)(-1.0 + (phase - 0.5) * 2.0);
-
-        return pm;
-    },
-    // 2: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase * 2.0);
-    },
-    // 3: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : -1.0f;
-    },
-    // 4: Triangle
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.25)       pm = (float)(phase * 4.0);
-        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
-        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
-
-        return pm;
-    },
-    // 5: Sample & Hold
-    [](double /*phase*/, float noise) -> float {
-        return noise;
-    },
-    // 6: Saw Down & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
-    },
-    // 7: Triangle & One Shot
-    [](double phase, float /*noise*/) -> float {
-        if (phase < 0.25)      return (float)(phase * 4.0);
-        else if (phase < 0.5)  return (float)(1.0 - (phase - 0.25) * 4.0);
-        else                   return 0.0;
-    }
-} };
-
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM EG)
-// -----------------------------------------------------------
-const std::array<Opzx7Core::Opzx7LfoCalculator, 8> Opzx7Core::lfoEgStrategies = { {
-    // 0: Sine
-    [] (double phase, float /*noise*/)-> float {
-        float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-
-        return (pm + 1.0f) * 0.5f;
-    },
-    // 1: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        return (float)phase;
-    },
-    // 2: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase);
-    },
-    // 3: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : 0.0f;
-    },
-    // 4: Triangle
-    [](double phase, float /*noise*/) -> float {
-        float am = 0.0f;
-
-        if (phase < 0.5) am = (float)(1.0 - phase * 2.0);
-        else             am = (float)((phase - 0.5) * 2.0);
-
-        return am;
-    },
-    // 5: Sample & Hold
-    [](double /*phase*/, float noise) -> float {
-        return (noise + 1.0f) * 0.5f;
-    },
-    // 6: Saw Down & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? 1.0 - phase : 0.0);
-    },
-    // 7: Triangle & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? (float)(phase * 2.0) : 0.0f;
-    }
-} };
-
 void Opzx7Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
@@ -151,17 +57,15 @@ void Opzx7Core::prepare(double sampleRate) {
     m_rateAccumulator = 1.0;
     m_amSmooth = 0.0f;
 
-    m_lfo.prepare(m_hostSampleRate);
+    m_lfo.prepare(target);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
 
-        m_lfo.updateSampleRate(m_hostSampleRate);
-
         for (auto& op : m_operators) {
-            op.updateSampleRate(m_hostSampleRate);
+            op.setSampleRate(m_hostSampleRate);
         }
     }
 }
@@ -198,11 +102,11 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
         double target = getTargetRate(m_rateIndex);
 
-        m_lfo.updateSampleRate(target);
-
         for (auto& op : m_operators) {
-            op.setSampleRate(target);
+            op.updateTargetSampleRate(target);
         }
+
+        m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);

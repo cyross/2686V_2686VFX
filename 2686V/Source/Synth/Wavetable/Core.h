@@ -10,6 +10,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
+#include "../../Effect/Lfo/Opzx7/Core.h"
 
 class WtCore : public SynthCore
 {
@@ -35,6 +36,7 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
 	OpmDetune m_detune;
+    Opzx7LfoCore m_lfo;
 
     float m_level = 1.0f;
 
@@ -54,6 +56,7 @@ private:
 
     // Rate / Lo-Fi
     int m_rateIndex = 5; // Default ID 6 (16kHz) -> Index 5
+    double m_targetRate = 44100.0;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
     float m_currentFrequency = 440.0f;

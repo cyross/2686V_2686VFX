@@ -162,6 +162,22 @@ namespace WtGuiText
 		static inline const juce::String RrTo003 = u8"-> 0.03";
 	}
 
+	namespace Lfo
+	{
+		static inline const juce::String pmSpeed = u8"P.Speed";
+		static inline const juce::String amSpeed = u8"A.Speed";
+		static inline const juce::String pmShape = u8"P.Shape";
+		static inline const juce::String amShape = u8"A.Shape";
+		static inline const juce::String syncDelay = u8"Delay";
+		static inline const juce::String amEn = u8"AM Enable";
+		static inline const juce::String pmEn = u8"PM Enable";
+		static inline const juce::String ams = u8"Ams";
+		static inline const juce::String pms = u8"Pms";
+		static inline const juce::String amd = u8"Amd";
+		static inline const juce::String pmd = u8"Pmd";
+		static inline const juce::String amSmoothRatio = u8"As Ratio";
+	}
+
 	namespace Fm
 	{
 		static inline const juce::String alg = u8"Alg";

@@ -492,14 +492,14 @@ namespace Opzx7PrValue
 		namespace PgShape
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 3;
+			inline constexpr int max = 7;
 			inline constexpr int initial = 0;
 		}
 
 		namespace EgShape
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 3;
+			inline constexpr int max = 7;
 			inline constexpr int initial = 0;
 		}
 	}

@@ -41,7 +41,7 @@ namespace OpnPrName
 		static inline const juce::String pms = " N88 LFO PMS";
 		static inline const juce::String pmd = " N88 LFO PMD";
 		static inline const juce::String amd = " N88 LFO AMD";
-		static inline const juce::String amSmoothRatio = " N88 LFO ASMRT";
+		static inline const juce::String amSmoothRatio = " N88 LFO AM Smooth Rate";
 		static inline const juce::String syncDelay = " N88 LFO Sync Delay";
 	}
 }

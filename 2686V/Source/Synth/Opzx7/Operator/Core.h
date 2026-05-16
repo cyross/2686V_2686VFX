@@ -14,7 +14,7 @@ public:
 	Opzx7Operator() : FmOperator() {}
 
 	void prepare(double sampleRate);
-	void updateSampleRate(double newSampleRate);
+	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(const FmOpParams& params, float feedback) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;

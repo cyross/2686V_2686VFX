@@ -3,7 +3,12 @@
 #include "./Core.h"
 
 void AmpAdsrEnv::prepare(double sampleRate) {
-	this->sampleRate = sampleRate;
+    updateTargetSampleRate(sampleRate);
+}
+
+void AmpAdsrEnv::updateTargetSampleRate(double newSampleRate)
+{
+    this->sampleRate = sampleRate;
     this->updateIncrements();
 }
 

@@ -104,13 +104,12 @@ inline void Opzx7LfoCore::updatePhaseDelta()
 }
 
 void Opzx7LfoCore::prepare(double sampleRate) {
-    this->m_sampleRate = sampleRate;
     this->amSmooth = 0.0f;
 
-    updatePhaseDelta();
+    updateTargetSampleRate(sampleRate);
 }
 
-void Opzx7LfoCore::updateSampleRate(double newSampleRate) {
+void Opzx7LfoCore::updateTargetSampleRate(double newSampleRate) {
     this->m_sampleRate = newSampleRate;
 
     updatePhaseDelta();

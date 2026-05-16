@@ -46,7 +46,7 @@ namespace OpmPrName
 		static inline const juce::String pms = " LFO PMS";
 		static inline const juce::String pmd = " LFO PMD";
 		static inline const juce::String amd = " LFO AMD";
-		static inline const juce::String amSmoothRatio = " LFO ASMRT";
+		static inline const juce::String amSmoothRatio = " LFO AM Smooth Rate";
 		static inline const juce::String syncDelay = " LFO Sync Delay";
 	}
 }

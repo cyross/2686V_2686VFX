@@ -70,5 +70,21 @@ namespace SsgPrKey
 
 	static inline const juce::String dt = CorePrKey::Post::Fm::Op::dt;
 	static inline const juce::String dt2 = CorePrKey::Post::Fm::Op::dt2;
+
+	namespace Lfo
+	{
+		static inline const juce::String pmFreq = "_LFO_PG_FREQ";
+		static inline const juce::String amFreq = "_LFO_AM_FREQ";
+		static inline const juce::String pmShape = "_LFO_PM_SHAPE";
+		static inline const juce::String amShape = "_LFO_AM_SHAPE";
+		static inline const juce::String am = "_LFO_AM";
+		static inline const juce::String pm = "_LFO_PM";
+		static inline const juce::String pms = "_LFO_PMS";
+		static inline const juce::String ams = "_LFO_AMS";
+		static inline const juce::String pmd = "_LFO_PMD";
+		static inline const juce::String amd = "_LFO_AMD";
+		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
+		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
+	};
 };
 

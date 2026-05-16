@@ -14,8 +14,13 @@ WtCore::WtCore() : SynthCore()
 void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
-	m_adsr.prepare(sampleRate);
-    m_pitchAdsr.prepare(m_sampleRate);
+
+    m_targetRate = getTargetRate(m_rateIndex);
+
+    m_adsr.prepare(m_targetRate);
+    m_pitchAdsr.prepare(m_targetRate);
+    m_lfo.prepare(m_targetRate);
+
     updatePhaseDelta();
 }
 
@@ -26,10 +31,28 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
 	m_detune.setParameters(params.wt.detune, params.wt.detune2, 1);
+    m_lfo.setParameters(
+        params.wt.lfoSyncDelay,
+        params.wt.lfoPmEnable, params.wt.lfoAmEnable,
+        params.wt.lfoPmFreq, params.wt.lfoAmFreq,
+        params.wt.lfoPmWave, params.wt.lfoAmWave,
+        params.wt.lfoPms, params.wt.lfoPmd,
+        params.wt.lfoAms, params.wt.lfoAmd,
+        params.wt.lfoAmSmRt
+    );
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.bitDepth);
-    m_rateIndex = params.wt.rateIndex;
+
+    if (m_rateIndex != params.wt.rateIndex) {
+        m_rateIndex = params.wt.rateIndex;
+
+        m_targetRate = getTargetRate(m_rateIndex);
+
+        m_adsr.updateSampleRate(m_targetRate);
+        m_pitchAdsr.updateSampleRate(m_targetRate);
+        m_lfo.updateTargetSampleRate(m_targetRate);
+    }
 
     // 波形・テーブルサイズ変更検知
     int newTableSize = m_tableSizes[params.wt.tableSize];
@@ -63,6 +86,8 @@ void WtCore::setParameters(const SynthParams& params)
     m_modEnable = params.wt.modEnable;
     m_modDepth = params.wt.modDepth;
     m_modSpeed = params.wt.modSpeed;
+
+    updatePhaseDelta();
 }
 
 void WtCore::noteOn(float freq, float velocity, int midiNote)
@@ -88,6 +113,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     m_adsr.noteOn();
 	m_pitchAdsr.noteOn();
+    m_lfo.noteOn();
 }
 
 void WtCore::noteOff()
@@ -158,12 +184,31 @@ float WtCore::getSample()
 
         // --- Synthesis at Target Rate ---
 
-        // 1. Modulation (Vibrato / Table Scan)
-        // LFO for modulation
+        m_lfo.getSample();
+
+        // ==========================================
+        // Opzx7 LFO の計算 (AM / PM)
+        // ==========================================
+
+        // 1. Amplitude Modulation (AM / 音量)
+        float amMultiplier = 1.0f;
+        if (m_lfo.amEnable) {
+            float attenDb = m_lfo.value.am * m_lfo.depthDb;
+            amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
+        }
+
+        // 2. Pitch Modulation (PM / 音程)
+        float pitchModCents = 0.0f;
+        if (m_lfo.pmEnable) {
+            pitchModCents += m_lfo.value.pm * m_lfo.depthCent;
+        }
+        float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+
+        // ==========================================
+        // Wavetable固有の Modulation (Vibrato / Table Scan)
+        // ==========================================
         float modLfoVal = std::sin(m_modPhase * 2.0 * juce::MathConstants<float>::pi);
 
-        // Base Depth + Wheel Depth
-        // Default mod depth from params, add wheel influence (max +0.1)
         float totalModDepth = m_modDepth + (m_modWheel * 0.1f);
 
         float modOffset = 0.0f;
@@ -171,24 +216,23 @@ float WtCore::getSample()
         {
             modOffset = modLfoVal * totalModDepth;
 
-            // Advance Mod LFO
-            // Speed depends on note frequency (Ratio) or Fixed? 
-            // Using m_modSpeed as ratio to Note Freq
             m_modPhase += (newPhaseDelta * m_modSpeed);
             if (m_modPhase >= 1.0f) m_modPhase -= 1.0f;
         }
 
-        // 2. Phase
-        // Apply Pitch Bend to Phase Delta
-        float currentDelta = newPhaseDelta * m_pitchBendRatio;
+        // ==========================================
+        // 位相 (Phase) の計算
+        // ==========================================
+        // PitchBend に加えて Opzx7 の PM 倍率も掛け合わせる
+        float currentDelta = newPhaseDelta * m_pitchBendRatio * opzx7PitchMod;
 
-        // Apply Modulation to Phase (Vibrato effect) or Read Index?
-        // Here we apply to Phase for Vibrato-like effect on table lookup
         float effectivePhase = m_phase + modOffset;
         effectivePhase -= std::floor(effectivePhase);
         if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 
-        // 3. Table Lookup
+        // ==========================================
+        // 波形テーブルのルックアップ
+        // ==========================================
         float readIndex = effectivePhase * (float)m_tableSize;
         int idx = (int)readIndex;
         if (idx >= m_tableSize) idx = m_tableSize - 1;
@@ -198,7 +242,13 @@ float WtCore::getSample()
 
         float rawSample = m_sourceWave[sourceIdx];
 
-        // 4. Quantize
+        // 量子化(ビットクラッシャー)の前に AM（トレモロ）を適用する
+        // デジタルシンセのLo-Fi感を出すため、音量変化ごとビットを落とします
+        rawSample *= amMultiplier;
+
+        // ==========================================
+        // 量子化 (Quantize)
+        // ==========================================
         if (m_quantizeSteps > 0.0f) {
             float norm = (rawSample + 1.0f) * 0.5f;
             float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
@@ -208,8 +258,9 @@ float WtCore::getSample()
             m_lastSample = rawSample;
         }
 
-        // Advance Main Phase
+        // メイン位相を進める
         m_phase += currentDelta;
+
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 

@@ -64,7 +64,7 @@ public:
 	Opzx7LfoValues value;
 
 	void prepare(double sampleRate);
-	void updateSampleRate(double newSampleRate);
+	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pgIndex, int egIndex, float pms, float pmd, float ams, float amd, float amSmoothRate);
 	void noteOn();
 	void getSample();

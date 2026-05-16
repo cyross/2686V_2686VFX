@@ -68,6 +68,19 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // PitchEnv Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::pitchAdsr + WtPrKey::bypass, code + WtPrName::PitchAdsr::bypass, WtPrValue::PitchAdsr::Bypass::initial));
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::pmFreq, code + WtPrName::Lfo::pmFreq, WtPrValue::Lfo::PmFreq::min, WtPrValue::Lfo::PmFreq::max, WtPrValue::Lfo::PmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::amFreq, code + WtPrName::Lfo::amFreq, WtPrValue::Lfo::AmFreq::min, WtPrValue::Lfo::AmFreq::max, WtPrValue::Lfo::AmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Lfo::syncDelay, code + WtPrName::Lfo::syncDelay, WtPrValue::Lfo::SyncDelay::min, WtPrValue::Lfo::SyncDelay::max, WtPrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::amSmoothRatio, code + WtPrName::Lfo::amSmoothRatio, WtPrValue::Lfo::AmSmRt::min, WtPrValue::Lfo::AmSmRt::max, WtPrValue::Lfo::AmSmRt::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Lfo::pmShape, code + WtPrName::Lfo::pmShape, WtPrValue::Lfo::PmShape::min, WtPrValue::Lfo::PmShape::max, WtPrValue::Lfo::PmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Lfo::amShape, code + WtPrName::Lfo::amShape, WtPrValue::Lfo::AmShape::min, WtPrValue::Lfo::AmShape::max, WtPrValue::Lfo::AmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::Lfo::am, code + WtPrName::Lfo::am, WtPrValue::Lfo::Am::initial)); // AM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::Lfo::pm, code + WtPrName::Lfo::pm, WtPrValue::Lfo::Pm::initial)); // PM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::pms, code + WtPrName::Lfo::pms, WtPrValue::Lfo::Pms::min, WtPrValue::Lfo::Pms::max, WtPrValue::Lfo::Pms::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::ams, code + WtPrName::Lfo::ams, WtPrValue::Lfo::Ams::min, WtPrValue::Lfo::Ams::max, WtPrValue::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::pmd, code + WtPrName::Lfo::pmd, WtPrValue::Lfo::Pmd::min, WtPrValue::Lfo::Pmd::max, WtPrValue::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::amd, code + WtPrName::Lfo::amd, WtPrValue::Lfo::Amd::min, WtPrValue::Lfo::Amd::max, WtPrValue::Lfo::Amd::initial));
+
     addEnvParameters(layout, code);
 	addPitchEnvParameters(layout, code);
 }
@@ -109,4 +122,17 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
 
     params.wt.detune = (int)*apvts.getRawParameterValue(code + WtPrKey::dt);
     params.wt.detune2 = (int)*apvts.getRawParameterValue(code + WtPrKey::dt2);
+
+    params.wt.lfoPmFreq = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pmFreq);
+    params.wt.lfoAmFreq = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amFreq);
+    params.wt.lfoPmWave = (int)*apvts.getRawParameterValue(code + WtPrKey::Lfo::pmShape);
+    params.wt.lfoAmWave = (int)*apvts.getRawParameterValue(code + WtPrKey::Lfo::amShape);
+    params.wt.lfoAmSmRt = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amSmoothRatio);
+    params.wt.lfoAmEnable = (*apvts.getRawParameterValue(code + WtPrKey::Lfo::am) > WtPrValue::boolThread);
+    params.wt.lfoPmEnable = (*apvts.getRawParameterValue(code + WtPrKey::Lfo::pm) > WtPrValue::boolThread);
+    params.wt.lfoPms = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pms);
+    params.wt.lfoAms = *apvts.getRawParameterValue(code + WtPrKey::Lfo::ams);
+    params.wt.lfoPmd = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pmd);
+    params.wt.lfoAmd = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amd);
+    params.wt.lfoSyncDelay = *apvts.getRawParameterValue(code + WtPrKey::Lfo::syncDelay);
 }
