@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
-#include "../../Generator/Fm/Alg/Opl3/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -37,8 +36,6 @@ public:
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
 private:
     std::array<bool, 4> m_opMask{ false, false, false, false };
-    std::array<Opl3Alg::OpGetSampleFunc, 4> opGetSamples;
-    Opl3Alg alg;
 
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;

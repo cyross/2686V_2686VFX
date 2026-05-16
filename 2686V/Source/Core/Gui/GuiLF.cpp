@@ -19,7 +19,7 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
         baseColor = baseColor.withAlpha(0.8f);                // ホバー中は少し濃く
     }
     else {
-        baseColor = baseColor.withAlpha(0.4f);                // 非選択時は暗く・半透明
+        baseColor = baseColor.withAlpha(0.5f);                // 非選択時は暗く・半透明
     }
 
     // 1. タブの背景を塗りつぶし
@@ -31,7 +31,7 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
     g.drawRect(area, 1);
 
     // 2. コンテンツ（テキストまたはアイコン）の色決定
-    juce::Colour contentColour = isFrontTab ? juce::Colours::white : contentColour = juce::Colours::grey;
+    juce::Colour contentColour = isFrontTab ? juce::Colours::white : contentColour = juce::Colours::black;
 
     if (!isFrontTab && isMouseOver) contentColour = contentColour.brighter(0.3f);
 
