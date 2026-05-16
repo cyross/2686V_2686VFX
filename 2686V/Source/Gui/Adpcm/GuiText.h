@@ -21,15 +21,15 @@ namespace AdpcmGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleQuality = u8"[▲]--- QUALITY ---";
-		static inline const juce::String invisibleQuality = u8"[▼]--- QUALITY ---";
+		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
+		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String m = u8"--- BASIC ---";
-		static inline const juce::String visibleAdsr = u8"[▲]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[▼]--- ADSR ---";
-		static inline const juce::String visibleMvol = u8"[▲]--- MASTER VOLUME ---";
-		static inline const juce::String invisibleMvol = u8"[▼]--- MASTER VOLUME ---";
-		static inline const juce::String visiblePan = u8"[▲]--- PAN ---";
-		static inline const juce::String invisiblePan = u8"[▼]--- PAN ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
+		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
+		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
+		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
 		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 

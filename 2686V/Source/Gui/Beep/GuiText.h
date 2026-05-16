@@ -22,29 +22,20 @@ namespace BeepGuiText
 	namespace Category
 	{
 		static inline const juce::String m = u8"--- BASIC ---";
-		static inline const juce::String visibleAdsr = u8"[▲]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[▼]--- ADSR ---";
-		static inline const juce::String visibleFix = u8"[▲]--- FIX ---";
-		static inline const juce::String invisibleFix = u8"[▼]--- FIX ---";
-		static inline const juce::String visibleMvol = u8"[▲]--- MASTER VOLUME ---";
-		static inline const juce::String invisibleMvol = u8"[▼]--- MASTER VOLUME ---";
-		static inline const juce::String visibleMonoMode = u8"[▲]--- MONO/POLY ---";
-		static inline const juce::String invisibleMonoMode = u8"[▼]--- MONO/POLY ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
+		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
+		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
+		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
+		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
+		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 
 	namespace Group
 	{
 		static inline const juce::String mainGroup = u8"Main";
-	}
-
-	namespace Adsr
-	{
-		static inline const juce::String bypass = u8"Bypass";
-		static inline const juce::String ar = u8" Ar";
-		static inline const juce::String dr = u8" Dr";
-		static inline const juce::String sl = u8" Sl";
-		static inline const juce::String rr = u8" Rr";
 	}
 
 	namespace Beep

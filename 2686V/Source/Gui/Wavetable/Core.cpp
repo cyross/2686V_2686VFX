@@ -321,11 +321,11 @@ void GuiWt::setup()
 
     detuneCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleDetune, .invisibleTitle = WtGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
-    dt1.setup({ .parent = *this, .id = code + WtPrKey::dt, .title = WtGuiText::Fm::Op::Dt1, .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = *this, .id = code + WtPrKey::dt, .title = WtGuiText::Wt::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = *this, .id = code + WtPrKey::dt2, .title = WtGuiText::Fm::Op::Dt2, .isReset = true });
+    dt2.setup({ .parent = *this, .id = code + WtPrKey::dt2, .title = WtGuiText::Wt::Detune::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 

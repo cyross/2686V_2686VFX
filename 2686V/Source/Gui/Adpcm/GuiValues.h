@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-
 namespace AdpcmGuiValue
 {
 	namespace MVol
