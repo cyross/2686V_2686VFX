@@ -244,7 +244,8 @@ void GuiRhythm::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     levelSlider.setup({ .parent = *this, .id = code + RhythmPrKey::level, .title = RhythmGuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -286,7 +287,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(RhythmGuiValue::Group::Padding::width, RhythmGuiValue::Group::Padding::height);
     mRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = RhythmGuiValue::PresetName::paddingBottom });
+    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 

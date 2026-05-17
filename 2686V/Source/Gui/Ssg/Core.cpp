@@ -113,7 +113,8 @@ void GuiSsg::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     qualityCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
@@ -399,7 +400,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
     mRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = SsgGuiValue::PresetName::paddingBottom });
+    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutAdsrCat(mRect);
 

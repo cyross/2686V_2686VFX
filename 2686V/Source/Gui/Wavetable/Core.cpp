@@ -159,7 +159,8 @@ void GuiWt::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     qualityCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
@@ -485,9 +486,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
     mRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = WtGuiValue::PresetName::paddingBottom });
+    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
+
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
 
     int index = waveSelector.getSelectedId();

@@ -90,6 +90,21 @@ struct MainConfigCategory {
 
 void layoutMainCategory(const MainConfigCategory& c);
 
+struct MainConfigParamName {
+    juce::Rectangle<int>& mainRect;
+    GuiLabel* label = nullptr;
+    juce::Component* component = nullptr;
+    int rowHeight = CoreGuiValue::ParamNameRow::height;
+    int paddingTop = CoreGuiValue::ParamNameRow::paddingTop;
+    int paddingBottom = CoreGuiValue::ParamNameRow::paddingBottom;
+    int labelWidth = -1;
+    int labelPaddingRight = -1;
+    int compWidth = -1;
+    int compPaddingRight = 0;
+};
+
+void layoutMainParamName(const MainConfigParamName& c);
+
 struct RowConfigCategory {
     juce::Rectangle<int>& rowRect;
     GuiLabel* label = nullptr;

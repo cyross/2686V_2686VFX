@@ -5,8 +5,6 @@
 
 void GuiAbout::setup()
 {
-    mainGroup.setup(*this, "");
-
     // 0. App Icon
     iconImage.setup(*this);
 
@@ -64,30 +62,26 @@ void GuiAbout::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
     pageArea.removeFromTop(AboutGuiValue::Group::TitlePaddingTop);
 
-    auto mainArea = pageArea.reduced(AboutGuiValue::Group::Padding::width, AboutGuiValue::Group::Padding::height);
-
-    mainGroup.setBounds(pageArea);
-
-    auto iconArea = mainArea.removeFromTop(AboutGuiValue::LogoImage::areaHeight); 
+    auto iconArea = pageArea.removeFromTop(AboutGuiValue::LogoImage::areaHeight); 
     iconImage.setBounds(iconArea.withSizeKeepingCentre(AboutGuiValue::LogoImage::imageSize, AboutGuiValue::LogoImage::imageSize));
 
     // Name & Ver
-    pluginNameLabel.setBounds(mainArea.removeFromTop(AboutGuiValue::PluginName::areaHeight));
-    versionLabel.setBounds(mainArea.removeFromTop(AboutGuiValue::PluginVerion::areaHeight));
-    copyrightLabel.setBounds(mainArea.removeFromTop(AboutGuiValue::PluginCioyright::areaHeight));
+    pluginNameLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginName::areaHeight));
+    versionLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginVerion::areaHeight));
+    copyrightLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::PluginCioyright::areaHeight));
 
     // VST Logo Row
-    auto vstLogoArea = mainArea.removeFromTop(AboutGuiValue::VstLogo::areaHeight);
+    auto vstLogoArea = pageArea.removeFromTop(AboutGuiValue::VstLogo::areaHeight);
     vst3Logo.setBounds(vstLogoArea.withSizeKeepingCentre(AboutGuiValue::VstLogo::width, AboutGuiValue::VstLogo::height));
 
     // VST Guideline Text
-    vstGuidelineLabel.setBounds(mainArea.removeFromTop(AboutGuiValue::VstNotice::areaHeight));
+    vstGuidelineLabel.setBounds(pageArea.removeFromTop(AboutGuiValue::VstNotice::areaHeight));
 
-    auto gplNoticeArea = mainArea.removeFromTop(AboutGuiValue::GplNotice::areaHeight);
+    auto gplNoticeArea = pageArea.removeFromTop(AboutGuiValue::GplNotice::areaHeight);
 
     gplNoticeLabel.setBounds(gplNoticeArea);
 
-    auto gplLinkArea = mainArea.removeFromTop(AboutGuiValue::GplLink::areaHeight);
+    auto gplLinkArea = pageArea.removeFromTop(AboutGuiValue::GplLink::areaHeight);
 
     gplLinkButton.setBounds(gplLinkArea);
 }

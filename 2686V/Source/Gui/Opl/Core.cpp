@@ -93,7 +93,8 @@ void GuiOpl::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     qualityCat.setup({ .parent = *this, .title = OplGuiText::Category::visibleQuality, .invisibleTitle = OplGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
     bitSelector.setup({ .parent = *this, .id = code + OplPrKey::bit, .title = OplGuiText::bit, .items = bdItems, .isReset = true });
@@ -326,7 +327,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(OplGuiValue::Group::Padding::width, OplGuiValue::Group::Padding::height);
     mRect.removeFromTop(OplGuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = OplGuiValue::PresetName::paddingBottom });
+    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });

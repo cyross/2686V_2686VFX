@@ -224,28 +224,63 @@ float WtCore::getSample()
         if (effectivePhase < 0.0f) effectivePhase += 1.0f;
 
         // ==========================================
-        // 波形テーブルのルックアップ
+        // 波形テーブルのルックアップ (線形補間でノイズ除去)
         // ==========================================
         float readIndex = effectivePhase * (float)m_tableSize;
-        int idx = (int)readIndex;
-        if (idx >= m_tableSize) idx = m_tableSize - 1;
+        int idx1 = (int)readIndex;
+        int idx2 = idx1 + 1;
 
-        int sourceIdx = idx * (256 / m_tableSize);
-        if (sourceIdx >= 256) sourceIdx = 255;
+        if (idx1 >= m_tableSize) idx1 = m_tableSize - 1;
+        if (idx2 >= m_tableSize) idx2 = 0; // ループして繋ぐ
 
-        float rawSample = m_sourceWave[sourceIdx];
+        float frac = readIndex - (float)idx1;
+
+        int sourceIdx1 = idx1 * (256 / m_tableSize);
+        int sourceIdx2 = idx2 * (256 / m_tableSize);
+
+        if (sourceIdx1 >= 256) sourceIdx1 = 255;
+        if (sourceIdx2 >= 256) sourceIdx2 = 255;
+
+        float raw1 = m_sourceWave[sourceIdx1];
+        float raw2 = m_sourceWave[sourceIdx2];
+
+        // 2つのサンプルの間を滑らかに補間する
+        float rawSample = raw1 * (1.0f - frac) + raw2 * frac;
 
         // 量子化(ビットクラッシャー)の前に AM（トレモロ）を適用する
-        // デジタルシンセのLo-Fi感を出すため、音量変化ごとビットを落とします
         rawSample *= amMultiplier;
 
         // ==========================================
-        // 量子化 (Quantize)
+        // 量子化 (UIの正確なスナップロジックと完全同期)
         // ==========================================
         if (m_quantizeSteps > 0.0f) {
-            float norm = (rawSample + 1.0f) * 0.5f;
-            float quantized = std::floor(norm * m_quantizeSteps) / m_quantizeSteps;
-            m_lastSample = (quantized * 2.0f) - 1.0f;
+            // m_quantizeSteps が 15 (4-bit) の場合、16段階になる
+            int totalSteps = (int)m_quantizeSteps + 1;
+            int maxIndex = totalSteps - 1;
+            int zeroIndex = totalSteps / 2 - 1;
+
+            int stepValue = 0;
+
+            // UI側と全く同じ区画計算を行う
+            if (rawSample < 0.0f) {
+                stepValue = (int)std::round(rawSample * zeroIndex + zeroIndex);
+            }
+            else {
+                stepValue = (int)std::round(rawSample * (maxIndex - zeroIndex) + zeroIndex);
+            }
+
+            stepValue = std::clamp(stepValue, 0, maxIndex);
+
+            // 正確な値 (-1.0 〜 1.0) に戻す
+            if (stepValue < zeroIndex) {
+                m_lastSample = (float)(stepValue - zeroIndex) / (float)zeroIndex;
+            }
+            else if (stepValue > zeroIndex) {
+                m_lastSample = (float)(stepValue - zeroIndex) / (float)(maxIndex - zeroIndex);
+            }
+            else {
+                m_lastSample = 0.0f; // 完全な 0.0 を保証！（ノイズの元を絶つ）
+            }
         }
         else {
             m_lastSample = rawSample;
@@ -258,7 +293,7 @@ float WtCore::getSample()
     }
 
     return m_lastSample * m_currentLevel * m_level;
-}
+ }
 
 // 波形データ生成
 void WtCore::generateWaveform(int type)
