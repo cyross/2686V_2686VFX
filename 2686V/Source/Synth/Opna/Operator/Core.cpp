@@ -127,8 +127,11 @@ void OpnaOperator::getSample(float& output, float modulator, float amLfoVal, flo
         // amLfoVal は 0.0 ~ 1.0。AMSがマイナスの場合は波形を反転(1.0 - x)させる
         float unipolarLfo = (amSign > 0.0f) ? amLfoVal : (1.0f - amLfoVal);
 
-        // 最大減衰量を 95.25dB (TLレジスタの最大値 127 * 0.75dB) として計算
-        float attenuationDb = unipolarLfo * amDepthNorm * 95.25f;
+        // ==========================================================
+        // 最大減衰量を実機準拠の「11.8dB」に変更
+        // (95.25dBだと音が完全に途切れてしまい、ブツブツ音の直接の原因になります)
+        // ==========================================================
+        float attenuationDb = unipolarLfo * amDepthNorm * maxAmDepthDb;
 
         // デシベルをリニアな音量倍率に変換
         totalAmpMod = std::pow(10.0f, -attenuationDb / 20.0f);

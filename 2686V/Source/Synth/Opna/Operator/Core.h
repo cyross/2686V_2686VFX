@@ -17,4 +17,5 @@ public:
 private:
 	OpnDetune m_detune;
 	FixMode m_fixMode;
+	float maxAmDepthDb = 11.8f;
 };
