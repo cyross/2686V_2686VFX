@@ -24,7 +24,7 @@ namespace Opzx7GuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String m = u8"--- BASIC PARAMETERS ---";
+		static inline const juce::String m = u8"--- BASIC ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
