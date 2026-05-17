@@ -16,6 +16,11 @@ namespace FxGuiValue
 		static inline constexpr int block = 6;
 	}
 
+	namespace Padding
+	{
+		static inline constexpr int space = 8;
+	}
+
 	namespace Group
 	{
 		static inline constexpr int TitlePaddingTop = 10;
@@ -34,9 +39,9 @@ namespace FxGuiValue
 		static inline constexpr int MainWidth = 300;
 		static inline constexpr int MainHeight = 60;
 		static inline constexpr int AreaWidth = 150;
-		static inline constexpr int AreaHeightBig = 190;
+		static inline constexpr int AreaHeightBig = 150;
 		static inline constexpr int AreaHeightMini = 120;
-		static inline constexpr int AreaHeight = 170;
+		static inline constexpr int AreaHeight = 130;
 		static inline constexpr int AreaLabelWidth = 40;
 		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;

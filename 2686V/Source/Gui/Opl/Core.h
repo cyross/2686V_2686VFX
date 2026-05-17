@@ -33,7 +33,6 @@ class GuiOpl : public GuiBase
     std::array<GuiGroup, Global::Fm::Op2> opGroups;
 
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
     GuiCategoryLabel initCat;
@@ -60,7 +59,6 @@ class GuiOpl : public GuiBase
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 2> algImages;
 
-    std::array<GuiCategoryLabel, Global::Fm::Op2> catMain;
     std::array<GuiCategoryLabel, Global::Fm::Op2> catLfo;
     std::array<GuiComboBox, Global::Fm::Op2> mul;
     std::array<GuiToggleButton, Global::Fm::Op2> am;
@@ -105,7 +103,6 @@ public:
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context) },
         monoPolyCat(context),
-        presetNameCat(context),
         qualityCat(context),
         algFbCat(context),
         initCat(context),
@@ -117,7 +114,6 @@ public:
         initLfoToOpllBtn(context),
         mvolCat(context),
         masterVolSlider(context),
-        catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context) },

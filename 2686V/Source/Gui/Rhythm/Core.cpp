@@ -75,8 +75,6 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    mainCat.setup({ .parent = *this, .title = RhythmGuiText::Category::m });
-
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = *this, .title = RhythmGuiText::File::load, .isReset = false });
     loadButton.addListener(&ctx.editor);
@@ -158,9 +156,6 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    layoutQualityCat(padRect);
-
-    layoutRowCategory({ .rowRect = padRect, .label = &mainCat });
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
     layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
     layoutRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
@@ -171,6 +166,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutPanCat(padRect);
 
     layoutAdsrCat(padRect);
+
+    layoutQualityCat(padRect);
 }
 
 void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -245,13 +242,9 @@ void GuiRhythm::setup()
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = RhythmGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
-
-    mainCat.setup({ .parent = *this, .title = RhythmGuiText::Category::m });
 
     levelSlider.setup({ .parent = *this, .id = code + RhythmPrKey::level, .title = RhythmGuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -293,9 +286,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(RhythmGuiValue::Group::Padding::width, RhythmGuiValue::Group::Padding::height);
     mRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = RhythmGuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
+
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     layoutMvolCat(mRect);

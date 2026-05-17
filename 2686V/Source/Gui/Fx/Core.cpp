@@ -44,8 +44,6 @@ void GuiFx::setup()
     flBypassBtn.setWantsKeyboardFocus(true);
     flBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    flMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     flTypeSelector.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::type, .title = FxGuiText::Fx::Filter::type, .items = flTypeItems, .isReset = true });
     flTypeSelector.setWantsKeyboardFocus(true);
     flTypeSelector.setExplicitFocusOrder(++tabOrder);
@@ -57,8 +55,6 @@ void GuiFx::setup()
     flQSlider.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::q, .title = FxGuiText::Fx::Filter::q, .isReset = true });
     flQSlider.setWantsKeyboardFocus(true);
     flQSlider.setExplicitFocusOrder(++tabOrder);
-
-    flMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     flMixSlider.setup({ .parent = *this, .id = filterPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     flMixSlider.setWantsKeyboardFocus(true);
@@ -88,8 +84,6 @@ void GuiFx::setup()
     tBypassBtn.setWantsKeyboardFocus(true);
     tBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    tMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     tRateSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::Tremolo::rate, .title = FxGuiText::Fx::Tremolo::rate, .isReset = true });
     tRateSlider.setWantsKeyboardFocus(true);
     tRateSlider.setExplicitFocusOrder(++tabOrder);
@@ -97,8 +91,6 @@ void GuiFx::setup()
     tDepthSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::Tremolo::depth, .title = FxGuiText::Fx::Tremolo::depth, .isReset = true });
     tDepthSlider.setWantsKeyboardFocus(true);
     tDepthSlider.setExplicitFocusOrder(++tabOrder);
-
-    tMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     tMixSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     tMixSlider.setWantsKeyboardFocus(true);
@@ -128,8 +120,6 @@ void GuiFx::setup()
     vBypassBtn.setWantsKeyboardFocus(true);
     vBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    vMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     vRateSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::Vibrato::rate, .title = FxGuiText::Fx::Vibrate::rate, .isReset = true });
     vRateSlider.setWantsKeyboardFocus(true);
     vRateSlider.setExplicitFocusOrder(++tabOrder);
@@ -137,8 +127,6 @@ void GuiFx::setup()
     vDepthSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::Vibrato::depth, .title = FxGuiText::Fx::Vibrate::depth, .isReset = true });
     vDepthSlider.setWantsKeyboardFocus(true);
     vDepthSlider.setExplicitFocusOrder(++tabOrder);
-
-    vMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     vMixSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     vMixSlider.setWantsKeyboardFocus(true);
@@ -168,8 +156,6 @@ void GuiFx::setup()
     mbcBypassBtn.setWantsKeyboardFocus(true);
     mbcBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    mbcMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     mbcBitsSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::Mbc::bit, .title = FxGuiText::Fx::Mbc::bit, .isReset = true });
     mbcBitsSlider.setWantsKeyboardFocus(true);
     mbcBitsSlider.setExplicitFocusOrder(++tabOrder);
@@ -177,8 +163,6 @@ void GuiFx::setup()
     mbcRateSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::Mbc::rate, .title = FxGuiText::Fx::Mbc::rate, .isReset = true });
     mbcRateSlider.setWantsKeyboardFocus(true);
     mbcRateSlider.setExplicitFocusOrder(++tabOrder);
-
-    mbcMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     mbcMixSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     mbcMixSlider.setWantsKeyboardFocus(true);
@@ -211,8 +195,6 @@ void GuiFx::setup()
     dBypassBtn.setWantsKeyboardFocus(true);
     dBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    dMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     dTimeSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::Delay::time, .title = FxGuiText::Fx::Delay::time, .isReset = true });
     dTimeSlider.setWantsKeyboardFocus(true);
     dTimeSlider.setExplicitFocusOrder(++tabOrder);
@@ -220,8 +202,6 @@ void GuiFx::setup()
     dFbSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::Delay::fb, .title = FxGuiText::Fx::Delay::fb, .isReset = true });
     dFbSlider.setWantsKeyboardFocus(true);
     dFbSlider.setExplicitFocusOrder(++tabOrder);
-
-    dMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     dMixSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     dMixSlider.setWantsKeyboardFocus(true);
@@ -251,8 +231,6 @@ void GuiFx::setup()
     rBypassBtn.setWantsKeyboardFocus(true);
     rBypassBtn.setExplicitFocusOrder(++tabOrder);
 
-    rMainCat.setup({ .parent = *this, .title = FxGuiText::Category::m });
-
     rSizeSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::Reverb::size, .title = FxGuiText::Fx::Reverb::size, .isReset = true });
     rSizeSlider.setWantsKeyboardFocus(true);
     rSizeSlider.setExplicitFocusOrder(++tabOrder);
@@ -260,8 +238,6 @@ void GuiFx::setup()
     rDampSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::Reverb::damp, .title = FxGuiText::Fx::Reverb::damp, .isReset = true });
     rDampSlider.setWantsKeyboardFocus(true);
     rDampSlider.setExplicitFocusOrder(++tabOrder);
-
-    rMixCat.setup({ .parent = *this, .title = FxGuiText::Category::mix });
 
     rMixSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
     rMixSlider.setWantsKeyboardFocus(true);
@@ -318,11 +294,11 @@ void GuiFx::layout(juce::Rectangle<int> content)
     flRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = flRect, .component = &flBypassBtn });
-    layoutRowCategory({ .rowRect = flRect, .label = &flMainCat });
+    flRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = flRect, .label = &flMixCat });
+    flRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
@@ -336,10 +312,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
     trmRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = trmRect, .component = &tBypassBtn });
-    layoutRowCategory({ .rowRect = trmRect, .label = &tMainCat });
+    trmRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = trmRect, .label = &tMixCat });
+    trmRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
@@ -353,10 +329,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
     vibRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = vibRect, .component = &vBypassBtn });
-    layoutRowCategory({ .rowRect = vibRect, .label = &vMainCat });
+    vibRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = vibRect, .label = &vMixCat });
+    vibRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
@@ -373,10 +349,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
     mbcRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
-    layoutRowCategory({ .rowRect = mbcRect, .label = &mbcMainCat });
+    mbcRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = mbcRect, .label = &mbcMixCat });
+    mbcRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
@@ -390,10 +366,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
     dlyRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn });
-    layoutRowCategory({ .rowRect = dlyRect, .label = &dMainCat });
+    dlyRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = dlyRect, .label = &dMixCat });
+    dlyRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
@@ -407,10 +383,10 @@ void GuiFx::layout(juce::Rectangle<int> content)
     rvbRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
 
     layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn });
-    layoutRowCategory({ .rowRect = rvbRect, .label = &rMainCat });
+    rvbRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowCategory({ .rowRect = rvbRect, .label = &rMixCat });
+    rvbRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 }

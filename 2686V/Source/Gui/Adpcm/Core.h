@@ -33,9 +33,7 @@ class GuiAdpcm : public GuiBase
     // Loop Button
     GuiToggleButton loopButton;
 
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel mainCat;
     GuiCategoryLabel panCat;
     GuiCategoryLabel adsrCat;
 
@@ -72,9 +70,7 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
-        presetNameCat(context),
         qualityCat(context),
-        mainCat(context),
         panCat(context),
         adsrCat(context),
 		adsrBypassButton(context),

@@ -24,7 +24,6 @@ namespace OpmGuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String m = u8"--- BASIC ---";
 		static inline const juce::String visibleHwLfo = u8"[■]--- HW LFO ---";
 		static inline const juce::String invisibileHwLfo = u8"[□]--- HW LFO ---";
 		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
@@ -38,7 +37,6 @@ namespace OpmGuiText
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
 		static inline const juce::String visibleMonoMode = u8"[▲]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[▼]--- MONO/POLY ---";
-		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 
 	namespace Group

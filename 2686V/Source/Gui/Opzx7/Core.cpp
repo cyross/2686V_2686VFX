@@ -239,8 +239,6 @@ void GuiOpzx7::setup()
 
     mainGroup.setup(*this, Opzx7GuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = Opzx7GuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -398,8 +396,6 @@ void GuiOpzx7::setup()
         opGroups[i].setup(*this, Opzx7GuiText::Group::opPrefix + juce::String(i + 1));
 
         juce::String paramPrefix = opCode + juce::String(i);
-
-        catMain[i].setup({ .parent = *this, .title = Opzx7GuiText::Category::m });
 
         mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::mul, .title = Opzx7GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -741,10 +737,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(Opzx7GuiValue::Group::Padding::width, Opzx7GuiValue::Group::Padding::height);
     mRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = Opzx7GuiValue::PresetName::paddingBottom });
-
-    layoutQualityCat(mRect);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
@@ -754,6 +747,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     layoutPanpotCat(mRect);
 
     layoutLfoCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
 
@@ -778,7 +773,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         bool rgMode = rgEn[i].getToggleState();
 		int selectedWs = ws[i].getSelectedId();
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
         layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
@@ -913,7 +907,6 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
 void GuiOpzx7::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
-    catMain[idx].setEnabled(enable);
     mul[idx].setEnabledWithLabel(enable);
 
     int mulIndex = mul[idx].getSelectedId() - 1;

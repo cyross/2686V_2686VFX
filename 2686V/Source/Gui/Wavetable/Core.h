@@ -458,9 +458,7 @@ class GuiWt : public GuiBase
     GuiSlider levelSlider;
 
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel mainCat;
     GuiCategoryLabel modCat;
     GuiCategoryLabel adsrCat;
 
@@ -549,9 +547,7 @@ public:
         customSliders256(context),
         levelSlider(context),
         monoPolyCat(context),
-        presetNameCat(context),
         qualityCat(context),
-        mainCat(context),
         modCat(context),
         adsrCat(context),
 		adsrBypassButton(context),

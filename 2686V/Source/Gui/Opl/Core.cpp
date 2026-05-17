@@ -91,7 +91,6 @@ void GuiOpl::setup()
 
     mainGroup.setup(*this, OplGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = OplGuiText::Category::preset });
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -177,8 +176,6 @@ void GuiOpl::setup()
         opGroups[i].setup(*this, OplGuiText::Group::opPrefix + juce::String(i + 1));
 
         juce::String paramPrefix = opCode + juce::String(i);
-
-        catMain[i].setup({ .parent = *this, .title = OplGuiText::Category::m });
 
         mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + OplPrKey::mul, .title = OplGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -329,16 +326,15 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(OplGuiValue::Group::Padding::width, OplGuiValue::Group::Padding::height);
     mRect.removeFromTop(OplGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = OplGuiValue::PresetName::paddingBottom });
-
-    layoutQualityCat(mRect);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
     layoutInitializeCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
 
@@ -357,7 +353,6 @@ void GuiOpl::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(OplGuiValue::Fm::Op::Padding::width, OplGuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(OplGuiValue::Group::TitlePaddingTop);
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
         updateRgDisplayAsOp(i, true);
 
@@ -438,7 +433,6 @@ void GuiOpl::applyMmlString(const juce::String& mml, int opIndex)
 void GuiOpl::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
-    catMain[idx].setEnabled(enable);
     mul[idx].setEnabledWithLabel(enable);
     ksr[idx].setEnabled(enable);
     ksl[idx].setEnabledWithLabel(enable);

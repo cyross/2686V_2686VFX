@@ -39,7 +39,6 @@ class GuiOpn : public GuiBase
     std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
 
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -77,7 +76,6 @@ class GuiOpn : public GuiBase
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 8> algImages;
 
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiComboBox, Global::Fm::Op4> mul;
     std::array<GuiComboBox, Global::Fm::Op4> dt;
     std::array<GuiComboBox, Global::Fm::Op4> ks; // Key Scale (0-3)
@@ -111,7 +109,6 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         freqBtnGroup{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         monoPolyCat(context),
-        presetNameCat(context),
         qualityCat(context),
         algFbCat(context),
         algSelector(context),
@@ -133,7 +130,6 @@ public:
         lfoAmdSlider(context),
         mvolCat(context),
         masterVolSlider(context),
-        catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },

@@ -108,7 +108,6 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -157,7 +156,6 @@ class GuiOpzx7 : public GuiBase
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMain;
     std::array<GuiComboBox, Global::Fm::Op4> mul;
     std::array<GuiSlider, Global::Fm::Op4> mulRatio;
     std::array<GuiSlider, Global::Fm::Op4> dt1;
@@ -235,7 +233,6 @@ public:
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         monoPolyCat(context),
-        presetNameCat(context),
         qualityCat(context),
         algFbCat(context),
         algSelector(context),
@@ -265,7 +262,6 @@ public:
         lfoAmdSlider(context),
         mvolCat(context),
         masterVolSlider(context),
-        catMain{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
