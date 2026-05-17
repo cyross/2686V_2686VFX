@@ -55,7 +55,8 @@ void GuiAdpcm::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
+    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     qualityCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
@@ -160,7 +161,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
     mRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
 
-    layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = AdpcmGuiValue::PresetName::paddingBottom });
+    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });

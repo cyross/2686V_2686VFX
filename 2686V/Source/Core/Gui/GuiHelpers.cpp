@@ -140,6 +140,11 @@ void layoutMainCategory(const MainConfigCategory& c)
     layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
 }
 
+void layoutMainParamName(const MainConfigParamName& c)
+{
+    layoutRow(c.mainRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
+}
+
 void layoutRowCategory(const RowConfigCategory& c)
 {
     layoutRow(c.rowRect, c.label, c.component, c.rowHeight, c.paddingTop, c.paddingBottom, c.labelWidth, c.labelPaddingRight, c.compWidth, c.compPaddingRight);
