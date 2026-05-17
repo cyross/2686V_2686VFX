@@ -14,18 +14,14 @@ class GuiSsg : public GuiBase
     GuiGroup voiceGroup;
     GuiGroup dutyGroup;
     GuiGroup triGroup;
-    GuiGroup envGroup;
 
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel presetNameCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel shapeCat;
     GuiCategoryLabel toneCat;
     GuiCategoryLabel noiseCat;
     GuiCategoryLabel mixCat;
-    GuiCategoryLabel pulseDutyCat;
     GuiCategoryLabel pulseInvCat;
-    GuiCategoryLabel triCat;
     GuiCategoryLabel triPeakCat;
     GuiCategoryLabel hwEnvCat;
 
@@ -132,17 +128,13 @@ public:
         voiceGroup(context),
         dutyGroup(context),
         triGroup(context),
-        envGroup(context),
         monoPolyCat(context),
-        presetNameCat(context),
         qualityCat(context),
         shapeCat(context),
         toneCat(context),
         noiseCat(context),
         mixCat(context),
-        pulseDutyCat(context),
         pulseInvCat(context),
-        triCat(context),
         triPeakCat(context),
         hwEnvCat(context),
         levelSlider(context),
@@ -221,4 +213,5 @@ public:
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
+    void layoutHwEnvCat(juce::Rectangle<int>& rect);
 };

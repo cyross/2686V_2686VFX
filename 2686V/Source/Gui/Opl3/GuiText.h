@@ -24,8 +24,6 @@ namespace Opl3GuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String m = u8"--- BASIC ---";
-		static inline const juce::String lfo = u8"--- LFO ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
@@ -33,14 +31,11 @@ namespace Opl3GuiText
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
-		static inline const juce::String mask = u8"--- MASK ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String mml = u8"--- MML ---";
-		static inline const juce::String monoMode = u8"--- MONO/POLY ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
-		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 
 	namespace File

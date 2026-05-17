@@ -21,7 +21,6 @@ class RhythmPadGui: public GuiBase
     GuiSlider pcmRatioSlider;
 
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel mainCat;
     GuiCategoryLabel panCat;
 
     GuiSlider noteSlider;
@@ -53,7 +52,6 @@ public:
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         qualityCat(context),
-        mainCat(context),
         panCat(context),
         noteSlider(context),
         modeSelector(context),
@@ -83,9 +81,6 @@ class GuiRhythm : public GuiBase
 {
     GuiGroup mainGroup;
 
-    GuiCategoryLabel presetNameCat;
-    GuiCategoryLabel mainCat;
-
     // Master Level
 	GuiSlider levelSlider;
 
@@ -103,8 +98,6 @@ public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        presetNameCat(context),
-        mainCat(context),
         levelSlider(context),
         mvolCat(context),
         masterVolSlider(context),

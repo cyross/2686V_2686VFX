@@ -157,8 +157,6 @@ void GuiWt::setup()
 
     mainGroup.setup(*this, WtGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = WtGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -172,8 +170,6 @@ void GuiWt::setup()
     rateSelector.setup({ .parent = *this, .id = code + WtPrKey::rate, .title = WtGuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
-
-    mainCat.setup({ .parent = *this, .title = WtGuiText::Category::m });
 
     levelSlider.setup({ .parent = *this, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -489,12 +485,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
     mRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = WtGuiValue::PresetName::paddingBottom });
 
-    layoutQualityCat(mRect);
-
-    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
 
@@ -518,6 +510,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutLfoCat(mRect);
 
     layoutWavefileCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
 

@@ -23,7 +23,6 @@ namespace WtGuiText
 	{
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String m = u8"--- BASIC ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
@@ -37,7 +36,6 @@ namespace WtGuiText
 		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
-		static inline const juce::String preset = u8"--- PRESET ---";
 		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
 		static inline const juce::String invisibleWaveFile = u8"[□]--- WAVE FILE ---";
 		static inline const juce::String visibleDetune = u8"[■]--- DETUNE ---";

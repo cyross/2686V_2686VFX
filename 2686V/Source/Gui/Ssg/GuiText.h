@@ -23,7 +23,6 @@ namespace SsgGuiText
 	{
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String m = u8"--- BASIC ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
@@ -33,6 +32,8 @@ namespace SsgGuiText
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String shape = u8"--- ENVELOPE ---";
+		static inline const juce::String visibleHwEnv = u8"[■]--- HW ENVELOPE ---";
+		static inline const juce::String invisibleHwEnv = u8"[□]--- HW ENVELOPE ---";
 		static inline const juce::String mix = u8"--- MIX ---";
 		static inline const juce::String ssgTone = u8"--- TOME ---";
 		static inline const juce::String ssgNoise = u8"--- NOISE ---";
@@ -40,7 +41,6 @@ namespace SsgGuiText
 		static inline const juce::String peak = u8"--- PEAK ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
-		static inline const juce::String preset = u8"--- PRESET ---";
 		static inline const juce::String visibleDetune = u8"[■]--- DETUNE ---";
 		static inline const juce::String invisibleDetune = u8"[□]--- DETUNE ---";
 	}
@@ -140,7 +140,7 @@ namespace SsgGuiText
 
 		namespace HwEnv
 		{
-			static inline const juce::String enable = u8"Enable HW Env";
+			static inline const juce::String enable = u8"Enable";
 			static inline const juce::String shape = u8"Shape";
 			static inline const juce::String speed = u8"Period";
 		}

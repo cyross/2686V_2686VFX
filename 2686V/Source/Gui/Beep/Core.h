@@ -8,8 +8,6 @@
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
 
-    GuiCategoryLabel presetNameCat;
-    GuiCategoryLabel mainCat;
     GuiCategoryLabel catFix;
     GuiCategoryLabel adsrCat;
     GuiCategoryLabel monoPolyCat;
@@ -38,8 +36,6 @@ public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
         monoPolyCat(context),
-        presetNameCat(context),
-        mainCat(context),
         volSlider(context),
         catFix(context),
         fixToggle(context), freqSlider(context), freqTo2kBtn(context),

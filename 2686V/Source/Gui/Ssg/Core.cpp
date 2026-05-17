@@ -111,8 +111,6 @@ void GuiSsg::setup()
 
     mainGroup.setup(*this, SsgGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = SsgGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -192,6 +190,20 @@ void GuiSsg::setup()
     dt2.setup({ .parent = *this, .id = code + SsgPrKey::dt2, .title = SsgGuiText::Ssg::Detune::Dt2, .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
+
+    hwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
+
+    envEnableButton.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
+    envEnableButton.setWantsKeyboardFocus(true);
+    envEnableButton.setExplicitFocusOrder(++tabOrder);
+
+    shapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+    shapeSelector.setWantsKeyboardFocus(true);
+    shapeSelector.setExplicitFocusOrder(++tabOrder);
+
+    periodSlider.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
+    periodSlider.setWantsKeyboardFocus(true);
+    periodSlider.setExplicitFocusOrder(++tabOrder);
 
     lfoCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleLfo, .invisibleTitle = SsgGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
@@ -326,8 +338,6 @@ void GuiSsg::setup()
     // Duty Controls Setup
     dutyGroup.setup(*this, SsgGuiText::Group::ssgDuty);
 
-    pulseDutyCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
-
     dutyModeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Duty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
@@ -347,8 +357,6 @@ void GuiSsg::setup()
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
     triGroup.setup(*this, SsgGuiText::Group::ssgTri);
-
-    triCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
 
     triKeyTrackButton.setup({ .parent = *this, .id = code + SsgPrKey::Tri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
@@ -378,23 +386,6 @@ void GuiSsg::setup()
     triSetSawUp.setWantsKeyboardFocus(true);
     triSetSawUp.setExplicitFocusOrder(++tabOrder);
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
-
-    // HW Env Group
-	envGroup.setup(*this, SsgGuiText::Group::ssgHwEnv);
-
-    hwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::m });
-
-    envEnableButton.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
-    envEnableButton.setWantsKeyboardFocus(true);
-    envEnableButton.setExplicitFocusOrder(++tabOrder);
-    
-    shapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
-    shapeSelector.setWantsKeyboardFocus(true);
-    shapeSelector.setExplicitFocusOrder(++tabOrder);
-    
-    periodSlider.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
-    periodSlider.setWantsKeyboardFocus(true);
-    periodSlider.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)
@@ -408,10 +399,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
     mRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = SsgGuiValue::PresetName::paddingBottom });
-
-    layoutQualityCat(mRect);
 
     layoutAdsrCat(mRect);
 
@@ -419,7 +407,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutDetuneCat(mRect);
 
+    layoutHwEnvCat(mRect);
+
     layoutLfoCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
 
@@ -457,7 +449,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(true);
         triGroup.setVisible(false);
 
-        triCat.setVisible(false);
         triKeyTrackButton.setVisible(false);
         triPeakCat.setVisible(false);
         triPeakSlider.setVisibleWithLabel(false);
@@ -466,7 +457,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
-        pulseDutyCat.setVisible(true);
         pulseInvCat.setVisible(true);
         dutyModeSelector.setVisibleWithLabel(true);
         dutyVarSlider.setValue(true);
@@ -478,7 +468,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         dRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-        layoutRowCategory({ .rowRect = dRect, .label = &pulseDutyCat });
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
         float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
@@ -501,7 +490,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(false);
         triGroup.setVisible(true);
 
-        pulseDutyCat.setVisible(false);
         pulseInvCat.setVisible(false);
         dutyModeSelector.setVisibleWithLabel(false);
         dutyInvertButton.setVisible(false);
@@ -509,7 +497,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyVarSlider.setVisible(false);
         dutyVarSlider.label.setVisible(false);
 
-        triCat.setVisible(true);
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisibleWithLabel(true);
         triPeakCat.setVisible(true);
@@ -523,7 +510,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         tRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-        layoutRowCategory({ .rowRect = tRect, .label = &triCat });
         layoutRow({ .rowRect = tRect, .component = &triKeyTrackButton });
 
         bool isKeyTrack = triKeyTrackButton.getToggleState();
@@ -541,18 +527,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
     }
-
-    // HW Env Group
-    auto envArea = paramArea.removeFromTop(120);
-    envGroup.setBounds(envArea);
-    auto eRect = envGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
-
-    eRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
-
-    layoutRowCategory({ .rowRect = eRect, .label = &hwEnvCat });
-    layoutRow({ .rowRect = eRect, .component = &envEnableButton });
-    layoutRow({ .rowRect = eRect, .label = &shapeSelector.label, .component = &shapeSelector });
-    layoutRow({ .rowRect = eRect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
 }
 
 void GuiSsg::updatePresetName(const juce::String& presetName)
@@ -708,5 +682,23 @@ void GuiSsg::layoutLfoCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &lfoAmShapeSelector.label, .component = &lfoAmShapeSelector });
         layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
         layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
+    }
+}
+
+void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &hwEnvCat });
+
+    bool visible = hwEnvCat.isDetailVisible();
+
+    envEnableButton.setVisible(visible);
+    shapeSelector.setVisibleWithLabel(visible);
+    periodSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &envEnableButton });
+        layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector });
+        layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
     }
 }

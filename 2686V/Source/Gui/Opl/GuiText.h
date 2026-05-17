@@ -24,7 +24,6 @@ namespace OplGuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String m = u8"--- BASIC ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
@@ -41,7 +40,6 @@ namespace OplGuiText
 		static inline const juce::String invisibleInitialize = u8"[□]--- INITIALIZE ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
-		static inline const juce::String preset = u8"--- PRESET ---";
 	}
 
 	namespace Group

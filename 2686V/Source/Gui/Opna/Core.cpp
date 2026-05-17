@@ -197,8 +197,6 @@ void GuiOpna::setup()
 
     mainGroup.setup(*this, OpnaGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = OpnaGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -341,8 +339,6 @@ void GuiOpna::setup()
         opGroups[i].setup(*this, OpnaGuiText::Group::opPrefix + juce::String(i + 1));
 
         juce::String paramPrefix = opCode + juce::String(i);
-
-        catMain[i].setup({ .parent = *this, .title = OpnaGuiText::Category::m });
 
         mul[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + OpnaPrKey::mul, .title = OpnaGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -488,10 +484,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OpnaGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = OpnaGuiValue::PresetName::paddingBottom });
-
-    layoutQualityCat(mRect);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
@@ -501,6 +494,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutPanCat(mRect);
 
     layoutN88LfoCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
 
@@ -520,7 +515,6 @@ void GuiOpna::layout(juce::Rectangle<int> content)
         auto innerRect = opArea.reduced(OpnaGuiValue::Fm::Op::Padding::width, OpnaGuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(OpnaGuiValue::Group::TitlePaddingTop);
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMain[i] });
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt[i].label, .component = &dt[i] });
         updateRgDisplayAsOp(i, true);
@@ -594,7 +588,6 @@ void GuiOpna::applyMmlString(const juce::String& mml, int opIndex)
 void GuiOpna::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
-    catMain[idx].setEnabled(enable);
     mul[idx].setEnabledWithLabel(enable);
     dt[idx].setEnabledWithLabel(enable);
     ks[idx].setEnabledWithLabel(enable);

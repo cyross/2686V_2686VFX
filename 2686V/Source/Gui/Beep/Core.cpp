@@ -15,14 +15,10 @@ void GuiBeep::setup() {
 
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
-    presetNameCat.setup({ .parent = *this, .title = BeepGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
 
-    mainCat.setup({ .parent = *this, .title = BeepGuiText::Category::m });
-    
     volSlider.setup({ .parent = *this, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
@@ -91,9 +87,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
     mRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = BeepGuiValue::PresetName::paddingBottom });
-    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
     layoutFixCat(mRect);

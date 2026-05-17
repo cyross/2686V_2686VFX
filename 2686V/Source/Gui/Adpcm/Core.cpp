@@ -53,8 +53,6 @@ void GuiAdpcm::setup()
 
     mainGroup.setup(*this, AdpcmGuiText::Group::mainGroup);
 
-    presetNameCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::preset });
-
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.5f));
@@ -68,8 +66,6 @@ void GuiAdpcm::setup()
     rateSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
-
-    mainCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::m });
 
     // 出力レベル
 	levelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
@@ -164,12 +160,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
     mRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
 
-    layoutMainCategory({ .mainRect = mRect, .label = &presetNameCat });
     layoutMain({ .mainRect = mRect, .label = &presetNameLabel, .paddingBottom = AdpcmGuiValue::PresetName::paddingBottom });
 
-    layoutQualityCat(mRect);
-
-    layoutMainCategory({ .mainRect = mRect, .label = &mainCat });
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
     layoutMain({ .mainRect = mRect, .component = &loopButton });
@@ -179,6 +171,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutPanCat(mRect);
 
     layoutAdsrCat(mRect);
+
+    layoutQualityCat(mRect);
 
     layoutMvolCat(mRect);
 }
