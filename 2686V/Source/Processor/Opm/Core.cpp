@@ -13,8 +13,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // OPM (YM2151) Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::alg, code + OpmPrName::alg, OpmPrValue::Alg::min, OpmPrValue::Alg::max, OpmPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::fb0, code + OpmPrName::fb0, OpmPrValue::Fb0::min, OpmPrValue::Fb0::max, OpmPrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::fb2, code + OpmPrName::fb2, OpmPrValue::Fb2::min, OpmPrValue::Fb2::max, OpmPrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::fb, code + OpmPrName::fb, OpmPrValue::Fb::min, OpmPrValue::Fb::max, OpmPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::bit, code + OpmPrName::bit, OpmPrValue::Bit::min, OpmPrValue::Bit::max, OpmPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::rate, code + OpmPrName::rate, OpmPrValue::Rate::min, OpmPrValue::Rate::max, OpmPrValue::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::freq, code + OpmPrName::Lfo::freq, OpmPrValue::Lfo::Freq::min, OpmPrValue::Lfo::Freq::max, OpmPrValue::Lfo::Freq::initial));
@@ -59,8 +58,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     const juce::String code = OpmPrKey::prefix;
 
     params.opm.algorithm = (int)*apvts.getRawParameterValue(code + OpmPrKey::alg);
-    params.opm.feedback = *apvts.getRawParameterValue(code + OpmPrKey::fb0);
-    params.opm.feedback2 = *apvts.getRawParameterValue(code + OpmPrKey::fb2);
+    params.opm.feedback = *apvts.getRawParameterValue(code + OpmPrKey::fb);
     params.opm.fmBitDepth = (int)*apvts.getRawParameterValue(code + OpmPrKey::bit);
     params.opm.fmRateIndex = (int)*apvts.getRawParameterValue(code + OpmPrKey::rate);
     params.opm.lfoFreq = *apvts.getRawParameterValue(code + OpmPrKey::Lfo::freq);

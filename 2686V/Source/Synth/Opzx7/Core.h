@@ -40,7 +40,7 @@ public:
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
     void setWtBuffer(int opIndex, const std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
-    void setSampleRate(double sampleRate) override ;
+    void setSampleRate(double sampleRate) override;
 private:
     std::array<Opzx7Operator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };

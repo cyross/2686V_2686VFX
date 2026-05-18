@@ -9,8 +9,7 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     const juce::String code = OpnPrKey::prefix;
 
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::alg, code + OpnPrName::alg, OpnPrValue::Alg::min, OpnPrValue::Alg::max, OpnPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::fb0, code + OpnPrName::fb0, OpnPrValue::Fb0::min, OpnPrValue::Fb0::max, OpnPrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::fb2, code + OpnPrName::fb2, OpnPrValue::Fb2::min, OpnPrValue::Fb2::max, OpnPrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::fb, code + OpnPrName::fb, OpnPrValue::Fb::min, OpnPrValue::Fb::max, OpnPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::bit, code + OpnPrName::bit, OpnPrValue::Bit::min, OpnPrValue::Bit::max, OpnPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::rate, code + OpnPrName::rate, OpnPrValue::Rate::min, OpnPrValue::Rate::max, OpnPrValue::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::N88Lfo::freq, code + OpnPrName::N88Lfo::freq, OpnPrValue::Lfo::N88Freq::min, OpnPrValue::Lfo::N88Freq::max, OpnPrValue::Lfo::N88Freq::initial));
@@ -50,8 +49,7 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     const juce::String code = OpnPrKey::prefix;
 
     params.opn.algorithm = (int)*apvts.getRawParameterValue(code + OpnPrKey::alg);
-    params.opn.feedback = *apvts.getRawParameterValue(code + OpnPrKey::fb0);
-    params.opn.feedback2 = *apvts.getRawParameterValue(code + OpnPrKey::fb2);
+    params.opn.feedback = *apvts.getRawParameterValue(code + OpnPrKey::fb);
     params.opn.fmBitDepth = (int)*apvts.getRawParameterValue(code + OpnPrKey::bit);
     params.opn.fmRateIndex = (int)*apvts.getRawParameterValue(code + OpnPrKey::rate);
     // Int(0〜16383) として読み込み、Hzに変換する
@@ -92,7 +90,7 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opn.op[op].vibEnable = false;
         params.opn.op[op].pms = 0.0f;
         params.opn.op[op].amEnable = false; // OPNにはAMは無い
-        params.opn.op[op].ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
+        params.opn.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
         params.opn.op[op].amd = 0; // ローカルAMDは未使用なので0固定
         params.opn.op[op].oplAms = 0.0f;
         params.opn.op[op].oplAmd = 0.0f;

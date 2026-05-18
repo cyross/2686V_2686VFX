@@ -10,8 +10,7 @@ namespace Opl3PrName
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String rate = " Rate";
 	static inline const juce::String alg = " Algorithm";
-	static inline const juce::String fb0 = " Feedback 1";
-	static inline const juce::String fb2 = " Feedback 3";
+	static inline const juce::String fb = " Feedback";
 
 	static inline const juce::String op = CorePrName::Fm::Op::key;
 

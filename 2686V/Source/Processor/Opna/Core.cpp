@@ -7,13 +7,12 @@
 void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     const juce::String code = OpnaPrKey::prefix;
-
+    
     // ==========================================
     // OPNA (YM2608) Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::alg, code + OpnaPrName::alg, OpnaPrValue::Alg::min, OpnaPrValue::Alg::max, OpnaPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb0, code + OpnaPrName::fb0, OpnaPrValue::Fb0::min, OpnaPrValue::Fb0::max, OpnaPrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb2, code + OpnaPrName::fb2, OpnaPrValue::Fb2::min, OpnaPrValue::Fb2::max, OpnaPrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb, code + OpnaPrName::fb, OpnaPrValue::Fb::min, OpnaPrValue::Fb::max, OpnaPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::bit, code + OpnaPrName::bit, OpnaPrValue::Bit::min, OpnaPrValue::Bit::max, OpnaPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::rate, code + OpnaPrName::rate, OpnaPrValue::Rate::min, OpnaPrValue::Rate::max, OpnaPrValue::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::N88Lfo::freq, code + OpnaPrName::N88Lfo::freq, OpnaPrValue::Lfo::N88Freq::min, OpnaPrValue::Lfo::N88Freq::max, OpnaPrValue::Lfo::N88Freq::initial));
@@ -62,8 +61,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     const juce::String code = OpnaPrKey::prefix;
 
     params.opna.algorithm = (int)*apvts.getRawParameterValue(code + OpnaPrKey::alg);
-    params.opna.feedback = *apvts.getRawParameterValue(code + OpnaPrKey::fb0);
-    params.opna.feedback2 = *apvts.getRawParameterValue(code + OpnaPrKey::fb2);
+    params.opna.feedback = *apvts.getRawParameterValue(code + OpnaPrKey::fb);
     params.opna.fmBitDepth = (int)*apvts.getRawParameterValue(code + OpnaPrKey::bit);
     params.opna.fmRateIndex = (int)*apvts.getRawParameterValue(code + OpnaPrKey::rate);
     // Int(0〜16383) として読み込み、Hzに変換する
@@ -106,6 +104,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].vibEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::vib) > OpnaPrValue::boolThread);
         params.opna.op[op].pms = (int)*apvts.getRawParameterValue(p + OpnaPrKey::pms);
         params.opna.op[op].amEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::am) > OpnaPrValue::boolThread);
+        params.opna.op[op].ams = (int)*apvts.getRawParameterValue(p + OpnaPrKey::ams);
         params.opna.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnaPrKey::n88Ams);
         params.opna.op[op].amd = 0; // ローカルAMDは未使用なので0固定
         params.opna.op[op].egType = true;

@@ -16,11 +16,8 @@ public:
     FmOperator() {}
 
     double m_hostSampleRate = 44100.0;
-
+    
     FmOpParams m_params;
-
-    static const std::array<float, 8> dtScales; // DT(DT1)値のリスト
-    static const std::array<float, 4> dt2Scales; // DT2値のリスト
 
     using SsgWaveCalculator = float(*)(double p);
 
@@ -34,8 +31,6 @@ public:
     bool virtual isPlaying() const { return m_state != State::Idle; }
     float virtual getCurrentEnvelope() const { return m_currentLevel; }
     void virtual setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
-    void virtual getSample(float& output, float modulator, float lfoAmp, float lfoPitch) {};
-    void virtual getSample(float& output, float modulator, float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd = -1.0f, float globalAmd = -1.0f, float modWheel = 0.0f) {};
     void virtual setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
     // OPZX7 の外部 PCM データ用
@@ -69,16 +64,6 @@ protected:
 
     float m_susReleaseDec = 0.0f;
     float m_currentReleaseDec = 0.0f;
-
-    // LFO Sync Delay とカウンター
-    int m_lfoSyncDelayParam = 0;
-    float m_lfoSyncDelay = 0.0f;
-    float m_lfoDelayCounter = 0.0f;
-    uint32_t m_lfoCycleCount = 0;
-    unsigned int m_lfsr = 0x1FFFF;
-    float m_currentNoiseSample = 0.0f;
-    double m_lfoPhase = 0.0;
-    float  m_amSmooth = 0.0f;
 
     // OPZX7 の外部 PCM データ用
     const std::vector<float>* m_pcmBuffer = nullptr;

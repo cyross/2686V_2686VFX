@@ -52,9 +52,7 @@ namespace OpnaGuiText
 	namespace Fm
 	{
 		static inline const juce::String alg = u8"Alg";
-		static inline const juce::String fb0 = u8"Fb1";
-		static inline const juce::String fb01 = u8"Fb1/2";
-		static inline const juce::String fb2 = u8"Fb3";
+		static inline const juce::String fb = u8"Fb";
 		static inline const juce::String lfoFreq = u8"Freq";
 		static inline const juce::String lfoSpeed = u8"Speed";
 		static inline const juce::String lfoShape = u8"Shape";

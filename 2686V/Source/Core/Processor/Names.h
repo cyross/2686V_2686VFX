@@ -44,8 +44,7 @@ namespace CorePrName
 			static inline const juce::String bit = " Bit";
 			static inline const juce::String rate = " Rate";
 			static inline const juce::String alg = " Algorithm";
-			static inline const juce::String fb0 = " Feedback 1";
-			static inline const juce::String fb2 = " Feedback 3";
+			static inline const juce::String fb = " Feedback";
 			static inline const juce::String pan = " Pan";
 			static inline const juce::String panpot = " Panpot";
 			static inline const juce::String panpot_en = " Panpot Eable";

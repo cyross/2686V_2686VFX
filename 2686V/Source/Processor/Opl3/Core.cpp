@@ -12,8 +12,7 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     // OPL3 Parameters (4 Ops, 8 Waveforms)
     // ==============================================================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::alg, code + Opl3PrName::alg, Opl3PrValue::Alg::min, Opl3PrValue::Alg::max, Opl3PrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::fb0, code + Opl3PrName::fb0, Opl3PrValue::Fb0::min, Opl3PrValue::Fb0::max, Opl3PrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::fb2, code + Opl3PrName::fb2, Opl3PrValue::Fb2::min, Opl3PrValue::Fb2::max, Opl3PrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::fb, code + Opl3PrName::fb, Opl3PrValue::Fb::min, Opl3PrValue::Fb::max, Opl3PrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::bit, code + Opl3PrName::bit, Opl3PrValue::Bit::min, Opl3PrValue::Bit::max, Opl3PrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::rate, code + Opl3PrName::rate, Opl3PrValue::Rate::min, Opl3PrValue::Rate::max, Opl3PrValue::Rate::initial)); // Default 6 (16kHz)
 
@@ -48,8 +47,7 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     const juce::String code = Opl3PrKey::prefix;
 
     params.opl3.algorithm = (int)*apvts.getRawParameterValue(code + Opl3PrKey::alg);
-    params.opl3.feedback = *apvts.getRawParameterValue(code + Opl3PrKey::fb0);
-    params.opl3.feedback2 = *apvts.getRawParameterValue(code + Opl3PrKey::fb2);
+    params.opl3.feedback = *apvts.getRawParameterValue(code + Opl3PrKey::fb);
     params.opl3.fmBitDepth = (int)*apvts.getRawParameterValue(code + Opl3PrKey::bit);
     params.opl3.fmRateIndex = (int)*apvts.getRawParameterValue(code + Opl3PrKey::rate);
     params.opl3.lfoFreq = 0.0f;

@@ -203,14 +203,7 @@ namespace CorePrValue
 
 	namespace Fm
 	{
-		namespace Fb0
-		{
-			inline constexpr int min = 0; // 最小値
-			inline constexpr int max = 7; // 最大値
-			inline constexpr int initial = 0; // 初期値
-		}
-
-		namespace Fb2
+		namespace Fb
 		{
 			inline constexpr int min = 0; // 最小値
 			inline constexpr int max = 7; // 最大値

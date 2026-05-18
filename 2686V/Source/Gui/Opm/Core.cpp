@@ -162,13 +162,9 @@ void GuiOpm::setup()
         updateAlgorithmDisplay();
         };
 
-    feedbackSlider.setup({ .parent = *this, .id = code + OpmPrKey::fb0, .title = OpmGuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + OpmPrKey::fb, .title = OpmGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
-
-    feedback2Slider.setup({ .parent = *this, .id = code + OpmPrKey::fb2, .title = OpmGuiText::Fm::fb2, .isReset = true });
-    feedback2Slider.setWantsKeyboardFocus(true);
-    feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     panCat.setup({ .parent = *this, .title = OpmGuiText::Category::visiblePan, .invisibleTitle = OpmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
@@ -391,7 +387,6 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, });
 
     layoutPanCat(mRect);
 
@@ -595,11 +590,10 @@ void GuiOpm::copyFmParamsToString()
 
     auto formatCoreBasic = [this, maskVal]() {
         return juce::String::formatted(
-            //     ALG   FB0   FB2   MSK  FRQ  SYC   PG   EG  PMS  PMD  AMS  AMD
-            u8"    %1d,  %1d,  %1d,  %2d, %3d, %3d, %1d, %1d, %1d, %3d, %1d, %3d\n",
+            //     ALG    FB   MSK  FRQ  SYC   PG   EG  PMS  PMD  AMS  AMD
+            u8"    %1d,  %1d,  %2d, %3d, %3d, %1d, %1d, %1d, %3d, %1d, %3d\n",
             algSelector.getSelectedId() - 1,        // ALG
-            (int)feedbackSlider.getValue(),         // FB0
-            (int)feedback2Slider.getValue(),        // FB2
+            (int)feedbackSlider.getValue(),         // FB
             maskVal,                                // MASK
             (int)lfoFreqSlider.getValue(),          // FREQ
             (int)lfoSyncDelaySlider.getValue(),     // SYNC

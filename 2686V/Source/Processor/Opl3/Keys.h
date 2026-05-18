@@ -14,8 +14,7 @@ namespace Opl3PrKey
 	static inline const juce::String monoMode = CorePrKey::monoMode;
 
 	static inline const juce::String alg = CorePrKey::Fm::alg;
-	static inline const juce::String fb0 = CorePrKey::Fm::fb0;
-	static inline const juce::String fb2 = CorePrKey::Fm::fb2;
+	static inline const juce::String fb = CorePrKey::Fm::fb;
 	static inline const juce::String bit = CorePrKey::Fm::bit;
 	static inline const juce::String rate = CorePrKey::Fm::rate;
 

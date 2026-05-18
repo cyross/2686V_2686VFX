@@ -18,8 +18,6 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
 
-    m_lfoDelayCounter = 0.0f;
-
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
@@ -45,8 +43,7 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_currentReleaseDec = m_releaseDec;
 }
 
-void OpmOperator::getSample(float& output, float modulator, float amLfoVal, float pmLfoVal,
-    bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
+void OpmOperator::getSample(float& output, float modulator, const OpmLfoCore& hwLfo, float modWheel)
 {
     if (m_state == State::Idle) { output = 0.0f; return; }
 
@@ -56,21 +53,19 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ========================================================
     // 1. Amplitude Modulation (Tremolo / Wah) の計算
     // ========================================================
-    float amsDepths[] = { 0.0f, 0.93622f, 0.99593f, 0.99998f };
     float totalAmDepth = 0.0f;
 
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
-    if (globalAm) {
-        float globalDepthScale = (globalAmd >= 0.0f) ? (globalAmd / 127.0f) : 1.0f;
-		int amsIndex = m_params.amEnable ? std::clamp((int)globalAms, 0, 3) : 0;
-        totalAmDepth += amsDepths[amsIndex] * globalDepthScale;
+    if (hwLfo.amEnable)
+    {
+        totalAmDepth += (hwLfo.amEnable ? hwLfo.ams : 1.0f) * hwLfo.depthDb;
     }
 
     // 上限を1.0(100%)でクリップ
     totalAmDepth = std::min(totalAmDepth, 1.0f);
 
     if (totalAmDepth > 0.0f) {
-        float lfoAmpMod = 1.0f - (amLfoVal * totalAmDepth);
+        float lfoAmpMod = 1.0f - (hwLfo.value.am * totalAmDepth);
         envVal *= lfoAmpMod; // 音量に直接適用
     }
 
@@ -79,21 +74,19 @@ void OpmOperator::getSample(float& output, float modulator, float amLfoVal, floa
     // ========================================================
     // (2^(Cent/1200) - 1.0)
     // 0: 0cent / 1: ±5cent / 2: ±10cent / 3: ±20cent / 4: ±50cent / 5: ±100cent / 6: ±400cent / 7: ±700cent
-    float pmsDepths[] = { 0.0f, 0.002892f, 0.005793f, 0.011619, 0.029302, 0.059463f, 0.259921f, 0.498307f };
     float totalPmDepth = 0.0f;
 
     // ① グローバルPM (G-PMスイッチがONの時のみ受け取る)
-    if (globalPm) {
-        float globalPmdScale = (globalPmd >= 0.0f) ? (globalPmd / 127.0f) : 1.0f;
-        totalPmDepth += pmsDepths[std::clamp((int)globalPms, 0, 7)] * globalPmdScale;
+    if (hwLfo.pmEnable) {
+        totalPmDepth += hwLfo.pms * hwLfo.depthCent;
     }
 
     // PMがONの時だけ、その深さをLFO波形に掛ける
-    float currentPitchMod = pmLfoVal * totalPmDepth;
+    float currentPitchMod = hwLfo.value.pm * totalPmDepth;
 
     // ③ モジュレーションホイール (MIDI演奏のため常に足し込む)
     float wheelDepth = modWheel * 0.03f;
-    currentPitchMod += (pmLfoVal * wheelDepth);
+    currentPitchMod += (hwLfo.value.pm * wheelDepth);
 
     float lfoPitchMod = 1.0f + currentPitchMod;
 

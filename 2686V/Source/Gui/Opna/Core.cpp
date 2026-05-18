@@ -221,13 +221,9 @@ void GuiOpna::setup()
         updateAlgorithmDisplay();
     };
 
-    feedbackSlider.setup({ .parent = *this, .id = code + OpnaPrKey::fb0, .title = OpnaGuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + OpnaPrKey::fb, .title = OpnaGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
-
-    feedback2Slider.setup({ .parent = *this, .id = code + OpnaPrKey::fb2, .title = OpnaGuiText::Fm::fb2, .isReset = true });
-    feedback2Slider.setWantsKeyboardFocus(true);
-    feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     panCat.setup({ .parent = *this, .title = OpnaGuiText::Category::visiblePan, .invisibleTitle = OpnaGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
@@ -490,7 +486,6 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider });
 
     layoutPanCat(mRect);
 
@@ -698,11 +693,10 @@ void GuiOpna::copyFmParamsToString()
 
     auto formatCoreBasic = [this, maskVal]() {
         return juce::String::formatted(
-            // '   ALG   FB0   FB2   MSK    SHP  SPD  SYC  PMD  PMS  AMD 
-            u8"    %1d,  %1d,  %1d,  %2d,   %2d, %5d, %3d,  %d, %+d,  %d\n",
+            // '   ALG    FB   MSK    SHP  SPD  SYC  PMD  PMS  AMD 
+            u8"    %1d,  %1d,  %2d,   %2d, %5d, %3d,  %d, %+d,  %d\n",
             algSelector.getSelectedId() - 1,      // ALG
-            (int)feedbackSlider.getValue(),       // FB0
-            (int)feedback2Slider.getValue(),      // FB2
+            (int)feedbackSlider.getValue(),       // FB
             maskVal,                              // MASK
             lfoShapeSelector.getSelectedId() - 1, // SHAPE
             (int)lfoFreqSlider.getValue(),        // SPEED

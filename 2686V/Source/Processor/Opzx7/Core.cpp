@@ -12,8 +12,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     // OPZ + OPX + MA-3(SD-1) Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::alg, code + Opzx7PrName::alg, Opzx7PrValue::Alg::min, Opzx7PrValue::Alg::max, Opzx7PrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::fb0, code + Opzx7PrName::fb0, Opzx7PrValue::Fb0::min, Opzx7PrValue::Fb0::max, Opzx7PrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::fb2, code + Opzx7PrName::fb2, Opzx7PrValue::Fb2::min, Opzx7PrValue::Fb2::max, Opzx7PrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::fb, code + Opzx7PrName::fb, Opzx7PrValue::Fb::min, Opzx7PrValue::Fb::max, Opzx7PrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::bit, code + Opzx7PrName::bit, Opzx7PrValue::Bit::min, Opzx7PrValue::Bit::max, Opzx7PrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::rate, code + Opzx7PrName::rate, Opzx7PrValue::Rate::min, Opzx7PrValue::Rate::max, Opzx7PrValue::Rate::initial)); // Default 6 (16kHz)
 
@@ -95,8 +94,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
     params.opzx7.algorithm = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::alg);
 
-    params.opzx7.feedback = *apvts.getRawParameterValue(code + Opzx7PrKey::fb0);
-    params.opzx7.feedback2 = *apvts.getRawParameterValue(code + Opzx7PrKey::fb2);
+    params.opzx7.feedback = *apvts.getRawParameterValue(code + Opzx7PrKey::fb);
 
     params.opzx7.fmBitDepth = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::bit);
     params.opzx7.fmRateIndex = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::rate);

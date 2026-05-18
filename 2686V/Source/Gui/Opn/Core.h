@@ -44,7 +44,6 @@ class GuiOpn : public GuiBase
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
-    GuiFbSlider feedback2Slider;
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
@@ -113,7 +112,6 @@ public:
         algFbCat(context),
         algSelector(context),
         feedbackSlider(context),
-        feedback2Slider(context),
         bitSelector(context),
         rateSelector(context),
         lfoCat(context),

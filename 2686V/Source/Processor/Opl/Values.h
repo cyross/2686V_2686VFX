@@ -34,9 +34,9 @@ namespace OplPrValue
 
 	namespace Fb
 	{
-		inline constexpr int min = CorePrValue::Fm::Fb0::min;
-		inline constexpr int max = CorePrValue::Fm::Fb0::max;
-		inline constexpr int initial = CorePrValue::Fm::Fb0::initial;
+		inline constexpr int min = CorePrValue::Fm::Fb::min;
+		inline constexpr int max = CorePrValue::Fm::Fb::max;
+		inline constexpr int initial = CorePrValue::Fm::Fb::initial;
 	}
 
 	namespace Op

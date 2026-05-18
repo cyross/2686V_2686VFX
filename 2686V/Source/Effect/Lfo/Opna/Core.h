@@ -4,12 +4,12 @@
 
 #include "../../../Generator/Noise/Lfsr/Core.h"
 
-struct Opzx7LfoValues {
+struct OpnaLfoValues {
 	float am = 0.0f;
 	float pm = 0.0f;
 };
 
-class Opzx7LfoCore {
+class OpnaLfoCore {
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_amFreq = 0.0f;
@@ -17,16 +17,10 @@ class Opzx7LfoCore {
 
 	int m_sdParam = 0;
 	float m_sd = 0.0f;
-	
-	int m_pmWaveIndex = 0;
-	int m_amWaveIndex = 0;
-
-	bool m_isOneshotPm = false;
-	bool m_isOneshotAm = false;
 
 	double m_pmPhase = 0.0f;
 	double m_amPhase = 0.0f;
-
+	
 	double m_pmPhaseDelta = 0.0f;
 	double m_amPhaseDelta = 0.0f;
 
@@ -40,13 +34,17 @@ class Opzx7LfoCore {
 
 	LfsrNoiseGen m_noiseGen;
 
-	using Opzx7LfoCalculator = float(*)(double phase, float noise);
+	using OpnaLfoCalculator = float(*)(double phase, float noise);
 
 	// OPZ7/PG-LFO波形の計算アルゴリズム配列
-	static const std::array<Opzx7LfoCalculator, 8> lfoPmStrategies;
+	static const std::array<OpnaLfoCalculator, 5> lfoPmStrategies;
 
 	// OPZ7/EG-LFO波形の計算アルゴリズム配列
-	static const std::array<Opzx7LfoCalculator, 8> lfoAmStrategies;
+	static const std::array<OpnaLfoCalculator, 5> lfoAmStrategies;
+
+	static const std::array<float, 8> freqs;
+	static const std::array<float, 8> pmsDepths;
+	static const std::array<float, 4> amsDepths;
 public:
 	bool amEnable = false;
 	bool pmEnable = false;
@@ -61,11 +59,11 @@ public:
 	float depthDb = 0.0f;
 	float depthCent = 0.0f;
 
-	Opzx7LfoValues value;
+	OpnaLfoValues value;
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pgIndex, int egIndex, float pms, float pmd, float ams, float amd, float amSmoothRate);
+	void setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, float pms, float ams, float amSmoothRate);
 	void noteOn();
 	void getSample();
 	inline void updatePhaseDelta();

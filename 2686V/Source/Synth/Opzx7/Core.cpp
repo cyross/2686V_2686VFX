@@ -114,14 +114,14 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
-        if (i == 0) // OP0
+        // ALG=33のときは、OP1,OP3の両方フィードバック
+        if (m_algorithm == 33)
+        {
+            fb = (i == 0 || i == 2) ? params.opzx7.feedback : 0.0f;
+        }
+        else if (i == 0)
         {
             fb = params.opzx7.feedback;
-        }
-
-        if (i == 2) // OP2
-        {
-            fb = params.opzx7.feedback2;
         }
 
         // WaveSelect=True, SSG-EG=True, OpmEg=True
@@ -232,14 +232,32 @@ float Opzx7Core::getSample() {
         finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
 
         // =======================================================
-        // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
+        // 無音(0.0)が完全に0.0になる量子化 (UI・WtCoreと完全同期)
         // =======================================================
         if (m_quantizeSteps > 0.0f) {
-            // 単純に掛け算して丸め、割り算で戻すだけでゼロクロスが保証されます
-            finalOut = std::round(finalOut * m_quantizeSteps) / m_quantizeSteps;
+            int totalSteps = (int)m_quantizeSteps + 1;
+            int maxIndex = totalSteps - 1;
+            int zeroIndex = totalSteps / 2 - 1;
+            int stepValue = 0;
 
-            // 安全のためのクリップ
-            finalOut = std::clamp(finalOut, -1.0f, 1.0f);
+            if (finalOut < 0.0f) {
+                stepValue = (int)std::round(finalOut * zeroIndex + zeroIndex);
+            }
+            else {
+                stepValue = (int)std::round(finalOut * (maxIndex - zeroIndex) + zeroIndex);
+            }
+
+            stepValue = std::clamp(stepValue, 0, maxIndex);
+
+            if (stepValue < zeroIndex) {
+                finalOut = (float)(stepValue - zeroIndex) / (float)zeroIndex;
+            }
+            else if (stepValue > zeroIndex) {
+                finalOut = (float)(stepValue - zeroIndex) / (float)(maxIndex - zeroIndex);
+            }
+            else {
+                finalOut = 0.0f; // ★完全な 0.0 を保証
+            }
         }
 
         m_lastSample = finalOut;
