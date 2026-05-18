@@ -7,7 +7,7 @@
 void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     const juce::String code = OpnaPrKey::prefix;
-
+    
     // ==========================================
     // OPNA (YM2608) Parameters
     // ==========================================
@@ -106,6 +106,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].vibEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::vib) > OpnaPrValue::boolThread);
         params.opna.op[op].pms = (int)*apvts.getRawParameterValue(p + OpnaPrKey::pms);
         params.opna.op[op].amEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::am) > OpnaPrValue::boolThread);
+        params.opna.op[op].ams = (int)*apvts.getRawParameterValue(p + OpnaPrKey::ams);
         params.opna.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnaPrKey::n88Ams);
         params.opna.op[op].amd = 0; // ローカルAMDは未使用なので0固定
         params.opna.op[op].egType = true;

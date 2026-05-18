@@ -2,6 +2,7 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Generator/Noise/Lfsr/Core.h"
+#include "../../Effect/Lfo/N88/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -27,6 +28,7 @@ private:
     std::array<OpnaOperator, 4> m_operators;
     std::array<bool, 4> m_opMask{ false, false, false, false };
     LfsrNoiseGen m_noiseGen;
+    N88LfoCore m_n88Lfo;
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;

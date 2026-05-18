@@ -47,6 +47,13 @@ namespace {
 
 const std::array<float, 4> Opl3Operator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
 
+void Opl3Operator::setSampleRate(double sampleRate)
+{
+    m_sampleRate = sampleRate;
+
+    m_lfo.updateTargetSampleRate(sampleRate);
+}
+
 void Opl3Operator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
@@ -54,6 +61,14 @@ void Opl3Operator::setParameters(const FmOpParams& params, float feedback)
     m_ssgEgFreq = 1.0f;
     m_params.ssgEg = 0;
     m_params.waveSelect = params.waveSelect;
+    m_lfo.setParameters(
+        params.amEnable,
+        params.vibEnable,
+        params.oplPms,
+        params.oplPmd,
+        params.oplAms,
+        params.oplAmd
+    );
 }
 
 void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
@@ -62,8 +77,6 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
-
-    m_lfoDelayCounter = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -104,15 +117,23 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_currentReleaseDec = m_releaseDec;
 }
 
-void Opl3Operator::getSample(float& output, float modulator, float lfoAmp, float lfoPitch)
+void Opl3Operator::processLfo()
 {
+    m_lfo.getSample();
+}
+
+void Opl3Operator::getSample(float& output, float modulator)
+{
+    m_lfo.getSample();
+
     if (m_state == State::Idle) { output = 0.0f; return; }
 
     updateEnvelopeState();
+
     float envVal = m_currentLevel;
 
     // AM適用 (無条件。変調がない場合はコア側から 1.0 が渡ってくる)
-    envVal *= lfoAmp;
+    envVal *= m_lfo.value.am;
 
     float feedbackMod = 0.0f;
     if (m_feedback > 0.0f) {
@@ -121,7 +142,7 @@ void Opl3Operator::getSample(float& output, float modulator, float lfoAmp, float
     }
 
     // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitch;
+    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * m_lfo.value.pm;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

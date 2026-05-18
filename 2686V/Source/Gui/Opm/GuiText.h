@@ -35,8 +35,8 @@ namespace OpmGuiText
 		static inline const juce::String mml = u8"--- MML ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
-		static inline const juce::String visibleMonoMode = u8"[▲]--- MONO/POLY ---";
-		static inline const juce::String invisibleMonoMode = u8"[▼]--- MONO/POLY ---";
+		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
+		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 	}
 
 	namespace Group

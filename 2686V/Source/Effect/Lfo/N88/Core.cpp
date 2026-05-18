@@ -4,30 +4,18 @@
 #include "./Core.h"
 
 // -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM PG)
+// LFO 波形算出アルゴリズム (N888BASIC(86)準拠)
 // -----------------------------------------------------------
-const std::array<Opzx7LfoCore::Opzx7LfoCalculator, 8> Opzx7LfoCore::lfoPmStrategies = { {
-        // 0: Sine
+const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::pmStrategies = { {
+        // 0: Saw Up
         [](double phase, float /*noise*/) -> float {
-            return (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
+            return (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0);
         },
-    // 1: Saw Up
+    // 1: Square
     [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.5) pm = (float)(phase * 2.0);
-        else             pm = (float)(-1.0 + (phase - 0.5) * 2.0);
-
-        return pm;
+        return (phase < 0.5) ? 1.0f : 0.0f;
     },
-    // 2: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase * 2.0);
-    },
-    // 3: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : -1.0f;
-    },
-    // 4: Triangle
+    // 2: Triangle
     [](double phase, float /*noise*/) -> float {
         float pm = 0.0f;
         if (phase < 0.25)       pm = (float)(phase * 4.0);
@@ -36,114 +24,102 @@ const std::array<Opzx7LfoCore::Opzx7LfoCalculator, 8> Opzx7LfoCore::lfoPmStrateg
 
         return pm;
     },
-    // 5: Sample & Hold
+    // 3: Sample & Hold
     [](double /*phase*/, float noise) -> float {
         return noise;
     },
-    // 6: Saw Down & One Shot
+    // 4: Saw Down & One Shot
     [](double phase, float /*noise*/) -> float {
         return (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
     },
-    // 7: Triangle & One Shot
-    [](double phase, float /*noise*/) -> float {
-        if (phase < 0.25)      return (float)(phase * 4.0);
-        else if (phase < 0.5)  return (float)(1.0 - (phase - 0.25) * 4.0);
-        else                   return 0.0;
+    // 5: Triangle & One Shot
+    [](double phase, float /*noise*/) ->float {
+        float pm = 0.0f;
+        if (phase < 0.25)       pm = (float)(phase * 4.0);
+        else if (phase < 0.5)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
+        else                    pm = 0.0;
+
+        return pm;
     }
 } };
 
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM EG)
-// -----------------------------------------------------------
-const std::array<Opzx7LfoCore::Opzx7LfoCalculator, 8> Opzx7LfoCore::lfoAmStrategies = { {
-        // 0: Sine
-        [](double phase, float /*noise*/)-> float {
-            float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-
-            return (pm + 1.0f) * 0.5f;
+const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::amStrategies = { {
+        // 0: Saw Up
+        [](double phase, float /*noise*/) -> float {
+            return (float)phase;
         },
-    // 1: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        return (float)phase;
-    },
-    // 2: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase);
-    },
-    // 3: Square
+    // 1: Square
     [](double phase, float /*noise*/) -> float {
         return (phase < 0.5) ? 1.0f : 0.0f;
     },
-    // 4: Triangle
+    // 2: Triangle
     [](double phase, float /*noise*/) -> float {
-        float am = 0.0f;
-
-        if (phase < 0.5) am = (float)(1.0 - phase * 2.0);
-        else             am = (float)((phase - 0.5) * 2.0);
-
-        return am;
+        return (phase < 0.5) ? (float)(phase * 2.0) : (float)(1.0 - (phase - 0.5) * 2.0);
     },
-    // 5: Sample & Hold
+    // 3: Sample & Hold
     [](double /*phase*/, float noise) -> float {
         return (noise + 1.0f) * 0.5f;
     },
-    // 6: Saw Down & One Shot
+    // 4: Saw Down & One Shot
     [](double phase, float /*noise*/) -> float {
         return (float)(phase < 0.5 ? 1.0 - phase : 0.0);
     },
-    // 7: Triangle & One Shot
+    // 5: Triangle & One Shot
     [](double phase, float /*noise*/) -> float {
         return (phase < 0.5) ? (float)(phase * 2.0) : 0.0f;
     }
 } };
 
-inline void Opzx7LfoCore::updatePhaseDelta()
+const std::array<float, 8> N88LfoCore::freqs = { 3.98f, 5.56f, 6.02f, 6.37f, 6.88f, 9.63f, 48.1f, 72.2f };
+
+inline void N88LfoCore::updatePhaseDelta()
 {
     this->m_pmPhaseDelta = (double)this->m_pmFreq / this->m_sampleRate;
     this->m_amPhaseDelta = (double)this->m_amFreq / this->m_sampleRate;
 }
 
-void Opzx7LfoCore::prepare(double sampleRate) {
+void N88LfoCore::prepare(double sampleRate) {
     this->amSmooth = 0.0f;
 
     updateTargetSampleRate(sampleRate);
 }
 
-void Opzx7LfoCore::updateTargetSampleRate(double newSampleRate) {
+void N88LfoCore::updateTargetSampleRate(double newSampleRate) {
     this->m_sampleRate = newSampleRate;
 
     updatePhaseDelta();
 }
 
-void Opzx7LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pgIndex, int egIndex, float pms, float pmd, float ams, float amd, float amSmoothRate)
+void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate)
 {
 	this->m_sdParam = syncDelay;
 	this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
     this->pmEnable = pm;
-    this->m_pmFreq = pmFreq;
-    this->m_pmWaveIndex = std::clamp(pgIndex, 0, 7);
-    this->m_isOneshotPm = this->m_pmWaveIndex == 6 || this->m_pmWaveIndex == 7;
+    this->m_pmFreq = freqs[std::clamp(pmFreqIndex, 0, 7)];
+    this->m_pmWaveIndex = std::clamp(pmIndex, 0, 5);
+    this->m_isOneshotPm = this->m_pmWaveIndex == 4 || this->m_pmWaveIndex == 5;
 
     this->pms = pms;
     this->pmd = pmd;
 
     this->amEnable = am;
-    this->m_amFreq = amFreq;
-    this->m_amWaveIndex = std::clamp(egIndex, 0, 7);
-    this->m_isOneshotAm = this->m_amWaveIndex == 6 || this->m_amWaveIndex == 7;
-    this->ams = ams;
+    this->m_amFreq = freqs[std::clamp(amFreqIndex, 0, 7)];
+    this->m_amWaveIndex = std::clamp(amIndex, 0, 5);
+    this->m_isOneshotAm = this->m_amWaveIndex == 4 || this->m_amWaveIndex == 5;
+    this->ams = 0.0f;
     this->amd = amd;
 
-    this->depthDb = (this->ams * this->amd) * 96.0f;
-    this->depthCent = (this->pms * this->pmd) * 1200.0f;
+    this->signDb = (this->amd < 0.0f) ? -1.0f : 1.0f;
+    this->depthDb = std::abs(this->amd / 127.0f);
+    this->depthNorm = (this->pmd / 127.0f) * (this->pms / 15.0f);
 
     this->m_amSmoothRate = amSmoothRate;
 
     updatePhaseDelta();
 }
 
-void Opzx7LfoCore::noteOn()
+void N88LfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
     if (this->m_sdParam == 0) {
@@ -175,7 +151,7 @@ void Opzx7LfoCore::noteOn()
     this->m_amCycleCount = 0;
 }
 
-void Opzx7LfoCore::getSample()
+void N88LfoCore::getSample()
 {
     // Sync Delay 更新
     if (this->m_sdCounter > 0.0f) {
@@ -213,8 +189,8 @@ void Opzx7LfoCore::getSample()
             }
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            pmVal = Opzx7LfoCore::lfoPmStrategies[this->m_pmWaveIndex](this->m_pmPhase, this->m_currentNoiseSample);
-            amVal = Opzx7LfoCore::lfoAmStrategies[this->m_amWaveIndex](this->m_amPhase, this->m_currentNoiseSample);
+            pmVal = pmStrategies[this->m_pmWaveIndex](this->m_pmPhase, this->m_currentNoiseSample);
+            amVal = amStrategies[this->m_amWaveIndex](this->m_amPhase, this->m_currentNoiseSample);
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshotPm && this->m_pmCycleCount > 0) pmVal = 0.0f;

@@ -18,7 +18,7 @@ namespace {
         if (sine < -0.5f) return -0.5f;
         return sine;
     }
-
+    
     inline float triangle(float phase) {
         float value = phase * 4.0f;
         if (phase < 0.25f) return value;
@@ -352,12 +352,6 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
 
         envVal *= ssgWaveStrategies[safeWave](m_ssgPhase);
         m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
-    }
-
-    // Sync Delay 更新
-    if (m_lfoDelayCounter > 0.0f) {
-        m_lfoDelayCounter -= 1.0f / (float)m_sampleRate;
-        if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
     }
 
     // ========================================================

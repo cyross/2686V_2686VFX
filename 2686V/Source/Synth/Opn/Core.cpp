@@ -15,21 +15,25 @@ void OpnCore::prepare(double sampleRate)
     m_amSmooth = 0.0f;
 
 	m_noiseGen.prepare(target);
+    m_n88Lfo.prepare(target);
 }
 
 void OpnCore::setParameters(const SynthParams& params)
 {
     m_algorithm = params.opn.algorithm;
-    m_lfoWave = params.opn.lfoWave;
-    m_amSmoothRate = params.opn.lfoAmSmRt;
-    m_lfoSyncDelayParam = params.opn.lfoSyncDelay;
-    m_lfoSyncDelay = (float)(m_lfoSyncDelayParam - 1) * (1000.0f / 60.0f);
-    m_lfoFreq = params.opn.lfoFreq;
-    m_pm = params.opn.pmEnable;
-    m_am = params.opn.amEnable;
-    m_pms = params.opn.lfoPms;
-    m_amd = params.opn.lfoAmd;
-    m_pmd = params.opn.lfoPmd;
+    m_n88Lfo.setParameters(
+        params.opn.lfoSyncDelay,
+        params.opn.pmEnable,
+        params.opn.amEnable,
+        params.opn.lfoFreq,
+        params.opn.lfoFreq,
+        params.opn.lfoWave,
+        params.opn.lfoWave,
+        params.opn.lfoPms,
+        params.opn.lfoPmd,
+        params.opn.lfoAmd,
+        params.opn.lfoAmSmRt
+    );
 
     if (m_rateIndex != params.opn.fmRateIndex) {
         m_rateIndex = params.opn.fmRateIndex;
@@ -37,6 +41,7 @@ void OpnCore::setParameters(const SynthParams& params)
         for (auto& op : m_operators) op.setSampleRate(target);
 
 		m_noiseGen.updateDelta(target);
+        m_n88Lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
@@ -66,20 +71,7 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
     m_rateAccumulator = 1.0;
 
-    // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (m_lfoSyncDelayParam == 0) {
-        m_lfoDelayCounter = 0.0f; // フリーラン継続
-    }
-    else if (m_lfoSyncDelayParam == 1) {
-        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
-        m_lfoDelayCounter = 0.0f; // ms -> 秒
-    }
-    else {
-        m_lfoPhase = 0.0; // 位相を0に戻す (Sync)
-        m_lfoDelayCounter = m_lfoSyncDelay / 1000.0f; // ms -> 秒
-    }
-
-    m_lfoCycleCount = 0;
+    m_n88Lfo.noteOn();
 }
 
 void OpnCore::noteOff()
@@ -131,57 +123,7 @@ float OpnCore::getSample() {
 
         m_prevSample = m_lastSample;
 
-        float pmLfoVal = 0.0f;
-        float amLfoVal = 0.0f;
-
-        if (m_lfoDelayCounter > 0.0f) {
-            m_lfoDelayCounter -= 1.0f / (float)targetRate;
-            if (m_lfoDelayCounter < 0.0f) m_lfoDelayCounter = 0.0f;
-
-            // ディレイ中は pm=0, am=0 となるため何もしない
-        }
-        else {
-            // =================================================================
-            // 60Hz ソフトウェアタイマーのシミュレート
-            // =================================================================
-            double timerInc = 60.0 / targetRate; // 1サンプルあたりに進む60Hzタイマーの割合
-            m_lfoTimerAcc += timerInc;
-
-            // 1/60秒に1回だけ、LFOの計算をガクッと進める！
-            if (m_lfoTimerAcc >= 1.0) {
-                m_lfoTimerAcc -= 1.0;
-
-                // m_lfoFreq(Hz) を 60(Hz) で割ることで、1回の割り込みあたりの位相増分になる
-                m_lfoPhase += (m_lfoFreq / 60.0);
-
-                // ノイズの更新処理とサイクルカウント
-                if (m_lfoPhase >= 1.0) {
-                    m_lfoPhase -= 1.0;
-                    m_lfoCycleCount++;
-                    m_currentNoiseSample = m_noiseGen.generate();
-                }
-
-                // OPNの場合は 0〜3 (lfoN88Strategies)
-                // OPNAの場合は 0〜5 (lfoN8886Strategies) などの配列サイズに合わせる
-                int waveIdx = std::clamp(m_lfoWave, 0, 5);
-                FmCore::LfoResult lfoVal = FmCore::lfoN8886Strategies[waveIdx](m_lfoPhase, m_currentNoiseSample);
-
-                if ((waveIdx == 4 || waveIdx == 5) && m_lfoCycleCount > 0) {
-                    lfoVal.pm = 0.0f;
-                    lfoVal.am = 0.0f;
-                }
-
-                // 計算した結果を保持する
-                m_steppedPmLfoVal = lfoVal.pm;
-                m_steppedAmLfoVal = lfoVal.am;
-            }
-
-            // 保持されている値(階段状の波形)を出力に回す
-            pmLfoVal = m_steppedPmLfoVal;
-            amLfoVal = m_steppedAmLfoVal;
-        }
-
-        m_amSmooth += (amLfoVal - m_amSmooth) * m_amSmoothRate;
+        m_n88Lfo.getSample();
 
         float out1, out2, out3, out4;
         float finalOut = 0.0f;
@@ -193,28 +135,28 @@ float OpnCore::getSample() {
         // =================================================================
         // OP1 (入力なし。フィードバックは内部で解決される)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[0].getSample(out1, 0.0f, m_n88Lfo, m_modWheel);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
         // OP2 (入力: OP1)
         // =================================================================
         float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[1].getSample(out2, in2, m_n88Lfo, m_modWheel);
         if (m_opMask[1]) out2 = 0.0f;
 
         // =================================================================
         // OP3 (入力: OP1, OP2)
         // =================================================================
         float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
-        m_operators[2].getSample(out3, in3, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[2].getSample(out3, in3, m_n88Lfo, m_modWheel);
         if (m_opMask[2]) out3 = 0.0f;
 
         // =================================================================
         // OP4 (入力: OP1, OP2, OP3)
         // =================================================================
         float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
-        m_operators[3].getSample(out4, in4, m_amSmooth, pmLfoVal, m_pm, m_am, m_pms, 0.0f, (float)m_pmd, (float)m_amd, m_modWheel);
+        m_operators[3].getSample(out4, in4, m_n88Lfo, m_modWheel);
         if (m_opMask[3]) out4 = 0.0f;
 
         // =================================================================

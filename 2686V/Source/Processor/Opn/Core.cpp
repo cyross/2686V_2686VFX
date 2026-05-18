@@ -92,7 +92,7 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opn.op[op].vibEnable = false;
         params.opn.op[op].pms = 0.0f;
         params.opn.op[op].amEnable = false; // OPNにはAMは無い
-        params.opn.op[op].ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
+        params.opn.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
         params.opn.op[op].amd = 0; // ローカルAMDは未使用なので0固定
         params.opn.op[op].oplAms = 0.0f;
         params.opn.op[op].oplAmd = 0.0f;

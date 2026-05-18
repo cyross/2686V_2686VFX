@@ -80,7 +80,12 @@ void Opl3Core::setPitchBend(int pitchWheelValue)
 void Opl3Core::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
-    m_modWheel = (float)wheelValue / 127.0f;
+    float modWheel = (float)wheelValue / 127.0f;
+
+    for (int i = 0; i < 4; i++)
+    {
+        m_operators[i].setModWheel(modWheel);
+    }
 }
 
 // --- Opl3Core.cpp : getSample() の全体 ---
@@ -96,40 +101,9 @@ float Opl3Core::getSample() {
         m_rateAccumulator -= 1.0;
         m_prevSample = m_lastSample;
 
-        float opAmpMod[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float opPitchMod[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
         for (int i = 0; i < 4; ++i)
         {
-            // --- AM (Tremolo) ---
-            if (m_operators[i].m_params.amEnable) {
-                m_amPhases[i] += (m_operators[i].m_params.oplAms / targetRate);
-                if (m_amPhases[i] >= 1.0) m_amPhases[i] -= 1.0;
-
-                float amVal = 0.0f;
-                if (m_amPhases[i] < 0.25)           amVal = (float)(m_amPhases[i] * 4.0);
-                else if (m_amPhases[i] < 0.75)      amVal = (float)(1.0 - (m_amPhases[i] - 0.25) * 4.0);
-                else                                amVal = (float)(-1.0 + (m_amPhases[i] - 0.75) * 4.0);
-
-                float normAm = (amVal + 1.0f) * 0.5f;
-                float amDepthRatio = 1.0f - std::pow(10.0f, -m_operators[i].m_params.oplAmd / 20.0f);
-                opAmpMod[i] = 1.0f - (normAm * amDepthRatio);
-            }
-
-            // --- VIB (Vibrato) ---
-            if (m_operators[i].m_params.vibEnable) {
-                m_vibPhases[i] += (m_operators[i].m_params.oplPms / targetRate);
-                if (m_vibPhases[i] >= 1.0) m_vibPhases[i] -= 1.0;
-
-                float vibVal = 0.0f;
-                if (m_vibPhases[i] < 0.25)          vibVal = (float)(m_vibPhases[i] * 4.0);
-                else if (m_vibPhases[i] < 0.75)     vibVal = (float)(1.0 - (m_vibPhases[i] - 0.25) * 4.0);
-                else                                vibVal = (float)(-1.0 + (m_vibPhases[i] - 0.75) * 4.0);
-
-                float pmDepthRatio = std::pow(2.0f, m_operators[i].m_params.oplPmd / 1200.0f) - 1.0f;
-                float modWheelDepth = 0.03f * m_modWheel;
-                opPitchMod[i] = 1.0f + (vibVal * (pmDepthRatio + modWheelDepth));
-            }
+            m_operators[i].processLfo();
         }
 
         // -------------------------------
@@ -144,28 +118,28 @@ float Opl3Core::getSample() {
         // =================================================================
         // OP1 (入力なし)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, opAmpMod[0], opPitchMod[0]);
+        m_operators[0].getSample(out1, 0.0f);
         if (m_opMask[0]) out1 = 0.0f;
 
         // =================================================================
         // OP2 (入力: OP1)
         // =================================================================
         float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, opAmpMod[1], opPitchMod[1]);
+        m_operators[1].getSample(out2, in2);
         if (m_opMask[1]) out2 = 0.0f;
 
         // =================================================================
         // OP3 (入力: OP2)
         // =================================================================
         float in3 = out2 * r.in3_2;
-        m_operators[2].getSample(out3, in3, opAmpMod[2], opPitchMod[2]);
+        m_operators[2].getSample(out3, in3);
         if (m_opMask[2]) out3 = 0.0f;
 
         // =================================================================
         // OP4 (入力: OP3)
         // =================================================================
         float in4 = out3 * r.in4_3;
-        m_operators[3].getSample(out4, in4, opAmpMod[3], opPitchMod[3]);
+        m_operators[3].getSample(out4, in4);
         if (m_opMask[3]) out4 = 0.0f;
 
         // =================================================================

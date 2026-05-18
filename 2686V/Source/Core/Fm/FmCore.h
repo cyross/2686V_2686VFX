@@ -11,16 +11,6 @@ class FmCore : public SynthCore
 public:
     FmCore() : SynthCore() {}
 
-    // LFO Sync Delay とカウンター
-    int m_lfoSyncDelayParam = 0;
-    float m_lfoSyncDelay = 0.0f;
-    float m_lfoDelayCounter = 0.0f;
-    uint32_t m_lfoCycleCount = 0;
-    unsigned int m_lfsr = 0x1FFFF;
-    float m_currentNoiseSample = 0.0f;
-    double m_lfoPhase = 0.0;
-    float  m_amSmooth = 0.0f;
-
     struct BaseAlgRouting {
         float in2_1;             // OP2への入力 (1からの割合)
         float in3_1, in3_2;      // OP3への入力 (1, 2からの割合)
@@ -29,25 +19,4 @@ public:
     };
 
     static const std::array<BaseAlgRouting, 8> baseRoutings;
-
-    // =======================================================
-    // LFO ストラテジー定義
-    // =======================================================
-    // PMとAMの2つの値を返すための構造体
-    struct LfoResult {
-        float pm;
-        float am;
-    };
-
-    // LFO計算関数の型（位相とノイズを受け取り、LfoResultを返す関数ポインタ）
-    using LfoCalculator = LfoResult(*)(double phase, float noise);
-
-    // 5つのLFO波形の計算アルゴリズム配列
-    static const std::array<LfoCalculator, 5> lfoStrategies;
-
-    // 4つのN88ソフトウェアLFO波形の計算アルゴリズム配列
-    static const std::array<LfoCalculator, 4> lfoN88Strategies;
-
-    // 6つのN88ソフトウェアLFO波形の計算アルゴリズム配列
-    static const std::array<LfoCalculator, 6> lfoN8886Strategies;
 };
