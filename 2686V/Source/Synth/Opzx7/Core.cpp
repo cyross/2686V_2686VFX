@@ -114,14 +114,14 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
-        if (i == 0) // OP0
+        // ALG=33のときは、OP1,OP3の両方フィードバック
+        if (m_algorithm == 33)
+        {
+            fb = (i == 0 || i == 2) ? params.opzx7.feedback : 0.0f;
+        }
+        else if (i == 0)
         {
             fb = params.opzx7.feedback;
-        }
-
-        if (i == 2) // OP2
-        {
-            fb = params.opzx7.feedback2;
         }
 
         // WaveSelect=True, SSG-EG=True, OpmEg=True

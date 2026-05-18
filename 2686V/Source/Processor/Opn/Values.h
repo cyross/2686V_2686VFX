@@ -32,18 +32,11 @@ namespace OpnPrValue
 		inline constexpr int initial = 7;
 	}
 
-	namespace Fb0
+	namespace Fb
 	{
-		inline constexpr int min = CorePrValue::Fm::Fb0::min;
-		inline constexpr int max = CorePrValue::Fm::Fb0::max;
-		inline constexpr int initial = CorePrValue::Fm::Fb0::initial;
-	}
-
-	namespace Fb2
-	{
-		inline constexpr int min = CorePrValue::Fm::Fb2::min;
-		inline constexpr int max = CorePrValue::Fm::Fb2::max;
-		inline constexpr int initial = CorePrValue::Fm::Fb2::initial;
+		inline constexpr int min = CorePrValue::Fm::Fb::min;
+		inline constexpr int max = CorePrValue::Fm::Fb::max;
+		inline constexpr int initial = CorePrValue::Fm::Fb::initial;
 	}
 
 	namespace Op

@@ -32,10 +32,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
-        float fb = 0.0f;
-
-        if (i == 0) fb = params.opl3.feedback;
-        else if (i == 2) fb = params.opl3.feedback2;
+        float fb = (i==0) ? params.opl3.feedback : 0.0f;
 
         // FmCommon(96dB)に対して、OPL3(48dB)のスケールを合わせるためTLを半分にする
         FmOpParams opParams = params.opl3.op[i];

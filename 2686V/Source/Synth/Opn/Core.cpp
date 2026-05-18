@@ -49,13 +49,14 @@ void OpnCore::setParameters(const SynthParams& params)
     for (int i = 0; i < 4; ++i) {
         float fb = 0.0f;
 
-        if (i == 0) // OP0
+        // ALG=2 の時、OP3にFbを設定
+        if (m_algorithm == 2)
+        {
+            fb = i == 2 ? params.opn.feedback : 0.0f;
+        }
+        else if (i == 0)
         {
             fb = params.opn.feedback;
-        }
-        else if (i == 2) // OP2
-        {
-            fb = params.opn.feedback2;
         }
 
         // OPN: SSG-EG=False, WaveSelect=False

@@ -118,12 +118,9 @@ void GuiOpl3::setup()
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
-    feedbackSlider.setup({ .parent = *this, .id = code + Opl3PrKey::fb0, .title = Opl3GuiText::Fm::fb0, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + Opl3PrKey::fb, .title = Opl3GuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
-    feedback2Slider.setup({ .parent = *this, .id = code + Opl3PrKey::fb2, .title = Opl3GuiText::Fm::fb2, .isReset = true });
-    feedback2Slider.setWantsKeyboardFocus(true);
-    feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     monoPolyCat.setup({ .parent = *this, .title = Opl3GuiText::Category::visibleMonoMode, .invisibleTitle = Opl3GuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
     monoModeToggle.setup({ .parent = *this, .id = Opl3PrKey::monoMode, .title = Opl3GuiText::monoPoly, .isReset = true });
@@ -291,7 +288,6 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider });
 
     layoutQualityCat(mRect);
 
@@ -500,10 +496,9 @@ void GuiOpl3::copyFmParamsToString()
 
     auto formatCoreBasic = [this, maskVal]() {
         return juce::String::formatted(
-            u8"    %1d,  %1d,  %1d,  %2d\n",
+            u8"    %1d,  %1d,  %2d\n",
             algSelector.getSelectedId() - 1, // ALG
-            (int)feedbackSlider.getValue(),  // FB0
-            (int)feedback2Slider.getValue(),  // FB2
+            (int)feedbackSlider.getValue(),  // FB
             maskVal);                        // MASK
         };
     auto formatOpBasic = [this](int index) {

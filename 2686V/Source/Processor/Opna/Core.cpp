@@ -12,8 +12,7 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     // OPNA (YM2608) Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::alg, code + OpnaPrName::alg, OpnaPrValue::Alg::min, OpnaPrValue::Alg::max, OpnaPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb0, code + OpnaPrName::fb0, OpnaPrValue::Fb0::min, OpnaPrValue::Fb0::max, OpnaPrValue::Fb0::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb2, code + OpnaPrName::fb2, OpnaPrValue::Fb2::min, OpnaPrValue::Fb2::max, OpnaPrValue::Fb2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::fb, code + OpnaPrName::fb, OpnaPrValue::Fb::min, OpnaPrValue::Fb::max, OpnaPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::bit, code + OpnaPrName::bit, OpnaPrValue::Bit::min, OpnaPrValue::Bit::max, OpnaPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::rate, code + OpnaPrName::rate, OpnaPrValue::Rate::min, OpnaPrValue::Rate::max, OpnaPrValue::Rate::initial)); // Default 6 (16kHz)
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::N88Lfo::freq, code + OpnaPrName::N88Lfo::freq, OpnaPrValue::Lfo::N88Freq::min, OpnaPrValue::Lfo::N88Freq::max, OpnaPrValue::Lfo::N88Freq::initial));
@@ -62,8 +61,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     const juce::String code = OpnaPrKey::prefix;
 
     params.opna.algorithm = (int)*apvts.getRawParameterValue(code + OpnaPrKey::alg);
-    params.opna.feedback = *apvts.getRawParameterValue(code + OpnaPrKey::fb0);
-    params.opna.feedback2 = *apvts.getRawParameterValue(code + OpnaPrKey::fb2);
+    params.opna.feedback = *apvts.getRawParameterValue(code + OpnaPrKey::fb);
     params.opna.fmBitDepth = (int)*apvts.getRawParameterValue(code + OpnaPrKey::bit);
     params.opna.fmRateIndex = (int)*apvts.getRawParameterValue(code + OpnaPrKey::rate);
     // Int(0〜16383) として読み込み、Hzに変換する

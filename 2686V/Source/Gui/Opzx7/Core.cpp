@@ -263,13 +263,9 @@ void GuiOpzx7::setup()
         updateAlgorithmDisplay();
         };
 
-    feedbackSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::fb0, .title = Opzx7GuiText::Fm::fb01, .isReset = true });
+    feedbackSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::fb, .title = Opzx7GuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
-
-    feedback2Slider.setup({ .parent = *this, .id = code + Opzx7PrKey::fb2, .title = Opzx7GuiText::Fm::fb2, .isReset = true });
-    feedback2Slider.setWantsKeyboardFocus(true);
-    feedback2Slider.setExplicitFocusOrder(++tabOrder);
 
     panCat.setup({ .parent = *this, .title = Opzx7GuiText::Category::visiblePanpot, .invisibleTitle = Opzx7GuiText::Category::invisiblePanpot , .enableChangeDetailVisible = true });
 
@@ -743,7 +739,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
-    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider, });
 
     layoutPanpotCat(mRect);
 

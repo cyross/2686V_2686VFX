@@ -12,7 +12,7 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // OPL (YM3526) Parameters
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::alg, code + OplPrName::alg, OplPrValue::Alg::min, OplPrValue::Alg::max, OplPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::fb0, code + OplPrName::fb0, OplPrValue::Fb::min, OplPrValue::Fb::max, OplPrValue::Fb::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::fb, code + OplPrName::fb, OplPrValue::Fb::min, OplPrValue::Fb::max, OplPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::bit, code + OplPrName::bit, OplPrValue::Bit::min, OplPrValue::Bit::max, OplPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::rate, code + OplPrName::rate, OplPrValue::Rate::min, OplPrValue::Rate::max, OplPrValue::Rate::initial)); // Default 6 (16kHz)
 
@@ -49,7 +49,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     const juce::String code = OplPrKey::prefix;
 
     params.opl.algorithm = (int)*apvts.getRawParameterValue(code + OplPrKey::alg);
-    params.opl.feedback = *apvts.getRawParameterValue(code + OplPrKey::fb0);
+    params.opl.feedback = *apvts.getRawParameterValue(code + OplPrKey::fb);
     params.opl.fmBitDepth = (int)*apvts.getRawParameterValue(code + OplPrKey::bit);
     params.opl.fmRateIndex = (int)*apvts.getRawParameterValue(code + OplPrKey::rate);
     params.opl.lfoFreq = 0.0f;
