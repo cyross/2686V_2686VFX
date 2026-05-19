@@ -100,12 +100,11 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     updatePhaseDelta();
 
-    m_currentLevel = 0.0f;
     m_rateAccumulator = 1.0f; // Force update on first sample
     m_lastSample = 0.0f;
 
-    m_adsr.noteOn();
-	m_pitchAdsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
+    m_pitchAdsr.noteOn();
     m_lfo.noteOn();
 }
 

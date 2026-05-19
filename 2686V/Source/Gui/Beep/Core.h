@@ -22,7 +22,7 @@ class GuiBeep : public GuiBase {
 
 
     GuiToggleButton bypassToggle;
-    GuiSlider ar, dr, sl, rr;
+    GuiSlider ar, dr, sl, rr, stl;
 
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
@@ -41,7 +41,7 @@ public:
         fixToggle(context), freqSlider(context), freqTo2kBtn(context),
         adsrCat(context),
         bypassToggle(context),
-        ar(context), dr(context), sl(context), rr(context),
+        ar(context), dr(context), sl(context), rr(context), stl(context),
         mvolCat(context),
         masterVolSlider(context),
         monoModeToggle(context),

@@ -75,6 +75,7 @@ namespace AdpcmGuiText
 			static inline const juce::String dr = u8"Dr";
 			static inline const juce::String sl = u8"Sl";
 			static inline const juce::String rr = u8"Rr";
+			static inline const juce::String stl = u8"Stl";
 		}
 	}
 }

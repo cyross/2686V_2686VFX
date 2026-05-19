@@ -40,6 +40,7 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.ratio = *apvts.getRawParameterValue(code + AdpcmPrKey::pcmRatio);
 
     params.adpcm.adsr.bypass = (*apvts.getRawParameterValue(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass) > AdpcmPrValue::boolThread);
+	params.adpcm.adsr.stl = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::stl);
     params.adpcm.adsr.ar = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::ar);
     params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::dr);
     params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::sl);

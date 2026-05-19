@@ -132,6 +132,10 @@ void GuiSsg::setup()
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
+    startLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::stl, .title = SsgGuiText::Adsr::stl, .isReset = true });
+    startLevelSlider.setWantsKeyboardFocus(true);
+    startLevelSlider.setExplicitFocusOrder(++tabOrder);
+
     attackSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::ar, .title = SsgGuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
@@ -588,6 +592,7 @@ void GuiSsg::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     adsrBypassButton.setVisible(visible);
+    startLevelSlider.setVisibleWithLabel(visible);
     attackSlider.setVisibleWithLabel(visible);
     decaySlider.setVisibleWithLabel(visible);
     sustainSlider.setVisibleWithLabel(visible);
@@ -596,6 +601,7 @@ void GuiSsg::layoutAdsrCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
         layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
         layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
         layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });

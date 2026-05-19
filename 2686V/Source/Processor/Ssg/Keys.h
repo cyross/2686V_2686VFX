@@ -55,6 +55,7 @@ namespace SsgPrKey
 		static inline const juce::String dr = CorePrKey::Adsr::dr;
 		static inline const juce::String sl = CorePrKey::Adsr::sl;
 		static inline const juce::String rr = CorePrKey::Adsr::rr;
+		static inline const juce::String stl = CorePrKey::Adsr::stl;
 	};
 
 	namespace PitchAdsr

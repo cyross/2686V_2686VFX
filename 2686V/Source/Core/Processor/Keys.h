@@ -21,6 +21,7 @@ namespace CorePrKey
 		static inline const juce::String dr = "_DR";
 		static inline const juce::String sl = "_SL";
 		static inline const juce::String rr = "_RR";
+		static inline const juce::String stl = "_STL";
 	};
 
 	namespace PitchAdsr
@@ -52,6 +53,7 @@ namespace CorePrKey
 			static inline const juce::String dr = "_DR";
 			static inline const juce::String sl = "_SL";
 			static inline const juce::String rr = "_RR";
+			static inline const juce::String stl = "_STL";
 		};
 
 		namespace PitchAdsr

@@ -112,14 +112,13 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     updatePhaseDelta();
 
     m_hwEnvPhase = 0.0f;
-    m_currentLevel = 0.0f;
 
     // Reset Rate Logic
     m_rateAccumulator = 1.0f;
     m_lastSample = 0.0f;
 
-    m_adsr.noteOn();
-	m_pitchAdsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
+    m_pitchAdsr.noteOn();
     m_lfo.noteOn();
 }
 

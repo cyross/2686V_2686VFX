@@ -24,6 +24,7 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.fixedMode = (*apvts.getRawParameterValue(code + BeepPrKey::fix) > BeepPrValue::boolThread);
     params.beep.fixedFreq = *apvts.getRawParameterValue(code + BeepPrKey::fixFreq);
     params.beep.adsr.bypass = (*apvts.getRawParameterValue(code + BeepPrKey::adsr + BeepPrKey::bypass) > BeepPrValue::boolThread);
+    params.beep.adsr.stl = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::stl);
     params.beep.adsr.ar = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::ar);
     params.beep.adsr.dr = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::dr);
     params.beep.adsr.sl = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::sl);

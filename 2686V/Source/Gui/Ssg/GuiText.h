@@ -68,10 +68,7 @@ namespace SsgGuiText
 		static inline const juce::String dr = u8" Dr";
 		static inline const juce::String sl = u8" Sl";
 		static inline const juce::String rr = u8" Rr";
-		static inline const juce::String ArTo000 = u8"-> 0.00";
-		static inline const juce::String ArTo003 = u8"-> 0.03";
-		static inline const juce::String RrTo000 = u8"-> 0.00";
-		static inline const juce::String RrTo003 = u8"-> 0.03";
+		static inline const juce::String stl = u8"Stl";
 	}
 
 	namespace PitchAdsr
@@ -85,10 +82,6 @@ namespace SsgGuiText
 		static inline const juce::String atl = u8" Atl";
 		static inline const juce::String ssl = u8" Ssl";
 		static inline const juce::String rll = u8" Rll";
-		static inline const juce::String ArTo000 = u8"-> 0.00";
-		static inline const juce::String ArTo003 = u8"-> 0.03";
-		static inline const juce::String RrTo000 = u8"-> 0.00";
-		static inline const juce::String RrTo003 = u8"-> 0.03";
 	}
 
 	namespace Lfo

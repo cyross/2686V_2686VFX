@@ -464,6 +464,7 @@ class GuiWt : public GuiBase
 
     // Filter (ADSR)
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
+    GuiSlider startLevelSlider;
     GuiSlider attackSlider;
     GuiSlider decaySlider;
     GuiSlider sustainSlider;
@@ -551,6 +552,7 @@ public:
         modCat(context),
         adsrCat(context),
 		adsrBypassButton(context),
+		startLevelSlider(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),

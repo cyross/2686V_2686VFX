@@ -104,6 +104,10 @@ void GuiAdpcm::setup()
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
+    startLevelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::stl, .title = AdpcmGuiText::Adpcm::Adsr::stl, .isReset = true });
+    startLevelSlider.setWantsKeyboardFocus(true);
+    startLevelSlider.setExplicitFocusOrder(++tabOrder);
+
     attackSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::Adsr::ar, .title = AdpcmGuiText::Adpcm::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
@@ -278,6 +282,7 @@ void GuiAdpcm::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     adsrBypassButton.setVisible(visible);
+	startLevelSlider.setVisibleWithLabel(visible);
     attackSlider.setVisibleWithLabel(visible);
     decaySlider.setVisibleWithLabel(visible);
     sustainSlider.setVisibleWithLabel(visible);
@@ -286,6 +291,7 @@ void GuiAdpcm::layoutAdsrCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
         layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
         layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
         layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });

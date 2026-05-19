@@ -96,6 +96,7 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.triFreq = *apvts.getRawParameterValue(code + SsgPrKey::Tri::freq);
 
     params.ssg.adsr.bypass = (*apvts.getRawParameterValue(code + SsgPrKey::adsr + SsgPrKey::bypass) > SsgPrValue::boolThread);
+    params.ssg.adsr.stl = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::stl);
     params.ssg.adsr.ar = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::ar);
     params.ssg.adsr.dr = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::dr);
     params.ssg.adsr.sl = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::sl);

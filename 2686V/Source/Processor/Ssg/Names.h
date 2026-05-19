@@ -27,6 +27,7 @@ namespace SsgPrName
 		static inline const juce::String dr = " DR";
 		static inline const juce::String sl = " SL";
 		static inline const juce::String rr = " RR";
+		static inline const juce::String stl = " STL";
 	}
 
 	namespace Duty

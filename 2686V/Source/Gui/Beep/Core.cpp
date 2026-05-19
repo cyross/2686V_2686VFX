@@ -49,6 +49,10 @@ void GuiBeep::setup() {
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
+    stl.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::stl, .title = BeepGuiText::Beep::Adsr::Stl, .isReset = true });
+    stl.setWantsKeyboardFocus(true);
+    stl.setExplicitFocusOrder(++tabOrder);
+
     ar.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::ar, .title = BeepGuiText::Beep::Adsr::Ar, .isReset = true });
     ar.setWantsKeyboardFocus(true);
     ar.setExplicitFocusOrder(++tabOrder);
@@ -162,6 +166,7 @@ void GuiBeep::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     bypassToggle.setVisible(visible);
+    stl.setVisibleWithLabel(visible);
     ar.setVisibleWithLabel(visible);
     dr.setVisibleWithLabel(visible);
     sl.setVisibleWithLabel(visible);
@@ -170,6 +175,7 @@ void GuiBeep::layoutAdsrCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &bypassToggle });
+        layoutMain({ .mainRect = rect, .label = &stl.label, .component = &stl });
         layoutMain({ .mainRect = rect, .label = &ar.label, .component = &ar });
         layoutMain({ .mainRect = rect, .label = &dr.label, .component = &dr });
         layoutMain({ .mainRect = rect, .label = &sl.label, .component = &sl });

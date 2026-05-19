@@ -24,7 +24,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
 
     m_targetLevel = velocity * m_level;
 
-    m_adsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
 }
 
 void BeepCore::noteOff() {

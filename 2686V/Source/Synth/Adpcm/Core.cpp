@@ -115,7 +115,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
 
     m_hasFinished = false;
 
-    m_adsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
 }
 
 void AdpcmCore::noteOff()

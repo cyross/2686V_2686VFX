@@ -266,6 +266,10 @@ void GuiWt::setup()
     adsrBypassButton.setWantsKeyboardFocus(true);
     adsrBypassButton.setExplicitFocusOrder(++tabOrder);
 
+    startLevelSlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::stl, .title = WtGuiText::Adsr::stl, .isReset = true });
+    startLevelSlider.setWantsKeyboardFocus(true);
+    startLevelSlider.setExplicitFocusOrder(++tabOrder);
+
     attackSlider.setup({ .parent = *this, .id = code + WtPrKey::Adsr::ar, .title = WtGuiText::Adsr::ar, .isReset = true });
     attackSlider.setWantsKeyboardFocus(true);
     attackSlider.setExplicitFocusOrder(++tabOrder);
@@ -819,6 +823,7 @@ void GuiWt::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     adsrBypassButton.setVisible(visible);
+    startLevelSlider.setVisibleWithLabel(visible);
     attackSlider.setVisibleWithLabel(visible);
     decaySlider.setVisibleWithLabel(visible);
     sustainSlider.setVisibleWithLabel(visible);
@@ -827,6 +832,7 @@ void GuiWt::layoutAdsrCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
         layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
         layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
         layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });

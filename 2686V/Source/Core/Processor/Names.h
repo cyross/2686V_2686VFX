@@ -18,6 +18,7 @@ namespace CorePrName
 			static inline const juce::String dr = " Dr";
 			static inline const juce::String sl = " Sl";
 			static inline const juce::String rr = " Rr";
+			static inline const juce::String stl = " Stl";
 		}
 	}
 

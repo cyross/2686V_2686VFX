@@ -90,5 +90,12 @@ namespace AdpcmPrValue
 			inline constexpr float max = CorePrValue::Adsr::Rr::max;
 			inline constexpr float initial = CorePrValue::Adsr::Rr::initial;
 		}
+
+		namespace Stl
+		{
+			inline constexpr float min = CorePrValue::Adsr::Stl::min;
+			inline constexpr float max = CorePrValue::Adsr::Stl::max;
+			inline constexpr float initial = CorePrValue::Adsr::Stl::initial;
+		}
 	}
 }

@@ -12,6 +12,7 @@ void PrBase::addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayou
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::dr, prefix + CorePrName::Adsr::Post::dr, CorePrValue::Adsr::Dr::min, CorePrValue::Adsr::Dr::max, CorePrValue::Adsr::Dr::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::sl, prefix + CorePrName::Adsr::Post::sl, CorePrValue::Adsr::Sl::min, CorePrValue::Adsr::Sl::max, CorePrValue::Adsr::Sl::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::rr, prefix + CorePrName::Adsr::Post::rr, CorePrValue::Adsr::Rr::min, CorePrValue::Adsr::Rr::max, CorePrValue::Adsr::Rr::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Adsr::stl, prefix + CorePrKey::Post::Adsr::stl, CorePrValue::Adsr::Stl::min, CorePrValue::Adsr::Stl::max, CorePrValue::Adsr::Stl::initial));
 }
 
 void PrBase::addPitchEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)

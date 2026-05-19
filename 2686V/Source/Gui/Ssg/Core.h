@@ -52,6 +52,8 @@ class GuiSsg : public GuiBase
     // SSG ADSR
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
 
+    GuiSlider startLevelSlider;
+
     GuiSlider attackSlider;
 
     GuiSlider decaySlider;
@@ -150,6 +152,7 @@ public:
         rateSelector(context),
         adsrCat(context),
         adsrBypassButton(context),
+		startLevelSlider(context),
         attackSlider(context),
         decaySlider(context),
         sustainSlider(context),

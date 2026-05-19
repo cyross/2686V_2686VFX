@@ -89,6 +89,13 @@ namespace CorePrValue
 			inline constexpr float max = 5.0f; // 最大値（秒）
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
+
+		namespace Stl
+		{
+			inline constexpr float min = 0.0f; // 最小値（レベル）
+			inline constexpr float max = 1.0f; // 最大値（レベル）
+			inline constexpr float initial = 0.0f; // 初期値（レベル）
+		}
 	}
 
 	namespace PitchAdsr
