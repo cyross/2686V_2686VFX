@@ -54,26 +54,35 @@ void Opl3Operator::setSampleRate(double sampleRate)
     m_lfo.updateTargetSampleRate(sampleRate);
 }
 
-void Opl3Operator::setParameters(const FmOpParams& params, float feedback)
+void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
 {
     m_params = params;
     m_feedback = feedback;
     m_ssgEgFreq = 1.0f;
-    m_params.ssgEg = 0;
     m_params.waveSelect = params.waveSelect;
+    m_zeroDecay = m_params.rdr == 0;
+    // サステインレベル (SL) の計算
+    if (m_params.rsl == 15) {
+        m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
+    }
+    else {
+        // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
+        float slDb = m_params.rsl * 3.0f;
+        m_sustain = std::pow(10.0f, -slDb / 20.0f);
+    }
     m_lfo.setParameters(
         params.amEnable,
         params.vibEnable,
-        params.oplPms,
-        params.oplPmd,
-        params.oplAms,
-        params.oplAmd
+        params.pms,
+        params.pmd,
+        params.ams,
+        params.amd
     );
 }
 
 void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = m_params.phaseOffset;
+    m_phase = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
@@ -213,10 +222,8 @@ void Opl3Operator::updateIncrementsWithKeyScale()
         int baseRate = regVal;
 
         // OPL系（全て4bit）、およびOPN系のRR（4bit）は、5bit(0-31)スケールに補正する
-        if (m_params.isOplMode || isRR) {
-            // 15の時に31になるように (val * 2 + 1)
-            baseRate = (regVal * 2) + 1;
-        }
+        // 15の時に31になるように (val * 2 + 1)
+        baseRate = (regVal * 2) + 1;
 
         // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
         // 非常にゆっくり（約20秒）減衰して消えるようにする。
@@ -254,11 +261,63 @@ void Opl3Operator::updateIncrementsWithKeyScale()
 
     // 3. サステインレベル (SL) の計算
     if (m_params.rsl == 15) {
-        m_params.sustain = 0.0f; // SL=15 は一気に0まで落ちる
+        m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
     }
     else {
         // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
         float slDb = m_params.rsl * 3.0f;
-        m_params.sustain = std::pow(10.0f, -slDb / 20.0f);
+        m_sustain = std::pow(10.0f, -slDb / 20.0f);
+    }
+}
+
+void Opl3Operator::updateEnvelopeState()
+{
+    if (m_state == State::Attack) {
+        m_currentLevel += m_attackInc;
+        if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
+    }
+    else if (m_state == State::Decay) {
+        float limitLevel = m_sustain;
+
+        // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+        if (m_zeroDecay)
+        {
+            m_currentLevel = 1.0;
+            m_state = State::Sustain;
+        }
+        else if (m_currentLevel > limitLevel) {
+            if (m_decayDec > 0.0f) {
+                m_currentLevel -= m_decayDec;
+                if (m_currentLevel <= limitLevel) {
+                    m_currentLevel = limitLevel;
+                    m_state = State::Sustain;
+                }
+            }
+        }
+        else {
+            m_currentLevel = limitLevel;
+            m_state = State::Sustain;
+        }
+    }
+    else if (m_state == State::Sustain) {
+        // ====================================================================
+        // パーカッシブモード(EG-TYP=OFF)の判定を OPL/OPL3 系統のみに限定する
+        // ====================================================================
+        if (!m_params.egType) {
+            m_currentLevel -= m_releaseDec;
+            if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
+        }
+        // OPN/OPM/OPZX7、または OPL系の持続モード(EG-TYP=ON) の場合
+        else {
+            // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
+            if (m_sustainRateDec > 0.0f) {
+                m_currentLevel -= m_sustainRateDec;
+                if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
+            }
+        }
+    }
+    else if (m_state == State::Release) {
+        m_currentLevel -= m_currentReleaseDec;
+        if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
     }
 }

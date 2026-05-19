@@ -82,16 +82,8 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].multiple = (int)*apvts.getRawParameterValue(p + OpmPrKey::mul);
         params.opm.op[op].detune = (int)*apvts.getRawParameterValue(p + OpmPrKey::dt);
         params.opm.op[op].detune2 = (int)*apvts.getRawParameterValue(p + OpmPrKey::dt2);
-        params.opm.op[op].attack = 0.0f;
-        params.opm.op[op].decay = 0.0f;
-        params.opm.op[op].sustain = 0.0f;
-        params.opm.op[op].release = 0.0f;
-        params.opm.op[op].sustainRate = 0.0f;
-        params.opm.op[op].totalLevel = 0.0f;
         params.opm.op[op].keyScale = (int)*apvts.getRawParameterValue(p + OpmPrKey::ks);
         params.opm.op[op].keyScaleLevel = 0;
-        params.opm.op[op].totalLevel = 0.0f;
-        params.opm.op[op].phaseOffset = 0.0f;
         params.opm.op[op].ssgEg = 0;
         params.opm.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + OpmPrKey::seFreq);
         params.opm.op[op].fixedMode = (*apvts.getRawParameterValue(p + OpmPrKey::fix) > OpmPrValue::boolThread);
@@ -102,13 +94,8 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].pms = 0;
 		params.opm.op[op].amEnable = (*apvts.getRawParameterValue(p + OpmPrKey::amsEn) > OpmPrValue::boolThread); // AMS Enable を AM Enable で代用
         params.opm.op[op].ams = 0;
-        params.opm.op[op].oplAms = 0.0f;
-        params.opm.op[op].oplAmd = 0.0f;
-        params.opm.op[op].oplPms = 0.0f;
-        params.opm.op[op].oplPmd = 0.0f;
         params.opm.op[op].mask = (*apvts.getRawParameterValue(p + OpmPrKey::mask) > OpmPrValue::boolThread);
 
-        params.opm.op[op].isOplMode = false;
         params.opm.op[op].regEnable = true;
         params.opm.op[op].rar = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgAr);
         params.opm.op[op].rdr = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD1r);

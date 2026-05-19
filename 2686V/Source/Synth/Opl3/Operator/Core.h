@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "./Params.h"
 #include "../../../Effect/Lfo/Opl/Core.h"
 #include "../../../Core/Fm/FmOperator.h"
 #include "../../../Core/Fm/FmOpParams.h"
@@ -9,9 +10,11 @@ class Opl3Operator : public FmOperator
 public:
 	Opl3Operator() : FmOperator() {}
 
+	Opl3OpParams m_params;
+
 	static const std::array<float, 4> dbPerOcts;
 
-	void setParameters(const FmOpParams& params, float feedback) override;
+	void setParameters(const Opl3OpParams& params, float feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void getSample(float& output, float modulator);
@@ -21,4 +24,9 @@ public:
 	void setModWheel(float modWheel) { this->m_lfo.setModWheel(modWheel); };
 private:
 	OplLfoCore m_lfo;
+
+	bool m_zeroDecay = false;
+	float m_sustain = 1.0f;  // SL (Sustain Level)
+
+	void updateEnvelopeState() override;
 };

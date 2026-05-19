@@ -52,47 +52,25 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opl.feedback = *apvts.getRawParameterValue(code + OplPrKey::fb);
     params.opl.fmBitDepth = (int)*apvts.getRawParameterValue(code + OplPrKey::bit);
     params.opl.fmRateIndex = (int)*apvts.getRawParameterValue(code + OplPrKey::rate);
-    params.opl.lfoFreq = 0.0f;
-    params.opl.amEnable = false;
-    params.opl.pmEnable = false;
-    params.opl.lfoPms = 0;
-    params.opl.lfoAms = 0;
-    params.opl.lfoPmd = 0;
-    params.opl.lfoAmd = 0;
 
     for (int op = 0; op < OplPrValue::ops; ++op)
     {
         juce::String p = code + OplPrKey::op + juce::String(op);
 
         params.opl.op[op].multiple = (int)*apvts.getRawParameterValue(p + OplPrKey::mul);
-        params.opl.op[op].detune = 0;
-        params.opl.op[op].attack = 0.0f;
-        params.opl.op[op].decay = 0.0f;
-        params.opl.op[op].sustain = 0.0f;
-        params.opl.op[op].release = 0.0f;
-        params.opl.op[op].sustainRate = 0.0f;
-        params.opl.op[op].totalLevel = 0.0f;
         bool ksrOn = *apvts.getRawParameterValue(p + OplPrKey::ksr) > OplPrValue::boolThread;
         params.opl.op[op].keyScale = ksrOn ? 3 : 0;
         params.opl.op[op].keyScaleLevel = (int)*apvts.getRawParameterValue(p + OplPrKey::ksl);
-        params.opl.op[op].phaseOffset = 0.0f;
-        params.opl.op[op].ssgEg = 0; // OPLにはSSG-EGは無い
-        params.opl.op[op].fmSsgEgFreq = 0.0f;
-        params.opl.op[op].fixedMode = false; // OPLにはFixed Modeは無い
-        params.opl.op[op].fixedFreq = 0.0f;
         params.opl.op[op].waveSelect = (int)*apvts.getRawParameterValue(p + OplPrKey::eg);
         params.opl.op[op].egType = *apvts.getRawParameterValue(p + OplPrKey::egType) > OplPrValue::boolThread;
         params.opl.op[op].vibEnable = *apvts.getRawParameterValue(p + OplPrKey::vib) > OplPrValue::boolThread;
-        params.opl.op[op].pms = 0;
         params.opl.op[op].amEnable = (*apvts.getRawParameterValue(p + OplPrKey::am) > OplPrValue::boolThread);
-        params.opl.op[op].ams = 0;
-        params.opl.op[op].oplAms = *apvts.getRawParameterValue(p + OplPrKey::ams);
-        params.opl.op[op].oplAmd = *apvts.getRawParameterValue(p + OplPrKey::amd);
-        params.opl.op[op].oplPms = *apvts.getRawParameterValue(p + OplPrKey::pms);
-        params.opl.op[op].oplPmd = *apvts.getRawParameterValue(p + OplPrKey::pmd);
+        params.opl.op[op].ams = *apvts.getRawParameterValue(p + OplPrKey::ams);
+        params.opl.op[op].amd = *apvts.getRawParameterValue(p + OplPrKey::amd);
+        params.opl.op[op].pms = *apvts.getRawParameterValue(p + OplPrKey::pms);
+        params.opl.op[op].pmd = *apvts.getRawParameterValue(p + OplPrKey::pmd);
         params.opl.op[op].mask = (*apvts.getRawParameterValue(p + OplPrKey::mask) > OplPrValue::boolThread);
 
-        params.opl.op[op].isOplMode = true;
         params.opl.op[op].regEnable = true;
         params.opl.op[op].rar = (int)*apvts.getRawParameterValue(p + OplPrKey::rgAr);
         params.opl.op[op].rdr = (int)*apvts.getRawParameterValue(p + OplPrKey::rgDr);

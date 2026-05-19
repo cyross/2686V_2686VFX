@@ -232,6 +232,89 @@ namespace {
     } };
 }
 
+const std::array<Opzx7Operator::SsgWaveCalculator, 16> Opzx7Operator::ssgWaveStrategies = { {
+    [](double p) { // 00: normal
+        return 1.0f;
+    },
+    [](double p) { // 01
+        return 1.0f;
+    },
+    [](double p) { // 02: Saw Down
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return 1.0f - (float)subPos;
+    },
+    [](double p) { // 03
+        return 1.0f;
+    },
+    [](double p) { // 04: Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 05
+        return 1.0f;
+    },
+    [](double p) { // 06: Triangle
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (1.0f - (float)subPos) : (float)subPos;
+    },
+    [](double p) { // 07
+        return 1.0f;
+    },
+    [](double p) { // 08: Alt Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 09: Saw Up
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (float)subPos;
+    },
+    [](double p) { // 10
+        return 1.0f;
+    },
+    [](double p) { // 11: Saw Up & Hopd
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+    [](double p) { // 12
+        return 1.0f;
+    },
+    [](double p) { // 13: Triangle & Invert
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (float)subPos : (1.0f - (float)subPos);
+    },
+    [](double p) { // 14
+        return 1.0f;
+    },
+    [](double p) { // 15: Alt Saw Up & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+} };
+
 void Opzx7Operator::prepare(double sampleRate) {
     m_pitchAdsr.prepare(sampleRate);
     m_lfo.prepare(sampleRate);
@@ -242,12 +325,32 @@ void Opzx7Operator::updateTargetSampleRate(double newSampleRate) {
     m_lfo.updateTargetSampleRate(newSampleRate);
 }
 
-void Opzx7Operator::setParameters(const FmOpParams& params, float feedback)
+void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
 {
     m_params = params;
     m_feedback = feedback;
     m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = params.waveSelect;
+    if (m_params.regEnable)
+    {
+        m_zeroDecay = m_params.rdr == 0;
+        // サステインレベル (SL) の計算
+        if (m_params.rsl == 15) {
+            m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
+        }
+        else {
+            // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
+            float slDb = m_params.rsl * 3.0f;
+            m_sustain = std::pow(10.0f, -slDb / 20.0f);
+        }
+    }
+    else
+    {
+        m_zeroDecay = m_params.decay <= 0.0f;
+        // 従来モードのサステインレベルはそのまま適用する
+        m_sustain = m_params.sustain;
+    }
+
     m_detune.setParameters(params.detune, params.detune2, params.multiple, params.mutipleRatio);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_pitchAdsr.setParameters(params.pitchAdsr);
@@ -528,6 +631,48 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     return waveStrategies[safeWave](p, normPhase, s);
 }
 
+void Opzx7Operator::updateEnvelopeState()
+{
+    if (m_state == State::Attack) {
+        m_currentLevel += m_attackInc;
+        if (m_currentLevel >= 1.0f) { m_currentLevel = 1.0f; m_state = State::Decay; }
+    }
+    else if (m_state == State::Decay) {
+        float limitLevel = m_sustain;
+
+        // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+        if (m_zeroDecay)
+        {
+            m_currentLevel = 1.0;
+            m_state = State::Sustain;
+        }
+        else if (m_currentLevel > limitLevel) {
+            if (m_decayDec > 0.0f) {
+                m_currentLevel -= m_decayDec;
+                if (m_currentLevel <= limitLevel) {
+                    m_currentLevel = limitLevel;
+                    m_state = State::Sustain;
+                }
+            }
+        }
+        else {
+            m_currentLevel = limitLevel;
+            m_state = State::Sustain;
+        }
+    }
+    else if (m_state == State::Sustain) {
+        // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
+        if (m_sustainRateDec > 0.0f) {
+            m_currentLevel -= m_sustainRateDec;
+            if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
+        }
+    }
+    else if (m_state == State::Release) {
+        m_currentLevel -= m_currentReleaseDec;
+        if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
+    }
+}
+
 void Opzx7Operator::updateIncrementsWithKeyScale()
 {
     if (m_sampleRate <= 0.0) return;
@@ -544,18 +689,9 @@ void Opzx7Operator::updateIncrementsWithKeyScale()
         if (octave < 0) octave = 0;
         if (octave > 7) octave = 7;
 
-        if (m_params.isOplMode)
-        {
-            int noteOffset = m_noteNumber % 12;
-            int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-            ksrValue = m_params.keyScale > 0 ? keyRate : (keyRate >> 2);
-        }
-        else
-        {
-            int noteOffset = m_noteNumber % 12;
-            int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-            ksrValue = keyRate >> (3 - std::clamp(m_params.keyScale, 0, 3));
-        }
+        int noteOffset = m_noteNumber % 12;
+        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+        ksrValue = keyRate >> (3 - std::clamp(m_params.keyScale, 0, 3));
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         // isRRフラグを追加し、RRの時だけスケールを調整する
@@ -566,7 +702,7 @@ void Opzx7Operator::updateIncrementsWithKeyScale()
             int baseRate = regVal;
 
             // OPL系（全て4bit）、およびOPN系のRR（4bit）は、5bit(0-31)スケールに補正する
-            if (m_params.isOplMode || isRR) {
+            if (isRR) {
                 // 15の時に31になるように (val * 2 + 1)
                 baseRate = (regVal * 2) + 1;
             }
@@ -604,16 +740,6 @@ void Opzx7Operator::updateIncrementsWithKeyScale()
         m_releaseDec = calcRegRate(m_params.rrr, true);
 
         m_susReleaseDec = calcRegRate(5, true);
-
-        // 3. サステインレベル (SL) の計算
-        if (m_params.rsl == 15) {
-            m_params.sustain = 0.0f; // SL=15 は一気に0まで落ちる
-        }
-        else {
-            // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
-            float slDb = m_params.rsl * 3.0f;
-            m_params.sustain = std::pow(10.0f, -slDb / 20.0f);
-        }
     }
     // ====================================================================
     // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
@@ -654,8 +780,5 @@ void Opzx7Operator::updateIncrementsWithKeyScale()
             float srTime = 5.0f * (1.0f - m_params.sustainRate);
             m_sustainRateDec = calcInc(srTime);
         }
-
-        // 従来モードのサステインレベルはそのまま適用する
-        m_params.sustain = m_params.sustain;
     }
 }

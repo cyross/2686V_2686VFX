@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../../Effect/Envelope/Pitch/Adsr/Params.h"
 
-struct FmOpParams
+struct Opzx7OpParams
 {
     // --- Mask ---
     bool mask = false;
@@ -22,7 +22,6 @@ struct FmOpParams
     int detune2 = 0;       // DT2: OPL3/OPM Only
     float totalLevel = 0.0f;
     int keyScale = 0;
-    int keyScaleLevel = 0; // KSL (Level Scaling: 0-3)
     int ssgEg = 0;         // SE: 0~15 (SSG-EG)
     // FM SSG-EG Frequency (SSG-EGの周期速度)
     // 0.1Hz(ゆっくり) ～ 50Hz(高速) 程度を想定
@@ -47,12 +46,6 @@ struct FmOpParams
     float amd = 0;
 
     int n88Ams = 0;
-
-    // --- OPL/OPL3 LFO Settings ---
-    float oplAms = 3.7f;  // AM Speed (Hz)
-    float oplAmd = 4.8f;  // AM Depth (dB)
-    float oplPms = 6.4f;  // PM Speed (Hz)
-    float oplPmd = 14.0f; // PM Depth (Cent)
 
     // CSM/Fix Mode
     bool fixedMode = false;

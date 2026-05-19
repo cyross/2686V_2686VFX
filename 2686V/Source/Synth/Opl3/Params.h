@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Core/Fm/FmOpParams.h"
+#include "./Operator/Params.h"
 
 struct Opl3Params
 {
@@ -24,43 +24,6 @@ struct Opl3Params
     // Default: 49.7kHz (Typical OPL Chip Rate)
     int fmRateIndex = 3;
 
-    // -- OPNA/OPM/OPZX7 LFO(Global) ---
-
-    // LFO Speed Freq (approx 3Hz - 30Hz)
-    float lfoFreq = 5.0f;
-
-    // LFO Enable Flag
-    bool amEnable = false;
-    bool pmEnable = false;
-
-    // LFO Sensitivity
-
-    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
-    float lfoPms = 0.0f;
-
-    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
-    float lfoAms = 0.0f;
-
-    // Pitch Modulation Depth (0-127/0.0-1.0)
-    float lfoPmd = 0.0f;
-
-    // Amplitude Modulation Depth (0-127/0.0-1.0)
-    float lfoAmd = 0.0f;
-
-    // LFO Waveform (0:Saw, 1:Square, 2:Triangle, 3:Random)
-    int lfoWave = 2;
-    int pgLfoWave = 0;
-    int egLfoWave = 0;
-
-    // LFO AM Smooth Ratio (0.005 - 0.5)
-    float lfoAmSmRt = 0.005f;
-
-    // LFO Sync Delay
-    float lfoSyncDelay = 0.0f;
-
-    // --- OPLL Preset ---
-    int opllPreset = 0; // OPLL Preset Instrument Index
-
     // Parameters for Operator
-    std::array<FmOpParams, 4> op;
+    std::array<Opl3OpParams, 4> op;
 };

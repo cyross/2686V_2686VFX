@@ -169,6 +169,7 @@ set(OPNA_SYNTH_FILES
 set(OPNA_OPERATOR_FILES
     "Source/Synth/Opna/Operator/Core.h"
     "Source/Synth/Opna/Operator/Core.cpp"
+    "Source/Synth/Opna/Operator/Params.h"
 )
 
 set(OPNA_PROCESSOR_FILES
@@ -195,6 +196,7 @@ set(OPN_SYNTH_FILES
 set(OPN_OPERATOR_FILES
     "Source/Synth/Opn/Operator/Core.h"
     "Source/Synth/Opn/Operator/Core.cpp"
+    "Source/Synth/Opn/Operator/Params.h"
 )
 
 set(OPN_PROCESSOR_FILES
@@ -221,6 +223,7 @@ set(OPL_SYNTH_FILES
 set(OPL_OPERATOR_FILES
     "Source/Synth/Opl/Operator/Core.h"
     "Source/Synth/Opl/Operator/Core.cpp"
+    "Source/Synth/Opl/Operator/Params.h"
 )
 
 set(OPL_PROCESSOR_FILES
@@ -247,6 +250,7 @@ set(OPL3_SYNTH_FILES
 set(OPL3_OPERATOR_FILES
     "Source/Synth/Opl3/Operator/Core.h"
     "Source/Synth/Opl3/Operator/Core.cpp"
+    "Source/Synth/Opl3/Operator/Params.h"
 )
 
 set(OPL3_PROCESSOR_FILES
@@ -273,6 +277,7 @@ set(OPM_SYNTH_FILES
 set(OPM_OPERATOR_FILES
     "Source/Synth/Opm/Operator/Core.h"
     "Source/Synth/Opm/Operator/Core.cpp"
+    "Source/Synth/Opm/Operator/Params.h"
 )
 
 set(OPM_PROCESSOR_FILES
@@ -299,6 +304,7 @@ set(OPZX7_SYNTH_FILES
 set(OPZX7_OPERATOR_FILES
     "Source/Synth/Opzx7/Operator/Core.h"
     "Source/Synth/Opzx7/Operator/Core.cpp"
+    "Source/Synth/Opzx7/Operator/Params.h"
 )
 
 set(OPZX7_PROCESSOR_FILES
@@ -484,7 +490,6 @@ source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
-source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
 source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686V\\Synth\\Fm" FILES ${FM_FILES})

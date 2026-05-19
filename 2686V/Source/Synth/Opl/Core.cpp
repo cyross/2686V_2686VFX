@@ -23,10 +23,6 @@ void OplCore::setParameters(const SynthParams& params) {
     for (int i = 0; i < 2; ++i) {
         float fb = (i == 0) ? params.opl.feedback : 0.0f; // OP1のみFeedback
 
-        // FmCommon(96dB)に対して、OPL(48dB)のスケールを合わせるためTLを半分にする
-        FmOpParams opParams = params.opl.op[i];
-        opParams.totalLevel *= 0.5f;
-
         m_operators[i].setParameters(params.opl.op[i], fb);
 
         m_opMask[i] = params.opl.op[i].mask;

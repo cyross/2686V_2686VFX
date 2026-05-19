@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Core/Fm/FmOpParams.h"
+#include "./Operator/Params.h"
 
 struct OpnParams
 {
@@ -62,5 +62,5 @@ struct OpnParams
     int opllPreset = 0; // OPLL Preset Instrument Index
 
     // Parameters for Operator
-    std::array<FmOpParams, 4> op;
+    std::array<OpnOpParams, 4> op;
 };

@@ -126,7 +126,6 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].sustain = *apvts.getRawParameterValue(p + Opzx7PrKey::d1l);
         params.opzx7.op[op].release = *apvts.getRawParameterValue(p + Opzx7PrKey::rr);
         params.opzx7.op[op].keyScale = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::ks);
-        params.opzx7.op[op].keyScaleLevel = 0;
         params.opzx7.op[op].totalLevel = *apvts.getRawParameterValue(p + Opzx7PrKey::tl);
         params.opzx7.op[op].sustainRate = *apvts.getRawParameterValue(p + Opzx7PrKey::d2r);
 
@@ -134,7 +133,6 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         float phaseDegree = *apvts.getRawParameterValue(p + Opzx7PrKey::phaseOffset);
         params.opzx7.op[op].phaseOffset = phaseDegree * juce::MathConstants<float>::pi / 180.0f;
 
-        params.opzx7.op[op].ssgEg = 0;
         params.opzx7.op[op].ssgEg = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::se);
         params.opzx7.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + Opzx7PrKey::seFreq);
 
@@ -156,14 +154,9 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].amd = *apvts.getRawParameterValue(p + Opzx7PrKey::amd);
 
         params.opzx7.op[op].lfoSyncDelay = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::syncDelay);
-        params.opzx7.op[op].oplAms = 0.0f;
-        params.opzx7.op[op].oplAmd = 0.0f;
-        params.opzx7.op[op].oplPms = 0.0f;
-        params.opzx7.op[op].oplPmd = 0.0f;
 
         params.opzx7.op[op].mask = (*apvts.getRawParameterValue(p + Opzx7PrKey::mask) > Opzx7PrValue::boolThread);
 
-        params.opzx7.op[op].isOplMode = false;
         params.opzx7.op[op].egType = false;
 
         params.opzx7.op[op].regEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::rgEn) > Opzx7PrValue::boolThread);

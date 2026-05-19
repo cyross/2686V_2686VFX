@@ -86,15 +86,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
 
         params.opna.op[op].multiple = (int)*apvts.getRawParameterValue(p + OpnaPrKey::mul);
         params.opna.op[op].detune = (int)*apvts.getRawParameterValue(p + OpnaPrKey::dt);
-        params.opna.op[op].attack = 0.0f;
-        params.opna.op[op].decay = 0.0f;
-        params.opna.op[op].sustain = 0.0f;
-        params.opna.op[op].release = 0.0f;
-        params.opna.op[op].sustainRate = 0.0f;
-        params.opna.op[op].totalLevel = 0.0f;
         params.opna.op[op].keyScale = (int)*apvts.getRawParameterValue(p + OpnaPrKey::ks);
-        params.opna.op[op].keyScaleLevel = 0;
-        params.opna.op[op].phaseOffset = 0.0f;
         params.opna.op[op].ssgEg = (int)*apvts.getRawParameterValue(p + OpnaPrKey::se);
         params.opna.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + OpnaPrKey::seFreq);
         params.opna.op[op].fixedMode = (*apvts.getRawParameterValue(p + OpnaPrKey::fix) > OpnaPrValue::boolThread);
@@ -108,14 +100,9 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnaPrKey::n88Ams);
         params.opna.op[op].amd = 0; // ローカルAMDは未使用なので0固定
         params.opna.op[op].egType = true;
-        params.opna.op[op].oplAms = 0.0f;
-        params.opna.op[op].oplAmd = 0.0f;
-        params.opna.op[op].oplPms = 0.0f;
-        params.opna.op[op].oplPmd = 0.0f;
         params.opna.op[op].lfoSyncDelay = (int)*apvts.getRawParameterValue(p + OpnaPrKey::syncDelay);
         params.opna.op[op].mask = (*apvts.getRawParameterValue(p + OpnaPrKey::mask) > OpnaPrValue::boolThread);
 
-        params.opna.op[op].isOplMode = false;
         params.opna.op[op].regEnable = true;
         params.opna.op[op].rar = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgAr);
         params.opna.op[op].rdr = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgDr);
