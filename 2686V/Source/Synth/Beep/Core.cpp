@@ -13,22 +13,27 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_level = params.beep.level;
 
     m_adsr.setParameters(params.beep.adsr);
+    m_pitchAdsr.setParameters(params.beep.pitchAdsr);
+    m_detune.setParameters(params.beep.detune, params.beep.detune2, 1);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote) {
-    m_baseFreq = m_fixMode.noteOn(freq);
+    float baseFreq = m_fixMode.noteOn(freq);
+    m_baseFreq = m_detune.noteOn(baseFreq);
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
     m_targetLevel = velocity * m_level;
 
+    m_pitchAdsr.noteOn();
     m_currentLevel = m_adsr.noteOn();
 }
 
 void BeepCore::noteOff() {
     m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
 }
 
 bool BeepCore::isPlaying() const { return m_adsr.isPlaying(); }
@@ -49,7 +54,9 @@ float BeepCore::getSample() {
     // 究極にシンプルな1-bit矩形波（50% Duty）
     float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
 
-    m_phase += m_phaseDelta;
+    float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+
+    m_phase += newPhaseDelta;
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
     // 音量に変換

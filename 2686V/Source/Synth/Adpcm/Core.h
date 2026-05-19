@@ -6,6 +6,8 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Generator/Pcm/Core.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 
 // --- Core Class ---
 
@@ -49,6 +51,8 @@ private:
     float m_pcmRatio = 1.0f;
 
     AmpAdsrEnv m_adsr;
+    PitchAdsrEnv m_pitchAdsr;
+    OpmDetune m_detune;
 
     float m_currentLevel = 0.0f;
 

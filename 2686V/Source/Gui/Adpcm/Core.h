@@ -44,6 +44,22 @@ class GuiAdpcm : public GuiBase
     GuiSlider sustainSlider;
     GuiSlider releaseSlider;
 
+    // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+    GuiSlider pitchAttackSlider;
+    GuiSlider pitchDecaySlider;
+    GuiSlider pitchReleaseSlider;
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
+
+    // Detune
+    GuiCategoryLabel detuneCat;
+    GuiComboBox dt1;
+    GuiSlider dt2;
+
     GuiComboBox rateSelector;
 
     GuiCategoryLabel mvolCat;
@@ -80,6 +96,18 @@ public:
         decaySlider(context),
         sustainSlider(context),
         releaseSlider(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context),
+        detuneCat(context),
+        dt1(context),
+        dt2(context),
         rateSelector(context),
         presetNameLabel(context)
     {
@@ -101,4 +129,6 @@ public:
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutDetuneCat(juce::Rectangle<int>& rect);
 };

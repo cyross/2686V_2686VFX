@@ -37,6 +37,18 @@ static std::vector<SelectItem> rateItems = {
     {.name = "13: 2kHz",     .value = 13 },
 };
 
+// DT (デチューン1) 用のコンボボックスアイテム
+// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
+static std::vector<SelectItem> dtItems = {
+    {.name = " 0", .value = 1 },
+    {.name = "-3", .value = 2 },
+    {.name = "-2", .value = 3 },
+    {.name = "-1", .value = 4 },
+    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
+    {.name = "+1", .value = 6 },
+    {.name = "+2", .value = 7 },
+    {.name = "+3", .value = 8 }
+};
 void GuiAdpcm::setup()
 {
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
@@ -124,6 +136,50 @@ void GuiAdpcm::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
+    pitchAdsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visiblePitchAdsr, .invisibleTitle = AdpcmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, .title = AdpcmGuiText::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
+    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::ar, .title = AdpcmGuiText::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setWantsKeyboardFocus(true);
+    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchDecaySlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::dr , .title = AdpcmGuiText::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setWantsKeyboardFocus(true);
+    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::rr, .title = AdpcmGuiText::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setWantsKeyboardFocus(true);
+    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchStartLevelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::stl, .title = AdpcmGuiText::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setWantsKeyboardFocus(true);
+    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::atl, .title = AdpcmGuiText::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
+    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::ssl, .title = AdpcmGuiText::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
+    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::PitchAdsr::rll, .title = AdpcmGuiText::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
+    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    detuneCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleDetune, .invisibleTitle = AdpcmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+
+    dt1.setup({ .parent = *this, .id = code + AdpcmPrKey::dt, .title = AdpcmGuiText::Detune::Dt1, .items = dtItems, .isReset = true });
+    dt1.setWantsKeyboardFocus(true);
+    dt1.setExplicitFocusOrder(++tabOrder);
+
+    dt2.setup({ .parent = *this, .id = code + AdpcmPrKey::dt2, .title = AdpcmGuiText::Detune::Dt2, .isReset = true });
+    dt2.setWantsKeyboardFocus(true);
+    dt2.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = AdpcmPrKey::masterVol, .title = AdpcmGuiText::MasterVol::title, .isReset = true });
@@ -176,6 +232,10 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutPanCat(mRect);
 
     layoutAdsrCat(mRect);
+
+    layoutPitchEnvCat(mRect);
+
+    layoutDetuneCat(mRect);
 
     layoutQualityCat(mRect);
 
@@ -296,5 +356,49 @@ void GuiAdpcm::layoutAdsrCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
         layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
         layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
+}
+
+void GuiAdpcm::layoutPitchEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
+
+    bool visible = pitchAdsrCat.isDetailVisible();
+
+    pitchAdsrBypassButton.setVisible(visible);
+    pitchAttackSlider.setVisibleWithLabel(visible);
+    pitchDecaySlider.setVisibleWithLabel(visible);
+    pitchReleaseSlider.setVisibleWithLabel(visible);
+    pitchStartLevelSlider.setVisibleWithLabel(visible);
+    pitchAttackLevelSlider.setVisibleWithLabel(visible);
+    pitchSustainLevelSlider.setVisibleWithLabel(visible);
+    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void GuiAdpcm::layoutDetuneCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &detuneCat });
+
+    bool visible = detuneCat.isDetailVisible();
+
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
     }
 }

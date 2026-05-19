@@ -98,4 +98,26 @@ namespace AdpcmPrValue
 			inline constexpr float initial = CorePrValue::Adsr::Stl::initial;
 		}
 	}
+
+	namespace PitchAdsr
+	{
+		namespace Bypass
+		{
+			inline constexpr float initial = false;
+		}
+	}
+
+	namespace Dt1
+	{
+		inline constexpr int min = 0;
+		inline constexpr int max = 7;
+		inline constexpr int initial = 0;
+	}
+
+	namespace Dt2
+	{
+		inline constexpr int min = 0;
+		inline constexpr int max = 3;
+		inline constexpr int initial = 0;
+	}
 }

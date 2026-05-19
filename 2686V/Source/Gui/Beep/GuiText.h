@@ -23,12 +23,16 @@ namespace BeepGuiText
 	{
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
+		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
+		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
 		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
 		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
+		static inline const juce::String visibleDetune = u8"[■]--- DETUNE ---";
+		static inline const juce::String invisibleDetune = u8"[□]--- DETUNE ---";
 	}
 
 	namespace Group
@@ -52,5 +56,24 @@ namespace BeepGuiText
 			static inline const juce::String Rr = u8"Rr";
 			static inline const juce::String Stl = u8"Stl";
 		}
+	}
+
+	namespace PitchAdsr
+	{
+		static inline const juce::String enable = u8"Enable";
+		static inline const juce::String bypass = u8"Bypass";
+		static inline const juce::String ar = u8" Ar";
+		static inline const juce::String dr = u8" Dr";
+		static inline const juce::String rr = u8" Rr";
+		static inline const juce::String stl = u8" Stl";
+		static inline const juce::String atl = u8" Atl";
+		static inline const juce::String ssl = u8" Ssl";
+		static inline const juce::String rll = u8" Rll";
+	}
+
+	namespace Detune
+	{
+		static inline const juce::String Dt1 = u8"Dt1";
+		static inline const juce::String Dt2 = u8"Dt2";
 	}
 }

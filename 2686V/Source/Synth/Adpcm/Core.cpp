@@ -32,6 +32,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
     }
 
     m_adsr.setParameters(params.adpcm.adsr);
+    m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
+    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, 1);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -111,16 +113,18 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
     // ホストDAWのレートとの比率
     double rateRatio = currentBufferRate / m_sampleRate;
 
-    m_pitchRatio = (freq / rootFreq) * rateRatio;
+    m_pitchRatio = (m_detune.noteOn(freq) / rootFreq) * rateRatio;
 
     m_hasFinished = false;
 
+    m_pitchAdsr.noteOn();
     m_currentLevel = m_adsr.noteOn();
 }
 
 void AdpcmCore::noteOff()
 {
     m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
 }
 
 bool AdpcmCore::isPlaying() const
@@ -198,14 +202,14 @@ float AdpcmCore::getSample()
 
     // Calculate Total Playback Speed Increment
     // Base Speed * Pitch Bend * Vibrato
-    double currentIncrement = m_pitchRatio * m_pitchBendRatio * lfoPitchMod;
+    double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * lfoPitchMod);
 
     float output = 0.0f;
 
     double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
     size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
 
-    // ★追加: 終端位置の計算
+    // 終端位置の計算
     double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
     if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
 

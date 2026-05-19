@@ -22,7 +22,15 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     // ADSR Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, code + AdpcmPrName::Adsr::bypass, AdpcmPrValue::Adsr::Bypass::initial));
 
+    // PitchEnv Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, code + AdpcmPrName::PitchAdsr::bypass, AdpcmPrValue::PitchAdsr::Bypass::initial));
+
+    // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
+
     addEnvParameters(layout, code);
+    addPitchEnvParameters(layout, code);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -45,4 +53,16 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.adsr.dr = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::dr);
     params.adpcm.adsr.sl = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::sl);
     params.adpcm.adsr.rr = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::rr);
+
+    params.adpcm.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass) > AdpcmPrValue::boolThread);
+    params.adpcm.pitchAdsr.ar = *apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::ar);
+    params.adpcm.pitchAdsr.dr = *apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::dr);
+    params.adpcm.pitchAdsr.rr = *apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::rr);
+    params.adpcm.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::stl);
+    params.adpcm.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::atl);
+    params.adpcm.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::ssl);
+    params.adpcm.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::rll);
+
+    params.adpcm.detune = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt);
+    params.adpcm.detune2 = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt2);
 }

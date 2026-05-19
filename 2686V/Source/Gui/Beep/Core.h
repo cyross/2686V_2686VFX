@@ -24,6 +24,22 @@ class GuiBeep : public GuiBase {
     GuiToggleButton bypassToggle;
     GuiSlider ar, dr, sl, rr, stl;
 
+    // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+    GuiSlider pitchAttackSlider;
+    GuiSlider pitchDecaySlider;
+    GuiSlider pitchReleaseSlider;
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
+
+    // Detune
+    GuiCategoryLabel detuneCat;
+    GuiComboBox dt1;
+    GuiSlider dt2;
+
     // マスターボリューム(全音源共通の最終出力)
     GuiMasterVolumeSlider masterVolSlider;
 
@@ -42,6 +58,18 @@ public:
         adsrCat(context),
         bypassToggle(context),
         ar(context), dr(context), sl(context), rr(context), stl(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context),
+        detuneCat(context),
+        dt1(context),
+        dt2(context),
         mvolCat(context),
         masterVolSlider(context),
         monoModeToggle(context),
@@ -57,4 +85,6 @@ public:
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutDetuneCat(juce::Rectangle<int>& rect);
 };

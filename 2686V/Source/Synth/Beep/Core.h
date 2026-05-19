@@ -5,6 +5,8 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 #include "../../Generator/Fm/Fix/Core.h"
 
 class BeepCore : public SynthCore
@@ -38,4 +40,6 @@ private:
 
     AmpAdsrEnv m_adsr;
     FixMode m_fixMode;
+    PitchAdsrEnv m_pitchAdsr;
+    OpmDetune m_detune;
 };
