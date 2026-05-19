@@ -7,6 +7,7 @@
 #include "../../../Generator/Fm/Fix/Core.h"
 #include "../../../Effect/Detune/Opzx7/Core.h"
 #include "../../../Effect/Lfo/Opzx7/Core.h"
+#include "../../../Effect/Envelope/Amp/Opzx7Adddr/Core.h"
 
 class Opzx7Operator : public FmOperator
 {
@@ -20,6 +21,7 @@ public:
 	void setParameters(const Opzx7OpParams& params, float feedback);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
+	bool isPlaying() const override { return m_ampAdsr.isPlaying(); }
 	void getSample(float& output, float modulator, Opzx7LfoCore &glLfo, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
 private:
@@ -28,13 +30,11 @@ private:
 	FixMode m_fixMode;
 	PitchAdsrEnv m_pitchAdsr;
 	Opzx7LfoCore m_lfo;
+	Opzx7Adddr m_ampAdsr;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 
 	using SsgWaveCalculator = float(*)(double p);
 	static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
-
-	void updateEnvelopeState() override;
-	void updateIncrementsWithKeyScale() override;
 };

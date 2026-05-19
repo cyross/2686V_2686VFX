@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../../Effect/Envelope/Amp/Opzx7Adddr/Params.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/Params.h"
 
 struct Opzx7OpParams
@@ -7,21 +8,12 @@ struct Opzx7OpParams
     // --- Mask ---
     bool mask = false;
 
-    // --- Envelope (ADSR) ---
-    float attack = 0.0f;  // AR
-    float decay = 0.0f;    // DR
-    float sustain = 1.0f;  // SL (Sustain Level)
-    float release = 0.0f;  // RR
-
-    // --- YM2608 Specific ---
-    float sustainRate = 0.0f; // SR: Sustain Rate
+    Opzx7AdddrParams m_adsrParams;
 
     int multiple = 1;      // MULTI: 0~15
     float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;        // DT: 0~7
     int detune2 = 0;       // DT2: OPL3/OPM Only
-    float totalLevel = 0.0f;
-    int keyScale = 0;
     int ssgEg = 0;         // SE: 0~15 (SSG-EG)
     // FM SSG-EG Frequency (SSG-EGの周期速度)
     // 0.1Hz(ゆっくり) ～ 50Hz(高速) 程度を想定
@@ -29,7 +21,6 @@ struct Opzx7OpParams
 
     bool amEnable = false;
     bool vibEnable = false; // VIB (LFO Pitch)
-    bool egType = false;    // EG-TYP (Sustain Mode)
 
     int pgLfoWave = 0;
     int egLfoWave = 0;
@@ -58,18 +49,6 @@ struct Opzx7OpParams
     float pcmRatio = 1.0f;
 
     float phaseOffset = 0.0f; // OPZX7-PHASE-OFFSET
-
-    bool susEnable = false;
-    bool xofEnable = false;
-
-    bool regEnable = false; // RG-EN
-
-    int rar = 31;  // AR Register (0-31 / OPL: 0-15)
-    int rdr = 0;   // DR Register (0-31 / OPL: 0-15)
-    int rsr = 0;   // SR / D2R Register (0-31)
-    int rrr = 15;  // RR Register (0-15)
-    int rsl = 0;   // SL Register (0-15)
-    int rtl = 0;   // TL Register (0-127 / OPL: 0-63)
 
     bool pitchEnvEnable = true;
 

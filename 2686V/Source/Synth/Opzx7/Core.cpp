@@ -49,8 +49,8 @@ void Opzx7Core::prepare(double sampleRate) {
 
     for (auto& op : m_operators) {
         op.prepare(sampleRate);
-        op.setSampleRate(target);
-        op.setHostSampleRate(m_hostSampleRate);
+        op.updateTargetSampleRate(target);
+        op.setSampleRate(m_hostSampleRate);
     }
 
     m_lfoPhase = 0.0;

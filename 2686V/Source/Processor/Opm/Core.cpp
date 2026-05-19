@@ -82,26 +82,20 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].multiple = (int)*apvts.getRawParameterValue(p + OpmPrKey::mul);
         params.opm.op[op].detune = (int)*apvts.getRawParameterValue(p + OpmPrKey::dt);
         params.opm.op[op].detune2 = (int)*apvts.getRawParameterValue(p + OpmPrKey::dt2);
-        params.opm.op[op].keyScale = (int)*apvts.getRawParameterValue(p + OpmPrKey::ks);
-        params.opm.op[op].keyScaleLevel = 0;
         params.opm.op[op].ssgEg = 0;
         params.opm.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + OpmPrKey::seFreq);
         params.opm.op[op].fixedMode = (*apvts.getRawParameterValue(p + OpmPrKey::fix) > OpmPrValue::boolThread);
         params.opm.op[op].fixedFreq = *apvts.getRawParameterValue(p + OpmPrKey::fixFreq);
         params.opm.op[op].waveSelect = 0; // Sine
-        params.opm.op[op].egType = true;
-        params.opm.op[op].vibEnable = false;
-        params.opm.op[op].pms = 0;
-		params.opm.op[op].amEnable = (*apvts.getRawParameterValue(p + OpmPrKey::amsEn) > OpmPrValue::boolThread); // AMS Enable を AM Enable で代用
-        params.opm.op[op].ams = 0;
+		params.opm.op[op].amsEnable = (*apvts.getRawParameterValue(p + OpmPrKey::amsEn) > OpmPrValue::boolThread); // AMS Enable を AM Enable で代用
         params.opm.op[op].mask = (*apvts.getRawParameterValue(p + OpmPrKey::mask) > OpmPrValue::boolThread);
 
-        params.opm.op[op].regEnable = true;
-        params.opm.op[op].rar = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgAr);
-        params.opm.op[op].rdr = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD1r);
-        params.opm.op[op].rsl = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD1l);
-        params.opm.op[op].rsr = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD2r);
-        params.opm.op[op].rrr = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgRr);
-        params.opm.op[op].rtl = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgTl);
+        params.opm.op[op].m_adsrParams.ar = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgAr);
+        params.opm.op[op].m_adsrParams.d1r = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD1r);
+        params.opm.op[op].m_adsrParams.d1l = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD1l);
+        params.opm.op[op].m_adsrParams.d2r = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgD2r);
+        params.opm.op[op].m_adsrParams.rr = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgRr);
+        params.opm.op[op].m_adsrParams.tl = (int)*apvts.getRawParameterValue(p + OpmPrKey::rgTl);
+        params.opm.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + OpmPrKey::ks);
     }
 }

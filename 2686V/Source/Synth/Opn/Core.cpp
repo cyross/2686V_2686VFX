@@ -5,8 +5,14 @@
 void OpnCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
+
     double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+
+    for (auto& op : m_operators) {
+		op.setSampleRate(m_hostSampleRate);
+        op.updateTargetSampleRate(target);
+    }
+
     m_rateAccumulator = 1.0;
 
     m_lfoTimerAcc = 1.0;
@@ -16,6 +22,16 @@ void OpnCore::prepare(double sampleRate)
 
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
+}
+
+void OpnCore::setSampleRate(double sampleRate) {
+    if (sampleRate > 0.0) {
+        m_hostSampleRate = sampleRate;
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(m_hostSampleRate);
+        }
+    }
 }
 
 void OpnCore::setParameters(const SynthParams& params)
@@ -38,7 +54,7 @@ void OpnCore::setParameters(const SynthParams& params)
     if (m_rateIndex != params.opn.fmRateIndex) {
         m_rateIndex = params.opn.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
-        for (auto& op : m_operators) op.setSampleRate(target);
+        for (auto& op : m_operators) op.updateTargetSampleRate(target);
 
 		m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);

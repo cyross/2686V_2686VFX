@@ -121,13 +121,22 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].mutipleRatio = *apvts.getRawParameterValue(p + Opzx7PrKey::mulRatio);
         params.opzx7.op[op].detune = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::dt);
         params.opzx7.op[op].detune2 = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::dt2);
-        params.opzx7.op[op].attack = *apvts.getRawParameterValue(p + Opzx7PrKey::ar);
-        params.opzx7.op[op].decay = *apvts.getRawParameterValue(p + Opzx7PrKey::d1r);
-        params.opzx7.op[op].sustain = *apvts.getRawParameterValue(p + Opzx7PrKey::d1l);
-        params.opzx7.op[op].release = *apvts.getRawParameterValue(p + Opzx7PrKey::rr);
-        params.opzx7.op[op].keyScale = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::ks);
-        params.opzx7.op[op].totalLevel = *apvts.getRawParameterValue(p + Opzx7PrKey::tl);
-        params.opzx7.op[op].sustainRate = *apvts.getRawParameterValue(p + Opzx7PrKey::d2r);
+
+        params.opzx7.op[op].m_adsrParams.real.ar = *apvts.getRawParameterValue(p + Opzx7PrKey::ar);
+        params.opzx7.op[op].m_adsrParams.real.d1r = *apvts.getRawParameterValue(p + Opzx7PrKey::d1r);
+        params.opzx7.op[op].m_adsrParams.real.d1l = *apvts.getRawParameterValue(p + Opzx7PrKey::d1l);
+        params.opzx7.op[op].m_adsrParams.real.d2r = *apvts.getRawParameterValue(p + Opzx7PrKey::d2r);
+        params.opzx7.op[op].m_adsrParams.real.rr = *apvts.getRawParameterValue(p + Opzx7PrKey::rr);
+        params.opzx7.op[op].m_adsrParams.real.tl = *apvts.getRawParameterValue(p + Opzx7PrKey::tl);
+        params.opzx7.op[op].m_adsrParams.rg.ar = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgAr);
+        params.opzx7.op[op].m_adsrParams.rg.d1r = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD1r);
+        params.opzx7.op[op].m_adsrParams.rg.d1l = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD1l);
+        params.opzx7.op[op].m_adsrParams.rg.d2r = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD2r);
+        params.opzx7.op[op].m_adsrParams.rg.rr = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgRr);
+        params.opzx7.op[op].m_adsrParams.rg.tl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgTl);
+        params.opzx7.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::ks);
+        params.opzx7.op[op].m_adsrParams.sus = (*apvts.getRawParameterValue(p + Opzx7PrKey::sus) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.xof = (*apvts.getRawParameterValue(p + Opzx7PrKey::xof) > Opzx7PrValue::boolThread);
 
         // ラジアンに変換して組み込み(180度=π)
         float phaseDegree = *apvts.getRawParameterValue(p + Opzx7PrKey::phaseOffset);
@@ -157,16 +166,6 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
         params.opzx7.op[op].mask = (*apvts.getRawParameterValue(p + Opzx7PrKey::mask) > Opzx7PrValue::boolThread);
 
-        params.opzx7.op[op].egType = false;
-
-        params.opzx7.op[op].regEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::rgEn) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].rar = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgAr);
-        params.opzx7.op[op].rdr = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD1r);
-        params.opzx7.op[op].rsl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD1l);
-        params.opzx7.op[op].rsr = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgD2r);
-        params.opzx7.op[op].rrr = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgRr);
-        params.opzx7.op[op].rtl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::rgTl);
-
 		params.opzx7.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::enable) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].pitchAdsr.bypass = false;
         params.opzx7.op[op].pitchAdsr.ar = *apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::ar);
@@ -176,8 +175,5 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].pitchAdsr.atl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::atl);
         params.opzx7.op[op].pitchAdsr.ssl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::ssl);
         params.opzx7.op[op].pitchAdsr.rll = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::rll);
-
-        params.opzx7.op[op].susEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::sus) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].xofEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::xof) > Opzx7PrValue::boolThread);
     }
 }

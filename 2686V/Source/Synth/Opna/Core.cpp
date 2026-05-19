@@ -9,7 +9,8 @@ void OpnaCore::prepare(double sampleRate) {
     double target = getTargetRate(m_rateIndex);
 
     for (auto& op : m_operators) {
-        op.prepare(target);
+        op.updateTargetSampleRate(target);
+        op.setSampleRate(m_hostSampleRate);
     }
 
     m_lfoPhase = 0.0;
@@ -23,6 +24,16 @@ void OpnaCore::prepare(double sampleRate) {
 
 	m_noiseGen.prepare(target);
     m_n88Lfo.prepare(target);
+}
+
+void OpnaCore::setSampleRate(double sampleRate) {
+    if (sampleRate > 0.0) {
+        m_hostSampleRate = sampleRate;
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(m_hostSampleRate);
+        }
+    }
 }
 
 void OpnaCore::setParameters(const SynthParams& params) {
@@ -47,7 +58,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
 
         double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) op.setSampleRate(target);
+        for (auto& op : m_operators) op.updateTargetSampleRate(target);
 
 		m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);

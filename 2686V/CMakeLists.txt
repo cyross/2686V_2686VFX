@@ -114,6 +114,30 @@ set(AMP_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/Adsr/Core.cpp"
 )
 
+set(FM_RG_ADDDR_FILES
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Params.h"
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Core.h"
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Core.cpp"
+)
+
+set(FM_RG_ADSSR_FILES
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Params.h"
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Core.h"
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Core.cpp"
+)
+
+set(OPL_ADSR_FILES
+    "Source/Effect/Envelope/Amp/OplAdsr/Params.h"
+    "Source/Effect/Envelope/Amp/OplAdsr/Core.h"
+    "Source/Effect/Envelope/Amp/OplAdsr/Core.cpp"
+)
+
+set(OPZX7_ADDDR_FILES
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Params.h"
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Core.h"
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Core.cpp"
+)
+
 set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Params.h"
     "Source/Effect/Envelope/Pitch/Adsr/Core.h"
@@ -511,6 +535,10 @@ source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdddr" FILES ${FM_RG_ADDDR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdssr" FILES ${FM_RG_ADSSR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\OplAdsr" FILES ${OPL_ADSR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\Opzx7Adddr" FILES ${OPZX7_ADDDR_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
@@ -589,6 +617,10 @@ function(create_cyross_plugin TARGET_NAME)
         ${PROCESSOR_FILES}
         ${EDITOR_FILES}
         ${AMP_ADSR_ENVELOPE_FILES}
+        ${FM_RG_ADDDR_FILES}
+        ${FM_RG_ADSSR_FILES}
+        ${OPL_ADSR_FILES}
+        ${OPZX7_ADDDR_FILES}
         ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}

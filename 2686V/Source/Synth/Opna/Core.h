@@ -16,6 +16,7 @@ public:
     OpnaCore() : FmCore() {}
 
     void prepare(double sampleRate) override;
+    void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void noteOn(float freq, float velocity, int midiNote) override;
     void noteOff() override;

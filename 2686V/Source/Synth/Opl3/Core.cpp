@@ -13,9 +13,24 @@ const std::array<Opl3Core::AlgRouting, 5> Opl3Core::routings = { {
 
 void Opl3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
+
     double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+    for (auto& op : m_operators) {
+		op.setSampleRate(m_hostSampleRate);
+        op.updateTargetSampleRate(target);
+    }
+
     m_rateAccumulator = 1.0;
+}
+
+void Opl3Core::setSampleRate(double sampleRate) {
+    if (sampleRate > 0.0) {
+        m_hostSampleRate = sampleRate;
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(m_hostSampleRate);
+        }
+    }
 }
 
 // --- Opl3Core.cpp : setParameters() 内 ---
@@ -26,7 +41,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
     if (m_rateIndex != params.opl3.fmRateIndex) {
         m_rateIndex = params.opl3.fmRateIndex;
         double target = getTargetRate(m_rateIndex);
-        for (auto& op : m_operators) op.setSampleRate(target);
+        for (auto& op : m_operators) op.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);

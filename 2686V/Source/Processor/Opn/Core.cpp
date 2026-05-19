@@ -73,19 +73,18 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 
         params.opn.op[op].multiple = (int)*apvts.getRawParameterValue(p + OpnPrKey::mul);
         params.opn.op[op].detune = (int)*apvts.getRawParameterValue(p + OpnPrKey::dt);
-        params.opn.op[op].keyScale = (int)*apvts.getRawParameterValue(p + OpnPrKey::ks);
         params.opn.op[op].fixedMode = (*apvts.getRawParameterValue(p + OpnPrKey::fix) > OpnPrValue::boolThread);
         params.opn.op[op].fixedFreq = *apvts.getRawParameterValue(p + OpnPrKey::fixFreq);
         params.opn.op[op].waveSelect = 0; // Sine
         params.opn.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
         params.opn.op[op].mask = (*apvts.getRawParameterValue(p + OpnPrKey::mask) > OpnPrValue::boolThread);
 
-        params.opn.op[op].regEnable = true;
-        params.opn.op[op].rar = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgAr);
-        params.opn.op[op].rdr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgDr);
-        params.opn.op[op].rsl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSl);
-        params.opn.op[op].rsr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSr);
-        params.opn.op[op].rrr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgRr);
-        params.opn.op[op].rtl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgTl);
+        params.opn.op[op].m_adsrParams.ar = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgAr);
+        params.opn.op[op].m_adsrParams.dr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgDr);
+        params.opn.op[op].m_adsrParams.sl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSl);
+        params.opn.op[op].m_adsrParams.sr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSr);
+        params.opn.op[op].m_adsrParams.rr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgRr);
+        params.opn.op[op].m_adsrParams.tl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgTl);
+        params.opn.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + OpnPrKey::ks);
     }
 }

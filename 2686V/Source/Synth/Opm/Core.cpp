@@ -4,8 +4,14 @@
 
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
+
     double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+
+    for (auto& op : m_operators) {
+        op.setSampleRate(m_hostSampleRate);
+        op.updateTargetSampleRate(target);
+    }
+
     m_rateAccumulator = 1.0;
 
 	m_noiseGen.prepare(target);
@@ -39,7 +45,7 @@ void OpmCore::setParameters(const SynthParams& params) {
 
         double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) op.setSampleRate(target);
+        for (auto& op : m_operators) op.updateTargetSampleRate(target);
 
         m_noiseGen.updateDelta(target);
         m_lfo.updateTargetSampleRate(target);
