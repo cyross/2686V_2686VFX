@@ -28,8 +28,8 @@ namespace OplGuiText
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
 		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG ENVELOPE ---";
 		static inline const juce::String invisibleSsgEnv = u8"[□]--- SSG ENVELOPE ---";

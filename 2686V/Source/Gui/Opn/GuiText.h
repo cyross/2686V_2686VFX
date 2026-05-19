@@ -30,6 +30,8 @@ namespace OpnGuiText
 		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String mml = u8"--- MML ---";

@@ -25,8 +25,8 @@ namespace WtGuiText
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
 		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";

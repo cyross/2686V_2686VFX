@@ -26,8 +26,8 @@ namespace Opl3GuiText
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";

@@ -21,8 +21,8 @@ namespace BeepGuiText
 
 	namespace Category
 	{
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
 		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
