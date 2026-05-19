@@ -36,6 +36,7 @@ void SsgCore::prepare(double sampleRate) {
     m_noiseGen.prepare(m_targetRate);
     m_adsr.prepare(m_targetRate);
 	m_pitchAdsr.prepare(m_targetRate);
+	m_ssgSwEnv.prepare(m_targetRate);
     m_lfo.prepare(m_targetRate);
 
     updatePhaseDelta();
@@ -53,6 +54,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
     m_detune.setParameters(params.ssg.detune, params.ssg.detune2, 1);
+	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
         params.ssg.lfoSyncDelay,
         params.ssg.lfoPmEnable, params.ssg.lfoAmEnable,
@@ -88,6 +90,7 @@ void SsgCore::setParameters(const SynthParams& params)
         m_noiseGen.updateTargetRate(m_targetRate);
         m_adsr.updateSampleRate(m_targetRate);
         m_pitchAdsr.updateSampleRate(m_targetRate);
+		m_ssgSwEnv.updateSampleRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
@@ -119,6 +122,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
 
     m_currentLevel = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
+	m_ssgSwEnv.noteOn();
     m_lfo.noteOn();
 }
 
@@ -126,9 +130,10 @@ void SsgCore::noteOff()
 {
     m_adsr.noteOff();
 	m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_pitchAdsr.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_pitchAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -160,14 +165,17 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
-    if (m_adsr.isIdle()) {
+    if (!isPlaying()) {
         return 0.0f;
     }
 
     // --- ADSR / Gate Logic ---
-    if (m_adsr.isBypassed())
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        if (m_adsr.isRelease()) {
+        // 両方バイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();     // 強制的にIdleにする
+            m_ssgSwEnv.bypassedReleasedProcess(); // 強制的にIdleにする
             m_currentLevel = 0.0f;
         }
         else {
@@ -176,7 +184,27 @@ float SsgCore::getSample()
     }
     else
     {
-		m_currentLevel = m_adsr.process(m_currentLevel);
+        // --- メインADSRの処理 ---
+        if (m_adsr.isBypassed()) {
+            // バイパス中にキーオフされたら安全にIdleへ逃がす
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+
+            // バイパス時は「音量1.0」として次へ渡す (SSG Envが確実に効くようにする)
+            m_currentLevel = 1.0f;
+        }
+        else {
+            m_currentLevel = m_adsr.process(m_currentLevel);
+        }
+
+        // --- カスタムエンベロープ(SsgSwEnv)の処理 ---
+        if (m_ssgSwEnv.isBypassed()) {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+
+            // バイパス時は掛け算に影響を与えない (そのままスルー)
+        }
+        else {
+            m_currentLevel = m_ssgSwEnv.process(m_currentLevel);
+        }
     }
 
     // --- Sample Rate Emulation ---

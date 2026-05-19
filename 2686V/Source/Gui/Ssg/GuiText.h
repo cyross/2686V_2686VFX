@@ -34,6 +34,8 @@ namespace SsgGuiText
 		static inline const juce::String shape = u8"--- ENVELOPE ---";
 		static inline const juce::String visibleHwEnv = u8"[■]--- HW ENVELOPE ---";
 		static inline const juce::String invisibleHwEnv = u8"[□]--- HW ENVELOPE ---";
+		static inline const juce::String visibleSwEnv = u8"[■]--- SW ENVELOPE ---";
+		static inline const juce::String invisibleSwEnv = u8"[□]--- SW ENVELOPE ---";
 		static inline const juce::String mix = u8"--- MIX ---";
 		static inline const juce::String ssgTone = u8"--- TOME ---";
 		static inline const juce::String ssgNoise = u8"--- NOISE ---";
@@ -82,6 +84,24 @@ namespace SsgGuiText
 		static inline const juce::String atl = u8" Atl";
 		static inline const juce::String ssl = u8" Ssl";
 		static inline const juce::String rll = u8" Rll";
+	}
+
+	namespace SsgSwEnv
+	{
+		static inline const juce::String bypass = u8"Bypass";
+		static inline const juce::String steps = u8" Steps";
+		static inline const juce::String stl = u8" Stl";
+		static inline const juce::String r0 = u8" R0";
+		static inline const juce::String l0 = u8" L0";
+		static inline const juce::String r1 = u8" R1";
+		static inline const juce::String l1 = u8" L1";
+		static inline const juce::String r2 = u8" R2";
+		static inline const juce::String l2 = u8" L2";
+		static inline const juce::String r3 = u8" R3";
+		static inline const juce::String l3 = u8" L3";
+		static inline const juce::String r4 = u8" R4";
+		static inline const juce::String l4 = u8" L4";
+		static inline const juce::String r5 = u8" R5";
 	}
 
 	namespace Lfo

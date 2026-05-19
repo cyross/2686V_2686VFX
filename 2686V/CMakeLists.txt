@@ -138,6 +138,12 @@ set(OPZX7_ADDDR_FILES
     "Source/Effect/Envelope/Amp/Opzx7Adddr/Core.cpp"
 )
 
+set(SSG_SW_ENV_FILES
+    "Source/Effect/Envelope/Amp/SsgSw/Params.h"
+    "Source/Effect/Envelope/Amp/SsgSw/Core.h"
+    "Source/Effect/Envelope/Amp/SsgSw/Core.cpp"
+)
+
 set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Params.h"
     "Source/Effect/Envelope/Pitch/Adsr/Core.h"
@@ -539,6 +545,7 @@ source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdddr" FILES ${FM_RG_ADDDR_FILES
 source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdssr" FILES ${FM_RG_ADSSR_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\OplAdsr" FILES ${OPL_ADSR_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Opzx7Adddr" FILES ${OPZX7_ADDDR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\SsgSw" FILES ${SSG_SW_ENV_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
@@ -621,6 +628,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${FM_RG_ADSSR_FILES}
         ${OPL_ADSR_FILES}
         ${OPZX7_ADDDR_FILES}
+        ${SSG_SW_ENV_FILES}
         ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}

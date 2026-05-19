@@ -144,6 +144,105 @@ namespace WtPrValue
 		inline constexpr int initial = 0;
 	}
 
+	namespace SsgSwEnv
+	{
+		namespace Bypass
+		{
+			inline constexpr float initial = true; // 初期値
+		}
+
+		namespace Steps
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 4;
+			inline constexpr int initial = 4;
+		}
+
+		namespace R0
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace R1
+		{
+			inline constexpr float min = 0.0f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace R2
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace R3
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace R4
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace R5
+		{
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
+		}
+
+		namespace Stl
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L0
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L1
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L2
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L3
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L4
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+	}
+
 	namespace Lfo
 	{
 		namespace AmFreq

@@ -186,6 +186,64 @@ void GuiSsg::setup()
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
+    ssgSwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleSwEnv, .invisibleTitle = SsgGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+
+    ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass, .title = SsgGuiText::SsgSwEnv::bypass, .isReset = true });
+    ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
+    ssgSwEnvBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwStepsSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::steps, .title = SsgGuiText::SsgSwEnv::steps, .isReset = true });
+    ssgSwStepsSlider.setWantsKeyboardFocus(true);
+    ssgSwStepsSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwStartLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::stl, .title = SsgGuiText::SsgSwEnv::stl, .isReset = true });
+    ssgSwStartLevelSlider.setWantsKeyboardFocus(true);
+    ssgSwStartLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR0Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r0, .title = SsgGuiText::SsgSwEnv::r0, .isReset = true });
+    ssgSwR0Slider.setWantsKeyboardFocus(true);
+    ssgSwR0Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL0Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l0, .title = SsgGuiText::SsgSwEnv::l0, .isReset = true });
+    ssgSwL0Slider.setWantsKeyboardFocus(true);
+    ssgSwL0Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR1Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r1, .title = SsgGuiText::SsgSwEnv::r1, .isReset = true });
+    ssgSwR1Slider.setWantsKeyboardFocus(true);
+    ssgSwR1Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL1Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l1, .title = SsgGuiText::SsgSwEnv::l1, .isReset = true });
+    ssgSwL1Slider.setWantsKeyboardFocus(true);
+    ssgSwL1Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR2Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r2, .title = SsgGuiText::SsgSwEnv::r2, .isReset = true });
+    ssgSwR2Slider.setWantsKeyboardFocus(true);
+    ssgSwR2Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL2Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l2, .title = SsgGuiText::SsgSwEnv::l2, .isReset = true });
+    ssgSwL2Slider.setWantsKeyboardFocus(true);
+    ssgSwL2Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR3Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r3, .title = SsgGuiText::SsgSwEnv::r3, .isReset = true });
+    ssgSwR3Slider.setWantsKeyboardFocus(true);
+    ssgSwR3Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL3Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l3, .title = SsgGuiText::SsgSwEnv::l3, .isReset = true });
+    ssgSwL3Slider.setWantsKeyboardFocus(true);
+    ssgSwL3Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR4Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r4, .title = SsgGuiText::SsgSwEnv::r4, .isReset = true });
+    ssgSwR4Slider.setWantsKeyboardFocus(true);
+    ssgSwR4Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL4Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l4, .title = SsgGuiText::SsgSwEnv::l4, .isReset = true });
+    ssgSwL4Slider.setWantsKeyboardFocus(true);
+    ssgSwL4Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR5Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r5, .title = SsgGuiText::SsgSwEnv::r5, .isReset = true });
+    ssgSwR5Slider.setWantsKeyboardFocus(true);
+    ssgSwR5Slider.setExplicitFocusOrder(++tabOrder);
+
     detuneCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Ssg::Detune::Dt1, .items = dtItems, .isReset = true });
@@ -413,6 +471,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutDetuneCat(mRect);
 
     layoutHwEnvCat(mRect);
+
+	layoutSwEnvCat(mRect);
 
     layoutLfoCat(mRect);
 
@@ -707,5 +767,45 @@ void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &envEnableButton });
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiSsg::layoutSwEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &ssgSwEnvCat });
+
+    bool visible = ssgSwEnvCat.isDetailVisible();
+
+	ssgSwEnvBypassButton.setVisible(visible);
+	ssgSwStepsSlider.setVisibleWithLabel(visible);
+	ssgSwStartLevelSlider.setVisibleWithLabel(visible);
+	ssgSwR0Slider.setVisibleWithLabel(visible);
+	ssgSwL0Slider.setVisibleWithLabel(visible);
+	ssgSwR1Slider.setVisibleWithLabel(visible);
+	ssgSwL1Slider.setVisibleWithLabel(visible);
+	ssgSwR2Slider.setVisibleWithLabel(visible);
+	ssgSwL2Slider.setVisibleWithLabel(visible);
+	ssgSwR3Slider.setVisibleWithLabel(visible);
+	ssgSwL3Slider.setVisibleWithLabel(visible);
+    ssgSwR4Slider.setVisibleWithLabel(visible);
+	ssgSwL4Slider.setVisibleWithLabel(visible);
+	ssgSwR5Slider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &ssgSwEnvBypassButton });
+        layoutMain({ .mainRect = rect, .label = &ssgSwStepsSlider.label, .component = &ssgSwStepsSlider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwStartLevelSlider.label, .component = &ssgSwStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR0Slider.label, .component = &ssgSwR0Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL0Slider.label, .component = &ssgSwL0Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR1Slider.label, .component = &ssgSwR1Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL1Slider.label, .component = &ssgSwL1Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR2Slider.label, .component = &ssgSwR2Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL2Slider.label, .component = &ssgSwL2Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR3Slider.label, .component = &ssgSwR3Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL3Slider.label, .component = &ssgSwL3Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR4Slider.label, .component = &ssgSwR4Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL4Slider.label, .component = &ssgSwL4Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR5Slider.label, .component = &ssgSwR5Slider });
     }
 }

@@ -38,6 +38,27 @@ namespace CorePrName
 		}
 	};
 
+	namespace SsgSwEnv
+	{
+		namespace Post
+		{
+			static inline const juce::String bypass = " SSG SwEnv Bypass";
+			static inline const juce::String steps = " SSG SwEnv Steps";
+			static inline const juce::String stl = " SSG SwEnv STL";
+			static inline const juce::String r0 = " SSG SwEnv R0";
+			static inline const juce::String l0 = " SSG SwEnv L0";
+			static inline const juce::String r1 = " SSG SwEnv R1";
+			static inline const juce::String l1 = " SSG SwEnv L1";
+			static inline const juce::String r2 = " SSG SwEnv R2";
+			static inline const juce::String l2 = " SSG SwEnv L2";
+			static inline const juce::String r3 = " SSG SwEnv R3";
+			static inline const juce::String l3 = " SSG SwEnv L3";
+			static inline const juce::String r4 = " SSG SwEnv R4";
+			static inline const juce::String l4 = " SSG SwEnv L4";
+			static inline const juce::String r5 = " SSG SwEnv R5";
+		}
+	}
+
 	namespace Fm
 	{
 		namespace Post

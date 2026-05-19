@@ -73,6 +73,23 @@ class GuiSsg : public GuiBase
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
 
+    // SSG SW Env
+    GuiCategoryLabel ssgSwEnvCat;
+    GuiToggleButton ssgSwEnvBypassButton; // SSG SW Env Bypass Switch
+    GuiSlider ssgSwStepsSlider;
+    GuiSlider ssgSwStartLevelSlider;
+    GuiSlider ssgSwR0Slider;
+    GuiSlider ssgSwL0Slider;
+    GuiSlider ssgSwR1Slider;
+    GuiSlider ssgSwL1Slider;
+    GuiSlider ssgSwR2Slider;
+    GuiSlider ssgSwL2Slider;
+    GuiSlider ssgSwR3Slider;
+    GuiSlider ssgSwL3Slider;
+    GuiSlider ssgSwR4Slider;
+    GuiSlider ssgSwL4Slider;
+    GuiSlider ssgSwR5Slider;
+
     // Detune
     GuiCategoryLabel detuneCat;
     GuiComboBox dt1;
@@ -166,6 +183,21 @@ public:
 		pitchAttackLevelSlider(context),
 		pitchSustainLevelSlider(context),
 		pitchReleaseLevelSlider(context),
+		ssgSwEnvCat(context),
+		ssgSwEnvBypassButton(context),
+		ssgSwStepsSlider(context),
+		ssgSwStartLevelSlider(context),
+		ssgSwR0Slider(context),
+		ssgSwL0Slider(context),
+		ssgSwR1Slider(context),
+		ssgSwL1Slider(context),
+		ssgSwR2Slider(context),
+		ssgSwL2Slider(context),
+		ssgSwR3Slider(context),
+		ssgSwL3Slider(context),
+		ssgSwR4Slider(context),
+		ssgSwL4Slider(context),
+		ssgSwR5Slider(context),
 		detuneCat(context),
 		dt1(context),
 		dt2(context),
@@ -217,4 +249,5 @@ public:
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
+    void layoutSwEnvCat(juce::Rectangle<int>& rect);
 };
