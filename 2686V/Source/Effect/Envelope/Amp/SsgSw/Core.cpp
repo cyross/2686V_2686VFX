@@ -62,7 +62,7 @@ float SsgSwEnv::process() {
         currentLevel += r1Inc;
         if (this->r1 <= 0.001f || isReached(r1Inc, currentLevel, this->l1)) {
             currentLevel = this->l1;
-            if (this->steps > 0)
+            if (this->steps > 1)
             {
                 state = State::S2;
             }
@@ -72,7 +72,7 @@ float SsgSwEnv::process() {
         currentLevel += r2Inc;
         if (this->r2 <= 0.001f || isReached(r2Inc, currentLevel, this->l2)) {
             currentLevel = this->l2;
-            if (this->steps > 1)
+            if (this->steps > 2)
             {
                 state = State::S3;
             }
@@ -82,7 +82,7 @@ float SsgSwEnv::process() {
         currentLevel += r3Inc;
         if (this->r3 <= 0.001f || isReached(r3Inc, currentLevel, this->l3)) {
             currentLevel = this->l3;
-            if (this->steps > 2)
+            if (this->steps > 3)
             {
                 state = State::S4;
             }
@@ -92,7 +92,7 @@ float SsgSwEnv::process() {
         currentLevel += r4Inc;
         if (this->r4 <= 0.001f || isReached(r4Inc, currentLevel, this->l4)) {
             currentLevel = this->l4;
-            if (this->steps > 3)
+            if (this->steps > 4)
             {
                 state = State::S5;
             }
