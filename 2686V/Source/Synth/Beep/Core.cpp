@@ -5,7 +5,9 @@
 void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
-	m_adsr.prepare(m_sampleRate);
+	m_adsr.prepare(44100.0);
+    m_pitchAdsr.prepare(44100.0);
+    m_ssgSwEnv.prepare(44100.0);
     m_fixMode.setParameters(false, 2000.0f);
 }
 
@@ -14,6 +16,7 @@ void BeepCore::setParameters(const SynthParams& params) {
 
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
     m_detune.setParameters(params.beep.detune, params.beep.detune2, 1);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
@@ -25,18 +28,19 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
-    m_targetLevel = velocity * m_level;
-
+    m_currentLevel = velocity * m_level;
+    m_adsr.noteOn();
     m_pitchAdsr.noteOn();
-    m_currentLevel = m_adsr.noteOn();
+	m_ssgSwEnv.noteOn();
 }
 
 void BeepCore::noteOff() {
     m_adsr.noteOff();
     m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
-bool BeepCore::isPlaying() const { return m_adsr.isPlaying(); }
+bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 
 void BeepCore::setPitchBend(int pitchWheelValue) {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
@@ -45,11 +49,45 @@ void BeepCore::setPitchBend(int pitchWheelValue) {
 }
 
 float BeepCore::getSample() {
-    if (m_adsr.isIdle()) {
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
+
         return 0.0f;
     }
 
-    m_currentLevel = m_adsr.process(m_currentLevel);
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
+    {
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
+        }
+    }
+    else
+    {
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentLevel = m_adsr.process(m_currentLevel);
+            finalEnv *= m_currentLevel; // 掛け算
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+    }
 
     // 究極にシンプルな1-bit矩形波（50% Duty）
     float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
@@ -60,7 +98,7 @@ float BeepCore::getSample() {
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
     // 音量に変換
-    return output * m_currentLevel;
+    return output * m_currentLevel * finalEnv;
 }
 
 // モジュレーションホイール (0 - 127)

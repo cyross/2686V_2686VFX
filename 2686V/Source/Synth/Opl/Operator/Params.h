@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "../../../Effect/Envelope/Amp/OplAdsr/Params.h"
+#include "../../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct OplOpParams
 {
@@ -27,4 +29,13 @@ struct OplOpParams
     float amd = 4.8f;  // AM Depth (dB)
     float pms = 6.4f;  // PM Speed (Hz)
     float pmd = 14.0f; // PM Depth (Cent)
+
+    bool pitchEnvEnable = true;
+    bool ssgEnvEnable = false;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
 };

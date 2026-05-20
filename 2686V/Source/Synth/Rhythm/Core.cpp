@@ -23,6 +23,10 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_pcmOffset = params.pcmOffset;
     m_pcmRatio = params.pcmRatio;
 
+    m_adsr.setParameters(params.adsr);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
+
     bool needRefresh = false;
     if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
     if (m_rateIndex != params.rateIndex) {
@@ -53,38 +57,71 @@ void RhythmPad::start()
 
     m_state = State::Playing;
     m_currentEnv = 1.0f;
+
+    m_adsr.noteOn();
+    m_pitchAdsr.noteOn();
+    m_ssgSwEnv.noteOn();
 }
 
 void RhythmPad::stop()
 {
+    m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
+    m_ssgSwEnv.noteOff();
+
     m_state = State::Idle;
     m_currentEnv = 0.0f;
 }
 
 bool RhythmPad::isPlaying() const
 {
-    return m_state != State::Idle;
+    return m_state != State::Idle || m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
 }
 
 float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
 {
-    if (m_state == State::Idle) return 0.0f;
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
-    // --- リリース処理 ---
-    if (m_state == State::Release)
+        return 0.0f;
+    }
+
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        m_currentEnv -= m_releaseDec;
-        if (m_currentEnv <= 0.0f)
-        {
-            m_currentEnv = 0.0f;
-            m_state = State::Idle;
-            return 0.0f;
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
         }
     }
-    // ---------------------------
+    else
+    {
+        // 1. 従来のADSR処理 (内部の m_currentEnvl はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentEnv = m_adsr.process(m_currentEnv);
+            finalEnv *= m_currentEnv; // 掛け算
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+    }
 
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
-    double increment = (currentBufferRate / hostSampleRate) * pitchRatio;
+    double increment = m_pitchAdsr.process((currentBufferRate / hostSampleRate) * pitchRatio);
 
     // 総サイズと再生終了位置の計算
     size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
@@ -143,7 +180,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     }
 
     m_position += increment;
-    return output * m_level * m_currentEnv;
+    return output * m_level * m_currentEnv * finalEnv;
 }
 
 void RhythmPad::refreshAdpcmBuffer()
@@ -156,6 +193,10 @@ void RhythmPad::refreshAdpcmBuffer()
 
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
     m_bufferSampleRate = targetRate;
+
+    m_adsr.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(m_bufferSampleRate);
+    m_ssgSwEnv.prepare(m_bufferSampleRate);
 
     double step = m_sourceRate / targetRate;
     Ym2608AdpcmCodec codec;

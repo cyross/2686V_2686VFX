@@ -53,6 +53,8 @@ void Opl3Operator::updateTargetSampleRate(double newSampleRate)
 
     m_lfo.updateTargetSampleRate(newSampleRate);
     m_ampAdsr.updateTargetSampleRate(newSampleRate);
+    m_pitchAdsr.updateSampleRate(newSampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
 }
 
 void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
@@ -62,6 +64,8 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
     m_ssgEgFreq = 1.0f;
     m_params.waveSelect = params.waveSelect;
     m_ampAdsr.setParameters(params.m_adsrParams);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_lfo.setParameters(
         params.amEnable,
         params.vibEnable,
@@ -96,12 +100,17 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
+    m_pitchAdsr.noteOn();
+    m_ssgSwEnv.noteOn();
+
     m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
 }
 
 void Opl3Operator::noteOff()
 {
     m_ampAdsr.noteOff();
+	m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
 void Opl3Operator::processLfo()
@@ -113,11 +122,29 @@ void Opl3Operator::getSample(float& output, float modulator)
 {
     m_lfo.getSample();
 
-    if (m_ampAdsr.isIdle()) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
+        output = 0.0f;
+
+        return;
+    }
+
+    float envVal = 1.0f;
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
     m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+    envVal *= m_currentLevel; // 掛け算
 
-    float envVal = m_currentLevel;
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (!m_ssgSwEnv.isBypassed()) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
+    else {
+        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+    }
 
     // AM適用 (無条件。変調がない場合はコア側から 1.0 が渡ってくる)
     envVal *= m_lfo.value.am;
@@ -129,7 +156,8 @@ void Opl3Operator::getSample(float& output, float modulator)
     }
 
     // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * m_lfo.value.pm;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * m_lfo.value.pm;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

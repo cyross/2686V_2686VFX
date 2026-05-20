@@ -38,8 +38,9 @@ namespace AdpcmPrName
 		static inline const juce::String bypass = " SSG SwEnv Bypass";
 		static inline const juce::String steps = " SSG SwEnv Steps";
 		static inline const juce::String stl = " SSG SwEnv STL";
-		static inline const juce::String r0 = " SSG SwEnv R0";
-		static inline const juce::String l0 = " SSG SwEnv L0";
+		static inline const juce::String loop = " SSG SwEnv Loop";
+		static inline const juce::String loopTo = " SSG SwEnv Loop To";
+		static inline const juce::String loopCount = " SSG SwEnv Loop Count";
 		static inline const juce::String r1 = " SSG SwEnv R1";
 		static inline const juce::String l1 = " SSG SwEnv L1";
 		static inline const juce::String r2 = " SSG SwEnv R2";
@@ -49,5 +50,8 @@ namespace AdpcmPrName
 		static inline const juce::String r4 = " SSG SwEnv R4";
 		static inline const juce::String l4 = " SSG SwEnv L4";
 		static inline const juce::String r5 = " SSG SwEnv R5";
+		static inline const juce::String l5 = " SSG SwEnv L5";
+		static inline const juce::String r6 = " SSG SwEnv R6";
+		static inline const juce::String l6 = " SSG SwEnv L6";
 	}
 }

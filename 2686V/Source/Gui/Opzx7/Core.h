@@ -200,6 +200,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> egShape;
     std::array<GuiSlider, Global::Fm::Op4> ams;
     std::array<GuiSlider, Global::Fm::Op4> amd;
+
     std::array<GuiCategoryLabel, Global::Fm::Op4> catPitchEnv;
     std::array<GuiToggleButton, Global::Fm::Op4> pitchEnvEnable;
     std::array<GuiSlider, Global::Fm::Op4> pitchAttack;
@@ -209,6 +210,27 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> pitchAttackLevel;
     std::array<GuiSlider, Global::Fm::Op4> pitchSustainLevel;
     std::array<GuiSlider, Global::Fm::Op4> pitchReleaseLevel;
+
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catSsgSwEnv;
+    std::array<GuiToggleButton, Global::Fm::Op4> ssgSwEnvEnable;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwSteps;
+    std::array<GuiToggleButton, Global::Fm::Op4> ssgSwEnvLoop;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwLoopTo;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwLoopCount;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwStartLevel;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR1;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL1;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR2;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL2;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR3;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL3;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR4;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL4;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR5;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL5;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwR6;
+    std::array<GuiSlider, Global::Fm::Op4> ssgSwL6;
+
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
@@ -314,6 +336,25 @@ public:
         pitchAttackLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pitchSustainLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pitchReleaseLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		catSsgSwEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+		ssgSwEnvEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+		ssgSwSteps{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwEnvLoop{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+		ssgSwLoopTo{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwLoopCount{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwStartLevel{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR3{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL3{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR4{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL4{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR5{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL5{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwR6{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+		ssgSwL6{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -366,5 +407,6 @@ public:
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
 };

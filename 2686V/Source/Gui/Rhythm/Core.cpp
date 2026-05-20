@@ -142,10 +142,137 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     adsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleAdsr, .invisibleTitle = RhythmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
-    // RR
-    rrSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::rr, .title = RhythmGuiText::Rhythm::Pad::rr, .isReset = true });
-    rrSlider.setWantsKeyboardFocus(true);
-    rrSlider.setExplicitFocusOrder(++tabOrder);
+    adsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::adsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::Adsr::bypass, .isReset = true });
+    adsrBypassButton.setWantsKeyboardFocus(true);
+    adsrBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    startLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::stl, .title = RhythmGuiText::Rhythm::Pad::Adsr::stl, .isReset = true });
+    startLevelSlider.setWantsKeyboardFocus(true);
+    startLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    attackSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::ar, .title = RhythmGuiText::Rhythm::Pad::Adsr::ar, .isReset = true });
+    attackSlider.setWantsKeyboardFocus(true);
+    attackSlider.setExplicitFocusOrder(++tabOrder);
+
+    decaySlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::dr , .title = RhythmGuiText::Rhythm::Pad::Adsr::dr, .isReset = true });
+    decaySlider.setWantsKeyboardFocus(true);
+    decaySlider.setExplicitFocusOrder(++tabOrder);
+
+    sustainSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::sl, .title = RhythmGuiText::Rhythm::Pad::Adsr::sl, .isReset = true });
+    sustainSlider.setWantsKeyboardFocus(true);
+    sustainSlider.setExplicitFocusOrder(++tabOrder);
+
+    releaseSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::rr, .title = RhythmGuiText::Rhythm::Pad::Adsr::rr, .isReset = true });
+    releaseSlider.setWantsKeyboardFocus(true);
+    releaseSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchAdsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visiblePitchAdsr, .invisibleTitle = RhythmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+
+    pitchAdsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass, .isReset = true });
+    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
+    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::ar, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::ar, .isReset = true });
+    pitchAttackSlider.setWantsKeyboardFocus(true);
+    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchDecaySlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::dr , .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::dr, .isReset = true });
+    pitchDecaySlider.setWantsKeyboardFocus(true);
+    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::rr, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::rr, .isReset = true });
+    pitchReleaseSlider.setWantsKeyboardFocus(true);
+    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchStartLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::stl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::stl, .isReset = true });
+    pitchStartLevelSlider.setWantsKeyboardFocus(true);
+    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchAttackLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::atl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::atl, .isReset = true });
+    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
+    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchSustainLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::ssl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::ssl, .isReset = true });
+    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
+    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    pitchReleaseLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::rll, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::rll, .isReset = true });
+    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
+    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwEnvCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleSwEnv, .invisibleTitle = RhythmGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+
+    ssgSwEnvBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass, .isReset = true });
+    ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
+    ssgSwEnvBypassButton.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwStepsSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::steps, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::steps, .isReset = true });
+    ssgSwStepsSlider.setWantsKeyboardFocus(true);
+    ssgSwStepsSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwEnvLoopButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::loop, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::loop, .isReset = true });
+    ssgSwEnvLoopButton.setWantsKeyboardFocus(true);
+    ssgSwEnvLoopButton.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwLoopToSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::loopTo, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::loopTo, .isReset = true });
+    ssgSwLoopToSlider.setWantsKeyboardFocus(true);
+    ssgSwLoopToSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwLoopCountSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::loopCount, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::loopCount, .isReset = true });
+    ssgSwLoopCountSlider.setWantsKeyboardFocus(true);
+    ssgSwLoopCountSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwStartLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::stl, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::stl, .isReset = true });
+    ssgSwStartLevelSlider.setWantsKeyboardFocus(true);
+    ssgSwStartLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR1Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r1, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r1, .isReset = true });
+    ssgSwR1Slider.setWantsKeyboardFocus(true);
+    ssgSwR1Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL1Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l1, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l1, .isReset = true });
+    ssgSwL1Slider.setWantsKeyboardFocus(true);
+    ssgSwL1Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR2Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r2, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r2, .isReset = true });
+    ssgSwR2Slider.setWantsKeyboardFocus(true);
+    ssgSwR2Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL2Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l2, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l2, .isReset = true });
+    ssgSwL2Slider.setWantsKeyboardFocus(true);
+    ssgSwL2Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR3Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r3, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r3, .isReset = true });
+    ssgSwR3Slider.setWantsKeyboardFocus(true);
+    ssgSwR3Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL3Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l3, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l3, .isReset = true });
+    ssgSwL3Slider.setWantsKeyboardFocus(true);
+    ssgSwL3Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR4Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r4, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r4, .isReset = true });
+    ssgSwR4Slider.setWantsKeyboardFocus(true);
+    ssgSwR4Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL4Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l4, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l4, .isReset = true });
+    ssgSwL4Slider.setWantsKeyboardFocus(true);
+    ssgSwL4Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR5Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r5, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r5, .isReset = true });
+    ssgSwR5Slider.setWantsKeyboardFocus(true);
+    ssgSwR5Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL5Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l5, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l5, .isReset = true });
+    ssgSwL5Slider.setWantsKeyboardFocus(true);
+    ssgSwL5Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwR6Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::r6, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::r6, .isReset = true });
+    ssgSwR6Slider.setWantsKeyboardFocus(true);
+    ssgSwR6Slider.setExplicitFocusOrder(++tabOrder);
+
+    ssgSwL6Slider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::SsgSwEnv::l6, .title = RhythmGuiText::Rhythm::Pad::SsgSwEnv::l6, .isReset = true });
+    ssgSwL6Slider.setWantsKeyboardFocus(true);
+    ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -166,6 +293,10 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutPanCat(padRect);
 
     layoutAdsrCat(padRect);
+
+	layoutPitchEnvCat(padRect);
+
+	layoutSsgSwEnvCat(padRect);
 
     layoutQualityCat(padRect);
 }
@@ -220,15 +351,102 @@ void RhythmPadGui::layoutPanCat(juce::Rectangle<int>& rect)
 
 void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
 {
-    layoutRowCategory({ .rowRect = rect, .label = &adsrCat });
+    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
 
     bool visible = adsrCat.isDetailVisible();
 
-    rrSlider.setVisibleWithLabel(visible);
+    adsrBypassButton.setVisible(visible);
+    startLevelSlider.setVisibleWithLabel(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
-        layoutRow({ .rowRect = rect, .label = &rrSlider.label, .component = &rrSlider, .paddingBottom = 0 });
+        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
+    }
+}
+
+
+void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
+
+    bool visible = pitchAdsrCat.isDetailVisible();
+
+    pitchAdsrBypassButton.setVisible(visible);
+    pitchAttackSlider.setVisibleWithLabel(visible);
+    pitchDecaySlider.setVisibleWithLabel(visible);
+    pitchReleaseSlider.setVisibleWithLabel(visible);
+    pitchStartLevelSlider.setVisibleWithLabel(visible);
+    pitchAttackLevelSlider.setVisibleWithLabel(visible);
+    pitchSustainLevelSlider.setVisibleWithLabel(visible);
+    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void RhythmPadGui::layoutSsgSwEnvCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &ssgSwEnvCat });
+
+    bool visible = ssgSwEnvCat.isDetailVisible();
+
+    ssgSwEnvBypassButton.setVisible(visible);
+    ssgSwStepsSlider.setVisibleWithLabel(visible);
+    ssgSwEnvLoopButton.setVisible(visible);
+    ssgSwLoopToSlider.setVisibleWithLabel(visible);
+    ssgSwLoopCountSlider.setVisibleWithLabel(visible);
+    ssgSwStartLevelSlider.setVisibleWithLabel(visible);
+    ssgSwR1Slider.setVisibleWithLabel(visible);
+    ssgSwL1Slider.setVisibleWithLabel(visible);
+    ssgSwR2Slider.setVisibleWithLabel(visible);
+    ssgSwL2Slider.setVisibleWithLabel(visible);
+    ssgSwR3Slider.setVisibleWithLabel(visible);
+    ssgSwL3Slider.setVisibleWithLabel(visible);
+    ssgSwR4Slider.setVisibleWithLabel(visible);
+    ssgSwL4Slider.setVisibleWithLabel(visible);
+    ssgSwR5Slider.setVisibleWithLabel(visible);
+    ssgSwL5Slider.setVisibleWithLabel(visible);
+    ssgSwR6Slider.setVisibleWithLabel(visible);
+    ssgSwL6Slider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &ssgSwEnvBypassButton });
+        layoutMain({ .mainRect = rect, .label = &ssgSwStepsSlider.label, .component = &ssgSwStepsSlider });
+        layoutMain({ .mainRect = rect, .component = &ssgSwEnvLoopButton });
+        layoutMain({ .mainRect = rect, .label = &ssgSwLoopToSlider.label, .component = &ssgSwLoopToSlider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwLoopCountSlider.label, .component = &ssgSwLoopCountSlider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwStartLevelSlider.label, .component = &ssgSwStartLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR1Slider.label, .component = &ssgSwR1Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL1Slider.label, .component = &ssgSwL1Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR2Slider.label, .component = &ssgSwR2Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL2Slider.label, .component = &ssgSwL2Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR3Slider.label, .component = &ssgSwR3Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL3Slider.label, .component = &ssgSwL3Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR4Slider.label, .component = &ssgSwR4Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL4Slider.label, .component = &ssgSwL4Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR5Slider.label, .component = &ssgSwR5Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL5Slider.label, .component = &ssgSwL5Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwR6Slider.label, .component = &ssgSwR6Slider });
+        layoutMain({ .mainRect = rect, .label = &ssgSwL6Slider.label, .component = &ssgSwL6Slider });
     }
 }
 

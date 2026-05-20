@@ -130,16 +130,28 @@ namespace AdpcmPrValue
 
 		namespace Steps
 		{
-			inline constexpr int min = 0;
-			inline constexpr int max = 4;
-			inline constexpr int initial = 4;
+			inline constexpr int min = 1;
+			inline constexpr int max = 5;
+			inline constexpr int initial = 5;
 		}
 
-		namespace R0
+		namespace Loop
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float initial = false;
+		}
+
+		namespace LoopTo
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
+
+		namespace LoopCount
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 200;
+			inline constexpr int initial = 0;
 		}
 
 		namespace R1
@@ -177,14 +189,14 @@ namespace AdpcmPrValue
 			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
-		namespace Stl
+		namespace R6
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = 0.00f; // 最小値（秒）
+			inline constexpr float max = 5.0f;  // 最大値（秒）
+			inline constexpr float initial = 0.0f; // 初期値（秒）
 		}
 
-		namespace L0
+		namespace Stl
 		{
 			inline constexpr float min = 0.0f; // 最小値
 			inline constexpr float max = 1.0f;  // 最大値
@@ -213,6 +225,20 @@ namespace AdpcmPrValue
 		}
 
 		namespace L4
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L5
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.0f; // 初期値
+		}
+
+		namespace L6
 		{
 			inline constexpr float min = 0.0f; // 最小値
 			inline constexpr float max = 1.0f;  // 最大値

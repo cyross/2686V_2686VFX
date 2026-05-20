@@ -25,12 +25,16 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     // PitchEnv Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, code + AdpcmPrName::PitchAdsr::bypass, AdpcmPrValue::PitchAdsr::Bypass::initial));
 
+    // SSG SwEnv Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, code + AdpcmPrName::SsgSwEnv::bypass, AdpcmPrValue::SsgSwEnv::Bypass::initial));
+
     // Detune
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
 
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
+    addSsgSwEnvParameters(layout, code);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -62,6 +66,25 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::atl);
     params.adpcm.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::ssl);
     params.adpcm.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::rll);
+
+    params.adpcm.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass) > AdpcmPrValue::boolThread);
+    params.adpcm.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::steps);
+    params.adpcm.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loop) > AdpcmPrValue::boolThread);
+    params.adpcm.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loopTo);
+    params.adpcm.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loopCount);
+    params.adpcm.ssgSwEnv.stl = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::stl);
+    params.adpcm.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r1);
+    params.adpcm.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l1);
+    params.adpcm.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r2);
+    params.adpcm.ssgSwEnv.l2 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l2);
+    params.adpcm.ssgSwEnv.r3 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r3);
+    params.adpcm.ssgSwEnv.l3 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l3);
+    params.adpcm.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r4);
+    params.adpcm.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l4);
+    params.adpcm.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r5);
+    params.adpcm.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l5);
+    params.adpcm.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r6);
+    params.adpcm.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l6);
 
     params.adpcm.detune = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt);
     params.adpcm.detune2 = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt2);

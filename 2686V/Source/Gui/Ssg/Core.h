@@ -47,19 +47,13 @@ class GuiSsg : public GuiBase
 
     GuiComboBox rateSelector;
 
+    // Amp ADSR
     GuiCategoryLabel adsrCat;
-
-    // SSG ADSR
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
-
     GuiSlider startLevelSlider;
-
     GuiSlider attackSlider;
-
     GuiSlider decaySlider;
-
     GuiSlider sustainSlider;
-
     GuiSlider releaseSlider;
 
     // Pitch ADSR
@@ -77,9 +71,10 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel ssgSwEnvCat;
     GuiToggleButton ssgSwEnvBypassButton; // SSG SW Env Bypass Switch
     GuiSlider ssgSwStepsSlider;
+    GuiToggleButton ssgSwEnvLoopButton;
+    GuiSlider ssgSwLoopToSlider;
+    GuiSlider ssgSwLoopCountSlider;
     GuiSlider ssgSwStartLevelSlider;
-    GuiSlider ssgSwR0Slider;
-    GuiSlider ssgSwL0Slider;
     GuiSlider ssgSwR1Slider;
     GuiSlider ssgSwL1Slider;
     GuiSlider ssgSwR2Slider;
@@ -89,6 +84,9 @@ class GuiSsg : public GuiBase
     GuiSlider ssgSwR4Slider;
     GuiSlider ssgSwL4Slider;
     GuiSlider ssgSwR5Slider;
+    GuiSlider ssgSwL5Slider;
+    GuiSlider ssgSwR6Slider;
+    GuiSlider ssgSwL6Slider;
 
     // Detune
     GuiCategoryLabel detuneCat;
@@ -186,9 +184,10 @@ public:
 		ssgSwEnvCat(context),
 		ssgSwEnvBypassButton(context),
 		ssgSwStepsSlider(context),
+		ssgSwEnvLoopButton(context),
+		ssgSwLoopToSlider(context),
+		ssgSwLoopCountSlider(context),
 		ssgSwStartLevelSlider(context),
-		ssgSwR0Slider(context),
-		ssgSwL0Slider(context),
 		ssgSwR1Slider(context),
 		ssgSwL1Slider(context),
 		ssgSwR2Slider(context),
@@ -198,7 +197,10 @@ public:
 		ssgSwR4Slider(context),
 		ssgSwL4Slider(context),
 		ssgSwR5Slider(context),
-		detuneCat(context),
+        ssgSwL5Slider(context),
+        ssgSwR6Slider(context),
+        ssgSwL6Slider(context),
+        detuneCat(context),
 		dt1(context),
 		dt2(context),
         lfoCat(context),

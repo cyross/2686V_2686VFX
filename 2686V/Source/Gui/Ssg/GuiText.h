@@ -32,12 +32,12 @@ namespace SsgGuiText
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String shape = u8"--- ENVELOPE ---";
-		static inline const juce::String visibleHwEnv = u8"[■]--- HW ENVELOPE ---";
-		static inline const juce::String invisibleHwEnv = u8"[□]--- HW ENVELOPE ---";
-		static inline const juce::String visibleSwEnv = u8"[■]--- SW ENVELOPE ---";
-		static inline const juce::String invisibleSwEnv = u8"[□]--- SW ENVELOPE ---";
+		static inline const juce::String visibleHwEnv = u8"[■]--- HW ENV ---";
+		static inline const juce::String invisibleHwEnv = u8"[□]--- HW ENV ---";
+		static inline const juce::String visibleSwEnv = u8"[■]--- SW ENV ---";
+		static inline const juce::String invisibleSwEnv = u8"[□]--- SW ENV ---";
 		static inline const juce::String mix = u8"--- MIX ---";
-		static inline const juce::String ssgTone = u8"--- TOME ---";
+		static inline const juce::String ssgTone = u8"--- TONE ---";
 		static inline const juce::String ssgNoise = u8"--- NOISE ---";
 		static inline const juce::String invert = u8"--- INVERT ---";
 		static inline const juce::String peak = u8"--- PEAK ---";
@@ -90,9 +90,10 @@ namespace SsgGuiText
 	{
 		static inline const juce::String bypass = u8"Bypass";
 		static inline const juce::String steps = u8" Steps";
+		static inline const juce::String loop = u8" Loop";
+		static inline const juce::String loopTo = u8" Loop To";
+		static inline const juce::String loopCount = u8" Loop Cnt";
 		static inline const juce::String stl = u8" Stl";
-		static inline const juce::String r0 = u8" R0";
-		static inline const juce::String l0 = u8" L0";
 		static inline const juce::String r1 = u8" R1";
 		static inline const juce::String l1 = u8" L1";
 		static inline const juce::String r2 = u8" R2";
@@ -102,6 +103,9 @@ namespace SsgGuiText
 		static inline const juce::String r4 = u8" R4";
 		static inline const juce::String l4 = u8" L4";
 		static inline const juce::String r5 = u8" R5";
+		static inline const juce::String l5 = u8" L5";
+		static inline const juce::String r6 = u8" R6";
+		static inline const juce::String l6 = u8" L6";
 	}
 
 	namespace Lfo

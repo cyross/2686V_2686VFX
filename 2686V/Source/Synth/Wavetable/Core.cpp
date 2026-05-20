@@ -19,6 +19,7 @@ void WtCore::prepare(double sampleRate)
 
     m_adsr.prepare(m_targetRate);
     m_pitchAdsr.prepare(m_targetRate);
+    m_ssgSwEnv.prepare(m_targetRate);
     m_lfo.prepare(m_targetRate);
 
     updatePhaseDelta();
@@ -30,6 +31,7 @@ void WtCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
+	m_ssgSwEnv.setParameters(params.wt.ssgSwEnv);
 	m_detune.setParameters(params.wt.detune, params.wt.detune2, 1);
     m_lfo.setParameters(
         params.wt.lfoSyncDelay,
@@ -51,6 +53,7 @@ void WtCore::setParameters(const SynthParams& params)
 
         m_adsr.updateSampleRate(m_targetRate);
         m_pitchAdsr.updateSampleRate(m_targetRate);
+        m_ssgSwEnv.updateSampleRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
@@ -103,8 +106,10 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     m_rateAccumulator = 1.0f; // Force update on first sample
     m_lastSample = 0.0f;
 
-    m_currentLevel = m_adsr.noteOn();
+    m_currentLevel = velocity;
+    m_adsr.noteOn();
     m_pitchAdsr.noteOn();
+	m_ssgSwEnv.noteOn();
     m_lfo.noteOn();
 }
 
@@ -112,11 +117,12 @@ void WtCore::noteOff()
 {
     m_adsr.noteOff();
 	m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
 bool WtCore::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_pitchAdsr.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -149,17 +155,44 @@ void WtCore::setPitchBendRatio(float ratio)
 
 float WtCore::getSample()
 {
-    if (m_adsr.isIdle()) {
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
+
         return 0.0f;
     }
 
-    if (!m_adsr.isBypassed())
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        m_currentLevel = m_adsr.process(m_currentLevel);
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
+        }
     }
     else
     {
-        m_currentLevel = m_adsr.isRelease() ? 0.0f : 1.0f;
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentLevel = m_adsr.process(m_currentLevel);
+            finalEnv *= m_currentLevel; // 掛け算
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
     }
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
@@ -291,7 +324,7 @@ float WtCore::getSample()
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 
-    return m_lastSample * m_currentLevel * m_level;
+    return m_lastSample * finalEnv * m_currentLevel * m_level;
  }
 
 // 波形データ生成

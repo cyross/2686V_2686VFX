@@ -7,6 +7,7 @@
 #include "../../Generator/Pcm/Core.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
 
 // --- Core Class ---
@@ -52,6 +53,7 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
     OpmDetune m_detune;
 
     float m_currentLevel = 0.0f;

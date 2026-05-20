@@ -104,6 +104,8 @@ void SsgCore::setParameters(const SynthParams& params)
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
+    m_currentLevel = velocity;
+
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(freq);
@@ -120,7 +122,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     m_rateAccumulator = 1.0f;
     m_lastSample = 0.0f;
 
-    m_currentLevel = m_adsr.noteOn();
+    m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
     m_lfo.noteOn();
@@ -133,7 +135,7 @@ void SsgCore::noteOff()
 	m_ssgSwEnv.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_pitchAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -166,44 +168,42 @@ void SsgCore::setPitchBendRatio(float ratio)
 float SsgCore::getSample()
 {
     if (!isPlaying()) {
+		// ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+		// ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
+
         return 0.0f;
     }
 
-    // --- ADSR / Gate Logic ---
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
     if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        // 両方バイパスの時は完全な矩形波（Gate）動作
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
         if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
-            m_adsr.bypassedReleasedProcess();     // 強制的にIdleにする
-            m_ssgSwEnv.bypassedReleasedProcess(); // 強制的にIdleにする
-            m_currentLevel = 0.0f;
-        }
-        else {
-            m_currentLevel = 1.0f;
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
         }
     }
     else
     {
-        // --- メインADSRの処理 ---
-        if (m_adsr.isBypassed()) {
-            // バイパス中にキーオフされたら安全にIdleへ逃がす
-            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-
-            // バイパス時は「音量1.0」として次へ渡す (SSG Envが確実に効くようにする)
-            m_currentLevel = 1.0f;
-        }
-        else {
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
-        }
-
-        // --- カスタムエンベロープ(SsgSwEnv)の処理 ---
-        if (m_ssgSwEnv.isBypassed()) {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-
-            // バイパス時は掛け算に影響を与えない (そのままスルー)
+            finalEnv *= m_currentLevel; // 掛け算
         }
         else {
-            m_currentLevel = m_ssgSwEnv.process(m_currentLevel);
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
         }
     }
 
@@ -371,7 +371,7 @@ float SsgCore::getSample()
         m_lastSample = sumOut / (float)steps;
     }
 
-    return m_lastSample * m_currentLevel;
+    return m_lastSample * finalEnv * m_currentLevel;
 }
 
 void SsgCore::updatePhaseDelta() {

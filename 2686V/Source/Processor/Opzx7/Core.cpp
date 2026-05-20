@@ -52,6 +52,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::phaseOffset, namePrefix + Opzx7PrName::phaseOffset, Opzx7PrValue::Op::PhaseOffset::min, Opzx7PrValue::Op::PhaseOffset::max, Opzx7PrValue::Op::PhaseOffset::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::PitchAdsr::enable, namePrefix + Opzx7PrName::PitchAdsr::enable, Opzx7PrValue::Op::PitchAdsr::Enable::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::SsgSwEnv::enable, namePrefix + Opzx7PrName::SsgSwEnv::enable, Opzx7PrValue::Op::SsgSwEnv::Enable::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::fix, namePrefix + Opzx7PrName::fix, Opzx7PrValue::Op::Fix::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::fixFreq, namePrefix + Opzx7PrName::fixFreq, Opzx7PrValue::Op::FixFreq::min, Opzx7PrValue::Op::FixFreq::max, Opzx7PrValue::Op::FixFreq::initial));
@@ -85,6 +86,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::xof, namePrefix + Opzx7PrName::xof, Opzx7PrValue::Op::Xof::initial)); // Xof (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
+        addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -175,5 +177,25 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].pitchAdsr.atl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::atl);
         params.opzx7.op[op].pitchAdsr.ssl = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::ssl);
         params.opzx7.op[op].pitchAdsr.rll = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::rll);
+
+        params.opzx7.op[op].ssgEnvEnable = (*apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::enable) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].ssgSwEnv.bypass = false;
+        params.opzx7.op[op].ssgSwEnv.steps = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::steps);
+        params.opzx7.op[op].ssgSwEnv.loop = (*apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::loop) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::loopTo);
+        params.opzx7.op[op].ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::loopCount);
+        params.opzx7.op[op].ssgSwEnv.stl = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::stl);
+        params.opzx7.op[op].ssgSwEnv.r1 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r1);
+        params.opzx7.op[op].ssgSwEnv.l1 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l1);
+        params.opzx7.op[op].ssgSwEnv.r2 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r2);
+        params.opzx7.op[op].ssgSwEnv.l2 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l2);
+        params.opzx7.op[op].ssgSwEnv.r3 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r3);
+        params.opzx7.op[op].ssgSwEnv.l3 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l3);
+        params.opzx7.op[op].ssgSwEnv.r4 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r4);
+        params.opzx7.op[op].ssgSwEnv.l4 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l4);
+        params.opzx7.op[op].ssgSwEnv.r5 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r5);
+        params.opzx7.op[op].ssgSwEnv.l5 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l5);
+        params.opzx7.op[op].ssgSwEnv.r6 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::r6);
+        params.opzx7.op[op].ssgSwEnv.l6 = *apvts.getRawParameterValue(p + Opzx7PrKey::SsgSwEnv::l6);
     }
 }

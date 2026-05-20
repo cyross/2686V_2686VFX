@@ -6,6 +6,9 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -46,6 +49,10 @@ public:
     bool isPlaying() const;
     float getSample(double hostSampleRate, float pitchRatio);
 private:
+    AmpAdsrEnv m_adsr;
+    PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
+
     void refreshAdpcmBuffer();
 };
 

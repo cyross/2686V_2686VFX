@@ -121,9 +121,10 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 
 	params.ssg.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass) > SsgPrValue::boolThread);
 	params.ssg.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::steps);
+	params.ssg.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loop) > SsgPrValue::boolThread);
+	params.ssg.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopTo);
+	params.ssg.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopCount);
 	params.ssg.ssgSwEnv.stl = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::stl);
-	params.ssg.ssgSwEnv.r0 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r0);
-	params.ssg.ssgSwEnv.l0 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l0);
 	params.ssg.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r1);
 	params.ssg.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l1);
 	params.ssg.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r2);
@@ -133,6 +134,9 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 	params.ssg.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r4);
 	params.ssg.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l4);
 	params.ssg.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r5);
+    params.ssg.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l5);
+    params.ssg.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r6);
+    params.ssg.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l6);
 
     params.ssg.lfoPmFreq = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmFreq);
     params.ssg.lfoAmFreq = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::amFreq);

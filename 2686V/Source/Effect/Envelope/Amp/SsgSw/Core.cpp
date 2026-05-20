@@ -15,9 +15,8 @@ void SsgSwEnv::updateTargetSampleRate(double newSampleRate)
 void SsgSwEnv::setParameters(const SsgSwEnvParams& params) {
 	this->bypass = params.bypass;
 	this->steps = params.steps;
-	this->r0 = params.r0;
-	this->l0 = params.l0;
-	this->r1 = params.r1;
+    this->stl = params.stl;
+    this->r1 = params.r1;
 	this->l1 = params.l1;
 	this->r2 = params.r2;
 	this->l2 = params.l2;
@@ -26,120 +25,113 @@ void SsgSwEnv::setParameters(const SsgSwEnvParams& params) {
 	this->r4 = params.r4;
 	this->l4 = params.l4;
 	this->r5 = params.r5;
-	this->stl = params.stl;
+	this->l5 = params.l5;
+	this->r6 = params.r6;
+	this->l6 = params.l6;
     this->updateIncrements();
 }
 
-float SsgSwEnv::noteOn() {
-    this->state = State::R0;
-
-    this->m_currentRate = this->stl;
-
-    return this->stl;
+void SsgSwEnv::noteOn() {
+    state = State::S1;
+    currentLevel = this->stl; // Start Level から開始
 }
 
 void SsgSwEnv::noteOff() {
-    this->state = State::R5;
-
-    // キーが離された瞬間のレベル(m_currentRate)から、0.0に向けて減衰する傾きを計算
-    float timeInSeconds = std::max(0.001f, this->r5);
-    this->r5Inc = (0.0f - this->m_currentRate) / (timeInSeconds * (float)this->sampleRate);
+    state = State::S6;
+    float r = std::max(0.001f, this->r6);
+    // 現在のレベルからV6に向けて減衰・上昇する傾きを計算
+    r6Inc = (this->l6 - currentLevel) / (r * (float)sampleRate);
 }
 
-float SsgSwEnv::bypassedReleasedProcess() {
-   this->state = State::Idle;
-
-   return 0.0f;
+void SsgSwEnv::bypassedReleasedProcess() {
+    state = State::Idle;
 }
 
-float SsgSwEnv::bypassedProcess() {
-    return 1.0f;
+inline bool SsgSwEnv::isReached(float inc, float current, float target) const {
+    if (inc >= 0.0f && current >= target) return true;
+    if (inc < 0.0f && current <= target) return true;
+
+    return false;
 }
 
-float SsgSwEnv::process(float currentLevel) {
-    if (this->bypass) {
-        return currentLevel;
-    }
+float SsgSwEnv::process() {
+    if (this->bypass) return 1.0f; // バイパス時は音量1.0(影響なし)を返す
 
-	float newRate = this->m_currentRate;
-
-    // --- ADSR Logic ---
-    if (this->state == State::R0) {
-        newRate += this->r0Inc;
-
-        if (this->r0Inc < 0.0f ? newRate <= this->l0 : newRate >= this->l0) {
-            newRate = this->l0;
+    switch (state) {
+    case State::S1:
+        currentLevel += r1Inc;
+        if (this->r1 <= 0.001f || isReached(r1Inc, currentLevel, this->l1)) {
+            currentLevel = this->l1;
             if (this->steps > 0)
             {
-				this->state = State::R1;
+                state = State::S2;
             }
         }
-    }
-    else if (this->state == State::R1) {
-        newRate += this->r1Inc;
-
-        if (this->r1Inc < 0.0f ? newRate <= this->l1 : newRate >= this->l1) {
-            newRate = this->l1;
+        break;
+    case State::S2:
+        currentLevel += r2Inc;
+        if (this->r2 <= 0.001f || isReached(r2Inc, currentLevel, this->l2)) {
+            currentLevel = this->l2;
             if (this->steps > 1)
             {
-                this->state = State::R2;
+                state = State::S3;
             }
         }
-    }
-    else if (this->state == State::R2) {
-        newRate += this->r2Inc;
-
-        if (this->r2Inc < 0.0f ? newRate <= this->l2 : newRate >= this->l2) {
-            newRate = this->l2;
+        break;
+    case State::S3:
+        currentLevel += r3Inc;
+        if (this->r3 <= 0.001f || isReached(r3Inc, currentLevel, this->l3)) {
+            currentLevel = this->l3;
             if (this->steps > 2)
             {
-                this->state = State::R3;
+                state = State::S4;
             }
         }
-    }
-    else if (this->state == State::R3) {
-        newRate += this->r3Inc;
-
-        if (this->r3Inc < 0.0f ? newRate <= this->l3 : newRate >= this->l3) {
-            newRate = this->l3;
+        break;
+    case State::S4:
+        currentLevel += r4Inc;
+        if (this->r4 <= 0.001f || isReached(r4Inc, currentLevel, this->l4)) {
+            currentLevel = this->l4;
             if (this->steps > 3)
             {
-                this->state = State::R4;
+                state = State::S5;
             }
         }
-    }
-    else if (this->state == State::R4) {
-        newRate += this->r4Inc;
-
-        if (this->r4Inc < 0.0f ? newRate <= this->l4 : newRate >= this->l4) {
-            newRate = this->l4;
+        break;
+    case State::S5:
+        currentLevel += r5Inc;
+        if (this->r5 <= 0.001f || isReached(r5Inc, currentLevel, this->l5)) {
+            currentLevel = this->l5; // S5到達後はホールド(サステイン)
         }
-    }
-    else if (this->state == State::R5) {
-        newRate += this->r5Inc;
-
-        if (newRate <= 0.0f) {
-            newRate = 0.0f;
-            this->state = State::Idle;
+        break;
+    case State::S6:
+        currentLevel += r6Inc;
+        if (this->r6 <= 0.001f || isReached(r6Inc, currentLevel, this->l6)) {
+            currentLevel = this->l6; state = State::Idle;
         }
+        break;
+    default:
+        break;
     }
 
-	this->m_currentRate = newRate;
-
-    return currentLevel * newRate;
+    return currentLevel;
 }
 
 void SsgSwEnv::updateIncrements()
 {
-    if (this->sampleRate <= 0.0) return;
+    if (sampleRate <= 0.0) return;
 
-    this->r0Inc = (this->l0 - this->stl) / (float)(std::max(0.001f, this->r0) * this->sampleRate);
-    this->r1Inc = (this->l1 - this->l0) / (float)(std::max(0.001f, this->r1) * this->sampleRate);
-    this->r2Inc = (this->l2 - this->l1) / (float)(std::max(0.001f, this->r2) * this->sampleRate);
-    this->r3Inc = (this->l3 - this->l2) / (float)(std::max(0.001f, this->r3) * this->sampleRate);
-    this->r4Inc = (this->l4 - this->l3) / (float)(std::max(0.001f, this->r4) * this->sampleRate);
-	// r5IncはnoteOff()で動的に計算されるため、ここでは初期化のみ行う
-    this->r5Inc = 0.0f;
+    auto calcInc = [&](float r, float target, float start) {
+        // Rが0に近い場合は一瞬で到達させるためのフラグ代わり
+        return r <= 0.001f ? (target - start) : (target - start) / (r * (float)sampleRate);
+        };
+
+    r1Inc = calcInc(this->r1, this->l1, this->stl);
+    r2Inc = calcInc(this->r2, this->l2, this->l1);
+    r3Inc = calcInc(this->r3, this->l3, this->l2);
+    r4Inc = calcInc(this->r4, this->l4, this->l3);
+    r5Inc = calcInc(this->r5, this->l5, this->l4);
+    // r6IncはnoteOff時に動的計算するためここでは計算しない
 }
 
 void SsgSwEnv::updateSampleRate(double newSampleRate) {

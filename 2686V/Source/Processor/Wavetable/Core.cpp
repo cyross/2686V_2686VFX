@@ -68,6 +68,9 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // PitchEnv Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::pitchAdsr + WtPrKey::bypass, code + WtPrName::PitchAdsr::bypass, WtPrValue::PitchAdsr::Bypass::initial));
 
+    // SSG SwEnv Bypass Switch
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::ssgSwEnv + WtPrKey::bypass, code + WtPrName::SsgSwEnv::bypass, WtPrValue::SsgSwEnv::Bypass::initial));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::pmFreq, code + WtPrName::Lfo::pmFreq, WtPrValue::Lfo::PmFreq::min, WtPrValue::Lfo::PmFreq::max, WtPrValue::Lfo::PmFreq::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Lfo::amFreq, code + WtPrName::Lfo::amFreq, WtPrValue::Lfo::AmFreq::min, WtPrValue::Lfo::AmFreq::max, WtPrValue::Lfo::AmFreq::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Lfo::syncDelay, code + WtPrName::Lfo::syncDelay, WtPrValue::Lfo::SyncDelay::min, WtPrValue::Lfo::SyncDelay::max, WtPrValue::Lfo::SyncDelay::initial));
@@ -83,6 +86,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
 
     addEnvParameters(layout, code);
 	addPitchEnvParameters(layout, code);
+    addSsgSwEnvParameters(layout, code);
 }
 
 void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -120,6 +124,25 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::atl);
     params.wt.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ssl);
     params.wt.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rll);
+
+    params.wt.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + WtPrKey::ssgSwEnv + WtPrKey::bypass) > WtPrValue::boolThread);
+    params.wt.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::steps);
+    params.wt.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loop) > WtPrValue::boolThread);
+    params.wt.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopTo);
+    params.wt.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopCount);
+    params.wt.ssgSwEnv.stl = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::stl);
+    params.wt.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r1);
+    params.wt.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l1);
+    params.wt.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r2);
+    params.wt.ssgSwEnv.l2 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l2);
+    params.wt.ssgSwEnv.r3 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r3);
+    params.wt.ssgSwEnv.l3 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l3);
+    params.wt.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r4);
+    params.wt.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l4);
+    params.wt.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r5);
+    params.wt.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l5);
+    params.wt.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r6);
+    params.wt.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
 
     params.wt.detune = (int)*apvts.getRawParameterValue(code + WtPrKey::dt);
     params.wt.detune2 = (int)*apvts.getRawParameterValue(code + WtPrKey::dt2);

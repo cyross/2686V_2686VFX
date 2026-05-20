@@ -33,6 +33,8 @@ public:
 	void noteOn();
 	void noteOff();
 	float process(float phaseDelta);
+	float bypassedReleasedProcess();
+	float bypassedProcess();
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }

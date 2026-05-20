@@ -317,15 +317,18 @@ const std::array<Opzx7Operator::SsgWaveCalculator, 16> Opzx7Operator::ssgWaveStr
 
 void Opzx7Operator::prepare(double sampleRate) {
     m_pitchAdsr.prepare(sampleRate);
+	m_ssgSwEnv.prepare(sampleRate);
+	m_ampAdsr.prepare(sampleRate);
     m_lfo.prepare(sampleRate);
 }
 
 void Opzx7Operator::updateTargetSampleRate(double newSampleRate) {
     m_sampleRate = newSampleRate;
 
-    m_pitchAdsr.updateSampleRate(newSampleRate);
     m_lfo.updateTargetSampleRate(newSampleRate);
     m_ampAdsr.updateTargetSampleRate(newSampleRate);
+    m_pitchAdsr.updateSampleRate(newSampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
 }
 
 void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
@@ -339,6 +342,7 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_detune.setParameters(params.detune, params.detune2, params.multiple, params.mutipleRatio);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_lfo.setParameters(params.lfoSyncDelay, params.vibEnable, params.amEnable, params.lfoFreq, params.lfoFreq, params.pgLfoWave, params.egLfoWave, params.pms, params.pmd, params.ams, params.amd, 0.01f);
 }
 
@@ -395,6 +399,8 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
 
     m_pitchAdsr.noteOn();
+
+	m_ssgSwEnv.noteOn();
 }
 
 void Opzx7Operator::noteOff()
@@ -402,17 +408,37 @@ void Opzx7Operator::noteOff()
     m_ampAdsr.noteOff();
 
     m_pitchAdsr.noteOff();
+
+	m_ssgSwEnv.noteOff();
 }
 
 //void Opzx7Operator::getSample(float& output, float modulator,
 //    float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLfo, float modWheel)
 {
-    if (m_ampAdsr.isIdle()) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
+        output = 0.0f;
+
+        return;
+    }
+
+    float envVal = 1.0f;
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
     m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+    envVal *= m_currentLevel; // 掛け算
 
-    float envVal = m_currentLevel;
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (!m_ssgSwEnv.isBypassed()) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
+    else {
+        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+    }
 
     if (m_params.ssgEg > 0) {
         int safeWave = std::clamp(m_params.ssgEg, 0, 15);

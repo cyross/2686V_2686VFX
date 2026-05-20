@@ -39,9 +39,46 @@ class RhythmPadGui: public GuiBase
 
     GuiToggleButton oneShotButton;
 
+    // Amp ADSR
     GuiCategoryLabel adsrCat;
+    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
+    GuiSlider startLevelSlider;
+    GuiSlider attackSlider;
+    GuiSlider decaySlider;
+    GuiSlider sustainSlider;
+    GuiSlider releaseSlider;
 
-    GuiSlider rrSlider;
+    // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+    GuiSlider pitchAttackSlider;
+    GuiSlider pitchDecaySlider;
+    GuiSlider pitchReleaseSlider;
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
+
+    // SSG SW Env
+    GuiCategoryLabel ssgSwEnvCat;
+    GuiToggleButton ssgSwEnvBypassButton; // SSG SW Env Bypass Switch
+    GuiSlider ssgSwStepsSlider;
+    GuiToggleButton ssgSwEnvLoopButton;
+    GuiSlider ssgSwLoopToSlider;
+    GuiSlider ssgSwLoopCountSlider;
+    GuiSlider ssgSwStartLevelSlider;
+    GuiSlider ssgSwR1Slider;
+    GuiSlider ssgSwL1Slider;
+    GuiSlider ssgSwR2Slider;
+    GuiSlider ssgSwL2Slider;
+    GuiSlider ssgSwR3Slider;
+    GuiSlider ssgSwL3Slider;
+    GuiSlider ssgSwR4Slider;
+    GuiSlider ssgSwL4Slider;
+    GuiSlider ssgSwR5Slider;
+    GuiSlider ssgSwL5Slider;
+    GuiSlider ssgSwR6Slider;
+    GuiSlider ssgSwL6Slider;
 public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
@@ -63,7 +100,40 @@ public:
         volSlider(context),
         oneShotButton(context),
         adsrCat(context),
-        rrSlider(context)
+        adsrBypassButton(context),
+        startLevelSlider(context),
+        attackSlider(context),
+        decaySlider(context),
+        sustainSlider(context),
+        releaseSlider(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context),
+        ssgSwEnvCat(context),
+        ssgSwEnvBypassButton(context),
+        ssgSwStepsSlider(context),
+        ssgSwEnvLoopButton(context),
+        ssgSwLoopToSlider(context),
+        ssgSwLoopCountSlider(context),
+        ssgSwStartLevelSlider(context),
+        ssgSwR1Slider(context),
+        ssgSwL1Slider(context),
+        ssgSwR2Slider(context),
+        ssgSwL2Slider(context),
+        ssgSwR3Slider(context),
+        ssgSwL3Slider(context),
+        ssgSwR4Slider(context),
+        ssgSwL4Slider(context),
+        ssgSwR5Slider(context),
+        ssgSwL5Slider(context),
+        ssgSwR6Slider(context),
+        ssgSwL6Slider(context)
     {
 	}
 
@@ -75,6 +145,8 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
 };
 
 class GuiRhythm : public GuiBase

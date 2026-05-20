@@ -4,6 +4,8 @@
 #include "../../../Effect/Lfo/Opl/Core.h"
 #include "../../../Effect/Envelope/Amp/OplAdsr/Core.h"
 #include "../../../Core/Fm/FmOperator.h"
+#include "../../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../../Effect/Envelope/Amp/SsgSw/Core.h"
 
 class Opl3Operator : public FmOperator
 {
@@ -18,7 +20,7 @@ public:
 	void updateTargetSampleRate(double newSampleRate);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
-	bool isPlaying() const override { return m_ampAdsr.isPlaying(); }
+	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void getSample(float& output, float modulator);
 	void processLfo();
 	float calcWaveform(double phase, int wave) override;
@@ -26,6 +28,8 @@ public:
 private:
 	OplLfoCore m_lfo;
 	OplAdsr m_ampAdsr;
+	PitchAdsrEnv m_pitchAdsr;
+	SsgSwEnv m_ssgSwEnv;
 
 	bool m_zeroDecay = true;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

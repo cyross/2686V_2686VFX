@@ -2,6 +2,7 @@
 
 #include "../../../Effect/Envelope/Amp/Opzx7Adddr/Params.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct Opzx7OpParams
 {
@@ -51,7 +52,11 @@ struct Opzx7OpParams
     float phaseOffset = 0.0f; // OPZX7-PHASE-OFFSET
 
     bool pitchEnvEnable = true;
+    bool ssgEnvEnable = false;
 
     // --- Pitch Envelope ---
     PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
 };

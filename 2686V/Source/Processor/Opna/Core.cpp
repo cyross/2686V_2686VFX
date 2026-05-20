@@ -47,12 +47,18 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpnaPrKey::fixFreq, namePrefix + OpnaPrName::fixFreq, OpnaPrValue::Op::FixFreq::min, OpnaPrValue::Op::FixFreq::max, OpnaPrValue::Op::FixFreq::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpnaPrKey::mask, namePrefix + OpnaPrName::mask, OpnaPrValue::Op::Mask::initial)); // OP Mask (Switch)
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpnaPrKey::PitchAdsr::enable, namePrefix + OpnaPrName::PitchAdsr::enable, OpnaPrValue::Op::PitchAdsr::Enable::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpnaPrKey::SsgSwEnv::enable, namePrefix + OpnaPrName::SsgSwEnv::enable, OpnaPrValue::Op::SsgSwEnv::Enable::initial));
+
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgAr, namePrefix + OpnaPrName::rgAr, OpnaPrValue::Op::RgAdsr::Ar::min, OpnaPrValue::Op::RgAdsr::Ar::max, OpnaPrValue::Op::RgAdsr::Ar::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgDr, namePrefix + OpnaPrName::rgDr, OpnaPrValue::Op::RgAdsr::Dr::min, OpnaPrValue::Op::RgAdsr::Dr::max, OpnaPrValue::Op::RgAdsr::Dr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgSl, namePrefix + OpnaPrName::rgSl, OpnaPrValue::Op::RgAdsr::Sl::min, OpnaPrValue::Op::RgAdsr::Sl::max, OpnaPrValue::Op::RgAdsr::Sl::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgSr, namePrefix + OpnaPrName::rgSr, OpnaPrValue::Op::RgAdsr::Sr::min, OpnaPrValue::Op::RgAdsr::Sr::max, OpnaPrValue::Op::RgAdsr::Sr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgRr, namePrefix + OpnaPrName::rgRr, OpnaPrValue::Op::RgAdsr::Rr::min, OpnaPrValue::Op::RgAdsr::Rr::max, OpnaPrValue::Op::RgAdsr::Rr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgTl, namePrefix + OpnaPrName::rgTl, OpnaPrValue::Op::RgAdsr::Tl::min, OpnaPrValue::Op::RgAdsr::Tl::max, OpnaPrValue::Op::RgAdsr::Tl::initial));
+
+        addOpPitchEnvParameters(layout, prefix, namePrefix);
+        addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -109,5 +115,35 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].m_adsrParams.rr = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgRr);
         params.opna.op[op].m_adsrParams.tl = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgTl);
         params.opna.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + OpnaPrKey::ks);
+
+        params.opna.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::enable) > OpnaPrValue::boolThread);
+        params.opna.op[op].pitchAdsr.bypass = false;
+        params.opna.op[op].pitchAdsr.ar = *apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::ar);
+        params.opna.op[op].pitchAdsr.dr = *apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::dr);
+        params.opna.op[op].pitchAdsr.rr = *apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::rr);
+        params.opna.op[op].pitchAdsr.stl = (int)*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::stl);
+        params.opna.op[op].pitchAdsr.atl = (int)*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::atl);
+        params.opna.op[op].pitchAdsr.ssl = (int)*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::ssl);
+        params.opna.op[op].pitchAdsr.rll = (int)*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::rll);
+
+        params.opna.op[op].ssgEnvEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::enable) > OpnaPrValue::boolThread);
+        params.opna.op[op].ssgSwEnv.bypass = false;
+        params.opna.op[op].ssgSwEnv.steps = (int)*apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::steps);
+        params.opna.op[op].ssgSwEnv.loop = (*apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::loop) > OpnaPrValue::boolThread);
+        params.opna.op[op].ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::loopTo);
+        params.opna.op[op].ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::loopCount);
+        params.opna.op[op].ssgSwEnv.stl = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::stl);
+        params.opna.op[op].ssgSwEnv.r1 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r1);
+        params.opna.op[op].ssgSwEnv.l1 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l1);
+        params.opna.op[op].ssgSwEnv.r2 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r2);
+        params.opna.op[op].ssgSwEnv.l2 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l2);
+        params.opna.op[op].ssgSwEnv.r3 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r3);
+        params.opna.op[op].ssgSwEnv.l3 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l3);
+        params.opna.op[op].ssgSwEnv.r4 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r4);
+        params.opna.op[op].ssgSwEnv.l4 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l4);
+        params.opna.op[op].ssgSwEnv.r5 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r5);
+        params.opna.op[op].ssgSwEnv.l5 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l5);
+        params.opna.op[op].ssgSwEnv.r6 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::r6);
+        params.opna.op[op].ssgSwEnv.l6 = *apvts.getRawParameterValue(p + OpnaPrKey::SsgSwEnv::l6);
     }
 }

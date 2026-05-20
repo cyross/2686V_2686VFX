@@ -7,6 +7,8 @@ void OpnOperator::setParameters(const OpnOpParams& params, float feedback)
     m_params.waveSelect = 0;
     m_ams = (float)params.n88Ams / 15.0f;
     m_ampAdsr.setParameters(params.m_adsrParams);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_detune.setParameters(params.detune, params.multiple);
 }
@@ -17,6 +19,8 @@ void OpnOperator::updateTargetSampleRate(double newSampleRate)
 
     m_lfo.updateTargetSampleRate(newSampleRate);
     m_ampAdsr.updateTargetSampleRate(newSampleRate);
+    m_pitchAdsr.updateSampleRate(newSampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
 }
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
@@ -39,22 +43,44 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
+    m_pitchAdsr.noteOn();
+    m_ssgSwEnv.noteOn();
+
     m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
 }
 
 void OpnOperator::noteOff()
 {
     m_ampAdsr.noteOff();
+    m_pitchAdsr.noteOff();
+    m_ssgSwEnv.noteOff();
 }
 
 void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel)
 {
-    if (m_ampAdsr.isIdle()) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
+        output = 0.0f;
 
+        return;
+    }
+
+    float envVal = 1.0f;
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
     m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+    envVal *= m_currentLevel; // 掛け算
 
-    float envVal = m_currentLevel;
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (!m_ssgSwEnv.isBypassed()) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
+    else {
+        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+    }
 
     // ========================================================
     // 1. Amplitude Modulation (Tremolo) の計算
@@ -107,7 +133,8 @@ void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n8
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

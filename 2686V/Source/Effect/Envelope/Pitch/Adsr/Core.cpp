@@ -107,6 +107,16 @@ float PitchAdsrEnv::process(float phaseDelta) {
     return phaseDelta;
 }
 
+float PitchAdsrEnv::bypassedReleasedProcess() {
+    this->state = State::Idle;
+
+    return 0.0f;
+}
+
+float PitchAdsrEnv::bypassedProcess() {
+    return 1.0f;
+}
+
 void PitchAdsrEnv::updateIncrements()
 {
     if (this->sampleRate <= 0.0) return;

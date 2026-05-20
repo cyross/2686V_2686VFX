@@ -6,6 +6,7 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
 #include "../../Generator/Fm/Fix/Core.h"
 
@@ -41,5 +42,6 @@ private:
     AmpAdsrEnv m_adsr;
     FixMode m_fixMode;
     PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
     OpmDetune m_detune;
 };

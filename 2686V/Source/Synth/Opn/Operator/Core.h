@@ -7,6 +7,8 @@
 #include "../../../Effect/Lfo/Opna/Core.h"
 #include "../../../Effect/Lfo/N88/Core.h"
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/Core.h"
+#include "../../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../../Effect/Envelope/Amp/SsgSw/Core.h"
 
 class OpnOperator : public FmOperator
 {
@@ -19,7 +21,7 @@ public:
 	void updateTargetSampleRate(double newSampleRate);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
-	bool isPlaying() const override { return m_ampAdsr.isPlaying(); }
+	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 private:
 	float maxAmDepthDb = 11.8f;
@@ -28,6 +30,8 @@ private:
 	FixMode m_fixMode;
 	OpnaLfoCore m_lfo;
 	FmRgAdssr m_ampAdsr;
+	PitchAdsrEnv m_pitchAdsr;
+	SsgSwEnv m_ssgSwEnv;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

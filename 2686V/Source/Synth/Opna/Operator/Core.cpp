@@ -91,6 +91,8 @@ void OpnaOperator::updateTargetSampleRate(double newSampleRate)
 
     m_hwLfo.updateTargetSampleRate(this->m_sampleRate);
 	m_ampAdsr.updateTargetSampleRate(this->m_sampleRate);
+	m_pitchAdsr.updateTargetSampleRate(this->m_sampleRate);
+	m_ssgSwEnv.updateTargetSampleRate(this->m_sampleRate);
 }
 
 void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate)
@@ -102,6 +104,8 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
     m_ams = (float)m_params.n88Ams / 15.0f;
 
     m_ampAdsr.setParameters(params.m_adsrParams);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_detune.setParameters(params.detune, params.multiple);
     m_hwLfo.setParameters(
@@ -134,6 +138,9 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_targetLevel = m_ampAdsr.noteOn(velocity);
 
+	m_pitchAdsr.noteOn();
+	m_ssgSwEnv.noteOn();
+
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
     m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
@@ -142,6 +149,8 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 void OpnaOperator::noteOff()
 {
     m_ampAdsr.noteOff();
+    m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
 void OpnaOperator::processLfo()
@@ -151,11 +160,29 @@ void OpnaOperator::processLfo()
 
 void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel)
 {
-    if (m_ampAdsr.isIdle()) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
+        output = 0.0f;
+
+        return;
+    }
+
+    float envVal = 1.0f;
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
     m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+    envVal *= m_currentLevel; // 掛け算
 
-    float envVal = m_currentLevel;
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (!m_ssgSwEnv.isBypassed()) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
+    else {
+        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+    }
 
     if (m_params.ssgEg > 0) {
         int safeWave = std::clamp(m_params.ssgEg, 0, 15);
@@ -221,7 +248,8 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング

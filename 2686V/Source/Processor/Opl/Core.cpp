@@ -34,6 +34,9 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::eg, namePrefix + OplPrName::eg, OplPrValue::Op::Eg::min, OplPrValue::Op::Eg::max, OplPrValue::Op::Eg::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::mask, namePrefix + OplPrName::mask, OplPrValue::Op::Mask::initial)); // OP Mask (Switch)
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::PitchAdsr::enable, namePrefix + OplPrName::PitchAdsr::enable, OplPrValue::Op::PitchAdsr::Enable::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::SsgSwEnv::enable, namePrefix + OplPrName::SsgSwEnv::enable, OplPrValue::Op::SsgSwEnv::Enable::initial));
+
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::rgAr, namePrefix + OplPrName::rgAr, OplPrValue::Op::RgAdsr::Ar::min, OplPrValue::Op::RgAdsr::Ar::max, OplPrValue::Op::RgAdsr::Ar::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::rgDr, namePrefix + OplPrName::rgDr, OplPrValue::Op::RgAdsr::Dr::min, OplPrValue::Op::RgAdsr::Dr::max, OplPrValue::Op::RgAdsr::Dr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::rgSl, namePrefix + OplPrName::rgSl, OplPrValue::Op::RgAdsr::Sl::min, OplPrValue::Op::RgAdsr::Sl::max, OplPrValue::Op::RgAdsr::Sl::initial));
@@ -41,6 +44,9 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::rgTl, namePrefix + OplPrName::rgTl, OplPrValue::Op::RgAdsr::Tl::min, OplPrValue::Op::RgAdsr::Tl::max, OplPrValue::Op::RgAdsr::Tl::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::sus, namePrefix + OplPrName::sus, OplPrValue::Op::Sus::initial));
+
+        addOpPitchEnvParameters(layout, prefix, namePrefix);
+        addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -77,5 +83,35 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opl.op[op].m_adsrParams.ksr = ksrOn;
         params.opl.op[op].m_adsrParams.ksl = (int)*apvts.getRawParameterValue(p + OplPrKey::ksl);
         params.opl.op[op].m_adsrParams.sus = *apvts.getRawParameterValue(p + OplPrKey::sus) > OplPrValue::boolThread;
+
+        params.opl.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::enable) > OplPrValue::boolThread);
+        params.opl.op[op].pitchAdsr.bypass = false;
+        params.opl.op[op].pitchAdsr.ar = *apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::ar);
+        params.opl.op[op].pitchAdsr.dr = *apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::dr);
+        params.opl.op[op].pitchAdsr.rr = *apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::rr);
+        params.opl.op[op].pitchAdsr.stl = (int)*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::stl);
+        params.opl.op[op].pitchAdsr.atl = (int)*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::atl);
+        params.opl.op[op].pitchAdsr.ssl = (int)*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::ssl);
+        params.opl.op[op].pitchAdsr.rll = (int)*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::rll);
+
+        params.opl.op[op].ssgEnvEnable = (*apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::enable) > OplPrValue::boolThread);
+        params.opl.op[op].ssgSwEnv.bypass = false;
+        params.opl.op[op].ssgSwEnv.steps = (int)*apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::steps);
+        params.opl.op[op].ssgSwEnv.loop = (*apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::loop) > OplPrValue::boolThread);
+        params.opl.op[op].ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::loopTo);
+        params.opl.op[op].ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::loopCount);
+        params.opl.op[op].ssgSwEnv.stl = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::stl);
+        params.opl.op[op].ssgSwEnv.r1 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r1);
+        params.opl.op[op].ssgSwEnv.l1 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l1);
+        params.opl.op[op].ssgSwEnv.r2 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r2);
+        params.opl.op[op].ssgSwEnv.l2 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l2);
+        params.opl.op[op].ssgSwEnv.r3 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r3);
+        params.opl.op[op].ssgSwEnv.l3 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l3);
+        params.opl.op[op].ssgSwEnv.r4 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r4);
+        params.opl.op[op].ssgSwEnv.l4 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l4);
+        params.opl.op[op].ssgSwEnv.r5 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r5);
+        params.opl.op[op].ssgSwEnv.l5 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l5);
+        params.opl.op[op].ssgSwEnv.r6 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::r6);
+        params.opl.op[op].ssgSwEnv.l6 = *apvts.getRawParameterValue(p + OplPrKey::SsgSwEnv::l6);
     }
 }

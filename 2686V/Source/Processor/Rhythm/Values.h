@@ -69,11 +69,224 @@ namespace RhythmPrValue
 
 		namespace Adsr
 		{
+			namespace Bypass
+			{
+				inline constexpr float initial = CorePrValue::Adsr::Bypass::initial;
+			}
+
+			namespace Ar
+			{
+				inline constexpr float min = CorePrValue::Adsr::Ar::min;
+				inline constexpr float max = CorePrValue::Adsr::Ar::max;
+				inline constexpr float initial = CorePrValue::Adsr::Ar::initial;
+			}
+
+			namespace Dr
+			{
+				inline constexpr float min = CorePrValue::Adsr::Dr::min;
+				inline constexpr float max = CorePrValue::Adsr::Dr::max;
+				inline constexpr float initial = CorePrValue::Adsr::Dr::initial;
+			}
+
+			namespace Sl
+			{
+				inline constexpr float min = CorePrValue::Adsr::Sl::min;
+				inline constexpr float max = CorePrValue::Adsr::Sl::max;
+				inline constexpr float initial = CorePrValue::Adsr::Sl::initial;
+			}
+
 			namespace Rr
 			{
 				inline constexpr float min = CorePrValue::Adsr::Rr::min;
 				inline constexpr float max = CorePrValue::Adsr::Rr::max;
 				inline constexpr float initial = CorePrValue::Adsr::Rr::initial;
+			}
+		}
+
+		namespace PitchAdsr
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = false; // 初期値
+			}
+
+			namespace Enable
+			{
+				inline constexpr float initial = true; // 初期値
+			}
+
+			namespace Ar
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Dr
+			{
+				inline constexpr float min = 0.0f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Rr
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Ssl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Atl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Stl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Rll
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+		}
+
+		namespace SsgSwEnv
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = true; // 初期値
+			}
+
+			namespace Steps
+			{
+				inline constexpr int min = 1;
+				inline constexpr int max = 5;
+				inline constexpr int initial = 5;
+			}
+
+			namespace Loop
+			{
+				inline constexpr float initial = false;
+			}
+
+			namespace LoopTo
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 3;
+				inline constexpr int initial = 0;
+			}
+
+			namespace LoopCount
+			{
+				inline constexpr int min = 0;
+				inline constexpr int max = 200;
+				inline constexpr int initial = 0;
+			}
+
+			namespace R1
+			{
+				inline constexpr float min = 0.0f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace R2
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace R3
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace R4
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace R5
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace R6
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Stl
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L1
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L2
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L3
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L4
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L5
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
+			}
+
+			namespace L6
+			{
+				inline constexpr float min = 0.0f; // 最小値
+				inline constexpr float max = 1.0f;  // 最大値
+				inline constexpr float initial = 0.0f; // 初期値
 			}
 		}
 	}
