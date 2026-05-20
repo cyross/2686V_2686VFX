@@ -39,16 +39,12 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         // PitchEnv Bypass Switch
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, namePrefix + RhythmPrName::PitchAdsr::bypass, RhythmPrValue::Pad::PitchAdsr::Bypass::initial));
 
-        // SSG SwEnv Bypass Switch
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, namePrefix + RhythmPrName::SsgSwEnv::bypass, RhythmPrValue::Pad::SsgSwEnv::Bypass::initial));
-
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmOffset, namePrefix + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmRatio, namePrefix + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
 
 
         addOpEnvParameters(layout, prefix, namePrefix);
         addOpPitchEnvParameters(layout, prefix, namePrefix);
-        addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -86,24 +82,5 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.pitchAdsr.atl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::atl);
         pad.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ssl);
         pad.pitchAdsr.rll = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rll);
-
-        pad.ssgSwEnv.bypass = (*apvts.getRawParameterValue(prefix + RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass) > RhythmPrValue::boolThread);
-        pad.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::steps);
-        pad.ssgSwEnv.loop = (*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::loop) > RhythmPrValue::boolThread);
-        pad.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::loopTo);
-        pad.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::loopCount);
-        pad.ssgSwEnv.stl = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::stl);
-        pad.ssgSwEnv.r1 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r1);
-        pad.ssgSwEnv.l1 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l1);
-        pad.ssgSwEnv.r2 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r2);
-        pad.ssgSwEnv.l2 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l2);
-        pad.ssgSwEnv.r3 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r3);
-        pad.ssgSwEnv.l3 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l3);
-        pad.ssgSwEnv.r4 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r4);
-        pad.ssgSwEnv.l4 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l4);
-        pad.ssgSwEnv.r5 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r5);
-        pad.ssgSwEnv.l5 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l5);
-        pad.ssgSwEnv.r6 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::r6);
-        pad.ssgSwEnv.l6 = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::SsgSwEnv::l6);
     }
 }

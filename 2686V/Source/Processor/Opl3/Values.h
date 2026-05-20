@@ -186,7 +186,7 @@ namespace Opl3PrValue
 
 			namespace Enable
 			{
-				inline constexpr float initial = true; // 初期値
+				inline constexpr float initial = false;
 			}
 
 			namespace Steps

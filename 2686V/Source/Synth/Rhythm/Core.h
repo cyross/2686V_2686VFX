@@ -8,7 +8,6 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
-#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -17,10 +16,6 @@ public:
     // Holds raw data and converted data
     std::vector<float> m_rawBuffer;
     std::vector<int16_t> m_adpcmBuffer;
-
-    // 状態管理をenumにする
-    enum class State { Idle, Playing, Release };
-    State m_state = State::Idle;
 
     double m_position = 0.0;
     double m_bufferSampleRate = 16000.0;
@@ -51,7 +46,6 @@ public:
 private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
-    SsgSwEnv m_ssgSwEnv;
 
     void refreshAdpcmBuffer();
 };

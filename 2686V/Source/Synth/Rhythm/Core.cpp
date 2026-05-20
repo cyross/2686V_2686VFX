@@ -18,14 +18,12 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_level = params.level;
     m_pan = params.pan;
     m_isOneShot = params.isOneShot;
-    m_releaseParam = params.release;
 
     m_pcmOffset = params.pcmOffset;
     m_pcmRatio = params.pcmRatio;
 
     m_adsr.setParameters(params.adsr);
     m_pitchAdsr.setParameters(params.pitchAdsr);
-    m_ssgSwEnv.setParameters(params.ssgSwEnv);
 
     bool needRefresh = false;
     if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
@@ -39,15 +37,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 
 void RhythmPad::triggerRelease(double hostSampleRate)
 {
-    if (m_state == State::Playing)
-    {
-        m_state = State::Release;
-
-        // 減衰量を計算 (現在のサンプルレートに基づく)
-        // 0.001秒未満にならないようガード
-        float releaseTime = std::max(0.001f, m_releaseParam);
-        m_releaseDec = 1.0f / (float)(releaseTime * hostSampleRate);
-    }
+    m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
 }
 
 void RhythmPad::start()
@@ -55,27 +46,21 @@ void RhythmPad::start()
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
     m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
 
-    m_state = State::Playing;
-    m_currentEnv = 1.0f;
-
-    m_adsr.noteOn();
+    m_currentEnv = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
-    m_ssgSwEnv.noteOn();
 }
 
 void RhythmPad::stop()
 {
     m_adsr.noteOff();
     m_pitchAdsr.noteOff();
-    m_ssgSwEnv.noteOff();
 
-    m_state = State::Idle;
     m_currentEnv = 0.0f;
 }
 
 bool RhythmPad::isPlaying() const
 {
-    return m_state != State::Idle || m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
+    return m_adsr.isPlaying();
 }
 
 float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
@@ -91,32 +76,22 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
+    if (m_adsr.isBypassed())
     {
         // どちらもバイパスの時は完全な矩形波（Gate）動作
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+        if (m_adsr.isRelease()) {
             m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            finalEnv = 1.0f;
         }
     }
     else
     {
-        // 1. 従来のADSR処理 (内部の m_currentEnvl はADSR専用として維持する)
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
         if (!m_adsr.isBypassed()) {
             m_currentEnv = m_adsr.process(m_currentEnv);
-            finalEnv *= m_currentEnv; // 掛け算
+            finalEnv = m_currentEnv;
         }
         else {
             if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-        }
-
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypassed()) {
-            finalEnv *= m_ssgSwEnv.process(); // 掛け算
-        }
-        else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
         }
     }
 
@@ -143,7 +118,6 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     {
         if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle;
                 return 0.0f;
             }
             else {
@@ -160,7 +134,6 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     {
         if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle;
                 return 0.0f;
             }
             else {
@@ -180,7 +153,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     }
 
     m_position += increment;
-    return output * m_level * m_currentEnv * finalEnv;
+    return output * m_level * finalEnv;
 }
 
 void RhythmPad::refreshAdpcmBuffer()
@@ -194,9 +167,8 @@ void RhythmPad::refreshAdpcmBuffer()
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
     m_bufferSampleRate = targetRate;
 
-    m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(m_bufferSampleRate);
-    m_ssgSwEnv.prepare(m_bufferSampleRate);
+    m_adsr.updateTargetSampleRate(targetRate);
+    m_pitchAdsr.updateTargetSampleRate(targetRate);
 
     double step = m_sourceRate / targetRate;
     Ym2608AdpcmCodec codec;

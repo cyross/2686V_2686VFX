@@ -170,18 +170,13 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
         return;
     }
 
-    float envVal = 1.0f;
-
     // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
     m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
-    envVal *= m_currentLevel; // 掛け算
+    float envVal = m_currentLevel;
 
     // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypassed()) {
+    if (m_params.ssgEnvEnable) {
         envVal *= m_ssgSwEnv.process(); // 掛け算
-    }
-    else {
-        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
     }
 
     if (m_params.ssgEg > 0) {

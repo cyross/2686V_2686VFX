@@ -129,7 +129,7 @@ namespace OplPrValue
 
 			namespace Enable
 			{
-				inline constexpr float initial = true; // 初期値
+				inline constexpr float initial = false;
 			}
 
 			namespace Ar
