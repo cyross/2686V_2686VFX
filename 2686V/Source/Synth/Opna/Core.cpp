@@ -5,11 +5,7 @@
 void OpnaCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
-    // Update operators with current target rate
-    double target = getTargetRate(m_rateIndex);
-
     for (auto& op : m_operators) {
-        op.updateTargetSampleRate(target);
         op.setSampleRate(m_hostSampleRate);
     }
 
@@ -22,8 +18,8 @@ void OpnaCore::prepare(double sampleRate) {
 
     m_amSmooth = 0.0f;
 
-	m_noiseGen.prepare(target);
-    m_n88Lfo.prepare(target);
+	m_noiseGen.prepare(m_hostSampleRate);
+    m_n88Lfo.prepare(m_hostSampleRate);
 }
 
 void OpnaCore::setSampleRate(double sampleRate) {
@@ -33,6 +29,9 @@ void OpnaCore::setSampleRate(double sampleRate) {
         for (auto& op : m_operators) {
             op.setSampleRate(m_hostSampleRate);
         }
+
+        m_noiseGen.updateDelta(m_hostSampleRate);
+        m_n88Lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -55,13 +54,6 @@ void OpnaCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opna.fmRateIndex) {
         m_rateIndex = params.opna.fmRateIndex;
-
-        double target = getTargetRate(m_rateIndex);
-
-        for (auto& op : m_operators) op.updateTargetSampleRate(target);
-
-		m_noiseGen.updateDelta(target);
-        m_n88Lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opna.fmBitDepth);

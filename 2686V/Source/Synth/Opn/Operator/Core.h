@@ -18,7 +18,7 @@ public:
 	OpnOpParams m_params;
 
 	void setParameters(const OpnOpParams& params, float feedback);
-	void updateTargetSampleRate(double newSampleRate);
+	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }

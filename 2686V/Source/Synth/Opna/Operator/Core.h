@@ -18,7 +18,7 @@ public:
 
 	OpnaOpParams m_params;
 
-	void updateTargetSampleRate(double newSampleRate);
+	void setSampleRate(double sampleRate) override;
 	void setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;

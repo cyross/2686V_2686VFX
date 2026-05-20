@@ -19,7 +19,7 @@ public:
 	static const std::array<float, 4> dbPerOcts;
 
 	void setParameters(const OplOpParams& params, float feedback);
-	void updateTargetSampleRate(double newSampleRate);
+	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
 	void getSample(float& output, float modulator);

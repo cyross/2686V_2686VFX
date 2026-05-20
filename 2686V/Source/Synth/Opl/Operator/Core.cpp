@@ -23,14 +23,14 @@ namespace {
     } };
 }
 
-void OplOperator::updateTargetSampleRate(double newSampleRate)
+void OplOperator::setSampleRate(double sampleRate)
 {
-    m_sampleRate = newSampleRate;
+    m_sampleRate = sampleRate;
 
-    m_lfo.updateTargetSampleRate(newSampleRate);
-	m_ampAdsr.updateTargetSampleRate(newSampleRate);
-    m_pitchAdsr.updateSampleRate(newSampleRate);
-    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
+    m_lfo.updateTargetSampleRate(sampleRate);
+	m_ampAdsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateSampleRate(sampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
 void OplOperator::setParameters(const OplOpParams& params, float feedback)

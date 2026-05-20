@@ -85,14 +85,13 @@ const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrat
     },
 } };
 
-void OpnaOperator::updateTargetSampleRate(double newSampleRate)
+void OpnaOperator::setSampleRate(double sampleRate)
 {
-    this->m_sampleRate = newSampleRate;
-
-    m_hwLfo.updateTargetSampleRate(this->m_sampleRate);
-	m_ampAdsr.updateTargetSampleRate(this->m_sampleRate);
-	m_pitchAdsr.updateTargetSampleRate(this->m_sampleRate);
-	m_ssgSwEnv.updateTargetSampleRate(this->m_sampleRate);
+	this->m_sampleRate = sampleRate;
+	m_hwLfo.updateTargetSampleRate(sampleRate);
+	m_ampAdsr.updateTargetSampleRate(sampleRate);
+	m_pitchAdsr.updateTargetSampleRate(sampleRate);
+	m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
 void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate)

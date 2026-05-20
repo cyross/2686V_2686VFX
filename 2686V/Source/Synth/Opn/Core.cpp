@@ -10,7 +10,6 @@ void OpnCore::prepare(double sampleRate)
 
     for (auto& op : m_operators) {
 		op.setSampleRate(m_hostSampleRate);
-        op.updateTargetSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -20,8 +19,8 @@ void OpnCore::prepare(double sampleRate)
     m_steppedAmLfoVal = 0.0f;
     m_amSmooth = 0.0f;
 
-	m_noiseGen.prepare(target);
-    m_n88Lfo.prepare(target);
+	m_noiseGen.prepare(m_hostSampleRate);
+    m_n88Lfo.prepare(m_hostSampleRate);
 }
 
 void OpnCore::setSampleRate(double sampleRate) {
@@ -31,6 +30,9 @@ void OpnCore::setSampleRate(double sampleRate) {
         for (auto& op : m_operators) {
             op.setSampleRate(m_hostSampleRate);
         }
+
+        m_noiseGen.updateDelta(m_hostSampleRate);
+        m_n88Lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -53,11 +55,6 @@ void OpnCore::setParameters(const SynthParams& params)
 
     if (m_rateIndex != params.opn.fmRateIndex) {
         m_rateIndex = params.opn.fmRateIndex;
-        double target = getTargetRate(m_rateIndex);
-        for (auto& op : m_operators) op.updateTargetSampleRate(target);
-
-		m_noiseGen.updateDelta(target);
-        m_n88Lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);

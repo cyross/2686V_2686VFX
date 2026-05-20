@@ -18,7 +18,7 @@ public:
 	Opzx7OpParams m_params;
 
 	void prepare(double sampleRate);
-	void updateTargetSampleRate(double newSampleRate);
+	void setSampleRate(double sampleRate) override;
 	void setParameters(const Opzx7OpParams& params, float feedback);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;

@@ -13,14 +13,14 @@ void OpnOperator::setParameters(const OpnOpParams& params, float feedback)
     m_detune.setParameters(params.detune, params.multiple);
 }
 
-void OpnOperator::updateTargetSampleRate(double newSampleRate)
+void OpnOperator::setSampleRate(double sampleRate)
 {
-    m_sampleRate = newSampleRate;
+    m_sampleRate = sampleRate;
 
-    m_lfo.updateTargetSampleRate(newSampleRate);
-    m_ampAdsr.updateTargetSampleRate(newSampleRate);
-    m_pitchAdsr.updateSampleRate(newSampleRate);
-    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
+    m_lfo.updateTargetSampleRate(sampleRate);
+    m_ampAdsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateSampleRate(sampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)

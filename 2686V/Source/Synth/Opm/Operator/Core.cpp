@@ -14,13 +14,13 @@ void OpmOperator::setParameters(const OpmOpParams& params, float feedback)
 	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
 }
 
-void OpmOperator::updateTargetSampleRate(double newSampleRate)
+void OpmOperator::setSampleRate(double sampleRate)
 {
-    m_sampleRate = newSampleRate;
+    m_sampleRate = sampleRate;
 
-    m_ampAdsr.updateTargetSampleRate(newSampleRate);
-    m_pitchAdsr.updateSampleRate(newSampleRate);
-    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
+    m_ampAdsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateSampleRate(sampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)

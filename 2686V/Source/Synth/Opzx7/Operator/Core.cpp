@@ -322,13 +322,11 @@ void Opzx7Operator::prepare(double sampleRate) {
     m_lfo.prepare(sampleRate);
 }
 
-void Opzx7Operator::updateTargetSampleRate(double newSampleRate) {
-    m_sampleRate = newSampleRate;
-
-    m_lfo.updateTargetSampleRate(newSampleRate);
-    m_ampAdsr.updateTargetSampleRate(newSampleRate);
-    m_pitchAdsr.updateSampleRate(newSampleRate);
-    m_ssgSwEnv.updateTargetSampleRate(newSampleRate);
+void Opzx7Operator::setSampleRate(double sampleRate) {
+	m_sampleRate = sampleRate;
+	m_ampAdsr.updateSampleRate(sampleRate);
+	m_pitchAdsr.updateSampleRate(sampleRate);
+	m_ssgSwEnv.updateSampleRate(sampleRate);
 }
 
 void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
