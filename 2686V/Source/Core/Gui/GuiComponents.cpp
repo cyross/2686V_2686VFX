@@ -431,6 +431,9 @@ void GuiCategoryLabel::setup(const Config& c)
 
     GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = c.font, .justification = c.justification, .color = c.color});
 
+    this->setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.4f));
+
+
     // 切り替え可能なときは、表示・非表示をトグルする関数を追加
     if (this->enableChangeDetailVisible) {
         this->onClick = [this] {
