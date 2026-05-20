@@ -36,6 +36,8 @@ public:
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
     float m_releaseDec = 0.0f;   // 1サンプルあたりの減衰量
 
+	void prepare(double hostSampleRate);
+    void setSampleRate(double sampleRate);
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
@@ -59,6 +61,7 @@ public:
     double m_sampleRate = 44100.0;
 
     void prepare(double sampleRate);
+    void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params);
     void setSampleData(int padIndex, const std::vector<float>& data, double rate);
     void noteOn(float freq, float velocity, int midiNote);

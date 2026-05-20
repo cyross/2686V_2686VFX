@@ -12,11 +12,19 @@ void AdpcmCore::prepare(double sampleRate)
 {
     m_sampleRate = sampleRate;
 
-    m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(m_bufferSampleRate);
-    m_ssgSwEnv.prepare(m_bufferSampleRate);
+    m_adsr.prepare(m_sampleRate);
+    m_pitchAdsr.prepare(m_sampleRate);
+    m_ssgSwEnv.prepare(m_sampleRate);
 
     m_lfoPhase = 0.0;
+}
+
+void AdpcmCore::setSampleRate(double sampleRate)
+{
+	m_sampleRate = sampleRate;
+	m_adsr.updateSampleRate(m_sampleRate);
+	m_pitchAdsr.updateSampleRate(m_sampleRate);
+	m_ssgSwEnv.updateSampleRate(m_sampleRate);
 }
 
 void AdpcmCore::setParameters(const SynthParams& params)

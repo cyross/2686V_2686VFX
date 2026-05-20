@@ -11,6 +11,14 @@ void BeepCore::prepare(double sampleRate) {
     m_fixMode.setParameters(false, 2000.0f);
 }
 
+void BeepCore::setSampleRate(double sampleRate) {
+	if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
+    m_adsr.updateSampleRate(sampleRate);
+	m_pitchAdsr.updateSampleRate(sampleRate);
+	m_ssgSwEnv.updateSampleRate(sampleRate);
+}
+
 void BeepCore::setParameters(const SynthParams& params) {
     m_level = params.beep.level;
 

@@ -17,10 +17,22 @@ void WtCore::prepare(double sampleRate)
 
     m_targetRate = getTargetRate(m_rateIndex);
 
-    m_adsr.prepare(m_targetRate);
-    m_pitchAdsr.prepare(m_targetRate);
-    m_ssgSwEnv.prepare(m_targetRate);
-    m_lfo.prepare(m_targetRate);
+    m_adsr.prepare(m_sampleRate);
+    m_pitchAdsr.prepare(m_sampleRate);
+    m_ssgSwEnv.prepare(m_sampleRate);
+    m_lfo.prepare(m_sampleRate);
+
+    updatePhaseDelta();
+}
+
+void WtCore::setSampleRate(double sampleRate)
+{
+	if (sampleRate > 0.0) m_sampleRate = sampleRate;
+
+    m_adsr.updateSampleRate(m_sampleRate);
+	m_pitchAdsr.updateSampleRate(m_sampleRate);
+	m_ssgSwEnv.updateSampleRate(m_sampleRate);
+	m_lfo.updateTargetSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }

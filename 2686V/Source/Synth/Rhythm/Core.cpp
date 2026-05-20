@@ -3,6 +3,18 @@
 #include "../../Core/Synth/SynthHelpers.h"
 #include "../../Generator/Pcm/Core.h"
 
+void RhythmPad::prepare(double hostSampleRate)
+{
+	m_adsr.prepare(hostSampleRate);
+	m_pitchAdsr.prepare(hostSampleRate);
+}
+
+void RhythmPad::setSampleRate(double sampleRate)
+{
+    m_adsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateTargetSampleRate(sampleRate);
+}
+
 // Set data (Same logic as AdpcmCore)
 void RhythmPad::setSampleData(const std::vector<float>& sourceData, double sourceRate)
 {
@@ -167,9 +179,6 @@ void RhythmPad::refreshAdpcmBuffer()
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
     m_bufferSampleRate = targetRate;
 
-    m_adsr.updateTargetSampleRate(targetRate);
-    m_pitchAdsr.updateTargetSampleRate(targetRate);
-
     double step = m_sourceRate / targetRate;
     Ym2608AdpcmCodec codec;
     codec.reset();
@@ -195,6 +204,17 @@ void RhythmPad::refreshAdpcmBuffer()
 void RhythmCore::prepare(double sampleRate)
 {
     m_sampleRate = sampleRate;
+    for (auto& pad : pads) {
+        pad.prepare(sampleRate);
+    }
+}
+
+void RhythmCore::setSampleRate(double sampleRate)
+{
+	m_sampleRate = sampleRate;
+	for (auto& pad : pads) {
+		pad.setSampleRate(sampleRate);
+	}
 }
 
 void RhythmCore::setParameters(const SynthParams& params)
@@ -216,6 +236,14 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote)
 {
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
+            // ループモード(isOneShot == false)で、かつ既に再生中の場合は、
+            // 新たなNoteOnを無視してループを継続させる。
+            // (あるいは、完全に最初から鳴らし直したい場合は m_position=0 とするが、
+            //  今回は「音が重なる/途切れる」のを防ぐため無視するアプローチをとる)
+            if (!pad.m_isOneShot && pad.isPlaying()) {
+                continue; // 何もしない
+            }
+
             pad.start();
         }
     }

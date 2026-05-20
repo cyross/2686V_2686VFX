@@ -33,17 +33,25 @@ void SsgCore::prepare(double sampleRate) {
 
     m_targetRate = getTargetRate(m_rateIndex);
 
-    m_noiseGen.prepare(m_targetRate);
-    m_adsr.prepare(m_targetRate);
-	m_pitchAdsr.prepare(m_targetRate);
-	m_ssgSwEnv.prepare(m_targetRate);
-    m_lfo.prepare(m_targetRate);
+    m_noiseGen.prepare(m_sampleRate);
+    m_adsr.prepare(m_sampleRate);
+	m_pitchAdsr.prepare(m_sampleRate);
+	m_ssgSwEnv.prepare(m_sampleRate);
+    m_lfo.prepare(m_sampleRate);
 
     updatePhaseDelta();
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
+
+    m_noiseGen.updateTargetRate(m_sampleRate);
+    m_adsr.updateSampleRate(m_sampleRate);
+    m_pitchAdsr.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_lfo.updateTargetSampleRate(m_sampleRate);
+
+    updatePhaseDelta();
 }
 
 void SsgCore::setParameters(const SynthParams& params)

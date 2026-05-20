@@ -18,6 +18,7 @@ public:
     AdpcmCore(): SynthCore() {}
 
     void prepare(double sampleRate) override;
+	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void noteOn(float freq, float velocity, int midiNote) override;
