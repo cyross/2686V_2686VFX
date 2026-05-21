@@ -227,7 +227,7 @@ namespace OpmGuiValue
 	{
 		namespace Op
 		{
-			static inline constexpr int width = 250;
+			static inline constexpr int width = 256;
 			static inline constexpr int height = 640;
 
 			namespace Padding

@@ -522,6 +522,8 @@ class GuiCategoryLabel : public GuiLabel
     bool detailVisible = false;
 	juce::String visibleText = juce::String();
     juce::String invisibleText = juce::String();
+    juce::Font font = juce::Font(16.0f, juce::Font::bold);
+	juce::Colour labelColor = GuiColor::Label::CategoryText;
 public:
     GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}
 
@@ -537,5 +539,10 @@ public:
     };
 
     void setup(const Config& c);
+	void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
+	void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
+	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
 	bool isDetailVisible() const { return this->detailVisible; }
+private:
+    void setupInner(const Config& c, juce::Colour colour);
 };

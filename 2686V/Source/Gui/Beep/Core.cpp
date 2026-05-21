@@ -36,7 +36,7 @@ void GuiBeep::setup() {
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
-    catFix.setup({ .parent = *this, .title = BeepGuiText::Category::visibleFix, .invisibleTitle = BeepGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
+    catFix.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visibleFix, .invisibleTitle = BeepGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
     fixToggle.setup({ .parent = *this, .id = code + BeepPrKey::fix, .title = BeepGuiText::Beep::Fix, .isReset = true });
     fixToggle.setWantsKeyboardFocus(true);
@@ -55,7 +55,7 @@ void GuiBeep::setup() {
     freqTo2kBtn.setWantsKeyboardFocus(true);
     freqTo2kBtn.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleAdsr, .invisibleTitle = BeepGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    adsrCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visibleAdsr, .invisibleTitle = BeepGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     bypassToggle.setup({ .parent = *this, .id = code + BeepPrKey::adsr + BeepPrKey::bypass, .title = BeepGuiText::Beep::Adsr::Bypass, .isReset = true });
     bypassToggle.setWantsKeyboardFocus(true);
@@ -81,7 +81,7 @@ void GuiBeep::setup() {
     rr.setWantsKeyboardFocus(true);
     rr.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = BeepGuiText::Category::visiblePitchAdsr, .invisibleTitle = BeepGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visiblePitchAdsr, .invisibleTitle = BeepGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = code + BeepPrKey::pitchAdsr + BeepPrKey::bypass, .title = BeepGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -115,7 +115,7 @@ void GuiBeep::setup() {
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    ssgSwEnvCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleSwEnv, .invisibleTitle = BeepGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+    ssgSwEnvCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visibleSwEnv, .invisibleTitle = BeepGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
     ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass, .title = BeepGuiText::SsgSwEnv::bypass, .isReset = true });
     ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
@@ -189,7 +189,7 @@ void GuiBeep::setup() {
     ssgSwL6Slider.setWantsKeyboardFocus(true);
     ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleDetune, .invisibleTitle = BeepGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+    detuneCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visibleDetune, .invisibleTitle = BeepGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + BeepPrKey::dt, .title = BeepGuiText::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
@@ -199,13 +199,13 @@ void GuiBeep::setup() {
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMonoMode, .invisibleTitle = BeepGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = BeepGuiText::Category::visibleMonoMode, .invisibleTitle = BeepGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = BeepPrKey::monoMode, .title = BeepGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = BeepGuiText::Category::visibleMvol, .invisibleTitle = BeepGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = BeepGuiText::Category::visibleMvol, .invisibleTitle = BeepGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = BeepPrKey::masterVol, .title = BeepGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);

@@ -422,17 +422,17 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
     };
 }
 
-void GuiCategoryLabel::setup(const Config& c)
+void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
 {
     this->visibleText = c.title;
     this->invisibleText = c.invisibleTitle.value_or(""); // 詳細テキストがない場合は空文字
     this->detailVisible = c.detailVisible;
     this->enableChangeDetailVisible = c.enableChangeDetailVisible;
+    this->font = c.font.value_or(juce::Font(16.0f, juce::Font::bold)); // ハードウェアカテゴリは太字の大きめフォントがデフォルト
 
-    GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = c.font, .justification = c.justification, .color = c.color});
+    GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = font, .justification = c.justification, .color = colour });
 
     this->setColour(juce::Label::backgroundColourId, juce::Colours::black.withAlpha(0.4f));
-
 
     // 切り替え可能なときは、表示・非表示をトグルする関数を追加
     if (this->enableChangeDetailVisible) {
@@ -449,4 +449,24 @@ void GuiCategoryLabel::setup(const Config& c)
             ctx.editor.resized();
             };
     }
+}
+
+void GuiCategoryLabel::setup(const Config& c)
+{
+	setupInner(c, c.color);
+}
+
+void GuiCategoryLabel::setupHwCategory(const Config& c)
+{
+    setupInner(c, juce::Colours::yellow);
+}
+
+void GuiCategoryLabel::setupSwCategory(const Config& c)
+{
+    setupInner(c, juce::Colours::aqua);
+}
+
+void GuiCategoryLabel::setupOtherCategory(const Config& c)
+{
+    setupInner(c, juce::Colours::lime);
 }

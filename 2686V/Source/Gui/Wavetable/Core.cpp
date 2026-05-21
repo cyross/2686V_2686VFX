@@ -162,7 +162,7 @@ void GuiWt::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -245,7 +245,7 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
+    modCat.setupHwCategory({ .parent = *this, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
     modEnableButton.setup({ .parent = *this, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
@@ -260,7 +260,7 @@ void GuiWt::setup()
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleAdsr, .invisibleTitle = WtGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    adsrCat.setupSwCategory({ .parent = *this, .title = WtGuiText::Category::visibleAdsr, .invisibleTitle = WtGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::adsr + WtPrKey::bypass, .title = WtGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -286,7 +286,7 @@ void GuiWt::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = WtGuiText::Category::visiblePitchAdsr, .invisibleTitle = WtGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = WtGuiText::Category::visiblePitchAdsr, .invisibleTitle = WtGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = code + WtPrKey::pitchAdsr + WtPrKey::bypass, .title = WtGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -320,7 +320,7 @@ void GuiWt::setup()
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    ssgSwEnvCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleSwEnv, .invisibleTitle = WtGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+    ssgSwEnvCat.setupSwCategory({ .parent = *this, .title = WtGuiText::Category::visibleSwEnv, .invisibleTitle = WtGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
     ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + WtPrKey::ssgSwEnv + WtPrKey::bypass, .title = WtGuiText::SsgSwEnv::bypass, .isReset = true });
     ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
@@ -394,7 +394,7 @@ void GuiWt::setup()
     ssgSwL6Slider.setWantsKeyboardFocus(true);
     ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleDetune, .invisibleTitle = WtGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+    detuneCat.setupSwCategory({ .parent = *this, .title = WtGuiText::Category::visibleDetune, .invisibleTitle = WtGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + WtPrKey::dt, .title = WtGuiText::Wt::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
@@ -404,7 +404,7 @@ void GuiWt::setup()
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleLfo, .invisibleTitle = WtGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
+    lfoCat.setupSwCategory({ .parent = *this, .title = WtGuiText::Category::visibleLfo, .invisibleTitle = WtGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
     lfoPmFreqSlider.setup({ .parent = *this, .id = code + WtPrKey::Lfo::pmFreq, .title = WtGuiText::Lfo::pmSpeed, .isReset = true });
     lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -471,13 +471,13 @@ void GuiWt::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = WtPrKey::monoMode, .title = WtGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleMvol, .invisibleTitle = WtGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = WtGuiText::Category::visibleMvol, .invisibleTitle = WtGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     // Master Volume
 	masterVolSlider.setup({ .parent = *this, .id = WtPrKey::masterVol, .title = WtGuiText::MasterVol::title, .isReset = true });

@@ -116,7 +116,7 @@ void GuiSsg::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -126,7 +126,7 @@ void GuiSsg::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleAdsr, .invisibleTitle = SsgGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    adsrCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleAdsr, .invisibleTitle = SsgGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::adsr + SsgPrKey::bypass, .title = SsgGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -152,7 +152,7 @@ void GuiSsg::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = SsgGuiText::Category::visiblePitchAdsr, .invisibleTitle = SsgGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visiblePitchAdsr, .invisibleTitle = SsgGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::pitchAdsr + SsgPrKey::bypass, .title = SsgGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -186,7 +186,7 @@ void GuiSsg::setup()
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    ssgSwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleSwEnv, .invisibleTitle = SsgGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+    ssgSwEnvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleSwEnv, .invisibleTitle = SsgGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
     ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass, .title = SsgGuiText::SsgSwEnv::bypass, .isReset = true });
     ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
@@ -260,7 +260,7 @@ void GuiSsg::setup()
     ssgSwL6Slider.setWantsKeyboardFocus(true);
     ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+    detuneCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Ssg::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
@@ -270,7 +270,7 @@ void GuiSsg::setup()
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    hwEnvCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
+    hwEnvCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
 
     envEnableButton.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
     envEnableButton.setWantsKeyboardFocus(true);
@@ -284,7 +284,7 @@ void GuiSsg::setup()
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleLfo, .invisibleTitle = SsgGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
+    lfoCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleLfo, .invisibleTitle = SsgGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
     lfoPmFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmFreq, .title = SsgGuiText::Lfo::pmSpeed, .isReset = true });
     lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -351,13 +351,13 @@ void GuiSsg::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleMonoMode, .invisibleTitle = SsgGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = SsgGuiText::Category::visibleMonoMode, .invisibleTitle = SsgGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = SsgPrKey::monoMode, .title = SsgGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = SsgGuiText::Category::visibleMvol, .invisibleTitle = SsgGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = SsgGuiText::Category::visibleMvol, .invisibleTitle = SsgGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = SsgPrKey::masterVol, .title = SsgGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -366,19 +366,19 @@ void GuiSsg::setup()
 
 	voiceGroup.setup(*this, SsgGuiText::Group::voice);
 
-    shapeCat.setup({ .parent = *this, .title = SsgGuiText::Category::shape });
+    shapeCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::shape });
 
     waveSelector.setup({ .parent = *this, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneCat.setup({ .parent = *this, .title = SsgGuiText::Category::ssgTone });
+    toneCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::ssgTone });
 
     levelSlider.setup({ .parent = *this, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseCat.setup({ .parent = *this, .title = SsgGuiText::Category::ssgNoise });
+    noiseCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::ssgNoise });
 
     noiseSlider.setup({ .parent = *this, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
@@ -392,7 +392,7 @@ void GuiSsg::setup()
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
 
-    mixCat.setup({ .parent = *this, .title = SsgGuiText::Category::mix });
+    mixCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::mix });
 
     // 初期状態反映
     mixSlider.setup({ .parent = *this, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
@@ -429,7 +429,7 @@ void GuiSsg::setup()
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
-    pulseInvCat.setup({ .parent = *this, .title = SsgGuiText::Category::invert });
+    pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
 
     dutyInvertButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
@@ -445,7 +445,7 @@ void GuiSsg::setup()
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    triPeakCat.setup({ .parent = *this, .title = SsgGuiText::Category::peak });
+    triPeakCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::peak });
 
     triPeakSlider.setup({ .parent = *this, .id = code + SsgPrKey::Tri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);

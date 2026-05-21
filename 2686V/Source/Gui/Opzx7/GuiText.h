@@ -24,6 +24,9 @@ namespace Opzx7GuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
+		static inline const juce::String waveShape = u8"--- WAVE SHAPE ---";
+		static inline const juce::String visiblePhase = u8"[■]--- PHASE ---";
+		static inline const juce::String invisiblePhase = u8"[□]--- PHASE ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";

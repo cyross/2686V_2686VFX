@@ -116,7 +116,7 @@ void GuiOpn::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = OpnGuiText::Category::visibleQuality, .invisibleTitle = OpnGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleQuality, .invisibleTitle = OpnGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + OpnPrKey::bit, .title = OpnGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -126,7 +126,7 @@ void GuiOpn::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    algFbCat.setup({ .parent = *this, .title = OpnGuiText::Category::algFb });
+    algFbCat.setupHwCategory({ .parent = *this, .title = OpnGuiText::Category::algFb });
 
     algSelector.setup({ .parent = *this, .id = code + OpnPrKey::alg, .title = OpnGuiText::Fm::alg, .items = opnAlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
@@ -139,7 +139,7 @@ void GuiOpn::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setup({ .parent = *this, .title = OpnGuiText::Category::visibleN88Lfo, .invisibleTitle = OpnGuiText::Category::invisibleN88Lfo, .enableChangeDetailVisible = true });
+    lfoCat.setupSwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleN88Lfo, .invisibleTitle = OpnGuiText::Category::invisibleN88Lfo, .enableChangeDetailVisible = true });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + OpnPrKey::N88Lfo::freq, .title = OpnGuiText::Fm::lfoSpeed, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -193,13 +193,13 @@ void GuiOpn::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = OpnGuiText::Category::visibleMonoMode, .invisibleTitle = OpnGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = OpnGuiText::Category::visibleMonoMode, .invisibleTitle = OpnGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = OpnPrKey::monoMode, .title = OpnGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = OpnGuiText::Category::visibleMvol, .invisibleTitle = OpnGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = OpnGuiText::Category::visibleMvol, .invisibleTitle = OpnGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = OpnPrKey::masterVol, .title = OpnGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -266,7 +266,7 @@ void GuiOpn::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
-        catPitchEnv[i].setup({ .parent = *this, .title = OpnGuiText::Category::visiblePitchAdsr, .invisibleTitle = OpnGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+        catPitchEnv[i].setupSwCategory({ .parent = *this, .title = OpnGuiText::Category::visiblePitchAdsr, .invisibleTitle = OpnGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
         pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnPrKey::PitchAdsr::enable, .title = OpnGuiText::PitchAdsr::enable, .isReset = true });
         pitchEnvEnable[i].setWantsKeyboardFocus(true);
@@ -300,7 +300,7 @@ void GuiOpn::setup()
         pitchReleaseLevel[i].setWantsKeyboardFocus(true);
         pitchReleaseLevel[i].setExplicitFocusOrder(++tabOrder);
 
-        catSsgSwEnv[i].setup({ .parent = *this, .title = OpnGuiText::Category::visibleSwEnv, .invisibleTitle = OpnGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+        catSsgSwEnv[i].setupSwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleSwEnv, .invisibleTitle = OpnGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
         ssgSwEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnPrKey::SsgSwEnv::enable, .title = OpnGuiText::SsgSwEnv::enable, .isReset = true });
         ssgSwEnvEnable[i].setWantsKeyboardFocus(true);
@@ -374,13 +374,13 @@ void GuiOpn::setup()
         ssgSwL6[i].setWantsKeyboardFocus(true);
         ssgSwL6[i].setExplicitFocusOrder(++tabOrder);
 
-        catN88Lfo[i].setup({ .parent = *this, .title = OpnGuiText::Category::visibleN88Lfo, .invisibleTitle = OpnGuiText::Category::invisibleN88Lfo, .enableChangeDetailVisible = true });
+        catN88Lfo[i].setupSwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleN88Lfo, .invisibleTitle = OpnGuiText::Category::invisibleN88Lfo, .enableChangeDetailVisible = true });
 
         n88Ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + OpnPrKey::n88Ams, .title = OpnGuiText::Fm::Op::Ams, .isReset = true });
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
-        cafFix[i].setup({ .parent = *this, .title = OpnGuiText::Category::visibleFix, .invisibleTitle = OpnGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
+        cafFix[i].setupHwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleFix, .invisibleTitle = OpnGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnPrKey::fix, .title = OpnGuiText::Fm::Op::Fix, .isReset = true });
         fix[i].setWantsKeyboardFocus(true);
@@ -401,13 +401,13 @@ void GuiOpn::setup()
         freqTo440[i].setExplicitFocusOrder(++tabOrder);
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
-        catMask[i].setup({ .parent = *this, .title = OpnGuiText::Category::visibleMask, .invisibleTitle = OpnGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleMask, .invisibleTitle = OpnGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnPrKey::mask, .title = OpnGuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        catMml[i].setup({ .parent = *this, .title = OpnGuiText::Category::mml });
+        catMml[i].setupOtherCategory({ .parent = *this, .title = OpnGuiText::Category::mml });
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);

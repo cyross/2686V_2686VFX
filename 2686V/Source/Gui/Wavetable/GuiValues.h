@@ -217,7 +217,7 @@ namespace WtGuiValue
 
 	static constexpr int Height = 680;
 
-	static constexpr int RightWidth = 1000;
+	static constexpr int RightWidth = 1024;
 	static constexpr int RightHeight = 700;
 
 	namespace Custom

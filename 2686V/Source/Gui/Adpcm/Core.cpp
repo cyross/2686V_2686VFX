@@ -70,7 +70,7 @@ void GuiAdpcm::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
@@ -99,7 +99,7 @@ void GuiAdpcm::setup()
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
-    panCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
@@ -110,7 +110,7 @@ void GuiAdpcm::setup()
     setupPanBtn(panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
     setupPanBtn(panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleAdsr, .invisibleTitle = AdpcmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    adsrCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleAdsr, .invisibleTitle = AdpcmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, .title = AdpcmGuiText::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -136,7 +136,7 @@ void GuiAdpcm::setup()
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visiblePitchAdsr, .invisibleTitle = AdpcmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visiblePitchAdsr, .invisibleTitle = AdpcmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, .title = AdpcmGuiText::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -170,7 +170,7 @@ void GuiAdpcm::setup()
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    ssgSwEnvCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleSwEnv, .invisibleTitle = AdpcmGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+    ssgSwEnvCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleSwEnv, .invisibleTitle = AdpcmGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
     ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, .title = AdpcmGuiText::SsgSwEnv::bypass, .isReset = true });
     ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
@@ -244,7 +244,7 @@ void GuiAdpcm::setup()
     ssgSwL6Slider.setWantsKeyboardFocus(true);
     ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
 
-    detuneCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleDetune, .invisibleTitle = AdpcmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+    detuneCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleDetune, .invisibleTitle = AdpcmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
     dt1.setup({ .parent = *this, .id = code + AdpcmPrKey::dt, .title = AdpcmGuiText::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
@@ -254,7 +254,7 @@ void GuiAdpcm::setup()
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = AdpcmPrKey::masterVol, .title = AdpcmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);

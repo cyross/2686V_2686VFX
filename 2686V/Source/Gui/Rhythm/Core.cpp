@@ -65,7 +65,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // メイングループ
     mainGroup.setup(*this, padTitle);
 
-    qualityCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleQuality, .invisibleTitle = RhythmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleQuality, .invisibleTitle = RhythmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::mode, .title = RhythmGuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
@@ -128,7 +128,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
         };
     noteSlider.updateText();
 
-    panCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visiblePan, .invisibleTitle = RhythmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = *this, .title = RhythmGuiText::Category::visiblePan, .invisibleTitle = RhythmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     // パンポット
     panSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
@@ -140,7 +140,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     setupPanBtn(panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
     setupPanBtn(panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
 
-    adsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleAdsr, .invisibleTitle = RhythmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    adsrCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleAdsr, .invisibleTitle = RhythmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
 
     adsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::adsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::Adsr::bypass, .isReset = true });
     adsrBypassButton.setWantsKeyboardFocus(true);
@@ -166,7 +166,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     releaseSlider.setWantsKeyboardFocus(true);
     releaseSlider.setExplicitFocusOrder(++tabOrder);
 
-    pitchAdsrCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visiblePitchAdsr, .invisibleTitle = RhythmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visiblePitchAdsr, .invisibleTitle = RhythmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
     pitchAdsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass, .isReset = true });
     pitchAdsrBypassButton.setWantsKeyboardFocus(true);
@@ -345,7 +345,7 @@ void GuiRhythm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = RhythmGuiText::Category::visibleMvol, .invisibleTitle = RhythmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleMvol, .invisibleTitle = RhythmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = RhythmPrKey::masterVol, .title = RhythmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);

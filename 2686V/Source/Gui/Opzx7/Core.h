@@ -166,6 +166,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> d2r;
     std::array<GuiSlider, Global::Fm::Op4> rr;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catPhase;
     std::array<GuiSlider, Global::Fm::Op4> phaseOffset;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
@@ -175,6 +176,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> freqTo1;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo2;
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catWaveShape;
     std::array<GuiComboBox, Global::Fm::Op4> ws;
     std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
     std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
@@ -293,6 +295,7 @@ public:
         d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        catPhase{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         phaseOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -302,6 +305,7 @@ public:
         freqTo1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo2{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
@@ -409,4 +413,5 @@ public:
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect);
 };

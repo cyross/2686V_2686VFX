@@ -103,7 +103,7 @@ void GuiOpl3::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = Opl3GuiText::Category::visibleQuality, .invisibleTitle = Opl3GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleQuality, .invisibleTitle = Opl3GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
     bitSelector.setup({ .parent = *this, .id = code + Opl3PrKey::bit, .title = Opl3GuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
@@ -111,7 +111,7 @@ void GuiOpl3::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    algFbCat.setup({ .parent = *this, .title = Opl3GuiText::Category::algFb });
+    algFbCat.setupHwCategory({ .parent = *this, .title = Opl3GuiText::Category::algFb });
     algSelector.setup({ .parent = *this, .id = code + Opl3PrKey::alg, .title = Opl3GuiText::Fm::alg, .items = opl3AlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
     algSelector.setExplicitFocusOrder(++tabOrder);
@@ -122,12 +122,12 @@ void GuiOpl3::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = Opl3GuiText::Category::visibleMonoMode, .invisibleTitle = Opl3GuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleMonoMode, .invisibleTitle = Opl3GuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
     monoModeToggle.setup({ .parent = *this, .id = Opl3PrKey::monoMode, .title = Opl3GuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = Opl3GuiText::Category::visibleMvol, .invisibleTitle = Opl3GuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleMvol, .invisibleTitle = Opl3GuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
     masterVolSlider.setup({ .parent = *this, .id = Opl3PrKey::masterVol, .title = Opl3GuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
@@ -192,7 +192,7 @@ void GuiOpl3::setup()
         ksl[i].setWantsKeyboardFocus(true);
         ksl[i].setExplicitFocusOrder(++tabOrder);
 
-        catPitchEnv[i].setup({ .parent = *this, .title = Opl3GuiText::Category::visiblePitchAdsr, .invisibleTitle = Opl3GuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+        catPitchEnv[i].setupSwCategory({ .parent = *this, .title = Opl3GuiText::Category::visiblePitchAdsr, .invisibleTitle = Opl3GuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
         pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opl3PrKey::PitchAdsr::enable, .title = Opl3GuiText::PitchAdsr::enable, .isReset = true });
         pitchEnvEnable[i].setWantsKeyboardFocus(true);
@@ -226,7 +226,7 @@ void GuiOpl3::setup()
         pitchReleaseLevel[i].setWantsKeyboardFocus(true);
         pitchReleaseLevel[i].setExplicitFocusOrder(++tabOrder);
 
-        catSsgSwEnv[i].setup({ .parent = *this, .title = Opl3GuiText::Category::visibleSwEnv, .invisibleTitle = Opl3GuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+        catSsgSwEnv[i].setupSwCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleSwEnv, .invisibleTitle = Opl3GuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
 
         ssgSwEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opl3PrKey::SsgSwEnv::enable, .title = Opl3GuiText::SsgSwEnv::enable, .isReset = true });
         ssgSwEnvEnable[i].setWantsKeyboardFocus(true);
@@ -300,13 +300,13 @@ void GuiOpl3::setup()
         ssgSwL6[i].setWantsKeyboardFocus(true);
         ssgSwL6[i].setExplicitFocusOrder(++tabOrder);
 
-        catShape[i].setup({ .parent = *this, .title = Opl3GuiText::Category::shape });
+        catShape[i].setupHwCategory({ .parent = *this, .title = Opl3GuiText::Category::shape });
 
         eg[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opl3PrKey::eg, .title = Opl3GuiText::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
         eg[i].setWantsKeyboardFocus(true);
         eg[i].setExplicitFocusOrder(++tabOrder);
 
-        catLfo[i].setup({ .parent = *this, .title = Opl3GuiText::Category::visibleLfo, .invisibleTitle = Opl3GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
+        catLfo[i].setupHwCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleLfo, .invisibleTitle = Opl3GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
         am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opl3PrKey::am, .title = Opl3GuiText::Fm::Op::Am, .isReset = true });
         am[i].setWantsKeyboardFocus(true);
@@ -362,13 +362,13 @@ void GuiOpl3::setup()
         pmdTo14[i].setExplicitFocusOrder(++tabOrder);
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
-        catMask[i].setup({ .parent = *this, .title = Opl3GuiText::Category::visibleMask, .invisibleTitle = Opl3GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleMask, .invisibleTitle = Opl3GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opl3PrKey::mask, .title = Opl3GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        catMml[i].setup({ .parent = *this, .title = Opl3GuiText::Category::mml });
+        catMml[i].setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::mml });
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
