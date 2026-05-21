@@ -9,6 +9,7 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
 #include "../../Effect/Lfo/Opzx7/Core.h"
 
@@ -18,6 +19,7 @@ public:
     WtCore();
 
     void prepare(double sampleRate) override;
+	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void noteOn(float freq, float velocity, int midiNote) override;
     void noteOff() override;
@@ -35,7 +37,8 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
-	OpmDetune m_detune;
+    SsgSwEnv m_ssgSwEnv;
+    OpmDetune m_detune;
     Opzx7LfoCore m_lfo;
 
     float m_level = 1.0f;

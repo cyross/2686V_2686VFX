@@ -6,6 +6,8 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
+#include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -14,10 +16,6 @@ public:
     // Holds raw data and converted data
     std::vector<float> m_rawBuffer;
     std::vector<int16_t> m_adpcmBuffer;
-
-    // 状態管理をenumにする
-    enum class State { Idle, Playing, Release };
-    State m_state = State::Idle;
 
     double m_position = 0.0;
     double m_bufferSampleRate = 16000.0;
@@ -38,6 +36,8 @@ public:
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
     float m_releaseDec = 0.0f;   // 1サンプルあたりの減衰量
 
+	void prepare(double hostSampleRate);
+    void setSampleRate(double sampleRate);
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
@@ -46,6 +46,9 @@ public:
     bool isPlaying() const;
     float getSample(double hostSampleRate, float pitchRatio);
 private:
+    AmpAdsrEnv m_adsr;
+    PitchAdsrEnv m_pitchAdsr;
+
     void refreshAdpcmBuffer();
 };
 
@@ -58,6 +61,7 @@ public:
     double m_sampleRate = 44100.0;
 
     void prepare(double sampleRate);
+    void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params);
     void setSampleData(int padIndex, const std::vector<float>& data, double rate);
     void noteOn(float freq, float velocity, int midiNote);

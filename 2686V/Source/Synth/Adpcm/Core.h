@@ -6,6 +6,9 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Generator/Pcm/Core.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 
 // --- Core Class ---
 
@@ -15,6 +18,7 @@ public:
     AdpcmCore(): SynthCore() {}
 
     void prepare(double sampleRate) override;
+	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void noteOn(float freq, float velocity, int midiNote) override;
@@ -49,6 +53,9 @@ private:
     float m_pcmRatio = 1.0f;
 
     AmpAdsrEnv m_adsr;
+    PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
+    OpmDetune m_detune;
 
     float m_currentLevel = 0.0f;
 

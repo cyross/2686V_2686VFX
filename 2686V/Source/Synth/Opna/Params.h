@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include "../../Core/Fm/FmOpParams.h"
+#include "./Params.h"
+#include "./Operator/Params.h"
 
 struct OpnaParams
 {
@@ -64,5 +65,5 @@ struct OpnaParams
     int pan = 0;
 
     // Parameters for Operator
-    std::array<FmOpParams, 4> op;
+    std::array<OpnaOpParams, 4> op;
 };

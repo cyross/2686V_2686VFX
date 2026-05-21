@@ -33,16 +33,25 @@ void SsgCore::prepare(double sampleRate) {
 
     m_targetRate = getTargetRate(m_rateIndex);
 
-    m_noiseGen.prepare(m_targetRate);
-    m_adsr.prepare(m_targetRate);
-	m_pitchAdsr.prepare(m_targetRate);
-    m_lfo.prepare(m_targetRate);
+    m_noiseGen.prepare(m_sampleRate);
+    m_adsr.prepare(m_sampleRate);
+	m_pitchAdsr.prepare(m_sampleRate);
+	m_ssgSwEnv.prepare(m_sampleRate);
+    m_lfo.prepare(m_sampleRate);
 
     updatePhaseDelta();
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
+
+    m_noiseGen.updateTargetRate(m_sampleRate);
+    m_adsr.updateSampleRate(m_sampleRate);
+    m_pitchAdsr.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_lfo.updateTargetSampleRate(m_sampleRate);
+
+    updatePhaseDelta();
 }
 
 void SsgCore::setParameters(const SynthParams& params)
@@ -53,6 +62,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
     m_detune.setParameters(params.ssg.detune, params.ssg.detune2, 1);
+	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
         params.ssg.lfoSyncDelay,
         params.ssg.lfoPmEnable, params.ssg.lfoAmEnable,
@@ -88,6 +98,7 @@ void SsgCore::setParameters(const SynthParams& params)
         m_noiseGen.updateTargetRate(m_targetRate);
         m_adsr.updateSampleRate(m_targetRate);
         m_pitchAdsr.updateSampleRate(m_targetRate);
+		m_ssgSwEnv.updateSampleRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
@@ -101,6 +112,8 @@ void SsgCore::setParameters(const SynthParams& params)
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
+    m_currentLevel = velocity;
+
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(freq);
@@ -112,14 +125,14 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     updatePhaseDelta();
 
     m_hwEnvPhase = 0.0f;
-    m_currentLevel = 0.0f;
 
     // Reset Rate Logic
     m_rateAccumulator = 1.0f;
     m_lastSample = 0.0f;
 
     m_adsr.noteOn();
-	m_pitchAdsr.noteOn();
+    m_pitchAdsr.noteOn();
+	m_ssgSwEnv.noteOn();
     m_lfo.noteOn();
 }
 
@@ -127,9 +140,10 @@ void SsgCore::noteOff()
 {
     m_adsr.noteOff();
 	m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_pitchAdsr.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -161,23 +175,44 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
-    if (m_adsr.isIdle()) {
+    if (!isPlaying()) {
+		// ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+		// ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
+
         return 0.0f;
     }
 
-    // --- ADSR / Gate Logic ---
-    if (m_adsr.isBypassed())
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        if (m_adsr.isRelease()) {
-            m_currentLevel = 0.0f;
-        }
-        else {
-            m_currentLevel = 1.0f;
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
         }
     }
     else
     {
-		m_currentLevel = m_adsr.process(m_currentLevel);
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentLevel = m_adsr.process(m_currentLevel);
+            finalEnv *= m_currentLevel; // 掛け算
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
     }
 
     // --- Sample Rate Emulation ---
@@ -344,7 +379,7 @@ float SsgCore::getSample()
         m_lastSample = sumOut / (float)steps;
     }
 
-    return m_lastSample * m_currentLevel;
+    return m_lastSample * finalEnv * m_currentLevel;
 }
 
 void SsgCore::updatePhaseDelta() {

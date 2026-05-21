@@ -4,12 +4,15 @@
 
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
-    double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+
+    for (auto& op : m_operators) {
+        op.setSampleRate(m_hostSampleRate);
+    }
+
     m_rateAccumulator = 1.0;
 
-	m_noiseGen.prepare(target);
-    m_lfo.prepare(target);
+	m_noiseGen.prepare(m_hostSampleRate);
+    m_lfo.prepare(m_hostSampleRate);
 }
 
 void OpmCore::setSampleRate(double sampleRate) {
@@ -19,6 +22,9 @@ void OpmCore::setSampleRate(double sampleRate) {
         for (auto& op : m_operators) {
             op.setSampleRate(m_hostSampleRate);
         }
+
+        m_noiseGen.updateDelta(m_hostSampleRate);
+        m_lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -36,13 +42,6 @@ void OpmCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
-
-        double target = getTargetRate(m_rateIndex);
-
-        for (auto& op : m_operators) op.setSampleRate(target);
-
-        m_noiseGen.updateDelta(target);
-        m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opm.fmBitDepth);

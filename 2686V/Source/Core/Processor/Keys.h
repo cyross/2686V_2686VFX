@@ -13,6 +13,7 @@ namespace CorePrKey
 	static inline const juce::String op = "_OP";
 	static inline const juce::String pitchAdsr = "_PITCHENV";
 	static inline const juce::String adsr = "_ADSR";
+	static inline const juce::String ssgSwEnv = "_SSGSW";
 	static inline const juce::String bypass = "_BYPASS";
 
 	namespace Adsr
@@ -21,6 +22,7 @@ namespace CorePrKey
 		static inline const juce::String dr = "_DR";
 		static inline const juce::String sl = "_SL";
 		static inline const juce::String rr = "_RR";
+		static inline const juce::String stl = "_STL";
 	};
 
 	namespace PitchAdsr
@@ -33,6 +35,29 @@ namespace CorePrKey
 		static inline const juce::String atl = "_PITCH_ATL";
 		static inline const juce::String ssl = "_PITCH_SSL";
 		static inline const juce::String rll = "_PITCH_RLL";
+	};
+
+	namespace SsgSwEnv
+	{
+		static inline const juce::String enable = "_SSGSW_ENABLE";
+		static inline const juce::String bypass = "_SSGSW_BYPASS";
+		static inline const juce::String steps = "_SSGSW_STEPS";
+		static inline const juce::String loop = "_SSGSW_LOOP";
+		static inline const juce::String loopTo = "_SSGSW_LOOPTO";
+		static inline const juce::String loopCount = "_SSGSW_LOOPCNT";
+		static inline const juce::String stl = "_SSGSW_STL";
+		static inline const juce::String r1 = "_SSGSW_R1";
+		static inline const juce::String l1 = "_SSGSW_L1";
+		static inline const juce::String r2 = "_SSGSW_R2";
+		static inline const juce::String l2 = "_SSGSW_L2";
+		static inline const juce::String r3 = "_SSGSW_R3";
+		static inline const juce::String l3 = "_SSGSW_L3";
+		static inline const juce::String r4 = "_SSGSW_R4";
+		static inline const juce::String l4 = "_SSGSW_L4";
+		static inline const juce::String r5 = "_SSGSW_R5";
+		static inline const juce::String l5 = "_SSGSW_L5";
+		static inline const juce::String r6 = "_SSGSW_R6";
+		static inline const juce::String l6 = "_SSGSW_L6";
 	};
 
 	namespace Fm
@@ -52,6 +77,7 @@ namespace CorePrKey
 			static inline const juce::String dr = "_DR";
 			static inline const juce::String sl = "_SL";
 			static inline const juce::String rr = "_RR";
+			static inline const juce::String stl = "_STL";
 		};
 
 		namespace PitchAdsr
@@ -64,6 +90,29 @@ namespace CorePrKey
 			static inline const juce::String atl = "_PITCH_ATL";
 			static inline const juce::String ssl = "_PITCH_SSL";
 			static inline const juce::String rll = "_PITCH_RLL";
+		};
+
+		namespace SsgSwEnv
+		{
+			static inline const juce::String enable = "_SSGSW_ENABLE";
+			static inline const juce::String bypass = "_SSGSW_BYPASS";
+			static inline const juce::String steps = "_SSGSW_STEPS";
+			static inline const juce::String loop = "_SSGSW_LOOP";
+			static inline const juce::String loopTo = "_SSGSW_LOOPTO";
+			static inline const juce::String loopCount = "_SSGSW_LOOPCNT";
+			static inline const juce::String stl = "_SSGSW_STL";
+			static inline const juce::String r1 = "_SSGSW_R1";
+			static inline const juce::String l1 = "_SSGSW_L1";
+			static inline const juce::String r2 = "_SSGSW_R2";
+			static inline const juce::String l2 = "_SSGSW_L2";
+			static inline const juce::String r3 = "_SSGSW_R3";
+			static inline const juce::String l3 = "_SSGSW_L3";
+			static inline const juce::String r4 = "_SSGSW_R4";
+			static inline const juce::String l4 = "_SSGSW_L4";
+			static inline const juce::String r5 = "_SSGSW_R5";
+			static inline const juce::String l5 = "_SSGSW_L5";
+			static inline const juce::String r6 = "_SSGSW_R6";
+			static inline const juce::String l6 = "_SSGSW_L6";
 		};
 
 		namespace Fm

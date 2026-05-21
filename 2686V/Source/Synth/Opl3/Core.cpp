@@ -13,9 +13,23 @@ const std::array<Opl3Core::AlgRouting, 5> Opl3Core::routings = { {
 
 void Opl3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
+
     double target = getTargetRate(m_rateIndex);
-    for (auto& op : m_operators) op.setSampleRate(target);
+    for (auto& op : m_operators) {
+		op.setSampleRate(m_hostSampleRate);
+    }
+
     m_rateAccumulator = 1.0;
+}
+
+void Opl3Core::setSampleRate(double sampleRate) {
+    if (sampleRate > 0.0) {
+        m_hostSampleRate = sampleRate;
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(m_hostSampleRate);
+        }
+    }
 }
 
 // --- Opl3Core.cpp : setParameters() 内 ---
@@ -25,8 +39,6 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opl3.fmRateIndex) {
         m_rateIndex = params.opl3.fmRateIndex;
-        double target = getTargetRate(m_rateIndex);
-        for (auto& op : m_operators) op.setSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
@@ -34,11 +46,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
     for (int i = 0; i < 4; ++i) {
         float fb = (i==0) ? params.opl3.feedback : 0.0f;
 
-        // FmCommon(96dB)に対して、OPL3(48dB)のスケールを合わせるためTLを半分にする
-        FmOpParams opParams = params.opl3.op[i];
-        opParams.totalLevel *= 0.5f;
-
-        m_operators[i].setParameters(opParams, fb);
+        m_operators[i].setParameters(params.opl3.op[i], fb);
         m_opMask[i] = params.opl3.op[i].mask;
     }
 }

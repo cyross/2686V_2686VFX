@@ -25,8 +25,8 @@ namespace WtGuiText
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
 		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
@@ -34,6 +34,8 @@ namespace WtGuiText
 		static inline const juce::String shape = u8"--- SHAPE ---";
 		static inline const juce::String visibleMod = u8"[■]--- MODULATION ---";
 		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
+		static inline const juce::String visibleSwEnv = u8"[■]--- SSG SW ENV ---";
+		static inline const juce::String invisibleSwEnv = u8"[□]--- SSG SW ENV ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
@@ -55,10 +57,7 @@ namespace WtGuiText
 		static inline const juce::String dr = u8" Dr";
 		static inline const juce::String sl = u8" Sl";
 		static inline const juce::String rr = u8" Rr";
-		static inline const juce::String ArTo000 = u8"-> 0.00";
-		static inline const juce::String ArTo003 = u8"-> 0.03";
-		static inline const juce::String RrTo000 = u8"-> 0.00";
-		static inline const juce::String RrTo003 = u8"-> 0.03";
+		static inline const juce::String stl = u8" Stl";
 	}
 
 	namespace PitchAdsr
@@ -72,10 +71,28 @@ namespace WtGuiText
 		static inline const juce::String atl = u8" Atl";
 		static inline const juce::String ssl = u8" Ssl";
 		static inline const juce::String rll = u8" Rll";
-		static inline const juce::String ArTo000 = u8"-> 0.00";
-		static inline const juce::String ArTo003 = u8"-> 0.03";
-		static inline const juce::String RrTo000 = u8"-> 0.00";
-		static inline const juce::String RrTo003 = u8"-> 0.03";
+	}
+
+	namespace SsgSwEnv
+	{
+		static inline const juce::String bypass = u8"Bypass";
+		static inline const juce::String steps = u8" Steps";
+		static inline const juce::String loop = u8" Loop";
+		static inline const juce::String loopTo = u8" Loop To";
+		static inline const juce::String loopCount = u8" Loop Cnt";
+		static inline const juce::String stl = u8" Stl";
+		static inline const juce::String r1 = u8" R1";
+		static inline const juce::String l1 = u8" L1";
+		static inline const juce::String r2 = u8" R2";
+		static inline const juce::String l2 = u8" L2";
+		static inline const juce::String r3 = u8" R3";
+		static inline const juce::String l3 = u8" L3";
+		static inline const juce::String r4 = u8" R4";
+		static inline const juce::String l4 = u8" L4";
+		static inline const juce::String r5 = u8" R5";
+		static inline const juce::String l5 = u8" L5";
+		static inline const juce::String r6 = u8" R6";
+		static inline const juce::String l6 = u8" L6";
 	}
 
 	namespace Lfo

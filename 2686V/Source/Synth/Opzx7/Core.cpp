@@ -48,16 +48,15 @@ void Opzx7Core::prepare(double sampleRate) {
     double target = getTargetRate(m_rateIndex);
 
     for (auto& op : m_operators) {
-        op.prepare(sampleRate);
-        op.setSampleRate(target);
-        op.setHostSampleRate(m_hostSampleRate);
+        op.prepare(m_hostSampleRate);
+        op.setSampleRate(m_hostSampleRate);
     }
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
     m_amSmooth = 0.0f;
 
-    m_lfo.prepare(target);
+    m_lfo.prepare(m_hostSampleRate);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -67,6 +66,8 @@ void Opzx7Core::setSampleRate(double sampleRate) {
         for (auto& op : m_operators) {
             op.setSampleRate(m_hostSampleRate);
         }
+
+        m_lfo.prepare(m_hostSampleRate);
     }
 }
 
@@ -99,14 +100,6 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opzx7.fmRateIndex) {
         m_rateIndex = params.opzx7.fmRateIndex;
-
-        double target = getTargetRate(m_rateIndex);
-
-        for (auto& op : m_operators) {
-            op.updateTargetSampleRate(target);
-        }
-
-        m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);

@@ -8,6 +8,7 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Generator/Noise/Ssg/Core.h"
 #include "../../Effect/Detune/Opm/Core.h"
 #include "../../Effect/Lfo/Opzx7/Core.h"
@@ -40,6 +41,7 @@ private:
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
+	SsgSwEnv m_ssgSwEnv;
     OpmDetune m_detune;
     Opzx7LfoCore m_lfo;
 

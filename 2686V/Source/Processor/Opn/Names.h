@@ -43,4 +43,40 @@ namespace OpnPrName
 		static inline const juce::String amSmoothRatio = " N88 LFO AM Smooth Rate";
 		static inline const juce::String syncDelay = " N88 LFO Sync Delay";
 	}
+
+	namespace PitchAdsr
+	{
+		static inline const juce::String enable = " PitchEnv Enable";
+		static inline const juce::String bypass = " PitchEnv Bypass";
+		static inline const juce::String ar = " PitchEnv Ar";
+		static inline const juce::String dr = " PitchEnv Dr";
+		static inline const juce::String rr = " PitchEnv Rr";
+		static inline const juce::String stl = " PitchEnv Stl";
+		static inline const juce::String atl = " PitchEnv Atl";
+		static inline const juce::String ssl = " PitchEnv Ssl";
+		static inline const juce::String rll = " PitchEnv Rll";
+	};
+
+	namespace SsgSwEnv
+	{
+		static inline const juce::String enable = " SSG SwEnv Enable";
+		static inline const juce::String bypass = " SSG SwEnv Bypass";
+		static inline const juce::String steps = " SSG SwEnv Steps";
+		static inline const juce::String loop = " SSG SwEnv Loop";
+		static inline const juce::String loopTo = " SSG SwEnv Loop To";
+		static inline const juce::String loopCount = " SSG SwEnv Loop Count";
+		static inline const juce::String stl = " SSG SwEnv STL";
+		static inline const juce::String r1 = " SSG SwEnv R1";
+		static inline const juce::String l1 = " SSG SwEnv L1";
+		static inline const juce::String r2 = " SSG SwEnv R2";
+		static inline const juce::String l2 = " SSG SwEnv L2";
+		static inline const juce::String r3 = " SSG SwEnv R3";
+		static inline const juce::String l3 = " SSG SwEnv L3";
+		static inline const juce::String r4 = " SSG SwEnv R4";
+		static inline const juce::String l4 = " SSG SwEnv L4";
+		static inline const juce::String r5 = " SSG SwEnv R5";
+		static inline const juce::String l5 = " SSG SwEnv L5";
+		static inline const juce::String r6 = " SSG SwEnv R6";
+		static inline const juce::String l6 = " SSG SwEnv L6";
+	}
 }

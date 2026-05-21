@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../../Core/Fm/FmOpParams.h"
+#include "./Operator/Params.h"
 
 struct Opzx7Params
 {
@@ -65,5 +65,5 @@ struct Opzx7Params
     bool panpot_enable = false;
 
     // Parameters for Operator
-    std::array<FmOpParams, 4> op;
+    std::array<Opzx7OpParams, 4> op;
 };

@@ -4,6 +4,7 @@
 
 #include "../../Effect/Envelope/Amp/Adsr/Params.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct SsgParams
 {
@@ -41,6 +42,9 @@ struct SsgParams
 
     // --- Pitch Envelope ---
 	PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
 
     // --- Waveform ---
     // 0: Pulse, 1: Triangle

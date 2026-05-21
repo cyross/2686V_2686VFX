@@ -3,6 +3,8 @@
 #include <array>
 
 #include "../../Effect/Envelope/Amp/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct AdpcmParams
 {
@@ -20,8 +22,16 @@ struct AdpcmParams
     float offset = 0.0f; // ms
     float ratio = 1.0f;
 
-    // --- ADSR Filter ---
-
-    // Params
+	// AmpEnvelope Params
     AmpAdsrParams adsr;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
+
+    // detune
+    int detune = 0;
+    int detune2 = 0;
 };

@@ -2,89 +2,6 @@
 
 #include "./FmOperator.h"
 
-const std::array<FmOperator::SsgWaveCalculator, 16> FmOperator::ssgWaveStrategies = { {
-    [](double p) { // 00: normal
-        return 1.0f;
-    },
-    [](double p) { // 01
-        return 1.0f;
-    },
-    [](double p) { // 02: Saw Down
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return 1.0f - (float)subPos;
-    },
-    [](double p) { // 03
-        return 1.0f;
-    },
-    [](double p) { // 04: Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 05
-        return 1.0f;
-    },
-    [](double p) { // 06: Triangle
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (1.0f - (float)subPos) : (float)subPos;
-    },
-    [](double p) { // 07
-        return 1.0f;
-    },
-    [](double p) { // 08: Alt Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 09: Saw Up
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (float)subPos;
-    },
-    [](double p) { // 10
-        return 1.0f;
-    },
-    [](double p) { // 11: Saw Up & Hopd
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-    [](double p) { // 12
-        return 1.0f;
-    },
-    [](double p) { // 13: Triangle & Invert
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (float)subPos : (1.0f - (float)subPos);
-    },
-    [](double p) { // 14
-        return 1.0f;
-    },
-    [](double p) { // 15: Alt Saw Up & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-} };
-
 void FmOperator::setParameters(const FmOpParams& params, float feedback)
 {
     m_params = params;
@@ -143,20 +60,10 @@ void FmOperator::updateEnvelopeState()
         }
     }
     else if (m_state == State::Sustain) {
-        // ====================================================================
-        // パーカッシブモード(EG-TYP=OFF)の判定を OPL/OPL3 系統のみに限定する
-        // ====================================================================
-        if (m_params.isOplMode && !m_params.egType) {
-            m_currentLevel -= m_releaseDec;
+        // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
+        if (m_sustainRateDec > 0.0f) {
+            m_currentLevel -= m_sustainRateDec;
             if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-        }
-        // OPN/OPM/OPZX7、または OPL系の持続モード(EG-TYP=ON) の場合
-        else {
-            // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
-            if (m_sustainRateDec > 0.0f) {
-                m_currentLevel -= m_sustainRateDec;
-                if (m_currentLevel <= 0.0f) { m_currentLevel = 0.0f; m_state = State::Idle; }
-            }
         }
     }
     else if (m_state == State::Release) {
@@ -179,18 +86,9 @@ void FmOperator::updateIncrementsWithKeyScale()
     if (octave < 0) octave = 0;
     if (octave > 7) octave = 7;
 
-    if (m_params.isOplMode)
-    {
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = m_params.keyScale > 0 ? keyRate : (keyRate >> 2);
-    }
-    else
-    {
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = keyRate >> (3 - std::clamp(m_params.keyScale, 0, 3));
-    }
+    int noteOffset = m_noteNumber % 12;
+    int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+    ksrValue = keyRate >> (3 - std::clamp(m_params.keyScale, 0, 3));
 
     // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
     // isRRフラグを追加し、RRの時だけスケールを調整する
@@ -201,7 +99,7 @@ void FmOperator::updateIncrementsWithKeyScale()
         int baseRate = regVal;
 
         // OPL系（全て4bit）、およびOPN系のRR（4bit）は、5bit(0-31)スケールに補正する
-        if (m_params.isOplMode || isRR) {
+        if (isRR) {
             // 15の時に31になるように (val * 2 + 1)
             baseRate = (regVal * 2) + 1;
         }

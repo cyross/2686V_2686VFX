@@ -17,12 +17,15 @@ void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
 	this->dr = params.dr;
 	this->sl = params.sl;
 	this->rr = params.rr;
+	this->stl = params.stl;
 	this->bypass = params.bypass;
     this->updateIncrements();
 }
 
-void AmpAdsrEnv::noteOn() {
+float AmpAdsrEnv::noteOn() {
     this->state = State::Attack;
+
+    return this->stl;
 }
 
 void AmpAdsrEnv::noteOff() {
@@ -91,9 +94,9 @@ void AmpAdsrEnv::updateIncrements()
 {
     if (this->sampleRate <= 0.0) return;
 
-    this->attackInc = 1.0f / (float)(std::max(0.001f, this->ar) * this->sampleRate);
-    this->decayDec = 1.0f / (float)(std::max(0.001f, this->dr) * this->sampleRate);
-    this->releaseDec = 1.0f / (float)(std::max(0.001f, this->rr) * this->sampleRate);
+    this->attackInc = (1.0f - this->stl) / (float)(std::max(0.001f, this->ar) * this->sampleRate);
+    this->decayDec = (this->stl - this->sl) / (float)(std::max(0.001f, this->dr) * this->sampleRate);
+    this->releaseDec = this->sl / (float)(std::max(0.001f, this->rr) * this->sampleRate);
 }
 
 void AmpAdsrEnv::updateSampleRate(double newSampleRate) {

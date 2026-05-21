@@ -69,11 +69,99 @@ namespace RhythmPrValue
 
 		namespace Adsr
 		{
+			namespace Bypass
+			{
+				inline constexpr float initial = CorePrValue::Adsr::Bypass::initial;
+			}
+
+			namespace Ar
+			{
+				inline constexpr float min = CorePrValue::Adsr::Ar::min;
+				inline constexpr float max = CorePrValue::Adsr::Ar::max;
+				inline constexpr float initial = CorePrValue::Adsr::Ar::initial;
+			}
+
+			namespace Dr
+			{
+				inline constexpr float min = CorePrValue::Adsr::Dr::min;
+				inline constexpr float max = CorePrValue::Adsr::Dr::max;
+				inline constexpr float initial = CorePrValue::Adsr::Dr::initial;
+			}
+
+			namespace Sl
+			{
+				inline constexpr float min = CorePrValue::Adsr::Sl::min;
+				inline constexpr float max = CorePrValue::Adsr::Sl::max;
+				inline constexpr float initial = CorePrValue::Adsr::Sl::initial;
+			}
+
 			namespace Rr
 			{
 				inline constexpr float min = CorePrValue::Adsr::Rr::min;
 				inline constexpr float max = CorePrValue::Adsr::Rr::max;
 				inline constexpr float initial = CorePrValue::Adsr::Rr::initial;
+			}
+		}
+
+		namespace PitchAdsr
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = false; // 初期値
+			}
+
+			namespace Enable
+			{
+				inline constexpr float initial = true; // 初期値
+			}
+
+			namespace Ar
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Dr
+			{
+				inline constexpr float min = 0.0f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Rr
+			{
+				inline constexpr float min = 0.00f; // 最小値（秒）
+				inline constexpr float max = 5.0f;  // 最大値（秒）
+				inline constexpr float initial = 0.0f; // 初期値（秒）
+			}
+
+			namespace Ssl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Atl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Stl
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
+			}
+
+			namespace Rll
+			{
+				inline constexpr int min = -2400; // 最小値
+				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int initial = 0; // 初期値
 			}
 		}
 	}

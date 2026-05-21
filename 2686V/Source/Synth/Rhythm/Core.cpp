@@ -3,6 +3,18 @@
 #include "../../Core/Synth/SynthHelpers.h"
 #include "../../Generator/Pcm/Core.h"
 
+void RhythmPad::prepare(double hostSampleRate)
+{
+	m_adsr.prepare(hostSampleRate);
+	m_pitchAdsr.prepare(hostSampleRate);
+}
+
+void RhythmPad::setSampleRate(double sampleRate)
+{
+    m_adsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateTargetSampleRate(sampleRate);
+}
+
 // Set data (Same logic as AdpcmCore)
 void RhythmPad::setSampleData(const std::vector<float>& sourceData, double sourceRate)
 {
@@ -18,10 +30,12 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_level = params.level;
     m_pan = params.pan;
     m_isOneShot = params.isOneShot;
-    m_releaseParam = params.release;
 
     m_pcmOffset = params.pcmOffset;
     m_pcmRatio = params.pcmRatio;
+
+    m_adsr.setParameters(params.adsr);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
 
     bool needRefresh = false;
     if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
@@ -35,15 +49,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 
 void RhythmPad::triggerRelease(double hostSampleRate)
 {
-    if (m_state == State::Playing)
-    {
-        m_state = State::Release;
-
-        // 減衰量を計算 (現在のサンプルレートに基づく)
-        // 0.001秒未満にならないようガード
-        float releaseTime = std::max(0.001f, m_releaseParam);
-        m_releaseDec = 1.0f / (float)(releaseTime * hostSampleRate);
-    }
+    m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
 }
 
 void RhythmPad::start()
@@ -51,40 +58,57 @@ void RhythmPad::start()
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
     m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
 
-    m_state = State::Playing;
-    m_currentEnv = 1.0f;
+    m_currentEnv = m_adsr.noteOn();
+    m_pitchAdsr.noteOn();
 }
 
 void RhythmPad::stop()
 {
-    m_state = State::Idle;
+    m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
+
     m_currentEnv = 0.0f;
 }
 
 bool RhythmPad::isPlaying() const
 {
-    return m_state != State::Idle;
+    return m_adsr.isPlaying();
 }
 
 float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
 {
-    if (m_state == State::Idle) return 0.0f;
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
-    // --- リリース処理 ---
-    if (m_state == State::Release)
+        return 0.0f;
+    }
+
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed())
     {
-        m_currentEnv -= m_releaseDec;
-        if (m_currentEnv <= 0.0f)
-        {
-            m_currentEnv = 0.0f;
-            m_state = State::Idle;
-            return 0.0f;
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
         }
     }
-    // ---------------------------
+    else
+    {
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentEnv = m_adsr.process(m_currentEnv);
+            finalEnv = m_currentEnv;
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+    }
 
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
-    double increment = (currentBufferRate / hostSampleRate) * pitchRatio;
+    double increment = m_pitchAdsr.process((currentBufferRate / hostSampleRate) * pitchRatio);
 
     // 総サイズと再生終了位置の計算
     size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
@@ -106,7 +130,6 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     {
         if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle;
                 return 0.0f;
             }
             else {
@@ -123,7 +146,6 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     {
         if (m_position >= endPosition) {
             if (m_isOneShot) {
-                m_state = State::Idle;
                 return 0.0f;
             }
             else {
@@ -143,7 +165,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     }
 
     m_position += increment;
-    return output * m_level * m_currentEnv;
+    return output * m_level * finalEnv;
 }
 
 void RhythmPad::refreshAdpcmBuffer()
@@ -182,6 +204,17 @@ void RhythmPad::refreshAdpcmBuffer()
 void RhythmCore::prepare(double sampleRate)
 {
     m_sampleRate = sampleRate;
+    for (auto& pad : pads) {
+        pad.prepare(sampleRate);
+    }
+}
+
+void RhythmCore::setSampleRate(double sampleRate)
+{
+	m_sampleRate = sampleRate;
+	for (auto& pad : pads) {
+		pad.setSampleRate(sampleRate);
+	}
 }
 
 void RhythmCore::setParameters(const SynthParams& params)
@@ -203,6 +236,14 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote)
 {
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
+            // ループモード(isOneShot == false)で、かつ既に再生中の場合は、
+            // 新たなNoteOnを無視してループを継続させる。
+            // (あるいは、完全に最初から鳴らし直したい場合は m_position=0 とするが、
+            //  今回は「音が重なる/途切れる」のを防ぐため無視するアプローチをとる)
+            if (!pad.m_isOneShot && pad.isPlaying()) {
+                continue; // 何もしない
+            }
+
             pad.start();
         }
     }

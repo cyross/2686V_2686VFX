@@ -23,8 +23,10 @@ namespace RhythmGuiText
 	{
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- ADSR ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- ADSR ---";
+		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
+		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
+		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
 		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
@@ -66,6 +68,29 @@ namespace RhythmGuiText
 				static inline const juce::String l = u8"L";
 				static inline const juce::String c = u8"C";
 				static inline const juce::String r = u8"R";
+			}
+
+			namespace Adsr
+			{
+				static inline const juce::String bypass = u8"Bypass";
+				static inline const juce::String ar = u8" Ar";
+				static inline const juce::String dr = u8" Dr";
+				static inline const juce::String sl = u8" Sl";
+				static inline const juce::String rr = u8" Rr";
+				static inline const juce::String stl = u8"Stl";
+			}
+
+			namespace PitchAdsr
+			{
+				static inline const juce::String enable = u8"Enable";
+				static inline const juce::String bypass = u8"Bypass";
+				static inline const juce::String ar = u8" Ar";
+				static inline const juce::String dr = u8" Dr";
+				static inline const juce::String rr = u8" Rr";
+				static inline const juce::String stl = u8" Stl";
+				static inline const juce::String atl = u8" Atl";
+				static inline const juce::String ssl = u8" Ssl";
+				static inline const juce::String rll = u8" Rll";
 			}
 		}
 	}

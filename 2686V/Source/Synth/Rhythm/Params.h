@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include "../../Effect/Envelope/Amp/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+
 struct RhythmPadParams
 {
     float level = 1.0f;
@@ -18,6 +21,12 @@ struct RhythmPadParams
 
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
+
+    // Params
+    AmpAdsrParams adsr;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
 };
 
 struct RhythmParams

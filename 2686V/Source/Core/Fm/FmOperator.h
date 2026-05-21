@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "../synth/SynthParams.h"
+#include "./FmOpParams.h"
 
 // ==========================================================
 // Shared FM Operator Class
@@ -16,12 +17,8 @@ public:
     FmOperator() {}
 
     double m_hostSampleRate = 44100.0;
-    
+
     FmOpParams m_params;
-
-    using SsgWaveCalculator = float(*)(double p);
-
-    static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
 
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
@@ -70,5 +67,5 @@ protected:
     // OPZX7 の波形データ用
     const std::vector<float>* m_wtBuffer = nullptr;
 
-    void updateEnvelopeState();
+    void virtual updateEnvelopeState();
 };

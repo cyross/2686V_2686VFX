@@ -6,6 +6,7 @@ class AmpAdsrEnv {
 	enum class State { Idle, Attack, Decay, Sustain, Release };
 	State state = State::Idle;
 
+	float stl = 0.0f;
 	float ar = 0.01f;
 	float dr = 0.0f;
 	float sl = 1.0f;
@@ -23,7 +24,7 @@ public:
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
 	void setParameters(const AmpAdsrParams& params);
-	void noteOn();
+	float noteOn();
 	void noteOff();
 	float process(float currentLevel);
 	float bypassedReleasedProcess();

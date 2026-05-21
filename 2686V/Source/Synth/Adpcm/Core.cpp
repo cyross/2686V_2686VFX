@@ -13,8 +13,18 @@ void AdpcmCore::prepare(double sampleRate)
     m_sampleRate = sampleRate;
 
     m_adsr.prepare(m_sampleRate);
+    m_pitchAdsr.prepare(m_sampleRate);
+    m_ssgSwEnv.prepare(m_sampleRate);
 
     m_lfoPhase = 0.0;
+}
+
+void AdpcmCore::setSampleRate(double sampleRate)
+{
+	m_sampleRate = sampleRate;
+	m_adsr.updateSampleRate(m_sampleRate);
+	m_pitchAdsr.updateSampleRate(m_sampleRate);
+	m_ssgSwEnv.updateSampleRate(m_sampleRate);
 }
 
 void AdpcmCore::setParameters(const SynthParams& params)
@@ -32,6 +42,9 @@ void AdpcmCore::setParameters(const SynthParams& params)
     }
 
     m_adsr.setParameters(params.adpcm.adsr);
+    m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
+	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
+    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, 1);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -63,6 +76,10 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
     double targetRate = 16000.0;
 
     m_bufferSampleRate = targetRate;
+
+    m_adsr.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(m_bufferSampleRate);
+    m_ssgSwEnv.prepare(m_bufferSampleRate);
 
     double step = sourceRate / targetRate;
 
@@ -111,21 +128,26 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
     // ホストDAWのレートとの比率
     double rateRatio = currentBufferRate / m_sampleRate;
 
-    m_pitchRatio = (freq / rootFreq) * rateRatio;
+    m_pitchRatio = (m_detune.noteOn(freq) / rootFreq) * rateRatio;
 
     m_hasFinished = false;
 
+    m_currentLevel = velocity;
     m_adsr.noteOn();
+    m_pitchAdsr.noteOn();
+    m_ssgSwEnv.noteOn();
 }
 
 void AdpcmCore::noteOff()
 {
     m_adsr.noteOff();
+    m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
 bool AdpcmCore::isPlaying() const
 {
-    return m_adsr.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -163,7 +185,11 @@ void AdpcmCore::setPitchBendRatio(float ratio)
 
 float AdpcmCore::getSample()
 {
-    if (m_adsr.isIdle()) {
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
+
         return 0.0f;
     }
 
@@ -175,13 +201,36 @@ float AdpcmCore::getSample()
 
     if (m_hasFinished) return 0.0f;
 
-    if (!m_adsr.isBypassed())
+    float finalEnv = 1.0f;
+
+    // --- ADSR & SwEnv Gate Logic ---
+    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
     {
-        m_currentLevel = m_adsr.process(m_currentLevel);
+        // どちらもバイパスの時は完全な矩形波（Gate）動作
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            finalEnv = 1.0f;
+        }
     }
     else
     {
-        m_currentLevel = m_adsr.isRelease() ? 0.0f : 1.0f;
+        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+        if (!m_adsr.isBypassed()) {
+            m_currentLevel = m_adsr.process(m_currentLevel);
+            finalEnv *= m_currentLevel; // 掛け算
+        }
+        else {
+            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypassed()) {
+            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
     }
 
     // --- Pitch Modulation (Vibrato) ---
@@ -198,14 +247,14 @@ float AdpcmCore::getSample()
 
     // Calculate Total Playback Speed Increment
     // Base Speed * Pitch Bend * Vibrato
-    double currentIncrement = m_pitchRatio * m_pitchBendRatio * lfoPitchMod;
+    double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * lfoPitchMod);
 
     float output = 0.0f;
 
     double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
     size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
 
-    // ★追加: 終端位置の計算
+    // 終端位置の計算
     double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
     if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
 
@@ -269,7 +318,7 @@ float AdpcmCore::getSample()
     // Advance position
     m_position += currentIncrement;
 
-    return output * m_level * m_currentLevel;
+    return output * m_level * m_currentLevel * finalEnv;
 }
 
 void AdpcmCore::refreshAdpcmBuffer()
@@ -282,6 +331,10 @@ void AdpcmCore::refreshAdpcmBuffer()
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
 
     m_bufferSampleRate = targetRate;
+
+    m_adsr.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(m_bufferSampleRate);
+    m_ssgSwEnv.prepare(m_bufferSampleRate);
 
     // Resample & Encode
     double step = m_sourceRate / targetRate;

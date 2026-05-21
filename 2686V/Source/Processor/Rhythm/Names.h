@@ -31,4 +31,17 @@ namespace RhythmPrName
 		static inline const juce::String sl = " SL";
 		static inline const juce::String rr = " RR";
 	}
+
+	namespace PitchAdsr
+	{
+		static inline const juce::String enable = " PitchEnv Enable";
+		static inline const juce::String bypass = " PitchEnv Bypass";
+		static inline const juce::String ar = " PitchEnv Ar";
+		static inline const juce::String dr = " PitchEnv Dr";
+		static inline const juce::String rr = " PitchEnv Rr";
+		static inline const juce::String stl = " PitchEnv Stl";
+		static inline const juce::String atl = " PitchEnv Atl";
+		static inline const juce::String ssl = " PitchEnv Ssl";
+		static inline const juce::String rll = " PitchEnv Rll";
+	};
 }

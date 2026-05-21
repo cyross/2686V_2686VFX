@@ -5,6 +5,9 @@
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Core.h"
+#include "../../Effect/Detune/Opm/Core.h"
 #include "../../Generator/Fm/Fix/Core.h"
 
 class BeepCore : public SynthCore
@@ -13,6 +16,7 @@ public:
     BeepCore() : SynthCore() {}
 
     void prepare(double sampleRate) override;
+	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void noteOn(float freq, float velocity, int midiNote) override;
     void noteOff() override;
@@ -38,4 +42,7 @@ private:
 
     AmpAdsrEnv m_adsr;
     FixMode m_fixMode;
+    PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
+    OpmDetune m_detune;
 };

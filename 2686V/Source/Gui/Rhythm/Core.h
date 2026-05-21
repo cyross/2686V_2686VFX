@@ -39,9 +39,25 @@ class RhythmPadGui: public GuiBase
 
     GuiToggleButton oneShotButton;
 
+    // Amp ADSR
     GuiCategoryLabel adsrCat;
+    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
+    GuiSlider startLevelSlider;
+    GuiSlider attackSlider;
+    GuiSlider decaySlider;
+    GuiSlider sustainSlider;
+    GuiSlider releaseSlider;
 
-    GuiSlider rrSlider;
+    // Pitch ADSR
+    GuiCategoryLabel pitchAdsrCat;
+    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
+    GuiSlider pitchAttackSlider;
+    GuiSlider pitchDecaySlider;
+    GuiSlider pitchReleaseSlider;
+    GuiSlider pitchStartLevelSlider;
+    GuiSlider pitchAttackLevelSlider;
+    GuiSlider pitchSustainLevelSlider;
+    GuiSlider pitchReleaseLevelSlider;
 public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
@@ -63,7 +79,21 @@ public:
         volSlider(context),
         oneShotButton(context),
         adsrCat(context),
-        rrSlider(context)
+        adsrBypassButton(context),
+        startLevelSlider(context),
+        attackSlider(context),
+        decaySlider(context),
+        sustainSlider(context),
+        releaseSlider(context),
+        pitchAdsrCat(context),
+        pitchAdsrBypassButton(context),
+        pitchAttackSlider(context),
+        pitchDecaySlider(context),
+        pitchReleaseSlider(context),
+        pitchStartLevelSlider(context),
+        pitchAttackLevelSlider(context),
+        pitchSustainLevelSlider(context),
+        pitchReleaseLevelSlider(context)
     {
 	}
 
@@ -75,6 +105,7 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
+    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
 };
 
 class GuiRhythm : public GuiBase

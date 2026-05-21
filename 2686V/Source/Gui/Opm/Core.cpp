@@ -143,7 +143,7 @@ void GuiOpm::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    qualityCat.setup({ .parent = *this, .title = OpmGuiText::Category::visibleQuality, .invisibleTitle = OpmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleQuality, .invisibleTitle = OpmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + OpmPrKey::bit, .title = OpmGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -153,7 +153,7 @@ void GuiOpm::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    algFbCat.setup({ .parent = *this, .title = OpmGuiText::Category::algFb });
+    algFbCat.setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::algFb });
 
     algSelector.setup({ .parent = *this, .id = code + OpmPrKey::alg, .title = OpmGuiText::Fm::alg, .items = opmAlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
@@ -166,7 +166,7 @@ void GuiOpm::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    panCat.setup({ .parent = *this, .title = OpmGuiText::Category::visiblePan, .invisibleTitle = OpmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visiblePan, .invisibleTitle = OpmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     panSlider.setup({ .parent = *this, .id = code + OpmPrKey::pan, .title = OpmGuiText::Fm::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
@@ -187,7 +187,7 @@ void GuiOpm::setup()
         panSlider.setValue(1, juce::sendNotification);
         };
 
-    lfoCat.setup({ .parent = *this, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
+    lfoCat.setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
 
     lfoFreqSlider.setup({ .parent = *this, .id = code + OpmPrKey::Lfo::freq, .title = OpmGuiText::Fm::lfoFreq, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -249,13 +249,13 @@ void GuiOpm::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setup({ .parent = *this, .title = OpmGuiText::Category::visibleMonoMode, .invisibleTitle = OpmGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
+    monoPolyCat.setupOtherCategory({ .parent = *this, .title = OpmGuiText::Category::visibleMonoMode, .invisibleTitle = OpmGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = OpmPrKey::monoMode, .title = OpmGuiText::monoPoly, .isReset = true });
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setup({ .parent = *this, .title = OpmGuiText::Category::visibleMvol, .invisibleTitle = OpmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
+    mvolCat.setupOtherCategory({ .parent = *this, .title = OpmGuiText::Category::visibleMvol, .invisibleTitle = OpmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = OpmPrKey::masterVol, .title = OpmGuiText::MasterVol::title, .isReset = true });
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
@@ -326,13 +326,148 @@ void GuiOpm::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
-        cafLfo[i].setup({ .parent = *this, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
+        catPitchEnv[i].setupSwCategory({ .parent = *this, .title = OpmGuiText::Category::visiblePitchAdsr, .invisibleTitle = OpmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+
+        pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::enable, .title = OpmGuiText::PitchAdsr::enable, .isReset = true });
+        pitchEnvEnable[i].setWantsKeyboardFocus(true);
+        pitchEnvEnable[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchAttack[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::ar, .title = OpmGuiText::PitchAdsr::ar, .isReset = true });
+        pitchAttack[i].setWantsKeyboardFocus(true);
+        pitchAttack[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchDecay[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::dr , .title = OpmGuiText::PitchAdsr::dr, .isReset = true });
+        pitchDecay[i].setWantsKeyboardFocus(true);
+        pitchDecay[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchRelease[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::rr, .title = OpmGuiText::PitchAdsr::rr, .isReset = true });
+        pitchRelease[i].setWantsKeyboardFocus(true);
+        pitchRelease[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchStartLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::stl, .title = OpmGuiText::PitchAdsr::stl, .isReset = true });
+        pitchStartLevel[i].setWantsKeyboardFocus(true);
+        pitchStartLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchAttackLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::atl, .title = OpmGuiText::PitchAdsr::atl, .isReset = true });
+        pitchAttackLevel[i].setWantsKeyboardFocus(true);
+        pitchAttackLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchSustainLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::ssl, .title = OpmGuiText::PitchAdsr::ssl, .isReset = true });
+        pitchSustainLevel[i].setWantsKeyboardFocus(true);
+        pitchSustainLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        pitchReleaseLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::rll, .title = OpmGuiText::PitchAdsr::rll, .isReset = true });
+        pitchReleaseLevel[i].setWantsKeyboardFocus(true);
+        pitchReleaseLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        catSsgSwEnv[i].setupSwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleSwEnv, .invisibleTitle = OpmGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
+
+        ssgSwEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::enable, .title = OpmGuiText::SsgSwEnv::enable, .isReset = true });
+        ssgSwEnvEnable[i].setWantsKeyboardFocus(true);
+        ssgSwEnvEnable[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwSteps[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::steps, .title = OpmGuiText::SsgSwEnv::steps, .isReset = true });
+        ssgSwSteps[i].setWantsKeyboardFocus(true);
+        ssgSwSteps[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwSteps[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
+
+        ssgSwEnvLoop[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loop, .title = OpmGuiText::SsgSwEnv::loop, .isReset = true });
+        ssgSwEnvLoop[i].setWantsKeyboardFocus(true);
+        ssgSwEnvLoop[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwEnvLoop[i].onClick = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
+
+        ssgSwLoopTo[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loopTo, .title = OpmGuiText::SsgSwEnv::loopTo, .isReset = true });
+        ssgSwLoopTo[i].setWantsKeyboardFocus(true);
+        ssgSwLoopTo[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwLoopTo[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
+
+        ssgSwLoopCount[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loopCount, .title = OpmGuiText::SsgSwEnv::loopCount, .isReset = true });
+        ssgSwLoopCount[i].setWantsKeyboardFocus(true);
+        ssgSwLoopCount[i].setExplicitFocusOrder(++tabOrder);
+
+        bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+        ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
+
+        ssgSwStartLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::stl, .title = OpmGuiText::SsgSwEnv::stl, .isReset = true });
+        ssgSwStartLevel[i].setWantsKeyboardFocus(true);
+        ssgSwStartLevel[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR1[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r1, .title = OpmGuiText::SsgSwEnv::r1, .isReset = true });
+        ssgSwR1[i].setWantsKeyboardFocus(true);
+        ssgSwR1[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL1[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l1, .title = OpmGuiText::SsgSwEnv::l1, .isReset = true });
+        ssgSwL1[i].setWantsKeyboardFocus(true);
+        ssgSwL1[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR2[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r2, .title = OpmGuiText::SsgSwEnv::r2, .isReset = true });
+        ssgSwR2[i].setWantsKeyboardFocus(true);
+        ssgSwR2[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL2[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l2, .title = OpmGuiText::SsgSwEnv::l2, .isReset = true });
+        ssgSwL2[i].setWantsKeyboardFocus(true);
+        ssgSwL2[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR3[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r3, .title = OpmGuiText::SsgSwEnv::r3, .isReset = true });
+        ssgSwR3[i].setWantsKeyboardFocus(true);
+        ssgSwR3[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL3[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l3, .title = OpmGuiText::SsgSwEnv::l3, .isReset = true });
+        ssgSwL3[i].setWantsKeyboardFocus(true);
+        ssgSwL3[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR4[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r4, .title = OpmGuiText::SsgSwEnv::r4, .isReset = true });
+        ssgSwR4[i].setWantsKeyboardFocus(true);
+        ssgSwR4[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL4[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l4, .title = OpmGuiText::SsgSwEnv::l4, .isReset = true });
+        ssgSwL4[i].setWantsKeyboardFocus(true);
+        ssgSwL4[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR5[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r5, .title = OpmGuiText::SsgSwEnv::r5, .isReset = true });
+        ssgSwR5[i].setWantsKeyboardFocus(true);
+        ssgSwR5[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL5[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l5, .title = OpmGuiText::SsgSwEnv::l5, .isReset = true });
+        ssgSwL5[i].setWantsKeyboardFocus(true);
+        ssgSwL5[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwR6[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::r6, .title = OpmGuiText::SsgSwEnv::r6, .isReset = true });
+        ssgSwR6[i].setWantsKeyboardFocus(true);
+        ssgSwR6[i].setExplicitFocusOrder(++tabOrder);
+
+        ssgSwL6[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::l6, .title = OpmGuiText::SsgSwEnv::l6, .isReset = true });
+        ssgSwL6[i].setWantsKeyboardFocus(true);
+        ssgSwL6[i].setExplicitFocusOrder(++tabOrder);
+
+        cafLfo[i].setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
 
         amsEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
         amsEnable[i].setWantsKeyboardFocus(true);
         amsEnable[i].setExplicitFocusOrder(++tabOrder);
 
-        cafFix[i].setup({ .parent = *this, .title = OpmGuiText::Category::visibleFix, .invisibleTitle = OpmGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
+        cafFix[i].setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleFix, .invisibleTitle = OpmGuiText::Category::invisibleFix, .enableChangeDetailVisible = true });
 
         fix[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::fix, .title = OpmGuiText::Fm::Op::Fix, .isReset = true });
         fix[i].setWantsKeyboardFocus(true);
@@ -353,13 +488,13 @@ void GuiOpm::setup()
         freqTo440[i].setExplicitFocusOrder(++tabOrder);
         freqTo440[i].onClick = [this, index = i] { freq[index].setValue(440, juce::sendNotification); };
 
-        catMask[i].setup({ .parent = *this, .title = OpmGuiText::Category::visibleMask, .invisibleTitle = OpmGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
+        catMask[i].setupHwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleMask, .invisibleTitle = OpmGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::mask, .title = OpmGuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        catMml[i].setup({ .parent = *this, .title = OpmGuiText::Category::mml });
+        catMml[i].setupOtherCategory({ .parent = *this, .title = OpmGuiText::Category::mml });
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -425,6 +560,10 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], });
+
+        layoutOpPitchEnvCat(i, innerRect);
+
+        layoutOpSsgSwEnvCat(i, innerRect);
 
         layoutOpHwLfoCat(i, innerRect);
 
@@ -811,5 +950,102 @@ void GuiOpm::layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &amsEnable[opIndex] });
+    }
+}
+
+void GuiOpm::layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .component = &catPitchEnv[opIndex] });
+
+    bool visible = catPitchEnv[opIndex].isDetailVisible();
+
+    pitchEnvEnable[opIndex].setVisible(visible);
+    pitchAttack[opIndex].setVisibleWithLabel(visible);
+    pitchDecay[opIndex].setVisibleWithLabel(visible);
+    pitchRelease[opIndex].setVisibleWithLabel(visible);
+    pitchStartLevel[opIndex].setVisibleWithLabel(visible);
+    pitchAttackLevel[opIndex].setVisibleWithLabel(visible);
+    pitchSustainLevel[opIndex].setVisibleWithLabel(visible);
+    pitchReleaseLevel[opIndex].setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &pitchEnvEnable[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchAttack[opIndex].label, .component = &pitchAttack[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchDecay[opIndex].label, .component = &pitchDecay[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchRelease[opIndex].label, .component = &pitchRelease[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchStartLevel[opIndex].label, .component = &pitchStartLevel[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchAttackLevel[opIndex].label, .component = &pitchAttackLevel[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchSustainLevel[opIndex].label, .component = &pitchSustainLevel[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &pitchReleaseLevel[opIndex].label, .component = &pitchReleaseLevel[opIndex] });
+    }
+}
+
+void GuiOpm::layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect)
+{
+    layoutRowCategory({ .rowRect = rect, .component = &catSsgSwEnv[opIndex] });
+
+    bool visible = catSsgSwEnv[opIndex].isDetailVisible();
+
+    ssgSwEnvEnable[opIndex].setVisible(visible);
+    ssgSwSteps[opIndex].setVisibleWithLabel(visible);
+    ssgSwEnvLoop[opIndex].setVisible(visible);
+    ssgSwLoopTo[opIndex].setVisibleWithLabel(visible);
+    ssgSwLoopCount[opIndex].setVisibleWithLabel(visible);
+    ssgSwStartLevel[opIndex].setVisibleWithLabel(visible);
+    ssgSwR1[opIndex].setVisibleWithLabel(visible);
+    ssgSwL1[opIndex].setVisibleWithLabel(visible);
+    ssgSwR2[opIndex].setVisibleWithLabel(visible);
+    ssgSwL2[opIndex].setVisibleWithLabel(visible);
+    ssgSwR3[opIndex].setVisibleWithLabel(visible);
+    ssgSwL3[opIndex].setVisibleWithLabel(visible);
+    ssgSwR4[opIndex].setVisibleWithLabel(visible);
+    ssgSwL4[opIndex].setVisibleWithLabel(visible);
+    ssgSwR5[opIndex].setVisibleWithLabel(visible);
+    ssgSwL5[opIndex].setVisibleWithLabel(visible);
+    ssgSwR6[opIndex].setVisibleWithLabel(visible);
+    ssgSwL6[opIndex].setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &ssgSwEnvEnable[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwSteps[opIndex].label, .component = &ssgSwSteps[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &ssgSwEnvLoop[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwLoopTo[opIndex].label, .component = &ssgSwLoopTo[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwLoopCount[opIndex].label, .component = &ssgSwLoopCount[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwStartLevel[opIndex].label, .component = &ssgSwStartLevel[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR1[opIndex].label, .component = &ssgSwR1[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL1[opIndex].label, .component = &ssgSwL1[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR2[opIndex].label, .component = &ssgSwR2[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL2[opIndex].label, .component = &ssgSwL2[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR3[opIndex].label, .component = &ssgSwR3[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL3[opIndex].label, .component = &ssgSwL3[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR4[opIndex].label, .component = &ssgSwR4[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL4[opIndex].label, .component = &ssgSwL4[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR5[opIndex].label, .component = &ssgSwR5[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL5[opIndex].label, .component = &ssgSwL5[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwR6[opIndex].label, .component = &ssgSwR6[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ssgSwL6[opIndex].label, .component = &ssgSwL6[opIndex] });
+    }
+}
+
+void GuiOpm::applyOpSsgSwEnvLoopValues(int opIndex, bool enabled)
+{
+    if (enabled)
+    {
+        int steps = static_cast<int>(ssgSwSteps[opIndex].getValue());
+
+        // Steps が 1 のときはループできないため、Steps を 2 にする
+        if (steps < 2) {
+            steps = 2;
+            ssgSwSteps[opIndex].setValue(steps);
+        }
+
+        int loopTo = static_cast<int>(ssgSwLoopTo[opIndex].getValue());
+
+        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
+        if (steps - loopTo < 2) {
+            ssgSwLoopTo[opIndex].setValue(steps - 2);
+        }
     }
 }

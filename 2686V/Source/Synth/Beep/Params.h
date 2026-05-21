@@ -3,6 +3,8 @@
 #include <array>
 
 #include "../../Effect/Envelope/Amp/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct BeepParams
 {
@@ -15,8 +17,16 @@ struct BeepParams
     bool fixedMode = false;
     float fixedFreq = 2000.0f;
 
-    // --- ADSR Filter ---
-
-    // Params
+	// -- Amp Envelope ---
     AmpAdsrParams adsr;
+
+    // --- Pitch Envelope ---
+    PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
+
+    // detune
+    int detune = 0;
+    int detune2 = 0;
 };

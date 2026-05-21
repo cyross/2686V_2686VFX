@@ -66,8 +66,6 @@ struct FmOpParams
 
     float phaseOffset = 0.0f; // OPZX7-PHASE-OFFSET
 
-    bool isOplMode = false; // 内部でOPL系かOPN系かを判定するフラグ
-
     bool susEnable = false;
     bool xofEnable = false;
 

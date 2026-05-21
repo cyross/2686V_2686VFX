@@ -33,12 +33,18 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::Pad::oneShot, namePrefix + RhythmPrName::Pad::oneShot, RhythmPrValue::Pad::OneShot::initial));
 
-        // Release Parameter
-        // 範囲: 0.03秒 ～ 5.0秒, 初期値: 0.1秒
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::rr, namePrefix + RhythmPrName::Pad::rr, RhythmPrValue::Pad::Adsr::Rr::min, RhythmPrValue::Pad::Adsr::Rr::max, RhythmPrValue::Pad::Adsr::Rr::initial));
+        // ADSR Bypass Switch
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass, namePrefix + RhythmPrName::Adsr::bypass, RhythmPrValue::Pad::Adsr::Bypass::initial));
+
+        // PitchEnv Bypass Switch
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, namePrefix + RhythmPrName::PitchAdsr::bypass, RhythmPrValue::Pad::PitchAdsr::Bypass::initial));
 
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmOffset, namePrefix + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmRatio, namePrefix + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
+
+
+        addOpEnvParameters(layout, prefix, namePrefix);
+        addOpPitchEnvParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -58,8 +64,23 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.qualityMode = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::mode);
         pad.rateIndex = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::rate);
         pad.isOneShot = (bool)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::oneShot);
-        pad.release = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::rr);
         pad.pcmOffset = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmOffset);
         pad.pcmRatio = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmRatio);
+
+        pad.adsr.bypass = (*apvts.getRawParameterValue(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass) > RhythmPrValue::boolThread);
+        pad.adsr.stl = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::stl);
+        pad.adsr.ar = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::ar);
+        pad.adsr.dr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::dr);
+        pad.adsr.sl = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::sl);
+        pad.adsr.rr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::rr);
+
+        pad.pitchAdsr.bypass = (*apvts.getRawParameterValue(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass) > RhythmPrValue::boolThread);
+        pad.pitchAdsr.ar = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ar);
+        pad.pitchAdsr.dr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::dr);
+        pad.pitchAdsr.rr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rr);
+        pad.pitchAdsr.stl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::stl);
+        pad.pitchAdsr.atl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::atl);
+        pad.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ssl);
+        pad.pitchAdsr.rll = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rll);
     }
 }

@@ -2,20 +2,111 @@
 
 #include "../../../Core/Fm/FmCore.h"
 
-void OpnaOperator::prepare(double sampleRate) {
-    m_hwLfo.prepare(sampleRate);
-}
+const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrategies = { {
+    [](double p) { // 00: normal
+        return 1.0f;
+    },
+    [](double p) { // 01
+        return 1.0f;
+    },
+    [](double p) { // 02: Saw Down
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return 1.0f - (float)subPos;
+    },
+    [](double p) { // 03
+        return 1.0f;
+    },
+    [](double p) { // 04: Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 05
+        return 1.0f;
+    },
+    [](double p) { // 06: Triangle
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (1.0f - (float)subPos) : (float)subPos;
+    },
+    [](double p) { // 07
+        return 1.0f;
+    },
+    [](double p) { // 08: Alt Saw Down & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+    },
+    [](double p) { // 09: Saw Up
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (float)subPos;
+    },
+    [](double p) { // 10
+        return 1.0f;
+    },
+    [](double p) { // 11: Saw Up & Hopd
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+    [](double p) { // 12
+        return 1.0f;
+    },
+    [](double p) { // 13: Triangle & Invert
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return isEven ? (float)subPos : (1.0f - (float)subPos);
+    },
+    [](double p) { // 14
+        return 1.0f;
+    },
+    [](double p) { // 15: Alt Saw Up & Hold
+        int cycle = (int)p;
+        double subPos = p - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        return (cycle == 0) ? (float)subPos : 1.0f;
+    },
+} };
 
 void OpnaOperator::setSampleRate(double sampleRate)
 {
-    this->m_sampleRate = sampleRate;
-    
-    m_hwLfo.updateTargetSampleRate(this->m_sampleRate);
+	this->m_sampleRate = sampleRate;
+	m_hwLfo.updateTargetSampleRate(sampleRate);
+	m_ampAdsr.updateTargetSampleRate(sampleRate);
+	m_pitchAdsr.updateTargetSampleRate(sampleRate);
+	m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
-void OpnaOperator::setParameters(const FmOpParams& params, float feedback, float amSmoothRate)
+void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate)
 {
     m_params = params;
+    m_feedback = feedback;
+    m_ssgEgFreq = params.fmSsgEgFreq;
+    m_params.waveSelect = 0;
+    m_ams = (float)m_params.n88Ams / 15.0f;
+
+    m_ampAdsr.setParameters(params.m_adsrParams);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
+    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_detune.setParameters(params.detune, params.multiple);
     m_hwLfo.setParameters(
         params.lfoSyncDelay,
         params.amEnable,
@@ -26,18 +117,11 @@ void OpnaOperator::setParameters(const FmOpParams& params, float feedback, float
         params.ams,
         amSmoothRate
     );
-    m_feedback = feedback;
-    m_ssgEgFreq = params.fmSsgEgFreq;
-    m_params.waveSelect = 0;
-    m_ams = (float)m_params.n88Ams / 15.0f;
-
-    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
-    m_detune.setParameters(params.detune, params.multiple);
 }
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = m_params.phaseOffset;
+    m_phase = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
@@ -51,20 +135,21 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
-    // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
-    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-    float attenuationDb = m_params.rtl * 0.75f;
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    m_targetLevel = m_ampAdsr.noteOn(velocity);
 
-    float kslAttenuation = 1.0f;
-    m_targetLevel = velocity * tlGain * kslAttenuation;
-    m_state = State::Attack;
+	m_pitchAdsr.noteOn();
+	m_ssgSwEnv.noteOn();
 
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
-    updateIncrementsWithKeyScale();
+    m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
+}
 
-    m_currentReleaseDec = m_releaseDec;
+void OpnaOperator::noteOff()
+{
+    m_ampAdsr.noteOff();
+    m_pitchAdsr.noteOff();
+	m_ssgSwEnv.noteOff();
 }
 
 void OpnaOperator::processLfo()
@@ -74,10 +159,24 @@ void OpnaOperator::processLfo()
 
 void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel)
 {
-    if (m_state == State::Idle) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
-    updateEnvelopeState();
+        output = 0.0f;
+
+        return;
+    }
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+    m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
     float envVal = m_currentLevel;
+
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (m_params.ssgEnvEnable) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
 
     if (m_params.ssgEg > 0) {
         int safeWave = std::clamp(m_params.ssgEg, 0, 15);
@@ -143,7 +242,8 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
@@ -164,4 +264,3 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     m_phase += currentPhaseDelta;
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
-

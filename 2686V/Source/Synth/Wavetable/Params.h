@@ -4,6 +4,7 @@
 
 #include "../../Effect/Envelope/Amp/Adsr/Params.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Amp/SsgSw/Params.h"
 
 struct WtParams
 {
@@ -40,6 +41,9 @@ struct WtParams
 
     // --- Pitch Envelope ---
     PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
 
     // detune
     int detune = 0;

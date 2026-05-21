@@ -1,20 +1,31 @@
 ﻿#include "./Core.h"
 
-void OpnOperator::setParameters(const FmOpParams& params, float feedback)
+void OpnOperator::setParameters(const OpnOpParams& params, float feedback)
 {
     m_params = params;
     m_feedback = feedback;
-    m_ssgEgFreq = params.fmSsgEgFreq;
     m_params.waveSelect = 0;
+    m_ams = (float)params.n88Ams / 15.0f;
+    m_ampAdsr.setParameters(params.m_adsrParams);
+    m_pitchAdsr.setParameters(params.pitchAdsr);
+    m_ssgSwEnv.setParameters(params.ssgSwEnv);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_detune.setParameters(params.detune, params.multiple);
-    m_ams = (float)params.n88Ams / 15.0f;
+}
+
+void OpnOperator::setSampleRate(double sampleRate)
+{
+    m_sampleRate = sampleRate;
+
+    m_lfo.updateTargetSampleRate(sampleRate);
+    m_ampAdsr.updateTargetSampleRate(sampleRate);
+    m_pitchAdsr.updateSampleRate(sampleRate);
+    m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = m_params.phaseOffset;
-    m_ssgPhase = 0.0;
+    m_phase = 0.0f;
     m_noteNumber = noteNumber;
     //m_currentLevel = 0.0f;
     
@@ -28,28 +39,43 @@ void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
-    // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
-    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-    float attenuationDb = m_params.rtl * 0.75f;
-    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-
-    float kslAttenuation = 1.0f;
-    m_targetLevel = velocity * tlGain * kslAttenuation;
-    m_state = State::Attack;
+    m_targetLevel = m_ampAdsr.noteOn(velocity);
 
     m_fb1 = 0.0f; m_fb2 = 0.0f;
 
-    updateIncrementsWithKeyScale();
+    m_pitchAdsr.noteOn();
+    m_ssgSwEnv.noteOn();
 
-    m_currentReleaseDec = m_releaseDec;
+    m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
+}
+
+void OpnOperator::noteOff()
+{
+    m_ampAdsr.noteOff();
+    m_pitchAdsr.noteOff();
+    m_ssgSwEnv.noteOff();
 }
 
 void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel)
 {
-    if (m_state == State::Idle) { output = 0.0f; return; }
+    if (!isPlaying()) {
+        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
+        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+        m_pitchAdsr.bypassedReleasedProcess();
 
-    updateEnvelopeState();
+        output = 0.0f;
+
+        return;
+    }
+
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+    m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
     float envVal = m_currentLevel;
+
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (m_params.ssgEnvEnable) {
+        envVal *= m_ssgSwEnv.process(); // 掛け算
+    }
 
     // ========================================================
     // 1. Amplitude Modulation (Tremolo) の計算
@@ -102,7 +128,8 @@ void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n8
         feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
     }
 
-    float currentPhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
+    float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
@@ -123,4 +150,3 @@ void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n8
     m_phase += currentPhaseDelta;
     if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
 }
-

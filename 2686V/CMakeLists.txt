@@ -114,6 +114,36 @@ set(AMP_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/Adsr/Core.cpp"
 )
 
+set(FM_RG_ADDDR_FILES
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Params.h"
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Core.h"
+    "Source/Effect/Envelope/Amp/FmRgAdddr/Core.cpp"
+)
+
+set(FM_RG_ADSSR_FILES
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Params.h"
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Core.h"
+    "Source/Effect/Envelope/Amp/FmRgAdssr/Core.cpp"
+)
+
+set(OPL_ADSR_FILES
+    "Source/Effect/Envelope/Amp/OplAdsr/Params.h"
+    "Source/Effect/Envelope/Amp/OplAdsr/Core.h"
+    "Source/Effect/Envelope/Amp/OplAdsr/Core.cpp"
+)
+
+set(OPZX7_ADDDR_FILES
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Params.h"
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Core.h"
+    "Source/Effect/Envelope/Amp/Opzx7Adddr/Core.cpp"
+)
+
+set(SSG_SW_ENV_FILES
+    "Source/Effect/Envelope/Amp/SsgSw/Params.h"
+    "Source/Effect/Envelope/Amp/SsgSw/Core.h"
+    "Source/Effect/Envelope/Amp/SsgSw/Core.cpp"
+)
+
 set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Params.h"
     "Source/Effect/Envelope/Pitch/Adsr/Core.h"
@@ -169,6 +199,7 @@ set(OPNA_SYNTH_FILES
 set(OPNA_OPERATOR_FILES
     "Source/Synth/Opna/Operator/Core.h"
     "Source/Synth/Opna/Operator/Core.cpp"
+    "Source/Synth/Opna/Operator/Params.h"
 )
 
 set(OPNA_PROCESSOR_FILES
@@ -195,6 +226,7 @@ set(OPN_SYNTH_FILES
 set(OPN_OPERATOR_FILES
     "Source/Synth/Opn/Operator/Core.h"
     "Source/Synth/Opn/Operator/Core.cpp"
+    "Source/Synth/Opn/Operator/Params.h"
 )
 
 set(OPN_PROCESSOR_FILES
@@ -221,6 +253,7 @@ set(OPL_SYNTH_FILES
 set(OPL_OPERATOR_FILES
     "Source/Synth/Opl/Operator/Core.h"
     "Source/Synth/Opl/Operator/Core.cpp"
+    "Source/Synth/Opl/Operator/Params.h"
 )
 
 set(OPL_PROCESSOR_FILES
@@ -247,6 +280,7 @@ set(OPL3_SYNTH_FILES
 set(OPL3_OPERATOR_FILES
     "Source/Synth/Opl3/Operator/Core.h"
     "Source/Synth/Opl3/Operator/Core.cpp"
+    "Source/Synth/Opl3/Operator/Params.h"
 )
 
 set(OPL3_PROCESSOR_FILES
@@ -273,6 +307,7 @@ set(OPM_SYNTH_FILES
 set(OPM_OPERATOR_FILES
     "Source/Synth/Opm/Operator/Core.h"
     "Source/Synth/Opm/Operator/Core.cpp"
+    "Source/Synth/Opm/Operator/Params.h"
 )
 
 set(OPM_PROCESSOR_FILES
@@ -299,6 +334,7 @@ set(OPZX7_SYNTH_FILES
 set(OPZX7_OPERATOR_FILES
     "Source/Synth/Opzx7/Operator/Core.h"
     "Source/Synth/Opzx7/Operator/Core.cpp"
+    "Source/Synth/Opzx7/Operator/Params.h"
 )
 
 set(OPZX7_PROCESSOR_FILES
@@ -484,7 +520,6 @@ source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
-source_group("2686V\\Generator\\Fm" FILES ${FM_FILES})
 source_group("2686V\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("2686V\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("2686V\\Synth\\Fm" FILES ${FM_FILES})
@@ -506,6 +541,11 @@ source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdddr" FILES ${FM_RG_ADDDR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdssr" FILES ${FM_RG_ADSSR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\OplAdsr" FILES ${OPL_ADSR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\Opzx7Adddr" FILES ${OPZX7_ADDDR_FILES})
+source_group("2686V\\Effect\\Envelope\\Amp\\SsgSw" FILES ${SSG_SW_ENV_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
@@ -584,6 +624,11 @@ function(create_cyross_plugin TARGET_NAME)
         ${PROCESSOR_FILES}
         ${EDITOR_FILES}
         ${AMP_ADSR_ENVELOPE_FILES}
+        ${FM_RG_ADDDR_FILES}
+        ${FM_RG_ADSSR_FILES}
+        ${OPL_ADSR_FILES}
+        ${OPZX7_ADDDR_FILES}
+        ${SSG_SW_ENV_FILES}
         ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}
