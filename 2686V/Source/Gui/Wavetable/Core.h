@@ -664,4 +664,5 @@ public:
     void layoutWavefileCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
+    void applySsgSwEnvLoopValues(bool enabled);
 };

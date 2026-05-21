@@ -195,18 +195,45 @@ void GuiSsg::setup()
     ssgSwStepsSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::steps, .title = SsgGuiText::SsgSwEnv::steps, .isReset = true });
     ssgSwStepsSlider.setWantsKeyboardFocus(true);
     ssgSwStepsSlider.setExplicitFocusOrder(++tabOrder);
+    ssgSwStepsSlider.onValueChange = [this] {
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        };
 
     ssgSwEnvLoopButton.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loop, .title = SsgGuiText::SsgSwEnv::loop, .isReset = true });
     ssgSwEnvLoopButton.setWantsKeyboardFocus(true);
     ssgSwEnvLoopButton.setExplicitFocusOrder(++tabOrder);
+    ssgSwEnvLoopButton.onClick = [this] {
+		bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+
+        ssgSwLoopToSlider.setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopToSlider.label.setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCountSlider.setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCountSlider.label.setEnabled(ssgEnvLoopEnable);
+
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+    };
 
     ssgSwLoopToSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loopTo, .title = SsgGuiText::SsgSwEnv::loopTo, .isReset = true });
     ssgSwLoopToSlider.setWantsKeyboardFocus(true);
     ssgSwLoopToSlider.setExplicitFocusOrder(++tabOrder);
+    ssgSwLoopToSlider.onValueChange = [this] {
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        };
 
     ssgSwLoopCountSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loopCount, .title = SsgGuiText::SsgSwEnv::loopCount, .isReset = true });
     ssgSwLoopCountSlider.setWantsKeyboardFocus(true);
     ssgSwLoopCountSlider.setExplicitFocusOrder(++tabOrder);
+
+    bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+
+    ssgSwLoopToSlider.setEnabled(ssgEnvLoopEnable);
+    ssgSwLoopToSlider.label.setEnabled(ssgEnvLoopEnable);
+    ssgSwLoopCountSlider.setEnabled(ssgEnvLoopEnable);
+    ssgSwLoopCountSlider.label.setEnabled(ssgEnvLoopEnable);
 
     ssgSwStartLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::stl, .title = SsgGuiText::SsgSwEnv::stl, .isReset = true });
     ssgSwStartLevelSlider.setWantsKeyboardFocus(true);
@@ -831,5 +858,26 @@ void GuiSsg::layoutSwEnvCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &ssgSwL5Slider.label, .component = &ssgSwL5Slider });
         layoutMain({ .mainRect = rect, .label = &ssgSwR6Slider.label, .component = &ssgSwR6Slider });
         layoutMain({ .mainRect = rect, .label = &ssgSwL6Slider.label, .component = &ssgSwL6Slider });
+    }
+}
+
+void GuiSsg::applySsgSwEnvLoopValues(bool enabled)
+{
+    if (enabled)
+    {
+        int steps = static_cast<int>(ssgSwStepsSlider.getValue());
+
+        // Steps が 1 のときはループできないため、Steps を 2 にする
+        if (steps < 2) {
+            steps = 2;
+            ssgSwStepsSlider.setValue(steps);
+        }
+
+        int loopTo = static_cast<int>(ssgSwLoopToSlider.getValue());
+
+        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
+        if (steps - loopTo < 2) {
+            ssgSwLoopToSlider.setValue(steps - 2);
+        }
     }
 }

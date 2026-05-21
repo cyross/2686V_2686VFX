@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <array>
+
 #include "./Params.h"
 
 class SsgSwEnv {
@@ -12,32 +14,18 @@ class SsgSwEnv {
 	bool loop = false;
 	int loopTo = 0;
 	int loopCount = 0;
-	float stl = 0.0f;
-	float r1 = 0.0f;
-	float l1 = 0.0f;
-	float r2 = 0.0f;
-	float l2 = 0.0f;
-	float r3 = 0.0f;
-	float l3 = 0.0f;
-	float r4 = 0.0f;
-	float l4 = 0.0f;
-	float r5 = 0.0f;
-	float l5 = 0.0f;
-	float r6 = 0.0f;
-	float l6 = 0.0f;
+	std::array<float, 7> r = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	std::array<float, 7> l = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float currentLevel = 0.0f;
 
-	float r0Inc = 0.0f;
-	float r1Inc = 0.0f;
-	float r2Inc = 0.0f;
-	float r3Inc = 0.0f;
-	float r4Inc = 0.0f;
-	float r5Inc = 0.0f;
-	float r6Inc = 0.0f;
+	std::array<float, 7> rInc = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	std::array<float, 7> rIncLoop = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+	int loopCounter = 0;
 
 	void updateIncrements();
 	inline bool isReached(float inc, float current, float target) const; 

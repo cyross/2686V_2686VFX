@@ -369,18 +369,45 @@ void GuiOpm::setup()
         ssgSwSteps[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::steps, .title = OpmGuiText::SsgSwEnv::steps, .isReset = true });
         ssgSwSteps[i].setWantsKeyboardFocus(true);
         ssgSwSteps[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwSteps[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwEnvLoop[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loop, .title = OpmGuiText::SsgSwEnv::loop, .isReset = true });
         ssgSwEnvLoop[i].setWantsKeyboardFocus(true);
         ssgSwEnvLoop[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwEnvLoop[i].onClick = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwLoopTo[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loopTo, .title = OpmGuiText::SsgSwEnv::loopTo, .isReset = true });
         ssgSwLoopTo[i].setWantsKeyboardFocus(true);
         ssgSwLoopTo[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwLoopTo[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwLoopCount[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::loopCount, .title = OpmGuiText::SsgSwEnv::loopCount, .isReset = true });
         ssgSwLoopCount[i].setWantsKeyboardFocus(true);
         ssgSwLoopCount[i].setExplicitFocusOrder(++tabOrder);
+
+        bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+        ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
+        ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
 
         ssgSwStartLevel[i].setup({ .parent = *this, .id = paramPrefix + OpmPrKey::SsgSwEnv::stl, .title = OpmGuiText::SsgSwEnv::stl, .isReset = true });
         ssgSwStartLevel[i].setWantsKeyboardFocus(true);
@@ -999,5 +1026,26 @@ void GuiOpm::layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &ssgSwL5[opIndex].label, .component = &ssgSwL5[opIndex] });
         layoutRow({ .rowRect = rect, .label = &ssgSwR6[opIndex].label, .component = &ssgSwR6[opIndex] });
         layoutRow({ .rowRect = rect, .label = &ssgSwL6[opIndex].label, .component = &ssgSwL6[opIndex] });
+    }
+}
+
+void GuiOpm::applyOpSsgSwEnvLoopValues(int opIndex, bool enabled)
+{
+    if (enabled)
+    {
+        int steps = static_cast<int>(ssgSwSteps[opIndex].getValue());
+
+        // Steps が 1 のときはループできないため、Steps を 2 にする
+        if (steps < 2) {
+            steps = 2;
+            ssgSwSteps[opIndex].setValue(steps);
+        }
+
+        int loopTo = static_cast<int>(ssgSwLoopTo[opIndex].getValue());
+
+        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
+        if (steps - loopTo < 2) {
+            ssgSwLoopTo[opIndex].setValue(steps - 2);
+        }
     }
 }

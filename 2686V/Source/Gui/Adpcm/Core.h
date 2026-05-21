@@ -172,4 +172,5 @@ public:
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
+    void applySsgSwEnvLoopValues(bool enabled);
 };

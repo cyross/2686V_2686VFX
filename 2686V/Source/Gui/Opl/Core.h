@@ -233,4 +233,5 @@ public:
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
+    void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
 };

@@ -15,36 +15,54 @@ void SsgSwEnv::updateTargetSampleRate(double newSampleRate)
 void SsgSwEnv::setParameters(const SsgSwEnvParams& params) {
 	this->bypass = params.bypass;
 	this->steps = params.steps;
-    this->stl = params.stl;
-    this->r1 = params.r1;
-	this->l1 = params.l1;
-	this->r2 = params.r2;
-	this->l2 = params.l2;
-	this->r3 = params.r3;
-	this->l3 = params.l3;
-	this->r4 = params.r4;
-	this->l4 = params.l4;
-	this->r5 = params.r5;
-	this->l5 = params.l5;
-	this->r6 = params.r6;
-	this->l6 = params.l6;
+	this->loop = params.loop;
+	this->loopTo = params.loopTo;
+	this->loopCount = params.loopCount;
+    this->l[0] = params.stl;
+    this->r[1] = params.r1;
+	this->l[1] = params.l1;
+	this->r[2] = params.r2;
+	this->l[2] = params.l2;
+	this->r[3] = params.r3;
+	this->l[3] = params.l3;
+	this->r[4] = params.r4;
+	this->l[4] = params.l4;
+	this->r[5] = params.r5;
+	this->l[5] = params.l5;
+	this->r[6] = params.r6;
+	this->l[6] = params.l6;
+
+    // GUIでも loop=true 時のガードはやっているが、念の為ロジックでもチェックする
+    if (this->loop) {
+        // Steps が 1 のときはループできないため、Steps を 2 にする
+        if (this->steps < 2) {
+            this->steps = 2;
+        }
+
+        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
+        if (this->steps - this->loopTo < 2) {
+            this->loopTo = this->steps - 2;
+        }
+    }
+
     this->updateIncrements();
 }
 
 void SsgSwEnv::noteOn() {
-    state = State::S1;
-    currentLevel = this->stl; // Start Level から開始
+    this->state = State::S1;
+    this->loopCounter = 0;
+    this->currentLevel = this->l[0]; // Start Level から開始
 }
 
 void SsgSwEnv::noteOff() {
-    state = State::S6;
-    float r = std::max(0.001f, this->r6);
+    this->state = State::S6;
+    float r = std::max(0.001f, this->r[6]);
     // 現在のレベルからV6に向けて減衰・上昇する傾きを計算
-    r6Inc = (this->l6 - currentLevel) / (r * (float)sampleRate);
+    this->rInc[6] = (this->l[6] - this->currentLevel) / (r * (float)this->sampleRate);
 }
 
 void SsgSwEnv::bypassedReleasedProcess() {
-    state = State::Idle;
+    this->state = State::Idle;
 }
 
 inline bool SsgSwEnv::isReached(float inc, float current, float target) const {
@@ -57,11 +75,19 @@ inline bool SsgSwEnv::isReached(float inc, float current, float target) const {
 float SsgSwEnv::process() {
     if (this->bypass) return 1.0f; // バイパス時は音量1.0(影響なし)を返す
 
+	auto countUpLoopCounter = [&]() {
+		if (loopCount > 0) {
+			loopCounter++;
+		}
+		};
+
+	bool isLoopTo = this->loop && (int)this->state == this->steps;
+
     switch (state) {
     case State::S1:
-        currentLevel += r1Inc;
-        if (this->r1 <= 0.001f || isReached(r1Inc, currentLevel, this->l1)) {
-            currentLevel = this->l1;
+        currentLevel += rInc[1];
+        if (this->r[1] <= 0.001f || isReached(rInc[1], currentLevel, this->l[1])) {
+            currentLevel = this->l[1];
             if (this->steps > 1)
             {
                 state = State::S2;
@@ -69,45 +95,147 @@ float SsgSwEnv::process() {
         }
         break;
     case State::S2:
-        currentLevel += r2Inc;
-        if (this->r2 <= 0.001f || isReached(r2Inc, currentLevel, this->l2)) {
-            currentLevel = this->l2;
-            if (this->steps > 2)
-            {
-                state = State::S3;
+		// ループ設定が有効で、かつ現在ループの終端になっている場合
+        if (isLoopTo) {
+			// ループ回数が設定されている場合は、ループ回数に達しているかをチェック
+            if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+				// ループ回数に達している場合は、通常のR2/L2の処理を行う
+                currentLevel += rInc[2];
+
+                if (this->r[2] <= 0.001f || isReached(rInc[2], currentLevel, this->l[2])) {
+                    currentLevel = this->l[2];
+                }
+            }
+            else {
+				// ループ回数に達していない場合は、ループ先のレベルに向かって変化させる
+                currentLevel += rIncLoop[2];
+
+                if (this->r[2] <= 0.001f || isReached(rIncLoop[2], currentLevel, this->l[this->loopTo])) {
+                    currentLevel = this->l[this->loopTo];
+                    state = (State)(this->loopTo + 1);
+
+                    countUpLoopCounter();
+                }
+            }
+        }
+        else {
+            currentLevel += rInc[2];
+
+            if (this->r[2] <= 0.001f || isReached(rInc[2], currentLevel, this->l[2])) {
+                currentLevel = this->l[2];
+                if (this->steps > 2)
+                {
+                    state = State::S3;
+                }
             }
         }
         break;
     case State::S3:
-        currentLevel += r3Inc;
-        if (this->r3 <= 0.001f || isReached(r3Inc, currentLevel, this->l3)) {
-            currentLevel = this->l3;
-            if (this->steps > 3)
-            {
-                state = State::S4;
+        // ループ設定が有効で、かつ現在ループの終端になっている場合
+        if (isLoopTo) {
+            // ループ回数が設定されている場合は、ループ回数に達しているかをチェック
+            if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                // ループ回数に達している場合は、通常のR2/L2の処理を行う
+                currentLevel += rInc[3];
+
+                if (this->r[3] <= 0.001f || isReached(rInc[3], currentLevel, this->l[3])) {
+                    currentLevel = this->l[3];
+                }
+            }
+            else {
+                // ループ回数に達していない場合は、ループ先のレベルに向かって変化させる
+                currentLevel += rIncLoop[3];
+
+                if (this->r[3] <= 0.001f || isReached(rIncLoop[3], currentLevel, this->l[this->loopTo])) {
+                    currentLevel = this->l[this->loopTo];
+                    state = (State)(this->loopTo + 1);
+
+                    countUpLoopCounter();
+                }
+            }
+        }
+        else {
+            currentLevel += rInc[3];
+            if (this->r[3] <= 0.001f || isReached(rInc[3], currentLevel, this->l[3])) {
+                currentLevel = this->l[3];
+                if (this->steps > 3)
+                {
+                    state = State::S4;
+                }
             }
         }
         break;
     case State::S4:
-        currentLevel += r4Inc;
-        if (this->r4 <= 0.001f || isReached(r4Inc, currentLevel, this->l4)) {
-            currentLevel = this->l4;
-            if (this->steps > 4)
-            {
-                state = State::S5;
+        // ループ設定が有効で、かつ現在ループの終端になっている場合
+        if (isLoopTo) {
+            // ループ回数が設定されている場合は、ループ回数に達しているかをチェック
+            if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                // ループ回数に達している場合は、通常のR2/L2の処理を行う
+                currentLevel += rInc[4];
+
+                if (this->r[4] <= 0.001f || isReached(rInc[4], currentLevel, this->l[4])) {
+                    currentLevel = this->l[4];
+                }
+            }
+            else {
+                // ループ回数に達していない場合は、ループ先のレベルに向かって変化させる
+                currentLevel += rIncLoop[4];
+
+                if (this->r[4] <= 0.001f || isReached(rIncLoop[4], currentLevel, this->l[this->loopTo])) {
+                    currentLevel = this->l[this->loopTo];
+                    state = (State)(this->loopTo + 1);
+
+                    countUpLoopCounter();
+                }
+            }
+        }
+        else {
+            currentLevel += rInc[4];
+            if (this->r[4] <= 0.001f || isReached(rInc[4], currentLevel, this->l[4])) {
+                currentLevel = this->l[4];
+                if (this->steps > 4)
+                {
+                    state = State::S5;
+                }
             }
         }
         break;
     case State::S5:
-        currentLevel += r5Inc;
-        if (this->r5 <= 0.001f || isReached(r5Inc, currentLevel, this->l5)) {
-            currentLevel = this->l5; // S5到達後はホールド(サステイン)
+        // ループ設定が有効で、かつ現在ループの終端になっている場合
+        if (isLoopTo) {
+            // ループ回数が設定されている場合は、ループ回数に達しているかをチェック
+            if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                // ループ回数に達している場合は、通常のR2/L2の処理を行う
+                currentLevel += rInc[5];
+
+                if (this->r[5] <= 0.001f || isReached(rInc[5], currentLevel, this->l[5])) {
+                    currentLevel = this->l[5];
+                }
+            }
+            else {
+                // ループ回数に達していない場合は、ループ先のレベルに向かって変化させる
+                currentLevel += rIncLoop[5];
+
+                if (this->r[5] <= 0.001f || isReached(rIncLoop[5], currentLevel, this->l[this->loopTo])) {
+                    currentLevel = this->l[this->loopTo];
+                    state = (State)(this->loopTo + 1);
+
+                    countUpLoopCounter();
+                }
+            }
+        }
+        else {
+            currentLevel += rInc[5];
+            if (this->r[5] <= 0.001f || isReached(rInc[5], currentLevel, this->l[5])) {
+                currentLevel = this->l[5]; // S5到達後はホールド(サステイン)
+            }
         }
         break;
     case State::S6:
-        currentLevel += r6Inc;
-        if (this->r6 <= 0.001f || isReached(r6Inc, currentLevel, this->l6)) {
-            currentLevel = this->l6; state = State::Idle;
+        currentLevel += rInc[6];
+        if (this->r[6] <= 0.001f || isReached(rInc[6], currentLevel, this->l[6])) {
+            currentLevel = this->l[6];
+            state = State::Idle;
         }
         break;
     default:
@@ -126,12 +254,16 @@ void SsgSwEnv::updateIncrements()
         return r <= 0.001f ? (target - start) : (target - start) / (r * (float)sampleRate);
         };
 
-    r1Inc = calcInc(this->r1, this->l1, this->stl);
-    r2Inc = calcInc(this->r2, this->l2, this->l1);
-    r3Inc = calcInc(this->r3, this->l3, this->l2);
-    r4Inc = calcInc(this->r4, this->l4, this->l3);
-    r5Inc = calcInc(this->r5, this->l5, this->l4);
-    // r6IncはnoteOff時に動的計算するためここでは計算しない
+    rInc[1] = calcInc(this->r[1], this->l[1], this->l[0]);
+    rInc[2] = calcInc(this->r[2], this->l[2], this->l[1]);
+    rInc[3] = calcInc(this->r[3], this->l[3], this->l[2]);
+    rInc[4] = calcInc(this->r[4], this->l[4], this->l[3]);
+    rInc[5] = calcInc(this->r[5], this->l[5], this->l[4]);
+    // rInc[6]はnoteOff時に動的計算するためここでは計算しない
+
+    if (this->loop) {
+        rIncLoop[this->steps] = calcInc(this->r[this->steps], this->l[this->loopTo], this->l[this->steps]);
+    }
 }
 
 void SsgSwEnv::updateSampleRate(double newSampleRate) {

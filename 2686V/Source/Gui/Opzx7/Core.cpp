@@ -623,14 +623,34 @@ void GuiOpzx7::setup()
         ssgSwSteps[i].setup({ .parent = *this, .id = paramPrefix + Opzx7PrKey::SsgSwEnv::steps, .title = Opzx7GuiText::SsgSwEnv::steps, .isReset = true });
         ssgSwSteps[i].setWantsKeyboardFocus(true);
         ssgSwSteps[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwSteps[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwEnvLoop[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::SsgSwEnv::loop, .title = Opzx7GuiText::SsgSwEnv::loop, .isReset = true });
         ssgSwEnvLoop[i].setWantsKeyboardFocus(true);
         ssgSwEnvLoop[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwEnvLoop[i].onClick = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
+            ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwLoopTo[i].setup({ .parent = *this, .id = paramPrefix + Opzx7PrKey::SsgSwEnv::loopTo, .title = Opzx7GuiText::SsgSwEnv::loopTo, .isReset = true });
         ssgSwLoopTo[i].setWantsKeyboardFocus(true);
         ssgSwLoopTo[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwLoopTo[i].onValueChange = [this, i] {
+            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
+
+            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
+            };
 
         ssgSwLoopCount[i].setup({ .parent = *this, .id = paramPrefix + Opzx7PrKey::SsgSwEnv::loopCount, .title = Opzx7GuiText::SsgSwEnv::loopCount, .isReset = true });
         ssgSwLoopCount[i].setWantsKeyboardFocus(true);
@@ -1506,5 +1526,26 @@ void GuiOpzx7::layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &phaseOffset[opIndex].label, .component = &phaseOffset[opIndex] });
+    }
+}
+
+void GuiOpzx7::applyOpSsgSwEnvLoopValues(int opIndex, bool enabled)
+{
+    if (enabled)
+    {
+        int steps = static_cast<int>(ssgSwSteps[opIndex].getValue());
+
+        // Steps が 1 のときはループできないため、Steps を 2 にする
+        if (steps < 2) {
+            steps = 2;
+            ssgSwSteps[opIndex].setValue(steps);
+        }
+
+        int loopTo = static_cast<int>(ssgSwLoopTo[opIndex].getValue());
+
+        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
+        if (steps - loopTo < 2) {
+            ssgSwLoopTo[opIndex].setValue(steps - 2);
+        }
     }
 }

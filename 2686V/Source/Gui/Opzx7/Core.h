@@ -414,4 +414,5 @@ public:
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect);
+    void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
 };

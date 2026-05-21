@@ -252,4 +252,5 @@ public:
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutSwEnvCat(juce::Rectangle<int>& rect);
+	void applySsgSwEnvLoopValues(bool enabled);
 };
