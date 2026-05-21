@@ -48,26 +48,19 @@ void Opzx7Core::prepare(double sampleRate) {
     double target = getTargetRate(m_rateIndex);
 
     for (auto& op : m_operators) {
-        op.prepare(m_hostSampleRate);
-        op.setSampleRate(m_hostSampleRate);
+        op.prepare(target);
     }
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
     m_amSmooth = 0.0f;
 
-    m_lfo.prepare(m_hostSampleRate);
+    m_lfo.prepare(target);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
-
-        m_lfo.prepare(m_hostSampleRate);
     }
 }
 
@@ -100,6 +93,14 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opzx7.fmRateIndex) {
         m_rateIndex = params.opzx7.fmRateIndex;
+
+        double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
+
+        m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);
@@ -135,7 +136,6 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
-    m_rateAccumulator = 1.0;
 
     m_lfo.noteOn();
 }

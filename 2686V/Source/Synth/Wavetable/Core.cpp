@@ -15,12 +15,12 @@ void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
-    m_targetRate = getTargetRate(m_rateIndex);
-
     m_adsr.prepare(m_sampleRate);
     m_pitchAdsr.prepare(m_sampleRate);
     m_ssgSwEnv.prepare(m_sampleRate);
-    m_lfo.prepare(m_sampleRate);
+    m_targetRate = getTargetRate(m_rateIndex);
+
+    m_lfo.prepare(m_targetRate);
 
     updatePhaseDelta();
 }
@@ -32,7 +32,6 @@ void WtCore::setSampleRate(double sampleRate)
     m_adsr.updateSampleRate(m_sampleRate);
 	m_pitchAdsr.updateSampleRate(m_sampleRate);
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
-	m_lfo.updateTargetSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -63,9 +62,6 @@ void WtCore::setParameters(const SynthParams& params)
 
         m_targetRate = getTargetRate(m_rateIndex);
 
-        m_adsr.updateSampleRate(m_targetRate);
-        m_pitchAdsr.updateSampleRate(m_targetRate);
-        m_ssgSwEnv.updateSampleRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
@@ -115,7 +111,6 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     updatePhaseDelta();
 
-    m_rateAccumulator = 1.0f; // Force update on first sample
     m_lastSample = 0.0f;
 
     m_currentLevel = velocity;

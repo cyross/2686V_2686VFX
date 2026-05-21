@@ -44,7 +44,6 @@ class N88LfoCore {
 
 	static const std::array<N88LfoCalculator, 6> pmStrategies;
 	static const std::array<N88LfoCalculator, 6> amStrategies;
-	static const std::array<float, 8> freqs;
 public:
 	bool amEnable = false;
 	bool pmEnable = false;
@@ -64,7 +63,7 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate);
+	void setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate);
 	void noteOn();
 	void getSample();
 	inline void updatePhaseDelta();

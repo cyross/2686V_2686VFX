@@ -31,13 +31,16 @@ void SsgCore::prepare(double sampleRate) {
         m_sampleRate = sampleRate;
     }
 
-    m_targetRate = getTargetRate(m_rateIndex);
-
-    m_noiseGen.prepare(m_sampleRate);
     m_adsr.prepare(m_sampleRate);
 	m_pitchAdsr.prepare(m_sampleRate);
 	m_ssgSwEnv.prepare(m_sampleRate);
-    m_lfo.prepare(m_sampleRate);
+
+    m_targetRate = getTargetRate(m_rateIndex);
+
+	double target = getTargetRate(m_rateIndex);
+
+    m_lfo.prepare(target);
+    m_noiseGen.prepare(target);
 
     updatePhaseDelta();
 }
@@ -45,11 +48,9 @@ void SsgCore::prepare(double sampleRate) {
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
 
-    m_noiseGen.updateTargetRate(m_sampleRate);
     m_adsr.updateSampleRate(m_sampleRate);
     m_pitchAdsr.updateSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
-    m_lfo.updateTargetSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -96,9 +97,6 @@ void SsgCore::setParameters(const SynthParams& params)
         m_targetRate = getTargetRate(m_rateIndex);
 
         m_noiseGen.updateTargetRate(m_targetRate);
-        m_adsr.updateSampleRate(m_targetRate);
-        m_pitchAdsr.updateSampleRate(m_targetRate);
-		m_ssgSwEnv.updateSampleRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
     }
 
@@ -127,7 +125,6 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     m_hwEnvPhase = 0.0f;
 
     // Reset Rate Logic
-    m_rateAccumulator = 1.0f;
     m_lastSample = 0.0f;
 
     m_adsr.noteOn();

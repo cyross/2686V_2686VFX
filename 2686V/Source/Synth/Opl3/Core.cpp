@@ -15,8 +15,9 @@ void Opl3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
     double target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-		op.setSampleRate(m_hostSampleRate);
+		op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -25,10 +26,6 @@ void Opl3Core::prepare(double sampleRate) {
 void Opl3Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
     }
 }
 
@@ -39,6 +36,12 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opl3.fmRateIndex) {
         m_rateIndex = params.opl3.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
@@ -54,8 +57,6 @@ void Opl3Core::setParameters(const SynthParams& params) {
 void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
-
-    m_rateAccumulator = 1.0;
 }
 void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }
 bool Opl3Core::isPlaying() const {
@@ -113,7 +114,7 @@ float Opl3Core::getSample() {
 
         // -------------------------------
 
-        float out1, out2, out3, out4;
+        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
         // 安全のため 0〜4 の範囲に丸める (4はデフォルトの全並列)

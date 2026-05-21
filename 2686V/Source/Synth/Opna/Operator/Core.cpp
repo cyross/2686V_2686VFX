@@ -124,7 +124,7 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_phase = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    //m_currentLevel = 0.0f;
+    m_currentLevel = 0.0f;
 
     m_hwLfo.noteOn();
 
@@ -262,5 +262,6 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }

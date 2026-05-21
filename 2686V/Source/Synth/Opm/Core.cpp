@@ -5,26 +5,21 @@
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
+    double target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-        op.setSampleRate(m_hostSampleRate);
+        op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
 
-	m_noiseGen.prepare(m_hostSampleRate);
-    m_lfo.prepare(m_hostSampleRate);
+	m_noiseGen.prepare(target);
+    m_lfo.prepare(target);
 }
 
 void OpmCore::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
-
-        m_noiseGen.updateDelta(m_hostSampleRate);
-        m_lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -42,6 +37,15 @@ void OpmCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
+
+        m_noiseGen.updateDelta(target);
+        m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opm.fmBitDepth);
@@ -68,7 +72,6 @@ void OpmCore::setParameters(const SynthParams& params) {
 void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
-    m_rateAccumulator = 1.0;
 
     m_lfo.noteOn();
 }
@@ -121,7 +124,7 @@ float OpmCore::getSample() {
 
         m_lfo.getSample();
 
-        float out1, out2, out3, out4;
+        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
         // 安全のため 0〜7 の範囲に丸める

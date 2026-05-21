@@ -6,8 +6,9 @@ void OplCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
     double target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-        op.setSampleRate(m_hostSampleRate);
+        op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -16,10 +17,6 @@ void OplCore::prepare(double sampleRate) {
 void OplCore::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
     }
 }
 
@@ -28,6 +25,12 @@ void OplCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opl.fmRateIndex) {
         m_rateIndex = params.opl.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl.fmBitDepth);
@@ -46,7 +49,6 @@ void OplCore::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     m_operators[0].noteOn(freq, gain, noteNum);
     m_operators[1].noteOn(freq, gain, noteNum);
-    m_rateAccumulator = 1.0;
 }
 
 void OplCore::noteOff() {
@@ -107,7 +109,8 @@ float OplCore::getSample() {
             m_operators[i].processLfo();
         }
 
-        float out1, out2;
+        float out1 = 0.0f;
+        float out2 = 0.0f;
         float finalOut = 0.0f;
 
         m_operators[0].getSample(out1, 0.0f);

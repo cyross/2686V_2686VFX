@@ -70,8 +70,6 @@ const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::amStrategies = { {
     }
 } };
 
-const std::array<float, 8> N88LfoCore::freqs = { 3.98f, 5.56f, 6.02f, 6.37f, 6.88f, 9.63f, 48.1f, 72.2f };
-
 inline void N88LfoCore::updatePhaseDelta()
 {
     this->m_pmPhaseDelta = (double)this->m_pmFreq / this->m_sampleRate;
@@ -90,13 +88,13 @@ void N88LfoCore::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate)
+void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate)
 {
 	this->m_sdParam = syncDelay;
 	this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
     this->pmEnable = pm;
-    this->m_pmFreq = freqs[std::clamp(pmFreqIndex, 0, 7)];
+    this->m_pmFreq = pmFreq;
     this->m_pmWaveIndex = std::clamp(pmIndex, 0, 5);
     this->m_isOneshotPm = this->m_pmWaveIndex == 4 || this->m_pmWaveIndex == 5;
 
@@ -104,7 +102,7 @@ void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex,
     this->pmd = pmd;
 
     this->amEnable = am;
-    this->m_amFreq = freqs[std::clamp(amFreqIndex, 0, 7)];
+    this->m_amFreq = amFreq;
     this->m_amWaveIndex = std::clamp(amIndex, 0, 5);
     this->m_isOneshotAm = this->m_amWaveIndex == 4 || this->m_amWaveIndex == 5;
     this->ams = 0.0f;

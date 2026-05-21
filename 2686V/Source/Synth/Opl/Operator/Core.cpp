@@ -57,7 +57,7 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_phase = 0.0;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    //m_currentLevel = 0.0f;
+    m_currentLevel = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -144,7 +144,8 @@ void OplOperator::getSample(float& output, float modulator)
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }
 
 float OplOperator::calcWaveform(double phase, int wave)
