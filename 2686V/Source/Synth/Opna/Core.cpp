@@ -5,8 +5,10 @@
 void OpnaCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
+	float target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-        op.setSampleRate(m_hostSampleRate);
+        op.setSampleRate(target);
     }
 
     m_lfoPhase = 0.0;
@@ -18,20 +20,13 @@ void OpnaCore::prepare(double sampleRate) {
 
     m_amSmooth = 0.0f;
 
-	m_noiseGen.prepare(m_hostSampleRate);
-    m_n88Lfo.prepare(m_hostSampleRate);
+	m_noiseGen.prepare(target);
+    m_n88Lfo.prepare(target);
 }
 
 void OpnaCore::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
-
-        m_noiseGen.updateDelta(m_hostSampleRate);
-        m_n88Lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -54,6 +49,15 @@ void OpnaCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opna.fmRateIndex) {
         m_rateIndex = params.opna.fmRateIndex;
+
+		float target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
+
+        m_noiseGen.updateDelta(target);
+        m_n88Lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opna.fmBitDepth);
@@ -80,11 +84,10 @@ void OpnaCore::setParameters(const SynthParams& params) {
 }
 
 void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
-    float gain = std::max(0.01f, velocity);
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
-    for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
-    m_rateAccumulator = 1.0; // Reset timing
+    for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
     m_n88Lfo.noteOn();
 }
@@ -180,7 +183,7 @@ float OpnaCore::getSample() {
         // =================================================================
         // Final Output
         // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化

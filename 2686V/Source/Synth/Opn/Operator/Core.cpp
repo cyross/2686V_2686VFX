@@ -25,9 +25,9 @@ void OpnOperator::setSampleRate(double sampleRate)
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0f;
-    m_noteNumber = noteNumber;
+    //m_phase = 0.0f;
     //m_currentLevel = 0.0f;
+    m_noteNumber = noteNumber;
     
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -148,5 +148,6 @@ void OpnOperator::getSample(float& output, float modulator, const N88LfoCore& n8
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }

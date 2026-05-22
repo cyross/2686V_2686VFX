@@ -78,10 +78,10 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
 
 void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0f;
+    //m_phase = 0.0f;
+    //m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    //m_currentLevel = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
@@ -170,7 +170,8 @@ void Opl3Operator::getSample(float& output, float modulator)
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }
 
 

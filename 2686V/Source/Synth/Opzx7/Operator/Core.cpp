@@ -526,7 +526,9 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+
 }
 
 float Opzx7Operator::calcWaveform(double phase, int wave)

@@ -6,8 +6,9 @@ void OplCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
     double target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-        op.setSampleRate(m_hostSampleRate);
+        op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -16,10 +17,6 @@ void OplCore::prepare(double sampleRate) {
 void OplCore::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
     }
 }
 
@@ -28,6 +25,12 @@ void OplCore::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opl.fmRateIndex) {
         m_rateIndex = params.opl.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl.fmBitDepth);
@@ -42,11 +45,13 @@ void OplCore::setParameters(const SynthParams& params) {
 }
 
 void OplCore::noteOn(float freq, float velocity, int midiNote) {
-    float gain = std::max(0.01f, velocity);
+    // ※トランペット系の音が歪む課題に対応した、かなりな力技
+    // 通常のvelocityでは1.0に近くなると音が歪むため、0.25倍して十分な余裕を持たせます。最低値は0.01にして完全な無音を防止します。
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
+
     m_operators[0].noteOn(freq, gain, noteNum);
     m_operators[1].noteOn(freq, gain, noteNum);
-    m_rateAccumulator = 1.0;
 }
 
 void OplCore::noteOff() {
@@ -107,7 +112,8 @@ float OplCore::getSample() {
             m_operators[i].processLfo();
         }
 
-        float out1, out2;
+        float out1 = 0.0f;
+        float out2 = 0.0f;
         float finalOut = 0.0f;
 
         m_operators[0].getSample(out1, 0.0f);
@@ -116,12 +122,14 @@ float OplCore::getSample() {
         if (m_algorithm == 0) { // Serial (FM)
             m_operators[1].getSample(out2, out1);
             if (m_opMask[1]) out2 = 0.0f;
-            finalOut = out2;
+            // velocity を 0.25倍した補正として、finalOut を 2 倍しています。
+            finalOut = out2 * 2.0f;
         }
         else { // Parallel (AM)
             m_operators[1].getSample(out2, 0.0f);
             if (m_opMask[1]) out2 = 0.0f;
-            finalOut = (out1 + out2) * 0.5f;
+            // velocity を 0.25倍した補正として、finalOut をそのまま出力します。
+            finalOut = (out1 + out2);
         }
 
         // =======================================================

@@ -15,8 +15,9 @@ void Opl3Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
     double target = getTargetRate(m_rateIndex);
+
     for (auto& op : m_operators) {
-		op.setSampleRate(m_hostSampleRate);
+		op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -25,10 +26,6 @@ void Opl3Core::prepare(double sampleRate) {
 void Opl3Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
     }
 }
 
@@ -39,6 +36,12 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
     if (m_rateIndex != params.opl3.fmRateIndex) {
         m_rateIndex = params.opl3.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
@@ -52,10 +55,12 @@ void Opl3Core::setParameters(const SynthParams& params) {
 }
 
 void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
+    // ※トランペット系の音が歪む課題に対応した、かなりな力技
+    // 通常のvelocityでは1.0に近くなると音が歪むため、0.25倍して十分な余裕を持たせます。最低値は0.01にして完全な無音を防止します。
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
-    for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
 
-    m_rateAccumulator = 1.0;
+    for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 }
 void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }
 bool Opl3Core::isPlaying() const {
@@ -113,7 +118,7 @@ float Opl3Core::getSample() {
 
         // -------------------------------
 
-        float out1, out2, out3, out4;
+        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
         // 安全のため 0〜4 の範囲に丸める (4はデフォルトの全並列)
@@ -150,7 +155,8 @@ float Opl3Core::getSample() {
         // =================================================================
         // Final Output
         // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
+        // velocity を 0.25倍した補正として、finalOut を 2 倍しています。
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化

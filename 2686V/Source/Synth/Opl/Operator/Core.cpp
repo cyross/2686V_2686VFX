@@ -54,9 +54,9 @@ void OplOperator::setParameters(const OplOpParams& params, float feedback)
 
 void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
+    //m_phase = 0.0;
     //m_currentLevel = 0.0f;
 
     // ========================================================
@@ -144,7 +144,8 @@ void OplOperator::getSample(float& output, float modulator)
     }
 
     m_phase += currentPhaseDelta;
-    if (m_phase >= 2.0 * juce::MathConstants<float>::pi) m_phase -= 2.0 * juce::MathConstants<float>::pi;
+    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }
 
 float OplOperator::calcWaveform(double phase, int wave)
@@ -159,7 +160,7 @@ float OplOperator::calcWaveform(double phase, int wave)
     // 波形生成ロジック用に、0.0 ～ 1.0 に正規化された位相を作る！
     float normPhase = p / (2.0f * juce::MathConstants<float>::pi);
 
-    int safeWave = std::clamp(wave, 0, 4);
+    int safeWave = std::clamp(wave, 0, 3);
 
     return waveStrategies[safeWave](p, normPhase, s);
 }

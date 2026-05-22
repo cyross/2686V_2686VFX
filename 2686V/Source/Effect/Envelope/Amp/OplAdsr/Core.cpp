@@ -49,7 +49,7 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
 
         if (octaveDiff < 0) octaveDiff = 0;
 
-        float totalDb = dbPerOcts[this->ksl] * octaveDiff;
+        float totalDb = dbPerOcts[std::clamp(this->ksl, 0, 3)] * octaveDiff;
 
         kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
     }

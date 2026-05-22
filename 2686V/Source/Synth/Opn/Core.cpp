@@ -9,7 +9,7 @@ void OpnCore::prepare(double sampleRate)
     double target = getTargetRate(m_rateIndex);
 
     for (auto& op : m_operators) {
-		op.setSampleRate(m_hostSampleRate);
+		op.setSampleRate(target);
     }
 
     m_rateAccumulator = 1.0;
@@ -19,20 +19,13 @@ void OpnCore::prepare(double sampleRate)
     m_steppedAmLfoVal = 0.0f;
     m_amSmooth = 0.0f;
 
-	m_noiseGen.prepare(m_hostSampleRate);
-    m_n88Lfo.prepare(m_hostSampleRate);
+	m_noiseGen.prepare(target);
+    m_n88Lfo.prepare(target);
 }
 
 void OpnCore::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;
-
-        for (auto& op : m_operators) {
-            op.setSampleRate(m_hostSampleRate);
-        }
-
-        m_noiseGen.updateDelta(m_hostSampleRate);
-        m_n88Lfo.updateTargetSampleRate(m_hostSampleRate);
     }
 }
 
@@ -55,6 +48,15 @@ void OpnCore::setParameters(const SynthParams& params)
 
     if (m_rateIndex != params.opn.fmRateIndex) {
         m_rateIndex = params.opn.fmRateIndex;
+
+		double target = getTargetRate(m_rateIndex);
+
+        for (auto& op : m_operators) {
+            op.setSampleRate(target);
+        }
+
+        m_noiseGen.updateDelta(target);
+        m_n88Lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
@@ -80,10 +82,10 @@ void OpnCore::setParameters(const SynthParams& params)
 
 void OpnCore::noteOn(float freq, float velocity, int midiNote)
 {
-    float gain = std::max(0.01f, velocity);
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
+
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
-    m_rateAccumulator = 1.0;
 
     m_n88Lfo.noteOn();
 }
@@ -139,7 +141,7 @@ float OpnCore::getSample() {
 
         m_n88Lfo.getSample();
 
-        float out1, out2, out3, out4;
+        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
         // 安全のため 0〜7 の範囲に丸める
@@ -176,7 +178,7 @@ float OpnCore::getSample() {
         // =================================================================
         // Final Output
         // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
