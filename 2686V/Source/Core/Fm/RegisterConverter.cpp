@@ -340,7 +340,7 @@ float RegisterConverter::convertFmTlOpzx7(int regValue)
 
 int RegisterConverter::convertFmMulOpzx7(int regValue)
 {
-    return std::clamp(regValue, 0, 20);
+    return std::clamp(regValue, 0, 21);
 }
 
 int RegisterConverter::convertFmDtOpzx7(int regValue)
