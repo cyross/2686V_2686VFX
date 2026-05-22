@@ -57,8 +57,9 @@ void Opl3Core::setParameters(const SynthParams& params) {
 void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     // ※トランペット系の音が歪む課題に対応した、かなりな力技
     // 通常のvelocityでは1.0に近くなると音が歪むため、0.25倍して十分な余裕を持たせます。最低値は0.01にして完全な無音を防止します。
-    float gain = std::max(0.01f, velocity) * 0.25f;
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
+
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 }
 void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }

@@ -110,7 +110,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
-    m_currentLevel = velocity;
+    m_currentLevel = std::max(0.01f, velocity * 0.25f);
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation

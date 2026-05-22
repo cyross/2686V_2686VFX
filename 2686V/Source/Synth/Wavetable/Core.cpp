@@ -113,7 +113,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     m_lastSample = 0.0f;
 
-    m_currentLevel = velocity;
+    m_currentLevel = std::max(0.01f, velocity * 0.25f);
     m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();

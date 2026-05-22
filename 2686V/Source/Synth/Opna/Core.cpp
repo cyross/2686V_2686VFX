@@ -84,8 +84,9 @@ void OpnaCore::setParameters(const SynthParams& params) {
 }
 
 void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
-    float gain = std::max(0.01f, velocity);
+    float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
+
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
     m_n88Lfo.noteOn();
@@ -182,7 +183,7 @@ float OpnaCore::getSample() {
         // =================================================================
         // Final Output
         // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化

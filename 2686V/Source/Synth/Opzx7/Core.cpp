@@ -135,7 +135,9 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
-    for (auto& op : m_operators) op.noteOn(freq, velocity, noteNum);
+    float gain = std::max(0.01f, velocity * 0.25f);
+
+    for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
     m_lfo.noteOn();
 }
@@ -222,7 +224,7 @@ float Opzx7Core::getSample() {
         // =================================================================
         // 5. Final Output (各OPからマスターアウトへの加算)
         // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4));
+        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になる量子化 (UI・WtCoreと完全同期)
