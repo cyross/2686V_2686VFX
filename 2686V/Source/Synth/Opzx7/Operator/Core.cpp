@@ -349,7 +349,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_phase = m_params.phaseOffset;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    m_currentLevel = 0.0f;
+    //m_currentLevel = 0.0f;
 
     m_lfo.noteOn();
 

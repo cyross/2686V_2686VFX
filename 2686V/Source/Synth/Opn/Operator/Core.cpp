@@ -25,9 +25,9 @@ void OpnOperator::setSampleRate(double sampleRate)
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0f;
+    //m_phase = 0.0f;
+    //m_currentLevel = 0.0f;
     m_noteNumber = noteNumber;
-    m_currentLevel = 0.0f;
     
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
