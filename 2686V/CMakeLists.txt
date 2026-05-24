@@ -512,11 +512,33 @@ set(ABOUT_GUI_FILES
     "Source/Gui/About/Core.cpp"
 )
 
+set(CURVE_FILES
+    "Source/Advanced/Curve/Core.h"
+    "Source/Advanced/Curve/Core.cpp"
+    "Source/Advanced/Curve/Params.h"
+)
+
+set(CURVE_PROCESSOR_FILES
+    "Source/Processor/Curve/Keys.h"
+    "Source/Processor/Curve/Names.h"
+    "Source/Processor/Curve/Values.h"
+    "Source/Processor/Curve/Core.h"
+    "Source/Processor/Curve/Core.cpp"
+)
+
+set(CURVE_GUI_FILES
+    "Source/Gui/Curve/GuiText.h"
+    "Source/Gui/Curve/GuiValues.h"
+    "Source/Gui/Curve/Core.h"
+    "Source/Gui/Curve/Core.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
 source_group("2686V\\Constants" FILES ${CONST_FILES})
 source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
+source_group("2686V\\Advanced\\Curve" FILES ${CURVE_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
@@ -569,6 +591,7 @@ source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("2686V\\Gui\\Core" FILES ${GUI_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
@@ -582,6 +605,7 @@ source_group("2686V\\Gui\\Tab\\Wavetable" FILES ${WT_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Rhythm" FILES ${RHYTHM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Adpcm" FILES ${ADPCM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Beep" FILES ${BEEP_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Curve" FILES ${CURVE_GUI_FILES})
 source_group("2686V\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
@@ -615,6 +639,7 @@ function(create_cyross_plugin TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         ${CONST_FILES}
         ${SYNTH_FILES}
+        ${CURVE_FILES}
         ${FM_FIX_FILES}
         ${LFSR_NOISE_GEN_FILES}
         ${SSG_NOISE_GEN_FILES}
@@ -668,6 +693,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${ADPCM_PROCESSOR_FILES}
         ${BEEP_PROCESSOR_FILES}
         ${FX_PROCESSOR_FILES}
+        ${CURVE_PROCESSOR_FILES}
         ${OPNA_GUI_FILES}
         ${OPN_GUI_FILES}
         ${OPL_GUI_FILES}
@@ -683,6 +709,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${PRESET_GUI_FILES}
         ${SETTINGS_GUI_FILES}
         ${ABOUT_GUI_FILES}
+        ${CURVE_GUI_FILES}
         ${DOCUMENT_FILES}
     )
 

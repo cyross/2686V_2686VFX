@@ -16,6 +16,7 @@ public:
 
 	static const std::array<float, 4> dbPerOcts;
 
+	void prepare(int opIndex, double sampleRate);
 	void setParameters(const Opl3OpParams& params, float feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
@@ -25,6 +26,7 @@ public:
 	void processLfo();
 	float calcWaveform(double phase, int wave) override;
 	void setModWheel(float modWheel) { this->m_lfo.setModWheel(modWheel); };
+	void setCurveCore(CurveCore* p_curveCore);
 private:
 	OplLfoCore m_lfo;
 	OplAdsr m_ampAdsr;

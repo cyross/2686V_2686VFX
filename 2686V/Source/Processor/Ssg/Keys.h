@@ -70,6 +70,8 @@ namespace SsgPrKey
 		static inline const juce::String rll = CorePrKey::PitchAdsr::rll;
 	};
 
+	static inline const juce::String mul = CorePrKey::Post::Fm::Op::mul;
+	static inline const juce::String mulRatio = "_MUL_RATIO";
 	static inline const juce::String dt = CorePrKey::Post::Fm::Op::dt;
 	static inline const juce::String dt2 = CorePrKey::Post::Fm::Op::dt2;
 

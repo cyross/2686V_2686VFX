@@ -20,6 +20,8 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterBool>(code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass, code + BeepPrName::SsgSwEnv::bypass, BeepPrValue::SsgSwEnv::Bypass::initial));
 
     // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::mul, code + BeepPrName::mul, BeepPrValue::Mul::min, BeepPrValue::Mul::max, BeepPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::mulRatio, code + BeepPrName::mulRatio, BeepPrValue::MulRatio::min, BeepPrValue::MulRatio::max, BeepPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt, code + BeepPrName::dt1, BeepPrValue::Dt1::min, BeepPrValue::Dt1::max, BeepPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt2, code + BeepPrName::dt2, BeepPrValue::Dt2::min, BeepPrValue::Dt2::max, BeepPrValue::Dt2::initial));
 
@@ -70,6 +72,8 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r6);
     params.beep.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l6);
 
+    params.beep.multiple = (int)*apvts.getRawParameterValue(code + BeepPrKey::mul);
+    params.beep.mutipleRatio = *apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
     params.beep.detune = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt);
     params.beep.detune2 = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt2);
 }

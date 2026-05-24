@@ -11,13 +11,20 @@ WtCore::WtCore() : SynthCore()
     generateWaveform(0); // Default Sine
 }
 
+void WtCore::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+}
+
 void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
     m_adsr.prepare(m_sampleRate);
-    m_pitchAdsr.prepare(m_sampleRate);
-    m_ssgSwEnv.prepare(m_sampleRate);
+    m_pitchAdsr.prepare(0, m_sampleRate);
+    m_ssgSwEnv.prepare(0, m_sampleRate);
     m_targetRate = getTargetRate(m_rateIndex);
 
     m_lfo.prepare(m_targetRate);
@@ -43,7 +50,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.wt.ssgSwEnv);
-	m_detune.setParameters(params.wt.detune, params.wt.detune2, 1);
+	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.multiple, params.wt.mutipleRatio);
     m_lfo.setParameters(
         params.wt.lfoSyncDelay,
         params.wt.lfoPmEnable, params.wt.lfoAmEnable,
@@ -113,7 +120,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
 
     m_lastSample = 0.0f;
 
-    m_currentLevel = std::max(0.01f, velocity * 0.25f);
+    m_baseLevel = std::max(0.01f, velocity * 0.25f);
     m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
@@ -331,7 +338,7 @@ float WtCore::getSample()
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 
-    return m_lastSample * finalEnv * m_currentLevel * m_level;
+    return m_lastSample * finalEnv * m_level * m_baseLevel;
  }
 
 // 波形データ生成

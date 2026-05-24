@@ -19,13 +19,22 @@ AudioPlugin2686V::AudioPlugin2686V()
     apvts(*this, &undoManager, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
+    p_curveCore = std::make_unique<CurveCore>(m_curveCore);
+
     m_synth.addSound(new SynthSound());
     for (int i = 0; i < Global::voices; i++) {
-        m_synth.addVoice(new SynthVoice());
+        auto voice = new SynthVoice();
+
+        voice->setCurveCore(p_curveCore.get());
+        m_synth.addVoice(voice);
     }
 
     previewSynth.addSound(new SynthSound());
-    previewSynth.addVoice(new SynthVoice());
+
+    auto prevVoice = new SynthVoice();
+
+    prevVoice->setCurveCore(p_curveCore.get());
+    previewSynth.addVoice(prevVoice);
 
     formatManager.registerBasicFormats();
     loadStartupSettings();
@@ -58,6 +67,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
 	prFx.createLayout(layout);
+	prCurve.createLayout(layout);
 
     // マスターボリューム追加
     // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
@@ -166,10 +176,15 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         break;
     }
 
+	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
+	prCurve.processBlock(params, apvts);
+
     bool isMono = (*apvts.getRawParameterValue(CorePrKey::monoMode) > 0.5f);
 
     m_synth.isMonoMode = isMono;
     params.monoMode = isMono;
+
+    p_curveCore->setParameters(params.curve);
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)

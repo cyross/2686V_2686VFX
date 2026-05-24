@@ -8,6 +8,7 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -34,6 +35,7 @@ public:
 
     float m_releaseParam = 0.1f; // パラメータ設定値
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
+    float m_baseLevel = 0.0f;
     float m_releaseDec = 0.0f;   // 1サンプルあたりの減衰量
 
 	void prepare(double hostSampleRate);
@@ -41,10 +43,11 @@ public:
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
-    void start();
+    void start(float velocity);
     void stop();
     bool isPlaying() const;
     float getSample(double hostSampleRate, float pitchRatio);
+    void setCurveCore(CurveCore* p_curveCore);
 private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
@@ -72,6 +75,7 @@ public:
     void setPitchBendRatio(float ratio);
     void getSampleStereo(float& outL, float& outR);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;

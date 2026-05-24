@@ -1,8 +1,10 @@
 ﻿#pragma once
 
 #include <array>
+#include <functional>
 
 #include "./Params.h"
+#include "../../../../Advanced/Curve/Core.h"
 
 class SsgSwEnv {
 	enum class State { Idle, S1, S2, S3, S4, S5, S6 };
@@ -29,17 +31,40 @@ class SsgSwEnv {
 
 	void updateIncrements();
 	inline bool isReached(float inc, float current, float target) const; 
+
+	// カーブモード用の変数
+	int targetIndex = 0; // 0,1,2,3,4
+	CurveCore* m_curveCore = nullptr;
+
+	// カーブモード用の時間管理変数
+	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
+	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+
+	std::array<std::function<void()>, 2> noteOnFunctions;
+	std::array<std::function<void()>, 2> noteOffFunctions;
+	std::array<std::function<float()>, 2> processFunctions;
+	std::array<std::function<void()>, 2> bypassedReleasedProcessFunctions;
 public:
-	void prepare(double sampleRate);
+	SsgSwEnv();
+	void prepare(int targetIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(const SsgSwEnvParams& params);
-	void noteOn();
-	void noteOff();
-	float process();
-	void  bypassedReleasedProcess();
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::S6; }
 	bool isBypassed() const { return bypass; }
+	void setParameters(const SsgSwEnvParams& params);
+	void setCurveCore(CurveCore* core) { m_curveCore = core; }
+	void noteOn();
+	void noteOff();
+	float process();
+	void  bypassedReleasedProcess();
+	void noteOnLinear();
+	void noteOffLinear();
+	float processLinear();
+	void  bypassedReleasedProcessLinear();
+	void noteOnCurve();
+	void noteOffCurve();
+	float processCurve();
+	void  bypassedReleasedProcessCurve();
 };

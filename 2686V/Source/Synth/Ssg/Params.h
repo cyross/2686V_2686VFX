@@ -90,7 +90,9 @@ struct SsgParams
     // Hardware Envelope Period Freq
     float envPeriod = 1.0f;
 
-    // detune
+    // multiple & detune
+    int multiple = 2;      // MULTI: 0~21
+    float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;
     int detune2 = 0;
 

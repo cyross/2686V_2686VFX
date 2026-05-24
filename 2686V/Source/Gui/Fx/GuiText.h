@@ -6,44 +6,6 @@
 
 namespace FxGuiText
 {
-	static inline const juce::String mode = u8"Mode";
-
-	static inline const juce::String bit = u8"Bit";
-	static inline const juce::String rate = u8"Rate";
-
-	static inline const juce::String monoPoly = u8"MonoPhonic";
-
-	namespace MasterVol
-	{
-		static inline const juce::String title = u8"M.Vol";
-		static inline const juce::String unit = u8" dB";
-	}
-
-	namespace Tab
-	{
-		static inline const juce::String opna = u8"OPNA";
-		static inline const juce::String opn = u8"OPN";
-		static inline const juce::String opl = u8"OPL";
-		static inline const juce::String opl3 = u8"OPL3";
-		static inline const juce::String opm = u8"OPM";
-		static inline const juce::String opzx7 = u8"OPZX7";
-		static inline const juce::String ssg = u8"SSG";
-		static inline const juce::String wt = u8"WT";
-		static inline const juce::String rhythm = u8"RHYTHM";
-		static inline const juce::String adpcm = u8"ADPCM";
-		static inline const juce::String beep = u8"BEEP";
-		static inline const juce::String fx = u8"FX";
-		static inline const juce::String preset = u8"PRESET";
-		static inline const juce::String settings = u8"SETTINGS";
-		static inline const juce::String about = u8"ABOUT";
-	}
-
-	namespace Category
-	{
-		static inline const juce::String m = u8"--- BASIC ---";
-		static inline const juce::String mix = u8"--- MIX ---";
-	}
-
 	namespace Group
 	{
 		static inline const juce::String mainGroup = u8"FX";
