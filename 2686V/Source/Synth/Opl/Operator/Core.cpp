@@ -23,6 +23,19 @@ namespace {
     } };
 }
 
+void OplOperator::prepare(int opIndex, double sampleRate) {
+    m_ampAdsr.prepare(opIndex, sampleRate);
+    m_pitchAdsr.prepare(opIndex, sampleRate);
+    m_ssgSwEnv.prepare(opIndex, sampleRate);
+}
+
+void OplOperator::setCurveCore(CurveCore* p_curveCore)
+{
+    m_ampAdsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+}
+
 void OplOperator::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;

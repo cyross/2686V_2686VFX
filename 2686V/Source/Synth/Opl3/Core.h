@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Advanced/Curve/Core.h"
 
 #include "./Operator/Core.h"
 
@@ -35,6 +36,7 @@ public:
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 private:
     std::array<bool, 4> m_opMask{ false, false, false, false };
 

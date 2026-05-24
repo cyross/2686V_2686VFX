@@ -24,6 +24,7 @@
 #include "../../Gui/Fx/Core.h"
 #include "../../Gui/Settings/Core.h"
 #include "../../Gui/About/Core.h"
+#include "../../Gui/Curve/Core.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -174,6 +175,7 @@ private:
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiBeep> beepGui;
     std::unique_ptr<GuiPreset> presetGui;
+    std::unique_ptr<GuiCurve> curveGui;
 
     // 仮想MIDIキーボード用
     std::unique_ptr<juce::MidiKeyboardComponent> midiKeyboard;

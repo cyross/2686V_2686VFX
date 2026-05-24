@@ -13,10 +13,17 @@ void AdpcmCore::prepare(double sampleRate)
     m_sampleRate = sampleRate;
 
     m_adsr.prepare(m_sampleRate);
-    m_pitchAdsr.prepare(m_sampleRate);
-    m_ssgSwEnv.prepare(m_sampleRate);
+    m_pitchAdsr.prepare(0, m_sampleRate);
+    m_ssgSwEnv.prepare(0, m_sampleRate);
 
     m_lfoPhase = 0.0;
+}
+
+void AdpcmCore::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
 }
 
 void AdpcmCore::setSampleRate(double sampleRate)
@@ -44,7 +51,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
-    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, 1);
+    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.multiple, params.adpcm.mutipleRatio);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -78,8 +85,8 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
     m_bufferSampleRate = targetRate;
 
     m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(m_bufferSampleRate);
-    m_ssgSwEnv.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
 
     double step = sourceRate / targetRate;
 
@@ -132,7 +139,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
 
     m_hasFinished = false;
 
-    m_currentLevel = velocity;
+    m_baseLevel = std::max(0.01f, velocity);
     m_adsr.noteOn();
     m_pitchAdsr.noteOn();
     m_ssgSwEnv.noteOn();
@@ -318,7 +325,7 @@ float AdpcmCore::getSample()
     // Advance position
     m_position += currentIncrement;
 
-    return output * m_level * m_currentLevel * finalEnv;
+    return output * m_level * finalEnv * m_baseLevel;
 }
 
 void AdpcmCore::refreshAdpcmBuffer()
@@ -333,8 +340,8 @@ void AdpcmCore::refreshAdpcmBuffer()
     m_bufferSampleRate = targetRate;
 
     m_adsr.prepare(m_bufferSampleRate);
-    m_pitchAdsr.prepare(m_bufferSampleRate);
-    m_ssgSwEnv.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
 
     // Resample & Encode
     double step = m_sourceRate / targetRate;

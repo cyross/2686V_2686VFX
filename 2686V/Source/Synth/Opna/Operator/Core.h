@@ -18,6 +18,7 @@ public:
 
 	OpnaOpParams m_params;
 
+	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
 	void setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate);
 	void noteOn(float frequency, float velocity, int noteNumber) override;
@@ -25,6 +26,7 @@ public:
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void processLfo();
 	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
+	void setCurveCore(CurveCore* p_curveCore);
 private:
 	OpnDetune m_detune;
 	FixMode m_fixMode;

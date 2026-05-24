@@ -36,6 +36,8 @@ namespace WtPrName
 		static inline const juce::String bypass = " PitchEnv Bypass";
 	};
 
+	static inline const juce::String mul = CorePrName::Fm::Op::mul;
+	static inline const juce::String mulRatio = " MUL Ratio";
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;
 	static inline const juce::String dt2 = CorePrName::Fm::Op::dt2;
 

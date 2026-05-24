@@ -17,12 +17,14 @@ public:
 
 	OpnOpParams m_params;
 
+	void prepare(int opIndex, double sampleRate);
 	void setParameters(const OpnOpParams& params, float feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
+	void setCurveCore(CurveCore* p_curveCore);
 private:
 	float maxAmDepthDb = 11.8f;
 	float m_ams = 1.0f;

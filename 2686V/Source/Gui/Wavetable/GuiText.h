@@ -131,6 +131,8 @@ namespace WtGuiText
 
 		namespace Detune
 		{
+			static inline const juce::String Mul = u8"Mul";
+			static inline const juce::String MulRatio = u8"M.Ratio";
 			static inline const juce::String Dt1 = u8"Dt1";
 			static inline const juce::String Dt2 = u8"Dt2";
 		}

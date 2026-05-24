@@ -29,6 +29,8 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, code + AdpcmPrName::SsgSwEnv::bypass, AdpcmPrValue::SsgSwEnv::Bypass::initial));
 
     // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::mul, code + AdpcmPrName::mul, AdpcmPrValue::Mul::min, AdpcmPrValue::Mul::max, AdpcmPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::mulRatio, code + AdpcmPrName::mulRatio, AdpcmPrValue::MulRatio::min, AdpcmPrValue::MulRatio::max, AdpcmPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
 
@@ -86,6 +88,8 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r6);
     params.adpcm.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l6);
 
+    params.adpcm.multiple = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::mul);
+    params.adpcm.mutipleRatio = *apvts.getRawParameterValue(code + AdpcmPrKey::mulRatio);
     params.adpcm.detune = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt);
     params.adpcm.detune2 = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::dt2);
 }

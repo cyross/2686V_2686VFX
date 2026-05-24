@@ -6,7 +6,13 @@
 void RhythmPad::prepare(double hostSampleRate)
 {
 	m_adsr.prepare(hostSampleRate);
-	m_pitchAdsr.prepare(hostSampleRate);
+	m_pitchAdsr.prepare(0, hostSampleRate);
+}
+
+void RhythmPad::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
 }
 
 void RhythmPad::setSampleRate(double sampleRate)
@@ -53,11 +59,12 @@ void RhythmPad::triggerRelease(double hostSampleRate)
     m_pitchAdsr.noteOff();
 }
 
-void RhythmPad::start()
+void RhythmPad::start(float velocity)
 {
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
     m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
 
+    m_baseLevel = std::max(0.01f, velocity);
     m_currentEnv = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 }
@@ -165,7 +172,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     }
 
     m_position += increment;
-    return output * m_level * finalEnv;
+    return output * m_level * finalEnv * m_baseLevel;
 }
 
 void RhythmPad::refreshAdpcmBuffer()
@@ -209,6 +216,13 @@ void RhythmCore::prepare(double sampleRate)
     }
 }
 
+void RhythmCore::setCurveCore(CurveCore* p_curveCore)
+{
+    for (auto& pad : pads) {
+        pad.setCurveCore(p_curveCore);
+    }
+}
+
 void RhythmCore::setSampleRate(double sampleRate)
 {
 	m_sampleRate = sampleRate;
@@ -244,7 +258,7 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote)
                 continue; // 何もしない
             }
 
-            pad.start();
+            pad.start(velocity);
         }
     }
 }

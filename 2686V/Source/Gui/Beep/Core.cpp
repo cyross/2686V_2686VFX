@@ -9,6 +9,31 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 
+static std::vector<SelectItem> multems = {
+    {.name = " 0: x  0.5",    .value = 1 },
+    {.name = " 1: x  0.891",  .value = 2 },
+    {.name = " 2: x  1",      .value = 3 },
+    {.name = " 3: x  1.414",  .value = 4 },
+    {.name = " 4: x  1.498",  .value = 5 },
+    {.name = " 5: x  1.581",  .value = 6 },
+    {.name = " 6: x  1.781",  .value = 7 },
+    {.name = " 7: x  2",      .value = 8 },
+    {.name = " 8: x  3",      .value = 9 },
+    {.name = " 9: x  4",      .value = 10 },
+    {.name = "10: x  5",      .value = 11 },
+    {.name = "11: x  6",      .value = 12 },
+    {.name = "12: x  7",      .value = 13 },
+    {.name = "13: x  8",      .value = 14 },
+    {.name = "14: x  9",      .value = 15 },
+    {.name = "15: x 10",      .value = 16 },
+    {.name = "16: x 11",      .value = 17 },
+    {.name = "17: x 12",      .value = 18 },
+    {.name = "18: x 13",      .value = 19 },
+    {.name = "19: x 14",      .value = 20 },
+    {.name = "20: x 15",      .value = 21 },
+    {.name = "21: Use Ratio", .value = 22 }
+};
+
 // DT (デチューン1) 用のコンボボックスアイテム
 // レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
 static std::vector<SelectItem> dtItems = {
@@ -218,6 +243,14 @@ void GuiBeep::setup() {
 
     detuneCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visibleDetune, .invisibleTitle = BeepGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
 
+    mul.setup({ .parent = *this, .id = code + BeepPrKey::mul, .title = BeepGuiText::Detune::Mul, .items = multems, .isReset = true });
+    mul.setWantsKeyboardFocus(true);
+    mul.setExplicitFocusOrder(++tabOrder);
+
+    mulRatio.setup({ .parent = *this, .id = code + BeepPrKey::mulRatio, .title = BeepGuiText::Detune::MulRatio, .isReset = true });
+    mulRatio.setWantsKeyboardFocus(true);
+    mulRatio.setExplicitFocusOrder(++tabOrder);
+
     dt1.setup({ .parent = *this, .id = code + BeepPrKey::dt, .title = BeepGuiText::Detune::Dt1, .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
@@ -380,11 +413,15 @@ void GuiBeep::layoutDetuneCat(juce::Rectangle<int>& rect)
 
     bool visible = detuneCat.isDetailVisible();
 
+    mul.setVisibleWithLabel(visible);
+    mulRatio.setVisibleWithLabel(visible);
     dt1.setVisibleWithLabel(visible);
     dt2.setVisibleWithLabel(visible);
 
     if (visible)
     {
+        layoutMain({ .mainRect = rect, .label = &mul.label, .component = &mul });
+        layoutMain({ .mainRect = rect, .label = &mulRatio.label, .component = &mulRatio });
         layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
         layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
     }

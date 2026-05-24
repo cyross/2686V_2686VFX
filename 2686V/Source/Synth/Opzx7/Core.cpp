@@ -47,8 +47,8 @@ void Opzx7Core::prepare(double sampleRate) {
 
     double target = getTargetRate(m_rateIndex);
 
-    for (auto& op : m_operators) {
-        op.prepare(target);
+    for(int i=0; i<4; i++) {
+        m_operators[i].prepare(i+1, target);
     }
 
     m_lfoPhase = 0.0;
@@ -56,6 +56,13 @@ void Opzx7Core::prepare(double sampleRate) {
     m_amSmooth = 0.0f;
 
     m_lfo.prepare(target);
+}
+
+void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
+{
+    for (auto& op : m_operators) {
+        op.setCurveCore(p_curveCore);
+    }
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {

@@ -7,8 +7,9 @@
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Effect/Envelope/Amp/SsgSw/Core.h"
-#include "../../Effect/Detune/Opm/Core.h"
+#include "../../Effect/Detune/Opzx7/Core.h"
 #include "../../Generator/Fm/Fix/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class BeepCore : public SynthCore
 {
@@ -26,6 +27,7 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 private:
     double m_sampleRate = 44100.0;
     float m_phase = 0.0f;
@@ -35,6 +37,7 @@ private:
     float m_modWheel = 0.0f;
 
     float m_currentLevel = 0.0f;
+    float m_baseLevel = 0.0f;
     float m_targetLevel = 0.0f;
 
     // Params
@@ -44,5 +47,5 @@ private:
     FixMode m_fixMode;
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
-    OpmDetune m_detune;
+    Opzx7Detune m_detune;
 };

@@ -47,6 +47,19 @@ namespace {
 
 const std::array<float, 4> Opl3Operator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
 
+void Opl3Operator::prepare(int opIndex, double sampleRate) {
+    m_ampAdsr.prepare(opIndex, sampleRate);
+    m_pitchAdsr.prepare(opIndex, sampleRate);
+    m_ssgSwEnv.prepare(opIndex, sampleRate);
+}
+
+void Opl3Operator::setCurveCore(CurveCore* p_curveCore)
+{
+    m_ampAdsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+}
+
 void Opl3Operator::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;

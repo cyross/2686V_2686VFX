@@ -59,6 +59,8 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::level, code + WtPrName::level, WtPrValue::Level::min, WtPrValue::Level::max, WtPrValue::Level::initial));
 
     // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::mul, code + WtPrName::mul, WtPrValue::Mul::min, WtPrValue::Mul::max, WtPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::mulRatio, code + WtPrName::mulRatio, WtPrValue::MulRatio::min, WtPrValue::MulRatio::max, WtPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt, code + WtPrName::dt1, WtPrValue::Dt1::min, WtPrValue::Dt1::max, WtPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt2, code + WtPrName::dt2, WtPrValue::Dt2::min, WtPrValue::Dt2::max, WtPrValue::Dt2::initial));
 
@@ -144,6 +146,8 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r6);
     params.wt.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
 
+    params.wt.multiple = (int)*apvts.getRawParameterValue(code + WtPrKey::mul);
+    params.wt.mutipleRatio = *apvts.getRawParameterValue(code + WtPrKey::mulRatio);
     params.wt.detune = (int)*apvts.getRawParameterValue(code + WtPrKey::dt);
     params.wt.detune2 = (int)*apvts.getRawParameterValue(code + WtPrKey::dt2);
 

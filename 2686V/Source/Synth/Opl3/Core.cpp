@@ -16,11 +16,18 @@ void Opl3Core::prepare(double sampleRate) {
 
     double target = getTargetRate(m_rateIndex);
 
-    for (auto& op : m_operators) {
-		op.setSampleRate(target);
+    for (int i = 0; i < 4; i++) {
+        m_operators[i].prepare(i + 1, target);
     }
 
     m_rateAccumulator = 1.0;
+}
+
+void Opl3Core::setCurveCore(CurveCore* p_curveCore)
+{
+    for (auto& op : m_operators) {
+        op.setCurveCore(p_curveCore);
+    }
 }
 
 void Opl3Core::setSampleRate(double sampleRate) {
