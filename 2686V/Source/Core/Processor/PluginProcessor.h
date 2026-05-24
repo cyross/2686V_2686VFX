@@ -17,6 +17,7 @@
 #include "../../Processor/ADPCM/Core.h"
 #include "../../Processor/BEEP/Core.h"
 #include "../../Processor/Fx/Core.h"
+#include "../../Processor/Curve/Core.h"
 
 #include "../Const/Global.h"
 #include "../Processor/Keys.h"
@@ -80,7 +81,7 @@ public:
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
-    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override;
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -195,6 +196,11 @@ private:
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
     FxProcessor prFx;
+	CurveProcessor prCurve;
+
+    CurveCore m_curveCore;
+    std::unique_ptr<CurveCore> p_curveCore;
+
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
 

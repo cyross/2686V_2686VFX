@@ -1,6 +1,10 @@
 ﻿#pragma once
 
+#include <array>
+#include <functional>
+
 #include "./Params.h"
+#include "../../../../Advanced/Curve/Core.h"
 
 class AmpAdsrEnv {
 	enum class State { Idle, Attack, Decay, Sustain, Release };
@@ -19,19 +23,44 @@ class AmpAdsrEnv {
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
 
+	// カーブモード用の変数
+	CurveCore* m_curveCore = nullptr;
+
+	// カーブモード用の時間管理変数
+	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
+	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+
+	std::array<std::function<float()>, 2> noteOnFunctions;
+	std::array<std::function<void()>, 2> noteOffFunctions;
+	std::array<std::function<float(float)>, 2> processFunctions;
+	std::array<std::function<float()>, 2> bypassedReleasedProcessFunctions;
+	std::array<std::function<float()>, 2> bypassedProcessFunctions;
+
 	void updateIncrements();
 public:
+	AmpAdsrEnv();
 	void prepare(double sampleRate);
+	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
+	bool isPlaying() const { return state != State::Idle; }
+	bool isIdle() const { return state == State::Idle; }
+	bool isRelease() const { return state == State::Release; }
+	bool isBypassed() const { return bypass; }
 	void setParameters(const AmpAdsrParams& params);
+	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	float noteOn();
 	void noteOff();
 	float process(float currentLevel);
 	float bypassedReleasedProcess();
 	float bypassedProcess();
-	bool isPlaying() const { return state != State::Idle; }
-	bool isIdle() const { return state == State::Idle; }
-	bool isRelease() const { return state == State::Release; }
-	bool isBypassed() const { return bypass; }
-	void updateSampleRate(double newSampleRate);
+	float noteOnLinear();
+	void noteOffLinear();
+	float processLinear(float currentLevel);
+	float bypassedReleasedProcessLinear();
+	float bypassedProcessLinear();
+	float noteOnCurve();
+	void noteOffCurve();
+	float processCurve(float currentLevel);
+	float bypassedReleasedProcessCurve();
+	float bypassedProcessCurve();
 };

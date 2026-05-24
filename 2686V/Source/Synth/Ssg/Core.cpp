@@ -32,8 +32,8 @@ void SsgCore::prepare(double sampleRate) {
     }
 
     m_adsr.prepare(m_sampleRate);
-	m_pitchAdsr.prepare(m_sampleRate);
-	m_ssgSwEnv.prepare(m_sampleRate);
+	m_pitchAdsr.prepare(0, m_sampleRate);
+	m_ssgSwEnv.prepare(0, m_sampleRate);
 
     m_targetRate = getTargetRate(m_rateIndex);
 
@@ -43,6 +43,13 @@ void SsgCore::prepare(double sampleRate) {
     m_noiseGen.prepare(target);
 
     updatePhaseDelta();
+}
+
+void SsgCore::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
@@ -62,7 +69,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, 1);
+    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.multiple, params.ssg.mutipleRatio);
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
         params.ssg.lfoSyncDelay,
@@ -110,7 +117,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote)
 {
-    m_currentLevel = std::max(0.01f, velocity * 0.25f);
+    m_baseLevel = std::max(0.01f, velocity * 0.25f);
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
@@ -376,7 +383,7 @@ float SsgCore::getSample()
         m_lastSample = sumOut / (float)steps;
     }
 
-    return m_lastSample * finalEnv * m_currentLevel;
+    return m_lastSample * finalEnv * m_baseLevel;
 }
 
 void SsgCore::updatePhaseDelta() {

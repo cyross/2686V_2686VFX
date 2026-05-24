@@ -8,7 +8,8 @@
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Effect/Envelope/Amp/SsgSw/Core.h"
-#include "../../Effect/Detune/Opm/Core.h"
+#include "../../Effect/Detune/Opzx7/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 // --- Core Class ---
 
@@ -30,6 +31,7 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 private:
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
     double m_sourceRate = 44100.0;
@@ -55,9 +57,10 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
-    OpmDetune m_detune;
+    Opzx7Detune m_detune;
 
     float m_currentLevel = 0.0f;
+    float m_baseLevel = 0.0f;
 
     bool m_isLooping = false;
     bool m_hasFinished = false;

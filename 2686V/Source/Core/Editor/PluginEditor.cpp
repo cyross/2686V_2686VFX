@@ -42,6 +42,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
+    curveGui = std::make_unique<GuiCurve>(context);
 
     wtGui->addComponentListener(this);
 
@@ -66,6 +67,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui->setup();
     settingsGui->setup();
     aboutGui->setup();
+    curveGui->setup();
 
     // Initial Wallpaper Load
     loadWallpaperImage();
@@ -336,6 +338,7 @@ void AudioPlugin2686VEditor::resized()
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     aboutGui->layout(tabContent);
+    curveGui->layout(tabContent);
     
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
@@ -432,6 +435,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::advanced, juce::Colours::transparentBlack, curveGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);

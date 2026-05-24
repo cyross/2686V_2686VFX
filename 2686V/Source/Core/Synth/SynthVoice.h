@@ -17,6 +17,7 @@
 #include "../../Synth/Rhythm/Core.h"
 #include "../../Synth/Adpcm/Core.h"
 #include "../../Synth/Beep/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class SynthSound : public juce::SynthesiserSound
 {
@@ -57,6 +58,8 @@ public:
     void setOpzx7PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
 
     void setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData);
+
+    void setCurveCore(CurveCore* p_curveCore);
 
     std::map<OscMode, SynthCore *> coreMap;
 private:

@@ -7,7 +7,7 @@ namespace CorePrName
 {
 	static inline const juce::String mode = "Mode";
 	static inline const juce::String master_vol = "Master Vol";
-	static inline const juce::String monoMode = "Monopnony Mode";
+	static inline const juce::String monoMode = "Monophony Mode";
 
 	namespace Adsr
 	{
@@ -120,7 +120,7 @@ namespace CorePrName
 			static inline const juce::String ws = " Wave Shape";
 
 			static inline const juce::String am = " LFO AM";
-			static inline const juce::String vib = " LFO VIB";
+			static inline const juce::String vib = " LFO PM";
 			static inline const juce::String amsEn = " LFO AMS Enable";
 
 			static inline const juce::String lfoFreq = " LFO Freq";
@@ -147,16 +147,16 @@ namespace CorePrName
 
 			static inline const juce::String mask = " Mask";
 
-			static inline const juce::String rgEn = " Regieter Mode Enable";
-			static inline const juce::String rgAr = " Regieter Mode AR";
-			static inline const juce::String rgDr = " Regieter Mode DR";
-			static inline const juce::String rgSl = " Regieter Mode SL";
-			static inline const juce::String rgSr = " Regieter Mode SR";
-			static inline const juce::String rgRr = " Regieter Mode RR";
-			static inline const juce::String rgTl = " Regieter Mode TL";
-			static inline const juce::String rgD1r = " Regieter Mode D1R";
-			static inline const juce::String rgD1l = " Regieter Mode D1L";
-			static inline const juce::String rgD2r = " Regieter Mode D2R";
+			static inline const juce::String rgEn = " Register Mode Enable";
+			static inline const juce::String rgAr = " Register Mode AR";
+			static inline const juce::String rgDr = " Register Mode DR";
+			static inline const juce::String rgSl = " Register Mode SL";
+			static inline const juce::String rgSr = " Register Mode SR";
+			static inline const juce::String rgRr = " Register Mode RR";
+			static inline const juce::String rgTl = " Register Mode TL";
+			static inline const juce::String rgD1r = " Register Mode D1R";
+			static inline const juce::String rgD1l = " Register Mode D1L";
+			static inline const juce::String rgD2r = " Register Mode D2R";
 
 			static inline const juce::String sus = " SUS";
 			static inline const juce::String xof = " XOF";

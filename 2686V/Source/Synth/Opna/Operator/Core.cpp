@@ -85,6 +85,19 @@ const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrat
     },
 } };
 
+void OpnaOperator::prepare(int opIndex, double sampleRate) {
+    m_ampAdsr.prepare(opIndex, sampleRate);
+    m_pitchAdsr.prepare(opIndex, sampleRate);
+    m_ssgSwEnv.prepare(opIndex, sampleRate);
+}
+
+void OpnaOperator::setCurveCore(CurveCore* p_curveCore)
+{
+    m_ampAdsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+}
+
 void OpnaOperator::setSampleRate(double sampleRate)
 {
 	this->m_sampleRate = sampleRate;

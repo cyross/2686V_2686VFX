@@ -29,6 +29,8 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass, code + SsgPrName::SsgSwEnv::bypass, SsgPrValue::SsgSwEnv::Bypass::initial));
 
     // Detune
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::mul, code +SsgPrName::mul, SsgPrValue::Mul::min, SsgPrValue::Mul::max, SsgPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::mulRatio, code + SsgPrName::mulRatio, SsgPrValue::MulRatio::min, SsgPrValue::MulRatio::max, SsgPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::dt, code + SsgPrName::dt1, SsgPrValue::Dt1::min, SsgPrValue::Dt1::max, SsgPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::dt2, code + SsgPrName::dt2, SsgPrValue::Dt2::min, SsgPrValue::Dt2::max, SsgPrValue::Dt2::initial));
 
@@ -87,7 +89,9 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + SsgPrKey::bit);
     params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + SsgPrKey::rate);
 
-	params.ssg.detune = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt);
+    params.ssg.multiple = (int)*apvts.getRawParameterValue(code + SsgPrKey::mul);
+    params.ssg.mutipleRatio = *apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
+    params.ssg.detune = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt);
     params.ssg.detune2 = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt2);
 
     params.ssg.dutyMode = (int)*apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);

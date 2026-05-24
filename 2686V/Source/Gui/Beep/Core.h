@@ -58,6 +58,8 @@ class GuiBeep : public GuiBase {
 
     // Detune
     GuiCategoryLabel detuneCat;
+    GuiComboBox mul;
+    GuiSlider mulRatio;
     GuiComboBox dt1;
     GuiSlider dt2;
 
@@ -108,6 +110,8 @@ public:
         ssgSwR6Slider(context),
         ssgSwL6Slider(context),
         detuneCat(context),
+        mul(context),
+        mulRatio(context),
         dt1(context),
         dt2(context),
         mvolCat(context),

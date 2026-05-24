@@ -62,9 +62,10 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     case 8: return juce::Colours::darkcyan;       // RHYTHM
     case 9: return juce::Colours::darkcyan;       // ADPCM
     case 10: return juce::Colours::darkcyan;      // BEEP
-    case 11: return juce::Colours::darkgoldenrod; // PRESET
-    case 12: return juce::Colours::darkgoldenrod; // SETTINGS
-    case 13: return juce::Colours::darkgoldenrod; // ABOUT
+    case 11: return juce::Colours::darkred;       // ADVANCED
+    case 12: return juce::Colours::darkgoldenrod; // PRESET
+    case 13: return juce::Colours::darkgoldenrod; // SETTINGS
+    case 14: return juce::Colours::darkgoldenrod; // ABOUT
     default: return juce::Colours::darkgrey;      // OTHER
     }
 }

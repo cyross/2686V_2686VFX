@@ -315,11 +315,18 @@ const std::array<Opzx7Operator::SsgWaveCalculator, 16> Opzx7Operator::ssgWaveStr
     },
 } };
 
-void Opzx7Operator::prepare(double sampleRate) {
-    m_pitchAdsr.prepare(sampleRate);
-	m_ssgSwEnv.prepare(sampleRate);
-	m_ampAdsr.prepare(sampleRate);
+void Opzx7Operator::prepare(int opIndex, double sampleRate) {
+    m_ampAdsr.prepare(opIndex, sampleRate);
+    m_pitchAdsr.prepare(opIndex, sampleRate);
+	m_ssgSwEnv.prepare(opIndex, sampleRate);
     m_lfo.prepare(sampleRate);
+}
+
+void Opzx7Operator::setCurveCore(CurveCore* p_curveCore)
+{
+    m_ampAdsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
 }
 
 void Opzx7Operator::setSampleRate(double sampleRate) {

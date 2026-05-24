@@ -6,9 +6,16 @@ void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
 	m_adsr.prepare(44100.0);
-    m_pitchAdsr.prepare(44100.0);
-    m_ssgSwEnv.prepare(44100.0);
+    m_pitchAdsr.prepare(0, 44100.0);
+    m_ssgSwEnv.prepare(0, 44100.0);
     m_fixMode.setParameters(false, 2000.0f);
+}
+
+void BeepCore::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
 }
 
 void BeepCore::setSampleRate(double sampleRate) {
@@ -25,7 +32,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
     m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
-    m_detune.setParameters(params.beep.detune, params.beep.detune2, 1);
+    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.multiple, params.beep.mutipleRatio);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }
@@ -36,7 +43,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     m_phase = 0.0f;
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
-    m_currentLevel = velocity * m_level;
+    m_baseLevel = std::max(0.01f, velocity * 0.25f);
     m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
@@ -106,7 +113,7 @@ float BeepCore::getSample() {
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
     // 音量に変換
-    return output * m_currentLevel * finalEnv;
+    return output * finalEnv * m_baseLevel * m_level;
 }
 
 // モジュレーションホイール (0 - 127)

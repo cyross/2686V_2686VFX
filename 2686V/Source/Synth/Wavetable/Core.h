@@ -10,8 +10,9 @@
 #include "../../Effect/Envelope/Amp/Adsr/Core.h"
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Effect/Envelope/Amp/SsgSw/Core.h"
-#include "../../Effect/Detune/Opm/Core.h"
+#include "../../Effect/Detune/Opzx7/Core.h"
 #include "../../Effect/Lfo/Opzx7/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class WtCore : public SynthCore
 {
@@ -29,6 +30,7 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 private:
     void generateWaveform(int type);
     void updatePhaseDelta();
@@ -38,7 +40,7 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
-    OpmDetune m_detune;
+    Opzx7Detune m_detune;
     Opzx7LfoCore m_lfo;
 
     float m_level = 1.0f;
@@ -73,6 +75,7 @@ private:
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
     float m_currentLevel = 0.0f;
+    float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
