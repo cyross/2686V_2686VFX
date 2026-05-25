@@ -529,6 +529,8 @@ set(CURVE_PROCESSOR_FILES
 set(CURVE_GUI_FILES
     "Source/Gui/Curve/GuiText.h"
     "Source/Gui/Curve/GuiValues.h"
+    "Source/Gui/Curve/GuiCurveGraph.h"
+    "Source/Gui/Curve/GuiCurveGraph.cpp"
     "Source/Gui/Curve/Core.h"
     "Source/Gui/Curve/Core.cpp"
 )

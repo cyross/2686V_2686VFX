@@ -1105,6 +1105,12 @@ void AudioPlugin2686VEditor::initParams()
 {
     int targetMode = tabs.getCurrentTabIndex();
 
+    if (targetMode == (int)OscMode::BEEP + 1) { // Curve
+        curveGui->initParams();
+
+        return;
+    }
+
     switch ((OscMode)targetMode)
     {
     case OscMode::OPNA:

@@ -31,8 +31,8 @@ namespace CurvePrValue
 
 	namespace K
 	{
-		inline constexpr float min = 0.0f;
-		inline constexpr float max = 20.0f;
+		inline constexpr float min = -50.0f;
+		inline constexpr float max = 50.0f;
 		inline constexpr float initial = 1.0f;
 	}
 
