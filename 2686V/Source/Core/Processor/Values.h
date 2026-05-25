@@ -12,7 +12,7 @@ namespace CorePrValue
 		inline constexpr float max = 6.0f;   // 最大値（dB）
 		inline constexpr float interval = 0.1f; // ステップ値（dB）
 		inline constexpr float skew = 1.0f; // スキュー（1.0は線形）
-		inline constexpr float initial = -3.0f; // デフォルト値（dB）
+		inline constexpr float initial = 0.0f; // デフォルト値（dB）
 	}
 
 	namespace MonoMode
