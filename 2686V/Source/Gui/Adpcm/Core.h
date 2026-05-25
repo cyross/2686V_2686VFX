@@ -20,6 +20,9 @@ class GuiAdpcm : public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
     GuiLabel fileNameLabel;
+
+    GuiCategoryLabel optionalCat;
+
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
 
@@ -102,6 +105,7 @@ public:
         loadButton(context),
         clearButton(context),
         fileNameLabel(context),
+        optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         levelSlider(context),
@@ -176,5 +180,6 @@ public:
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
+    void layoutOptionalCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
 };

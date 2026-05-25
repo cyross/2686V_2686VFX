@@ -110,6 +110,8 @@ void GuiAdpcm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    optionalCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+
     // ループトグルボタン
     loopButton.setup({ .parent = *this, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
@@ -358,10 +360,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
-    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMain({ .mainRect = mRect, .component = &loopButton });
-    layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
-    layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+
+    layoutOptionalCat(mRect);
 
     layoutPanCat(mRect);
 
@@ -609,5 +609,23 @@ void GuiAdpcm::applySsgSwEnvLoopValues(bool enabled)
         if (steps - loopTo < 2) {
             ssgSwLoopToSlider.setValue(steps - 2);
         }
+    }
+}
+
+void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    levelSlider.setVisibleWithLabel(visible);
+    loopButton.setVisible(visible);
+    pcmOffsetSlider.setVisibleWithLabel(visible);
+    pcmRatioSlider.setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutMain({ .mainRect = rect, .label = &levelSlider.label, .component = &levelSlider });
+        layoutMain({ .mainRect = rect, .component = &loopButton });
+        layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+        layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
     }
 }

@@ -17,6 +17,9 @@ class RhythmPadGui: public GuiBase
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
     GuiTextButton clearButton;
+
+    GuiCategoryLabel optionalCat;
+
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
 
@@ -65,6 +68,7 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         qualityCat(context),
@@ -106,6 +110,7 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutOptionalCat(juce::Rectangle<int>& rect);
 };
 
 class GuiRhythm : public GuiBase

@@ -100,6 +100,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
+    optionalCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleOptional, .invisibleTitle = RhythmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
@@ -210,11 +212,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     padRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
-    layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
-    layoutRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
-    layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
-    layoutRow({ .rowRect = padRect, .component = &oneShotButton });
-    layoutRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, });
+
+    layoutOptionalCat(padRect);
 
     layoutPanCat(padRect);
 
@@ -297,7 +296,6 @@ void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
     }
 }
 
-
 void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
@@ -323,6 +321,26 @@ void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
         layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
         layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
+    }
+}
+
+void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    volSlider.setVisibleWithLabel(visible);
+    oneShotButton.setVisible(visible);
+    pcmOffsetSlider.setVisibleWithLabel(visible);
+    pcmRatioSlider.setVisibleWithLabel(visible);
+    noteSlider.setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &volSlider.label, .component = &volSlider });
+        layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+        layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        layoutRow({ .rowRect = rect, .component = &oneShotButton });
+        layoutRow({ .rowRect = rect, .label = &noteSlider.label, .component = &noteSlider, });
     }
 }
 
