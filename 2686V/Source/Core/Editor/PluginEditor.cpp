@@ -302,7 +302,7 @@ void AudioPlugin2686VEditor::resized()
     }
 
     int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8: 0;
-    togglePreviewBtn.setBounds(getWidth() - 45, 5, 40, 20);
+    togglePreviewBtn.setBounds(getWidth() - 45 - previewPaddingRight, 5, 40, 20);
     panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
     undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
