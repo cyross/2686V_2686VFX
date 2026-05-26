@@ -138,29 +138,29 @@ namespace RhythmPrValue
 
 			namespace Ssl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int min = -4800; // 最小値
+				inline constexpr int max = 4800;  // 最大値
 				inline constexpr int initial = 0; // 初期値
 			}
 
 			namespace Atl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int min = -4800; // 最小値
+				inline constexpr int max = 4800;  // 最大値
 				inline constexpr int initial = 0; // 初期値
 			}
 
 			namespace Stl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int min = -4800; // 最小値
+				inline constexpr int max = 4800;  // 最大値
 				inline constexpr int initial = 0; // 初期値
 			}
 
 			namespace Rll
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
+				inline constexpr int min = -4800; // 最小値
+				inline constexpr int max = 4800;  // 最大値
 				inline constexpr int initial = 0; // 初期値
 			}
 		}
