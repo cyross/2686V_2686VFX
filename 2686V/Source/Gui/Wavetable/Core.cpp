@@ -680,7 +680,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     // Custom Mode Layout
     // 中央に32/64本のスライダーを配置
     // 波形選択が Custom 以外の時は Disabled 表示
-    auto rightArea = pageArea.removeFromLeft(WtGuiValue::RightWidth).removeFromTop(WtGuiValue::RightHeight);
+    auto rightArea = pageArea.removeFromLeft(WtGuiValue::RightWidth);
 
     customWaveGroup.setBounds(rightArea);
 
@@ -758,12 +758,23 @@ void GuiWt::layout(juce::Rectangle<int> content)
     }
 
     cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::Padding::Top);
+    
+    auto resetRect = cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::height);
+    
+    layoutRowWtWaveValueUpdate({
+        .rect = resetRect,
+        .resetTo0Btn = &customWaveResetTo0Btn,
+        .resetTo1Btn = &customWaveResetTo1Btn,
+        .resetToM1Btn = &customWaveResetToM1Btn,
+        .rowHeight = WtGuiValue::Custom::ResetBtn::height,
+        .paddingRight = WtGuiValue::Custom::ResetBtn::Padding::Right
+        });
 
-    auto smoothArea = cwRect.removeFromTop(14).reduced(2, 0);
-    customWaveSmoothBtn.setBounds(smoothArea);
+    cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::Padding::Bottom + WtGuiValue::Custom::ResetBtn::Padding::Top);
 
-    cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::Padding::Top);
-    layoutRowWtWaveValueUpdate({ .rect = cwRect, .resetTo0Btn = &customWaveResetTo0Btn, .resetTo1Btn = &customWaveResetTo1Btn, .resetToM1Btn = &customWaveResetToM1Btn });
+    auto smoothRect = cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::height);
+
+    customWaveSmoothBtn.setBounds(smoothRect.reduced(2, 0));
 
     updateCustomWaveCatOnChange();
 }

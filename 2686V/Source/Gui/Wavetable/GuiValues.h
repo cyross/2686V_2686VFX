@@ -244,7 +244,8 @@ namespace WtGuiValue
 			namespace Padding
 			{
 				static constexpr int Top = 8;
-				static constexpr int Right = 4;
+				static constexpr int Bottom = 4;
+				static constexpr int Right = 8;
 			}
 		}
 	}
