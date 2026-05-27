@@ -1938,6 +1938,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .color = color,
                 .phaseLineColor = juce::Colours::green
                 });
+
             currentTotalWidth += keyOnWidth;
         }
 

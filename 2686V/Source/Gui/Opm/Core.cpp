@@ -1411,8 +1411,9 @@ void GuiOpm::updateOpGraph(int opIndex)
         }
         else {
             phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl * tlScale, .endLevel = sl * tlScale, .color = color, .phaseLineColor = juce::Colours::green });
+
+            currentTotalWidth += keyOnWidth;
         }
-        currentTotalWidth += keyOnWidth;
         float noteOffPositionX = currentTotalWidth;
 
         // 4. Release

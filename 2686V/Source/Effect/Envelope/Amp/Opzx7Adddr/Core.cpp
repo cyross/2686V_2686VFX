@@ -230,7 +230,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
 
                 // 安全装置: 最大時間を10秒程度でクリップする
                 // (レジスタ値1で5秒を想定するなら、最大10〜15秒あれば十分)
-                timeInSeconds = std::min(timeInSeconds, 15.0f);
+                timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
             }
 
             return 1.0f / (timeInSeconds * (float)sampleRate);

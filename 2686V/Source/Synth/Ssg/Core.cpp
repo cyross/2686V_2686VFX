@@ -134,7 +134,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     // Reset Rate Logic
     m_lastSample = 0.0f;
 
-    m_adsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
     m_lfo.noteOn();
