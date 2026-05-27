@@ -14,6 +14,14 @@ class GuiCurve : public GuiBase
     // Pane Groups
     GuiGroup curveGroup;
 
+
+    std::array<std::unique_ptr<GuiCurveGraph>, CurvePrValue::params> curveGraphs;
+
+    void updateEnabled();
+    void updateVisible();
+public:
+    GuiCurve(const GuiContext& context);
+
     GuiToggleButton enable;
     GuiComboBox position;
     GuiComboBox target;
@@ -23,13 +31,6 @@ class GuiCurve : public GuiBase
     std::array<std::array<std::array<std::unique_ptr<GuiComboBox>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> logic;
     std::array<std::array<std::array<std::unique_ptr<GuiSlider>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> k;
     std::array<std::array<std::array<std::array<std::unique_ptr<GuiSlider>, CurvePrValue::values>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> value;
-
-    std::array<std::unique_ptr<GuiCurveGraph>, CurvePrValue::params> curveGraphs;
-
-    void updateEnabled();
-    void updateVisible();
-public:
-    GuiCurve(const GuiContext& context);
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

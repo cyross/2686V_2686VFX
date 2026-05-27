@@ -34,6 +34,7 @@ class Opzx7Adddr
 
 	Opzx7RealAdssrParams real;
 	Opzx7RgAdssrParams rg;
+	Opzx7RgAdssrParams rgMax;
 
 	int ks = 0;
 	bool sus = false;
@@ -50,6 +51,9 @@ class Opzx7Adddr
 	float releaseDec = 0.0f;
 	float currentReleaseDec = 0.0f;
 
+	// rrが無限大のとき、ストッパーの役目を果たす
+	int releaseCounter = 0;
+
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 	inline float getReleaseDec() const
@@ -62,8 +66,10 @@ class Opzx7Adddr
 		}
 	}
 
+	int m_noteNumber = 60; // C3
+
 	// カーブモード用の変数
-	int targetIndex = 1; // 1,2,3,4
+	int positionIndex = 1; // 1,2,3,4
 	CurveCore* m_curveCore = nullptr;
 
 	// カーブモード用の時間管理変数
@@ -77,7 +83,7 @@ class Opzx7Adddr
 	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
 public:
 	Opzx7Adddr();
-	void prepare(int targetIndex, double sampleRate);
+	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
 	bool isPlaying() const { return state != State::Idle; }
@@ -99,4 +105,5 @@ public:
 	void noteOffCurve();
 	void updateIncrementsWithKeyScaleCurve(int noteNumber);
 	float updateEnvelopeStateCurve(float currentLevel);
+	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
 };

@@ -131,6 +131,9 @@ static std::vector<SelectItem> lfoAmShapeItems = {
 
 void GuiSsg::setup()
 {
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     const juce::String code = SsgPrKey::prefix;
     int tabOrder = 1;
 
@@ -525,6 +528,9 @@ void GuiSsg::setup()
     triSetSawUp.setWantsKeyboardFocus(true);
     triSetSawUp.setExplicitFocusOrder(++tabOrder);
     triSetSawUp.onClick = [this] { triPeakSlider.setValue(1.0, juce::sendNotification); };
+
+    setupGraph();
+    updateGraph();
 }
 
 void GuiSsg::layout(juce::Rectangle<int> content)
@@ -537,6 +543,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     mainGroup.setBounds(mainArea);
     auto mRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
     mRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+
+    // 一番下にグラフエリアとボタンエリアを確保
+    auto graphAndBtnArea = mRect.removeFromBottom(150);
+    layoutGraph(graphAndBtnArea);
+    updateGraph();
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
@@ -916,5 +927,343 @@ void GuiSsg::applySsgSwEnvLoopValues(bool enabled)
         if (steps - loopTo < 2) {
             ssgSwLoopToSlider.setValue(steps - 2);
         }
+    }
+}
+
+void GuiSsg::setupGraph()
+{
+    addAndMakeVisible(&graph); // グラフを追加
+
+    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
+    graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
+
+    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
+
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    auto repaintGraph = [this]() { updateGraph(); };
+
+    attackSlider.onValueChange = repaintGraph;
+    decaySlider.onValueChange = repaintGraph;
+    sustainSlider.onValueChange = repaintGraph;
+    releaseSlider.onValueChange = repaintGraph;
+
+    pitchAttackSlider.onValueChange = repaintGraph;
+    pitchDecaySlider.onValueChange = repaintGraph;
+    pitchReleaseSlider.onValueChange = repaintGraph;
+    pitchStartLevelSlider.onValueChange = repaintGraph;
+    pitchAttackLevelSlider.onValueChange = repaintGraph;
+    pitchSustainLevelSlider.onValueChange = repaintGraph;
+    pitchReleaseLevelSlider.onValueChange = repaintGraph;
+
+    ssgSwEnvLoopButton.onStateChange = repaintGraph;
+
+    ssgSwStepsSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopToSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopCountSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+
+    ssgSwR1Slider.onValueChange = repaintGraph;
+    ssgSwR2Slider.onValueChange = repaintGraph;
+    ssgSwR3Slider.onValueChange = repaintGraph;
+    ssgSwR4Slider.onValueChange = repaintGraph;
+    ssgSwR5Slider.onValueChange = repaintGraph;
+    ssgSwR6Slider.onValueChange = repaintGraph;
+
+    ssgSwStartLevelSlider.onValueChange = repaintGraph;
+    ssgSwL1Slider.onValueChange = repaintGraph;
+    ssgSwL2Slider.onValueChange = repaintGraph;
+    ssgSwL3Slider.onValueChange = repaintGraph;
+    ssgSwL4Slider.onValueChange = repaintGraph;
+    ssgSwL5Slider.onValueChange = repaintGraph;
+    ssgSwL6Slider.onValueChange = repaintGraph;
+}
+
+void GuiSsg::setGraphMode(GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+
+    // モードが変わったらグラフを描画し直す
+    updateGraph();
+}
+
+void GuiSsg::layoutGraph(juce::Rectangle<int>& rect)
+{
+    // 一番下にグラフエリアとボタンエリアを確保
+    auto graphAndBtnArea = rect.removeFromBottom(150);
+
+    // そのうち下部20pxをボタンエリアにする
+    auto btnArea = graphAndBtnArea.removeFromBottom(20);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth).reduced(2, 0));
+    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth).reduced(2, 0));
+    graphBtnSsg.setBounds(btnArea.reduced(2, 0));
+
+    // 残りをグラフエリアにする
+    graph.setBounds(graphAndBtnArea.reduced(5));
+}
+
+// グラフを再計算して描画
+void GuiSsg::updateGraph()
+{
+    GraphMode mode = currentGraphMode;
+
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    // -------------------------------------------------------------
+    // Helper: 幅の計算 (Amp / Pitch 用)
+    // -------------------------------------------------------------
+    auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (rateValue <= 0.0f) return maxWidth;
+        float norm = rateValue / maxRate;
+        return std::max(2.0f, maxWidth * norm);
+        };
+
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
+    int posIdx = 0; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
+
+    // =============================================================
+    // Pitch Env
+    // =============================================================
+    if (mode == GraphMode::Pitch) {
+        float ar = pitchAttackSlider.getValue();
+        float dr = pitchDecaySlider.getValue();
+        float rr = pitchReleaseSlider.getValue();
+
+        float arMax = pitchAttackSlider.getMaximum();
+        float drMax = pitchDecaySlider.getMaximum();
+        float rrMax = pitchReleaseSlider.getMaximum();
+
+        const float maxCents = 4800.0f; // 仮の最大値
+        float stl = pitchStartLevelSlider.getValue() / maxCents;
+        float atl = pitchAttackLevelSlider.getValue() / maxCents;
+        float ssl = pitchSustainLevelSlider.getValue() / maxCents;
+        float rll = pitchReleaseLevelSlider.getValue() / maxCents;
+
+        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
+        auto color = juce::Colours::orange;
+        int targetIdx = (int)CurveParams::Target::PitchEnv;
+
+        // PitchEnv用の幅計算: Rateが0なら即座(0px)、最大ならゆっくり(150px)
+        auto pitchRateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+            if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+            return (rateValue / maxRate) * maxWidth;
+            };
+
+        // Attack
+        phases.push_back({
+            .widthPx = pitchRateToWidth(ar, arMax),
+            .startLevel = stl, .endLevel = atl, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Ar),
+            .phaseLineColor = juce::Colours::red
+            });
+
+        // Decay
+        phases.push_back({
+            .widthPx = pitchRateToWidth(dr, drMax),
+            .startLevel = atl, .endLevel = ssl, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Dr),
+            .phaseLineColor = juce::Colours::blue
+            });
+
+        // Sustain
+        phases.push_back({ .widthPx = 60.0f, .startLevel = ssl, .endLevel = ssl, .color = color, .phaseLineColor = juce::Colours::green });
+
+        // Release
+        phases.push_back({
+            .widthPx = pitchRateToWidth(rr, rrMax),
+            .startLevel = ssl, .endLevel = rll, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
+            });
+
+        graph.setEnvelope(GuiEnvelopeGraph::EnvType::Pitch, "Pitch Env", phases);
+    }
+    // =============================================================
+    // SSG SW Env
+    // =============================================================
+    else if (mode == GraphMode::SsgSw) {
+        int steps = (int)ssgSwStepsSlider.getValue();
+        if (steps < 1) steps = 1;
+        bool isLoop = ssgSwEnvLoopButton.getToggleState();
+        int loopTo = (int)ssgSwLoopToSlider.getValue();
+        int loopCount = (int)ssgSwLoopCountSlider.getValue();
+
+        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
+        auto color = juce::Colours::lightgreen;
+        int targetIdx = (int)CurveParams::Target::SsgSwEnv;
+
+        std::array<juce::Slider*, 7> rSl = { nullptr, &ssgSwR1Slider, &ssgSwR2Slider, &ssgSwR3Slider, &ssgSwR4Slider, &ssgSwR5Slider, &ssgSwR6Slider };
+        std::array<juce::Slider*, 7> lSl = { &ssgSwStartLevelSlider, &ssgSwL1Slider, &ssgSwL2Slider, &ssgSwL3Slider, &ssgSwL4Slider, &ssgSwL5Slider, &ssgSwL6Slider };
+
+        // SSG用の幅計算: Rateが0なら即座(0px)、最大ならゆっくり(150px)
+        auto ssgRateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+            if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+            return (rateValue / maxRate) * maxWidth;
+            };
+
+        float currentTotalWidth = 0.0f;
+        float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
+        float loopEndWidth = 0.0f;
+
+        for (int s = 1; s <= steps; ++s) {
+            float rate = rSl[s]->getValue();
+            float rateMax = rSl[s]->getMaximum();
+            float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
+            float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
+
+            int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv::LoopTo : (s - 1);
+            float width = ssgRateToWidth(rate, rateMax);
+
+            if (isLoop && s == steps) {
+                phases.push_back({
+                    .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
+                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                    .phaseLineColor = juce::Colours::lightgreen
+                    });
+
+                loopEndWidth = currentTotalWidth;
+
+                if (loopCount > 0) {
+                    phases.push_back({
+                        .widthPx = 30.0f,
+                        .startLevel = loopToLevel,
+                        .endLevel = loopToLevel,
+                        .isDashed = true,
+                        .color = juce::Colours::cyan,
+                        .drawPhaseLine = false
+                        });
+                    phases.push_back({
+                        .widthPx = width,
+                        .startLevel = startL,
+                        .endLevel = endL,
+                        .color = juce::Colours::blue,
+                        .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                        .moveToStart = true,
+                        .startXOffsetPx = loopEndWidth,
+                        .phaseLineColor = juce::Colours::lightgreen
+                        });
+                }
+
+                loopEndWidth += width;
+            }
+            else {
+                phases.push_back({
+                    .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
+                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
+                    .phaseLineColor = juce::Colours::lightgreen
+                    });
+            }
+            currentTotalWidth += width;
+        }
+
+        // Release
+        float rr = rSl[6]->getValue();
+        float rrMax = rSl[6]->getMaximum();
+        float rStartL = lSl[steps]->getValue() / lSl[steps]->getMaximum();
+        float rEndL = lSl[6]->getValue() / lSl[6]->getMaximum();
+
+        phases.push_back({
+            .widthPx = ssgRateToWidth(rr, rrMax),
+            .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
+            .endLevel = rEndL,
+            .color = juce::Colours::yellow,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv::R6),
+            .moveToStart = isLoop,
+            .startXOffsetPx = loopEndWidth
+            });
+
+        graph.setEnvelope(GuiEnvelopeGraph::EnvType::SsgSw, "SSG SW Env", phases);
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
+    else {
+        float arMax = (float)attackSlider.getMaximum();
+        float drMax = (float)decaySlider.getMaximum();
+        float slMax = (float)sustainSlider.getMaximum();
+        float rrMax = (float)releaseSlider.getMaximum();
+
+        float arVal = (float)attackSlider.getValue();
+        float drVal = (float)decaySlider.getValue();
+        float slVal = (float)sustainSlider.getValue();
+        float rrVal = (float)releaseSlider.getValue();
+
+        float sl = slVal / slMax; // 15=0.0, 0=1.0
+
+        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
+        auto color = juce::Colours::cyan;
+        int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
+
+        float currentTotalWidth = 0.0f;
+
+        // 1. Attack
+        float attackWidth = rateToWidth(arVal, arMax);
+        phases.push_back({
+            .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
+            .phaseLineColor = juce::Colours::red
+            });
+        currentTotalWidth += attackWidth;
+
+        // 2. Decay 1
+        float decayWidth = rateToWidth(drVal, drMax);
+        phases.push_back({
+            .widthPx = decayWidth, .startLevel = 1.0f, .endLevel = sl, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
+            .phaseLineColor = juce::Colours::blue
+            });
+        currentTotalWidth += decayWidth;
+
+        // 3. Sustain
+        float keyOnWidth = 60.0f;
+
+        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = color, .phaseLineColor = juce::Colours::green });
+
+        currentTotalWidth += keyOnWidth;
+        float noteOffPositionX = currentTotalWidth;
+
+        // 4. Release (通常時のみカーブを適用)
+        phases.push_back({
+            .widthPx = rateToWidth(rrVal, rrMax),
+            .startLevel = sl,
+            .endLevel = 0.0f,
+            .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            });
+
+        graph.setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
     }
 }

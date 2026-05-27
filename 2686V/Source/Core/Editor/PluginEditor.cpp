@@ -1168,3 +1168,7 @@ inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
 {
     return audioProcessor.undoManager.canRedo() ? EditorGuiText::Redo::tooltip : EditorGuiText::Redo::tooltipNone;
 }
+
+GuiCurve* AudioPlugin2686VEditor::getCurveGui() {
+    return curveGui.get();
+}

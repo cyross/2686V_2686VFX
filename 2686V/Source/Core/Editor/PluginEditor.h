@@ -133,6 +133,7 @@ public:
     void updateTimerState();
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
+    GuiCurve* getCurveGui();
 private:
     AudioPlugin2686V& audioProcessor;
 

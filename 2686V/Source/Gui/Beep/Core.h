@@ -4,6 +4,9 @@
 
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
@@ -71,6 +74,20 @@ class GuiBeep : public GuiBase {
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+
+    GuiEnvelopeGraph graph;
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    GraphMode currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateGraph();
+    void setGraphMode(GraphMode mode);
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
@@ -117,8 +134,12 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context)
     {
+        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
     void setup() override;
@@ -133,4 +154,6 @@ public:
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
+    void setupGraph();
+    void layoutGraph(juce::Rectangle<int>& rect);
 };

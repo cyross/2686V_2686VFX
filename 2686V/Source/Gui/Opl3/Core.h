@@ -8,6 +8,9 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class GuiOpl3 : public GuiBase
 {
@@ -119,6 +122,20 @@ class GuiOpl3 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
 
     void applyMmlString(const juce::String& mml, int opIndex);
+
+    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateOpGraph(int opIndex);
+    void setGraphMode(int opIndex, GraphMode mode);
 public:
     GuiOpl3(const GuiContext& context) :
         GuiBase(context),
@@ -190,8 +207,12 @@ public:
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) }
     {
+        currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
@@ -214,4 +235,6 @@ public:
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
+    void setupGraph(int opIndex);
+    void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

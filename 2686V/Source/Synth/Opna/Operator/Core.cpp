@@ -1,6 +1,7 @@
 ﻿#include "./Core.h"
 
 #include "../../../Core/Fm/FmCore.h"
+#include "../../../Processor/Opna/Values.h"
 
 const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrategies = { {
     [](double p) { // 00: normal
@@ -89,6 +90,15 @@ void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+
+    m_ampAdsr.setParamMax(
+        OpnaPrValue::Op::RgAdsr::Ar::max,
+        OpnaPrValue::Op::RgAdsr::Dr::max,
+        OpnaPrValue::Op::RgAdsr::Sr::max,
+        OpnaPrValue::Op::RgAdsr::Sl::max,
+        OpnaPrValue::Op::RgAdsr::Rr::max,
+        OpnaPrValue::Op::RgAdsr::Tl::max
+    );
 }
 
 void OpnaOperator::setCurveCore(CurveCore* p_curveCore)
@@ -134,8 +144,8 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    //m_phase = 0.0f;
-    //m_currentLevel = 0.0f;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 

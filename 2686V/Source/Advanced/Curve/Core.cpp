@@ -5,13 +5,13 @@
 
 // ヘルパー: ある範囲の値を別の範囲にマッピングする
 inline float mapRange(float val, float inMin, float inMax, float outMin, float outMax) {
-	if (inMax - inMin == 0.0f) return outMin;
+	if (std::abs(inMax - inMin) < 0.00001f) return outMin; // 0除算防止
 	return outMin + (val - inMin) * (outMax - outMin) / (inMax - inMin);
 }
 
 CurveCore::CurveCore() {
 	// -------------------------------------------------------------
-	// 1. 基本となる数学関数群 (常に 0.0 〜 1.0 を入力とし、0.0 〜 1.0 を返す)
+	// 1. 基本となる数学関数群
 	// -------------------------------------------------------------
 	auto calcLinear = [](float x) { return x; };
 
@@ -20,7 +20,7 @@ CurveCore::CurveCore() {
 	auto calcArcLog = [](float x) { return 1.0f - std::sqrt(1.0f - std::pow(x, 2.0f)); };
 
 	auto calcExp = [](float x, float rate) {
-		if (std::abs(rate) < 0.001f) return x; // 0除算防止
+		if (std::abs(rate) < 0.001f) return x;
 		return std::log(1.0f + rate * x) / std::log(1.0f + rate);
 		};
 
@@ -29,53 +29,57 @@ CurveCore::CurveCore() {
 		return (std::exp(rate * x) - 1.0f) / (std::exp(rate) - 1.0f);
 		};
 
-	// 1点スプライン (2次ベジェ: xからtを逆算してyを求める簡易近似)
+	// 1点スプライン (二次ベジェ曲線の厳密解)
 	auto calcSp1 = [](float x, float cx, float cy) {
-		// ※厳密には二次方程式の解の公式が必要ですが、DSP負荷を下げるための簡易マッピング例
-		// t^2(1 - 2cx) + 2cx*t - x = 0 を t について解く処理が本来は入ります
-		float t = x; // 仮置き（パフォーマンスと相談してニュートン法などを実装）
+		if (x <= 0.0f) return 0.0f;
+		if (x >= 1.0f) return 1.0f;
+		float t = x;
+		// A*t^2 + B*t + C = 0 を解くことで正しい t を求める
+		if (std::abs(cx - 0.5f) >= 0.001f) {
+			float A = 1.0f - 2.0f * cx;
+			float B = 2.0f * cx;
+			float C = -x;
+			float det = B * B - 4.0f * A * C;
+			if (det >= 0.0f) {
+				t = (-B + std::sqrt(det)) / (2.0f * A);
+			}
+		}
+		t = std::clamp(t, 0.0f, 1.0f);
 		return (1.0f - t) * (1.0f - t) * 0.0f + 2.0f * (1.0f - t) * t * cy + t * t * 1.0f;
 		};
 
+	// 2点スプライン (三次ベジェ曲線の近似解)
 	auto calcSp2 = [](float x, float cx1, float cy1, float cx2, float cy2) -> float {
-		// 端点に張り付いている時は計算をスキップして即リターン
 		if (x <= 0.0001f) return 0.0f;
 		if (x >= 0.9999f) return 1.0f;
 
-		// --- X(t) を求める式 ---
 		auto getX = [cx1, cx2](float t) {
 			float mt = 1.0f - t;
 			return 3.0f * mt * mt * t * cx1 + 3.0f * mt * t * t * cx2 + t * t * t;
 			};
-
-		// --- X'(t) (Xをtで微分した傾き) を求める式 ---
 		auto getSlope = [cx1, cx2](float t) {
 			float mt = 1.0f - t;
-			// 3次ベジェの導関数
 			return 3.0f * mt * mt * cx1 + 6.0f * mt * t * (cx2 - cx1) + 3.0f * t * t * (1.0f - cx2);
 			};
 
-		// --- ニュートン法で t を近似 ---
-		// 曲線は概ね x = t に近い動きをするため、初期値として t = x を使うと非常に早く収束します
 		float t = x;
-		for (int i = 0; i < 4; i++) { // 最大4回のイテレーション（DSPではこれで十分です）
+		for (int i = 0; i < 4; i++) {
 			float currentX = getX(t);
 			float slope = getSlope(t);
-
-			if (std::abs(slope) < 0.0001f) break; // 傾きが0（計算不能）になったら安全のため終了
-
+			if (std::abs(slope) < 0.0001f) break;
 			float dt = (currentX - x) / slope;
 			t -= dt;
-			t = std::clamp(t, 0.0f, 1.0f); // t は必ず 0.0 〜 1.0 の間に収める
-
-			if (std::abs(dt) < 0.0001f) break; // 誤差が十分小さくなったら早く抜ける
+			t = std::clamp(t, 0.0f, 1.0f);
+			if (std::abs(dt) < 0.0001f) break;
 		}
 
-		// --- 求めた t を Y(t) の式に代入してレベルを求める ---
 		float mt = 1.0f - t;
 		return 3.0f * mt * mt * t * cy1 + 3.0f * mt * t * t * cy2 + t * t * t;
 		};
 
+	// -------------------------------------------------------------
+	// 2. ロジックごとの関数マッピング
+	// -------------------------------------------------------------
 	logics[CurveParams::Logic::Linear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		return calcLinear(x);
 		};
@@ -90,12 +94,14 @@ CurveCore::CurveCore() {
 
 	logics[CurveParams::Logic::Exp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].expCurve;
-		return calcExp(x, p.rate);
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		return calcExp(x, p.rate * k); // ★kを適用
 		};
 
 	logics[CurveParams::Logic::Log] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].logCurve;
-		return calcLog(x, p.rate);
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		return calcLog(x, p.rate * k); // ★kを適用
 		};
 
 	logics[CurveParams::Logic::Sp1] = [=](int pIdx, int tIdx, int prmIdx, float x) {
@@ -110,332 +116,192 @@ CurveCore::CurveCore() {
 
 	logics[CurveParams::Logic::LinearArcExp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1ArcExp;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcArcExp(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcArcExp(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::LinearArcLog] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1ArcLog;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcArcLog(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcArcLog(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::LinearExp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Exp;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcExp(localX, p.rate), 0.0f, 1.0f, py, 1.0f);
-		}
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcExp(mapRange(x, px, 1.0f, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::LinearLog] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Log;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLog(localX, p.rate), 0.0f, 1.0f, py, 1.0f);
-		}
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcLog(mapRange(x, px, 1.0f, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::LinearSp1] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Sp1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
+		float px = p.pos.x; float py = p.pos.y;
 		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
+			return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
 		}
 		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcSp1(localX, p.cp.x, p.cp.y), 0.0f, 1.0f, py, 1.0f);
+			// ローカル座標へのマッピングを適用
+			float localCX = mapRange(p.cp.x, px, 1.0f, 0.0f, 1.0f);
+			float localCY = mapRange(p.cp.y, py, 1.0f, 0.0f, 1.0f);
+			return mapRange(calcSp1(mapRange(x, px, 1.0f, 0.0f, 1.0f), localCX, localCY), 0.0f, 1.0f, py, 1.0f);
 		}
 		};
 
 	logics[CurveParams::Logic::LinearSp2] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear1Sp2;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
+		float px = p.pos.x; float py = p.pos.y;
 		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py);
+			return mapRange(calcLinear(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
 		}
 		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcSp2(localX, p.cp1.x, p.cp1.y, p.cp2.x, p.cp2.y), 0.0f, 1.0f, py, 1.0f);
+			float localCX1 = mapRange(p.cp1.x, px, 1.0f, 0.0f, 1.0f);
+			float localCY1 = mapRange(p.cp1.y, py, 1.0f, 0.0f, 1.0f);
+			float localCX2 = mapRange(p.cp2.x, px, 1.0f, 0.0f, 1.0f);
+			float localCY2 = mapRange(p.cp2.y, py, 1.0f, 0.0f, 1.0f);
+			return mapRange(calcSp2(mapRange(x, px, 1.0f, 0.0f, 1.0f), localCX1, localCY1, localCX2, localCY2), 0.0f, 1.0f, py, 1.0f);
 		}
 		};
 
 	logics[CurveParams::Logic::ArcExpLinear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].arcExpLinear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcArcExp(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcArcExp(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::ArcLogLinear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].arcLogLinear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcArcLog(localX), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcArcLog(mapRange(x, 0.0f, px, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::ExpLinear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].expLinear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcExp(localX, p.rate), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcExp(mapRange(x, 0.0f, px, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::LogLinear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].logLinear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
-		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcLog(localX, p.rate), 0.0f, 1.0f, 0.0f, py);
-		}
-		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
-		}
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px = p.pos.x; float py = p.pos.y;
+		if (x <= px) return mapRange(calcLog(mapRange(x, 0.0f, px, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, 0.0f, py);
+		else         return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Sp1Linear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp1Linear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
+		float px = p.pos.x; float py = p.pos.y;
 		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcSp1(localX, p.cp.x, p.cp.y), 0.0f, 1.0f, 0.0f, py);
+			float localCX = mapRange(p.cp.x, 0.0f, px, 0.0f, 1.0f);
+			float localCY = mapRange(p.cp.y, 0.0f, py, 0.0f, 1.0f);
+			return mapRange(calcSp1(mapRange(x, 0.0f, px, 0.0f, 1.0f), localCX, localCY), 0.0f, 1.0f, 0.0f, py);
 		}
 		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
+			return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		}
 		};
 
 	logics[CurveParams::Logic::Sp2Linear] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].sp2Linear1;
-		float px = p.pos.x;
-		float py = p.pos.y;
-
+		float px = p.pos.x; float py = p.pos.y;
 		if (x <= px) {
-			// 前半: 0.0 〜 px の区間を 0.0 〜 1.0 に引き伸ばして線形処理、その後 0.0 〜 py に圧縮
-			float localX = mapRange(x, 0.0f, px, 0.0f, 1.0f);
-			return mapRange(calcSp2(localX, p.cp1.x, p.cp1.y, p.cp2.x, p.cp2.y), 0.0f, 1.0f, 0.0f, py);
+			float localCX1 = mapRange(p.cp1.x, 0.0f, px, 0.0f, 1.0f);
+			float localCY1 = mapRange(p.cp1.y, 0.0f, py, 0.0f, 1.0f);
+			float localCX2 = mapRange(p.cp2.x, 0.0f, px, 0.0f, 1.0f);
+			float localCY2 = mapRange(p.cp2.y, 0.0f, py, 0.0f, 1.0f);
+			return mapRange(calcSp2(mapRange(x, 0.0f, px, 0.0f, 1.0f), localCX1, localCY1, localCX2, localCY2), 0.0f, 1.0f, 0.0f, py);
 		}
 		else {
-			// 後半: px 〜 1.0 の区間を 0.0 〜 1.0 に引き伸ばして指数処理、その後 py 〜 1.0 に圧縮
-			float localX = mapRange(x, px, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py, 1.0f);
+			return mapRange(calcLinear(mapRange(x, px, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py, 1.0f);
 		}
 		};
 
 	logics[CurveParams::Logic::Linear2ArcExp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2ArcExp;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		// ユーザー操作による破綻を防ぐため、px1とpx2の順序を補正
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
-		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcArcExp(localX), 0.0f, 1.0f, py1, py2);
-		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
+		else if (x <= px2) return mapRange(calcArcExp(mapRange(x, px1, px2, 0.0f, 1.0f)), 0.0f, 1.0f, py1, py2);
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Linear2ArcLog] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2ArcLog;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
-		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcArcLog(localX), 0.0f, 1.0f, py1, py2);
-		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
+		else if (x <= px2) return mapRange(calcArcLog(mapRange(x, px1, px2, 0.0f, 1.0f)), 0.0f, 1.0f, py1, py2);
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Linear2Exp] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Exp;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
-		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcExp(localX, p.rate), 0.0f, 1.0f, py1, py2);
-		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
+		else if (x <= px2) return mapRange(calcExp(mapRange(x, px1, px2, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py1, py2);
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Linear2Log] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Log;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		float k = m_params.params[pIdx][tIdx][prmIdx].k;
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
-		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcLog(localX, p.rate), 0.0f, 1.0f, py1, py2);
-		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
+		else if (x <= px2) return mapRange(calcLog(mapRange(x, px1, px2, 0.0f, 1.0f), p.rate * k), 0.0f, 1.0f, py1, py2);
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Linear2Sp1] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Sp1;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcSp1(localX, p.cp.x, p.cp.y), 0.0f, 1.0f, py1, py2);
+			float localCX = mapRange(p.cp.x, px1, px2, 0.0f, 1.0f);
+			float localCY = mapRange(p.cp.y, py1, py2, 0.0f, 1.0f);
+			return mapRange(calcSp1(mapRange(x, px1, px2, 0.0f, 1.0f), localCX, localCY), 0.0f, 1.0f, py1, py2);
 		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 
 	logics[CurveParams::Logic::Linear2Sp2] = [=](int pIdx, int tIdx, int prmIdx, float x) {
 		auto& p = m_params.params[pIdx][tIdx][prmIdx].linear2Sp2;
-		float px1 = p.pos1.x;
-		float py1 = p.pos1.y;
-		float px2 = p.pos2.x;
-		float py2 = p.pos2.y;
+		float px1 = std::min(p.pos1.x, p.pos2.x); float px2 = std::max(p.pos1.x, p.pos2.x);
+		float py1 = (p.pos1.x <= p.pos2.x) ? p.pos1.y : p.pos2.y; float py2 = (p.pos1.x <= p.pos2.x) ? p.pos2.y : p.pos1.y;
 
-		if (x <= px1) {
-			float localX = mapRange(x, 0.0f, px1, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, 0.0f, py1);
-		}
+		if (x <= px1) return mapRange(calcLinear(mapRange(x, 0.0f, px1, 0.0f, 1.0f)), 0.0f, 1.0f, 0.0f, py1);
 		else if (x <= px2) {
-			float localX = mapRange(x, px1, px2, 0.0f, 1.0f);
-			return mapRange(calcSp2(localX, p.cp1.x, p.cp1.y, p.cp2.x, p.cp2.y), 0.0f, 1.0f, py1, py2);
+			float localCX1 = mapRange(p.cp1.x, px1, px2, 0.0f, 1.0f);
+			float localCY1 = mapRange(p.cp1.y, py1, py2, 0.0f, 1.0f);
+			float localCX2 = mapRange(p.cp2.x, px1, px2, 0.0f, 1.0f);
+			float localCY2 = mapRange(p.cp2.y, py1, py2, 0.0f, 1.0f);
+			return mapRange(calcSp2(mapRange(x, px1, px2, 0.0f, 1.0f), localCX1, localCY1, localCX2, localCY2), 0.0f, 1.0f, py1, py2);
 		}
-		else {
-			float localX = mapRange(x, px2, 1.0f, 0.0f, 1.0f);
-			return mapRange(calcLinear(localX), 0.0f, 1.0f, py2, 1.0f);
-		}
+		else return mapRange(calcLinear(mapRange(x, px2, 1.0f, 0.0f, 1.0f)), 0.0f, 1.0f, py2, 1.0f);
 		};
 }
 
@@ -459,4 +325,8 @@ float CurveCore::process(int positionIndex, int targetIndex, int paramIndex, flo
 	if (logics.find(logic) == logics.end()) return x;
 
 	return logics[logic](positionIndex, targetIndex, paramIndex, x);
+}
+
+std::function<float(int, int, int, float)> CurveCore::getFunction(int logicIndex) {
+	return logics[(CurveParams::Logic)logicIndex];
 }

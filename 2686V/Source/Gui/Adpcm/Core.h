@@ -6,6 +6,9 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -95,6 +98,20 @@ class GuiAdpcm : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+
+    GuiEnvelopeGraph graph;
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    GraphMode currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateGraph();
+    void setGraphMode(GraphMode mode);
 public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
@@ -157,8 +174,12 @@ public:
         dt1(context),
         dt2(context),
         rateSelector(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context)
     {
+        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
@@ -182,4 +203,6 @@ public:
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
+    void setupGraph();
+    void layoutGraph(juce::Rectangle<int>& rect);
 };

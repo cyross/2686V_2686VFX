@@ -1,4 +1,5 @@
 ﻿#include "./Core.h"
+#include "../../../Processor/Opl3/Values.h"
 
 namespace {
     inline float doubleSine(float p) {
@@ -51,6 +52,14 @@ void Opl3Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+
+    m_ampAdsr.setParamMax(
+        Opl3PrValue::Op::RgAdsr::Ar::max,
+        Opl3PrValue::Op::RgAdsr::Dr::max,
+        Opl3PrValue::Op::RgAdsr::Sl::max,
+        Opl3PrValue::Op::RgAdsr::Rr::max,
+        Opl3PrValue::Op::RgAdsr::Tl::max
+    );
 }
 
 void Opl3Operator::setCurveCore(CurveCore* p_curveCore)
@@ -91,10 +100,10 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
 
 void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    //m_phase = 0.0f;
-    //m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)

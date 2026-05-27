@@ -252,7 +252,7 @@ namespace RhythmGuiValue
 		namespace Pad
 		{
 			static constexpr int width = 230;
-			static constexpr int height = 400;
+			static constexpr int height = 460;
 		}
 	}
 

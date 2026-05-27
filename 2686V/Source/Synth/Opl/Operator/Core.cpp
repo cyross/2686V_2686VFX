@@ -1,6 +1,7 @@
 ﻿#include <array>
 
 #include "./Core.h"
+#include "../../../Processor/Opl/Values.h"
 
 const std::array<float, 4> OplOperator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
 
@@ -27,6 +28,14 @@ void OplOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+
+    m_ampAdsr.setParamMax(
+        OplPrValue::Op::RgAdsr::Ar::max,
+        OplPrValue::Op::RgAdsr::Dr::max,
+        OplPrValue::Op::RgAdsr::Sl::max,
+        OplPrValue::Op::RgAdsr::Rr::max,
+        OplPrValue::Op::RgAdsr::Tl::max
+        );
 }
 
 void OplOperator::setCurveCore(CurveCore* p_curveCore)
@@ -69,8 +78,8 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    //m_phase = 0.0;
-    //m_currentLevel = 0.0f;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)

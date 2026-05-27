@@ -129,6 +129,12 @@ void GuiCurveGraph::paint(juce::Graphics& g)
     for (int i = 0; i <= resolution; ++i) {
         float nx = (float)i / resolution;
         float ny = evaluateCurve(nx);
+
+        // NaN のときは 0.0 にする
+        if (isnan(ny)) {
+            ny = 0.0f;
+        }
+
         auto currentPt = getPixelFromNorm(nx, ny);
         if (i == 0) curvePath.startNewSubPath(currentPt);
         else        curvePath.lineTo(currentPt);

@@ -27,8 +27,8 @@ FmRgAdddr::FmRgAdddr()
 	};
 }
 
-void FmRgAdddr::prepare(int targetIndex, double sampleRate) {
-    this->targetIndex = targetIndex;
+void FmRgAdddr::prepare(int posIndex, double sampleRate) {
+    this->positionIndex = posIndex;
 
     updateTargetSampleRate(sampleRate);
 }
@@ -72,6 +72,8 @@ void FmRgAdddr::noteOff() {
 
 void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
 {
+    m_noteNumber = noteNumber;
+
     if (this->m_curveCore == nullptr) {
         this->updateIncrementsWithKeyScaleLinear(noteNumber);
 
@@ -108,6 +110,8 @@ void FmRgAdddr::setParametersLinear(const FmRgAdddrParams& params) {
         float slDb = this->d1l * 3.0f;
         this->m_sustain = std::pow(10.0f, -slDb / 20.0f);
     }
+
+    updateIncrementsWithKeyScaleLinear(m_noteNumber);
 }
 
 float FmRgAdddr::noteOnLinear(float velocity) {
@@ -150,27 +154,20 @@ void FmRgAdddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
     ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
 
     // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
-    // isRRフラグを追加し、RRの時だけスケールを調整する
-    auto calcRegRate = [&](int regVal, bool isRR) -> float {
+    // isAttack 引数を追加し、アタックと減衰で時間を調整する
+    auto calcRegRate = [&](int regVal, int regMax, bool isRR, bool isAttack) -> float {
         // RR以外のRate0は停止（サステイン維持など）。
         if (regVal == 0 && !isRR) return 0.0f;
 
-        int baseRate = regVal;
-
-        // OPL系（全て4bit）、およびOPN系のRR（4bit）は、5bit(0-31)スケールに補正する
-        if (isRR) {
-            // 15の時に31になるように (val * 2 + 1)
-            baseRate = (regVal * 2) + 1;
-        }
-
         // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
-        // 非常にゆっくり（約20秒）減衰して消えるようにする。
-        if (baseRate <= 1 && isRR) {
-            return 1.0f / (20.0f * (float)sampleRate);
+        // ゆっくり（約5秒）減衰して消えるようにする。
+        if (regVal <= 1 && isRR) {
+            return 1.0f / (5.0f * (float)sampleRate);
         }
 
         // 実効レート = 基本レート(0-31) * 2 + KSR (0-3)
-        int effectiveRate = (baseRate * 2) + ksrValue;
+        // (regMax が 31 であることを前提とした 0-63 へのマッピング)
+        int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
         if (effectiveRate > 63) effectiveRate = 63;
 
         float timeInSeconds = 0.0f;
@@ -179,23 +176,42 @@ void FmRgAdddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
             timeInSeconds = 0.001f;
         }
         else {
-            // レートが4下がるごとに時間が約2倍になる実機カーブの近似
-            float powFactor = (60.0f - (float)effectiveRate) / 4.0f;
-            timeInSeconds = 0.0015f * std::pow(2.0f, powFactor);
+            // 実機(OPN/OPM)仕様に忠実な「レートが4下がるごとに時間が2倍」の式
+            // effectiveRate が 60 のときに 0.001秒(1ms) とする基準から、
+            // ご要望の「regVal=1(実効レート2〜3)の時に約5秒」に合うように基準時間を調整します。
+
+            // diff は 60 を基準とした「どれだけレートが低いか」
+            float diff = 60.0f - (float)effectiveRate;
+
+            // レートが4下がるごとに2倍（= pow(2.0, diff / 4.0)）
+            float timeFactor = std::pow(2.0f, diff / 4.0f);
+
+            // 基準時間 (Rate60 の時の時間) を調整。
+            // 0.0003f 程度にすると、effectiveRate=2 の時 (diff=58, factor≒23170) で
+            // 0.0003 * 23170 = 約 6.9秒 になります。
+            float baseTime = 0.0003f;
+
+            timeInSeconds = baseTime * timeFactor;
+
+            // アタック時はディケイよりも早く完了するように調整 (例: 1/3の時間)
+            if (isAttack) {
+                timeInSeconds *= 0.33f;
+            }
+
+            // 安全装置: 最大時間を10秒程度でクリップする
+            // (レジスタ値1で5秒を想定するなら、最大10〜15秒あれば十分)
+            timeInSeconds = std::min(timeInSeconds, 15.0f);
         }
 
         return 1.0f / (timeInSeconds * (float)sampleRate);
         };
 
-    // 各レートの計算（第2引数に、それがRRかどうかのフラグを渡す）
-    attackInc = calcRegRate(ar, false);
-    decayDec = calcRegRate(d1r, false);
-    sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, false);
-
-    // Release Rate の計算時のみ isRR を true にする
-    releaseDec = calcRegRate(rr, true);
-
-    susReleaseDec = calcRegRate(5, true);
+    // 各レートの計算
+    attackInc = calcRegRate(ar, arMax, false, true);
+    decayDec = calcRegRate(d1r, d1rMax, false, false);
+    sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, d2rMax, false, false);
+    releaseDec = calcRegRate(rr, rrMax, true, false);
+    susReleaseDec = calcRegRate(5, d2rMax, true, false);
 
     // 3. サステインレベル (SL) の計算
     if (d1l == 15) {
@@ -265,7 +281,7 @@ void FmRgAdddr::setParametersCurve(const FmRgAdddrParams& params) {
     auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
         float normRate = (float)value / maxValue;
 
-        return m_curveCore->process(targetIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+        return m_curveCore->process(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
         };
 
@@ -281,6 +297,8 @@ void FmRgAdddr::setParametersCurve(const FmRgAdddrParams& params) {
         float slDb = (baseSustainLevel * 15.0f) * 3.0f;
         this->m_sustain = std::pow(10.0f, -slDb / 20.0f);
     }
+
+    updateIncrementsWithKeyScaleCurve(m_noteNumber);
 }
 
 float FmRgAdddr::noteOnCurve(float velocity) {
@@ -325,62 +343,49 @@ void FmRgAdddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
     ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
 
     // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
-    // isRRフラグを追加し、RRの時だけスケールを調整する
-    auto calcRegRate = [&](int regVal, int prmIdx, bool isRR) -> float {
-        // RR以外のRate0は停止（サステイン維持など）。
+    auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {
         if (regVal == 0 && !isRR) return 0.0f;
 
-        int baseRate = regVal;
-
-        // OPL系（全て4bit）、およびOPN系のRR（4bit）は、5bit(0-31)スケールに補正する
-        if (isRR) {
-            // 15の時に31になるように (val * 2 + 1)
-            baseRate = (regVal * 2) + 1;
+        if (regVal <= 1 && isRR) {
+            return 1.0f / (5.0f * (float)sampleRate);
         }
 
-        // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
-        // 非常にゆっくり（約20秒）減衰して消えるようにする。
-        if (baseRate <= 1 && isRR) {
-            return 1.0f / (20.0f * (float)sampleRate);
-        }
-
-        // 実効レート = 基本レート(0-31) * 2 + KSR (0-3)
-        int effectiveRate = (baseRate * 2) + ksrValue;
+        int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
         if (effectiveRate > 63) effectiveRate = 63;
 
-        // 1. 実機ベースの標準的な時間を算出
         float timeInSeconds = 0.0f;
         if (effectiveRate >= 60) {
             timeInSeconds = 0.001f;
         }
         else {
-            float powFactor = (60.0f - (float)effectiveRate) / 4.0f;
-            timeInSeconds = 0.0015f * std::pow(2.0f, powFactor);
+            // 実機(OPN/OPM)仕様に忠実な「レートが4下がるごとに時間が2倍」の式
+            float diff = 60.0f - (float)effectiveRate;
+            float timeFactor = std::pow(2.0f, diff / 4.0f);
+            float baseTime = 0.0003f;
+            timeInSeconds = baseTime * timeFactor;
+
+            if (isAttack) {
+                timeInSeconds *= 0.33f;
+            }
+
+            timeInSeconds = std::min(timeInSeconds, 15.0f);
         }
 
-        // 2. カーブコアの出力(0.0~1.0)を使って、実機時間を「拡大・縮小」する
-        // カーブの結果(0.0~1.0)が 0.5 なら、時間を半分(速く)にするなど
         float normRate = (float)effectiveRate / 63.0f;
-        float curveFactor = m_curveCore->process(targetIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+        float curveFactor = m_curveCore->process(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 
-        // カーブの影響を反映させる (例えば 0.5倍〜2.0倍の範囲で変動させる)
+        // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
         float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
-
-        // 安全装置: 0除算防止
         modulatedTime = std::max(0.00001f, modulatedTime);
 
-        return std::min(0.1f, 1.0f / (modulatedTime * (float)sampleRate));
+        return 1.0f / (modulatedTime * (float)sampleRate);
         };
 
-    // 各レートの計算（第2引数に、それがRRかどうかのフラグを渡す）
-    attackInc = calcRegRate(ar, (int)CurveParams::TargetRegValue::Ar, false);
-    decayDec = calcRegRate(d1r, (int)CurveParams::TargetRegValue::Dr, false);
-    sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, (int)CurveParams::TargetRegValue::Sr, false);
-
-    // Release Rate の計算時のみ isRR を true にする
-    releaseDec = calcRegRate(rr, (int)CurveParams::TargetRegValue::Rr, true);
-
-    susReleaseDec = calcRegRate(5, (int)CurveParams::TargetRegValue::Sr, true);
+    // 各レートの計算
+    attackInc = calcRegRate(ar, arMax, (int)CurveParams::TargetRegValue::Ar, false, true);
+    decayDec = calcRegRate(d1r, d1rMax, (int)CurveParams::TargetRegValue::Dr, false, false);
+    sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, d2rMax, (int)CurveParams::TargetRegValue::Sr, false, false);
+    releaseDec = calcRegRate(rr, rrMax, (int)CurveParams::TargetRegValue::Rr, true, false);
 
     // 3. サステインレベル (SL) の計算
     if (d1l == 15) {
@@ -402,7 +407,7 @@ float FmRgAdddr::updateEnvelopeStateCurve(float currentLevel)
     }
 
     int targetIdx = (int)CurveParams::Target::RegValue;
-    int posIdx = this->targetIndex; // 1, 2, 3, 4
+    int posIdx = this->positionIndex; // 1, 2, 3, 4
 
     // -------------------------------------------------------------
     // Attack Phase (0.0 -> 1.0)
@@ -508,4 +513,13 @@ float FmRgAdddr::updateEnvelopeStateCurve(float currentLevel)
     }
 
     return currentLevel;
+}
+
+void FmRgAdddr::setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl) {
+    arMax = ar;
+    d1rMax = d1r;
+    d2rMax = d2r;
+    d1lMax = d1l;
+    rrMax = rr;
+    tlMax = tl;
 }

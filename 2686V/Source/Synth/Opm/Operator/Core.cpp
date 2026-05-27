@@ -1,9 +1,19 @@
 ﻿#include "./Core.h"
+#include "../../../Processor/Opm/Values.h"
 
 void OpmOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+
+    m_ampAdsr.setParamMax(
+        OpmPrValue::Op::RgAdsr::Ar::max,
+        OpmPrValue::Op::RgAdsr::D1r::max,
+        OpmPrValue::Op::RgAdsr::D2r::max,
+        OpmPrValue::Op::RgAdsr::D1l::max,
+        OpmPrValue::Op::RgAdsr::Rr::max,
+        OpmPrValue::Op::RgAdsr::Tl::max
+    );
 }
 
 void OpmOperator::setCurveCore(CurveCore* p_curveCore)
@@ -38,8 +48,8 @@ void OpmOperator::setSampleRate(double sampleRate)
 
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    //m_phase = 0.0f;
-    //m_currentLevel = 0.0f;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 

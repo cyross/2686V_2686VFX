@@ -1057,3 +1057,8 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
         }
     }
 }
+
+CurveCore* AudioPlugin2686V::getCurveCore()
+{
+    return p_curveCore.get();
+}

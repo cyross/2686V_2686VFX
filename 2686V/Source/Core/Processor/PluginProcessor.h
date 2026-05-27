@@ -181,6 +181,7 @@ public:
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
+    CurveCore* getCurveCore();
 
     FmClipboard fmClipboard;
 private:

@@ -320,6 +320,15 @@ void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     m_pitchAdsr.prepare(opIndex, sampleRate);
 	m_ssgSwEnv.prepare(opIndex, sampleRate);
     m_lfo.prepare(sampleRate);
+
+    m_ampAdsr.setParamMax(
+        Opzx7PrValue::Op::RgAdsr::Ar::max,
+        Opzx7PrValue::Op::RgAdsr::D1r::max,
+        Opzx7PrValue::Op::RgAdsr::D2r::max,
+        Opzx7PrValue::Op::RgAdsr::D1l::max,
+        Opzx7PrValue::Op::RgAdsr::Rr::max,
+        Opzx7PrValue::Op::RgAdsr::Tl::max
+    );
 }
 
 void Opzx7Operator::setCurveCore(CurveCore* p_curveCore)
@@ -356,7 +365,8 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber)
     m_phase = m_params.phaseOffset;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
-    //m_currentLevel = 0.0f;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
 
     m_lfo.noteOn();
 

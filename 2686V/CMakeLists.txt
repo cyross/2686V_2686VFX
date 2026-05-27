@@ -89,6 +89,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiStructs.h"
     "Source/Core/Gui/GuiText.h"
     "Source/Core/Gui/GuiValues.h"
+    "Source/Core/Gui/GuiEnvelopeGraph.h"
+    "Source/Core/Gui/GuiEnvelopeGraph.cpp"
 )
 
 set(PROCESSOR_FILES
