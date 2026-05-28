@@ -28,8 +28,8 @@ namespace Opl3PrValue
 	namespace Alg
 	{
 		inline constexpr int min = 0;
-		inline constexpr int max = 3;
-		inline constexpr int initial = 3;
+		inline constexpr int max = 6;
+		inline constexpr int initial = 4;
 	}
 
 	namespace Fb

@@ -24,7 +24,7 @@ public:
     };
 
     // アルゴリズム0〜3 ＋ デフォルト(4: 全並列) の5パターン
-    static const std::array<AlgRouting, 5> routings;
+    static const std::array<AlgRouting, 7> routings;
 
     void prepare(double sampleRate) override;
     void setSampleRate(double sampleRate) override;

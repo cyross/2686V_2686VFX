@@ -27,11 +27,14 @@ class GuiOpl3 : public GuiBase
      * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
      * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
      */
-    static inline const std::array<std::array<juce::String, 4>, 4> algOpPrefix = { {
-        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}}, // 00
-        {{"([C:FB])", "([M->3])", "([M->4])", "([C])"}},    // 01
-        {{"([M:FB->2])", "([C])", "([M->4])", "([C])"}},    // 02
-        {{"([C:FB])", "([M->3])", "([C])", "([C])"}}        // 03
+    static inline const std::array<std::array<juce::String, 4>, 7> algOpPrefix = { {
+        { {"([M:FB->2])", "([M->3])", "([M->4])", "([C])"} },   // 00
+        { {"([C:FB])", "([M->3])", "([M->4])", "([C])"} },      // 01
+        { {"([M:FB->2])", "([C])", "([M->4])", "([C])"} },      // 02
+        { {"([C:FB])", "([M->3])", "([C])", "([C])"} },         // 03
+        { { "([C:FB])", "([C])", "([C])", "([C])" } },          // 04
+        { { "([M:FB->2])", "([C])", "([M:FB->4])", "([C])" } }, // 05
+        { { "([C:FB])", "([C])", "([C:FB])", "([C])" } }        // 06
     } };
 
     GuiGroup mainGroup;
@@ -59,7 +62,7 @@ class GuiOpl3 : public GuiBase
     GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
-    std::array<juce::Image, 4> algImages;
+    std::array<juce::Image, 7> algImages;
 
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiComboBox, Global::Fm::Op4> mul;

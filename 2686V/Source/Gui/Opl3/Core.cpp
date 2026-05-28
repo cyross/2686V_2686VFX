@@ -47,6 +47,9 @@ static std::vector<SelectItem> opl3AlgItems = {
     {.name = "01: <OPL3-01>", .value = 2 },
     {.name = "02: <OPL3-02>", .value = 3 },
     {.name = "03: <OPL3-03>", .value = 4 },
+    {.name = "04: <OPL3-04>", .value = 5 },
+    {.name = "05: <OPL3-05>", .value = 6 },
+    {.name = "06: <OPL3-06>", .value = 7 },
 };
 
 static std::vector<SelectItem> multems = {
@@ -141,7 +144,7 @@ void GuiOpl3::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 7; ++i)
     {
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL3_%02d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
@@ -578,7 +581,7 @@ void GuiOpl3::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 3) return;
+    if (algIndex < 0 || algIndex > 6) return;
 
     for (int i = 0; i < 4; ++i)
     {
