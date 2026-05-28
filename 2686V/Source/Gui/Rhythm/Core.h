@@ -68,6 +68,7 @@ class RhythmPadGui: public GuiBase
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
+    GuiSeparator graphSeparator;
 
     enum class GraphMode { Amp, Pitch };
     GraphMode currentGraphMode;
@@ -115,7 +116,8 @@ public:
         pitchSustainLevelSlider(context),
         pitchReleaseLevelSlider(context),
         graphBtnAmp(context),
-        graphBtnPitch(context)
+        graphBtnPitch(context),
+        graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
     }

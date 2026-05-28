@@ -136,6 +136,7 @@ class GuiOpl : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op2> graphBtnAmp;
     std::array<GuiToggleButton, Global::Fm::Op2> graphBtnPitch;
     std::array<GuiToggleButton, Global::Fm::Op2> graphBtnSsg;
+    std::array<GuiSeparator, Global::Fm::Op2> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, Global::Fm::Op2> currentGraphMode;
@@ -228,7 +229,8 @@ public:
         presetNameLabel(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context) }
+        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context) },
+        graphSeparator{ GuiSeparator(context), GuiSeparator(context) }
     {
         currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

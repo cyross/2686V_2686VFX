@@ -217,9 +217,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    // 一番下にグラフエリアとボタンエリアを確保
-    auto graphAndBtnArea = padRect.removeFromBottom(150);
-    layoutGraph(graphAndBtnArea);
+    // グラフ用の区画を確保
+    layoutGraph(padRect);
     updateGraph();
 
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
@@ -368,6 +367,7 @@ void RhythmPadGui::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
 
+    startLevelSlider.onValueChange = repaintGraph;
     attackSlider.onValueChange = repaintGraph;
     decaySlider.onValueChange = repaintGraph;
     sustainSlider.onValueChange = repaintGraph;
@@ -381,6 +381,8 @@ void RhythmPadGui::setupGraph()
     pitchSustainLevelSlider.onValueChange = repaintGraph;
     pitchReleaseLevelSlider.onValueChange = repaintGraph;
 
+    addAndMakeVisible(graphSeparator);
+    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 }
 
 void RhythmPadGui::setGraphMode(GraphMode mode)
@@ -397,18 +399,22 @@ void RhythmPadGui::setGraphMode(GraphMode mode)
 
 void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
 {
-    // 一番下にグラフエリアとボタンエリアを確保
-    auto graphAndBtnArea = rect.removeFromBottom(150);
+    auto mainArea = rect.removeFromTop(RhythmGuiValue::Pad::Graph::height + RhythmGuiValue::Pad::Separator::height);
+
+    // 区切り線エリアを確保
+    auto separatorArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Separator::height);
+
+    graphSeparator.setBounds(separatorArea);
 
     // そのうち下部20pxをボタンエリアにする
-    auto btnArea = graphAndBtnArea.removeFromBottom(20);
-    int btnWidth = btnArea.getWidth() / 3;
+    auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 2;
 
-    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth).reduced(2, 0));
-    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth).reduced(2, 0));
+    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
 
     // 残りをグラフエリアにする
-    graph.setBounds(graphAndBtnArea.reduced(5));
+    graph.setBounds(mainArea);
 }
 
 // グラフを再計算して描画
@@ -419,141 +425,37 @@ void RhythmPadGui::updateGraph()
     // カーブモードが有効かどうかを判定
     bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
 
-    // -------------------------------------------------------------
-    // Helper: 幅の計算 (Amp / Pitch 用)
-    // -------------------------------------------------------------
-    auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
-        if (rateValue <= 0.0f) return maxWidth;
-        float norm = rateValue / maxRate;
-        return std::max(2.0f, maxWidth * norm);
-        };
-
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx](float progress) -> float {
-            if (!isCurveMode || p_curveCore == nullptr) return progress;
-            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
-            };
-        };
-
-    int posIdx = 0; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
-
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        float ar = pitchAttackSlider.getValue();
-        float dr = pitchDecaySlider.getValue();
-        float rr = pitchReleaseSlider.getValue();
-
-        float arMax = pitchAttackSlider.getMaximum();
-        float drMax = pitchDecaySlider.getMaximum();
-        float rrMax = pitchReleaseSlider.getMaximum();
-
-        const float maxCents = 4800.0f; // 仮の最大値
-        float stl = pitchStartLevelSlider.getValue() / maxCents;
-        float atl = pitchAttackLevelSlider.getValue() / maxCents;
-        float ssl = pitchSustainLevelSlider.getValue() / maxCents;
-        float rll = pitchReleaseLevelSlider.getValue() / maxCents;
-
-        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::orange;
-        int targetIdx = (int)CurveParams::Target::PitchEnv;
-
-        // PitchEnv用の幅計算: Rateが0なら即座(0px)、最大ならゆっくり(150px)
-        auto pitchRateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
-            if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
-            return (rateValue / maxRate) * maxWidth;
-            };
-
-        // Attack
-        phases.push_back({
-            .widthPx = pitchRateToWidth(ar, arMax),
-            .startLevel = stl, .endLevel = atl, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Ar),
-            .phaseLineColor = juce::Colours::red
-            });
-
-        // Decay
-        phases.push_back({
-            .widthPx = pitchRateToWidth(dr, drMax),
-            .startLevel = atl, .endLevel = ssl, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Dr),
-            .phaseLineColor = juce::Colours::blue
-            });
-
-        // Sustain
-        phases.push_back({ .widthPx = 60.0f, .startLevel = ssl, .endLevel = ssl, .color = color, .phaseLineColor = juce::Colours::green });
-
-        // Release
-        phases.push_back({
-            .widthPx = pitchRateToWidth(rr, rrMax),
-            .startLevel = ssl, .endLevel = rll, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
-            });
-
-        graph.setEnvelope(GuiEnvelopeGraph::EnvType::Pitch, "Pitch Env", phases);
+        graph.updatePitchEnv(
+            pitchAttackSlider,
+            pitchDecaySlider,
+            pitchReleaseSlider,
+            pitchStartLevelSlider,
+            pitchAttackLevelSlider,
+            pitchSustainLevelSlider,
+            pitchReleaseLevelSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        float arMax = (float)attackSlider.getMaximum();
-        float drMax = (float)decaySlider.getMaximum();
-        float slMax = (float)sustainSlider.getMaximum();
-        float rrMax = (float)releaseSlider.getMaximum();
-
-        float arVal = (float)attackSlider.getValue();
-        float drVal = (float)decaySlider.getValue();
-        float slVal = (float)sustainSlider.getValue();
-        float rrVal = (float)releaseSlider.getValue();
-
-        float sl = (slMax - slVal) / slMax; // 15=0.0, 0=1.0
-
-        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
-        auto color = juce::Colours::cyan;
-        int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
-
-        float currentTotalWidth = 0.0f;
-
-        // 1. Attack
-        float attackWidth = rateToWidth(arVal, arMax);
-        phases.push_back({
-            .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
-            .phaseLineColor = juce::Colours::red
-            });
-        currentTotalWidth += attackWidth;
-
-        // 2. Decay 1
-        float decayWidth = rateToWidth(drVal, drMax);
-        phases.push_back({
-            .widthPx = decayWidth, .startLevel = 1.0f, .endLevel = sl, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
-            .phaseLineColor = juce::Colours::blue
-            });
-        currentTotalWidth += decayWidth;
-
-        // 3. Sustain (D2R) の実線部分 (キーオン中)
-        float keyOnWidth = 60.0f;
-
-        phases.push_back({ .widthPx = keyOnWidth, .startLevel = sl, .endLevel = sl, .color = color, .phaseLineColor = juce::Colours::green });
-
-        currentTotalWidth += keyOnWidth;
-        float noteOffPositionX = currentTotalWidth;
-
-        // 4. Release (通常時のみカーブを適用)
-        phases.push_back({
-            .widthPx = rateToWidth(rrVal, rrMax),
-            .startLevel = sl,
-            .endLevel = 0.0f,
-            .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
-            });
-
-        graph.setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+        graph.updateAmpEnv(
+            startLevelSlider,
+            attackSlider,
+            decaySlider,
+            sustainSlider,
+            releaseSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
     }
 }
 
@@ -618,8 +520,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     layoutMvolCat(mRect);
 
-    auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
-    auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
+    auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
+    auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
 
     // Remaining area for 8 pads
     applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);

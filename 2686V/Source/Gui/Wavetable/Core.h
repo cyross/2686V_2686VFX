@@ -568,6 +568,7 @@ class GuiWt : public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
+    GuiSeparator graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
@@ -666,7 +667,8 @@ public:
         presetNameLabel(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context)
+        graphBtnSsg(context),
+        graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

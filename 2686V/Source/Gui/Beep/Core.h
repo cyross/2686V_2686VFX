@@ -25,7 +25,11 @@ class GuiBeep : public GuiBase {
 
 
     GuiToggleButton bypassToggle;
-    GuiSlider ar, dr, sl, rr, stl;
+    GuiSlider startLevelSlider;
+    GuiSlider attackSlider;
+    GuiSlider decaySlider;
+    GuiSlider sustainSlider;
+    GuiSlider releaseSlider;
 
     // Pitch ADSR
     GuiCategoryLabel pitchAdsrCat;
@@ -79,6 +83,7 @@ class GuiBeep : public GuiBase {
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
+    GuiSeparator graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
@@ -97,7 +102,11 @@ public:
         fixToggle(context), freqSlider(context), freqTo2kBtn(context),
         adsrCat(context),
         bypassToggle(context),
-        ar(context), dr(context), sl(context), rr(context), stl(context),
+        startLevelSlider(context),
+        attackSlider(context),
+        decaySlider(context),
+        sustainSlider(context),
+        releaseSlider(context),
         pitchAdsrCat(context),
         pitchAdsrBypassButton(context),
         pitchAttackSlider(context),
@@ -137,7 +146,8 @@ public:
         presetNameLabel(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
-        graphBtnSsg(context)
+        graphBtnSsg(context),
+        graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

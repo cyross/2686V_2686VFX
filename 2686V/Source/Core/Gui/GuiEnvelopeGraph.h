@@ -3,6 +3,9 @@
 #include <vector>
 #include <functional>
 
+#include "./GuiComponents.h"
+#include "../../Advanced/Curve/Core.h"
+
 class GuiEnvelopeGraph : public juce::Component
 {
 public:
@@ -32,7 +35,39 @@ public:
     };
 
     void setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases);
-
+    void updatePitchEnv(
+        const GuiSlider& pitchAttackSlider,
+        const GuiSlider& pitchDecaySlider,
+        const GuiSlider& pitchReleaseSlider,
+        const GuiSlider& pitchStartLevelSlider,
+        const GuiSlider& pitchAttackLevelSlider,
+        const GuiSlider& pitchSustainLevelSlider,
+        const GuiSlider& pitchReleaseLevelSlider,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
+    );
+    void updateSsgSwEnv(
+        const GuiSlider& ssgSwStepsSlider,
+        const GuiToggleButton& ssgSwEnvLoopButton,
+        const GuiSlider& ssgSwLoopToSlider,
+        const GuiSlider& ssgSwLoopCountSlider,
+        const std::array<juce::Slider*, 7>& rSl,
+        const std::array<juce::Slider*, 7>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
+    );
+    void updateAmpEnv(
+        const GuiSlider& startLevelSlider,
+        const GuiSlider& attackSlider,
+        const GuiSlider& decaySlider,
+        const GuiSlider& sustainSlider,
+        const GuiSlider& releaseSlider,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
+    );
 private:
     EnvType currentType = EnvType::Amp;
     juce::String currentTitle;

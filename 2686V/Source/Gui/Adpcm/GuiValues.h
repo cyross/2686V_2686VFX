@@ -60,6 +60,17 @@ namespace AdpcmGuiValue
 	{
 		static inline constexpr int width = 260;
 
+		namespace Graph
+		{
+			static inline constexpr int height = 120;
+			static inline constexpr int ButtonHeight = 20;
+		}
+
+		namespace Separator
+		{
+			static inline constexpr int height = 16;
+		}
+
 		namespace Row
 		{
 			static inline constexpr int height = 15;
