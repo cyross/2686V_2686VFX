@@ -2,13 +2,15 @@
 
 #include "../../Core/Synth/SynthHelpers.h"
 
-const std::array<Opl3Core::AlgRouting, 5> Opl3Core::routings = { {
+const std::array<Opl3Core::AlgRouting, 7> Opl3Core::routings = { {
     // in2_1, in3_2, in4_3, out_1, out_2, out_3, out_4
-    { 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 0: 1 -> 2 -> 3 -> 4
-    { 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 1: 1 + (2 -> 3 -> 4)
-    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 2: (1 -> 2) + (3 -> 4)
-    { 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }, // 3: 1 + (2 -> 3) + 4
-    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }  // 4: Default (All Parallel)
+    { 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 0: 1(FB) -> 2 -> 3 -> 4
+    { 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 1: 1(FB) + (2 -> 3 -> 4)
+    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 2: (1(FB) -> 2) + (3 -> 4)
+    { 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }, // 3: 1(FB) + (2 -> 3) + 4
+    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }, // 4: 1(FB) + 2 + 3 + 4
+    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 5: (1(FB) -> 2) + (3(FB) -> 4)
+    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }  // 6: 1(FB) + 2 + 3(FB) + 4
 } };
 
 void Opl3Core::prepare(double sampleRate) {
@@ -54,7 +56,8 @@ void Opl3Core::setParameters(const SynthParams& params) {
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
 
     for (int i = 0; i < 4; ++i) {
-        float fb = (i==0) ? params.opl3.feedback : 0.0f;
+        // alg = 5,6 のときは OP3 にも FBを加える
+        float fb = (i==0 || (i==2 && (m_algorithm == 5 || m_algorithm == 6))) ? params.opl3.feedback : 0.0f;
 
         m_operators[i].setParameters(params.opl3.op[i], fb);
         m_opMask[i] = params.opl3.op[i].mask;
@@ -68,6 +71,8 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
 
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
+
+    m_rateAccumulator = 0.0; // レートの余りもリセット
 }
 void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }
 bool Opl3Core::isPlaying() const {
@@ -128,8 +133,8 @@ float Opl3Core::getSample() {
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
         float finalOut = 0.0f;
 
-        // 安全のため 0〜4 の範囲に丸める (4はデフォルトの全並列)
-        int algIndex = std::clamp(m_algorithm, 0, 4);
+        // 安全のため 0〜6 の範囲に丸める
+        int algIndex = std::clamp(m_algorithm, 0, 6);
         const auto& r = routings[algIndex];
 
         // =================================================================

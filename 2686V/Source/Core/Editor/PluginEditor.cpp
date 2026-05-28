@@ -302,7 +302,7 @@ void AudioPlugin2686VEditor::resized()
     }
 
     int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8: 0;
-    togglePreviewBtn.setBounds(getWidth() - 45, 5, 40, 20);
+    togglePreviewBtn.setBounds(getWidth() - 45 - previewPaddingRight, 5, 40, 20);
     panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
     undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
@@ -1105,6 +1105,12 @@ void AudioPlugin2686VEditor::initParams()
 {
     int targetMode = tabs.getCurrentTabIndex();
 
+    if (targetMode == (int)OscMode::BEEP + 1) { // Curve
+        curveGui->initParams();
+
+        return;
+    }
+
     switch ((OscMode)targetMode)
     {
     case OscMode::OPNA:
@@ -1161,4 +1167,8 @@ inline juce::String AudioPlugin2686VEditor::getUndoTooltipText()
 inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
 {
     return audioProcessor.undoManager.canRedo() ? EditorGuiText::Redo::tooltip : EditorGuiText::Redo::tooltipNone;
+}
+
+GuiCurve* AudioPlugin2686VEditor::getCurveGui() {
+    return curveGui.get();
 }

@@ -107,61 +107,56 @@ namespace RhythmPrValue
 		{
 			namespace Bypass
 			{
-				inline constexpr float initial = false; // 初期値
-			}
-
-			namespace Enable
-			{
-				inline constexpr float initial = true; // 初期値
+				inline constexpr float initial = CorePrValue::PitchAdsr::Bypass::initial;
 			}
 
 			namespace Ar
 			{
-				inline constexpr float min = 0.00f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
-				inline constexpr float initial = 0.0f; // 初期値（秒）
+				inline constexpr float min = CorePrValue::rateMin;
+				inline constexpr float max = CorePrValue::rateMax;
+				inline constexpr float initial = CorePrValue::rateMin;
 			}
 
 			namespace Dr
 			{
-				inline constexpr float min = 0.0f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
-				inline constexpr float initial = 0.0f; // 初期値（秒）
+				inline constexpr float min = CorePrValue::rateMin;
+				inline constexpr float max = CorePrValue::rateMax;
+				inline constexpr float initial = CorePrValue::rateMin;
 			}
 
 			namespace Rr
 			{
-				inline constexpr float min = 0.00f; // 最小値（秒）
-				inline constexpr float max = 5.0f;  // 最大値（秒）
-				inline constexpr float initial = 0.0f; // 初期値（秒）
+				inline constexpr float min = CorePrValue::rateMin;
+				inline constexpr float max = CorePrValue::rateMax;
+				inline constexpr float initial = CorePrValue::rateMin;
 			}
 
 			namespace Ssl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
-				inline constexpr int initial = 0; // 初期値
+				inline constexpr int min = CorePrValue::pitchLevelMin;
+				inline constexpr int max = CorePrValue::pitchLevelMax;
+				inline constexpr int initial = CorePrValue::pitchLevelIni;
 			}
 
 			namespace Atl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
-				inline constexpr int initial = 0; // 初期値
+				inline constexpr int min = CorePrValue::pitchLevelMin;
+				inline constexpr int max = CorePrValue::pitchLevelMax;
+				inline constexpr int initial = CorePrValue::pitchLevelIni;
 			}
 
 			namespace Stl
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
-				inline constexpr int initial = 0; // 初期値
+				inline constexpr int min = CorePrValue::pitchLevelMin;
+				inline constexpr int max = CorePrValue::pitchLevelMax;
+				inline constexpr int initial = CorePrValue::pitchLevelIni;
 			}
 
 			namespace Rll
 			{
-				inline constexpr int min = -2400; // 最小値
-				inline constexpr int max = 2400;  // 最大値
-				inline constexpr int initial = 0; // 初期値
+				inline constexpr int min = CorePrValue::pitchLevelMin;
+				inline constexpr int max = CorePrValue::pitchLevelMax;
+				inline constexpr int initial = CorePrValue::pitchLevelIni;
 			}
 		}
 	}

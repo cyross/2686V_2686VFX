@@ -1,6 +1,7 @@
 ﻿#include "./Core.h"
 
 #include "../../../Core/Fm/FmCore.h"
+#include "../../../Processor/Opna/Values.h"
 
 const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrategies = { {
     [](double p) { // 00: normal
@@ -89,6 +90,15 @@ void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+
+    m_ampAdsr.setParamMax(
+        OpnaPrValue::Op::RgAdsr::Ar::max,
+        OpnaPrValue::Op::RgAdsr::Dr::max,
+        OpnaPrValue::Op::RgAdsr::Sr::max,
+        OpnaPrValue::Op::RgAdsr::Sl::max,
+        OpnaPrValue::Op::RgAdsr::Rr::max,
+        OpnaPrValue::Op::RgAdsr::Tl::max
+    );
 }
 
 void OpnaOperator::setCurveCore(CurveCore* p_curveCore)
@@ -134,8 +144,8 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    //m_phase = 0.0f;
-    //m_currentLevel = 0.0f;
+    m_phase = 0.0;
+    m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 
@@ -178,6 +188,9 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
         m_pitchAdsr.bypassedReleasedProcess();
 
         output = 0.0f;
+        // 念のためフィードバックバッファもクリアしておく
+        m_fb1 = 0.0f;
+        m_fb2 = 0.0f;
 
         return;
     }
@@ -251,8 +264,15 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     // ========================================================
     float feedbackMod = 0.0f;
     if (m_feedback > 0.0f) {
-        float fbScale = std::pow(2.0f, m_feedback) / 64.0f;
-        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi;
+        // YAMAHAの一般的なフィードバックシフト計算 (Feedback値 0〜7 を想定)
+        // FB=0 は 0、FB=1〜7 のとき、シフト量は 9 - FB となる仕様が多いです。
+        // （FBが上がるほど右シフト量が減り、値が大きくなる）
+        // ここでは一般的な 2^((FB - 8) または類似のスケール) を使います。
+        // OPL3の仕様に合わせて調整してください。以下は一般的な近似です。
+        float fbScale = std::pow(2.0f, m_feedback - 8.0f); // または 9.0f
+
+        // 過去2サンプルの「生の波形値」の平均を使用する
+        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi * 2.0f;
     }
 
     float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
@@ -261,20 +281,27 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
     // --------------------------------------------------------
+    // Modulator からの入力 (変調インデックスは実機では通常 4π ではなく 2π〜8πの範囲ですが、
+    // ここは既存のシステムに合わせておきます)
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
+    // 位相の変調
     float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
 
+    // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
-    output = rawWave * envVal * m_targetLevel;
-
+    // フィードバックバッファには「エンベロープ適用前」の純粋な値を保存する！
     if (!m_isExternalFeedback) {
         m_fb2 = m_fb1;
-        m_fb1 = output;
+        m_fb1 = rawWave; // outputではなくrawWaveを保存！
     }
 
+    // 最後にエンベロープを掛けて出力とする
+    output = rawWave * envVal * m_targetLevel;
+
     m_phase += currentPhaseDelta;
+
     while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
     while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
 }

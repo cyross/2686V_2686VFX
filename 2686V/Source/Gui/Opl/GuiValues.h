@@ -16,7 +16,7 @@ namespace OplGuiValue
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 8;
+		static inline constexpr int paddingBottom = 2;
 	}
 
 	namespace Category
@@ -59,6 +59,11 @@ namespace OplGuiValue
 	namespace MainGroup
 	{
 		static inline constexpr int width = 260;
+
+		namespace Separator
+		{
+			static inline constexpr int height = 20;
+		}
 
 		namespace Row
 		{
@@ -165,6 +170,17 @@ namespace OplGuiValue
 
 	namespace ParamGroup
 	{
+		namespace Graph
+		{
+			static inline constexpr int height = 120;
+			static inline constexpr int ButtonHeight = 16;
+		}
+
+		namespace Separator
+		{
+			static inline constexpr int height = 16;
+		}
+
 		namespace Row
 		{
 			static inline constexpr int width = 226;

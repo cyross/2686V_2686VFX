@@ -424,17 +424,17 @@ namespace PresetGuiText
 	{
 		namespace Dialog
 		{
-			static inline const juce::String initPreset = u8"Initialize Preset";
-			static inline const juce::String initPresetNotice = u8"Are you sure you want to initialize all parameters and unload samples?";
-			static inline const juce::String initPresetSuccedBtn = u8"Initialize";
-			static inline const juce::String initPresetCancelBtn = u8"Cancel";
+			static inline const juce::String initPreset = juce::String("") + "プリセット初期化";
+			static inline const juce::String initPresetNotice = juce::String("") + "全ての音源とアドバンスドモードの設定値を初期化します。よろしいですか？";
+			static inline const juce::String initPresetSuccedBtn = juce::String("") + "初期化";
+			static inline const juce::String initPresetCancelBtn = juce::String("") + "キャンセル";
 
-			static inline const juce::String deletePreset = u8"Delete Preset";
-			static inline const juce::String deletePresetNotice = u8"Are you sure you want to delete ";
-			static inline const juce::String deletePresetSuccedBtn = u8"Delete";
-			static inline const juce::String deletePresetCancelBtn = u8"Cancel";
+			static inline const juce::String deletePreset = juce::String("") + "プリセット削除";
+			static inline const juce::String deletePresetNotice = juce::String("") + "プリセットファイルを削除します。よろしいですか？";
+			static inline const juce::String deletePresetSuccedBtn = juce::String("") + "削除";
+			static inline const juce::String deletePresetCancelBtn = juce::String("") + "キャンセル";
 
-			static inline const juce::String reflectPresetToolTipMessage = "Reflect selected preset info to text editors without loading";
+			static inline const juce::String reflectPresetToolTipMessage = juce::String("") + "プリセットのメタデータをクリップボードにコピーします。";
 		}
 	}
 }

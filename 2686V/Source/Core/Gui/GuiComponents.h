@@ -546,3 +546,57 @@ public:
 private:
     void setupInner(const Config& c, juce::Colour colour);
 };
+
+class GuiSeparator : public juce::Component, public GuiBaseComponent
+{
+public:
+    enum class Style { Horizontal, Vertical };
+
+    struct Config {
+        Style lineStyle = Style::Horizontal;
+        float lineRate = 100.0;
+        float lineThick = 1.0;
+        juce::Colour lineColour = juce::Colours::grey.withAlpha(0.5f);
+    };
+
+    GuiSeparator(const GuiContext& context) : GuiBaseComponent(context) {}
+
+    void setup(const Config& c) {
+        lineStyle = c.lineStyle;
+        lineRate = c.lineRate;
+        lineThick = c.lineThick;
+        lineColour = c.lineColour;
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        g.setColour(lineColour); // 区切り線の色
+
+        if (lineStyle == Style::Horizontal) {
+            // 水平線の描画 (中央の高さに引く)
+            float realWidth = (float)getWidth();
+            float width = realWidth * lineRate;
+            float paddingX = (realWidth - width) / 2.0;
+
+            float y = (getHeight() - lineThick) / 2.0f;
+
+            g.drawLine(paddingX, y, paddingX + width, y, lineThick);
+        }
+        else {
+            // 垂直線の描画
+            float realHeight = (float)getHeight();
+            float height = realHeight * lineRate;
+            float paddingY = (realHeight - height) / 2.0;
+
+            float x = (getWidth() - lineThick) / 2.0f;
+
+            g.drawLine(x, paddingY, x, paddingY + height, lineThick);
+        }
+    }
+
+private:
+    Style lineStyle = Style::Horizontal;
+    float lineRate = 100.0f;
+    float lineThick = 1.0f;
+    juce::Colour lineColour = juce::Colours::grey.withAlpha(0.5f);
+};

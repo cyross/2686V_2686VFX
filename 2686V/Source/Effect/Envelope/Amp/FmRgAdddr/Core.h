@@ -18,6 +18,13 @@ class FmRgAdddr
 	int tl = 0;
 	int ks = 0;
 
+	int arMax = 0;
+	int d1rMax = 0;
+	int d2rMax = 0;
+	int d1lMax = 0;
+	int rrMax = 0;
+	int tlMax = 0;
+
 	double sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float totalLevel = 0.0f;
@@ -32,8 +39,10 @@ class FmRgAdddr
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 
+	int m_noteNumber = 60; // C3
+
 	// カーブモード用の変数
-	int targetIndex = 1; // 1,2,3,4
+	int positionIndex = 1; // 1,2,3,4
 	CurveCore* m_curveCore = nullptr;
 
 	// カーブモード用の時間管理変数
@@ -47,7 +56,7 @@ class FmRgAdddr
 	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
 public:
 	FmRgAdddr();
-	void prepare(int targetIndex, double sampleRate);
+	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
 	bool isPlaying() const { return state != State::Idle; }
@@ -69,4 +78,5 @@ public:
 	void noteOffCurve();
 	void updateIncrementsWithKeyScaleCurve(int noteNumber);
 	float updateEnvelopeStateCurve(float currentLevel);
+	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
 };

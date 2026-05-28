@@ -50,12 +50,18 @@ void GuiBeep::setup() {
     juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
 
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
     volSlider.setup({ .parent = *this, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
@@ -86,25 +92,25 @@ void GuiBeep::setup() {
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
-    stl.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::stl, .title = BeepGuiText::Beep::Adsr::Stl, .isReset = true });
-    stl.setWantsKeyboardFocus(true);
-    stl.setExplicitFocusOrder(++tabOrder);
+    startLevelSlider.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::stl, .title = BeepGuiText::Beep::Adsr::Stl, .isReset = true });
+    startLevelSlider.setWantsKeyboardFocus(true);
+    startLevelSlider.setExplicitFocusOrder(++tabOrder);
 
-    ar.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::ar, .title = BeepGuiText::Beep::Adsr::Ar, .isReset = true });
-    ar.setWantsKeyboardFocus(true);
-    ar.setExplicitFocusOrder(++tabOrder);
+    attackSlider.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::ar, .title = BeepGuiText::Beep::Adsr::Ar, .isReset = true });
+    attackSlider.setWantsKeyboardFocus(true);
+    attackSlider.setExplicitFocusOrder(++tabOrder);
 
-    dr.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::dr, .title = BeepGuiText::Beep::Adsr::Dr, .isReset = true });
-    dr.setWantsKeyboardFocus(true);
-    dr.setExplicitFocusOrder(++tabOrder);
+    decaySlider.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::dr, .title = BeepGuiText::Beep::Adsr::Dr, .isReset = true });
+    decaySlider.setWantsKeyboardFocus(true);
+    decaySlider.setExplicitFocusOrder(++tabOrder);
 
-    sl.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::sl, .title = BeepGuiText::Beep::Adsr::Sl, .isReset = true });
-    sl.setWantsKeyboardFocus(true);
-    sl.setExplicitFocusOrder(++tabOrder);
+    sustainSlider.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::sl, .title = BeepGuiText::Beep::Adsr::Sl, .isReset = true });
+    sustainSlider.setWantsKeyboardFocus(true);
+    sustainSlider.setExplicitFocusOrder(++tabOrder);
 
-    rr.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::rr, .title = BeepGuiText::Beep::Adsr::Rr, .isReset = true });
-    rr.setWantsKeyboardFocus(true);
-    rr.setExplicitFocusOrder(++tabOrder);
+    releaseSlider.setup({ .parent = *this, .id = code + BeepPrKey::Adsr::rr, .title = BeepGuiText::Beep::Adsr::Rr, .isReset = true });
+    releaseSlider.setWantsKeyboardFocus(true);
+    releaseSlider.setExplicitFocusOrder(++tabOrder);
 
     pitchAdsrCat.setupSwCategory({ .parent = *this, .title = BeepGuiText::Category::visiblePitchAdsr, .invisibleTitle = BeepGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
@@ -271,6 +277,9 @@ void GuiBeep::setup() {
     masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     masterVolSlider.setWantsKeyboardFocus(true);
     masterVolSlider.setExplicitFocusOrder(++tabOrder);
+
+    setupGraph();
+    updateGraph();
 }
 
 void GuiBeep::layout(juce::Rectangle<int> content) {
@@ -283,6 +292,14 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     mRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
+
+    // グラフ用の区画を確保
+    layoutGraph(mRect);
+    updateGraph();
 
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 
@@ -362,20 +379,20 @@ void GuiBeep::layoutAdsrCat(juce::Rectangle<int>& rect)
     bool visible = adsrCat.isDetailVisible();
 
     bypassToggle.setVisible(visible);
-    stl.setVisibleWithLabel(visible);
-    ar.setVisibleWithLabel(visible);
-    dr.setVisibleWithLabel(visible);
-    sl.setVisibleWithLabel(visible);
-    rr.setVisibleWithLabel(visible);
+    startLevelSlider.setVisibleWithLabel(visible);
+    attackSlider.setVisibleWithLabel(visible);
+    decaySlider.setVisibleWithLabel(visible);
+    sustainSlider.setVisibleWithLabel(visible);
+    releaseSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &bypassToggle });
-        layoutMain({ .mainRect = rect, .label = &stl.label, .component = &stl });
-        layoutMain({ .mainRect = rect, .label = &ar.label, .component = &ar });
-        layoutMain({ .mainRect = rect, .label = &dr.label, .component = &dr });
-        layoutMain({ .mainRect = rect, .label = &sl.label, .component = &sl });
-        layoutMain({ .mainRect = rect, .label = &rr.label, .component = &rr });
+        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
+        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
+        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
+        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
+        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
     }
 }
 
@@ -493,5 +510,167 @@ void GuiBeep::applySsgSwEnvLoopValues(bool enabled)
         if (steps - loopTo < 2) {
             ssgSwLoopToSlider.setValue(steps - 2);
         }
+    }
+}
+
+void GuiBeep::setupGraph()
+{
+    addAndMakeVisible(&graph); // グラフを追加
+
+    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
+    graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
+
+    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
+
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    auto repaintGraph = [this]() { updateGraph(); };
+    
+    startLevelSlider.onValueChange = repaintGraph;
+    attackSlider.onValueChange = repaintGraph;
+    decaySlider.onValueChange = repaintGraph;
+    sustainSlider.onValueChange = repaintGraph;
+    releaseSlider.onValueChange = repaintGraph;
+
+    pitchAttackSlider.onValueChange = repaintGraph;
+    pitchDecaySlider.onValueChange = repaintGraph;
+    pitchReleaseSlider.onValueChange = repaintGraph;
+    pitchStartLevelSlider.onValueChange = repaintGraph;
+    pitchAttackLevelSlider.onValueChange = repaintGraph;
+    pitchSustainLevelSlider.onValueChange = repaintGraph;
+    pitchReleaseLevelSlider.onValueChange = repaintGraph;
+
+    ssgSwEnvLoopButton.onStateChange = repaintGraph;
+
+    ssgSwStepsSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopToSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopCountSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+
+    ssgSwR1Slider.onValueChange = repaintGraph;
+    ssgSwR2Slider.onValueChange = repaintGraph;
+    ssgSwR3Slider.onValueChange = repaintGraph;
+    ssgSwR4Slider.onValueChange = repaintGraph;
+    ssgSwR5Slider.onValueChange = repaintGraph;
+    ssgSwR6Slider.onValueChange = repaintGraph;
+
+    ssgSwStartLevelSlider.onValueChange = repaintGraph;
+    ssgSwL1Slider.onValueChange = repaintGraph;
+    ssgSwL2Slider.onValueChange = repaintGraph;
+    ssgSwL3Slider.onValueChange = repaintGraph;
+    ssgSwL4Slider.onValueChange = repaintGraph;
+    ssgSwL5Slider.onValueChange = repaintGraph;
+    ssgSwL6Slider.onValueChange = repaintGraph;
+
+    addAndMakeVisible(graphSeparator);
+    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+}
+
+void GuiBeep::setGraphMode(GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+
+    // モードが変わったらグラフを描画し直す
+    updateGraph();
+}
+
+void GuiBeep::layoutGraph(juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(BeepGuiValue::MainGroup::Graph::height + BeepGuiValue::MainGroup::Separator::height);
+
+    // 区切り線エリアを確保
+    auto separatorArea = mainArea.removeFromBottom(BeepGuiValue::MainGroup::Separator::height);
+
+    graphSeparator.setBounds(separatorArea);
+
+    // そのうち下部20pxをボタンエリアにする
+    auto btnArea = mainArea.removeFromBottom(BeepGuiValue::MainGroup::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg.setBounds(btnArea);
+
+    // 残りをグラフエリアにする
+    graph.setBounds(mainArea);
+}
+
+// グラフを再計算して描画
+void GuiBeep::updateGraph()
+{
+    GraphMode mode = currentGraphMode;
+
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    // =============================================================
+    // Pitch Env
+    // =============================================================
+    if (mode == GraphMode::Pitch) {
+        graph.updatePitchEnv(
+            pitchAttackSlider,
+            pitchDecaySlider,
+            pitchReleaseSlider,
+            pitchStartLevelSlider,
+            pitchAttackLevelSlider,
+            pitchSustainLevelSlider,
+            pitchReleaseLevelSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+    // =============================================================
+    // SSG SW Env
+    // =============================================================
+    else if (mode == GraphMode::SsgSw) {
+        graph.updateSsgSwEnv(
+            ssgSwStepsSlider,
+            ssgSwEnvLoopButton,
+            ssgSwLoopToSlider,
+            ssgSwLoopCountSlider,
+            { nullptr, &ssgSwR1Slider, &ssgSwR2Slider, &ssgSwR3Slider, &ssgSwR4Slider, &ssgSwR5Slider, &ssgSwR6Slider },
+            { &ssgSwStartLevelSlider, &ssgSwL1Slider, &ssgSwL2Slider, &ssgSwL3Slider, &ssgSwL4Slider, &ssgSwL5Slider, &ssgSwL6Slider },
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
+    else {
+        graph.updateAmpEnv(
+            startLevelSlider,
+            attackSlider,
+            decaySlider,
+            sustainSlider,
+            releaseSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
     }
 }

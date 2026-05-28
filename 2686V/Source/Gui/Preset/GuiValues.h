@@ -48,9 +48,9 @@ namespace PresetGuiValue
 		namespace ColWidth
 		{
 			static inline constexpr int Genre = 80;
-			static inline constexpr int FileName = 150;
+			static inline constexpr int FileName = 200;
 			static inline constexpr int Mode = 80;
-			static inline constexpr int PresetName = 150;
+			static inline constexpr int PresetName = 300;
 			static inline constexpr int Author = 100;
 			static inline constexpr int Version = 50;
 			static inline constexpr int LastModified = 120;
@@ -61,7 +61,7 @@ namespace PresetGuiValue
 	{
 		static inline constexpr int AreaHeight = 420;
 		static inline constexpr int RowHeight = 20;
-		static inline constexpr int LabelWidth = 50;
+		static inline constexpr int LabelWidth = 80;
 		static inline constexpr int PaddingWidth = 4;
 		static inline constexpr int PaddingHeight = 4;
 		static inline constexpr int PaddingHeight2 = 12;

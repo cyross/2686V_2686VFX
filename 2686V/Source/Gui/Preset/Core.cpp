@@ -349,7 +349,6 @@ void GuiPreset::setup()
 	reflectButton.setup({ .parent = *this, .title = PresetKey::Button::reflectPresetInfo, .font = juce::Font(16.0f), .isReset = false });
     reflectButton.setWantsKeyboardFocus(true);
     reflectButton.setExplicitFocusOrder(++tabOrder);
-    reflectButton.setTooltip(PresetGuiText::Preset::Dialog::reflectPresetToolTipMessage);
     reflectButton.onClick = [this] {
         int row = table.getSelectedRow();
 

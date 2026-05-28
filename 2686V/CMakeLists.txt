@@ -89,6 +89,8 @@ set(GUI_FILES
     "Source/Core/Gui/GuiStructs.h"
     "Source/Core/Gui/GuiText.h"
     "Source/Core/Gui/GuiValues.h"
+    "Source/Core/Gui/GuiEnvelopeGraph.h"
+    "Source/Core/Gui/GuiEnvelopeGraph.cpp"
 )
 
 set(PROCESSOR_FILES
@@ -529,6 +531,8 @@ set(CURVE_PROCESSOR_FILES
 set(CURVE_GUI_FILES
     "Source/Gui/Curve/GuiText.h"
     "Source/Gui/Curve/GuiValues.h"
+    "Source/Gui/Curve/GuiCurveGraph.h"
+    "Source/Gui/Curve/GuiCurveGraph.cpp"
     "Source/Gui/Curve/Core.h"
     "Source/Gui/Curve/Core.cpp"
 )

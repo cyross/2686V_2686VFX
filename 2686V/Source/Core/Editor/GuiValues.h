@@ -9,7 +9,7 @@ namespace EditorGuiValue
 	namespace Window
 	{
 		static inline constexpr int width = 1580;
-		static inline constexpr int height = 800;
+		static inline constexpr int height = 920;
 	}
 
 	namespace WaterMarkLogo

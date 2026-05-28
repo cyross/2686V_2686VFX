@@ -8,6 +8,9 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class GuiOpzx7 : public GuiBase
 {
@@ -149,6 +152,7 @@ class GuiOpzx7 : public GuiBase
 
     // Preset Name Label
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 36> algImages;
@@ -235,7 +239,7 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
+    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
@@ -250,6 +254,21 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiToggleButton, Global::Fm::Op4> xof; // Xof
 
     void applyMmlString(const juce::String& mml, int opIndex);
+
+    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
+    std::array<GuiSeparator, Global::Fm::Op4> graphSeparator;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateOpGraph(int opIndex);
+    void setGraphMode(int opIndex, GraphMode mode);
 public:
 	GuiOpzx7(const GuiContext& context) :
         GuiBase(context),
@@ -361,7 +380,7 @@ public:
 		ssgSwL6{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -373,8 +392,14 @@ public:
         sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        presetNameSeparator(context),
+        graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
     {
+        currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
@@ -415,4 +440,6 @@ public:
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
+    void setupGraph(int opIndex);
+    void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

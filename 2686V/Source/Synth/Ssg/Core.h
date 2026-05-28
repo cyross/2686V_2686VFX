@@ -72,6 +72,7 @@ private:
     double m_targetRate = 44100.0;
     double m_rateAccumulator = 0.0;
     float m_lastSample = 0.0f;
+    float m_prevSample = 0.0f;
     float m_quantizeSteps = 15.0f; // Default 4bit
     float m_currentFrequency = 440.0f;
 

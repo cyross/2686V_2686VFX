@@ -49,9 +49,9 @@ void AmpAdsrEnv::updateIncrements()
 {
     if (this->sampleRate <= 0.0) return;
 
-    this->attackInc = (1.0f - this->stl) / (float)(std::max(0.001f, this->ar) * this->sampleRate);
-    this->decayDec = (this->stl - this->sl) / (float)(std::max(0.001f, this->dr) * this->sampleRate);
-    this->releaseDec = this->sl / (float)(std::max(0.001f, this->rr) * this->sampleRate);
+    this->attackInc = (1.0f - this->stl) / (float)(std::max(0.00001f, this->ar) * this->sampleRate);
+    this->decayDec = (this->stl - this->sl) / (float)(std::max(0.00001f, this->dr) * this->sampleRate);
+    this->releaseDec = this->sl / (float)(std::max(0.00001f, this->rr) * this->sampleRate);
 }
 
 void AmpAdsrEnv::updateSampleRate(double newSampleRate) {

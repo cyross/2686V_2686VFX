@@ -44,7 +44,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
     m_baseLevel = std::max(0.01f, velocity * 0.25f);
-    m_adsr.noteOn();
+    m_currentLevel = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
 }

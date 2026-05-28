@@ -34,7 +34,7 @@ namespace CoreGuiValue
 		static inline constexpr int width = 226;
 		static inline constexpr int height = 24;
 		static inline constexpr int paddingTop = 0;
-		static inline constexpr int paddingBottom = 12;
+		static inline constexpr int paddingBottom = 0;
 		static inline constexpr int paddingRight = 0;
 	}
 

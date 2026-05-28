@@ -103,160 +103,160 @@ namespace AdpcmPrValue
 	{
 		namespace Bypass
 		{
-			inline constexpr float initial = false;
+			inline constexpr float initial = CorePrValue::PitchAdsr::Bypass::initial;
 		}
 	}
 
 	namespace Mul
 	{
-		inline constexpr int min = 0;
-		inline constexpr int max = 21;
-		inline constexpr int initial = 2; // x 1.0
+		inline constexpr int min = CorePrValue::Opzx7Detune::Mul::min;
+		inline constexpr int max = CorePrValue::Opzx7Detune::Mul::max;
+		inline constexpr int initial = CorePrValue::Opzx7Detune::Mul::initial;
 	}
 
 	namespace MulRatio
 	{
-		inline constexpr float min = 0.5f;
-		inline constexpr float max = 27.57f;
-		inline constexpr float initial = 1.0f;
+		inline constexpr float min = CorePrValue::Opzx7Detune::MulRatio::min;
+		inline constexpr float max = CorePrValue::Opzx7Detune::MulRatio::max;
+		inline constexpr float initial = CorePrValue::Opzx7Detune::MulRatio::initial;
 	}
 
 	namespace Dt1
 	{
-		inline constexpr int min = 0;
-		inline constexpr int max = 15;
-		inline constexpr int initial = 0;
+		inline constexpr int min = CorePrValue::Opzx7Detune::Dt1::min;
+		inline constexpr int max = CorePrValue::Opzx7Detune::Dt1::max;
+		inline constexpr int initial = CorePrValue::Opzx7Detune::Dt1::initial;
 	}
 
 	namespace Dt2
 	{
-		inline constexpr int min = 0;
-		inline constexpr int max = 3;
-		inline constexpr int initial = 0;
+		inline constexpr int min = CorePrValue::Opzx7Detune::Dt2::min;
+		inline constexpr int max = CorePrValue::Opzx7Detune::Dt2::max;
+		inline constexpr int initial = CorePrValue::Opzx7Detune::Dt2::initial;
 	}
 
 	namespace SsgSwEnv
 	{
 		namespace Bypass
 		{
-			inline constexpr float initial = true; // 初期値
+			inline constexpr float initial = CorePrValue::SsgSwEnv::Bypass::initial;
 		}
 
 		namespace Steps
 		{
-			inline constexpr int min = 1;
-			inline constexpr int max = 5;
-			inline constexpr int initial = 5;
+			inline constexpr int min = CorePrValue::SsgSwEnv::Steps::min;
+			inline constexpr int max = CorePrValue::SsgSwEnv::Steps::max;
+			inline constexpr int initial = CorePrValue::SsgSwEnv::Steps::initial;
 		}
 
 		namespace Loop
 		{
-			inline constexpr float initial = false;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::Loop::initial;
 		}
 
 		namespace LoopTo
 		{
-			inline constexpr int min = 0;
-			inline constexpr int max = 3;
-			inline constexpr int initial = 0;
+			inline constexpr int min = CorePrValue::SsgSwEnv::LoopTo::min;
+			inline constexpr int max = CorePrValue::SsgSwEnv::LoopTo::max;
+			inline constexpr int initial = CorePrValue::SsgSwEnv::LoopTo::initial;
 		}
 
 		namespace LoopCount
 		{
-			inline constexpr int min = 0;
-			inline constexpr int max = 200;
-			inline constexpr int initial = 0;
+			inline constexpr int min = CorePrValue::SsgSwEnv::LoopCount::min;
+			inline constexpr int max = CorePrValue::SsgSwEnv::LoopCount::max;
+			inline constexpr int initial = CorePrValue::SsgSwEnv::LoopCount::initial;
 		}
 
 		namespace R1
 		{
-			inline constexpr float min = 0.0f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R1::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R1::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R1::initial;
 		}
 
 		namespace R2
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R2::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R2::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R2::initial;
 		}
 
 		namespace R3
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R3::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R3::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R3::initial;
 		}
 
 		namespace R4
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R4::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R4::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R4::initial;
 		}
 
 		namespace R5
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R5::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R5::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R5::initial;
 		}
 
 		namespace R6
 		{
-			inline constexpr float min = 0.00f; // 最小値（秒）
-			inline constexpr float max = 5.0f;  // 最大値（秒）
-			inline constexpr float initial = 0.0f; // 初期値（秒）
+			inline constexpr float min = CorePrValue::SsgSwEnv::R6::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::R6::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::R6::initial;
 		}
 
 		namespace Stl
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::Stl::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::Stl::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::Stl::initial;
 		}
 
 		namespace L1
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L1::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L1::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L1::initial;
 		}
 
 		namespace L2
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L2::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L2::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L2::initial;
 		}
 
 		namespace L3
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L3::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L3::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L3::initial;
 		}
 
 		namespace L4
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L4::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L4::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L4::initial;
 		}
 
 		namespace L5
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L5::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L5::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L5::initial;
 		}
 
 		namespace L6
 		{
-			inline constexpr float min = 0.0f; // 最小値
-			inline constexpr float max = 1.0f;  // 最大値
-			inline constexpr float initial = 0.0f; // 初期値
+			inline constexpr float min = CorePrValue::SsgSwEnv::L6::min;
+			inline constexpr float max = CorePrValue::SsgSwEnv::L6::max;
+			inline constexpr float initial = CorePrValue::SsgSwEnv::L6::initial;
 		}
 	}
 }

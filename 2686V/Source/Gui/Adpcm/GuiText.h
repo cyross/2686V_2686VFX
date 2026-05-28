@@ -21,6 +21,8 @@ namespace AdpcmGuiText
 
 	namespace Category
 	{
+		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
+		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";

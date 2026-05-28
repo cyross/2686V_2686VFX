@@ -215,6 +215,9 @@ static std::vector<SelectItem> opzx7WsItems = {
 
 void GuiOpzx7::setup()
 {
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
             addAndMakeVisible(btn);
@@ -243,6 +246,9 @@ void GuiOpzx7::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
     qualityCat.setupHwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleQuality, .invisibleTitle = Opzx7GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
@@ -417,6 +423,7 @@ void GuiOpzx7::setup()
         rgEn[i].setWantsKeyboardFocus(true);
         rgEn[i].setExplicitFocusOrder(++tabOrder);
         rgEn[i].onStateChange = [this, i] {
+            updateOpGraph(i); // RG_ENを切り替えるときにアンプエンベロープの内容を切り替える
             ctx.editor.resized();
             };
 
@@ -807,7 +814,8 @@ void GuiOpzx7::setup()
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        catMml[i].setupOtherCategory({ .parent = *this, .title = Opzx7GuiText::Category::mml });
+        addAndMakeVisible(mmlSeparator[i]);
+        mmlSeparator[i].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -817,6 +825,9 @@ void GuiOpzx7::setup()
             .hintMessage = "e.g. AR:31/RAR:0 D1R:0 D1L:0 D2R:0 RR:15 TL:0 MUL:1 DT1:0 DT2:0",
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
+
+        setupGraph(i);
+        updateOpGraph(i);
 
         updateMulRatioEnable(i);
     }
@@ -834,8 +845,20 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
+
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+
+    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+
+    auto imgArea = mRect.removeFromTop(120);
+    algImageComp.setBounds(imgArea);
+
+    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
     layoutPanpotCat(mRect);
@@ -848,10 +871,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutMvolCat(mRect);
 
-    auto imgArea = mRect.removeFromBottom(100);
-    algImageComp.setBounds(imgArea);
-    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
     {
@@ -863,6 +882,10 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         // 枠線の内側
         auto innerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
         innerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
+
+        // グラフ用の区画を確保
+        layoutOpGraph(i, innerRect);
+        updateOpGraph(i);
 
         bool rgMode = rgEn[i].getToggleState();
 		int selectedWs = ws[i].getSelectedId();
@@ -923,8 +946,12 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         layoutOpMaskCat(i, innerRect);
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
+        // 区切り線エリアを確保
+        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
+        mmlSeparator[i].setBounds(mmlSeparatorArea);
+
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
+
         updateOnWsChange(i);
     }
 
@@ -1053,7 +1080,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     pcmRatio[idx].setEnabledWithLabel(enable);
     catMask[idx].setEnabled(enable);
     mask[idx].setEnabled(enable);
-    catMml[idx].setEnabled(enable);
+    mmlSeparator[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
     rgEn[idx].setEnabled(enable);
     rgAr[idx].setEnabledWithLabel(enable);
@@ -1547,5 +1574,314 @@ void GuiOpzx7::applyOpSsgSwEnvLoopValues(int opIndex, bool enabled)
         if (steps - loopTo < 2) {
             ssgSwLoopTo[opIndex].setValue(steps - 2);
         }
+    }
+}
+
+void GuiOpzx7::setupGraph(int opIndex)
+{
+    addAndMakeVisible(&opGraphs[opIndex]); // グラフを追加
+
+    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp[opIndex].setToggleState(true, juce::dontSendNotification); // デフォルトON
+    graphBtnAmp[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Amp); };
+
+    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Pitch); };
+
+    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw); };
+
+    auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
+
+    ar[opIndex].onValueChange = repaintGraph;
+    d1r[opIndex].onValueChange = repaintGraph;
+    d2r[opIndex].onValueChange = repaintGraph;
+    d1l[opIndex].onValueChange = repaintGraph;
+    rr[opIndex].onValueChange = repaintGraph;
+    tl[opIndex].onValueChange = repaintGraph;
+    rgAr[opIndex].onValueChange = repaintGraph;
+    rgD1r[opIndex].onValueChange = repaintGraph;
+    rgD2r[opIndex].onValueChange = repaintGraph;
+    rgD1l[opIndex].onValueChange = repaintGraph;
+    rgRr[opIndex].onValueChange = repaintGraph;
+    rgTl[opIndex].onValueChange = repaintGraph;
+    sus[opIndex].onStateChange = repaintGraph;
+    xof[opIndex].onStateChange = repaintGraph;
+
+    pitchAttack[opIndex].onValueChange = repaintGraph;
+    pitchDecay[opIndex].onValueChange = repaintGraph;
+    pitchRelease[opIndex].onValueChange = repaintGraph;
+    pitchStartLevel[opIndex].onValueChange = repaintGraph;
+    pitchAttackLevel[opIndex].onValueChange = repaintGraph;
+    pitchSustainLevel[opIndex].onValueChange = repaintGraph;
+    pitchReleaseLevel[opIndex].onValueChange = repaintGraph;
+
+    ssgSwEnvLoop[opIndex].onStateChange = repaintGraph;
+
+    ssgSwSteps[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
+        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopTo[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
+        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopCount[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
+        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
+        repaintGraph();
+        };
+
+    ssgSwR1[opIndex].onValueChange = repaintGraph;
+    ssgSwR2[opIndex].onValueChange = repaintGraph;
+    ssgSwR3[opIndex].onValueChange = repaintGraph;
+    ssgSwR4[opIndex].onValueChange = repaintGraph;
+    ssgSwR5[opIndex].onValueChange = repaintGraph;
+    ssgSwR6[opIndex].onValueChange = repaintGraph;
+
+    ssgSwStartLevel[opIndex].onValueChange = repaintGraph;
+    ssgSwL1[opIndex].onValueChange = repaintGraph;
+    ssgSwL2[opIndex].onValueChange = repaintGraph;
+    ssgSwL3[opIndex].onValueChange = repaintGraph;
+    ssgSwL4[opIndex].onValueChange = repaintGraph;
+    ssgSwL5[opIndex].onValueChange = repaintGraph;
+    ssgSwL6[opIndex].onValueChange = repaintGraph;
+
+    addAndMakeVisible(graphSeparator[opIndex]);
+    graphSeparator[opIndex].setup({.lineThick = 2.0f, .lineColour = juce::Colours::grey});
+}
+
+void GuiOpzx7::setGraphMode(int opIndex, GraphMode mode)
+{
+    currentGraphMode[opIndex] = mode;
+
+    // ラジオボタン的な排他制御
+    graphBtnAmp[opIndex].setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch[opIndex].setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg[opIndex].setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+
+    // モードが変わったらグラフを描画し直す
+    updateOpGraph(opIndex);
+}
+
+void GuiOpzx7::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(Opzx7GuiValue::ParamGroup::Graph::height + Opzx7GuiValue::ParamGroup::Separator::height);
+
+    // 区切り線エリアを確保
+    auto separatorArea = mainArea.removeFromBottom(Opzx7GuiValue::ParamGroup::Separator::height);
+
+    graphSeparator[opIndex].setBounds(separatorArea);
+
+    // そのうち下部20pxをボタンエリアにする
+    auto btnArea = mainArea.removeFromBottom(Opzx7GuiValue::ParamGroup::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    graphBtnAmp[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnPitch[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg[opIndex].setBounds(btnArea);
+
+    // 残りをグラフエリアにする
+    opGraphs[opIndex].setBounds(mainArea);
+}
+
+// グラフを再計算して描画
+void GuiOpzx7::updateOpGraph(int opIndex)
+{
+    GraphMode mode = currentGraphMode[opIndex];
+
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    int posIdx = opIndex + 1; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
+
+    // =============================================================
+    // Pitch Env
+    // =============================================================
+    if (mode == GraphMode::Pitch) {
+        opGraphs[opIndex].updatePitchEnv(
+            pitchAttack[opIndex],
+            pitchDecay[opIndex],
+            pitchRelease[opIndex],
+            pitchStartLevel[opIndex],
+            pitchAttackLevel[opIndex],
+            pitchSustainLevel[opIndex],
+            pitchReleaseLevel[opIndex],
+            p_curveCore,
+            isCurveMode,
+            posIdx
+        );
+    }
+    // =============================================================
+    // SSG SW Env
+    // =============================================================
+    else if (mode == GraphMode::SsgSw) {
+        opGraphs[opIndex].updateSsgSwEnv(
+            ssgSwSteps[opIndex],
+            ssgSwEnvLoop[opIndex],
+            ssgSwLoopTo[opIndex],
+            ssgSwLoopCount[opIndex],
+            { nullptr, &ssgSwR1[opIndex], &ssgSwR2[opIndex], &ssgSwR3[opIndex], &ssgSwR4[opIndex], &ssgSwR5[opIndex], &ssgSwR6[opIndex] },
+            { &ssgSwStartLevel[opIndex], &ssgSwL1[opIndex], &ssgSwL2[opIndex], &ssgSwL3[opIndex], &ssgSwL4[opIndex], &ssgSwL5[opIndex], &ssgSwL6[opIndex] },
+            p_curveCore,
+            isCurveMode,
+            posIdx
+        );
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
+    else {
+
+        // -------------------------------------------------------------
+        // Helper: 幅の計算 (Amp 用)
+        // -------------------------------------------------------------
+        auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+            if (rateValue <= 0.0f) return maxWidth;
+            float norm = 1.0f - (rateValue / maxRate);
+            return maxWidth * norm;
+            };
+
+        // -------------------------------------------------------------
+        // Helper: カーブ関数を生成する
+        // -------------------------------------------------------------
+        auto getCurveFunc = [this, isCurveMode](int posIdx, int targetIdx, int prmIdx) {
+            return [this, isCurveMode, posIdx, targetIdx, prmIdx](float progress) -> float {
+                if (!isCurveMode || p_curveCore == nullptr) return progress;
+                return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+                };
+            };
+
+        bool isRg = rgEn[opIndex].getToggleState();
+        bool isSus = sus[opIndex].getToggleState();
+        bool isXof = xof[opIndex].getToggleState();
+
+        auto getValue = [isRg](GuiSlider& rgSlider, GuiSlider& realSlider) -> float {
+            return isRg ? (float)rgSlider.getValue() : (float)realSlider.getValue();
+            };
+
+        auto getMax = [isRg](GuiSlider& rgSlider, GuiSlider& realSlider) -> float {
+            return isRg ? (float)rgSlider.getMaximum() : (float)realSlider.getMaximum();
+            };
+
+        float arMax = getMax(rgAr[opIndex], ar[opIndex]);
+        float d1rMax = getMax(rgD1r[opIndex], d1r[opIndex]);
+        float d2rMax = getMax(rgD2r[opIndex], d2r[opIndex]);
+        float d1lMax = getMax(rgD1l[opIndex], d1l[opIndex]);
+        float rrMax = getMax(rgRr[opIndex], rr[opIndex]);
+        float tlMax = getMax(rgTl[opIndex], tl[opIndex]);
+
+        float arVal = getValue(rgAr[opIndex], ar[opIndex]);
+        float d1rVal = getValue(rgD1r[opIndex], d1r[opIndex]);
+        float d2rVal = getValue(rgD2r[opIndex], d2r[opIndex]);
+        float d1lVal = getValue(rgD1l[opIndex], d1l[opIndex]);
+        float rrVal = getValue(rgRr[opIndex], rr[opIndex]);
+        float tlVal = getValue(rgTl[opIndex], tl[opIndex]);
+
+        float sl = isRg ? (d1lMax - d1lVal) / d1lMax : d1lVal / d1lMax; // 15=0.0, 0=1.0
+        float tlScale = isRg ? 1.0f - (tlVal / tlMax) : tlVal / tlMax; // TL=127で無音
+
+        std::vector<GuiEnvelopeGraph::PhaseDef> phases;
+        auto color = juce::Colours::cyan;
+        int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
+
+        float currentTotalWidth = 0.0f;
+
+        // 1. Attack
+        float attackWidth = rateToWidth(arVal, arMax);
+        phases.push_back({
+            .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
+            .phaseLineColor = juce::Colours::red
+            });
+        currentTotalWidth += attackWidth;
+
+        // 2. Decay 1
+        float decayWidth = rateToWidth(d1rVal, d1rMax);
+        phases.push_back({
+            .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
+            .phaseLineColor = juce::Colours::blue
+            });
+        currentTotalWidth += decayWidth;
+
+        // 3. Sustain (D2R) の実線部分 (キーオン中)
+        float releaseStartLevel = sl;
+        float keyOnWidth = 60.0f;
+        float sustainTotalWidth = 0.0f;
+
+        if (d2rVal > 0.0f) {
+            sustainTotalWidth = rateToWidth(d2rVal, d2rMax, 300.0f);
+
+            // カーブを加味したレベル計算
+            float decayRatio = sustainTotalWidth / 300.0f;
+            auto curveFunce = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr);
+            float drCurvedRatio = curveFunce(1.0f);
+            float rrCurvedRatio = curveFunce(0.5f);
+            releaseStartLevel = sl - (sl * rrCurvedRatio);
+
+            phases.push_back({
+                .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr),
+                .phaseLineColor = juce::Colours::green
+                });
+
+            currentTotalWidth += sustainTotalWidth * 0.5f;
+        }
+        else {
+            phases.push_back({
+                .widthPx = keyOnWidth,
+                .startLevel = sl * tlScale,
+                .endLevel = sl * tlScale, 
+                .color = color,
+                .phaseLineColor = juce::Colours::green
+                });
+
+            currentTotalWidth += keyOnWidth;
+        }
+
+        float noteOffPositionX = currentTotalWidth;
+
+        // 4. Release (通常時のみカーブを適用)
+        if (isXof) {
+            phases.push_back({
+                .widthPx = 100.0f,
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = releaseStartLevel * tlScale,
+                .isDashed = true,
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
+        else if (isSus) {
+            phases.push_back({
+                .widthPx = rateToWidth(5.0f, rrMax, 200.0f),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = 0.0f, 
+                .isDashed = true, 
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
+        else {
+            phases.push_back({
+                .widthPx = rateToWidth(rrVal, rrMax),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = 0.0f,
+                .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
+
+        opGraphs[opIndex].setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
     }
 }

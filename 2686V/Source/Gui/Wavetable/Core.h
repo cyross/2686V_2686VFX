@@ -7,6 +7,9 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 // ==========================================================
 // Waveform Drawing Container (Super Lightweight Custom Paint)
@@ -560,6 +563,22 @@ class GuiWt : public GuiBase
 
     // Preset Name Label
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
+
+    GuiEnvelopeGraph graph;
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiSeparator graphSeparator;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    GraphMode currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateGraph();
+    void setGraphMode(GraphMode mode);
 public:
 	GuiWt(const GuiContext& context) :
         GuiBase(context),
@@ -646,8 +665,14 @@ public:
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        presetNameSeparator(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context),
+        graphSeparator(context)
     {
+        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
@@ -669,4 +694,6 @@ public:
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
+    void setupGraph();
+    void layoutGraph(juce::Rectangle<int>& rect);
 };

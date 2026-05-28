@@ -12,6 +12,11 @@ namespace CurveGuiValue
 			static inline constexpr int height = 10;
 		}
 
+		namespace Separator
+		{
+			static inline constexpr int height = 20;
+		}
+
 		namespace Row
 		{
 			static inline constexpr int height = 24;

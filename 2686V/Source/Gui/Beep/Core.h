@@ -4,6 +4,9 @@
 
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
@@ -22,7 +25,11 @@ class GuiBeep : public GuiBase {
 
 
     GuiToggleButton bypassToggle;
-    GuiSlider ar, dr, sl, rr, stl;
+    GuiSlider startLevelSlider;
+    GuiSlider attackSlider;
+    GuiSlider decaySlider;
+    GuiSlider sustainSlider;
+    GuiSlider releaseSlider;
 
     // Pitch ADSR
     GuiCategoryLabel pitchAdsrCat;
@@ -71,6 +78,22 @@ class GuiBeep : public GuiBase {
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
+
+    GuiEnvelopeGraph graph;
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
+    GuiSeparator graphSeparator;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    GraphMode currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateGraph();
+    void setGraphMode(GraphMode mode);
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
@@ -80,7 +103,11 @@ public:
         fixToggle(context), freqSlider(context), freqTo2kBtn(context),
         adsrCat(context),
         bypassToggle(context),
-        ar(context), dr(context), sl(context), rr(context), stl(context),
+        startLevelSlider(context),
+        attackSlider(context),
+        decaySlider(context),
+        sustainSlider(context),
+        releaseSlider(context),
         pitchAdsrCat(context),
         pitchAdsrBypassButton(context),
         pitchAttackSlider(context),
@@ -117,8 +144,14 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        presetNameSeparator(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphBtnSsg(context),
+        graphSeparator(context)
     {
+        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
     void setup() override;
@@ -133,4 +166,6 @@ public:
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
+    void setupGraph();
+    void layoutGraph(juce::Rectangle<int>& rect);
 };

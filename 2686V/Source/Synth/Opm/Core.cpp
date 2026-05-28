@@ -82,6 +82,8 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote) {
 
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
+    m_rateAccumulator = 0.0; // レートの余りもリセット
+
     m_lfo.noteOn();
 }
 void OpmCore::noteOff() {

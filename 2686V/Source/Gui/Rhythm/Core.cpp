@@ -48,6 +48,9 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
 {
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
             addAndMakeVisible(btn);
@@ -99,6 +102,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             // 2. ファイル名表示を更新
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
+
+    optionalCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleOptional, .invisibleTitle = RhythmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
@@ -199,6 +204,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     pitchReleaseLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::rll, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::rll, .isReset = true });
     pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
     pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+
+    setupGraph();
+    updateGraph();
 }
 
 void RhythmPadGui::layout(juce::Rectangle<int> content)
@@ -209,12 +217,15 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     padRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
+    // グラフ用の区画を確保
+    layoutGraph(padRect);
+    updateGraph();
+
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
-    layoutRow({ .rowRect = padRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
-    layoutRow({ .rowRect = padRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
-    layoutRow({ .rowRect = padRect, .component = &oneShotButton });
-    layoutRow({ .rowRect = padRect, .label = &noteSlider.label, .component = &noteSlider, });
+
+    layoutOptionalCat(padRect);
 
     layoutPanCat(padRect);
 
@@ -297,7 +308,6 @@ void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
     }
 }
 
-
 void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
@@ -326,6 +336,129 @@ void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
     }
 }
 
+void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    oneShotButton.setVisible(visible);
+    pcmOffsetSlider.setVisibleWithLabel(visible);
+    pcmRatioSlider.setVisibleWithLabel(visible);
+    noteSlider.setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+        layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+        layoutRow({ .rowRect = rect, .component = &oneShotButton });
+        layoutRow({ .rowRect = rect, .label = &noteSlider.label, .component = &noteSlider, });
+    }
+}
+
+void RhythmPadGui::setupGraph()
+{
+    addAndMakeVisible(&graph); // グラフを追加
+
+    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
+    graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
+
+    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
+
+    auto repaintGraph = [this]() { updateGraph(); };
+
+    startLevelSlider.onValueChange = repaintGraph;
+    attackSlider.onValueChange = repaintGraph;
+    decaySlider.onValueChange = repaintGraph;
+    sustainSlider.onValueChange = repaintGraph;
+    releaseSlider.onValueChange = repaintGraph;
+
+    pitchAttackSlider.onValueChange = repaintGraph;
+    pitchDecaySlider.onValueChange = repaintGraph;
+    pitchReleaseSlider.onValueChange = repaintGraph;
+    pitchStartLevelSlider.onValueChange = repaintGraph;
+    pitchAttackLevelSlider.onValueChange = repaintGraph;
+    pitchSustainLevelSlider.onValueChange = repaintGraph;
+    pitchReleaseLevelSlider.onValueChange = repaintGraph;
+
+    addAndMakeVisible(graphSeparator);
+    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+}
+
+void RhythmPadGui::setGraphMode(GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+
+    // モードが変わったらグラフを描画し直す
+    updateGraph();
+}
+
+void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(RhythmGuiValue::Pad::Graph::height + RhythmGuiValue::Pad::Separator::height);
+
+    // 区切り線エリアを確保
+    auto separatorArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Separator::height);
+
+    graphSeparator.setBounds(separatorArea);
+
+    // そのうち下部20pxをボタンエリアにする
+    auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 2;
+
+    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
+
+    // 残りをグラフエリアにする
+    graph.setBounds(mainArea);
+}
+
+// グラフを再計算して描画
+void RhythmPadGui::updateGraph()
+{
+    GraphMode mode = currentGraphMode;
+
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    // =============================================================
+    // Pitch Env
+    // =============================================================
+    if (mode == GraphMode::Pitch) {
+        graph.updatePitchEnv(
+            pitchAttackSlider,
+            pitchDecaySlider,
+            pitchReleaseSlider,
+            pitchStartLevelSlider,
+            pitchAttackLevelSlider,
+            pitchSustainLevelSlider,
+            pitchReleaseLevelSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
+    else {
+        graph.updateAmpEnv(
+            startLevelSlider,
+            attackSlider,
+            decaySlider,
+            sustainSlider,
+            releaseSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+}
+
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -340,6 +473,9 @@ void GuiRhythm::setup()
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
     levelSlider.setup({ .parent = *this, .id = code + RhythmPrKey::level, .title = RhythmGuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -383,12 +519,16 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
+
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     layoutMvolCat(mRect);
 
-    auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
-    auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Rhythm::Pad::height);
+    auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
+    auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
 
     // Remaining area for 8 pads
     applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);

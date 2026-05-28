@@ -8,6 +8,9 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class GuiOpm : public GuiBase
 {
@@ -81,6 +84,7 @@ class GuiOpm : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 8> algImages;
@@ -131,7 +135,7 @@ class GuiOpm : public GuiBase
     std::array<GuiTextButton, Global::Fm::Op4> freqTo440;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
+    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     std::array<GuiSlider, Global::Fm::Op4> rgAr;
@@ -142,6 +146,21 @@ class GuiOpm : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
 
     void applyMmlString(const juce::String& mml, int opIndex);
+
+    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
+    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
+    std::array<GuiSeparator, Global::Fm::Op4> graphSeparator;
+
+    enum class GraphMode { Amp, Pitch, SsgSw };
+    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateOpGraph(int opIndex);
+    void setGraphMode(int opIndex, GraphMode mode);
 public:
     GuiOpm(const GuiContext& context) :
         GuiBase(context),
@@ -216,7 +235,7 @@ public:
         freqTo440{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -225,8 +244,14 @@ public:
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         monoModeToggle(context),
-        presetNameLabel(context)
+        presetNameLabel(context),
+        presetNameSeparator(context),
+        graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
     {
+        currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }
 
@@ -252,4 +277,6 @@ public:
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
+    void setupGraph(int opIndex);
+    void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

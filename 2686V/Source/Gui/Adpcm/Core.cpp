@@ -88,12 +88,18 @@ void GuiAdpcm::setup()
     const juce::String code = AdpcmPrKey::prefix;
     int tabOrder = 1;
 
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     mainGroup.setup(*this, AdpcmGuiText::Group::mainGroup);
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
     qualityCat.setupHwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
@@ -109,6 +115,8 @@ void GuiAdpcm::setup()
 	levelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
+
+    optionalCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
     loopButton.setup({ .parent = *this, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
@@ -344,6 +352,9 @@ void GuiAdpcm::setup()
             // 2. ラベル表示をクリア
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
+
+    setupGraph();
+    updateGraph();
 }
 
 void GuiAdpcm::layout(juce::Rectangle<int> content)
@@ -357,11 +368,19 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(AdpcmGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
+
+    // グラフ用の区画を確保
+    layoutGraph(mRect);
+    updateGraph();
+
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMain({ .mainRect = mRect, .component = &loopButton });
-    layoutMain({ .mainRect = mRect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
-    layoutMain({ .mainRect = mRect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+
+    layoutOptionalCat(mRect);
 
     layoutPanCat(mRect);
 
@@ -609,5 +628,183 @@ void GuiAdpcm::applySsgSwEnvLoopValues(bool enabled)
         if (steps - loopTo < 2) {
             ssgSwLoopToSlider.setValue(steps - 2);
         }
+    }
+}
+
+void GuiAdpcm::layoutOptionalCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    loopButton.setVisible(visible);
+    pcmOffsetSlider.setVisibleWithLabel(visible);
+    pcmRatioSlider.setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutMain({ .mainRect = rect, .component = &loopButton });
+        layoutMain({ .mainRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
+        layoutMain({ .mainRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
+    }
+}
+
+void GuiAdpcm::setupGraph()
+{
+    addAndMakeVisible(&graph); // グラフを追加
+
+    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
+    graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
+
+    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
+
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    auto repaintGraph = [this]() { updateGraph(); };
+
+    startLevelSlider.onValueChange = repaintGraph;
+    attackSlider.onValueChange = repaintGraph;
+    decaySlider.onValueChange = repaintGraph;
+    sustainSlider.onValueChange = repaintGraph;
+    releaseSlider.onValueChange = repaintGraph;
+
+    pitchAttackSlider.onValueChange = repaintGraph;
+    pitchDecaySlider.onValueChange = repaintGraph;
+    pitchReleaseSlider.onValueChange = repaintGraph;
+    pitchStartLevelSlider.onValueChange = repaintGraph;
+    pitchAttackLevelSlider.onValueChange = repaintGraph;
+    pitchSustainLevelSlider.onValueChange = repaintGraph;
+    pitchReleaseLevelSlider.onValueChange = repaintGraph;
+
+    ssgSwEnvLoopButton.onStateChange = repaintGraph;
+
+    ssgSwStepsSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopToSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+    ssgSwLoopCountSlider.onValueChange = [this, repaintGraph]() {
+        // 既存のループ設定ロジックを呼んだ後に再描画
+        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
+        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
+        repaintGraph();
+        };
+
+    ssgSwR1Slider.onValueChange = repaintGraph;
+    ssgSwR2Slider.onValueChange = repaintGraph;
+    ssgSwR3Slider.onValueChange = repaintGraph;
+    ssgSwR4Slider.onValueChange = repaintGraph;
+    ssgSwR5Slider.onValueChange = repaintGraph;
+    ssgSwR6Slider.onValueChange = repaintGraph;
+
+    ssgSwStartLevelSlider.onValueChange = repaintGraph;
+    ssgSwL1Slider.onValueChange = repaintGraph;
+    ssgSwL2Slider.onValueChange = repaintGraph;
+    ssgSwL3Slider.onValueChange = repaintGraph;
+    ssgSwL4Slider.onValueChange = repaintGraph;
+    ssgSwL5Slider.onValueChange = repaintGraph;
+    ssgSwL6Slider.onValueChange = repaintGraph;
+
+    addAndMakeVisible(graphSeparator);
+    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+}
+
+void GuiAdpcm::setGraphMode(GraphMode mode)
+{
+    currentGraphMode = mode;
+
+    // ラジオボタン的な排他制御
+    graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
+    graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+
+    // モードが変わったらグラフを描画し直す
+    updateGraph();
+}
+
+void GuiAdpcm::layoutGraph(juce::Rectangle<int>& rect)
+{
+    auto mainArea = rect.removeFromTop(AdpcmGuiValue::MainGroup::Graph::height + AdpcmGuiValue::MainGroup::Separator::height);
+
+    // 区切り線エリアを確保
+    auto separatorArea = mainArea.removeFromBottom(AdpcmGuiValue::MainGroup::Separator::height);
+
+    graphSeparator.setBounds(separatorArea);
+
+    // そのうち下部20pxをボタンエリアにする
+    auto btnArea = mainArea.removeFromBottom(AdpcmGuiValue::MainGroup::Graph::ButtonHeight);
+    int btnWidth = btnArea.getWidth() / 3;
+
+    graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg.setBounds(btnArea);
+
+    // 残りをグラフエリアにする
+    graph.setBounds(mainArea);
+}
+
+// グラフを再計算して描画
+void GuiAdpcm::updateGraph()
+{
+    GraphMode mode = currentGraphMode;
+
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    // =============================================================
+    // Pitch Env
+    // =============================================================
+    if (mode == GraphMode::Pitch) {
+        graph.updatePitchEnv(
+            pitchAttackSlider,
+            pitchDecaySlider,
+            pitchReleaseSlider,
+            pitchStartLevelSlider,
+            pitchAttackLevelSlider,
+            pitchSustainLevelSlider,
+            pitchReleaseLevelSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+    // =============================================================
+    // SSG SW Env
+    // =============================================================
+    else if (mode == GraphMode::SsgSw) {
+        graph.updateSsgSwEnv(
+            ssgSwStepsSlider,
+            ssgSwEnvLoopButton,
+            ssgSwLoopToSlider,
+            ssgSwLoopCountSlider,
+            { nullptr, &ssgSwR1Slider, &ssgSwR2Slider, &ssgSwR3Slider, &ssgSwR4Slider, &ssgSwR5Slider, &ssgSwR6Slider },
+            { &ssgSwStartLevelSlider, &ssgSwL1Slider, &ssgSwL2Slider, &ssgSwL3Slider, &ssgSwL4Slider, &ssgSwL5Slider, &ssgSwL6Slider },
+            p_curveCore,
+            isCurveMode,
+            0
+        );
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
+    else {
+        graph.updateAmpEnv(
+            startLevelSlider,
+            attackSlider,
+            decaySlider,
+            sustainSlider,
+            releaseSlider,
+            p_curveCore,
+            isCurveMode,
+            0
+        );
     }
 }

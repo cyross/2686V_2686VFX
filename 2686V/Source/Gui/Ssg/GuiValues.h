@@ -16,7 +16,7 @@ namespace SsgGuiValue
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 8;
+		static inline constexpr int paddingBottom = 2;
 	}
 
 	namespace Category
@@ -59,6 +59,17 @@ namespace SsgGuiValue
 	namespace MainGroup
 	{
 		static inline constexpr int width = 260;
+
+		namespace Graph
+		{
+			static inline constexpr int height = 120;
+			static inline constexpr int ButtonHeight = 16;
+		}
+
+		namespace Separator
+		{
+			static inline constexpr int height = 20;
+		}
 
 		namespace Row
 		{

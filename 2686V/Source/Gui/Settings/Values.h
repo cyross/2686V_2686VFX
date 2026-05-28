@@ -10,7 +10,7 @@ namespace SettingsValue
 	{
 		static inline constexpr bool showTooltip = true;
 		static inline constexpr bool useHeadroom = true;
-		static inline constexpr float headroomGain = 0.25f;
+		static inline constexpr float headroomGain = 0.5f;
 		static inline constexpr bool showVirtualKeyboard = true;
 	};
 

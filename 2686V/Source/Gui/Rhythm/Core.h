@@ -6,6 +6,9 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
+#include "../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../Gui/Curve/Core.h"
+#include "../../Advanced/Curve/Core.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -17,6 +20,9 @@ class RhythmPadGui: public GuiBase
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
     GuiTextButton clearButton;
+
+    GuiCategoryLabel optionalCat;
+
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
 
@@ -58,6 +64,20 @@ class RhythmPadGui: public GuiBase
     GuiSlider pitchAttackLevelSlider;
     GuiSlider pitchSustainLevelSlider;
     GuiSlider pitchReleaseLevelSlider;
+
+    GuiEnvelopeGraph graph;
+    GuiToggleButton graphBtnAmp;
+    GuiToggleButton graphBtnPitch;
+    GuiSeparator graphSeparator;
+
+    enum class GraphMode { Amp, Pitch };
+    GraphMode currentGraphMode;
+
+    CurveCore* p_curveCore;
+    GuiCurve* p_guiCurve;
+
+    void updateGraph();
+    void setGraphMode(GraphMode mode);
 public:
     RhythmPadGui(const GuiContext& context) :
 		GuiBase(context),
@@ -65,6 +85,7 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         qualityCat(context),
@@ -93,9 +114,13 @@ public:
         pitchStartLevelSlider(context),
         pitchAttackLevelSlider(context),
         pitchSustainLevelSlider(context),
-        pitchReleaseLevelSlider(context)
+        pitchReleaseLevelSlider(context),
+        graphBtnAmp(context),
+        graphBtnPitch(context),
+        graphSeparator(context)
     {
-	}
+        currentGraphMode = GraphMode::Amp; // 初期状態はAmp
+    }
 
     void updatePadFileName(const juce::String& fileName);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
@@ -106,6 +131,9 @@ public:
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
+    void layoutOptionalCat(juce::Rectangle<int>& rect);
+    void setupGraph();
+    void layoutGraph(juce::Rectangle<int>& rect);
 };
 
 class GuiRhythm : public GuiBase
@@ -122,6 +150,7 @@ class GuiRhythm : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     // 8 Pads
     std::array<RhythmPadGui, 8> pads;
@@ -133,6 +162,7 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

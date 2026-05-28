@@ -7,7 +7,6 @@
 #include "../../Processor/Curve/Keys.h"
 #include "../../Processor/Curve/Values.h"
 
-#include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiValues.h"
 #include "./GuiText.h"
 #include "../../Core/Gui/GuiStructs.h"
@@ -137,10 +136,12 @@ GuiCurve::GuiCurve(const GuiContext& context) :
     curveGroup(context),
     enable(context),
     position(context),
-    target(context)
+    target(context),
+    mainSeparator(context)
 {
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp] = std::make_unique<GuiLabel>(context);
+        curveGraphs[vp] = std::make_unique<GuiCurveGraph>();
     }
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
@@ -165,11 +166,16 @@ void GuiCurve::setup()
 
     curveGroup.setup(*this, CurveGuiText::curveGroup);
 
+    for (int vp = 0; vp < CurvePrValue::params; vp++) {
+        addAndMakeVisible(curveGraphs[vp].get());
+    }
+
     enable.setup({ .parent = *this, .id = code + CurvePrKey::enable, .title = CurveGuiText::enable, .isReset = true });
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
     enable.onStateChange = [this] {
         updateEnabled();
+        updateVisible();
         ctx.editor.resized();
         };
 
@@ -190,6 +196,9 @@ void GuiCurve::setup()
         updateVisible();
         ctx.editor.resized();
         };
+
+    addAndMakeVisible(mainSeparator);
+    mainSeparator.setup({ .lineRate = 0.8f, .lineThick = 4.0f, .lineColour = juce::Colours::grey });
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setup({ .parent = *this, .title = "" });
@@ -237,6 +246,9 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 {
     juce::String code = CurvePrKey::prefix;
     auto pageArea = content.withZeroOrigin();
+    int p = position.getSelectedItemIndex();
+    int t = target.getSelectedItemIndex();
+    int vpLen = paramLengthes[t];
     int px = CurveGuiValue::CurveGroup::Row::Padding::x;
     int py = CurveGuiValue::CurveGroup::Row::Padding::y;
     int lw = CurveGuiValue::CurveGroup::Row::labelWidth;
@@ -245,12 +257,39 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
     auto mainArea = pageArea.reduced(CurveGuiValue::CurveGroup::Padding::width, CurveGuiValue::CurveGroup::Padding::height);
 
+    auto rightGraphArea = mainArea.removeFromRight(400).reduced(50, 50);
+
+    auto graphSize = rightGraphArea.getWidth() / 2;
+    int graphYItems = 4;
+
+    // グラフを表示しないものは非表示にしておく
+    for (int vp = 0; vp < CurvePrValue::params; vp++) {
+        curveGraphs[vp]->setVisible(vp < vpLen);
+    }
+
+    if (vpLen > 0) {
+        int graphXItems = vpLen / graphYItems;
+
+        for (int x = 0; x <= graphXItems; x++) {
+            auto bRect = rightGraphArea.removeFromLeft(graphSize);
+
+            for (int y = 0; y < 4; y++) {
+                int vp = x * 4 + y;
+
+                if (vp < vpLen) {
+                    auto rect = bRect.removeFromTop(graphSize).reduced(5);
+                    curveGraphs[vp]->setBounds(rect);
+                }
+            }
+        }
+    }
+
     mainArea.removeFromTop(CurveGuiValue::CurveGroup::Padding::height);
 
     int titleWidth = CurveGuiValue::CurveGroup::Row::titleWidth;
     int baseWidth = mainArea.getWidth() - titleWidth;
-    int mainWidth = baseWidth / 4;
-    int valueWidth = baseWidth / 4;
+    int mainWidth = baseWidth / 3;
+    int valueWidth = baseWidth / 3;
 
     auto enRect = mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
 
@@ -266,11 +305,9 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
 
-    mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::paddingY);
-
-    int p = position.getSelectedItemIndex();
-    int t = target.getSelectedItemIndex();
-    int vpLen = paramLengthes[t];
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mainArea.removeFromTop(CurveGuiValue::CurveGroup::Separator::height);
+    mainSeparator.setBounds(presetNameSeparatorArea);
 
     for (int vp = 0; vp < vpLen; vp++) {
         auto vpRect = mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
@@ -298,7 +335,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
         vvRect.removeFromLeft(titleWidth);
 
         for (int vv = 0; vv < values; vv++) {
-            int x = vv % 4;
+            int x = vv % 3;
 
             auto vvvRect = vvRect.removeFromLeft(valueWidth);
 
@@ -306,7 +343,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
             value[p][t][vp][vv]->label.setBounds(vvvRect.removeFromLeft(lw).reduced(px, py));
             value[p][t][vp][vv]->setBounds(vvvRect.reduced(px, py));
 
-            if (x == 3 && vv < values - 1)
+            if (x == 2 && vv < values - 1)
             {
                 mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::valuePaddingY);
 
@@ -324,6 +361,8 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
 void GuiCurve::updateEnabled() {
     bool enabled = enable.getToggleState();
+    int t = target.getSelectedItemIndex();
+    int vpLen = paramLengthes[t];
 
     position.setEnabled(enabled);
     position.label.setEnabled(enabled);
@@ -333,6 +372,7 @@ void GuiCurve::updateEnabled() {
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setEnabled(enabled);
+        curveGraphs[vp]->setEnabled(enabled);
     }
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
@@ -392,4 +432,56 @@ void GuiCurve::updateVisible()
             }
         }
     }
+
+    // グラフを現在の選択状態にバインドする
+    std::vector<GuiSlider*> activeSliders;
+    GuiSlider* activeKSlider = nullptr;
+    int currentLogicNum = 0;
+
+    for (int vp = 0; vp < vpLen; vp++) {
+        if (paramLabel[vp]->isVisible()) {
+            currentLogicNum = logic[selectedPosition][selectedTarget][vp]->getSelectedItemIndex();
+            int valueLen = valueLengthes[currentLogicNum];
+
+            activeKSlider = k[selectedPosition][selectedTarget][vp].get(); // Kを取得
+
+            for (int vv = 0; vv < valueLen; vv++) {
+                activeSliders.push_back(value[selectedPosition][selectedTarget][vp][vv].get());
+            }
+            break;
+        }
+    }
+
+    for (int vp = 0; vp < vpLen; vp++) {
+        if (!paramLabel[vp]->isVisible()) continue;
+
+        int currentLogicNum = logic[selectedPosition][selectedTarget][vp]->getSelectedItemIndex();
+        int valueLen = valueLengthes[currentLogicNum];
+
+        std::vector<GuiSlider*> activeSliders;
+        GuiSlider* activeKSlider = k[selectedPosition][selectedTarget][vp].get();
+
+        for (int vv = 0; vv < valueLen; vv++) {
+            activeSliders.push_back(value[selectedPosition][selectedTarget][vp][vv].get());
+        }
+
+        // タイトルとして "AR" 等のパラメータ名を渡してバインド
+        juce::String graphTitle = paramTitles[selectedTarget][vp];
+        curveGraphs[vp]->bindActiveParameters(graphTitle, currentLogicNum, activeSliders, activeKSlider);
+
+        // スライダーが動いたら「自分自身のグラフだけ」を再描画するようにコールバックを更新
+        auto graphPtr = curveGraphs[vp].get();
+        for (auto* sl : activeSliders) {
+            // ※既存のコールバックを上書きするため、ラムダでキャプチャするgraphPtrを使います
+            sl->onValueChange = [graphPtr]() { graphPtr->repaint(); };
+        }
+        if (activeKSlider != nullptr) {
+            activeKSlider->onValueChange = [graphPtr]() { graphPtr->repaint(); };
+        }
+    }
+}
+
+void GuiCurve::initParams()
+{
+    this->ctx.audioProcessor.initParams("ADV_CURVE_");
 }

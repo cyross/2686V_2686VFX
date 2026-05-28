@@ -920,6 +920,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     case OscMode::WAVETABLE: prWt.processBlock(currentParams, apvts); break;
     case OscMode::RHYTHM:    prRhythm.processBlock(currentParams, apvts); break;
     case OscMode::ADPCM:     prAdpcm.processBlock(currentParams, apvts); break;
+    case OscMode::BEEP:      prBeep.processBlock(currentParams, apvts); break;
     }
 
     if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
@@ -1056,4 +1057,9 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
             voice->setOpzx7WtBuffer(opIndex, nullptr);
         }
     }
+}
+
+CurveCore* AudioPlugin2686V::getCurveCore()
+{
+    return p_curveCore.get();
 }

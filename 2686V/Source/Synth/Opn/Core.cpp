@@ -94,6 +94,9 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
 
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
 
+    m_lfoPhase = 0.0; // LFO位相をリセット
+    m_rateAccumulator = 0.0; // レートの余りもリセット
+
     m_n88Lfo.noteOn();
 }
 
