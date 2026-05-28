@@ -291,15 +291,15 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
     mRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
-    // グラフ用の区画を確保
-    layoutGraph(mRect);
-    updateGraph();
-
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
     auto presetNameSeparatorArea = mRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
+
+    // グラフ用の区画を確保
+    layoutGraph(mRect);
+    updateGraph();
 
     layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
 

@@ -366,15 +366,15 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto mRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
     mRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
 
-    // グラフ用の区画を確保
-    layoutGraph(mRect);
-    updateGraph();
-
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
     auto presetNameSeparatorArea = mRect.removeFromTop(AdpcmGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
+
+    // グラフ用の区画を確保
+    layoutGraph(mRect);
+    updateGraph();
 
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
 
