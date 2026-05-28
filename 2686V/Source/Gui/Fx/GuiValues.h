@@ -37,11 +37,11 @@ namespace FxGuiValue
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
 		static inline constexpr int MainWidth = 300;
-		static inline constexpr int MainHeight = 60;
+		static inline constexpr int MainHeight = 76;
 		static inline constexpr int AreaWidth = 150;
-		static inline constexpr int AreaHeightBig = 150;
-		static inline constexpr int AreaHeightMini = 120;
-		static inline constexpr int AreaHeight = 130;
+		static inline constexpr int AreaHeightBig = 166;
+		static inline constexpr int AreaHeightMini = 136;
+		static inline constexpr int AreaHeight = 146;
 		static inline constexpr int AreaLabelWidth = 40;
 		static inline constexpr int MixBtnWidth = 40;
 		static inline constexpr int GlobalBypassHeight = 120;
@@ -51,5 +51,6 @@ namespace FxGuiValue
 		static inline constexpr int KnobWidth = 120;
 		static inline constexpr int KnobHeight = 60;
 		static inline constexpr int ButtonWidth = 240;
+		static inline constexpr int SeparatorHeight = 16;
 	}
 }

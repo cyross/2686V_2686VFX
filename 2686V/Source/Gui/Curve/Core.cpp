@@ -136,7 +136,8 @@ GuiCurve::GuiCurve(const GuiContext& context) :
     curveGroup(context),
     enable(context),
     position(context),
-    target(context)
+    target(context),
+    mainSeparator(context)
 {
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp] = std::make_unique<GuiLabel>(context);
@@ -195,6 +196,9 @@ void GuiCurve::setup()
         updateVisible();
         ctx.editor.resized();
         };
+
+    addAndMakeVisible(mainSeparator);
+    mainSeparator.setup({ .lineRate = 0.8f, .lineThick = 4.0f, .lineColour = juce::Colours::grey });
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setup({ .parent = *this, .title = "" });
@@ -301,7 +305,9 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
 
-    mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::paddingY);
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mainArea.removeFromTop(CurveGuiValue::CurveGroup::Separator::height);
+    mainSeparator.setBounds(presetNameSeparatorArea);
 
     for (int vp = 0; vp < vpLen; vp++) {
         auto vpRect = mainArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);

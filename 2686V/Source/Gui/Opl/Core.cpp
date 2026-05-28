@@ -99,6 +99,9 @@ void GuiOpl::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
     qualityCat.setupHwCategory({ .parent = *this, .title = OplGuiText::Category::visibleQuality, .invisibleTitle = OplGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
     bitSelector.setup({ .parent = *this, .id = code + OplPrKey::bit, .title = OplGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -442,7 +445,8 @@ void GuiOpl::setup()
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        catMml[i].setupOtherCategory({ .parent = *this, .title = OplGuiText::Category::mml });
+        addAndMakeVisible(mmlSeparator[i]);
+        mmlSeparator[i].setup({.lineThick = 2.0f, .lineColour = juce::Colours::grey});
 
         mml[i].setup({ .parent = *this, .title = "MML", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -469,6 +473,10 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(OplGuiValue::Group::TitlePaddingTop);
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(OplGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
@@ -524,7 +532,10 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         layoutOpMaskCat(i, innerRect);
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catMml[i] });
+        // 区切り線エリアを確保
+        auto mmlSeparatorArea = innerRect.removeFromTop(OplGuiValue::ParamGroup::Separator::height);
+        mmlSeparator[i].setBounds(mmlSeparatorArea);
+
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
     }
 
@@ -604,7 +615,7 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
     amdTo48[idx].setEnabled(enable);
     catMask[idx].setEnabled(enable);
     mask[idx].setEnabled(enable);
-    catMml[idx].setEnabled(enable);
+    mmlSeparator[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
 }
 

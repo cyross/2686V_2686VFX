@@ -474,6 +474,9 @@ void GuiRhythm::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
     levelSlider.setup({ .parent = *this, .id = code + RhythmPrKey::level, .title = RhythmGuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
@@ -515,6 +518,10 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     mRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 

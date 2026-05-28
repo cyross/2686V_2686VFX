@@ -152,6 +152,7 @@ class GuiOpzx7 : public GuiBase
 
     // Preset Name Label
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 36> algImages;
@@ -238,7 +239,7 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
     std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMml;
+    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
     std::array<GuiMmlButton, Global::Fm::Op4> mml;
 
     std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
@@ -379,7 +380,7 @@ public:
 		ssgSwL6{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -392,6 +393,7 @@ public:
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         monoModeToggle(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },

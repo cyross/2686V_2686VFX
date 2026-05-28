@@ -144,6 +144,9 @@ void GuiSsg::setup()
     presetNameLabel.setFont(juce::Font(18.0f));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
+    addAndMakeVisible(presetNameSeparator);
+    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
     qualityCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = *this, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
@@ -549,6 +552,10 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     updateGraph();
 
     layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+
+    // 区切り線エリアを確保
+    auto presetNameSeparatorArea = mRect.removeFromTop(SsgGuiValue::MainGroup::Separator::height);
+    presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     layoutAdsrCat(mRect);
 

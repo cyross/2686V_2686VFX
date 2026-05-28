@@ -58,6 +58,7 @@ class GuiOpl : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 2> algImages;
@@ -104,7 +105,7 @@ class GuiOpl : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op2> eg; // Envlope Generator
     std::array<GuiCategoryLabel, Global::Fm::Op2> catMask;
     std::array<GuiToggleButton, Global::Fm::Op2> mask; // Mask
-    std::array<GuiCategoryLabel, Global::Fm::Op2> catMml;
+    std::array<GuiSeparator, Global::Fm::Op2> mmlSeparator;
     std::array<GuiMmlButton, Global::Fm::Op2> mml;
     std::array<GuiSlider, Global::Fm::Op2> ams;
     std::array<GuiSlider, Global::Fm::Op2> amd;
@@ -202,7 +203,7 @@ public:
         eg{ GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context) },
-        catMml{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        mmlSeparator{ GuiSeparator(context), GuiSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context) },
         ams{ GuiSlider(context), GuiSlider(context) },
         amd{ GuiSlider(context), GuiSlider(context) },
@@ -227,6 +228,7 @@ public:
         sus{ GuiToggleButton(context),GuiToggleButton(context) },
         monoModeToggle(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context) },

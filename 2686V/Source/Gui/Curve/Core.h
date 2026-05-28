@@ -25,6 +25,7 @@ public:
     GuiToggleButton enable;
     GuiComboBox position;
     GuiComboBox target;
+    GuiSeparator mainSeparator;
 
     std::array<std::unique_ptr<GuiLabel>, CurvePrValue::params> paramLabel;
 

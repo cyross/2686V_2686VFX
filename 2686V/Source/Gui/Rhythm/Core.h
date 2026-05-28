@@ -150,6 +150,7 @@ class GuiRhythm : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     // 8 Pads
     std::array<RhythmPadGui, 8> pads;
@@ -161,6 +162,7 @@ public:
         mvolCat(context),
         masterVolSlider(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

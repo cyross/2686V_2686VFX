@@ -143,6 +143,7 @@ class GuiSsg : public GuiBase
 
     // Preset Name Label
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -257,6 +258,7 @@ public:
         masterVolSlider(context),
         monoModeToggle(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

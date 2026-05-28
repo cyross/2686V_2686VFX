@@ -16,7 +16,7 @@ namespace Opzx7GuiValue
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 8;
+		static inline constexpr int paddingBottom = 2;
 	}
 
 	namespace Category
@@ -59,6 +59,11 @@ namespace Opzx7GuiValue
 	namespace MainGroup
 	{
 		static inline constexpr int width = 260;
+
+		namespace Separator
+		{
+			static inline constexpr int height = 20;
+		}
 
 		namespace Row
 		{

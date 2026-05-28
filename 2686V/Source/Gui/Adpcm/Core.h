@@ -98,6 +98,7 @@ class GuiAdpcm : public GuiBase
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
+    GuiSeparator presetNameSeparator;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -176,6 +177,7 @@ public:
         dt2(context),
         rateSelector(context),
         presetNameLabel(context),
+        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

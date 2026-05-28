@@ -11,7 +11,7 @@ namespace WtGuiValue
 
 	namespace PresetName
 	{
-		static inline constexpr int paddingBottom = 8;
+		static inline constexpr int paddingBottom = 2;
 	}
 
 	namespace Category
@@ -54,7 +54,7 @@ namespace WtGuiValue
 
 		namespace Separator
 		{
-			static inline constexpr int height = 16;
+			static inline constexpr int height = 20;
 		}
 
 		namespace Row
