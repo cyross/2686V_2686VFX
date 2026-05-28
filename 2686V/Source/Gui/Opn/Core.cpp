@@ -477,6 +477,14 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+
+    mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
+
+    auto imgArea = mRect.removeFromTop(120);
+    algImageComp.setBounds(imgArea);
+
+    mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
+
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
     layoutN88LfoCat(mRect);
@@ -486,10 +494,6 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     layoutMonoModeCat(mRect);
 
     layoutMvolCat(mRect);
-
-    auto imgArea = mRect.removeFromBottom(100);
-    algImageComp.setBounds(imgArea);
-    mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)

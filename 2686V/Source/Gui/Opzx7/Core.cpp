@@ -851,6 +851,14 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+
+    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+
+    auto imgArea = mRect.removeFromTop(120);
+    algImageComp.setBounds(imgArea);
+
+    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
     layoutPanpotCat(mRect);
@@ -862,10 +870,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     layoutMonoModeCat(mRect);
 
     layoutMvolCat(mRect);
-
-    auto imgArea = mRect.removeFromBottom(100);
-    algImageComp.setBounds(imgArea);
-    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
