@@ -57,6 +57,8 @@ void OplCore::noteOn(float freq, float velocity, int midiNote) {
     float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
 
+    m_rateAccumulator = 0.0; // レートの余りもリセット
+
     m_operators[0].noteOn(freq, gain, noteNum);
     m_operators[1].noteOn(freq, gain, noteNum);
 }

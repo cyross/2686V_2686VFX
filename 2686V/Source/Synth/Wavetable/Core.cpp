@@ -115,6 +115,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     m_currentFrequency = m_detune.noteOn(freq);
     m_phase = 0.0f;
     m_modPhase = 0.0f;
+    m_rateAccumulator = 0.0; // レートの余りもリセット
 
     updatePhaseDelta();
 

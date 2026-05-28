@@ -71,6 +71,8 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
 
     for (auto& op : m_operators) op.noteOn(freq, gain, noteNum);
+
+    m_rateAccumulator = 0.0; // レートの余りもリセット
 }
 void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }
 bool Opl3Core::isPlaying() const {

@@ -123,6 +123,8 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(freq);
     m_phase = 0.0f;
+    m_lfoPhase = 0.0; // LFO位相をリセット
+    m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
@@ -223,15 +225,15 @@ float SsgCore::getSample()
     double stepSize = m_targetRate / m_sampleRate;
     m_rateAccumulator += stepSize;
 
-    // SSG（矩形波）の場合は、線形補間ではなく「平均化(アベレージング)」が正解
-    int steps = 0;
-    float sumOut = 0.0f;
-	float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+    float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)
     {
         m_rateAccumulator -= 1.0;
+
+        // 前回のサンプルを保存 (線形補間用)
+        m_prevSample = m_lastSample;
 
         m_lfo.getSample();
 
@@ -375,15 +377,16 @@ float SsgCore::getSample()
             finalOut = rawMixed;
         }
 
-        sumOut += finalOut;
-        steps++;
+        m_lastSample = finalOut;
     }
 
-    if (steps > 0) {
-        m_lastSample = sumOut / (float)steps;
-    }
+    // 線形補間を適用して波形を滑らかに出力する
+    float fraction = (float)(m_rateAccumulator / stepSize);
+    if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_lastSample * finalEnv * m_baseLevel;
+    float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
+
+    return interpolatedSample * finalEnv * m_baseLevel; 
 }
 
 void SsgCore::updatePhaseDelta() {

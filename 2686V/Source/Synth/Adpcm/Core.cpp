@@ -139,6 +139,8 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
 
     m_hasFinished = false;
 
+    m_lfoPhase = 0.0; // LFO位相をリセット
+
     m_baseLevel = std::max(0.01f, velocity);
     m_currentLevel = m_adsr.noteOn();
     m_pitchAdsr.noteOn();
