@@ -1230,7 +1230,7 @@ void GuiOpn::updateOpGraph(int opIndex)
             .widthPx = rateToWidth(rrVal, rrMax),
             .startLevel = releaseStartLevel * tlScale,
             .endLevel = 0.0f,
-            .color = color,
+            .color = srVal > 0.0f ? juce::Colours::yellow : color,
             .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
             .moveToStart = true,
             .startXOffsetPx = noteOffPositionX
