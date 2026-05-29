@@ -67,12 +67,26 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     float basePixelY = (currentType == EnvType::Pitch) ? graphArea.getCentreY() : graphArea.getBottom();
     float heightScale = (currentType == EnvType::Pitch) ? (graphArea.getHeight() / 2.0f) : graphArea.getHeight();
 
+    bool hasMax = false;
+    float maxX = 0.0f;
+    float maxY = 0.0f;
+    juce::Colour maxColour = juce::Colours::white;
+
     for (const auto& phase : currentPhases) {
-        if (phase.widthPx <= 0.0f) continue;
+        if (phase.widthPx <= 0.0f && !phase.isMax) continue;
 
         // ジャンプ指定がある場合、X座標を移動させて新しい線を引く準備をする
         if (phase.moveToStart) {
             currentPixelX = graphArea.getX() + (phase.startXOffsetPx * scaleX);
+        }
+
+        if (phase.isMax) {
+            hasMax = true;
+            maxX = currentPixelX;
+            maxY = basePixelY - (phase.startLevel * heightScale);
+            maxColour = phase.color;
+
+            continue;
         }
 
         float actualWidth = phase.widthPx * scaleX;
@@ -135,6 +149,11 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             g.setColour(phase.phaseLineColor.withAlpha(0.3f));
             g.drawLine(currentPixelX, graphArea.getY(), currentPixelX, graphArea.getBottom(), 2.0f);
         }
+    }
+
+    if (hasMax) {
+        g.setColour(maxColour);
+        g.drawLine(maxX, maxY, maxX, basePixelY, 2.0f);
     }
 }
 

@@ -1815,7 +1815,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float keyOnWidth = 60.0f;
         float sustainTotalWidth = 0.0f;
 
-        if (d2rVal > 0.0f) {
+        if (d2rVal > 0.0f && d2rVal < d2rMax) {
             sustainTotalWidth = rateToWidth(d2rVal, d2rMax, 300.0f);
 
             // カーブを加味したレベル計算
@@ -1837,7 +1837,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
             phases.push_back({
                 .widthPx = keyOnWidth,
                 .startLevel = sl * tlScale,
-                .endLevel = sl * tlScale, 
+                .endLevel = sl * tlScale,
                 .color = color,
                 .phaseLineColor = juce::Colours::green
                 });
@@ -1878,7 +1878,8 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX,
+                .isMax = (rrVal == rrMax)
                 });
         }
 

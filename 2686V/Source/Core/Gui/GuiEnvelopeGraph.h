@@ -32,6 +32,7 @@ public:
         float startXOffsetPx = 0.0f; // グラフ左端からの相対X座標 (moveToStart が true の場合のみ使用)
         bool drawPhaseLine = true;
         juce::Colour phaseLineColor = juce::Colours::white;
+        bool isMax = false; // 値が最大値 = 縦の直線
     };
 
     void setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases);

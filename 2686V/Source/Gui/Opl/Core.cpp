@@ -1242,7 +1242,8 @@ void GuiOpl::updateOpGraph(int opIndex)
                 .color = color,
                 .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
-                .startXOffsetPx = noteOffPositionX
+                .startXOffsetPx = noteOffPositionX,
+                .isMax = (rrVal == rrMax)
                 });
         }
 
