@@ -392,13 +392,13 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
     this->onClick = [c] {
         // オペレーター番号は 0始まりを想定しているので +1 して表示
         auto* w = new juce::AlertWindow(
-            "MML Input (Op " + juce::String(c.opIndex + 1) + ")",
+            juce::String("") + "MML入力(Op" + juce::String(c.opIndex + 1) + ")",
             c.hintMessage, // ← 外から渡された音源ごとのメッセージ
             juce::AlertWindow::QuestionIcon);
 
         w->addTextEditor("mmlInput", "", "");
-        w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-        w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+        w->addButton(juce::String("") + "決定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+        w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
         // モーダル表示 (ラムダ式には設定値 c と ウィンドウ w をコピーキャプチャする)
         w->enterModalState(true, juce::ModalCallbackFunction::create([c, w](int result) {
