@@ -48,6 +48,7 @@ namespace Opzx7PrKey
 	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 	static inline const juce::String sus = "_SUS";
 	static inline const juce::String xof = "_XOF";
+	static inline const juce::String ampBypass = "_AMP_BYPASS";
 	static inline const juce::String phaseOffset = "_PHASE_OFFSET";
 	static inline const juce::String pcmOffset = "_PCM_OFFSET";
 	static inline const juce::String pcmRatio = "_PCM_RATIO";

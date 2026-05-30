@@ -44,6 +44,8 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OplPrKey::rgTl, namePrefix + OplPrName::rgTl, OplPrValue::Op::RgAdsr::Tl::min, OplPrValue::Op::RgAdsr::Tl::max, OplPrValue::Op::RgAdsr::Tl::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::sus, namePrefix + OplPrName::sus, OplPrValue::Op::Sus::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::xof, namePrefix + OplPrName::xof, OplPrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::ampBypass, namePrefix + OplPrName::ampBypass, OplPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
         addOpSsgSwEnvParameters(layout, prefix, namePrefix);
@@ -83,6 +85,8 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opl.op[op].m_adsrParams.ksr = ksrOn;
         params.opl.op[op].m_adsrParams.ksl = (int)*apvts.getRawParameterValue(p + OplPrKey::ksl);
         params.opl.op[op].m_adsrParams.sus = *apvts.getRawParameterValue(p + OplPrKey::sus) > OplPrValue::boolThread;
+        params.opl.op[op].m_adsrParams.xof = *apvts.getRawParameterValue(p + OplPrKey::xof) > OplPrValue::boolThread;
+        params.opl.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + OplPrKey::ampBypass) > OplPrValue::boolThread;
 
         params.opl.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + OplPrKey::PitchAdsr::enable) > OplPrValue::boolThread);
         params.opl.op[op].pitchAdsr.bypass = false;

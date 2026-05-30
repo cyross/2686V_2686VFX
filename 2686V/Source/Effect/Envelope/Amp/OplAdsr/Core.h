@@ -9,7 +9,7 @@
 
 class OplAdsr
 {
-	enum class State { Idle, Attack, Decay, Sustain, Release };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
 	State state = State::Idle;
 
 	static const std::array<float, 4> dbPerOcts;
@@ -23,6 +23,8 @@ class OplAdsr
 	int ksl = 0;
 	bool sus = false;
 	bool egType = false;
+	bool xof = false;
+	bool bypass = false;
 
 	int arMax = 0;
 	int drMax = 0;
@@ -58,7 +60,6 @@ class OplAdsr
 
 	std::array<std::function<void(const OplAdsrParams&)>, 2> setParameterFunctions;
 	std::array<std::function<float(float, int)>, 2> noteOnFunctions;
-	std::array<std::function<void()>, 2> noteOffFunctions;
 	std::array<std::function<void(int)>, 2> updateIncrementsWithKeyScaleFunctions;
 	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
 public:
@@ -66,6 +67,7 @@ public:
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
+	bool isBypass() const { return state == State::Bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
@@ -77,12 +79,10 @@ public:
 	float updateEnvelopeState(float currentLevel);
 	void setParametersLinear(const OplAdsrParams& params);
 	float noteOnLinear(float velocity, int noteNumber);
-	void noteOffLinear();
 	void updateIncrementsWithKeyScaleLinear(int noteNumber);
 	float updateEnvelopeStateLinear(float currentLevel);
 	void setParametersCurve(const OplAdsrParams& params);
 	float noteOnCurve(float velocity, int noteNumber);
-	void noteOffCurve();
 	void updateIncrementsWithKeyScaleCurve(int noteNumber);
 	float updateEnvelopeStateCurve(float currentLevel);
 	void setParamMax(int ar, int dr, int sl, int rr, int tl);

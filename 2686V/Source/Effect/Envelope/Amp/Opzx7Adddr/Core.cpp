@@ -13,10 +13,6 @@ Opzx7Adddr::Opzx7Adddr()
 		[this](float velocity) { return this->noteOnLinear(velocity); },
 		[this](float velocity) { return this->noteOnCurve(velocity); }
 	};
-	this->noteOffFunctions = std::array<std::function<void()>, 2>{
-		[this]() { this->noteOffLinear(); },
-		[this]() { this->noteOffCurve(); }
-	};
 	this->updateIncrementsWithKeyScaleFunctions = std::array<std::function<void(int)>, 2>{
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleLinear(noteNumber); },
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleCurve(noteNumber); }
@@ -43,56 +39,6 @@ void Opzx7Adddr::updateSampleRate(double newSampleRate) {
 }
 
 void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
-    if (this->m_curveCore == nullptr) {
-        this->setParametersLinear(params);
-
-        return;
-    }
-
-    this->setParameterFunctions[this->m_curveCore->index](params);
-}
-
-float Opzx7Adddr::noteOn(float velocity) {
-    if (this->m_curveCore == nullptr) {
-        return this->noteOnLinear(velocity);
-    }
-
-    return this->noteOnFunctions[this->m_curveCore->index](velocity);
-}
-
-void Opzx7Adddr::noteOff() {
-    if (this->m_curveCore == nullptr) {
-        this->noteOffLinear();
-
-        return;
-    }
-
-    this->noteOffFunctions[this->m_curveCore->index]();
-}
-
-void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
-{
-    m_noteNumber = noteNumber;
-
-    if (this->m_curveCore == nullptr) {
-        this->updateIncrementsWithKeyScaleLinear(noteNumber);
-
-        return;
-    }
-
-    this->updateIncrementsWithKeyScaleFunctions[this->m_curveCore->index](noteNumber);
-}
-
-float Opzx7Adddr::updateEnvelopeState(float currentLevel)
-{
-    if (this->m_curveCore == nullptr) {
-        return this->updateEnvelopeStateLinear(currentLevel);
-    }
-
-    return this->updateEnvelopeStateFunctions[this->m_curveCore->index](currentLevel);
-}
-
-void Opzx7Adddr::setParametersLinear(const Opzx7AdddrParams& params) {
     this->rgEnable = params.rgEnable;
 
     this->real.ar = params.real.ar;
@@ -113,6 +59,81 @@ void Opzx7Adddr::setParametersLinear(const Opzx7AdddrParams& params) {
     this->sus = params.sus;
     this->xof = params.xof;
 
+    this->bypass = params.bypass;
+    this->state = this->bypass ? State::Bypass : State::Idle;
+
+    if (this->m_curveCore == nullptr) {
+        this->setParametersLinear(params);
+
+        return;
+    }
+
+    this->setParameterFunctions[this->m_curveCore->index](params);
+}
+
+float Opzx7Adddr::noteOn(float velocity) {
+    this->m_phaseProgress = 0.0f;
+
+    if (this->state == State::Bypass) {
+        return velocity;
+    }
+
+    state = State::Attack;
+
+    if (this->m_curveCore == nullptr) {
+        return this->noteOnLinear(velocity);
+    }
+
+    return this->noteOnFunctions[this->m_curveCore->index](velocity);
+}
+
+void Opzx7Adddr::noteOff() {
+    // XOF/Bypassが有効なときはノートオフ処理を無効化
+    if (xof || bypass)
+    {
+        return;
+    }
+
+    state = State::Release;
+
+    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
+
+    currentReleaseDec = getReleaseDec();
+}
+
+void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
+{
+    m_noteNumber = noteNumber;
+
+    if (sampleRate <= 0.0) {
+        currentReleaseDec = getReleaseDec();
+
+        return;
+    }
+
+    if (this->m_curveCore == nullptr) {
+        this->updateIncrementsWithKeyScaleLinear(noteNumber);
+
+        return;
+    }
+
+    this->updateIncrementsWithKeyScaleFunctions[this->m_curveCore->index](noteNumber);
+}
+
+float Opzx7Adddr::updateEnvelopeState(float currentLevel)
+{
+    if (this->bypass) {
+        return 1.0f;
+    }
+
+    if (this->m_curveCore == nullptr) {
+        return this->updateEnvelopeStateLinear(currentLevel);
+    }
+
+    return this->updateEnvelopeStateFunctions[this->m_curveCore->index](currentLevel);
+}
+
+void Opzx7Adddr::setParametersLinear(const Opzx7AdddrParams& params) {
     if (this->rgEnable)
     {
         this->m_zeroDecay = this->rg.d1r == 0;
@@ -142,31 +163,11 @@ float Opzx7Adddr::noteOnLinear(float velocity) {
     float attenuationDb = (rgEnable ? rg.tl : real.tl) * 0.75f;
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
-    state = State::Attack;
-
     return velocity * tlGain;
-}
-
-void Opzx7Adddr::noteOffLinear() {
-    // XOFが有効なときはノートオフ処理を無効化
-    if (xof)
-    {
-        return;
-    }
-
-    state = State::Release;
-
-    currentReleaseDec = getReleaseDec();
 }
 
 void Opzx7Adddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
 {
-    if (sampleRate <= 0.0) {
-        currentReleaseDec = getReleaseDec();
-
-        return;
-    }
-
     // ====================================================================
     // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -329,26 +330,6 @@ float Opzx7Adddr::updateEnvelopeStateLinear(float currentLevel)
 }
 
 void Opzx7Adddr::setParametersCurve(const Opzx7AdddrParams& params) {
-    this->rgEnable = params.rgEnable;
-
-    this->real.ar = params.real.ar;
-    this->real.d1r = params.real.d1r;
-    this->real.d2r = params.real.d2r;
-    this->real.d1l = params.real.d1l;
-    this->real.rr = params.real.rr;
-    this->real.tl = params.real.tl;
-
-    this->rg.ar = params.rg.ar;
-    this->rg.d1r = params.rg.d1r;
-    this->rg.d2r = params.rg.d2r;
-    this->rg.d1l = params.rg.d1l;
-    this->rg.rr = params.rg.rr;
-    this->rg.tl = params.rg.tl;
-
-    this->ks = params.ks;
-    this->sus = params.sus;
-    this->xof = params.xof;
-
     if (this->rgEnable)
     {
         auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
@@ -390,33 +371,11 @@ float Opzx7Adddr::noteOnCurve(float velocity) {
     float attenuationDb = (this->totalLevel * 63.0f) * 0.75f;
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
-    this->m_phaseProgress = 0.0f;
-
-    state = State::Attack;
-
     return velocity * tlGain;
-}
-
-void Opzx7Adddr::noteOffCurve() {
-    // XOFが有効なときはノートオフ処理を無効化
-    if (xof)
-    {
-        return;
-    }
-
-    state = State::Release;
-
-    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
 }
 
 void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 {
-    if (sampleRate <= 0.0) {
-        currentReleaseDec = getReleaseDec();
-
-        return;
-    }
-
     // ====================================================================
     // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -522,10 +481,6 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
 float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
 {
-    if (this->m_curveCore == nullptr) {
-        return updateEnvelopeStateLinear(currentLevel);
-    }
-
     int targetIdx = (int)CurveParams::Target::RegValue;
     int posIdx = this->positionIndex; // 1, 2, 3, 4
 

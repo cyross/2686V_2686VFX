@@ -40,6 +40,8 @@ namespace Opl3GuiText
 		static inline const juce::String mml = u8"--- MML ---";
 		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
+		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
+		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
 	}
 
 	namespace File
@@ -179,6 +181,7 @@ namespace Opl3GuiText
 
 			static inline const juce::String sus = u8"Sus";
 			static inline const juce::String xof = u8"Xof";
+			static inline const juce::String bypass = u8"Bypass";
 
 			static inline const juce::String phaseOffset = u8"P.Offset";
 		}

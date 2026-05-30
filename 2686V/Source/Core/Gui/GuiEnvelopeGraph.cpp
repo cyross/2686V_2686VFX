@@ -34,6 +34,14 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         g.drawText(currentTitle, graphArea.withTrimmedLeft(4).withTrimmedTop(2), juce::Justification::topLeft, false);
     }
 
+    if (isBypass) {
+        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setFont(14.0f);
+        g.drawText("BYPASS", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+
+        return;
+    }
+
     if (currentPhases.empty()) return;
 
     // ========================================================

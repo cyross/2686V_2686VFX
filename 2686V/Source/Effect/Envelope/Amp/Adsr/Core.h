@@ -7,7 +7,7 @@
 #include "../../../../Advanced/Curve/Core.h"
 
 class AmpAdsrEnv {
-	enum class State { Idle, Attack, Decay, Sustain, Release };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
 	State state = State::Idle;
 
 	float stl = 0.0f;
@@ -42,6 +42,7 @@ public:
 	void prepare(double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
+	bool isBypass() const { return state == State::Bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }

@@ -84,6 +84,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::sus, namePrefix + Opzx7PrName::sus, Opzx7PrValue::Op::Sus::initial)); // Sus (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::xof, namePrefix + Opzx7PrName::xof, Opzx7PrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::ampBypass, namePrefix + Opzx7PrName::ampBypass, Opzx7PrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
         addOpSsgSwEnvParameters(layout, prefix, namePrefix);
@@ -141,6 +142,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::ks);
         params.opzx7.op[op].m_adsrParams.sus = (*apvts.getRawParameterValue(p + Opzx7PrKey::sus) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (*apvts.getRawParameterValue(p + Opzx7PrKey::xof) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + Opzx7PrKey::ampBypass) > Opzx7PrValue::boolThread;
 
         // ラジアンに変換して組み込み(180度=π)
         float phaseDegree = *apvts.getRawParameterValue(p + Opzx7PrKey::phaseOffset);

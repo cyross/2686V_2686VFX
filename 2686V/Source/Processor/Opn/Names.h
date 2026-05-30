@@ -27,6 +27,8 @@ namespace OpnPrName
 	static inline const juce::String fixFreq = CorePrName::Fm::Op::fixFreq;
 	static inline const juce::String n88Ams = CorePrName::Fm::Op::n88Ams;
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
+	static inline const juce::String xof = " XOF";
+	static inline const juce::String ampBypass = " AMP Bypass";
 
 	namespace N88Lfo
 	{

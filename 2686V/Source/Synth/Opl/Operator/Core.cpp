@@ -117,7 +117,7 @@ void OplOperator::processLfo()
 
 void OplOperator::getSample(float& output, float modulator)
 {
-    if (!isPlaying()) {
+    if (!isPlaying() && !m_ampAdsr.isBypass()) {
         // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
         // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
         m_pitchAdsr.bypassedReleasedProcess();

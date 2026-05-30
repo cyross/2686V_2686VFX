@@ -192,33 +192,25 @@ float SsgCore::getSample()
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
-    {
-        // どちらもバイパスの時は完全な矩形波（Gate）動作
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
-            m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            finalEnv = 1.0f;
-        }
+    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+    if (!m_adsr.isBypassed()) {
+        m_currentLevel = m_adsr.process(m_currentLevel);
+        finalEnv *= m_currentLevel; // 掛け算
     }
-    else
-    {
-        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-        if (!m_adsr.isBypassed()) {
+    else {
+        if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+        else {
             m_currentLevel = m_adsr.process(m_currentLevel);
             finalEnv *= m_currentLevel; // 掛け算
         }
-        else {
-            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-        }
+    }
 
-        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypassed()) {
-            finalEnv *= m_ssgSwEnv.process(); // 掛け算
-        }
-        else {
-            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-        }
+    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+    if (!m_ssgSwEnv.isBypassed()) {
+        finalEnv *= m_ssgSwEnv.process(); // 掛け算
+    }
+    else {
+        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
     }
 
     // --- Sample Rate Emulation ---

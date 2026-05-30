@@ -128,6 +128,11 @@ namespace Opzx7PrValue
 			inline constexpr bool initial = false;
 		}
 
+		namespace AmpBypass
+		{
+			inline constexpr bool initial = false;
+		}
+
 		namespace Adsr
 		{
 			namespace Ar

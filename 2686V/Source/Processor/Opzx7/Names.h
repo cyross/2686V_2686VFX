@@ -74,6 +74,7 @@ namespace Opzx7PrName
 
 	static inline const juce::String sus = " SUS";
 	static inline const juce::String xof = " XOF";
+	static inline const juce::String ampBypass = " AMP Bypass";
 
 	static inline const juce::String phaseOffset = "Phase Offset";
 

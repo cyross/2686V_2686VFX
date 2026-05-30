@@ -431,7 +431,7 @@ void Opzx7Operator::noteOff()
 //    float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
 void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLfo, float modWheel)
 {
-    if (!isPlaying()) {
+    if (!isPlaying() && !m_ampAdsr.isBypass()) {
         // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
         // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
         m_pitchAdsr.bypassedReleasedProcess();

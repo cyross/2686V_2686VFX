@@ -32,6 +32,8 @@ namespace OpnPrKey
 	static inline const juce::String rgSr = CorePrKey::Post::Fm::Op::rgSr;
 	static inline const juce::String rgRr = CorePrKey::Post::Fm::Op::rgRr;
 	static inline const juce::String rgTl = CorePrKey::Post::Fm::Op::rgTl;
+	static inline const juce::String xof = "_XOF";
+	static inline const juce::String ampBypass = "_AMP_BYPASS";
 
 	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;

@@ -32,6 +32,8 @@ namespace OpmPrName
 	static inline const juce::String rgD2r = CorePrName::Fm::Op::rgD2r;
 	static inline const juce::String rgRr = CorePrName::Fm::Op::rgRr;
 	static inline const juce::String rgTl = CorePrName::Fm::Op::rgTl;
+	static inline const juce::String xof = " XOF";
+	static inline const juce::String ampBypass = " AMP Bypass";
 
 	namespace Lfo
 	{

@@ -529,6 +529,10 @@ void GuiBeep::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
     
+    bypassToggle.onStateChange = repaintGraph;
+    pitchAdsrBypassButton.onStateChange = repaintGraph;
+    ssgSwEnvBypassButton.onStateChange = repaintGraph;
+
     startLevelSlider.onValueChange = repaintGraph;
     attackSlider.onValueChange = repaintGraph;
     decaySlider.onValueChange = repaintGraph;
@@ -629,6 +633,8 @@ void GuiBeep::updateGraph()
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
+        graph.updateBypass(pitchAdsrBypassButton.getToggleState());
+
         graph.updatePitchEnv(
             pitchAttackSlider,
             pitchDecaySlider,
@@ -646,6 +652,8 @@ void GuiBeep::updateGraph()
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
+        graph.updateBypass(ssgSwEnvBypassButton.getToggleState());
+
         graph.updateSsgSwEnv(
             ssgSwStepsSlider,
             ssgSwEnvLoopButton,
@@ -662,6 +670,8 @@ void GuiBeep::updateGraph()
     // Amp Env
     // =============================================================
     else {
+        graph.updateBypass(bypassToggle.getToggleState());
+
         graph.updateAmpEnv(
             startLevelSlider,
             attackSlider,

@@ -43,6 +43,9 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opl3PrKey::rgRr, namePrefix + Opl3PrName::rgRr, Opl3PrValue::Op::RgAdsr::Rr::min, Opl3PrValue::Op::RgAdsr::Rr::max, Opl3PrValue::Op::RgAdsr::Rr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opl3PrKey::rgTl, namePrefix + Opl3PrName::rgTl, Opl3PrValue::Op::RgAdsr::Tl::min, Opl3PrValue::Op::RgAdsr::Tl::max, Opl3PrValue::Op::RgAdsr::Tl::initial));
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opl3PrKey::xof, namePrefix + Opl3PrName::xof, Opl3PrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opl3PrKey::ampBypass, namePrefix + Opl3PrName::ampBypass, Opl3PrValue::Op::AmpBypass::initial)); // Bypass (Switch)
+
         addOpPitchEnvParameters(layout, prefix, namePrefix);
         addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
@@ -80,6 +83,8 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opl3.op[op].m_adsrParams.ksr = ksrOn;
         params.opl3.op[op].m_adsrParams.ksl = (int)*apvts.getRawParameterValue(p + Opl3PrKey::ksl);
         params.opl3.op[op].m_adsrParams.egType = *apvts.getRawParameterValue(p + Opl3PrKey::egType) > Opl3PrValue::boolThread;
+        params.opl3.op[op].m_adsrParams.xof = *apvts.getRawParameterValue(p + Opl3PrKey::xof) > Opl3PrValue::boolThread;
+        params.opl3.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + Opl3PrKey::ampBypass) > Opl3PrValue::boolThread;
 
         params.opl3.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + Opl3PrKey::PitchAdsr::enable) > Opl3PrValue::boolThread);
         params.opl3.op[op].pitchAdsr.bypass = false;

@@ -13,10 +13,6 @@ FmRgAdddr::FmRgAdddr()
 		[this](float velocity) { return this->noteOnLinear(velocity); },
 		[this](float velocity) { return this->noteOnCurve(velocity); }
 	};
-	this->noteOffFunctions = std::array<std::function<void()>, 2>{
-		[this]() { this->noteOffLinear(); },
-		[this]() { this->noteOffCurve(); }
-	};
 	this->updateIncrementsWithKeyScaleFunctions = std::array<std::function<void(int)>, 2>{
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleLinear(noteNumber); },
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleCurve(noteNumber); }
@@ -43,6 +39,19 @@ void FmRgAdddr::updateSampleRate(double newSampleRate) {
 }
 
 void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
+    this->ar = params.ar;
+    this->d1r = params.d1r;
+    this->d1l = params.d1l;
+    this->d2r = params.d2r;
+    this->rr = params.rr;
+    this->ks = params.ks;
+    this->xof = params.xof;
+
+    this->bypass = params.bypass;
+    this->state = this->bypass ? State::Bypass : State::Idle;
+
+    this->m_zeroDecay = this->d1r == 0;
+
     if (this->m_curveCore == nullptr) {
         this->setParametersLinear(params);
 
@@ -53,6 +62,14 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
 }
 
 float FmRgAdddr::noteOn(float velocity) {
+    this->m_phaseProgress = 0.0f;
+
+    if (this->state == State::Bypass) {
+        return velocity;
+    }
+
+    state = State::Attack;
+
     if (this->m_curveCore == nullptr) {
         return this->noteOnLinear(velocity);
     }
@@ -61,18 +78,28 @@ float FmRgAdddr::noteOn(float velocity) {
 }
 
 void FmRgAdddr::noteOff() {
-    if (this->m_curveCore == nullptr) {
-        this->noteOffLinear();
-
+    // XOF/Bypassが有効なときはノートオフ処理を無効化
+    if (xof || bypass)
+    {
         return;
     }
 
-    this->noteOffFunctions[this->m_curveCore->index]();
+    state = State::Release;
+
+    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
+
+    currentReleaseDec = releaseDec;
 }
 
 void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
 {
     m_noteNumber = noteNumber;
+
+    if (sampleRate <= 0.0) {
+        currentReleaseDec = releaseDec;
+
+        return;
+    }
 
     if (this->m_curveCore == nullptr) {
         this->updateIncrementsWithKeyScaleLinear(noteNumber);
@@ -85,6 +112,10 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
 
 float FmRgAdddr::updateEnvelopeState(float currentLevel)
 {
+    if (this->bypass) {
+        return 1.0f;
+    }
+
     if (this->m_curveCore == nullptr) {
         return this->updateEnvelopeStateLinear(currentLevel);
     }
@@ -93,14 +124,6 @@ float FmRgAdddr::updateEnvelopeState(float currentLevel)
 }
 
 void FmRgAdddr::setParametersLinear(const FmRgAdddrParams& params) {
-    this->ar = params.ar;
-    this->d1r = params.d1r;
-    this->d1l = params.d1l;
-    this->d2r = params.d2r;
-    this->rr = params.rr;
-    this->ks = params.ks;
-
-    this->m_zeroDecay = this->d1r == 0;
     // サステインレベル (SL) の計算
     if (this->d1l == 15) {
         this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -120,25 +143,11 @@ float FmRgAdddr::noteOnLinear(float velocity) {
     float attenuationDb = tl * 0.75f;
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
-    state = State::Attack;
-
     return velocity * tlGain;
-}
-
-void FmRgAdddr::noteOffLinear() {
-    state = State::Release;
-
-    currentReleaseDec = releaseDec;
 }
 
 void FmRgAdddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
 {
-    if (sampleRate <= 0.0) {
-        currentReleaseDec = releaseDec;
-
-        return;
-    }
-
     // ====================================================================
     // 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -271,13 +280,6 @@ float FmRgAdddr::updateEnvelopeStateLinear(float currentLevel)
 }
 
 void FmRgAdddr::setParametersCurve(const FmRgAdddrParams& params) {
-    this->ar = params.ar;
-    this->d1r = params.d1r;
-    this->d1l = params.d1l;
-    this->d2r = params.d2r;
-    this->rr = params.rr;
-    this->ks = params.ks;
-
     auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
         float normRate = (float)value / maxValue;
 
@@ -287,7 +289,6 @@ void FmRgAdddr::setParametersCurve(const FmRgAdddrParams& params) {
 
     this->totalLevel = calcLevel((int)CurveParams::TargetRegValue::Tl, this->tl, 127.0f);
 
-    this->m_zeroDecay = this->d1r == 0;
     // サステインレベル (SL) の計算
     if (this->d1l == 15) {
         this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -307,27 +308,11 @@ float FmRgAdddr::noteOnCurve(float velocity) {
     float attenuationDb = (this->totalLevel * 127.0f) * 0.75f;
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
-    this->m_phaseProgress = 0.0f;
-
-    state = State::Attack;
-
     return velocity * tlGain;
-}
-
-void FmRgAdddr::noteOffCurve() {
-    state = State::Release;
-
-    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
 }
 
 void FmRgAdddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 {
-    if (sampleRate <= 0.0) {
-        currentReleaseDec = releaseDec;
-
-        return;
-    }
-
     // ====================================================================
     // 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -402,10 +387,6 @@ void FmRgAdddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
 float FmRgAdddr::updateEnvelopeStateCurve(float currentLevel)
 {
-    if (this->m_curveCore == nullptr) {
-        return updateEnvelopeStateLinear(currentLevel);
-    }
-
     int targetIdx = (int)CurveParams::Target::RegValue;
     int posIdx = this->positionIndex; // 1, 2, 3, 4
 

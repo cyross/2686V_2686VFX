@@ -36,6 +36,8 @@ namespace OpnaPrName
 	static inline const juce::String rgRr = CorePrName::Fm::Op::rgRr;
 	static inline const juce::String rgTl = CorePrName::Fm::Op::rgTl;
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
+	static inline const juce::String xof = " XOF";
+	static inline const juce::String ampBypass = " AMP Bypass";
 
 	namespace N88Lfo
 	{

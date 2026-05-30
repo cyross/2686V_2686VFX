@@ -28,4 +28,5 @@ struct Opzx7AdddrParams
 	int ks = 0;
 	bool sus = false;
 	bool xof = false;
+	bool bypass = false;
 };

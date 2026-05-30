@@ -57,6 +57,9 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgRr, namePrefix + OpnaPrName::rgRr, OpnaPrValue::Op::RgAdsr::Rr::min, OpnaPrValue::Op::RgAdsr::Rr::max, OpnaPrValue::Op::RgAdsr::Rr::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpnaPrKey::rgTl, namePrefix + OpnaPrName::rgTl, OpnaPrValue::Op::RgAdsr::Tl::min, OpnaPrValue::Op::RgAdsr::Tl::max, OpnaPrValue::Op::RgAdsr::Tl::initial));
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpnaPrKey::xof, namePrefix + OpnaPrName::xof, OpnaPrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpnaPrKey::ampBypass, namePrefix + OpnaPrName::ampBypass, OpnaPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
+
         addOpPitchEnvParameters(layout, prefix, namePrefix);
         addOpSsgSwEnvParameters(layout, prefix, namePrefix);
     }
@@ -115,6 +118,8 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].m_adsrParams.rr = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgRr);
         params.opna.op[op].m_adsrParams.tl = (int)*apvts.getRawParameterValue(p + OpnaPrKey::rgTl);
         params.opna.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + OpnaPrKey::ks);
+        params.opna.op[op].m_adsrParams.xof = *apvts.getRawParameterValue(p + OpnaPrKey::xof) > OpnaPrValue::boolThread;
+        params.opna.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + OpnaPrKey::ampBypass) > OpnaPrValue::boolThread;
 
         params.opna.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + OpnaPrKey::PitchAdsr::enable) > OpnaPrValue::boolThread);
         params.opna.op[op].pitchAdsr.bypass = false;

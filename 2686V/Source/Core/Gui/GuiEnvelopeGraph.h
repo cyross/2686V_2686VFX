@@ -69,8 +69,10 @@ public:
         bool isCurveMode,
         int posIdx
     );
+    void updateBypass(bool bypass) { this->isBypass = bypass; }
 private:
     EnvType currentType = EnvType::Amp;
     juce::String currentTitle;
     std::vector<PhaseDef> currentPhases;
+    bool isBypass;
 };

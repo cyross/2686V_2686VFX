@@ -571,6 +571,12 @@ void GuiOpzx7::setup()
             updateWtFileName(i, juce::File(ctx.audioProcessor.opzx7WtFilePaths[i]).getFileName());
         }
 
+        catOptional[i].setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleOptional, .invisibleTitle = Opzx7GuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+
+        bypass[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ampBypass, .title = Opzx7GuiText::Fm::Op::bypass, .isReset = true });
+        bypass[i].setWantsKeyboardFocus(true);
+        bypass[i].setExplicitFocusOrder(++tabOrder);
+
         catPhase[i].setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visiblePhase, .invisibleTitle = Opzx7GuiText::Category::invisiblePhase, .enableChangeDetailVisible = true });
 
         phaseOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::phaseOffset, .title = Opzx7GuiText::Fm::Op::phaseOffset, .isReset = true });
@@ -932,6 +938,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
             layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
         }
 
+        layoutOpOptionalCat(i, innerRect);
+
 		layoutOpPhaseCat(i, innerRect);
 
         layoutOpSsgEnvCat(i, innerRect);
@@ -1051,6 +1059,8 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     phaseOffset[idx].setEnabledWithLabel(enable);
     se[idx].setEnabledWithLabel(enable);
     seFreq[idx].setEnabledWithLabel(enable);
+    catOptional[idx].setEnabled(enable);
+    bypass[idx].setEnabled(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
     freq[idx].setEnabledWithLabel(enable);
@@ -1593,6 +1603,10 @@ void GuiOpzx7::setupGraph(int opIndex)
 
     auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
 
+    bypass[opIndex].onStateChange = repaintGraph;
+    pitchEnvEnable[opIndex].onStateChange = repaintGraph;
+    ssgSwEnvEnable[opIndex].onStateChange = repaintGraph;
+
     ar[opIndex].onValueChange = repaintGraph;
     d1r[opIndex].onValueChange = repaintGraph;
     d2r[opIndex].onValueChange = repaintGraph;
@@ -1704,6 +1718,8 @@ void GuiOpzx7::updateOpGraph(int opIndex)
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
+        opGraphs[opIndex].updateBypass(!(pitchEnvEnable[opIndex].getToggleState()));
+
         opGraphs[opIndex].updatePitchEnv(
             pitchAttack[opIndex],
             pitchDecay[opIndex],
@@ -1721,6 +1737,8 @@ void GuiOpzx7::updateOpGraph(int opIndex)
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
+        opGraphs[opIndex].updateBypass(!(ssgSwEnvEnable[opIndex].getToggleState()));
+
         opGraphs[opIndex].updateSsgSwEnv(
             ssgSwSteps[opIndex],
             ssgSwEnvLoop[opIndex],
@@ -1737,6 +1755,13 @@ void GuiOpzx7::updateOpGraph(int opIndex)
     // Amp Env
     // =============================================================
     else {
+        bool isBypass = bypass[opIndex].getToggleState();
+
+        opGraphs[opIndex].updateBypass(isBypass);
+
+        if (isBypass) {
+            return;
+        }
 
         // -------------------------------------------------------------
         // Helper: 幅の計算 (Amp 用)
@@ -1884,5 +1909,18 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         }
 
         opGraphs[opIndex].setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+    }
+}
+
+void GuiOpzx7::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catOptional[opIndex] });
+
+    bool visible = catOptional[opIndex].isDetailVisible();
+
+    bypass[opIndex].setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
 }

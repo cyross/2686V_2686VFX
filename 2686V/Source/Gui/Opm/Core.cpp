@@ -332,6 +332,16 @@ void GuiOpm::setup()
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
+        catOptional[i].setupSwCategory({ .parent = *this, .title = OpmGuiText::Category::visibleOptional, .invisibleTitle = OpmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+
+        xof[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::xof, .title = OpmGuiText::Fm::Op::xof, .isReset = true });
+        xof[i].setWantsKeyboardFocus(true);
+        xof[i].setExplicitFocusOrder(++tabOrder);
+
+        bypass[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::ampBypass, .title = OpmGuiText::Fm::Op::bypass, .isReset = true });
+        bypass[i].setWantsKeyboardFocus(true);
+        bypass[i].setExplicitFocusOrder(++tabOrder);
+
         catPitchEnv[i].setupSwCategory({ .parent = *this, .title = OpmGuiText::Category::visiblePitchAdsr, .invisibleTitle = OpmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
 
         pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::PitchAdsr::enable, .title = OpmGuiText::PitchAdsr::enable, .isReset = true });
@@ -583,6 +593,8 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i], });
 
+        layoutOpOptionalCat(i, innerRect);
+
         layoutOpPitchEnvCat(i, innerRect);
 
         layoutOpSsgSwEnvCat(i, innerRect);
@@ -656,6 +668,9 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
     dt1[idx].setEnabledWithLabel(enable);
     dt2[idx].setEnabledWithLabel(enable);
     ks[idx].setEnabledWithLabel(enable);
+    catOptional[idx].setEnabled(enable);
+    xof[idx].setEnabled(enable);
+    bypass[idx].setEnabled(enable);
     cafFix[idx].setEnabled(enable);
     fix[idx].setEnabled(enable);
     freq[idx].setEnabledWithLabel(enable);
@@ -1091,6 +1106,11 @@ void GuiOpm::setupGraph(int opIndex)
 
     auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
 
+    bypass[opIndex].onStateChange = repaintGraph;
+    pitchEnvEnable[opIndex].onStateChange = repaintGraph;
+    ssgSwEnvEnable[opIndex].onStateChange = repaintGraph;
+    xof[opIndex].onStateChange = repaintGraph;
+
     rgAr[opIndex].onValueChange = repaintGraph;
     rgD1r[opIndex].onValueChange = repaintGraph;
     rgD2r[opIndex].onValueChange = repaintGraph;
@@ -1213,6 +1233,8 @@ void GuiOpm::updateOpGraph(int opIndex)
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
+        opGraphs[opIndex].updateBypass(!(pitchEnvEnable[opIndex].getToggleState()));
+
         opGraphs[opIndex].updatePitchEnv(
             pitchAttack[opIndex],
             pitchDecay[opIndex],
@@ -1230,6 +1252,8 @@ void GuiOpm::updateOpGraph(int opIndex)
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
+        opGraphs[opIndex].updateBypass(!(ssgSwEnvEnable[opIndex].getToggleState()));
+
         opGraphs[opIndex].updateSsgSwEnv(
             ssgSwSteps[opIndex],
             ssgSwEnvLoop[opIndex],
@@ -1246,6 +1270,16 @@ void GuiOpm::updateOpGraph(int opIndex)
     // Amp Env
     // =============================================================
     else {
+        bool isBypass = bypass[opIndex].getToggleState();
+
+        opGraphs[opIndex].updateBypass(isBypass);
+
+        if (isBypass) {
+            return;
+        }
+
+        bool isXof = xof[opIndex].getToggleState();
+
         float arMax = (float)rgAr[opIndex].getMaximum();
         float d1rMax = (float)rgD1r[opIndex].getMaximum();
         float d2rMax = (float)rgD2r[opIndex].getMaximum();
@@ -1318,17 +1352,45 @@ void GuiOpm::updateOpGraph(int opIndex)
         float noteOffPositionX = currentTotalWidth;
 
         // 4. Release
-        phases.push_back({
-            .widthPx = rateToWidth(rrVal, rrMax),
-            .startLevel = releaseStartLevel * tlScale,
-            .endLevel = 0.0f,
-            .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
-            .moveToStart = true,
-            .startXOffsetPx = noteOffPositionX,
-            .isMax = (rrVal == rrMax)
-            });
+        if (isXof) {
+            phases.push_back({
+                .widthPx = 100.0f,
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = releaseStartLevel * tlScale,
+                .isDashed = true,
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
+        else {
+            phases.push_back({
+                .widthPx = rateToWidth(rrVal, rrMax),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = 0.0f,
+                .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX,
+                .isMax = (rrVal == rrMax)
+                });
+        }
 
         opGraphs[opIndex].setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
+    }
+}
+
+void GuiOpm::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catOptional[opIndex] });
+
+    bool visible = catOptional[opIndex].isDetailVisible();
+
+    xof[opIndex].setVisible(visible);
+    bypass[opIndex].setVisible(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
 }

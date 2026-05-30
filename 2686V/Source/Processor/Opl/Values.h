@@ -115,6 +115,16 @@ namespace OplPrValue
 			inline constexpr bool initial = false;
 		}
 
+		namespace Xof
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace AmpBypass
+		{
+			inline constexpr bool initial = false;
+		}
+
 		namespace Mask
 		{
 			inline constexpr bool initial = CorePrValue::Op::Mask::initial;

@@ -170,6 +170,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> d2r;
     std::array<GuiSlider, Global::Fm::Op4> rr;
     std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
+    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catPhase;
     std::array<GuiSlider, Global::Fm::Op4> phaseOffset;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
@@ -314,6 +316,8 @@ public:
         d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catPhase{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         phaseOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -439,6 +443,7 @@ public:
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);

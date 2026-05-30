@@ -367,6 +367,9 @@ void RhythmPadGui::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
 
+    adsrBypassButton.onStateChange = repaintGraph;
+    pitchAdsrBypassButton.onStateChange = repaintGraph;
+
     startLevelSlider.onValueChange = repaintGraph;
     attackSlider.onValueChange = repaintGraph;
     decaySlider.onValueChange = repaintGraph;
@@ -429,6 +432,8 @@ void RhythmPadGui::updateGraph()
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
+        graph.updateBypass(pitchAdsrBypassButton.getToggleState());
+
         graph.updatePitchEnv(
             pitchAttackSlider,
             pitchDecaySlider,
@@ -446,6 +451,8 @@ void RhythmPadGui::updateGraph()
     // Amp Env
     // =============================================================
     else {
+        graph.updateBypass(adsrBypassButton.getToggleState());
+
         graph.updateAmpEnv(
             startLevelSlider,
             attackSlider,

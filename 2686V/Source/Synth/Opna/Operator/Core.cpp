@@ -182,7 +182,7 @@ void OpnaOperator::processLfo()
 
 void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel)
 {
-    if (!isPlaying()) {
+    if (!isPlaying() && !m_ampAdsr.isBypass()) {
         // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
         // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
         m_pitchAdsr.bypassedReleasedProcess();

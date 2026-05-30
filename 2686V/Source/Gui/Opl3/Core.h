@@ -124,6 +124,9 @@ class GuiOpl3 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgSl;
     std::array<GuiSlider, Global::Fm::Op4> rgRr;
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
+    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
+    std::array<GuiToggleButton, Global::Fm::Op4> xof;
+    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
@@ -211,6 +214,9 @@ public:
         rgSl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         monoModeToggle(context),
         presetNameLabel(context),
         presetNameSeparator(context),
@@ -241,6 +247,7 @@ public:
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);

@@ -7,7 +7,7 @@
 
 class FmRgAdddr
 {
-	enum class State { Idle, Attack, Decay, Sustain, Release };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
 	State state = State::Idle;
 
 	int ar = 0;
@@ -24,6 +24,9 @@ class FmRgAdddr
 	int d1lMax = 0;
 	int rrMax = 0;
 	int tlMax = 0;
+
+	bool xof = false;
+	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
 
@@ -51,7 +54,6 @@ class FmRgAdddr
 
 	std::array<std::function<void(const FmRgAdddrParams&)>, 2> setParameterFunctions;
 	std::array<std::function<float(float)>, 2> noteOnFunctions;
-	std::array<std::function<void()>, 2> noteOffFunctions;
 	std::array<std::function<void(int)>, 2> updateIncrementsWithKeyScaleFunctions;
 	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
 public:
@@ -59,6 +61,7 @@ public:
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
+	bool isBypass() const { return state == State::Bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
@@ -70,12 +73,10 @@ public:
 	float updateEnvelopeState(float currentLevel);
 	void setParametersLinear(const FmRgAdddrParams& params);
 	float noteOnLinear(float velocity);
-	void noteOffLinear();
 	void updateIncrementsWithKeyScaleLinear(int noteNumber);
 	float updateEnvelopeStateLinear(float currentLevel);
 	void setParametersCurve(const FmRgAdddrParams& params);
 	float noteOnCurve(float velocity);
-	void noteOffCurve();
 	void updateIncrementsWithKeyScaleCurve(int noteNumber);
 	float updateEnvelopeStateCurve(float currentLevel);
 	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);

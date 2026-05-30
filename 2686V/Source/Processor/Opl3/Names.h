@@ -31,6 +31,8 @@ namespace Opl3PrName
 	static inline const juce::String amd = CorePrName::Fm::Op::amd;
 	static inline const juce::String eg = CorePrName::Fm::Op::eg;
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
+	static inline const juce::String xof = " XOF";
+	static inline const juce::String ampBypass = " AMP Bypass";
 
 	static inline const juce::String rgAr = CorePrName::Fm::Op::rgAr;
 	static inline const juce::String rgDr = CorePrName::Fm::Op::rgDr;

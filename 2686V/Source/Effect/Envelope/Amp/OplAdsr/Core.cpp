@@ -15,10 +15,6 @@ OplAdsr::OplAdsr()
 		[this](float velocity, int noteNumber) { return this->noteOnLinear(velocity, noteNumber); },
 		[this](float velocity, int noteNumber) { return this->noteOnCurve(velocity, noteNumber); }
 	};
-	this->noteOffFunctions = std::array<std::function<void()>, 2>{
-		[this]() { this->noteOffLinear(); },
-		[this]() { this->noteOffCurve(); }
-	};
 	this->updateIncrementsWithKeyScaleFunctions = std::array<std::function<void(int)>, 2>{
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleLinear(noteNumber); },
 		[this](int noteNumber) { this->updateIncrementsWithKeyScaleCurve(noteNumber); }
@@ -45,6 +41,21 @@ void OplAdsr::updateSampleRate(double newSampleRate) {
 }
 
 void OplAdsr::setParameters(const OplAdsrParams& params) {
+    this->ar = params.ar;
+    this->dr = params.dr;
+    this->sl = params.sl;
+    this->rr = params.rr;
+    this->ksr = params.ksr;
+    this->ksl = params.ksl;
+    this->sus = params.sus;
+    this->egType = params.egType;
+    this->xof = params.xof;
+
+    this->bypass = params.bypass;
+    this->state = this->bypass ? State::Bypass : State::Idle;
+
+    this->m_zeroDecay = this->dr == 0;
+
     if (this->m_curveCore == nullptr) {
         this->setParametersLinear(params);
 
@@ -57,6 +68,14 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
 float OplAdsr::noteOn(float velocity, int noteNumber) {
     m_noteNumber = noteNumber;
 
+    this->m_phaseProgress = 0.0f;
+
+    if (this->state == State::Bypass) {
+        return velocity;
+    }
+
+    this->state = State::Attack;
+
     if (this->m_curveCore == nullptr) {
         return this->noteOnLinear(velocity, noteNumber);
     }
@@ -65,18 +84,25 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
 }
 
 void OplAdsr::noteOff() {
-    if (this->m_curveCore == nullptr) {
-        this->noteOffLinear();
-
+    // XOF/Bypassが有効なときはノートオフ処理を無効化
+    if (xof || bypass)
+    {
         return;
     }
 
-    this->noteOffFunctions[this->m_curveCore->index]();
+    this->state = State::Release;
+
+    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
 }
 
 void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
 {
     m_noteNumber = noteNumber;
+
+    if (sampleRate <= 0.0)
+    {
+        return;
+    }
 
     if (this->m_curveCore == nullptr) {
         this->updateIncrementsWithKeyScaleLinear(noteNumber);
@@ -89,6 +115,10 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
 
 float OplAdsr::updateEnvelopeState(float currentLevel)
 {
+    if (this->bypass) {
+        return 1.0f;
+    }
+
     if (this->m_curveCore == nullptr) {
         return this->updateEnvelopeStateLinear(currentLevel);
     }
@@ -97,16 +127,6 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
 }
 
 void OplAdsr::setParametersLinear(const OplAdsrParams& params) {
-    this->ar = params.ar;
-    this->dr = params.dr;
-    this->sl = params.sl;
-    this->rr = params.rr;
-    this->ksr = params.ksr;
-    this->ksl = params.ksl;
-    this->sus = params.sus;
-    this->egType = params.egType;
-
-    this->m_zeroDecay = this->dr == 0;
     // サステインレベル (SL) の計算
     if (this->sl == 15) {
         this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -138,22 +158,11 @@ float OplAdsr::noteOnLinear(float velocity, int noteNumber) {
         kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
     }
 
-    this->state = State::Attack;
-
     return velocity * tlGain * kslAttenuation;
-}
-
-void OplAdsr::noteOffLinear() {
-    this->state = State::Release;
 }
 
 void OplAdsr::updateIncrementsWithKeyScaleLinear(int noteNumber)
 {
-    if (sampleRate <= 0.0)
-    {
-        return;
-    }
-
     // ====================================================================
     // 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -288,15 +297,6 @@ float OplAdsr::updateEnvelopeStateLinear(float currentLevel)
 }
 
 void OplAdsr::setParametersCurve(const OplAdsrParams& params) {
-    this->ar = params.ar;
-    this->dr = params.dr;
-    this->sl = params.sl;
-    this->rr = params.rr;
-    this->ksr = params.ksr;
-    this->ksl = params.ksl;
-    this->sus = params.sus;
-    this->egType = params.egType;
-
     auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
         float normRate = (float)value / maxValue;
 
@@ -306,7 +306,6 @@ void OplAdsr::setParametersCurve(const OplAdsrParams& params) {
 
     this->totalLevel = calcLevel((int)CurveParams::TargetRegValue::Tl, this->tl, 63.0f);
 
-    this->m_zeroDecay = this->dr == 0;
     // サステインレベル (SL) の計算
     if (this->sl == 15) {
         this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -339,26 +338,11 @@ float OplAdsr::noteOnCurve(float velocity, int noteNumber) {
         kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
     }
 
-    this->m_phaseProgress = 0.0f;
-
-    this->state = State::Attack;
-
     return velocity * tlGain * kslAttenuation;
-}
-
-void OplAdsr::noteOffCurve() {
-    this->state = State::Release;
-
-    this->m_phaseProgress = 0.0f; // フェーズ時間のリセット
 }
 
 void OplAdsr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 {
-    if (sampleRate <= 0.0)
-    {
-        return;
-    }
-
     // ====================================================================
     // 実機のアルゴリズムで増減量を計算
     // ====================================================================
@@ -438,10 +422,6 @@ void OplAdsr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
 float OplAdsr::updateEnvelopeStateCurve(float currentLevel)
 {
-    if (this->m_curveCore == nullptr) {
-        return updateEnvelopeStateLinear(currentLevel);
-    }
-
     int targetIdx = (int)CurveParams::Target::RegValue;
     int posIdx = this->positionIndex; // 1, 2, 3, 4
 

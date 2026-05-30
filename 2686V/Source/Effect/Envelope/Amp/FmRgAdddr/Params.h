@@ -9,4 +9,6 @@ struct FmRgAdddrParams
 	int rr = 0;
 	int tl = 0;
 	int ks = 0;
+	bool xof = false;
+	bool bypass = false;
 };

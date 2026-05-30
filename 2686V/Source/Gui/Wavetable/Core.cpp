@@ -1192,6 +1192,10 @@ void GuiWt::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
 
+    adsrBypassButton.onStateChange = repaintGraph;
+    pitchAdsrBypassButton.onStateChange = repaintGraph;
+    ssgSwEnvBypassButton.onStateChange = repaintGraph;
+
     startLevelSlider.onValueChange = repaintGraph;
     attackSlider.onValueChange = repaintGraph;
     decaySlider.onValueChange = repaintGraph;
@@ -1292,6 +1296,8 @@ void GuiWt::updateGraph()
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
+        graph.updateBypass(pitchAdsrBypassButton.getToggleState());
+
         graph.updatePitchEnv(
             pitchAttackSlider,
             pitchDecaySlider,
@@ -1309,6 +1315,8 @@ void GuiWt::updateGraph()
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
+        graph.updateBypass(ssgSwEnvBypassButton.getToggleState());
+
         graph.updateSsgSwEnv(
             ssgSwStepsSlider,
             ssgSwEnvLoopButton,
@@ -1325,6 +1333,8 @@ void GuiWt::updateGraph()
     // Amp Env
     // =============================================================
     else {
+        graph.updateBypass(adsrBypassButton.getToggleState());
+
         graph.updateAmpEnv(
             startLevelSlider,
             attackSlider,

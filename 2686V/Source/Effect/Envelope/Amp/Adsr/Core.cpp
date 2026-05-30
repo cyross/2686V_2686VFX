@@ -42,6 +42,7 @@ void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
 	this->rr = params.rr;
 	this->stl = params.stl;
 	this->bypass = params.bypass;
+    this->state = this->bypass ? State::Bypass : State::Idle;
     this->updateIncrements();
 }
 
@@ -60,7 +61,11 @@ void AmpAdsrEnv::updateSampleRate(double newSampleRate) {
 }
 
 float AmpAdsrEnv::noteOn() {
-	if (this->m_curveCore == nullptr) {
+    if (this->state == State::Bypass) {
+        return 1.0f;
+    }
+
+    if (this->m_curveCore == nullptr) {
 		return this->noteOnLinear();
 	}
 
@@ -68,6 +73,10 @@ float AmpAdsrEnv::noteOn() {
 }
 
 void AmpAdsrEnv::noteOff() {
+    if (this->bypass) {
+        return;
+    }
+
     if (this->m_curveCore == nullptr) {
         this->noteOffLinear();
 
@@ -94,6 +103,10 @@ float AmpAdsrEnv::bypassedProcess() {
 }
 
 float AmpAdsrEnv::process(float currentLevel) {
+    if (this->bypass) {
+        return 1.0f;
+    }
+
     if (this->m_curveCore == nullptr) {
         return this->processLinear(currentLevel);
     }
@@ -122,10 +135,6 @@ float AmpAdsrEnv::bypassedProcessLinear() {
 }
 
 float AmpAdsrEnv::processLinear(float currentLevel) {
-    if (this->bypass) {
-        return currentLevel;
-    }
-
 	float newLevel = currentLevel;
 
     // --- ADSR Logic ---
@@ -192,10 +201,6 @@ float AmpAdsrEnv::bypassedProcessCurve() {
 }
 
 float AmpAdsrEnv::processCurve(float currentLevel) {
-    if (this->bypass) {
-        return currentLevel;
-    }
-
     if (this->m_curveCore == nullptr) {
         // CurveCoreがセットされていなければ安全のため線形処理にフォールバック
         return processLinear(currentLevel);
