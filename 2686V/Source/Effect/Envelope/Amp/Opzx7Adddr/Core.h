@@ -51,6 +51,7 @@ class Opzx7Adddr
 	float susReleaseDec = 0.0f;
 	float releaseDec = 0.0f;
 	float currentReleaseDec = 0.0f;
+	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
 	// rrが無限大のとき、ストッパーの役目を果たす
 	int releaseCounter = 0;

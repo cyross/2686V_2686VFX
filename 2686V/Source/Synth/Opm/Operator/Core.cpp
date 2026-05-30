@@ -48,8 +48,8 @@ void OpmOperator::setSampleRate(double sampleRate)
 
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0;
-    m_currentLevel = 0.0f;
+    //m_phase = 0.0;
+    //m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 

@@ -40,6 +40,7 @@ class FmRgAdssr
 	float sustainRateDec = 0.0f;
 	float susReleaseDec = 0.0f;
 	float currentReleaseDec = 0.0f;
+	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

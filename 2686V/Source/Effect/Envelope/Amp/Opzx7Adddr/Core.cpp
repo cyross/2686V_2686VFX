@@ -229,9 +229,21 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
                     timeInSeconds *= 0.33f;
                 }
 
-                // 安全装置: 最大時間を10秒程度でクリップする
-                // (レジスタ値1で5秒を想定するなら、最大10〜15秒あれば十分)
                 timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
+            }
+
+            // 最終的なデクリック保証
+            if (isRR) {
+                // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+                timeInSeconds = std::max(timeInSeconds, 0.005f);
+            }
+            else if (isAttack) {
+                // アタック時も 1ms は最低保証
+                timeInSeconds = std::max(timeInSeconds, 0.001f);
+            }
+            else {
+                // それ以外は極小値
+                timeInSeconds = std::max(timeInSeconds, 0.0001f);
             }
 
             return 1.0f / (timeInSeconds * (float)sampleRate);
@@ -259,18 +271,19 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleLinear(int noteNumber)
 
         // param(秒数) に対してスケーリングを行う。
         // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
-        auto calcInc = [&](float paramInSeconds) -> float {
+        auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
             // スケールを適用した実際の秒数（短くなる）
             float scaledSeconds = paramInSeconds / rateScale;
-            // 最低でも 1ms (0.001秒) は保証する
-            float finalSeconds = std::max(0.001f, scaledSeconds);
+            // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
+            float minSeconds = isRR ? 0.005f : 0.001f;
+            float finalSeconds = std::max(minSeconds, scaledSeconds);
             // サンプルレートから「1サンプルあたりに進む量」を返す
             return 1.0f / (finalSeconds * (float)sampleRate);
             };
 
         attackInc = calcInc(real.ar);
         decayDec = calcInc(real.d1r);
-        releaseDec = calcInc(this->sus ? 1.5f : real.rr);
+        releaseDec = calcInc(this->sus ? 1.5f : real.rr, true);
 
         if (real.d2r <= 0.001f) {
             sustainRateDec = 0.0f;
@@ -405,6 +418,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
             float timeInSeconds = 0.0f;
             if (effectiveRate >= 60) {
+                // Rate 60以上はほぼ瞬時（1ミリ秒）
                 timeInSeconds = 0.001f;
             }
             else {
@@ -418,7 +432,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
                     timeInSeconds *= 0.33f;
                 }
 
-                timeInSeconds = std::min(timeInSeconds, 15.0f);
+                timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
             }
 
             float normRate = (float)effectiveRate / 63.0f;
@@ -427,6 +441,18 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
             // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
             float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
             modulatedTime = std::max(0.00001f, modulatedTime);
+
+            // 最終的なデクリック保証
+            if (isRR) {
+                // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+                modulatedTime = std::max(modulatedTime, 0.005f);
+            }
+            else if (isAttack) {
+                modulatedTime = std::max(modulatedTime, 0.001f);
+            }
+            else {
+                modulatedTime = std::max(modulatedTime, 0.00001f);
+            }
 
             return 1.0f / (modulatedTime * (float)sampleRate);
             };
@@ -453,18 +479,21 @@ void Opzx7Adddr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
         // param(秒数) に対してスケーリングを行う。
         // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
-        auto calcInc = [&](float paramInSeconds) -> float {
+        auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
             // スケールを適用した実際の秒数（短くなる）
             float scaledSeconds = paramInSeconds / rateScale;
-            // 最低でも 1ms (0.001秒) は保証する
-            float finalSeconds = std::max(0.001f, scaledSeconds);
+
+            // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
+            float minSeconds = isRR ? 0.005f : 0.001f;
+            float finalSeconds = std::max(minSeconds, scaledSeconds);
+
             // サンプルレートから「1サンプルあたりに進む量」を返す
             return 1.0f / (finalSeconds * (float)sampleRate);
             };
 
         attackInc = calcInc(real.ar);
         decayDec = calcInc(real.d1r);
-        releaseDec = calcInc(this->sus ? 1.5f : real.rr);
+        releaseDec = calcInc(this->sus ? 1.5f : real.rr, true);
 
         if (real.d2r <= 0.001f) {
             sustainRateDec = 0.0f;
@@ -488,6 +517,10 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
     // Attack Phase (0.0 -> 1.0)
     // -------------------------------------------------------------
     if (this->state == State::Attack) {
+        if (this->m_phaseProgress == 0.0f) {
+            this->m_attackStartLevel = currentLevel;
+        }
+
         // 1. 時間を進める
         this->m_phaseProgress += this->attackInc;
 
@@ -500,7 +533,7 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
         int prmIdx = (int)CurveParams::TargetRegValue::Ar;
         float y = this->m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
 
-        return y; // 0.0 から 1.0 へ向かう
+        return this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
     }
     // -------------------------------------------------------------
     // Decay 1 Phase (1.0 -> SL)

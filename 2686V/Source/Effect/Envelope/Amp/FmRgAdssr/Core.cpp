@@ -211,9 +211,21 @@ void FmRgAdssr::updateIncrementsWithKeyScaleLinear(int noteNumber)
                 timeInSeconds *= 0.33f;
             }
 
-            // 安全装置: 最大時間を10秒程度でクリップする
-            // (レジスタ値1で5秒を想定するなら、最大10〜15秒あれば十分)
             timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
+        }
+
+        // 最終的なデクリック保証
+        if (isRR) {
+            // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+            timeInSeconds = std::max(timeInSeconds, 0.005f);
+        }
+        else if (isAttack) {
+            // アタック時も 1ms は最低保証
+            timeInSeconds = std::max(timeInSeconds, 0.001f);
+        }
+        else {
+            // それ以外は極小値
+            timeInSeconds = std::max(timeInSeconds, 0.0001f);
         }
 
         return 1.0f / (timeInSeconds * (float)sampleRate);
@@ -243,7 +255,11 @@ float FmRgAdssr::updateEnvelopeStateLinear(float currentLevel)
 {
     if (state == State::Attack) {
         currentLevel += attackInc;
-        if (currentLevel >= 1.0f) { currentLevel = 1.0f; state = State::Decay; }
+
+        if (currentLevel >= 1.0f) {
+            currentLevel = 1.0f;
+            state = State::Decay;
+        }
     }
     else if (state == State::Decay) {
         float limitLevel = m_sustain;
@@ -345,6 +361,7 @@ void FmRgAdssr::updateIncrementsWithKeyScaleCurve(int noteNumber)
 
         float timeInSeconds = 0.0f;
         if (effectiveRate >= 60) {
+            // Rate 60以上はほぼ瞬時（1ミリ秒）
             timeInSeconds = 0.001f;
         }
         else {
@@ -358,7 +375,7 @@ void FmRgAdssr::updateIncrementsWithKeyScaleCurve(int noteNumber)
                 timeInSeconds *= 0.33f;
             }
 
-            timeInSeconds = std::min(timeInSeconds, 15.0f);
+            timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
         }
 
         float normRate = (float)effectiveRate / 63.0f;
@@ -367,6 +384,18 @@ void FmRgAdssr::updateIncrementsWithKeyScaleCurve(int noteNumber)
         // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
         float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
         modulatedTime = std::max(0.00001f, modulatedTime);
+
+        // 最終的なデクリック保証
+        if (isRR) {
+            // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+            modulatedTime = std::max(modulatedTime, 0.005f);
+        }
+        else if (isAttack) {
+            modulatedTime = std::max(modulatedTime, 0.001f);
+        }
+        else {
+            modulatedTime = std::max(modulatedTime, 0.00001f);
+        }
 
         return 1.0f / (modulatedTime * (float)sampleRate);
         };
@@ -400,6 +429,10 @@ float FmRgAdssr::updateEnvelopeStateCurve(float currentLevel)
     // Attack Phase (0.0 -> 1.0)
     // -------------------------------------------------------------
     if (this->state == State::Attack) {
+        if (this->m_phaseProgress == 0.0f) {
+            this->m_attackStartLevel = currentLevel;
+        }
+
         // 1. 時間を進める
         this->m_phaseProgress += this->attackInc;
 
@@ -412,7 +445,7 @@ float FmRgAdssr::updateEnvelopeStateCurve(float currentLevel)
         int prmIdx = (int)CurveParams::TargetRegValue::Ar;
         float y = this->m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
 
-        return y; // 0.0 から 1.0 へ向かう
+        return this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
     }
     // -------------------------------------------------------------
     // Decay 1 Phase (1.0 -> SL)

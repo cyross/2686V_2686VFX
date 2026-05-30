@@ -144,8 +144,8 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    m_phase = 0.0;
-    m_currentLevel = 0.0f;
+    //m_phase = 0.0;
+    //m_currentLevel = 0.0f;
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 

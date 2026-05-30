@@ -43,6 +43,7 @@ class OplAdsr
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
 	float sustainRateDec = 0.0f;
+	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
