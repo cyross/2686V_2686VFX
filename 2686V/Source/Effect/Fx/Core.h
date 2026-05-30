@@ -14,6 +14,7 @@
 enum class FxType
 {
     Filter = 0, // フィルターは最初にかけるのが一般的
+    Eq3b,
     Tremolo,
     Vibrato,
     ModernBitCrusher,
@@ -148,6 +149,31 @@ private:
     float currentQ = 0.707f;
 };
 
+// ======================================================
+// 7. 3-Band EQ (Low Shelf, Mid Bell, High Shelf)
+// ======================================================
+class FxEq3b : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+
+    // Low, Mid, High のゲイン(dB)と、Midの周波数を設定できるようにする
+    void setParameters(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix);
+
+    void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
+
+private:
+    double fs = 44100.0;
+
+    // ステレオ用の IIR フィルター (L / R)
+    using IIRFilter = juce::dsp::IIR::Filter<float>;
+
+    IIRFilter lowShelfL, lowShelfR;
+    IIRFilter midBellL, midBellR;
+    IIRFilter highShelfL, highShelfR;
+};
+
 // --- Effect Manager ---
 class EffectChain
 {
@@ -159,15 +185,17 @@ public:
     void setDelayParams(float time, float fb, float mix);
     void setReverbParams(float size, float damp, float width, float mix);
     void setFilterParams(int type, float freq, float q, float mix);
+    void setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix);
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
-    void setBypasses(bool fl, bool t, bool v, bool mc, bool d, bool r);
+    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r);
     void updateOrder(const std::array<int, NumEffects>& newOrders);
     void clear();
 private:
     // 各エフェクトオブジェクト
     FxFilter filter;
+    FxEq3b eq3b;
     FxTremolo tremolo;
     FxVibrato vibrato;
     FxMBC modernBitCrusher;
@@ -175,9 +203,9 @@ private:
     FxReverb reverb;
 
     // エフェクトの適応順
-    int fxSize = 6;
-    std::array<int, 6> orderIndex{ { 0, 1, 2, 3, 4, 5 } };
-    std::vector<FxCore*> fxs{ &filter, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb };
+    int fxSize = 7;
+    std::array<int, 7> orderIndex{ { 0, 1, 2, 3, 4, 5, 6 } };
+    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;

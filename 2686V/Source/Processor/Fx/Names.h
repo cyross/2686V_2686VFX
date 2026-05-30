@@ -15,6 +15,7 @@ namespace FxPrName
 	static inline const juce::String delay = " Delay";
 	static inline const juce::String reverb = " Reverb";
 	static inline const juce::String filter = " Filter";
+	static inline const juce::String eq3b = " 3Band EQ";
 
 	namespace Tremolo
 	{
@@ -62,6 +63,16 @@ namespace FxPrName
 		static inline const juce::String type = " Type";
 		static inline const juce::String freq = " Freq";
 		static inline const juce::String q = " Q";
+		static inline const juce::String mix = " Mix";
+	}
+
+	namespace Eq3b
+	{
+		static inline const juce::String bypass = " Bypass";
+		static inline const juce::String lowGainDb = " Low Gain dB";
+		static inline const juce::String midFreq = " Mid Freq";
+		static inline const juce::String midGainDb = " Mid Gain dB";
+		static inline const juce::String highGainDb = " High Gain dB";
 		static inline const juce::String mix = " Mix";
 	}
 }

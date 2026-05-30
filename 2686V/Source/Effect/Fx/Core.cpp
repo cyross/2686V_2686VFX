@@ -391,10 +391,92 @@ void FxFilter::clear()
     filterR.reset();
 }
 
+void FxEq3b::prepare(double sampleRate)
+{
+    fs = sampleRate;
+
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = 4096;
+    spec.numChannels = 1;
+
+    lowShelfL.prepare(spec); lowShelfR.prepare(spec);
+    midBellL.prepare(spec);  midBellR.prepare(spec);
+    highShelfL.prepare(spec); highShelfR.prepare(spec);
+
+    clear();
+}
+
+void FxEq3b::setParameters(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix)
+{
+    // Q値（帯域幅）は固定値（0.707 など）にしておくとシンプルです
+    float q = 0.707f;
+    float midQ = 1.0f; // Midは少し狭めにすると使いやすい
+
+    // Low Shelf (固定周波数 例: 200Hz)
+    auto lowCoefs = juce::dsp::IIR::Coefficients<float>::makeLowShelf(fs, 200.0f, q, juce::Decibels::decibelsToGain(lowGainDb));
+    lowShelfL.coefficients = lowCoefs;
+    lowShelfR.coefficients = lowCoefs;
+
+    // Mid Bell (可変周波数)
+    auto midCoefs = juce::dsp::IIR::Coefficients<float>::makePeakFilter(fs, midFreq, midQ, juce::Decibels::decibelsToGain(midGainDb));
+    midBellL.coefficients = midCoefs;
+    midBellR.coefficients = midCoefs;
+
+    // High Shelf (固定周波数 例: 5000Hz)
+    auto highCoefs = juce::dsp::IIR::Coefficients<float>::makeHighShelf(fs, 5000.0f, q, juce::Decibels::decibelsToGain(highGainDb));
+    highShelfL.coefficients = highCoefs;
+    highShelfR.coefficients = highCoefs;
+
+    wetLevel = mix; // EQの場合、Mixは全体のDry/Wetバランスとして使用
+}
+
+void FxEq3b::process(juce::AudioBuffer<float>& buffer)
+{
+    if (wetLevel < 0.01f) return;
+
+    int numSamples = buffer.getNumSamples();
+    float* outL = buffer.getWritePointer(0);
+    float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : outL;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float dryL = outL[i];
+        float dryR = outR[i];
+
+        // L channel: Low -> Mid -> High と直列に処理
+        float wetL = lowShelfL.processSample(dryL);
+        wetL = midBellL.processSample(wetL);
+        wetL = highShelfL.processSample(wetL);
+
+        // R channel
+        float wetR = dryR;
+        if (buffer.getNumChannels() > 1) {
+            wetR = lowShelfR.processSample(dryR);
+            wetR = midBellR.processSample(wetR);
+            wetR = highShelfR.processSample(wetR);
+        }
+
+        // Mix (Dry/Wet)
+        outL[i] = (dryL * (1.0f - wetLevel)) + (wetL * wetLevel);
+        if (buffer.getNumChannels() > 1) {
+            outR[i] = (dryR * (1.0f - wetLevel)) + (wetR * wetLevel);
+        }
+    }
+}
+
+void FxEq3b::clear()
+{
+    lowShelfL.reset(); lowShelfR.reset();
+    midBellL.reset();  midBellR.reset();
+    highShelfL.reset(); highShelfR.reset();
+}
+
 // --- EffectChain への組み込み ---
 EffectChain::EffectChain()
 {
     fxMap[static_cast<int>(FxType::Filter)] = &filter;
+    fxMap[static_cast<int>(FxType::Eq3b)] = &eq3b;
     fxMap[static_cast<int>(FxType::Tremolo)] = &tremolo;
     fxMap[static_cast<int>(FxType::Vibrato)] = &vibrato;
     fxMap[static_cast<int>(FxType::ModernBitCrusher)] = &modernBitCrusher;
@@ -419,6 +501,7 @@ void EffectChain::setModernBitCrusherParams(float rate, float bits, float mix) {
 void EffectChain::setDelayParams(float time, float fb, float mix) { delay.setParameters(time, fb, mix); }
 void EffectChain::setReverbParams(float size, float damp, float width, float mix) { reverb.setParameters(size, damp, width, mix); }
 void EffectChain::setFilterParams(int type, float freq, float q, float mix) { filter.setParameters((float)type, freq, q, mix); }
+void EffectChain::setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix) { eq3b.setParameters(lowGainDb, midFreq, midGainDb, highGainDb, mix); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {
@@ -432,9 +515,10 @@ void EffectChain::process(juce::AudioBuffer<float>& buffer)
 }
 
 // バイパス状態のセット
-void EffectChain::setBypasses(bool fl, bool t, bool v, bool mc, bool d, bool r)
+void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r)
 {
     filter.setBypass(fl);
+    eq3b.setBypass(e3);
     tremolo.setBypass(t);
     vibrato.setBypass(v);
     modernBitCrusher.setBypass(mc);

@@ -81,6 +81,53 @@ void GuiFx::setup()
     flWetBtn.setWantsKeyboardFocus(true);
     flWetBtn.setExplicitFocusOrder(++tabOrder);
 
+    // 3Band EQ Group
+    eq3bGroup.setup(*this, FxGuiText::Group::fxEq3B);
+    eq3bGroup.setBackgroundColor(groupBgColour);
+    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
+
+    eq3bBypassBtn.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    eq3bBypassBtn.setWantsKeyboardFocus(true);
+    eq3bBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(eq3bSeparator);
+    eq3bSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    eq3bLowGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::lowGainDb, .title = FxGuiText::Fx::Eq3b::lowGainDb, .isReset = true });
+    eq3bLowGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bLowGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMidFreqSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::midFreq, .title = FxGuiText::Fx::Eq3b::midFreq, .isReset = true });
+    eq3bMidFreqSlider.setWantsKeyboardFocus(true);
+    eq3bMidFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMidGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::midGainDb, .title = FxGuiText::Fx::Eq3b::midGainDb, .isReset = true });
+    eq3bMidGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bMidGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bHighGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::highGainDb, .title = FxGuiText::Fx::Eq3b::highGainDb, .isReset = true });
+    eq3bHighGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bHighGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMixSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    eq3bMixSlider.setWantsKeyboardFocus(true);
+    eq3bMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    eq3bDryBtn.onClick = [&] { eq3bMixSlider.setValue(0.0f); };
+    eq3bDryBtn.setWantsKeyboardFocus(true);
+    eq3bDryBtn.setExplicitFocusOrder(++tabOrder);
+
+    eq3bHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    eq3bHalfBtn.onClick = [&] { eq3bMixSlider.setValue(0.5f); };
+    eq3bHalfBtn.setWantsKeyboardFocus(true);
+    eq3bHalfBtn.setExplicitFocusOrder(++tabOrder);
+
+    eq3bWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    eq3bWetBtn.onClick = [&] { eq3bMixSlider.setValue(1.0f); };
+    eq3bWetBtn.setWantsKeyboardFocus(true);
+    eq3bWetBtn.setExplicitFocusOrder(++tabOrder);
+
     // Tremolo Group
 	tremGroup.setup(*this, FxGuiText::Group::fxTremolo);
     tremGroup.setBackgroundColor(groupBgColour);
@@ -302,16 +349,16 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .component = &resetBtn });
 
-    auto topCol = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+    auto row1 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
     pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
-    auto centerCol = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeight);
+    auto row2 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
     pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
-    auto bottomCol = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeight);
-
-    // 1st Row
+    auto row3 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
+    auto row4 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
 
     // Filter
-    auto flArea = topCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto flArea = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     filterGroup.setBounds(flArea);
 
@@ -332,8 +379,31 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
+    // 3-Band EQ
+    auto eq3bArea = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    eq3bGroup.setBounds(eq3bArea);
+
+    auto eq3bRect = eq3bArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    eq3bRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = eq3bRect, .component = &eq3bBypassBtn });
+
+    // 区切り線エリアを確保
+    auto eq3bSprArea = eq3bRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    eq3bSeparator.setBounds(eq3bSprArea);
+
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bLowGainDbSlider.label, .component = &eq3bLowGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidFreqSlider.label, .component = &eq3bMidFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidGainDbSlider.label, .component = &eq3bMidGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bHighGainDbSlider.label, .component = &eq3bHighGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    eq3bRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMixSlider.label, .component = &eq3bMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
     // Tremolo
-    auto trmArea = topCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto trmArea = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     tremGroup.setBounds(trmArea);
 
@@ -354,7 +424,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
     // Vibrato
-    auto vibArea = centerCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto vibArea = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     vibGroup.setBounds(vibArea);
 
@@ -374,11 +444,8 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
-
-    // 2nd Row
-
     // Modern Bit Crusher
-    auto mbcArea = centerCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto mbcArea = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     mbcGroup.setBounds(mbcArea);
 
@@ -399,7 +466,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
     // Delay
-    auto dlyArea = bottomCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto dlyArea = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     delayGroup.setBounds(dlyArea);
 
@@ -420,7 +487,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
 
     // Reverb
-    auto rvbArea = bottomCol.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+    auto rvbArea = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
 
     reverbGroup.setBounds(rvbArea);
 

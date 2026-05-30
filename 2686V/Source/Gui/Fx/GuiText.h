@@ -15,6 +15,7 @@ namespace FxGuiText
 		static inline const juce::String fxDelay = u8"Delay";
 		static inline const juce::String fxReverb = u8"Reverb";
 		static inline const juce::String fxFilter = u8"Filter";
+		static inline const juce::String fxEq3B = u8"3-Band EQ";
 	}
 
 	namespace Fx
@@ -65,7 +66,15 @@ namespace FxGuiText
 		{
 			static inline const juce::String type = u8"Type";
 			static inline const juce::String freq = u8"Freq";
-			static inline const juce::String q = u8" Q";
+			static inline const juce::String q = u8"Q";
+		}
+
+		namespace Eq3b
+		{
+			static inline const juce::String lowGainDb = u8"L-Gain";
+			static inline const juce::String midFreq = u8"M-Freq";
+			static inline const juce::String midGainDb = u8"M-Gain";
+			static inline const juce::String highGainDb = u8"H-Gain";
 		}
 	}
 }

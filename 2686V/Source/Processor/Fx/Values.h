@@ -133,4 +133,35 @@ namespace FxPrValue
 			inline constexpr float initial = 0.707f;
 		}
 	}
+
+	namespace Eq3b
+	{
+		namespace LowGainDb
+		{
+			inline constexpr float min = -15.0f;
+			inline constexpr float max = 15.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace MidFreq
+		{
+			inline constexpr float min = 500.0f;
+			inline constexpr float max = 3000.0f;
+			inline constexpr float initial = 2000.0f;
+		}
+
+		namespace MidGainDb
+		{
+			inline constexpr float min = -15.0f;
+			inline constexpr float max = 15.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace HighGainDb
+		{
+			inline constexpr float min = -15.0f;
+			inline constexpr float max = 15.0f;
+			inline constexpr float initial = 0.0f;
+		}
+	}
 }

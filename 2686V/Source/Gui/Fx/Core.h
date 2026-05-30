@@ -16,6 +16,7 @@ class GuiFx : public GuiBase
     GuiGroup delayGroup;
     GuiGroup reverbGroup;
     GuiGroup filterGroup;
+    GuiGroup eq3bGroup;
 
     GuiToggleButton bypassToggle;
     GuiSeparator mainSeparator;
@@ -66,6 +67,16 @@ class GuiFx : public GuiBase
     GuiSlider flQSlider;
     GuiSlider flMixSlider;
     GuiTextButton flDryBtn, flHalfBtn, flWetBtn;
+
+    // 3Band EQ
+    GuiToggleButton eq3bBypassBtn;
+    GuiSeparator eq3bSeparator;
+    GuiSlider eq3bLowGainDbSlider;
+    GuiSlider eq3bMidFreqSlider;
+    GuiSlider eq3bMidGainDbSlider;
+    GuiSlider eq3bHighGainDbSlider;
+    GuiSlider eq3bMixSlider;
+    GuiTextButton eq3bDryBtn, eq3bHalfBtn, eq3bWetBtn;
 public:
 	GuiFx(const GuiContext& context) :
         GuiBase(context),
@@ -76,6 +87,7 @@ public:
         delayGroup(context),
         reverbGroup(context),
         filterGroup(context),
+        eq3bGroup(context),
         bypassToggle(context),
         mainSeparator(context),
         resetBtn(context),
@@ -127,7 +139,17 @@ public:
         flMixSlider(context),
         flDryBtn(context),
         flHalfBtn(context),
-        flWetBtn(context)
+        flWetBtn(context),
+        eq3bBypassBtn(context),
+        eq3bSeparator(context),
+        eq3bLowGainDbSlider(context),
+        eq3bMidFreqSlider(context),
+        eq3bMidGainDbSlider(context),
+        eq3bHighGainDbSlider(context),
+        eq3bMixSlider(context),
+        eq3bDryBtn(context),
+        eq3bHalfBtn(context),
+        eq3bWetBtn(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
     }

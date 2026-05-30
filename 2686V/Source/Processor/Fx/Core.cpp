@@ -64,6 +64,16 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::Reverb::size, rvbLPrefix + FxPrName::Reverb::size, FxPrValue::Reverb::Size::min, FxPrValue::Reverb::Size::max, FxPrValue::Reverb::Size::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::Reverb::damp, rvbLPrefix + FxPrName::Reverb::damp, FxPrValue::Reverb::Damp::min, FxPrValue::Reverb::Damp::max, FxPrValue::Reverb::Damp::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(rvbPrefix + FxPrKey::mix, rvbLPrefix + FxPrName::Reverb::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
+
+    // --- 3Band EQ ---
+    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
+    const juce::String eq3bLPrefix = code + FxPrName::eq3b;
+    layout.add(std::make_unique<juce::AudioParameterBool>(eq3bPrefix + FxPrKey::bypass, eq3bLPrefix + FxPrName::Eq3b::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::lowGainDb, eq3bLPrefix + FxPrName::Eq3b::lowGainDb, FxPrValue::Eq3b::LowGainDb::min, FxPrValue::Eq3b::LowGainDb::max, FxPrValue::Eq3b::LowGainDb::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::midFreq, eq3bLPrefix + FxPrName::Eq3b::midFreq, FxPrValue::Eq3b::MidFreq::min, FxPrValue::Eq3b::MidFreq::max, FxPrValue::Eq3b::MidFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::midGainDb, eq3bLPrefix + FxPrName::Eq3b::midGainDb, FxPrValue::Eq3b::MidGainDb::min, FxPrValue::Eq3b::MidGainDb::max, FxPrValue::Eq3b::MidGainDb::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::highGainDb, eq3bLPrefix + FxPrName::Eq3b::highGainDb, FxPrValue::Eq3b::HighGainDb::min, FxPrValue::Eq3b::HighGainDb::max, FxPrValue::Eq3b::HighGainDb::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::mix, eq3bLPrefix + FxPrName::Eq3b::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -83,6 +93,16 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     float flQ = *apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::q);
     float flMix = *apvts.getRawParameterValue(filterPrefix + FxPrKey::mix);
     effects.setFilterParams(flType, flFreq, flQ, flMix);
+
+    // 3Band EQ
+    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
+    bool eq3bB = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
+    float eq3bLowGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::lowGainDb);
+    float eq3bMidFreq = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midFreq);
+    float eq3bMidGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midGainDb);
+    float eq3bHighGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::highGainDb);
+    float eq3bMix = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::mix);
+    effects.setEq3bParams(eq3bLowGainDb, eq3bMidFreq, eq3bMidGainDb, eq3bHighGainDb, eq3bMix);
 
     // Vibrato
     const juce::String vibPrefix = code + FxPrKey::vib;
@@ -125,7 +145,7 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
     // バイパス設定
-    effects.setBypasses(flB, tB, vB, mcB, dB, rB);
+    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB);
 
     // エフェクト処理実行
     effects.process(buffer);

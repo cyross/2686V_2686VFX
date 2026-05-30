@@ -22,6 +22,7 @@ namespace FxPrKey
 	static inline const juce::String mbc = "_MBC";
 	static inline const juce::String fil = "_FIL";
 	static inline const juce::String scl = "_SCL";
+	static inline const juce::String eq3b = "_EQ3B";
 
 	static inline const juce::String mix = "_MIX";
 
@@ -61,5 +62,13 @@ namespace FxPrKey
 		static inline const juce::String freq = "_FREQ";
 		static inline const juce::String q = "_Q";
 	};
+
+	namespace Eq3b
+	{
+		static inline const juce::String lowGainDb = "_LGDB";
+		static inline const juce::String midFreq = "_MFREQ";
+		static inline const juce::String midGainDb = "_MGDB";
+		static inline const juce::String highGainDb = "_HGDB";
+	}
 };
 
