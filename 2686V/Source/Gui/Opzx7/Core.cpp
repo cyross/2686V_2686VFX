@@ -591,12 +591,6 @@ void GuiOpzx7::setup()
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
 
-        catPhase[i].setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visiblePhase, .invisibleTitle = Opzx7GuiText::Category::invisiblePhase, .enableChangeDetailVisible = true });
-
-        phaseOffset[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::phaseOffset, .title = Opzx7GuiText::Fm::Op::phaseOffset, .isReset = true });
-        phaseOffset[i].setWantsKeyboardFocus(true);
-        phaseOffset[i].setExplicitFocusOrder(++tabOrder);
-
         catSsgEnv[i].setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleSsgEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleSsgEnv, .enableChangeDetailVisible = true });
 
         se[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::se, .title = Opzx7GuiText::Fm::Op::SEnv, .items = opnaSeItems, .isReset = true });
@@ -956,8 +950,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         layoutOpOptionalCat(i, innerRect);
 
-		layoutOpPhaseCat(i, innerRect);
-
         layoutOpSsgEnvCat(i, innerRect);
 
         layoutOpPitchEnvCat(i, innerRect);
@@ -1072,7 +1064,6 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     d2r[idx].setEnabledWithLabel(enable);
     tl[idx].setEnabledWithLabel(enable);
     ks[idx].setEnabledWithLabel(enable);
-    phaseOffset[idx].setEnabledWithLabel(enable);
     se[idx].setEnabledWithLabel(enable);
     seFreq[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
@@ -1582,20 +1573,6 @@ void GuiOpzx7::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &egShape[opIndex].label, .component = &egShape[opIndex] });
         layoutRow({ .rowRect = rect, .label = &ams[opIndex].label, .component = &ams[opIndex] });
         layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
-    }
-}
-
-void GuiOpzx7::layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect)
-{
-    layoutRowCategory({ .rowRect = rect, .component = &catPhase[opIndex] });
-
-    bool visible = catPhase[opIndex].isDetailVisible();
-
-	phaseOffset[opIndex].setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutRow({ .rowRect = rect, .label = &phaseOffset[opIndex].label, .component = &phaseOffset[opIndex] });
     }
 }
 

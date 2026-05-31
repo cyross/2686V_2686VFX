@@ -49,8 +49,6 @@ struct Opzx7OpParams
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
 
-    float phaseOffset = 0.0f; // OPZX7-PHASE-OFFSET
-
     bool pitchEnvEnable = true;
     bool ssgEnvEnable = false;
 

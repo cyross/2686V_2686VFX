@@ -54,7 +54,6 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::se, namePrefix + Opzx7PrName::se, Opzx7PrValue::Op::Se::min, Opzx7PrValue::Op::Se::max, Opzx7PrValue::Op::Se::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::seFreq, namePrefix + Opzx7PrName::seFreq, Opzx7PrValue::Op::SeFreq::min, Opzx7PrValue::Op::SeFreq::max, Opzx7PrValue::Op::SeFreq::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::ks, namePrefix + Opzx7PrName::ks, Opzx7PrValue::Op::Ks::min, Opzx7PrValue::Op::Ks::max, Opzx7PrValue::Op::Ks::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::phaseOffset, namePrefix + Opzx7PrName::phaseOffset, Opzx7PrValue::Op::PhaseOffset::min, Opzx7PrValue::Op::PhaseOffset::max, Opzx7PrValue::Op::PhaseOffset::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::PitchAdsr::enable, namePrefix + Opzx7PrName::PitchAdsr::enable, Opzx7PrValue::Op::PitchAdsr::Enable::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::SsgSwEnv::enable, namePrefix + Opzx7PrName::SsgSwEnv::enable, Opzx7PrValue::Op::SsgSwEnv::Enable::initial));
@@ -153,10 +152,6 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.sus = (*apvts.getRawParameterValue(p + Opzx7PrKey::sus) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (*apvts.getRawParameterValue(p + Opzx7PrKey::xof) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + Opzx7PrKey::ampBypass) > Opzx7PrValue::boolThread;
-
-        // ラジアンに変換して組み込み(180度=π)
-        float phaseDegree = *apvts.getRawParameterValue(p + Opzx7PrKey::phaseOffset);
-        params.opzx7.op[op].phaseOffset = phaseDegree * juce::MathConstants<float>::pi / 180.0f;
 
         params.opzx7.op[op].ssgEg = (int)*apvts.getRawParameterValue(p + Opzx7PrKey::se);
         params.opzx7.op[op].fmSsgEgFreq = *apvts.getRawParameterValue(p + Opzx7PrKey::seFreq);

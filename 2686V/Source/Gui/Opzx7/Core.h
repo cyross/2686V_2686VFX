@@ -178,8 +178,6 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> ks;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
     std::array<GuiToggleButton, Global::Fm::Op4> bypass;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catPhase;
-    std::array<GuiSlider, Global::Fm::Op4> phaseOffset;
     std::array<GuiCategoryLabel, Global::Fm::Op4> cafFix;
     std::array<GuiToggleButton, Global::Fm::Op4> fix;
     std::array<GuiSlider, Global::Fm::Op4> freq;
@@ -328,8 +326,6 @@ public:
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        catPhase{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        phaseOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         cafFix{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         fix{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         freq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -453,7 +449,6 @@ public:
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutOpPhaseCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void applyOpSsgSwEnvLoopValues(int opIndex, bool enabled);
     void setupGraph(int opIndex);

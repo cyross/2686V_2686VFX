@@ -140,7 +140,14 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(finalFreq);
-    m_phase = 0.0f;
+
+    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+    while (m_phase >= juce::MathConstants<float>::twoPi) {
+        m_phase -= juce::MathConstants<float>::twoPi;
+    }
+
     m_modPhase = 0.0f;
     m_rateAccumulator = 0.0; // レートの余りもリセット
 

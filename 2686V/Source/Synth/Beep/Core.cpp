@@ -68,7 +68,13 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     float baseFreq = m_fixMode.noteOn(finalFreq);
     m_baseFreq = m_detune.noteOn(baseFreq);
 
-    m_phase = 0.0f;
+    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+    while (m_phase >= juce::MathConstants<float>::twoPi) {
+        m_phase -= juce::MathConstants<float>::twoPi;
+    }
+
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
     m_baseLevel = std::max(0.01f, velocity * 0.25f);
