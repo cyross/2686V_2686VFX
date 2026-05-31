@@ -34,6 +34,11 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::Unison::voices, code + AdpcmPrName::Unison::voices, AdpcmPrValue::Unison::Voices::min, AdpcmPrValue::Unison::Voices::max, AdpcmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::Unison::detune, code + AdpcmPrName::Unison::detune, AdpcmPrValue::Unison::Detune::min, AdpcmPrValue::Unison::Detune::max, AdpcmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::Unison::spread, code + AdpcmPrName::Unison::spread, AdpcmPrValue::Unison::Spread::min, AdpcmPrValue::Unison::Spread::max, AdpcmPrValue::Unison::Spread::initial));
+
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
     addSsgSwEnvParameters(layout, code);
@@ -52,6 +57,11 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.rateIndex = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::rate);
     params.adpcm.offset = *apvts.getRawParameterValue(code + AdpcmPrKey::pcmOffset);
     params.adpcm.ratio = *apvts.getRawParameterValue(code + AdpcmPrKey::pcmRatio);
+
+    // ユニゾン・ハーモニー用
+    params.adpcm.unisonVoices = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::Unison::voices);
+    params.adpcm.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + AdpcmPrKey::Unison::detune);
+    params.adpcm.unisonSpread = *apvts.getRawParameterValue(code + AdpcmPrKey::Unison::spread);
 
     params.adpcm.adsr.bypass = (*apvts.getRawParameterValue(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass) > AdpcmPrValue::boolThread);
 	params.adpcm.adsr.stl = *apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::stl);

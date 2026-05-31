@@ -64,6 +64,11 @@ struct Opzx7Params
     int panpot = 0;
     bool panpot_enable = false;
 
+    // ユニゾン・ハーモニー用
+    int unisonVoices = 1;        // 1 to 8
+    int unisonDetuneCents = 0;   // cents
+    float unisonSpread = 1.0f;   // 0.0 to 1.0 (Stereo width)
+
     // Parameters for Operator
     std::array<Opzx7OpParams, 4> op;
 };

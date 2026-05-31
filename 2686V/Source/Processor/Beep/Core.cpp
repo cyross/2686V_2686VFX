@@ -25,6 +25,11 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt, code + BeepPrName::dt1, BeepPrValue::Dt1::min, BeepPrValue::Dt1::max, BeepPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt2, code + BeepPrName::dt2, BeepPrValue::Dt2::min, BeepPrValue::Dt2::max, BeepPrValue::Dt2::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::Unison::voices, code + BeepPrName::Unison::voices, BeepPrValue::Unison::Voices::min, BeepPrValue::Unison::Voices::max, BeepPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::Unison::detune, code + BeepPrName::Unison::detune, BeepPrValue::Unison::Detune::min, BeepPrValue::Unison::Detune::max, BeepPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::Unison::spread, code + BeepPrName::Unison::spread, BeepPrValue::Unison::Spread::min, BeepPrValue::Unison::Spread::max, BeepPrValue::Unison::Spread::initial));
+
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
     addSsgSwEnvParameters(layout, code);
@@ -35,6 +40,12 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     const juce::String code = BeepPrKey::prefix;
 
     params.beep.level = *apvts.getRawParameterValue(code + BeepPrKey::level);
+
+    // ユニゾン・ハーモニー用
+    params.beep.unisonVoices = (int)*apvts.getRawParameterValue(code + BeepPrKey::Unison::voices);
+    params.beep.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + BeepPrKey::Unison::detune);
+    params.beep.unisonSpread = *apvts.getRawParameterValue(code + BeepPrKey::Unison::spread);
+
     params.beep.fixedMode = (*apvts.getRawParameterValue(code + BeepPrKey::fix) > BeepPrValue::boolThread);
     params.beep.fixedFreq = *apvts.getRawParameterValue(code + BeepPrKey::fixFreq);
     params.beep.adsr.bypass = (*apvts.getRawParameterValue(code + BeepPrKey::adsr + BeepPrKey::bypass) > BeepPrValue::boolThread);

@@ -21,6 +21,14 @@ namespace RhythmPrKey
 	
 	static inline const juce::String pad = "_PAD";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace Pad
 	{
 		static inline const juce::String volume = "_VOL";

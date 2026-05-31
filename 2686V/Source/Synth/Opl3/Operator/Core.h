@@ -27,6 +27,11 @@ public:
 	float calcWaveform(double phase, int wave) override;
 	void setModWheel(float modWheel) { this->m_lfo.setModWheel(modWheel); };
 	void setCurveCore(CurveCore* p_curveCore);
+
+	// ユニゾン・ハーモニー用
+	// ユニゾン時の位相オフセットを受け取る関数
+	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
+	void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
 	OplLfoCore m_lfo;
 	OplAdsr m_ampAdsr;
@@ -35,4 +40,8 @@ private:
 
 	bool m_zeroDecay = true;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
+
+	// ユニゾン・ハーモニー用
+	bool m_isMonoMode = false;
+	float m_unisonPhaseOffset = 0.0f;
 };

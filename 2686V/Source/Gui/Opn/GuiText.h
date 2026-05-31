@@ -43,6 +43,15 @@ namespace OpnGuiText
 		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
+		static inline const juce::String visibleUnison = u8"[■]--- UNISON/HARMONY ---";
+		static inline const juce::String invisibleUnison = u8"[□]--- UNISON/HARMONY ---";
+	}
+
+	namespace Unison
+	{
+		static inline const juce::String voices = "Voices";
+		static inline const juce::String detune = "Detune";
+		static inline const juce::String spread = "Spread";
 	}
 
 	namespace Group

@@ -62,6 +62,12 @@ public:
     void setCurveCore(CurveCore* p_curveCore);
 
     std::map<OscMode, SynthCore *> coreMap;
+
+    // ユニゾン・ハーモニー用
+    void setUnisonParams(int index, int total, float detune, float spread) 
+    {
+        coreMap[m_mode]->setUnisonParams(index, total, detune, spread);
+    }
 private:
     OscMode m_mode = OscMode::OPNA;
     OpnaCore m_opnaCore;

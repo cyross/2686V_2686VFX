@@ -70,6 +70,11 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::pmd, code + SsgPrName::Lfo::pmd, SsgPrValue::Lfo::Pmd::min, SsgPrValue::Lfo::Pmd::max, SsgPrValue::Lfo::Pmd::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::amd, code + SsgPrName::Lfo::amd, SsgPrValue::Lfo::Amd::min, SsgPrValue::Lfo::Amd::max, SsgPrValue::Lfo::Amd::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Unison::voices, code + SsgPrName::Unison::voices, SsgPrValue::Unison::Voices::min, SsgPrValue::Unison::Voices::max, SsgPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Unison::detune, code + SsgPrName::Unison::detune, SsgPrValue::Unison::Detune::min, SsgPrValue::Unison::Detune::max, SsgPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Unison::spread, code + SsgPrName::Unison::spread, SsgPrValue::Unison::Spread::min, SsgPrValue::Unison::Spread::max, SsgPrValue::Unison::Spread::initial));
+
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
 	addSsgSwEnvParameters(layout, code);
@@ -88,6 +93,11 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.waveform = (int)*apvts.getRawParameterValue(code + SsgPrKey::wveform);
     params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + SsgPrKey::bit);
     params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + SsgPrKey::rate);
+
+    // ユニゾン・ハーモニー用
+    params.ssg.unisonVoices = (int)*apvts.getRawParameterValue(code + SsgPrKey::Unison::voices);
+    params.ssg.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + SsgPrKey::Unison::detune);
+    params.ssg.unisonSpread = *apvts.getRawParameterValue(code + SsgPrKey::Unison::spread);
 
     params.ssg.multiple = (int)*apvts.getRawParameterValue(code + SsgPrKey::mul);
     params.ssg.mutipleRatio = *apvts.getRawParameterValue(code + SsgPrKey::mulRatio);

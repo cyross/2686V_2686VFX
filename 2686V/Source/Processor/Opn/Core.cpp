@@ -22,6 +22,11 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::N88Lfo::amd, code + OpnPrName::N88Lfo::amd, OpnPrValue::Lfo::N88Amd::min, OpnPrValue::Lfo::N88Amd::max, OpnPrValue::Lfo::N88Amd::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::N88Lfo::syncDelay, code + OpnPrName::N88Lfo::syncDelay, OpnPrValue::Lfo::SyncDelay::min, OpnPrValue::Lfo::SyncDelay::max, OpnPrValue::Lfo::SyncDelay::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::Unison::voices, code + OpnPrName::Unison::voices, OpnPrValue::Unison::Voices::min, OpnPrValue::Unison::Voices::max, OpnPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::Unison::detune, code + OpnPrName::Unison::detune, OpnPrValue::Unison::Detune::min, OpnPrValue::Unison::Detune::max, OpnPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpnPrKey::Unison::spread, code + OpnPrName::Unison::spread, OpnPrValue::Unison::Spread::min, OpnPrValue::Unison::Spread::max, OpnPrValue::Unison::Spread::initial));
+
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
         juce::String prefix = code + OpnPrKey::op + juce::String(op);
@@ -75,6 +80,11 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opn.lfoAmd = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::amd);
     params.opn.lfoAms = 0; // グローバルAMSはN88-BASICには存在しないので0固定
     params.opn.lfoSyncDelay = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::syncDelay);
+
+    // ユニゾン・ハーモニー用
+    params.opn.unisonVoices = (int)*apvts.getRawParameterValue(code + OpnPrKey::Unison::voices);
+    params.opn.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + OpnPrKey::Unison::detune);
+    params.opn.unisonSpread = *apvts.getRawParameterValue(code + OpnPrKey::Unison::spread);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {

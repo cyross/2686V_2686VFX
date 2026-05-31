@@ -13,6 +13,11 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + RhythmPrKey::level, code + RhythmPrName::vol, RhythmPrValue::Level::min, RhythmPrValue::Level::max, RhythmPrValue::Level::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + RhythmPrKey::Unison::voices, code + RhythmPrName::Unison::voices, RhythmPrValue::Unison::Voices::min, RhythmPrValue::Unison::Voices::max, RhythmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + RhythmPrKey::Unison::detune, code + RhythmPrName::Unison::detune, RhythmPrValue::Unison::Detune::min, RhythmPrValue::Unison::Detune::max, RhythmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + RhythmPrKey::Unison::spread, code + RhythmPrName::Unison::spread, RhythmPrValue::Unison::Spread::min, RhythmPrValue::Unison::Spread::max, RhythmPrValue::Unison::Spread::initial));
+
     // Create parameters for each of the 8 pads
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         juce::String prefix = code + RhythmPrKey::pad + juce::String(i);
@@ -54,6 +59,11 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
 
     // --- Rhythm Parameters ---
     params.rhythm.level = *apvts.getRawParameterValue(code + RhythmPrKey::level);
+
+    // ユニゾン・ハーモニー用
+    params.rhythm.unisonVoices = (int)*apvts.getRawParameterValue(code + RhythmPrKey::Unison::voices);
+    params.rhythm.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + RhythmPrKey::Unison::detune);
+    params.rhythm.unisonSpread = *apvts.getRawParameterValue(code + RhythmPrKey::Unison::spread);
 
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         juce::String prefix = code + RhythmPrKey::pad + juce::String(i);

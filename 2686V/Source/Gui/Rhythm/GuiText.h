@@ -33,6 +33,15 @@ namespace RhythmGuiText
 		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
+		static inline const juce::String visibleUnison = u8"[■]--- UNISON/HARMONY ---";
+		static inline const juce::String invisibleUnison = u8"[□]--- UNISON/HARMONY ---";
+	}
+
+	namespace Unison
+	{
+		static inline const juce::String voices = "Voices";
+		static inline const juce::String detune = "Detune";
+		static inline const juce::String spread = "Spread";
 	}
 
 	namespace File

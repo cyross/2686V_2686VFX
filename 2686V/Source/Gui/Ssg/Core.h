@@ -50,6 +50,12 @@ class GuiSsg : public GuiBase
 
     GuiComboBox rateSelector;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     // Amp ADSR
     GuiCategoryLabel adsrCat;
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
@@ -186,6 +192,10 @@ public:
         waveSelector(context),
         bitSelector(context),
         rateSelector(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         adsrCat(context),
         adsrBypassButton(context),
 		startLevelSlider(context),
@@ -282,7 +292,8 @@ public:
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutSwEnvCat(juce::Rectangle<int>& rect);
-	void applySsgSwEnvLoopValues(bool enabled);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
+    void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
 };

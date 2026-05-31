@@ -8,6 +8,31 @@ namespace BeepPrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		namespace Voices
+		{
+			inline constexpr int min = CorePrValue::Unison::Voices::min;
+			inline constexpr int max = CorePrValue::Unison::Voices::max;
+			inline constexpr int initial = CorePrValue::Unison::Voices::initial;
+		}
+
+		namespace Detune
+		{
+			inline constexpr int min = CorePrValue::Unison::Detune::min;
+			inline constexpr int max = CorePrValue::Unison::Detune::max;
+			inline constexpr int initial = CorePrValue::Unison::Detune::initial;
+		}
+
+		namespace Spread
+		{
+			inline constexpr float min = CorePrValue::Unison::Spread::min;
+			inline constexpr float max = CorePrValue::Unison::Spread::max;
+			inline constexpr float initial = CorePrValue::Unison::Spread::initial;
+		}
+	}
+
 	namespace Level
 	{
 		inline constexpr float min = CorePrValue::Level::min;

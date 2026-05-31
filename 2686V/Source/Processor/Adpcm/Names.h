@@ -15,6 +15,14 @@ namespace AdpcmPrName
 	static inline const juce::String pcmOffset = " PCM Offset";
 	static inline const juce::String pcmRatio = " PCM Ratio";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace Adsr
 	{
 		static inline const juce::String bypass = " ADSR Bypass";

@@ -50,6 +50,12 @@ class GuiOpn : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel lfoCat;
 
     GuiSlider lfoFreqSlider;
@@ -167,6 +173,10 @@ public:
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoShapeSelector(context),
@@ -261,6 +271,7 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);

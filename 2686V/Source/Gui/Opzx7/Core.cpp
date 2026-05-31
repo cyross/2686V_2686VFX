@@ -363,6 +363,20 @@ void GuiOpzx7::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
+    unisonCat.setupOtherCategory({ .parent = *this, .title = Opzx7GuiText::Category::invisibleUnison, .invisibleTitle = Opzx7GuiText::Category::invisibleUnison, .enableChangeDetailVisible = true });
+
+    unisonVoicesSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::Unison::voices, .title = Opzx7GuiText::Unison::voices, .isReset = true });
+    unisonVoicesSlider.setWantsKeyboardFocus(true);
+    unisonVoicesSlider.setExplicitFocusOrder(++tabOrder);
+
+    unisonDetuneSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::Unison::detune, .title = Opzx7GuiText::Unison::detune, .isReset = true });
+    unisonDetuneSlider.setWantsKeyboardFocus(true);
+    unisonDetuneSlider.setExplicitFocusOrder(++tabOrder);
+
+    unisonSpreadSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::Unison::spread, .title = Opzx7GuiText::Unison::spread, .isReset = true });
+    unisonSpreadSlider.setWantsKeyboardFocus(true);
+    unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
+
     monoPolyCat.setupOtherCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleMonoMode, .invisibleTitle = Opzx7GuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
     monoModeToggle.setup({ .parent = *this, .id = Opzx7PrKey::monoMode, .title = Opzx7GuiText::monoPoly, .isReset = true });
@@ -871,6 +885,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutLfoCat(mRect);
 
+    layoutUnisonCat(mRect);
+
     layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
@@ -1339,6 +1355,23 @@ void GuiOpzx7::layoutQualityCat(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+    }
+}
+
+void GuiOpzx7::layoutUnisonCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &unisonCat });
+
+    bool visibleUnison = unisonCat.isDetailVisible();
+
+    unisonVoicesSlider.setVisibleWithLabel(visibleUnison);
+    unisonDetuneSlider.setVisibleWithLabel(visibleUnison);
+    unisonSpreadSlider.setVisibleWithLabel(visibleUnison);
+
+    if (visibleUnison)
+    {
+        layoutMain({ .mainRect = rect, .label = &unisonVoicesSlider.label, .component = &unisonVoicesSlider });
+        layoutMain({ .mainRect = rect, .label = &unisonDetuneSlider.label, .component = &unisonDetuneSlider });
+        layoutMain({ .mainRect = rect, .label = &unisonSpreadSlider.label, .component = &unisonSpreadSlider });
     }
 }
 

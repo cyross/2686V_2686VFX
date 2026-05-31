@@ -19,13 +19,11 @@ AudioPlugin2686V::AudioPlugin2686V()
     apvts(*this, &undoManager, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
-    p_curveCore = std::make_unique<CurveCore>(m_curveCore);
-
     m_synth.addSound(new SynthSound());
     for (int i = 0; i < Global::voices; i++) {
         auto voice = new SynthVoice();
 
-        voice->setCurveCore(p_curveCore.get());
+        voice->setCurveCore(&m_curveCore);
         m_synth.addVoice(voice);
     }
 
@@ -33,7 +31,7 @@ AudioPlugin2686V::AudioPlugin2686V()
 
     auto prevVoice = new SynthVoice();
 
-    prevVoice->setCurveCore(p_curveCore.get());
+    prevVoice->setCurveCore(&m_curveCore);
     previewSynth.addVoice(prevVoice);
 
     formatManager.registerBasicFormats();
@@ -131,6 +129,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     SynthParams params;
 
+    m_synth.currentParams = &params;
+
     // 【シンセモード】
     // 入力バッファはノイズの原因になるのでクリアする
     buffer.clear();
@@ -184,7 +184,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     m_synth.isMonoMode = isMono;
     params.monoMode = isMono;
 
-    p_curveCore->setParameters(params.curve);
+    m_curveCore.setParameters(params.curve);
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
@@ -926,6 +926,9 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
         voice->setParameters(currentParams);
         for (int i = 0; i < 4; ++i) voice->setOpzx7PcmBuffer(i, &opzx7PcmBuffers[i]);
+
+        // ユニゾン・ハーモニー向けに追加
+        voice->stopNote(0.0f, false);
     }
 
     // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
@@ -1001,6 +1004,11 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 
     // 8. 停止
     previewSynth.noteOff(1, 69, 0.0f, false);
+
+    // ユニゾン・ハーモニー向けに追加
+    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
+        voice->stopNote(0.0f, false);
+    }
 }
 
 void AudioPlugin2686V::panic()
@@ -1061,5 +1069,5 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 
 CurveCore* AudioPlugin2686V::getCurveCore()
 {
-    return p_curveCore.get();
+    return &m_curveCore;
 }

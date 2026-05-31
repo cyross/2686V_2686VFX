@@ -10,6 +10,14 @@ namespace RhythmPrName
 	static inline const juce::String vol = " Vol";
 	static inline const juce::String pad = " Pad";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace Pad
 	{
 		static inline const juce::String vol = " Vol";

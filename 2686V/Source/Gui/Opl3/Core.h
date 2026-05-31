@@ -49,6 +49,12 @@ class GuiOpl3 : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
@@ -156,6 +162,10 @@ public:
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -244,6 +254,7 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);

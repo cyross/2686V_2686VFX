@@ -9,6 +9,13 @@ namespace CorePrName
 	static inline const juce::String master_vol = "Master Vol";
 	static inline const juce::String monoMode = "Monophony Mode";
 
+	namespace Unison
+	{
+		static inline const juce::String voices = " Unison Voices";
+		static inline const juce::String detune = " Unison Detune";
+		static inline const juce::String spread = " Unison Spread";
+	}
+
 	namespace Adsr
 	{
 		namespace Post

@@ -50,6 +50,14 @@ namespace OplPrKey
 
 	static inline const juce::String mask = CorePrKey::Post::Fm::Op::mask;
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace PitchAdsr
 	{
 		static inline const juce::String enable = CorePrKey::PitchAdsr::enable;

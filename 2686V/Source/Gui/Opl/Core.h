@@ -48,6 +48,12 @@ class GuiOpl : public GuiBase
     GuiTextButton initLfoToOplBtn;
     GuiTextButton initLfoToOpllBtn;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
@@ -165,6 +171,10 @@ public:
         rateSelector(context),
         initLfoToOplBtn(context),
         initLfoToOpllBtn(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -260,6 +270,7 @@ public:
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutInitializeCat(Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);

@@ -465,6 +465,12 @@ class GuiWt : public GuiBase
     GuiCategoryLabel modCat;
     GuiCategoryLabel adsrCat;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     // Filter (ADSR)
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
     GuiSlider startLevelSlider;
@@ -593,7 +599,11 @@ public:
         qualityCat(context),
         modCat(context),
         adsrCat(context),
-		adsrBypassButton(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
+        adsrBypassButton(context),
 		startLevelSlider(context),
         attackSlider(context),
         decaySlider(context),
@@ -693,6 +703,7 @@ public:
     void layoutWavefileCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

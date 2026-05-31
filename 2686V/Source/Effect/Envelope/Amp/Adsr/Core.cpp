@@ -156,7 +156,7 @@ float AmpAdsrEnv::processLinear(float currentLevel) {
         else if (newLevel > this->sl) {
             newLevel -= this->decayDec;
 
-            if (newLevel <= this->sl) {
+            if (newLevel <= (this->sl + 0.001f)) {
                 newLevel = this->sl;
                 this->state = State::Sustain;
             }
@@ -169,7 +169,7 @@ float AmpAdsrEnv::processLinear(float currentLevel) {
     else if (this->state == State::Release) {
         newLevel -= this->releaseDec;
 
-        if (newLevel <= 0.0f) {
+        if (newLevel <= 0.001f) {
             newLevel = 0.0f;
             this->state = State::Idle;
         }
@@ -223,9 +223,12 @@ float AmpAdsrEnv::processCurve(float currentLevel) {
 
         // 2. カーブコアに問い合わせてY(レベル)を取得
         int prmIdx = (int)CurveParams::TargetAmpEnv::Ar;
+        float y = 0.0f;
 
-        // x(0~1) を渡して y(0~1) をもらう
-        float y = m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
+        // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
+        if (this->m_phaseProgress > 0.0f) {
+            y = this->m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
+        }
 
         // Attackは STL から 1.0 へ向かう
         return this->stl + y * (1.0f - this->stl);
@@ -249,8 +252,10 @@ float AmpAdsrEnv::processCurve(float currentLevel) {
         this->m_phaseProgress += deltaX;
 
         if (this->m_phaseProgress >= 1.0f) {
-            this->m_phaseProgress = 1.0f;
+            this->m_phaseProgress = 0.0f; // Sustainに向けて確実に0にリセット！
             this->state = State::Sustain;
+
+            return this->sl; // 最後のサンプルはターゲットレベルをきっちり返す
         }
 
         // 2. カーブコアからYを取得
@@ -270,8 +275,11 @@ float AmpAdsrEnv::processCurve(float currentLevel) {
             this->m_releaseStartLevel = currentLevel;
         }
 
-        if (this->m_releaseStartLevel <= 0.0f) {
+        // 0.0f ではなく、0.001f (1000分の1の音量) 以下なら即座に消す。
+        // 人間の耳には聞こえないレベルであり、かつゼロ除算(Infinity爆発)を完全に防ぐための必須の措置です。
+        if (this->m_releaseStartLevel <= 0.001f) {
             this->state = State::Idle;
+            this->m_phaseProgress = 0.0f;
             return 0.0f;
         }
 

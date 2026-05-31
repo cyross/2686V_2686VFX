@@ -26,6 +26,14 @@ namespace AdpcmPrKey
 	static inline const juce::String pcmOffset = "_PCM_OFFSET";
 	static inline const juce::String pcmRatio = "_PCM_RATIO";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace Adsr
 	{
 		static inline const juce::String ar = CorePrKey::Adsr::ar;

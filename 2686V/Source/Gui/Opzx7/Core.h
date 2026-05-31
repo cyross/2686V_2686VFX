@@ -143,6 +143,12 @@ class GuiOpzx7 : public GuiBase
     GuiSlider lfoPmdSlider;
     GuiSlider lfoAmdSlider;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     // Master Volume
     GuiCategoryLabel mvolCat;
     GuiMasterVolumeSlider masterVolSlider;
@@ -303,6 +309,10 @@ public:
         lfoAmsSlider(context),
         lfoPmdSlider(context),
         lfoAmdSlider(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -434,6 +444,7 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);

@@ -78,6 +78,14 @@ namespace Opzx7PrName
 
 	static inline const juce::String phaseOffset = "Phase Offset";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace PitchAdsr
 	{
 		static inline const juce::String enable = " PitchEnv Enable";

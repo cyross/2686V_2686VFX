@@ -26,6 +26,11 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::N88Lfo::syncDelay, code + OpnaPrName::N88Lfo::syncDelay, OpnaPrValue::Lfo::SyncDelay::min, OpnaPrValue::Lfo::SyncDelay::max, OpnaPrValue::Lfo::SyncDelay::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::pan, code + OpnaPrName::pan, OpnaPrValue::Pan::min, OpnaPrValue::Pan::max, OpnaPrValue::Pan::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::Unison::voices, code + OpnaPrName::Unison::voices, OpnaPrValue::Unison::Voices::min, OpnaPrValue::Unison::Voices::max, OpnaPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnaPrKey::Unison::detune, code + OpnaPrName::Unison::detune, OpnaPrValue::Unison::Detune::min, OpnaPrValue::Unison::Detune::max, OpnaPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpnaPrKey::Unison::spread, code + OpnaPrName::Unison::spread, OpnaPrValue::Unison::Spread::min, OpnaPrValue::Unison::Spread::max, OpnaPrValue::Unison::Spread::initial));
+
     for (int op = 0; op < OpnaPrValue::ops; ++op)
     {
         juce::String prefix = code + OpnaPrKey::op + juce::String(op);
@@ -88,6 +93,11 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.opna.lfoAms = 0; // グローバルAMSはN88-BASICには存在しないので0固定
     params.opna.lfoSyncDelay = (int)*apvts.getRawParameterValue(code + OpnaPrKey::N88Lfo::syncDelay);
     params.opna.pan = (int)*apvts.getRawParameterValue(code + OpnaPrKey::pan);
+
+    // ユニゾン・ハーモニー用
+    params.opna.unisonVoices = (int)*apvts.getRawParameterValue(code + OpnaPrKey::Unison::voices);
+    params.opna.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + OpnaPrKey::Unison::detune);
+    params.opna.unisonSpread = *apvts.getRawParameterValue(code + OpnaPrKey::Unison::spread);
 
     for (int op = 0; op < OpnaPrValue::ops; ++op)
     {

@@ -13,7 +13,7 @@
 class Opzx7Operator : public FmOperator
 {
 public:
-	Opzx7Operator() : FmOperator() {}
+	Opzx7Operator() : FmOperator(), m_detune() {}
 
 	Opzx7OpParams m_params;
 
@@ -26,6 +26,11 @@ public:
 	void getSample(float& output, float modulator, Opzx7LfoCore &glLfo, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
 	void setCurveCore(CurveCore* p_curveCore);
+
+	// ユニゾン・ハーモニー用
+	// ユニゾン時の位相オフセットを受け取る関数
+	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
+	void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
 	Opzx7Detune m_detune;
 	LfsrNoiseGen m_noiseGen;
@@ -40,4 +45,8 @@ private:
 
 	using SsgWaveCalculator = float(*)(double p);
 	static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
+
+	// ユニゾン・ハーモニー用
+	bool m_isMonoMode = false;
+	float m_unisonPhaseOffset = 0.0f;
 };

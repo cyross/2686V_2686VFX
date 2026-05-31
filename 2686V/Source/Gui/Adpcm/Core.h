@@ -39,6 +39,12 @@ class GuiAdpcm : public GuiBase
     // Loop Button
     GuiToggleButton loopButton;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
     GuiCategoryLabel adsrCat;
@@ -133,6 +139,10 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         qualityCat(context),
         panCat(context),
         adsrCat(context),
@@ -206,6 +216,7 @@ public:
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

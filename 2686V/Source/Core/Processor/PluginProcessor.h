@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
+#include <algorithm>
 
 #include "../Synth/SynthVoice.h"
 
@@ -30,8 +31,205 @@
 
 class RetroSynthesiser : public juce::Synthesiser
 {
+private:
+    std::map<OscMode, std::function<void(int midiChannel, int midiNoteNumber, float velocity)>> voiceUnisonMap;
 public:
+    RetroSynthesiser() : juce::Synthesiser() {
+        voiceUnisonMap[OscMode::OPNA] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opna.unisonVoices,
+                currentParams->opna.unisonDetuneCents,
+                currentParams->opna.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::OPN] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opn.unisonVoices,
+                currentParams->opn.unisonDetuneCents,
+                currentParams->opn.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::OPL] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opl.unisonVoices,
+                currentParams->opl.unisonDetuneCents,
+                currentParams->opl.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::OPL3] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opl3.unisonVoices,
+                currentParams->opl3.unisonDetuneCents,
+                currentParams->opl3.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::OPM] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opm.unisonVoices,
+                currentParams->opm.unisonDetuneCents,
+                currentParams->opm.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::OPZX7] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->opzx7.unisonVoices,
+                currentParams->opzx7.unisonDetuneCents,
+                currentParams->opzx7.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::SSG] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->ssg.unisonVoices,
+                currentParams->ssg.unisonDetuneCents,
+                currentParams->ssg.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::WAVETABLE] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->wt.unisonVoices,
+                currentParams->wt.unisonDetuneCents,
+                currentParams->wt.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::RHYTHM] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->rhythm.unisonVoices,
+                currentParams->rhythm.unisonDetuneCents,
+                currentParams->rhythm.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::ADPCM] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->adpcm.unisonVoices,
+                currentParams->adpcm.unisonDetuneCents,
+                currentParams->adpcm.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+        voiceUnisonMap[OscMode::BEEP] = [=](int midiChannel, int midiNoteNumber, float velocity) {
+            voiceUnison(
+                currentParams->beep.unisonVoices,
+                currentParams->beep.unisonDetuneCents,
+                currentParams->beep.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                velocity
+            );
+            };
+    }
+
     bool isMonoMode = false;
+
+    SynthParams* currentParams = nullptr;
+
+    void voiceUnison(int voices, int detune, float spread, int midiChannel, int midiNoteNumber, float velocity)
+    {
+        int uVoices = voices; // (※モードに応じて切り替えるように後で調整)
+
+        // 1ボイスなら通常動作
+        if (uVoices <= 1) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true))) {
+                voice->setUnisonParams(0, 1, 0.0f, 0.0f);
+
+                startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
+            }
+            return;
+        }
+
+        // ユニゾンの場合：指定された数だけボイスを確保して鳴らす
+        for (int i = 0; i < uVoices; ++i)
+        {
+            juce::SynthesiserVoice* rawVoice = nullptr;
+
+            if (isMonoMode) {
+                // モノフォニック時は、ユニゾン数ぶんの専用ボイス(0番目から順に)を強制使用する
+                rawVoice = getVoice(i);
+                if (rawVoice != nullptr && rawVoice->getCurrentlyPlayingNote() != -1) {
+                    // もし前の音が鳴っていたら安全に止める
+                    rawVoice->stopNote(0.0f, false);
+                }
+            }
+            else {
+                // ポリフォニック時はJUCEの空きボイス検索を使う
+                rawVoice = findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true);
+            }
+
+            if (auto* voice = dynamic_cast<SynthVoice*>(rawVoice))
+            {
+                // ユニゾンのインデックス(0, 1, 2...)と総数をVoiceに教える
+                voice->setUnisonParams(i, uVoices, detune, spread);
+
+                // ここで実際に音を鳴らす
+                startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
+            }
+        }
+    }
+
+    // ユニゾン・ハーモニー向けにオーバーライド
+    // 鍵盤を押した時の挙動をハックする
+    void noteOn(int midiChannel, int midiNoteNumber, float velocity) override
+    {
+        if (currentParams == nullptr) {
+            juce::Synthesiser::noteOn(midiChannel, midiNoteNumber, velocity);
+            return;
+        }
+
+        voiceUnisonMap[currentParams->mode](midiChannel, midiNoteNumber, velocity);
+    }
+
+    // ユニゾン・ハーモニー向けにオーバーライド
+    // 鍵盤を離した時の挙動をハックする
+    void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
+    {
+        if (isMonoMode)
+        {
+            // モノフォニック時でも、ユニゾンで複数ボイスが鳴っている可能性があるため、全ボイスをループで止める
+            for (int i = 0; i < getNumVoices(); ++i)
+            {
+                if (auto* voice = getVoice(i))
+                {
+                    // 「現在鳴っているノート」と「離されたノート」が一致した時だけ音を消す
+                    if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
+                    {
+                        voice->stopNote(velocity, allowTailOff);
+                    }
+                }
+            }
+        }
+        else
+        {
+            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, velocity, allowTailOff);
+        }
+    }
 
     // 新しい音が鳴る時、どのボイス(回路)を使うかを決める関数をハックする
     juce::SynthesiserVoice* findFreeVoice(juce::SynthesiserSound* soundToPlay,
@@ -49,27 +247,6 @@ public:
         }
         // ポリフォニック時(OFF)は、通常のJUCEの和音割り当て機能を使う
         return juce::Synthesiser::findFreeVoice(soundToPlay, midiChannel, midiNoteNumber, stealIfNoneAvailable);
-    }
-
-    // 鍵盤を離した時の挙動をハックする
-    void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
-    {
-        if (isMonoMode)
-        {
-            // モノフォニック時特有のバグ(後から押した鍵盤が、前の鍵盤を離したせいで消える)を防ぐ
-            if (auto* voice = getVoice(0))
-            {
-                // 「現在Voice0で鳴っているノート」と「離されたノート」が一致した時だけ音を消す
-                if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
-                {
-                    voice->stopNote(velocity, allowTailOff);
-                }
-            }
-        }
-        else
-        {
-            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, velocity, allowTailOff);
-        }
     }
 };
 
@@ -200,7 +377,6 @@ private:
 	CurveProcessor prCurve;
 
     CurveCore m_curveCore;
-    std::unique_ptr<CurveCore> p_curveCore;
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);

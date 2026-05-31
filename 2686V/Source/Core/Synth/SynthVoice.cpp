@@ -19,7 +19,10 @@ void SynthVoice::setParameters(const SynthParams& params)
 {
     m_mode = params.mode;
 
-    coreMap[m_mode]->setParameters(params);
+    for (auto& pair : coreMap)
+    {
+        pair.second->setParameters(params);
+    }
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)

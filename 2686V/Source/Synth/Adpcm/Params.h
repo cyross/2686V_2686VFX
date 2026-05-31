@@ -36,4 +36,9 @@ struct AdpcmParams
     float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;
     int detune2 = 0;
+
+    // ユニゾン・ハーモニー用
+    int unisonVoices = 1;        // 1 to 8
+    int unisonDetuneCents = 0;   // cents
+    float unisonSpread = 1.0f;   // 0.0 to 1.0 (Stereo width)
 };

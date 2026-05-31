@@ -302,7 +302,11 @@ float Opzx7Adddr::updateEnvelopeStateLinear(float currentLevel)
 {
     if (state == State::Attack) {
         currentLevel += attackInc;
-        if (currentLevel >= 1.0f) { currentLevel = 1.0f; state = State::Decay; }
+
+        if (currentLevel >= 1.0f) {
+            currentLevel = 1.0f;
+            state = State::Decay;
+        }
     }
     else if (state == State::Decay) {
         float limitLevel = m_sustain;
@@ -331,12 +335,20 @@ float Opzx7Adddr::updateEnvelopeStateLinear(float currentLevel)
         // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
         if (sustainRateDec > 0.0f) {
             currentLevel -= sustainRateDec;
-            if (currentLevel <= 0.0f) { currentLevel = 0.0f; state = State::Idle; }
+
+            if (currentLevel <= 0.001f) {
+                currentLevel = 0.0f;
+                state = State::Idle;
+            }
         }
     }
     else if (state == State::Release) {
         currentLevel -= currentReleaseDec;
-        if (currentLevel <= 0.0f) { currentLevel = 0.0f; state = State::Idle; }
+
+        if (currentLevel <= 0.001f) {
+            currentLevel = 0.0f;
+            state = State::Idle;
+        }
     }
 
     return currentLevel;
@@ -521,19 +533,28 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
             this->m_attackStartLevel = currentLevel;
         }
 
-        // 1. 時間を進める
+        // ユニゾン・ハーモニー対応
+
+        // 1. まず現在の進行度でカーブを計算する！ (初回は必ず y(0.0) になる)
+        int prmIdx = (int)CurveParams::TargetRegValue::Ar;
+        float y = 0.0f;
+
+        // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
+        if (this->m_phaseProgress > 0.0f) {
+            y = this->m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
+        }
+
+        float outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
+
+        // 2. その後で時間を進める
         this->m_phaseProgress += this->attackInc;
 
         if (this->m_phaseProgress >= 1.0f) {
-            this->m_phaseProgress = 1.0f;
+            this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！
             this->state = State::Decay;
         }
 
-        // 2. カーブ取得
-        int prmIdx = (int)CurveParams::TargetRegValue::Ar;
-        float y = this->m_curveCore->process(posIdx, targetIdx, prmIdx, this->m_phaseProgress);
-
-        return this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
+        return outLevel;
     }
     // -------------------------------------------------------------
     // Decay 1 Phase (1.0 -> SL)
@@ -548,7 +569,8 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
         }
 
         float totalDecayRange = 1.0f - limitLevel;
-        if (totalDecayRange <= 0.0f) {
+
+        if (totalDecayRange <= 0.001f) {
             this->state = State::Sustain;
             this->m_phaseProgress = 0.0f;
             return limitLevel;
@@ -559,9 +581,10 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
         this->m_phaseProgress += deltaX;
 
         if (this->m_phaseProgress >= 1.0f) {
-            this->m_phaseProgress = 1.0f;
+            this->m_phaseProgress = 0.0f; // Sustainに向けて確実に0にリセット！
             this->state = State::Sustain;
-            this->m_phaseProgress = 0.0f; // 次のフェーズのためにリセット
+
+            return limitLevel; // 最後のサンプルはターゲットレベルをきっちり返す
         }
 
         // 2. カーブ取得
@@ -582,8 +605,11 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
         // ※通常は m_sustain と同じですが、何らかの理由でレベルがずれていた時の安全策
         float startLevel = this->m_sustain;
 
-        if (startLevel <= 0.0f) {
+        // ゼロ除算防止
+        if (startLevel <= 0.001f) {
             this->state = State::Idle;
+            this->m_phaseProgress = 0.0f;
+
             return 0.0f;
         }
 
@@ -611,8 +637,11 @@ float Opzx7Adddr::updateEnvelopeStateCurve(float currentLevel)
             this->m_releaseStartLevel = currentLevel; // 離鍵時のレベルを記録
         }
 
-        if (this->m_releaseStartLevel <= 0.0f) {
+        // 0.0f ではなく、0.001f (1000分の1の音量) 以下なら即座に消す。
+        // 人間の耳には聞こえないレベルであり、かつゼロ除算(Infinity爆発)を完全に防ぐための必須の措置です。
+        if (this->m_releaseStartLevel <= 0.001f) {
             this->state = State::Idle;
+            this->m_phaseProgress = 0.0f;
             return 0.0f;
         }
 

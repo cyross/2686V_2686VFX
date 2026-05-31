@@ -16,6 +16,11 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::bit, code + OplPrName::bit, OplPrValue::Bit::min, OplPrValue::Bit::max, OplPrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::rate, code + OplPrName::rate, OplPrValue::Rate::min, OplPrValue::Rate::max, OplPrValue::Rate::initial)); // Default 6 (16kHz)
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::Unison::voices, code + OplPrName::Unison::voices, OplPrValue::Unison::Voices::min, OplPrValue::Unison::Voices::max, OplPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OplPrKey::Unison::detune, code + OplPrName::Unison::detune, OplPrValue::Unison::Detune::min, OplPrValue::Unison::Detune::max, OplPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OplPrKey::Unison::spread, code + OplPrName::Unison::spread, OplPrValue::Unison::Spread::min, OplPrValue::Unison::Spread::max, OplPrValue::Unison::Spread::initial));
+
     for (int op = 0; op < OplPrValue::ops; ++op)
     {
         juce::String prefix = code + OplPrKey::op + juce::String(op);
@@ -60,6 +65,11 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opl.feedback = *apvts.getRawParameterValue(code + OplPrKey::fb);
     params.opl.fmBitDepth = (int)*apvts.getRawParameterValue(code + OplPrKey::bit);
     params.opl.fmRateIndex = (int)*apvts.getRawParameterValue(code + OplPrKey::rate);
+
+    // ユニゾン・ハーモニー用
+    params.opl.unisonVoices = (int)*apvts.getRawParameterValue(code + OplPrKey::Unison::voices);
+    params.opl.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + OplPrKey::Unison::detune);
+    params.opl.unisonSpread = *apvts.getRawParameterValue(code + OplPrKey::Unison::spread);
 
     for (int op = 0; op < OplPrValue::ops; ++op)
     {

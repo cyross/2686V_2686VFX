@@ -14,7 +14,7 @@
 class OpnaOperator : public FmOperator
 {
 public:
-	OpnaOperator() : FmOperator() {}
+	OpnaOperator() : FmOperator(), m_detune() {}
 
 	OpnaOpParams m_params;
 
@@ -27,6 +27,11 @@ public:
 	void processLfo();
 	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 	void setCurveCore(CurveCore* p_curveCore);
+
+	// ユニゾン・ハーモニー用
+	// ユニゾン時の位相オフセットを受け取る関数
+	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
+	void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
 	OpnDetune m_detune;
 	FixMode m_fixMode;
@@ -41,4 +46,8 @@ private:
 
 	using SsgWaveCalculator = float(*)(double p);
 	static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
+
+	// ユニゾン・ハーモニー用
+	bool m_isMonoMode = false;
+	float m_unisonPhaseOffset = 0.0f;
 };

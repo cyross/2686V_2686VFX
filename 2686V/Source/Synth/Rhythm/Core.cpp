@@ -233,6 +233,9 @@ void RhythmCore::setSampleRate(double sampleRate)
 
 void RhythmCore::setParameters(const SynthParams& params)
 {
+    // ユニゾン・ハーモニー用
+    m_isMonoMode = params.monoMode;
+
     for (int i = 0; i < MaxRhythmPads; ++i) {
         pads[i].setParameters(params.rhythm.pads[i]);
     }
@@ -248,6 +251,30 @@ void RhythmCore::setSampleData(int padIndex, const std::vector<float>& data, dou
 
 void RhythmCore::noteOn(float freq, float velocity, int midiNote)
 {
+    // ユニゾン・ハーモニー用
+    // ユニゾンデチューンの計算
+    float finalFreq = freq;
+
+    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
+    float phaseOffsetNorm = 0.0f;
+
+    if (m_unisonTotal > 1) {
+        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
+        // 例(3ボイス): -1.0,  0.0,  1.0
+        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
+        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
+
+        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
+        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
+
+        // セント値(Cents) を周波数倍率(Ratio)に変換する
+        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
+        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
+
+        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
+        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
+    }
+
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
             // ループモード(isOneShot == false)で、かつ既に再生中の場合は、
@@ -257,6 +284,9 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote)
             if (!pad.m_isOneShot && pad.isPlaying()) {
                 continue; // 何もしない
             }
+            // ユニゾン・ハーモニー向けに変更
+            // 計算した位相のズレをオペレータに渡す
+            pad.setUnisonPhaseOffset(phaseOffsetNorm);
 
             pad.start(velocity);
         }
@@ -328,10 +358,27 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
     // すべてのパッドの音を計算し、それぞれの Pan 設定に従って左右に振り分けてミックス
     for (auto& pad : pads) {
         if (pad.isPlaying()) {
+            float panL = (1.0f - pad.m_pan);
+            float panR = pad.m_pan;
+
+            if (m_unisonTotal > 1) {
+                float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
+
+                // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
+                float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
+
+                panL = std::clamp(panL - panOffset, 0.0f, 1.0f);
+                panR = std::clamp(panR + panOffset, 0.0f, 1.0f);
+
+                // 音量補正 (ボイス数が増えると爆音になるため下げる)
+                // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
+                float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
+            }
+
             float sample = pad.getSample(m_sampleRate, totalPitchRatio);
 
-            outL += sample * (1.0f - pad.m_pan);
-            outR += sample * pad.m_pan;
+            outL += sample * panL;
+            outR += sample * panR;
         }
     }
 }

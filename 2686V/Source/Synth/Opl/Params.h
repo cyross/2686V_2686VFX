@@ -29,4 +29,9 @@ struct OplParams
 
     // Parameters for Operator
     std::array<OplOpParams, 2> op;
+
+    // ユニゾン・ハーモニー用
+    int unisonVoices = 1;        // 1 to 8
+    int unisonDetuneCents = 0;   // cents
+    float unisonSpread = 1.0f;   // 0.0 to 1.0 (Stereo width)
 };

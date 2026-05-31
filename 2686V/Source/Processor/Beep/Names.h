@@ -11,6 +11,14 @@ namespace BeepPrName
 	static inline const juce::String fix = " Fix Enable";
 	static inline const juce::String fixFreq = " Fix Freq";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace Adsr
 	{
 		static inline const juce::String bypass = " ADSR Bypass";

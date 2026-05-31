@@ -34,6 +34,30 @@ namespace CorePrValue
 		inline constexpr float initial = CorePrValue::levelMax;
 	}
 
+	namespace Unison
+	{
+		namespace Voices
+		{
+			inline constexpr int min = 1;
+			inline constexpr int max = 8;
+			inline constexpr int initial = 1;
+		}
+
+		namespace Detune
+		{
+			inline constexpr int min = -7200;
+			inline constexpr int max = 7200;
+			inline constexpr int initial = 0;
+		}
+
+		namespace Spread
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.5f;
+		}
+	}
+
 	namespace Adsr
 	{
 		namespace Bypass

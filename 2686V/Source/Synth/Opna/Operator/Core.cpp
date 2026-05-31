@@ -144,10 +144,39 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
 
 void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    //m_phase = 0.0;
-    //m_currentLevel = 0.0f;
+    // ユニゾン・ハーモニー向け対応
+    // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
+    //m_phase = m_params.phaseOffset + (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    //m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+    //while (m_phase >= juce::MathConstants<float>::twoPi) {
+    //    m_phase -= juce::MathConstants<float>::twoPi;
+    //}
+
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
+
+    // ユニゾン・ハーモニー向け対応
+    // ポリフォニック時(!m_isMonoMode)のみゼロリセットし、
+    // モノフォニック時は以前のレベルを引き継いでノイズなく繋げる！
+
+    /*
+    if (!m_isMonoMode) {
+        // ポリフォニックモードでのスティーリング・ノイズを防ぐため、必ずレベルを0にリセットする
+        m_currentLevel = 0.0f;
+
+        // ポリフォニック時はフィードバックの残骸も絶対に消す！
+        // これがないと、前の音の波形が突然フィードバックされて位相がぶっ飛び、ノイズになります。
+        m_fb1 = 0.0f;
+        m_fb2 = 0.0f;
+    }
+    else {
+        // モノフォニック時は滑らかに繋ぐため、m_fb1, m_fb2 を維持してもよいですが、
+        // 念のためここでクリアしている現在の実装（下の方にあります）も、
+        // ポリフォニック時の安全のために if(!m_isMonoMode) ブロックにまとめるのが綺麗です。
+    }
+    */
 
     m_hwLfo.noteOn();
 
@@ -162,8 +191,6 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
 	m_pitchAdsr.noteOn();
 	m_ssgSwEnv.noteOn();
-
-    m_fb1 = 0.0f; m_fb2 = 0.0f;
 
     m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
 }
@@ -300,6 +327,7 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;
 
+    // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta;
 
     while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;

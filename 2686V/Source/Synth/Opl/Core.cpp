@@ -47,6 +47,10 @@ void OplCore::setParameters(const SynthParams& params) {
 
         m_operators[i].setParameters(params.opl.op[i], fb);
 
+        // ユニゾン・ハーモニー用
+        // モノフォニック状態をオペレータに伝達する
+        m_operators[i].setMonoMode(m_isMonoMode);
+
         m_opMask[i] = params.opl.op[i].mask;
     }
 }
@@ -57,10 +61,38 @@ void OplCore::noteOn(float freq, float velocity, int midiNote) {
     float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
 
+    // ユニゾン・ハーモニー用
+    // ユニゾンデチューンの計算
+    float finalFreq = freq;
+
+    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
+    float phaseOffsetNorm = 0.0f;
+
+    if (m_unisonTotal > 1) {
+        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
+        // 例(3ボイス): -1.0,  0.0,  1.0
+        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
+        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
+
+        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
+        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
+
+        // セント値(Cents) を周波数倍率(Ratio)に変換する
+        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
+        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
+
+        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
+        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
+    }
+
+    // ユニゾン・ハーモニー向けに変更
+    m_operators[0].noteOn(freq, gain, noteNum);
+    m_operators[0].noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
+    m_operators[1].noteOn(freq, gain, noteNum);
+    m_operators[1].noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
+
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
-    m_operators[0].noteOn(freq, gain, noteNum);
-    m_operators[1].noteOn(freq, gain, noteNum);
 }
 
 void OplCore::noteOff() {
@@ -165,8 +197,27 @@ void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
 {
     float sample = getSample();
 
-    outL[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
-    outR[startSample + sampleIdx] += sample * 0.5f; // モノラルなので、ステレオで言うCと同じ計算
+    // ユニゾン・ハーモニー向けに変更
+    float basePanL = 0.5f;
+    float basePanR = 0.5f;
+
+    if (m_unisonTotal > 1) {
+        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
+
+        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
+        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
+
+        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
+        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
+
+        // 音量補正 (ボイス数が増えると爆音になるため下げる)
+        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
+        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
+        sample *= gainComp;
+    }
+
+    outL[startSample + sampleIdx] += sample * basePanL;
+    outR[startSample + sampleIdx] += sample * basePanR;
 
     isActive = isPlaying();
 }

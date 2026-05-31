@@ -45,6 +45,11 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // Waveform WtPreset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::wave, code + WtPrName::waveform, WtPrValue::WaveForm::min, WtPrValue::WaveForm::max, WtPrValue::WaveForm::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::voices, code + WtPrName::Unison::voices, WtPrValue::Unison::Voices::min, WtPrValue::Unison::Voices::max, WtPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::detune, code + WtPrName::Unison::detune, WtPrValue::Unison::Detune::min, WtPrValue::Unison::Detune::max, WtPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Unison::spread, code + WtPrName::Unison::spread, WtPrValue::Unison::Spread::min, WtPrValue::Unison::Spread::max, WtPrValue::Unison::Spread::initial));
+
     createCustomWaveLayout(layout, WtPrValue::customSize1, code + WtPrKey::custom32, code + WtPrName::custom32);
     createCustomWaveLayout(layout, WtPrValue::customSize2, code + WtPrKey::custom64, code + WtPrName::custom64);
     createCustomWaveLayout(layout, WtPrValue::customSize3, code + WtPrKey::custom128, code + WtPrName::custom128);
@@ -100,6 +105,11 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.tableSize = (int)*apvts.getRawParameterValue(code + WtPrKey::sampleSize);
     params.wt.steps = (int)*apvts.getRawParameterValue(code + WtPrKey::steps);
     params.wt.waveform = (int)*apvts.getRawParameterValue(code + WtPrKey::wave);
+
+    // ユニゾン・ハーモニー用
+    params.wt.unisonVoices = (int)*apvts.getRawParameterValue(code + WtPrKey::Unison::voices);
+    params.wt.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + WtPrKey::Unison::detune);
+    params.wt.unisonSpread = *apvts.getRawParameterValue(code + WtPrKey::Unison::spread);
 
     processCustomWaveBlock(params.wt.customWave32, apvts, code + WtPrKey::custom32);
     processCustomWaveBlock(params.wt.customWave64, apvts, code + WtPrKey::custom64);

@@ -29,6 +29,11 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::syncDelay, code + OpmPrName::Lfo::syncDelay, OpmPrValue::Lfo::SyncDelayOpm::min, OpmPrValue::Lfo::SyncDelayOpm::max, OpmPrValue::Lfo::SyncDelayOpm::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::pan, code + OpmPrName::pan, OpmPrValue::Pan::min, OpmPrValue::Pan::max, OpmPrValue::Pan::initial));
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Unison::voices, code + OpmPrName::Unison::voices, OpmPrValue::Unison::Voices::min, OpmPrValue::Unison::Voices::max, OpmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Unison::detune, code + OpmPrName::Unison::detune, OpmPrValue::Unison::Detune::min, OpmPrValue::Unison::Detune::max, OpmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpmPrKey::Unison::spread, code + OpmPrName::Unison::spread, OpmPrValue::Unison::Spread::min, OpmPrValue::Unison::Spread::max, OpmPrValue::Unison::Spread::initial));
+
     for (int op = 0; op < OpmPrValue::ops; ++op)
     {
         juce::String prefix = code + OpmPrKey::op + juce::String(op);
@@ -83,6 +88,11 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opm.lfoAmd = (int)*apvts.getRawParameterValue(code + OpmPrKey::Lfo::amd);
     params.opm.lfoSyncDelay = (int)*apvts.getRawParameterValue(code + OpmPrKey::Lfo::syncDelay);
     params.opm.pan = (int)*apvts.getRawParameterValue(code + OpmPrKey::pan);
+
+    // ユニゾン・ハーモニー用
+    params.opm.unisonVoices = (int)*apvts.getRawParameterValue(code + OpmPrKey::Unison::voices);
+    params.opm.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + OpmPrKey::Unison::detune);
+    params.opm.unisonSpread = *apvts.getRawParameterValue(code + OpmPrKey::Unison::spread);
 
     for (int op = 0; op < OpmPrValue::ops; ++op)
     {

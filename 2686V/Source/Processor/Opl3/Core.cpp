@@ -16,6 +16,11 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::bit, code + Opl3PrName::bit, Opl3PrValue::Bit::min, Opl3PrValue::Bit::max, Opl3PrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::rate, code + Opl3PrName::rate, Opl3PrValue::Rate::min, Opl3PrValue::Rate::max, Opl3PrValue::Rate::initial)); // Default 6 (16kHz)
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::Unison::voices, code + Opl3PrName::Unison::voices, Opl3PrValue::Unison::Voices::min, Opl3PrValue::Unison::Voices::max, Opl3PrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opl3PrKey::Unison::detune, code + Opl3PrName::Unison::detune, Opl3PrValue::Unison::Detune::min, Opl3PrValue::Unison::Detune::max, Opl3PrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opl3PrKey::Unison::spread, code + Opl3PrName::Unison::spread, Opl3PrValue::Unison::Spread::min, Opl3PrValue::Unison::Spread::max, Opl3PrValue::Unison::Spread::initial));
+
     for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
         juce::String prefix = code + Opl3PrKey::op + juce::String(i);
@@ -59,6 +64,11 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.opl3.feedback = *apvts.getRawParameterValue(code + Opl3PrKey::fb);
     params.opl3.fmBitDepth = (int)*apvts.getRawParameterValue(code + Opl3PrKey::bit);
     params.opl3.fmRateIndex = (int)*apvts.getRawParameterValue(code + Opl3PrKey::rate);
+
+    // ユニゾン・ハーモニー用
+    params.opl3.unisonVoices = (int)*apvts.getRawParameterValue(code + Opl3PrKey::Unison::voices);
+    params.opl3.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + Opl3PrKey::Unison::detune);
+    params.opl3.unisonSpread = *apvts.getRawParameterValue(code + Opl3PrKey::Unison::spread);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
     {

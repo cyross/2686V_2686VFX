@@ -30,6 +30,14 @@ namespace OpnPrName
 	static inline const juce::String xof = " XOF";
 	static inline const juce::String ampBypass = " AMP Bypass";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace N88Lfo
 	{
 		static inline const juce::String freq = " N88 LFO Speed";

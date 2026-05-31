@@ -23,6 +23,14 @@ namespace SsgPrKey
 	static inline const juce::String mix = "_MIX";
 	static inline const juce::String wveform = "_WAVEFORM";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace Duty
 	{
 		static inline const juce::String mode = "_DUTY_MODE";

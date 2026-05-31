@@ -13,7 +13,7 @@
 class OpnOperator : public FmOperator
 {
 public:
-	OpnOperator() : FmOperator() {}
+	OpnOperator() : FmOperator(), m_detune() {}
 
 	OpnOpParams m_params;
 
@@ -25,6 +25,11 @@ public:
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 	void setCurveCore(CurveCore* p_curveCore);
+
+	// ユニゾン・ハーモニー用
+	// ユニゾン時の位相オフセットを受け取る関数
+	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
+	void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
 	float maxAmDepthDb = 11.8f;
 	float m_ams = 1.0f;
@@ -37,4 +42,8 @@ private:
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
+
+	// ユニゾン・ハーモニー用
+	bool m_isMonoMode = false;
+	float m_unisonPhaseOffset = 0.0f;
 };

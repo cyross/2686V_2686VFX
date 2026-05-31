@@ -488,6 +488,20 @@ void GuiRhythm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    unisonCat.setupOtherCategory({ .parent = *this, .title = RhythmGuiText::Category::invisibleUnison, .invisibleTitle = RhythmGuiText::Category::invisibleUnison, .enableChangeDetailVisible = true });
+
+    unisonVoicesSlider.setup({ .parent = *this, .id = code + RhythmPrKey::Unison::voices, .title = RhythmGuiText::Unison::voices, .isReset = true });
+    unisonVoicesSlider.setWantsKeyboardFocus(true);
+    unisonVoicesSlider.setExplicitFocusOrder(++tabOrder);
+
+    unisonDetuneSlider.setup({ .parent = *this, .id = code + RhythmPrKey::Unison::detune, .title = RhythmGuiText::Unison::detune, .isReset = true });
+    unisonDetuneSlider.setWantsKeyboardFocus(true);
+    unisonDetuneSlider.setExplicitFocusOrder(++tabOrder);
+
+    unisonSpreadSlider.setup({ .parent = *this, .id = code + RhythmPrKey::Unison::spread, .title = RhythmGuiText::Unison::spread, .isReset = true });
+    unisonSpreadSlider.setWantsKeyboardFocus(true);
+    unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
+
     mvolCat.setupOtherCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleMvol, .invisibleTitle = RhythmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
 
     masterVolSlider.setup({ .parent = *this, .id = RhythmPrKey::masterVol, .title = RhythmGuiText::MasterVol::title, .isReset = true });
@@ -531,6 +545,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+
+    layoutUnisonCat(mRect);
 
     layoutMvolCat(mRect);
 
@@ -618,5 +634,22 @@ void GuiRhythm::layoutMvolCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
+    }
+}
+
+void GuiRhythm::layoutUnisonCat(juce::Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &unisonCat });
+
+    bool visibleUnison = unisonCat.isDetailVisible();
+
+    unisonVoicesSlider.setVisibleWithLabel(visibleUnison);
+    unisonDetuneSlider.setVisibleWithLabel(visibleUnison);
+    unisonSpreadSlider.setVisibleWithLabel(visibleUnison);
+
+    if (visibleUnison)
+    {
+        layoutMain({ .mainRect = rect, .label = &unisonVoicesSlider.label, .component = &unisonVoicesSlider });
+        layoutMain({ .mainRect = rect, .label = &unisonDetuneSlider.label, .component = &unisonDetuneSlider });
+        layoutMain({ .mainRect = rect, .label = &unisonSpreadSlider.label, .component = &unisonSpreadSlider });
     }
 }

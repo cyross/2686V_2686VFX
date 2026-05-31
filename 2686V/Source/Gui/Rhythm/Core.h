@@ -143,6 +143,12 @@ class GuiRhythm : public GuiBase
     // Master Level
 	GuiSlider levelSlider;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel mvolCat;
 
     // マスターボリューム(全音源共通の最終出力)
@@ -159,6 +165,10 @@ public:
         GuiBase(context),
         mainGroup(context),
         levelSlider(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         mvolCat(context),
         masterVolSlider(context),
         presetNameLabel(context),
@@ -176,5 +186,6 @@ public:
     bool isThis(int padIndex, juce::Button* button);
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
 };

@@ -16,4 +16,5 @@ public:
     void virtual setModulationWheel(int wheelValue) {};
     float virtual getSample() { return 0.0f; };
     void virtual renderNextBlock(float * outR, float* outL, int startSample, int sampleIdx, bool& isActive) {};
+    void virtual setUnisonParams(int index, int total, float detune, float spread) {};
 };

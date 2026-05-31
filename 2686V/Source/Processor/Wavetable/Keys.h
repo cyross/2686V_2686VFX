@@ -20,6 +20,14 @@ namespace WtPrKey
 	static inline const juce::String sampleSize = "_SIZE";
 	static inline const juce::String steps = "_STEPS";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace Mod {
 		static inline const juce::String enable = "_MOD_ENABLE";
 		static inline const juce::String depth = "_MOD_DEPTH";

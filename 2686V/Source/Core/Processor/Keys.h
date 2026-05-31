@@ -16,6 +16,13 @@ namespace CorePrKey
 	static inline const juce::String ssgSwEnv = "_SSGSW";
 	static inline const juce::String bypass = "_BYPASS";
 
+	namespace Unison
+	{
+		static inline const juce::String voices = "_UNI_VOICES";
+		static inline const juce::String detune = "_UNI_DETUNE";
+		static inline const juce::String spread = "_UNI_SPREAD";
+	}
+
 	namespace Adsr
 	{
 		static inline const juce::String ar = "_AR";

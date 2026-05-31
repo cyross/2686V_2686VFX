@@ -19,6 +19,14 @@ namespace WtPrName
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String rate = " Rate";
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrName::Unison::voices;
+		static inline const juce::String detune = CorePrName::Unison::detune;
+		static inline const juce::String spread = CorePrName::Unison::spread;
+	}
+
 	namespace Mod
 	{
 		static inline const juce::String enable = " Mod Enable";

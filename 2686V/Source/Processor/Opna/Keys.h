@@ -50,6 +50,14 @@ namespace OpnaPrKey
 
 	static inline const juce::String mask = CorePrKey::Post::Fm::Op::mask;
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace N88Lfo
 	{
 		static inline const juce::String freq = "_LFO_FREQ";

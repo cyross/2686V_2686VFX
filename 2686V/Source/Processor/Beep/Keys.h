@@ -21,6 +21,14 @@ namespace BeepPrKey
 	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 
+	// ユニゾン・ハーモニー用
+	namespace Unison
+	{
+		static inline const juce::String voices = CorePrKey::Unison::voices;
+		static inline const juce::String detune = CorePrKey::Unison::detune;
+		static inline const juce::String spread = CorePrKey::Unison::spread;
+	}
+
 	namespace Adsr
 	{
 		static inline const juce::String ar = CorePrKey::Adsr::ar;

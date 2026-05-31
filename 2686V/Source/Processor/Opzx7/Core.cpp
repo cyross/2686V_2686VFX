@@ -31,6 +31,11 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::panpot, code + Opzx7PrName::panpot, Opzx7PrValue::Panpot::min, Opzx7PrValue::Panpot::max, Opzx7PrValue::Panpot::initial));
     layout.add(std::make_unique<juce::AudioParameterBool>(code + Opzx7PrKey::panpot_en, code + Opzx7PrName::panpot_en, Opzx7PrValue::PanpotEnable::initial)); // PM Enable (Switch)
 
+    // ユニゾン・ハーモニー用
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::Unison::voices, code + Opzx7PrName::Unison::voices, Opzx7PrValue::Unison::Voices::min, Opzx7PrValue::Unison::Voices::max, Opzx7PrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::Unison::detune, code + Opzx7PrName::Unison::detune, Opzx7PrValue::Unison::Detune::min, Opzx7PrValue::Unison::Detune::max, Opzx7PrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::Unison::spread, code + Opzx7PrName::Unison::spread, Opzx7PrValue::Unison::Spread::min, Opzx7PrValue::Unison::Spread::max, Opzx7PrValue::Unison::Spread::initial));
+
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
     {
         juce::String prefix = code + Opzx7PrKey::op + juce::String(op);
@@ -115,6 +120,11 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.opzx7.lfoSyncDelay = *apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::syncDelay);
     params.opzx7.panpot = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::panpot);
     params.opzx7.panpot_enable = (*apvts.getRawParameterValue(code + Opzx7PrKey::panpot_en) > Opzx7PrValue::boolThread);
+
+    // ユニゾン・ハーモニー用
+    params.opzx7.unisonVoices = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::Unison::voices);
+    params.opzx7.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + Opzx7PrKey::Unison::detune);
+    params.opzx7.unisonSpread = *apvts.getRawParameterValue(code + Opzx7PrKey::Unison::spread);
 
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
     {

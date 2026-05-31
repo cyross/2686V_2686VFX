@@ -51,6 +51,12 @@ class GuiOpna : public GuiBase
 	GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
+
     GuiCategoryLabel panCat;
     GuiSlider panSlider;
     GuiTextButton panToLBtn;
@@ -184,6 +190,10 @@ public:
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         panCat(context),
         panSlider(context),
         panToLBtn(context),
@@ -292,6 +302,7 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);

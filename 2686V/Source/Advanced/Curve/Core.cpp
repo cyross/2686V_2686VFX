@@ -314,9 +314,10 @@ void CurveCore::setParameters(const CurveParams& params)
 
 float CurveCore::process(int positionIndex, int targetIndex, int paramIndex, float x)
 {
-	// xが0.0や1.0に張り付いている時は計算をスキップして即リターン（パフォーマンス最適化）
-	if (x <= 0.0001f) return 0.0f;
-	if (x >= 0.9999f) return 1.0f;
+	// 極微小な誤差による破綻を防ぐためのガード
+	// (これがないと、スプライン計算などで x=0 のときに意図せず 1.0 を返したりする場合があります)
+	if (x <= 1e-5f) return 0.0f;
+	if (x >= 1.0f - 1e-5f) return 1.0f;
 
 	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
 	auto logic = static_cast<CurveParams::Logic>(logicIndex);

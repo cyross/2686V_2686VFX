@@ -48,6 +48,9 @@ void AdpcmCore::setParameters(const SynthParams& params)
         if (m_isLooping) m_hasFinished = false;
     }
 
+    // ユニゾン・ハーモニー用
+    m_isMonoMode = params.monoMode;
+
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
@@ -135,7 +138,31 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
     // ホストDAWのレートとの比率
     double rateRatio = currentBufferRate / m_sampleRate;
 
-    m_pitchRatio = (m_detune.noteOn(freq) / rootFreq) * rateRatio;
+    // ユニゾン・ハーモニー用
+    // ユニゾンデチューンの計算
+    float finalFreq = freq;
+
+    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
+    m_unisonPhaseOffset = 0.0f;
+
+    if (m_unisonTotal > 1) {
+        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
+        // 例(3ボイス): -1.0,  0.0,  1.0
+        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
+        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
+
+        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
+        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
+
+        // セント値(Cents) を周波数倍率(Ratio)に変換する
+        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
+        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
+
+        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
+        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
+    }
+
+    m_pitchRatio = (m_detune.noteOn(finalFreq) / rootFreq) * rateRatio;
 
     m_hasFinished = false;
 
@@ -375,8 +402,27 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     float sample = getSample();
     float pan = getCurrentPan();
 
-    outL[startSample + sampleIdx] += sample * (1.0f - pan);
-    outR[startSample + sampleIdx] += sample * pan;
+    // ユニゾン・ハーモニー向けに変更
+    float basePanL = 1.0f;
+    float basePanR = 1.0f;
+
+    if (m_unisonTotal > 1) {
+        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
+
+        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
+        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
+
+        basePanL = std::clamp((1.0f - pan) - panOffset, 0.0f, 1.0f);
+        basePanR = std::clamp(pan + panOffset, 0.0f, 1.0f);
+
+        // 音量補正 (ボイス数が増えると爆音になるため下げる)
+        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
+        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
+        sample *= gainComp;
+    }
+
+    outL[startSample + sampleIdx] += sample * basePanL;
+    outR[startSample + sampleIdx] += sample * basePanR;
 
     isActive = isPlaying();
 }

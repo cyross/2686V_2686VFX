@@ -23,6 +23,11 @@ class GuiBeep : public GuiBase {
     GuiSlider freqSlider;
     GuiTextButton freqTo2kBtn;
 
+    // UNISON/HARMONY
+    GuiCategoryLabel unisonCat;
+    GuiSlider unisonVoicesSlider;
+    GuiSlider unisonDetuneSlider;
+    GuiSlider unisonSpreadSlider;
 
     GuiToggleButton bypassToggle;
     GuiSlider startLevelSlider;
@@ -101,6 +106,10 @@ public:
         volSlider(context),
         catFix(context),
         fixToggle(context), freqSlider(context), freqTo2kBtn(context),
+        unisonCat(context),
+        unisonVoicesSlider(context),
+        unisonDetuneSlider(context),
+        unisonSpreadSlider(context),
         adsrCat(context),
         bypassToggle(context),
         startLevelSlider(context),
@@ -165,6 +174,7 @@ public:
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
+    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
