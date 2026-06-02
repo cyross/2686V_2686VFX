@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <functional>
+#include <array>
 
 #include "./Params.h"
 #include "../../../../Advanced/Curve/Core.h"
@@ -35,6 +36,9 @@ class Opzx7Adddr
 	Opzx7RealAdssrParams real;
 	Opzx7RgAdssrParams rg;
 	Opzx7RgAdssrParams rgMax;
+
+	std::array<float, 64> timeInSecondsLut;
+	std::array<float, 64> attcckTimeInSecondsLut;
 
 	int ks = 0;
 	bool sus = false;

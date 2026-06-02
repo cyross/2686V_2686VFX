@@ -5,6 +5,30 @@
 
 FmRgAdddr::FmRgAdddr()
 {
+    auto calcTimeInSecond = [&](int effectiveRate, bool isAttack) -> float {
+        if (effectiveRate >= 60) {
+            // Rate 60以上はほぼ瞬時（1ミリ秒）
+            return 0.001f;
+        }
+
+        // 実機(OPN/OPM)仕様に忠実な「レートが4下がるごとに時間が2倍」の式
+        float diff = 60.0f - (float)effectiveRate;
+        float timeFactor = std::pow(2.0f, diff / 4.0f);
+        float baseTime = 0.0003f;
+        float timeInSeconds = baseTime * timeFactor;
+
+        if (isAttack) {
+            timeInSeconds *= 0.33f;
+        }
+
+        return std::min(timeInSeconds, 15.0f) * 1.5f;
+        };
+
+    for (int i = 0; i < 64; i++) {
+        timeInSecondsLut[i] = calcTimeInSecond(i, false);
+        attcckTimeInSecondsLut[i] = calcTimeInSecond(i, true);
+    }
+
     this->setParameterFunctions = std::array<std::function<void(const FmRgAdddrParams&)>, 2>{
 		[this](const FmRgAdddrParams& params) {
             // サステインレベル (SL) の計算
@@ -95,36 +119,7 @@ FmRgAdddr::FmRgAdddr()
                 int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
                 if (effectiveRate > 63) effectiveRate = 63;
 
-                float timeInSeconds = 0.0f;
-                if (effectiveRate >= 60) {
-                    // Rate 60以上はほぼ瞬時（1ミリ秒）
-                    timeInSeconds = 0.001f;
-                }
-                else {
-                    // 実機(OPN/OPM)仕様に忠実な「レートが4下がるごとに時間が2倍」の式
-                    // effectiveRate が 60 のときに 0.001秒(1ms) とする基準から、
-                    // ご要望の「regVal=1(実効レート2〜3)の時に約5秒」に合うように基準時間を調整します。
-
-                    // diff は 60 を基準とした「どれだけレートが低いか」
-                    float diff = 60.0f - (float)effectiveRate;
-
-                    // レートが4下がるごとに2倍（= pow(2.0, diff / 4.0)）
-                    float timeFactor = std::pow(2.0f, diff / 4.0f);
-
-                    // 基準時間 (Rate60 の時の時間) を調整。
-                    // 0.0003f 程度にすると、effectiveRate=2 の時 (diff=58, factor≒23170) で
-                    // 0.0003 * 23170 = 約 6.9秒 になります。
-                    float baseTime = 0.0003f;
-
-                    timeInSeconds = baseTime * timeFactor;
-
-                    // アタック時はディケイよりも早く完了するように調整 (例: 1/3の時間)
-                    if (isAttack) {
-                        timeInSeconds *= 0.33f;
-                    }
-
-                    timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
-                }
+                float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
 
                 // 最終的なデクリック保証
                 if (isRR) {
@@ -175,25 +170,7 @@ FmRgAdddr::FmRgAdddr()
                 int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
                 if (effectiveRate > 63) effectiveRate = 63;
 
-                float timeInSeconds = 0.0f;
-                if (effectiveRate >= 60) {
-                    // Rate 60以上はほぼ瞬時（1ミリ秒）
-                    timeInSeconds = 0.001f;
-                }
-                else {
-                    // 実機(OPN/OPM)仕様に忠実な「レートが4下がるごとに時間が2倍」の式
-                    float diff = 60.0f - (float)effectiveRate;
-                    float timeFactor = std::pow(2.0f, diff / 4.0f);
-                    float baseTime = 0.0003f;
-                    timeInSeconds = baseTime * timeFactor;
-
-                    if (isAttack) {
-                        timeInSeconds *= 0.33f;
-                    }
-
-                    timeInSeconds = std::min(timeInSeconds, 15.0f) * 1.5f;
-                }
-
+                float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
                 float normRate = (float)effectiveRate / 63.0f;
                 float curveFactor = m_curveCore->process(positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
 

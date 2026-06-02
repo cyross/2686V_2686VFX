@@ -10,6 +10,9 @@ class FmRgAdddr
 	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
 	State state = State::Idle;
 
+	std::array<float, 64> timeInSecondsLut;
+	std::array<float, 64> attcckTimeInSecondsLut;
+
 	int ar = 0;
 	int d1r = 0;
 	int d2r = 0;

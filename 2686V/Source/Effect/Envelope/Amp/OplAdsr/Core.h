@@ -12,6 +12,9 @@ class OplAdsr
 	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
 	State state = State::Idle;
 
+	std::array<float, 64> timeInSecondsLut;
+	std::array<float, 64> attcckTimeInSecondsLut;
+
 	static const std::array<float, 4> dbPerOcts;
 
 	int ar = 0;
