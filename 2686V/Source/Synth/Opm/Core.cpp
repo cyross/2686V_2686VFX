@@ -7,9 +7,11 @@ void OpmCore::prepare(double sampleRate) {
 
     double target = getTargetRate(m_rateIndex);
 
-    for (int i = 0; i < 4; i++) {
-        m_operators[i].prepare(i + 1, target);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
 
     m_rateAccumulator = 1.0;
 
@@ -19,9 +21,11 @@ void OpmCore::prepare(double sampleRate) {
 
 void OpmCore::setCurveCore(CurveCore* p_curveCore)
 {
-    for (auto& op : m_operators) {
-        op.setCurveCore(p_curveCore);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setCurveCore(p_curveCore);
+    m_operators[1].setCurveCore(p_curveCore);
+    m_operators[2].setCurveCore(p_curveCore);
+    m_operators[3].setCurveCore(p_curveCore);
 }
 
 void OpmCore::setSampleRate(double sampleRate) {
@@ -44,16 +48,28 @@ void OpmCore::setParameters(const SynthParams& params) {
         params.opm.lfoPms, params.opm.lfoPmd,
         params.opm.lfoAms, params.opm.lfoAmd,
         params.opm.lfoAmSmRt);
-     m_pan = params.opm.pan;
+
+    m_pan = params.opm.pan;
+
+    if (m_pan == 0) {
+        m_pan_l_rate = 1.0f;
+        m_pan_r_rate = 1.0f;
+    }
+    else {
+        m_pan_l_rate = (float)((1 - m_pan) >> 1);
+        m_pan_r_rate = (float)((m_pan + 1) >> 1);
+    }
 
     if (m_rateIndex != params.opm.fmRateIndex) {
         m_rateIndex = params.opm.fmRateIndex;
 
 		double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) {
-            op.setSampleRate(target);
-        }
+        // 高速化のためのループアンローリング
+        m_operators[0].setSampleRate(target);
+        m_operators[1].setSampleRate(target);
+        m_operators[2].setSampleRate(target);
+        m_operators[3].setSampleRate(target);
 
         m_noiseGen.updateDelta(target);
         m_lfo.updateTargetSampleRate(target);
@@ -61,28 +77,19 @@ void OpmCore::setParameters(const SynthParams& params) {
 
     m_quantizeSteps = getTargetBitDepth(params.opm.fmBitDepth);
 
-    for (int i = 0; i < 4; ++i) {
-        float fb = 0.0f;
-
-        // ALG=2 の時、OP3にFbを設定
-        if (m_algorithm == 2)
-        {
-            fb = i == 2 ? params.opm.feedback : 0.0f;
-        }
-        else if (i == 0)
-        {
-            fb = params.opm.feedback;
-        }
-
-        // OPM: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.opm.op[i], fb);
-
-        // ユニゾン・ハーモニー用
-        // モノフォニック状態をオペレータに伝達する
-        m_operators[i].setMonoMode(m_isMonoMode);
-
-        m_opMask[i] = params.opm.op[i].mask;
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setParameters(params.opm.op[0], m_algorithm != 2 ? params.opm.feedback : 0.0f);
+    m_operators[0].setMonoMode(m_isMonoMode);
+    m_opMask[0] = params.opm.op[0].mask;
+    m_operators[1].setParameters(params.opm.op[1], 0.0f);
+    m_operators[1].setMonoMode(m_isMonoMode);
+    m_opMask[1] = params.opm.op[1].mask;
+    m_operators[2].setParameters(params.opm.op[2], m_algorithm == 2 ? params.opm.feedback : 0.0f);
+    m_operators[2].setMonoMode(m_isMonoMode);
+    m_opMask[2] = params.opm.op[2].mask;
+    m_operators[3].setParameters(params.opm.op[3], 0.0f);
+    m_operators[3].setMonoMode(m_isMonoMode);
+    m_opMask[3] = params.opm.op[3].mask;
 }
 
 void OpmCore::noteOn(float freq, float velocity, int midiNote) {
@@ -114,25 +121,34 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     }
 
     // ユニゾン・ハーモニー向けに変更
-    for (auto& op : m_operators) {
-        // 計算した位相のズレをオペレータに渡す
-        op.setUnisonPhaseOffset(phaseOffsetNorm);
+    // 計算した位相のズレをオペレータに渡す
+    m_operators[0].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[1].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-        op.noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
-    }
+    m_operators[0].noteOn(finalFreq, gain, noteNum);
+    m_operators[1].noteOn(finalFreq, gain, noteNum);
+    m_operators[2].noteOn(finalFreq, gain, noteNum);
+    m_operators[3].noteOn(finalFreq, gain, noteNum);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_lfo.noteOn();
 }
 void OpmCore::noteOff() {
-    for (auto& op : m_operators) op.noteOff();
+    m_operators[0].noteOff();
+    m_operators[1].noteOff();
+    m_operators[2].noteOff();
+    m_operators[3].noteOff();
 }
 
 bool OpmCore::isPlaying() const {
-    for (const auto& op : m_operators) {
-        if (op.isPlaying()) return true;
-    }
+    if (m_operators[0].isPlaying()) return true;
+    if (m_operators[1].isPlaying()) return true;
+    if (m_operators[2].isPlaying()) return true;
+    if (m_operators[3].isPlaying()) return true;
+
     return false;
 }
 
@@ -150,7 +166,10 @@ void OpmCore::setPitchBend(int pitchWheelValue)
     float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
 
     // 全オペレーターに適用
-    for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    m_operators[0].setPitchBendRatio(ratio);
+    m_operators[1].setPitchBendRatio(ratio);
+    m_operators[2].setPitchBendRatio(ratio);
+    m_operators[3].setPitchBendRatio(ratio);
 }
 
 // モジュレーションホイール (0 - 127)
@@ -238,8 +257,8 @@ void OpmCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     float sample = getSample();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = m_pan == 1 ? 0.0f : 0.5f;
-    float basePanR = m_pan == -1 ? 0.0f : 0.5f;
+    float basePanL = m_pan_l_rate;
+    float basePanR = m_pan_r_rate;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0

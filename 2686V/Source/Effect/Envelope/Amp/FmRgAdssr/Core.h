@@ -7,7 +7,7 @@
 
 class FmRgAdssr
 {
-	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
 	State state = State::Idle;
 
 	int ar = 0;
@@ -38,8 +38,6 @@ class FmRgAdssr
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
 	float sustainRateDec = 0.0f;
-	float susReleaseDec = 0.0f;
-	float currentReleaseDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
 	bool m_zeroDecay = false;
@@ -59,13 +57,13 @@ class FmRgAdssr
 	std::array<std::function<void(const FmRgAdssrParams&)>, 2> setParameterFunctions;
 	std::array<std::function<float(float)>, 2> noteOnFunctions;
 	std::array<std::function<void(int)>, 2> updateIncrementsWithKeyScaleFunctions;
-	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
+	std::array<std::array<std::function<float(float)>, 5>, 2> updateEnvelopeStateFunctions;
 public:
 	FmRgAdssr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	bool isBypass() const { return state == State::Bypass; }
+	bool isBypass() const { return bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
@@ -75,13 +73,5 @@ public:
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);
-	void setParametersLinear(const FmRgAdssrParams& params);
-	float noteOnLinear(float velocity);
-	void updateIncrementsWithKeyScaleLinear(int noteNumber);
-	float updateEnvelopeStateLinear(float currentLevel);
-	void setParametersCurve(const FmRgAdssrParams& params);
-	float noteOnCurve(float velocity);
-	void updateIncrementsWithKeyScaleCurve(int noteNumber);
-	float updateEnvelopeStateCurve(float currentLevel);
 	void setParamMax(int ar, int dr, int sr, int sl, int rr, int tl);
 };

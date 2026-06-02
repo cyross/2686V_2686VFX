@@ -140,10 +140,6 @@ class GuiSsg : public GuiBase
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
 
-    // Master Volume
-    GuiCategoryLabel mvolCat;
-    GuiMasterVolumeSlider masterVolSlider;
-
     // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
@@ -160,8 +156,8 @@ class GuiSsg : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -264,8 +260,6 @@ public:
         envEnableButton(context),
         shapeSelector(context),
         periodSlider(context),
-        mvolCat(context),
-        masterVolSlider(context),
         monoModeToggle(context),
         presetNameLabel(context),
         presetNameSeparator(context),
@@ -285,7 +279,6 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);

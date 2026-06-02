@@ -2,16 +2,13 @@
 
 #include <array>
 
-class OpnDetune
+class OplDetune
 {
-	static const std::array<float, 8> dtScales;
 	static const std::array<float, 16> mulScales;
 
-	int detune;
-	float realDetune;
 	int multiple;
 	float realMultiple;
 public:
-	void setParameters(int dt, int mul);
+	void setParameters(int mul);
 	float noteOn(float baseFreq) const;
 };

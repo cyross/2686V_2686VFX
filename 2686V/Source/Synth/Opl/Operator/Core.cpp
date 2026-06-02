@@ -64,6 +64,7 @@ void OplOperator::setParameters(const OplOpParams& params, float feedback)
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
+    m_detune.setParameters(params.multiple);
     m_lfo.setParameters(
         params.amEnable,
         params.vibEnable,
@@ -78,7 +79,7 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
     // ユニゾン・ハーモニー向け対応
     // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-    m_phase += (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
     // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
     while (m_phase >= juce::MathConstants<float>::twoPi) {
@@ -88,52 +89,53 @@ void OplOperator::noteOn(float frequency, float velocity, int noteNumber)
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 
-    // ユニゾン・ハーモニー向け対応
-    // ポリフォニック時(!m_isMonoMode)のみゼロリセットし、
-    // モノフォニック時は以前のレベルを引き継いでノイズなく繋げる！
-
-    /*
     if (!m_isMonoMode) {
-        // ポリフォニックモードでのスティーリング・ノイズを防ぐため、必ずレベルを0にリセットする
         m_currentLevel = 0.0f;
-
-        // ポリフォニック時はフィードバックの残骸も絶対に消す！
-        // これがないと、前の音の波形が突然フィードバックされて位相がぶっ飛び、ノイズになります。
         m_fb1 = 0.0f;
         m_fb2 = 0.0f;
     }
-    else {
-        // モノフォニック時は滑らかに繋ぐため、m_fb1, m_fb2 を維持してもよいですが、
-        // 念のためここでクリアしている現在の実装（下の方にあります）も、
-        // ポリフォニック時の安全のために if(!m_isMonoMode) ブロックにまとめるのが綺麗です。
-    }
-    */
 
     // ========================================================
     // Base Frequency Calculation (PCMのサンプラー挙動対応)
     // ========================================================
     float baseFreq = frequency;
 
-    // Multi & Detune
-    float mul = (m_params.multiple == 0) ? 0.5f : (float)m_params.multiple;
-
     // Final Frequency = Base * MUL
-    float finalFreq = baseFreq * mul;
+    float finalFreq = m_detune.noteOn(baseFreq);
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
-	m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
+    if (!m_ampAdsr.isBypass()) {
+        m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
 
-    m_pitchAdsr.noteOn();
-    m_ssgSwEnv.noteOn();
-    m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
+        m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
+    }
+    else {
+        m_targetLevel = velocity;
+    }
+
+    if (m_params.pitchEnvEnable) {
+        m_pitchAdsr.noteOn();
+    }
+
+    if (m_params.ssgEnvEnable) {
+        m_ssgSwEnv.noteOn();
+    }
 }
 
 void OplOperator::noteOff()
 {
-    m_ampAdsr.noteOff();
-    m_pitchAdsr.noteOff();
-    m_ssgSwEnv.noteOff();
+    if (!m_ampAdsr.isBypass()) {
+        m_ampAdsr.noteOff();
+    }
+
+    if (m_params.pitchEnvEnable) {
+        m_pitchAdsr.noteOff();
+    }
+
+    if (m_params.ssgEnvEnable) {
+        m_ssgSwEnv.noteOff();
+    }
 }
 
 void OplOperator::processLfo()
@@ -144,9 +146,13 @@ void OplOperator::processLfo()
 void OplOperator::getSample(float& output, float modulator)
 {
     if (!isPlaying() && !m_ampAdsr.isBypass()) {
-        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
-        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
-        m_pitchAdsr.bypassedReleasedProcess();
+        if (m_params.pitchEnvEnable) {
+            m_pitchAdsr.bypassedReleasedProcess();
+        }
+
+        if (m_params.ssgEnvEnable) {
+            m_ssgSwEnv.bypassedReleasedProcess();
+        }
 
         output = 0.0f;
         // 念のためフィードバックバッファもクリアしておく

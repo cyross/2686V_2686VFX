@@ -7,7 +7,7 @@
 #include "../../../../Advanced/Curve/Core.h"
 
 class AmpAdsrEnv {
-	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
 	State state = State::Idle;
 
 	float stl = 0.0f;
@@ -32,7 +32,7 @@ class AmpAdsrEnv {
 
 	std::array<std::function<float()>, 2> noteOnFunctions;
 	std::array<std::function<void()>, 2> noteOffFunctions;
-	std::array<std::function<float(float)>, 2> processFunctions;
+	std::array<std::array<std::function<float(float)>, 5>, 2> processFunctions;
 	std::array<std::function<float()>, 2> bypassedReleasedProcessFunctions;
 	std::array<std::function<float()>, 2> bypassedProcessFunctions;
 
@@ -42,11 +42,10 @@ public:
 	void prepare(double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	bool isBypass() const { return state == State::Bypass; }
+	bool isBypass() const { return bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
-	bool isBypassed() const { return bypass; }
 	void setParameters(const AmpAdsrParams& params);
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	float noteOn();
@@ -54,14 +53,4 @@ public:
 	float process(float currentLevel);
 	float bypassedReleasedProcess();
 	float bypassedProcess();
-	float noteOnLinear();
-	void noteOffLinear();
-	float processLinear(float currentLevel);
-	float bypassedReleasedProcessLinear();
-	float bypassedProcessLinear();
-	float noteOnCurve();
-	void noteOffCurve();
-	float processCurve(float currentLevel);
-	float bypassedReleasedProcessCurve();
-	float bypassedProcessCurve();
 };

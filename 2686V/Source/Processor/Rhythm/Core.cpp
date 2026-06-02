@@ -53,6 +53,10 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
     }
 }
 
+void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String code = RhythmPrKey::prefix;
+}
+
 void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = RhythmPrKey::prefix;

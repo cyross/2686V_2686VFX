@@ -96,6 +96,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     addSsgSwEnvParameters(layout, code);
 }
 
+void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String code = WtPrKey::prefix;
+}
+
 void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = WtPrKey::prefix;
@@ -157,7 +161,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
 
     params.wt.multiple = (int)*apvts.getRawParameterValue(code + WtPrKey::mul);
-    params.wt.mutipleRatio = *apvts.getRawParameterValue(code + WtPrKey::mulRatio);
+    params.wt.multipleRatio = *apvts.getRawParameterValue(code + WtPrKey::mulRatio);
     params.wt.detune = (int)*apvts.getRawParameterValue(code + WtPrKey::dt);
     params.wt.detune2 = (int)*apvts.getRawParameterValue(code + WtPrKey::dt2);
 

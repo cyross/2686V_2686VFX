@@ -149,10 +149,6 @@ class GuiOpzx7 : public GuiBase
     GuiSlider unisonDetuneSlider;
     GuiSlider unisonSpreadSlider;
 
-    // Master Volume
-    GuiCategoryLabel mvolCat;
-    GuiMasterVolumeSlider masterVolSlider;
-
     // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
@@ -270,8 +266,8 @@ class GuiOpzx7 : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
@@ -311,8 +307,6 @@ public:
         unisonVoicesSlider(context),
         unisonDetuneSlider(context),
         unisonSpreadSlider(context),
-        mvolCat(context),
-        masterVolSlider(context),
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -442,7 +436,6 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);

@@ -96,7 +96,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         scanPresets();
     }
 
-    addChildComponent(staticPreview);
     addChildComponent(realtimePreview);
 
     // プレビュー表示切替ボタン
@@ -110,7 +109,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         isPreviewVisible = !isPreviewVisible;
         updatePreviewVisibilityToProcessor();
 
-        staticPreview.setVisible(isPreviewVisible);
         realtimePreview.setVisible(isPreviewVisible);
         togglePreviewBtn.setButtonText(getPreviewButtonText());
         togglePreviewBtn.setTooltip(getPreviewTooltipText());
@@ -297,7 +295,6 @@ void AudioPlugin2686VEditor::resized()
     {
         auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
         // 上下に並べる
-        staticPreview.setBounds(rightArea.getX() + 4, 30, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
     }
 
@@ -882,8 +879,7 @@ void AudioPlugin2686VEditor::timerCallback()
         // 1. 静的波形（完成波形）の更新
         std::vector<float> staticData;
 
-        audioProcessor.generatePreviewWaveform(staticData);
-        staticPreview.pushBuffer(staticData.data(), (int)staticData.size());
+        audioProcessor.generatePreviewWaveform(&staticData);
         // 2. リアルタイム波形の更新
         std::vector<float> realTimeData(512);
 

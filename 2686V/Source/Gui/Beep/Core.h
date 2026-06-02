@@ -14,7 +14,6 @@ class GuiBeep : public GuiBase {
     GuiCategoryLabel catFix;
     GuiCategoryLabel adsrCat;
     GuiCategoryLabel monoPolyCat;
-    GuiCategoryLabel mvolCat;
 
     GuiSlider volSlider;
 
@@ -75,9 +74,6 @@ class GuiBeep : public GuiBase {
     GuiComboBox dt1;
     GuiSlider dt2;
 
-    // マスターボリューム(全音源共通の最終出力)
-    GuiMasterVolumeSlider masterVolSlider;
-
     // Mono/Poly切り替えスイッチ
     GuiToggleButton monoModeToggle;
 
@@ -94,8 +90,8 @@ class GuiBeep : public GuiBase {
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -150,8 +146,6 @@ public:
         mulRatio(context),
         dt1(context),
         dt2(context),
-        mvolCat(context),
-        masterVolSlider(context),
         monoModeToggle(context),
         presetNameLabel(context),
         presetNameSeparator(context),
@@ -169,7 +163,6 @@ public:
     void initParams();
     void layoutFixCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutDetuneCat(juce::Rectangle<int>& rect);

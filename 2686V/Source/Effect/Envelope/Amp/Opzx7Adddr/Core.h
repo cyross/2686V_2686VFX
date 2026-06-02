@@ -27,7 +27,7 @@ struct Opzx7RgAdssr
 
 class Opzx7Adddr
 {
-	enum class State { Idle, Attack, Decay, Sustain, Release, Bypass };
+	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
 	State state = State::Idle;
 
 	bool rgEnable = false;
@@ -61,7 +61,7 @@ class Opzx7Adddr
 	inline float getReleaseDec() const
 	{
 		if (sus) {
-			return 0.0f;
+			return susReleaseDec;
 		}
 		else {
 			return releaseDec;
@@ -81,13 +81,13 @@ class Opzx7Adddr
 	std::array<std::function<void(const Opzx7AdddrParams&)>, 2> setParameterFunctions;
 	std::array<std::function<float(float)>, 2> noteOnFunctions;
 	std::array<std::function<void(int)>, 2> updateIncrementsWithKeyScaleFunctions;
-	std::array<std::function<float(float)>, 2> updateEnvelopeStateFunctions;
+	std::array<std::array<std::function<float(float)>, 5>, 2> updateEnvelopeStateFunctions;
 public:
 	Opzx7Adddr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	bool isBypass() const { return state == State::Bypass; }
+	bool isBypass() const { return bypass; }
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
@@ -97,13 +97,5 @@ public:
 	void noteOff();
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);
-	void setParametersLinear(const Opzx7AdddrParams& params);
-	float noteOnLinear(float velocity);
-	void updateIncrementsWithKeyScaleLinear(int noteNumber);
-	float updateEnvelopeStateLinear(float currentLevel);
-	void setParametersCurve(const Opzx7AdddrParams& params);
-	float noteOnCurve(float velocity);
-	void updateIncrementsWithKeyScaleCurve(int noteNumber);
-	float updateEnvelopeStateCurve(float currentLevel);
 	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
 };

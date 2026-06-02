@@ -72,7 +72,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.multiple, params.ssg.mutipleRatio);
+    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.multiple, params.ssg.multipleRatio);
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
         params.ssg.lfoSyncDelay,
@@ -227,7 +227,7 @@ float SsgCore::getSample()
 
     // --- ADSR & SwEnv Gate Logic ---
     // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypassed()) {
+    if (!m_adsr.isBypass()) {
         m_currentLevel = m_adsr.process(m_currentLevel);
         finalEnv *= m_currentLevel; // 掛け算
     }
@@ -240,7 +240,7 @@ float SsgCore::getSample()
     }
 
     // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypassed()) {
+    if (!m_ssgSwEnv.isBypass()) {
         finalEnv *= m_ssgSwEnv.process(); // 掛け算
     }
     else {

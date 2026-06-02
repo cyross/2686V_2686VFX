@@ -36,14 +36,10 @@ void CurveProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     }
 }
 
-void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
-{
+void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = CurvePrKey::prefix;
 
-    params.curve.enable = (*apvts.getRawParameterValue(code + CurvePrKey::enable) > CurvePrValue::boolThread);
-
-    // ロジック変更前のごみ掃除
-    initParams(params);
+    pEnable = apvts.getRawParameterValue(code + CurvePrKey::enable);
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
         const juce::String pCode = code + CurvePrKey::position[p];
@@ -54,255 +50,164 @@ void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
                 const juce::String vpCode = tCode + CurvePrKey::paramList[vp];
 
-                int logic = (int)*apvts.getRawParameterValue(vpCode + CurvePrKey::logic) - 1;
+                pLogics[p][t][vp] = apvts.getRawParameterValue(vpCode + CurvePrKey::logic);
+                pKs[p][t][vp] = apvts.getRawParameterValue(vpCode + CurvePrKey::k);
 
-                params.curve.params[p][t][vp].logic = logic;
-                params.curve.params[p][t][vp].k = *apvts.getRawParameterValue(vpCode + CurvePrKey::k);
-
-                switch ((CurveParams::Logic)logic) {
-                case(CurveParams::Logic::Linear):
-                case(CurveParams::Logic::ArcExp):
-                case(CurveParams::Logic::ArcLog):
-                    // 値の設定なし
-                    break;
-                case(CurveParams::Logic::Exp):
-                    params.curve.params[p][t][vp].expCurve.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    break;
-                case(CurveParams::Logic::Log):
-                    params.curve.params[p][t][vp].logCurve.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    break;
-                case(CurveParams::Logic::Sp1):
-                    params.curve.params[p][t][vp].sp1Curve.cp.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].sp1Curve.cp.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    break;
-                case(CurveParams::Logic::Sp2):
-                    params.curve.params[p][t][vp].sp2Curve.cp1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].sp2Curve.cp1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].sp2Curve.cp2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].sp2Curve.cp2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    break;
-                case(CurveParams::Logic::LinearArcExp):
-                    params.curve.params[p][t][vp].linear1ArcExp.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1ArcExp.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    break;
-                case(CurveParams::Logic::LinearArcLog):
-                    params.curve.params[p][t][vp].linear1ArcLog.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1ArcLog.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    break;
-                case(CurveParams::Logic::LinearExp):
-                    params.curve.params[p][t][vp].linear1Exp.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1Exp.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear1Exp.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    break;
-                case(CurveParams::Logic::LinearLog):
-                    params.curve.params[p][t][vp].linear1Log.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1Log.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear1Log.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    break;
-                case(CurveParams::Logic::LinearSp1):
-                    params.curve.params[p][t][vp].linear1Sp1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1Sp1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear1Sp1.cp.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear1Sp1.cp.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    break;
-                case(CurveParams::Logic::LinearSp2):
-                    params.curve.params[p][t][vp].linear1Sp2.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear1Sp2.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear1Sp2.cp1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear1Sp2.cp1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].linear1Sp2.cp2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    params.curve.params[p][t][vp].linear1Sp2.cp2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[5]);
-                    break;
-                case(CurveParams::Logic::ArcExpLinear):
-                    params.curve.params[p][t][vp].arcExpLinear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].arcExpLinear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    break;
-                case(CurveParams::Logic::ArcLogLinear):
-                    params.curve.params[p][t][vp].arcLogLinear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].arcLogLinear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    break;
-                case(CurveParams::Logic::ExpLinear):
-                    params.curve.params[p][t][vp].expLinear1.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].expLinear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].expLinear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    break;
-                case(CurveParams::Logic::LogLinear):
-                    params.curve.params[p][t][vp].logLinear1.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].logLinear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].logLinear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    break;
-                case(CurveParams::Logic::Sp1Linear):
-                    params.curve.params[p][t][vp].sp1Linear1.cp.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].sp1Linear1.cp.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].sp1Linear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].sp1Linear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    break;
-                case(CurveParams::Logic::Sp2Linear):
-                    params.curve.params[p][t][vp].sp2Linear1.cp1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].sp2Linear1.cp1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].sp2Linear1.cp2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].sp2Linear1.cp2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].sp2Linear1.pos.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    params.curve.params[p][t][vp].sp2Linear1.pos.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[5]);
-                    break;
-                case(CurveParams::Logic::Linear2ArcExp):
-                    params.curve.params[p][t][vp].linear2ArcExp.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2ArcExp.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2ArcExp.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2ArcExp.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    break;
-                case(CurveParams::Logic::Linear2ArcLog):
-                    params.curve.params[p][t][vp].linear2ArcLog.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2ArcLog.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2ArcLog.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2ArcLog.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    break;
-                case(CurveParams::Logic::Linear2Exp):
-                    params.curve.params[p][t][vp].linear2Exp.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2Exp.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2Exp.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2Exp.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].linear2Exp.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    break;
-                case(CurveParams::Logic::Linear2Log):
-                    params.curve.params[p][t][vp].linear2Log.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2Log.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2Log.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2Log.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].linear2Log.rate = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    break;
-                case(CurveParams::Logic::Linear2Sp1):
-                    params.curve.params[p][t][vp].linear2Sp1.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2Sp1.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2Sp1.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2Sp1.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].linear2Sp1.cp.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    params.curve.params[p][t][vp].linear2Sp1.cp.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[5]);
-                    break;
-                case(CurveParams::Logic::Linear2Sp2):
-                    params.curve.params[p][t][vp].linear2Sp2.pos1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[0]);
-                    params.curve.params[p][t][vp].linear2Sp2.pos1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[1]);
-                    params.curve.params[p][t][vp].linear2Sp2.pos2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[2]);
-                    params.curve.params[p][t][vp].linear2Sp2.pos2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[3]);
-                    params.curve.params[p][t][vp].linear2Sp2.cp1.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[4]);
-                    params.curve.params[p][t][vp].linear2Sp2.cp1.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[5]);
-                    params.curve.params[p][t][vp].linear2Sp2.cp2.x = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[6]);
-                    params.curve.params[p][t][vp].linear2Sp2.cp2.y = *apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[7]);
-                    break;
+                for (int i = 0; i < 8; i++) {
+                    pValues[p][t][vp][i] = apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[i]);
                 }
             }
         }
     }
+
+    lLogics[(int)CurveParams::Logic::Linear] = [=](SynthParams& params, int p, int t, int vp) {};
+    lLogics[(int)CurveParams::Logic::ArcExp] = [=](SynthParams& params, int p, int t, int vp) {};
+    lLogics[(int)CurveParams::Logic::ArcLog] = [=](SynthParams& params, int p, int t, int vp) {};
+    lLogics[(int)CurveParams::Logic::Exp] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].expCurve.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Log] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].logCurve.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sp1] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sp1Curve.cp.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Curve.cp.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sp2] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sp2Curve.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Curve.cp1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Curve.cp2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Curve.cp2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearArcExp] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1ArcExp.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcExp.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearArcLog] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1ArcLog.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcLog.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearExp] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1Exp.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Exp.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Exp.rate = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearLog] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1Log.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Log.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Log.rate = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearSp1] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1Sp1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.cp.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.cp.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LinearSp2] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear1Sp2.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.cp1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.cp1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.cp2.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.cp2.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::ArcExpLinear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].arcExpLinear1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcExpLinear1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::ArcLogLinear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].arcLogLinear1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcLogLinear1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::ExpLinear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].expLinear1.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].expLinear1.pos.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].expLinear1.pos.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::LogLinear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].logLinear1.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].logLinear1.pos.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].logLinear1.pos.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sp1Linear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sp1Linear1.cp.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.cp.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.pos.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.pos.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sp2Linear] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sp2Linear1.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.cp1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.cp2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.cp2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.pos.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.pos.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2ArcExp] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2ArcExp.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcExp.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcExp.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcExp.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2ArcLog] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2ArcLog.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcLog.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcLog.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2ArcLog.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2Exp] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2Exp.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Exp.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Exp.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Exp.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Exp.rate = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2Log] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2Log.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Log.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Log.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Log.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Log.rate = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2Sp1] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2Sp1.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.cp.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.cp.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2Sp2] = [=](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2Sp2.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.cp1.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.cp1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.cp2.x = pValues[p][t][vp][6]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp2.cp2.y = pValues[p][t][vp][7]->load(std::memory_order_relaxed);
+        };
 }
 
-void CurveProcessor::initParams(SynthParams& params) {
+void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
+{
+    const juce::String code = CurvePrKey::prefix;
+
+    params.curve.enable = (pEnable->load(std::memory_order_relaxed) > CurvePrValue::boolThread);
+
     for (int p = 0; p < CurvePrValue::positions; p++) {
         for (int t = 0; t < CurvePrValue::targets; t++) {
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
-                params.curve.params[p][t][vp].logic = 0;
-                params.curve.params[p][t][vp].k = 0.0;
+                int logic = pLogics[p][t][vp]->load(std::memory_order_relaxed);
 
-                params.curve.params[p][t][vp].expCurve.rate = 0.0f;
+                if (logic < 0) {
+                    continue;
+                }
 
-                params.curve.params[p][t][vp].logCurve.rate = 0.0f;
+                params.curve.params[p][t][vp].logic = logic;
+                params.curve.params[p][t][vp].k = pKs[p][t][vp]->load(std::memory_order_relaxed);
 
-                params.curve.params[p][t][vp].sp1Curve.cp.x = 0.0f;
-                params.curve.params[p][t][vp].sp1Curve.cp.y = 0.0f;
-
-                params.curve.params[p][t][vp].sp2Curve.cp1.x = 0.0f;
-                params.curve.params[p][t][vp].sp2Curve.cp1.y = 0.0f;
-                params.curve.params[p][t][vp].sp2Curve.cp2.x = 0.0f;
-                params.curve.params[p][t][vp].sp2Curve.cp2.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear1ArcExp.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1ArcExp.pos.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear1ArcLog.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1ArcLog.pos.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear1Exp.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Exp.pos.y = 0.0f;
-                params.curve.params[p][t][vp].linear1Exp.rate = 0.0f;
-
-                params.curve.params[p][t][vp].linear1Log.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Log.pos.y = 0.0f;
-                params.curve.params[p][t][vp].linear1Log.rate = 0.0f;
-
-                params.curve.params[p][t][vp].linear1Sp1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp1.pos.y = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp1.cp.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp1.cp.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear1Sp2.pos.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp2.pos.y = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp2.cp1.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp2.cp1.y = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp2.cp2.x = 0.0f;
-                params.curve.params[p][t][vp].linear1Sp2.cp2.y = 0.0f;
-
-                params.curve.params[p][t][vp].arcExpLinear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].arcExpLinear1.pos.y = 0.0f;
-
-                params.curve.params[p][t][vp].arcLogLinear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].arcLogLinear1.pos.y = 0.0f;
-
-                params.curve.params[p][t][vp].expLinear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].expLinear1.pos.y = 0.0f;
-                params.curve.params[p][t][vp].expLinear1.rate = 0.0f;
-
-                params.curve.params[p][t][vp].logLinear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].logLinear1.pos.y = 0.0f;
-                params.curve.params[p][t][vp].logLinear1.rate = 0.0f;
-
-                params.curve.params[p][t][vp].sp1Linear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].sp1Linear1.pos.y = 0.0f;
-                params.curve.params[p][t][vp].sp1Linear1.cp.x = 0.0f;
-                params.curve.params[p][t][vp].sp1Linear1.cp.y = 0.0f;
-
-                params.curve.params[p][t][vp].sp2Linear1.pos.x = 0.0f;
-                params.curve.params[p][t][vp].sp2Linear1.pos.y = 0.0f;
-                params.curve.params[p][t][vp].sp2Linear1.cp1.x = 0.0f;
-                params.curve.params[p][t][vp].sp2Linear1.cp1.y = 0.0f;
-                params.curve.params[p][t][vp].sp2Linear1.cp2.x = 0.0f;
-                params.curve.params[p][t][vp].sp2Linear1.cp2.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear2ArcExp.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcExp.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcExp.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcExp.pos2.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear2ArcLog.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcLog.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcLog.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2ArcLog.pos2.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear2Exp.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Exp.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Exp.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Exp.pos2.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Exp.rate = 0.0f;
-
-                params.curve.params[p][t][vp].linear2Log.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Log.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Log.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Log.pos2.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Log.rate = 0.0f;
-
-                params.curve.params[p][t][vp].linear2Sp1.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp1.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp1.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp1.pos2.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp1.cp.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp1.cp.y = 0.0f;
-
-                params.curve.params[p][t][vp].linear2Sp2.pos1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.pos1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.pos2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.pos2.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.cp1.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.cp1.y = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.cp2.x = 0.0f;
-                params.curve.params[p][t][vp].linear2Sp2.cp2.y = 0.0f;
+                lLogics[logic](params, p, t, vp);
             }
         }
     }

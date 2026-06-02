@@ -95,7 +95,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypassed())
+    if (m_adsr.isBypass())
     {
         // どちらもバイパスの時は完全な矩形波（Gate）動作
         if (m_adsr.isRelease()) {
@@ -105,7 +105,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     else
     {
         // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-        if (!m_adsr.isBypassed()) {
+        if (!m_adsr.isBypass()) {
             m_currentEnv = m_adsr.process(m_currentEnv);
             finalEnv = m_currentEnv;
         }

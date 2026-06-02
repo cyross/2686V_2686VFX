@@ -437,13 +437,6 @@ void GuiSsg::setup()
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = SsgGuiText::Category::visibleMvol, .invisibleTitle = SsgGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = SsgPrKey::masterVol, .title = SsgGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
 	voiceGroup.setup(*this, SsgGuiText::Group::voice);
 
     shapeCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::shape });
@@ -588,8 +581,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
-
-    layoutMvolCat(mRect);
 
     auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
 
@@ -738,19 +729,6 @@ void GuiSsg::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiSsg::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

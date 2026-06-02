@@ -285,13 +285,6 @@ void GuiBeep::setup() {
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = BeepGuiText::Category::visibleMvol, .invisibleTitle = BeepGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = BeepPrKey::masterVol, .title = BeepGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     setupGraph();
     updateGraph();
 }
@@ -330,8 +323,6 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     layoutUnisonCat(mRect);
 
     layoutMonoModeCat(mRect);
-
-    layoutMvolCat(mRect);
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)
@@ -372,19 +363,6 @@ void GuiBeep::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiBeep::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

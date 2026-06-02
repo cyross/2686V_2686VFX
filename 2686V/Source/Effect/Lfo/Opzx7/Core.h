@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <cmath>
+#include <array>
+#include <functional>
 
 #include "../../../Generator/Noise/Lfsr/Core.h"
 
@@ -10,12 +12,15 @@ struct Opzx7LfoValues {
 };
 
 class Opzx7LfoCore {
+	std::array<std::function<void()>, 3> m_noteOnFunctions;
+
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_amFreq = 0.0f;
 	float m_pmFreq = 0.0f;
 
 	int m_sdParam = 0;
+	int m_sdIndex = 0;
 	float m_sd = 0.0f;
 	
 	int m_pmWaveIndex = 0;
@@ -48,6 +53,8 @@ class Opzx7LfoCore {
 	// OPZ7/EG-LFO波形の計算アルゴリズム配列
 	static const std::array<Opzx7LfoCalculator, 8> lfoAmStrategies;
 public:
+	Opzx7LfoCore();
+
 	bool amEnable = false;
 	bool pmEnable = false;
 

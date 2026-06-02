@@ -6,6 +6,7 @@ class OpmDetune
 {
 	static const std::array<float, 8> dtScales;
 	static const std::array<float, 4> dt2Scales;
+	static const std::array<float, 16> mulScales;
 
 	int detune;
 	float realDetune;

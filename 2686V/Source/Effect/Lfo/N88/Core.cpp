@@ -3,14 +3,43 @@
 
 #include "./Core.h"
 
+N88LfoCore::N88LfoCore() {
+    m_noteOnFunctions = {
+        [this]() {
+            this->m_sdCounter = 0.0f; // フリーラン継続
+
+            // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
+            // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
+            if (this->m_isOneshotPm || this->m_isOneshotAm) {
+                this->m_pmPhase = 0.0;
+                this->m_amPhase = 0.0;
+            }
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = 0.0f; // ms -> 秒
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
+        }
+    };
+}
+
 // -----------------------------------------------------------
 // LFO 波形算出アルゴリズム (N888BASIC(86)準拠)
 // -----------------------------------------------------------
 const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::pmStrategies = { {
-        // 0: Saw Up
-        [](double phase, float /*noise*/) -> float {
-            return (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0);
-        },
+    // 0: Saw Up
+    [](double phase, float /*noise*/) -> float {
+        return (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0);
+    },
     // 1: Square
     [](double phase, float /*noise*/) -> float {
         return (phase < 0.5) ? 1.0f : 0.0f;
@@ -44,10 +73,10 @@ const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::pmStrategies = { {
 } };
 
 const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::amStrategies = { {
-        // 0: Saw Up
-        [](double phase, float /*noise*/) -> float {
-            return (float)phase;
-        },
+    // 0: Saw Up
+    [](double phase, float /*noise*/) -> float {
+        return (float)phase;
+    },
     // 1: Square
     [](double phase, float /*noise*/) -> float {
         return (phase < 0.5) ? 1.0f : 0.0f;
@@ -91,7 +120,8 @@ void N88LfoCore::updateTargetSampleRate(double newSampleRate) {
 void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate)
 {
 	this->m_sdParam = syncDelay;
-	this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
+    this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
+    this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
     this->pmEnable = pm;
     this->m_pmFreq = pmFreq;
@@ -120,31 +150,7 @@ void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, fl
 void N88LfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (this->m_sdParam == 0) {
-        this->m_sdCounter = 0.0f; // フリーラン継続
-
-        // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
-        // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
-        if (this->m_isOneshotPm || this->m_isOneshotAm) {
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-        }
-    }
-    else if (this->m_sdParam == 1) {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = 0.0f; // ms -> 秒
-    }
-    else {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
-    }
-
+    this->m_noteOnFunctions[this->m_sdIndex]();
     this->m_pmCycleCount = 0;
     this->m_amCycleCount = 0;
 }

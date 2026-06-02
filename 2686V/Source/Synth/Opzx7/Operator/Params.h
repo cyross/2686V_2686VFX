@@ -12,7 +12,7 @@ struct Opzx7OpParams
     Opzx7AdddrParams m_adsrParams;
 
     int multiple = 1;      // MULTI: 0~15
-    float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
+    float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;        // DT: 0~7
     int detune2 = 0;       // DT2: OPL3/OPM Only
     int ssgEg = 0;         // SE: 0~15 (SSG-EG)

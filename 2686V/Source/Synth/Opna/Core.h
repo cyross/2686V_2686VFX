@@ -79,6 +79,8 @@ private:
     float m_steppedAmLfoVal = 0.0f;
 
     int m_pan = 0;
+    float m_pan_l_rate = 1.0f;
+    float m_pan_r_rate = 1.0f;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

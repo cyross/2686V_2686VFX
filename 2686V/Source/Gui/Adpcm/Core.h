@@ -97,11 +97,6 @@ class GuiAdpcm : public GuiBase
 
     GuiComboBox rateSelector;
 
-    GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
-    GuiMasterVolumeSlider masterVolSlider;
-
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -115,8 +110,8 @@ class GuiAdpcm : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -124,8 +119,6 @@ public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        mvolCat(context),
-        masterVolSlider(context),
         modeSelector(context),
         loadButton(context),
         clearButton(context),
@@ -209,7 +202,6 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);

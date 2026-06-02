@@ -7,6 +7,7 @@
 #include "../../../Effect/Envelope/Amp/OplAdsr/Core.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/Core.h"
+#include "../../../Effect/Detune/Opl/Core.h"
 #include "../../../Core/Fm/FmOperator.h"
 
 class OplOperator : public FmOperator
@@ -37,6 +38,7 @@ public:
 private:
 	OplLfoCore m_lfo;
 	OplAdsr m_ampAdsr;
+	OplDetune m_detune;
 	PitchAdsrEnv m_pitchAdsr;
 	SsgSwEnv m_ssgSwEnv;
 

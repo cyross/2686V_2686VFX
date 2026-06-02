@@ -502,13 +502,6 @@ void GuiRhythm::setup()
     unisonSpreadSlider.setWantsKeyboardFocus(true);
     unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleMvol, .invisibleTitle = RhythmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = RhythmPrKey::masterVol, .title = RhythmGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     // Setup 8 Pads
     for (int i = 0; i < 8; ++i)
     {
@@ -547,8 +540,6 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     layoutUnisonCat(mRect);
-
-    layoutMvolCat(mRect);
 
     auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
@@ -621,19 +612,6 @@ void GuiRhythm::initParams()
     {
         this->ctx.audioProcessor.unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);
-    }
-}
-
-void GuiRhythm::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

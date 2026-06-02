@@ -47,9 +47,11 @@ void Opzx7Core::prepare(double sampleRate) {
 
     double target = getTargetRate(m_rateIndex);
 
-    for(int i=0; i<4; i++) {
-        m_operators[i].prepare(i+1, target);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
@@ -60,9 +62,11 @@ void Opzx7Core::prepare(double sampleRate) {
 
 void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
 {
-    for (auto& op : m_operators) {
-        op.setCurveCore(p_curveCore);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setCurveCore(p_curveCore);
+    m_operators[1].setCurveCore(p_curveCore);
+    m_operators[2].setCurveCore(p_curveCore);
+    m_operators[3].setCurveCore(p_curveCore);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -97,8 +101,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_panpot_r_rate = pan;
     }
     else {
-        m_panpot_l_rate = 0.5f;
-        m_panpot_r_rate = 0.5f;
+        m_panpot_l_rate = 1.0f;
+        m_panpot_r_rate = 1.0f;
     }
 
     if (m_rateIndex != params.opzx7.fmRateIndex) {
@@ -106,46 +110,38 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
         double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) {
-            op.setSampleRate(target);
-        }
+        // 高速化のためのループアンローリング
+        m_operators[0].setSampleRate(target);
+        m_operators[1].setSampleRate(target);
+        m_operators[2].setSampleRate(target);
+        m_operators[3].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);
 
-    for (int i = 0; i < 4; ++i) {
-        float fb = 0.0f;
+    // 高速化のためのループアンローリング
+    m_operators[0].setParameters(params.opzx7.op[0], m_algorithm != 2 ? params.opzx7.feedback : 0.0f);
+    m_operators[0].setMonoMode(m_isMonoMode);
+    m_opMask[0] = params.opzx7.op[0].mask;
+    m_operators[1].setParameters(params.opzx7.op[1], 0.0f);
+    m_operators[1].setMonoMode(m_isMonoMode);
+    m_opMask[1] = params.opzx7.op[1].mask;
+    m_operators[2].setParameters(params.opzx7.op[2], (m_algorithm == 30 || m_algorithm == 33) ? params.opzx7.feedback : 0.0f);
+    m_operators[2].setMonoMode(m_isMonoMode);
+    m_opMask[2] = params.opzx7.op[2].mask;
+    m_operators[3].setParameters(params.opzx7.op[3], 0.0f);
+    m_operators[3].setMonoMode(m_isMonoMode);
+    m_opMask[3] = params.opzx7.op[3].mask;
 
-        // ALG=33のときは、OP1,OP3の両方フィードバック
-        if (m_algorithm == 33)
-        {
-            fb = (i == 0 || i == 2) ? params.opzx7.feedback : 0.0f;
-        }
-        else if (i == 0)
-        {
-            fb = params.opzx7.feedback;
-        }
-
-        // WaveSelect=True, SSG-EG=True, OpmEg=True
-        m_operators[i].setParameters(params.opzx7.op[i], fb);
-
-        // ユニゾン・ハーモニー用
-        // モノフォニック状態をオペレータに伝達する
-        m_operators[i].setMonoMode(m_isMonoMode);
-
-        m_opMask[i] = params.opzx7.op[i].mask;
-    }
-
-    // OPX特有の外部フィードバックアルゴリズムの場合、OP0/OP2の自己FBをオフにする
+    // OPX特有の外部フィードバックアルゴリズムの場合、OP0の自己FBをオフにする
     bool useExtFb = false;
     if (m_algorithm == 1 || m_algorithm == 5 || m_algorithm == 7 || m_algorithm == 11) useExtFb = true; // 4OP: OP1->OP0 FB
     if (m_algorithm == 17 || m_algorithm == 21) useExtFb = true; // 3OP: OP2->OP0 FB
     if (m_algorithm == 25) useExtFb = true; // 2OP: OP1->OP0 FB
 
     m_operators[0].setExternalFeedbackMode(useExtFb);
-    m_operators[2].setExternalFeedbackMode(useExtFb);
 }
 
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
@@ -177,12 +173,16 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
     }
 
     // ユニゾン・ハーモニー向けに変更
-    for (auto& op : m_operators) {
-        // 計算した位相のズレをオペレータに渡す
-        op.setUnisonPhaseOffset(phaseOffsetNorm);
+    // 計算した位相のズレをオペレータに渡す
+    m_operators[0].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[1].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-        op.noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
-    }
+    m_operators[0].noteOn(finalFreq, gain, noteNum);
+    m_operators[1].noteOn(finalFreq, gain, noteNum);
+    m_operators[2].noteOn(finalFreq, gain, noteNum);
+    m_operators[3].noteOn(finalFreq, gain, noteNum);
 
     m_lfoPhase = 0.0; // LFO位相をリセット
     m_rateAccumulator = 0.0; // レートの余りもリセット
@@ -192,14 +192,19 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote) {
 
 void Opzx7Core::noteOff()
 {
-    for (auto& op : m_operators) op.noteOff();
+    m_operators[0].noteOff();
+    m_operators[1].noteOff();
+    m_operators[2].noteOff();
+    m_operators[3].noteOff();
 }
 
 bool Opzx7Core::isPlaying() const
 {
-    for (const auto& op : m_operators) {
-        if (op.isPlaying()) return true;
-    }
+    if (m_operators[0].isPlaying()) return true;
+    if (m_operators[1].isPlaying()) return true;
+    if (m_operators[2].isPlaying()) return true;
+    if (m_operators[3].isPlaying()) return true;
+
     return false;
 }
 
@@ -208,7 +213,11 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
     float semitones = 2.0f;
     float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
-    for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+
+    m_operators[0].setPitchBendRatio(ratio);
+    m_operators[1].setPitchBendRatio(ratio);
+    m_operators[2].setPitchBendRatio(ratio);
+    m_operators[3].setPitchBendRatio(ratio);
 }
 
 void Opzx7Core::setModulationWheel(int wheelValue)
@@ -307,6 +316,7 @@ float Opzx7Core::getSample() {
     }
 
     float fraction = (float)(m_rateAccumulator / stepSize);
+
     if (fraction > 1.0f) fraction = 1.0f;
 
     return m_prevSample + (m_lastSample - m_prevSample) * fraction;

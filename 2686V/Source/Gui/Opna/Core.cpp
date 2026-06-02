@@ -326,13 +326,6 @@ void GuiOpna::setup()
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = OpnaGuiText::Category::visibleMvol, .invisibleTitle = OpnaGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = OpnaPrKey::masterVol, .title = OpnaGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < 8; ++i)
@@ -678,8 +671,6 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     layoutMonoModeCat(mRect);
 
-    layoutMvolCat(mRect);
-
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
     {
@@ -1023,19 +1014,6 @@ void GuiOpna::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiOpna::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

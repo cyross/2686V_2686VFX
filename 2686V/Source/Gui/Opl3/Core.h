@@ -55,11 +55,6 @@ class GuiOpl3 : public GuiBase
     GuiSlider unisonDetuneSlider;
     GuiSlider unisonSpreadSlider;
 
-    GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
-    GuiMasterVolumeSlider masterVolSlider;
-
     // Mono/Poly切り替えスイッチ
     GuiToggleButton monoModeToggle;
 
@@ -145,8 +140,8 @@ class GuiOpl3 : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
@@ -166,8 +161,6 @@ public:
         unisonVoicesSlider(context),
         unisonDetuneSlider(context),
         unisonSpreadSlider(context),
-        mvolCat(context),
-        masterVolSlider(context),
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -253,7 +246,6 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);

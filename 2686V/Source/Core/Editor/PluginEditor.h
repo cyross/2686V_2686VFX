@@ -184,8 +184,6 @@ private:
     // 波形プレビュー用
     SystemButtonLF togglePreviewButtonLF;
     juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
-    // 青系のリアルタイムプレビュー
-    GuiWaveformPreview staticPreview{ juce::Colour(0xff0a1a3a), juce::Colours::cyan };
     // 緑系のリアルタイムプレビュー
     GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
     bool isPreviewVisible = false;

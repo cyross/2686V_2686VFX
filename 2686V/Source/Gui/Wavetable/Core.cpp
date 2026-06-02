@@ -557,14 +557,6 @@ void GuiWt::setup()
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = WtGuiText::Category::visibleMvol, .invisibleTitle = WtGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    // Master Volume
-	masterVolSlider.setup({ .parent = *this, .id = WtPrKey::masterVol, .title = WtGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     // Custom Wave Group
 	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
 
@@ -689,8 +681,6 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
-
-    layoutMvolCat(mRect);
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);
@@ -962,19 +952,6 @@ void GuiWt::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiWt::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

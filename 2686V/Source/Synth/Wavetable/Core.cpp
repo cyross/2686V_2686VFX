@@ -53,7 +53,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.wt.ssgSwEnv);
-	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.multiple, params.wt.mutipleRatio);
+	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.multiple, params.wt.multipleRatio);
     m_lfo.setParameters(
         params.wt.lfoSyncDelay,
         params.wt.lfoPmEnable, params.wt.lfoAmEnable,
@@ -216,7 +216,7 @@ float WtCore::getSample()
 
     // --- ADSR & SwEnv Gate Logic ---
     // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypassed()) {
+    if (!m_adsr.isBypass()) {
         m_currentLevel = m_adsr.process(m_currentLevel);
         finalEnv *= m_currentLevel; // 掛け算
     }
@@ -229,7 +229,7 @@ float WtCore::getSample()
     }
 
     // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypassed()) {
+    if (!m_ssgSwEnv.isBypass()) {
         finalEnv *= m_ssgSwEnv.process(); // 掛け算
     }
     else {
@@ -429,8 +429,8 @@ void WtCore::renderNextBlock(float* outR, float* outL, int startSample, int samp
     float sample = getSample();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = 0.5f;
-    float basePanR = 0.5f;
+    float basePanL = 1.0f;
+    float basePanR = 1.0f;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0

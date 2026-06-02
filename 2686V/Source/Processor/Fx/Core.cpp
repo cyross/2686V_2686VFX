@@ -76,72 +76,121 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::mix, eq3bLPrefix + FxPrName::Eq3b::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 }
 
-void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
-{
+void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = FxPrKey::prefix;
 
-    if (*apvts.getRawParameterValue(code + FxPrKey::bypass) > FxPrValue::boolThread)
+    pBypass = apvts.getRawParameterValue(code + FxPrKey::bypass);
+
+    // Filter
+    const juce::String filterPrefix = code + FxPrKey::fil;
+    pFlBypass = apvts.getRawParameterValue(filterPrefix + FxPrKey::bypass);
+    pFlType = apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::type);
+    pFlFreq = apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::freq);
+    pFlQ = apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::q);
+    pFlMix = apvts.getRawParameterValue(filterPrefix + FxPrKey::mix);
+
+    // 3Band EQ
+    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
+    pEq3bBypass = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::bypass);
+    pEq3bLowGainDb = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::lowGainDb);
+    pEq3bMidFreq = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midFreq);
+    pEq3bMidGainDb = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midGainDb);
+    pEq3bHighGainDb = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::highGainDb);
+    pEq3bMix = apvts.getRawParameterValue(eq3bPrefix + FxPrKey::mix);
+
+    // Vibrato
+    const juce::String vibPrefix = code + FxPrKey::vib;
+    pVBypass = apvts.getRawParameterValue(vibPrefix + FxPrKey::bypass);
+    pVRate = apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::rate);
+    pVDepth = apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::depth);
+    pVMix = apvts.getRawParameterValue(vibPrefix + FxPrKey::mix);
+
+    // Tremolo
+    const juce::String trmPrefix = code + FxPrKey::trm;
+    pTBypass = apvts.getRawParameterValue(trmPrefix + FxPrKey::bypass);
+    pTRate = apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::rate);
+    pTDepth = apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::depth);
+    pTMix = apvts.getRawParameterValue(trmPrefix + FxPrKey::mix);
+
+    // Modern Bit Crusher
+    const juce::String mbcPrefix = code + FxPrKey::mbc;
+    pMbcBypass = apvts.getRawParameterValue(mbcPrefix + FxPrKey::bypass);
+    pMbcRate = apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::rate);
+    pMbcBits = apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::bit);
+    pMbcMix = apvts.getRawParameterValue(mbcPrefix + FxPrKey::mix);
+
+    // Delay
+    const juce::String dlyPrefix = code + FxPrKey::dly;
+    pDBypass = apvts.getRawParameterValue(dlyPrefix + FxPrKey::bypass);
+    pDTime = apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::time);
+    pDFb = apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::fb);
+    pDMix = apvts.getRawParameterValue(dlyPrefix + FxPrKey::mix);
+
+    // Reverb
+    const juce::String rvbPrefix = code + FxPrKey::rvb;
+    pRBypass = apvts.getRawParameterValue(rvbPrefix + FxPrKey::bypass);
+    pRSize = apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::size);
+    pRDamp = apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::damp);
+    pRMix = apvts.getRawParameterValue(rvbPrefix + FxPrKey::mix);
+}
+
+void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
+{
+    if (pBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread)
     {
         return;
     }
 
     // Filter
-    const juce::String filterPrefix = code + FxPrKey::fil;
-    bool flB = *apvts.getRawParameterValue(filterPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    int flType = (int)*apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::type);
-    float flFreq = *apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::freq);
-    float flQ = *apvts.getRawParameterValue(filterPrefix + FxPrKey::Filter::q);
-    float flMix = *apvts.getRawParameterValue(filterPrefix + FxPrKey::mix);
+    bool flB = pFlBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    int flType = (int)pFlType->load(std::memory_order_relaxed);
+    float flFreq = pFlFreq->load(std::memory_order_relaxed);
+    float flQ = pFlQ->load(std::memory_order_relaxed);
+    float flMix = pFlMix->load(std::memory_order_relaxed);
     effects.setFilterParams(flType, flFreq, flQ, flMix);
 
     // 3Band EQ
-    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
-    bool eq3bB = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float eq3bLowGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::lowGainDb);
-    float eq3bMidFreq = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midFreq);
-    float eq3bMidGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::midGainDb);
-    float eq3bHighGainDb = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::Eq3b::highGainDb);
-    float eq3bMix = *apvts.getRawParameterValue(eq3bPrefix + FxPrKey::mix);
+    bool eq3bB = pEq3bBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float eq3bLowGainDb = pEq3bLowGainDb->load(std::memory_order_relaxed);
+    float eq3bMidFreq = pEq3bMidFreq->load(std::memory_order_relaxed);
+    float eq3bMidGainDb = pEq3bMidGainDb->load(std::memory_order_relaxed);
+    float eq3bHighGainDb = pEq3bHighGainDb->load(std::memory_order_relaxed);
+    float eq3bMix = pEq3bMix->load(std::memory_order_relaxed);
     effects.setEq3bParams(eq3bLowGainDb, eq3bMidFreq, eq3bMidGainDb, eq3bHighGainDb, eq3bMix);
 
     // Vibrato
-    const juce::String vibPrefix = code + FxPrKey::vib;
-    bool vB = *apvts.getRawParameterValue(vibPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float vRate = *apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::rate);
-    float vDepth = *apvts.getRawParameterValue(vibPrefix + FxPrKey::Tremolo::depth);
-    float vMix = *apvts.getRawParameterValue(vibPrefix + FxPrKey::mix);
+    bool vB = pVBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float vRate = pVRate->load(std::memory_order_relaxed);
+    float vDepth = pVDepth->load(std::memory_order_relaxed);
+    float vMix = pVMix->load(std::memory_order_relaxed);
     effects.setVibratoParams(vRate, vDepth, vMix);
 
     // Tremolo
-    const juce::String trmPrefix = code + FxPrKey::trm;
-    bool tB = *apvts.getRawParameterValue(trmPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float tRate = *apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::rate);
-    float tDepth = *apvts.getRawParameterValue(trmPrefix + FxPrKey::Vibrato::depth);
-    float tMix = *apvts.getRawParameterValue(trmPrefix + FxPrKey::mix);
+    bool tB = pTBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float tRate = pTRate->load(std::memory_order_relaxed);
+    float tDepth = pTDepth->load(std::memory_order_relaxed);
+    float tMix = pTMix->load(std::memory_order_relaxed);
     effects.setTremoloParams(tRate, tDepth, tMix);
 
     // Modern Bit Crusher
-    const juce::String mbcPrefix = code + FxPrKey::mbc;
-    bool mcB = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float mbcRate = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::rate);
-    float mbcBits = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::Mbc::bit);
-    float mbcMix = *apvts.getRawParameterValue(mbcPrefix + FxPrKey::mix);
+    bool mcB = pMbcBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float mbcRate = pMbcRate->load(std::memory_order_relaxed);
+    float mbcBits = pMbcBits->load(std::memory_order_relaxed);
+    float mbcMix = pMbcMix->load(std::memory_order_relaxed);
     effects.setModernBitCrusherParams(mbcRate, mbcBits, mbcMix);
 
     // Delay
-    const juce::String dlyPrefix = code + FxPrKey::dly;
-    bool dB = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float dTime = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::time);
-    float dFb = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::Delay::fb);
-    float dMix = *apvts.getRawParameterValue(dlyPrefix + FxPrKey::mix);
+    bool dB = pDBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float dTime = pDTime->load(std::memory_order_relaxed);
+    float dFb = pDFb->load(std::memory_order_relaxed);
+    float dMix = pDMix->load(std::memory_order_relaxed);
     effects.setDelayParams(dTime, dFb, dMix);
 
     // Reverb
-    const juce::String rvbPrefix = code + FxPrKey::rvb;
-    bool rB = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::bypass) > FxPrValue::boolThread;
-    float rSize = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::size);
-    float rDamp = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::damp);
-    float rMix = *apvts.getRawParameterValue(rvbPrefix + FxPrKey::mix);
+    bool rB = pRBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float rSize = pRSize->load(std::memory_order_relaxed);
+    float rDamp = pRDamp->load(std::memory_order_relaxed);
+    float rMix = pRMix->load(std::memory_order_relaxed);
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
     // バイパス設定

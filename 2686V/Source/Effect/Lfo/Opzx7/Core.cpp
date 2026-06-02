@@ -3,6 +3,35 @@
 
 #include "./Core.h"
 
+Opzx7LfoCore::Opzx7LfoCore() {
+    m_noteOnFunctions = {
+        [this]() {
+            this->m_sdCounter = 0.0f; // フリーラン継続
+
+            // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
+            // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
+            if (this->m_isOneshotPm || this->m_isOneshotAm) {
+                this->m_pmPhase = 0.0;
+                this->m_amPhase = 0.0;
+            }
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = 0.0f; // ms -> 秒
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
+        }
+    };
+}
+
 // -----------------------------------------------------------
 // LFO 波形算出アルゴリズム (OPM PG)
 // -----------------------------------------------------------
@@ -56,12 +85,12 @@ const std::array<Opzx7LfoCore::Opzx7LfoCalculator, 8> Opzx7LfoCore::lfoPmStrateg
 // LFO 波形算出アルゴリズム (OPM EG)
 // -----------------------------------------------------------
 const std::array<Opzx7LfoCore::Opzx7LfoCalculator, 8> Opzx7LfoCore::lfoAmStrategies = { {
-        // 0: Sine
-        [](double phase, float /*noise*/)-> float {
-            float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
+    // 0: Sine
+    [](double phase, float /*noise*/)-> float {
+        float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
 
-            return (pm + 1.0f) * 0.5f;
-        },
+        return (pm + 1.0f) * 0.5f;
+    },
     // 1: Saw Up
     [](double phase, float /*noise*/) -> float {
         return (float)phase;
@@ -118,7 +147,8 @@ void Opzx7LfoCore::updateTargetSampleRate(double newSampleRate) {
 void Opzx7LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pgIndex, int egIndex, float pms, float pmd, float ams, float amd, float amSmoothRate)
 {
 	this->m_sdParam = syncDelay;
-	this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
+    this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
+    this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
     this->pmEnable = pm;
     this->m_pmFreq = pmFreq;
@@ -146,31 +176,7 @@ void Opzx7LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, 
 void Opzx7LfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (this->m_sdParam == 0) {
-        this->m_sdCounter = 0.0f; // フリーラン継続
-
-        // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
-        // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
-        if (this->m_isOneshotPm || this->m_isOneshotAm) {
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-        }
-    }
-    else if (this->m_sdParam == 1) {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = 0.0f; // ms -> 秒
-    }
-    else {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
-    }
-
+    this->m_noteOnFunctions[this->m_sdIndex]();
     this->m_pmCycleCount = 0;
     this->m_amCycleCount = 0;
 }

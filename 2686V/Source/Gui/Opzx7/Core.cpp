@@ -383,13 +383,6 @@ void GuiOpzx7::setup()
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleMvol, .invisibleTitle = Opzx7GuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = Opzx7PrKey::masterVol, .title = Opzx7GuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < 36; ++i)
@@ -885,8 +878,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutMonoModeCat(mRect);
 
-    layoutMvolCat(mRect);
-
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
     {
@@ -1376,19 +1367,6 @@ void GuiOpzx7::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiOpzx7::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

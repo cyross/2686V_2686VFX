@@ -35,7 +35,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
     m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
-    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.multiple, params.beep.mutipleRatio);
+    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.multiple, params.beep.multipleRatio);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }
@@ -110,7 +110,7 @@ float BeepCore::getSample() {
 
     // --- ADSR & SwEnv Gate Logic ---
     // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypassed()) {
+    if (!m_adsr.isBypass()) {
         m_currentLevel = m_adsr.process(m_currentLevel);
         finalEnv *= m_currentLevel; // 掛け算
     }
@@ -123,7 +123,7 @@ float BeepCore::getSample() {
     }
 
     // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypassed()) {
+    if (!m_ssgSwEnv.isBypass()) {
         finalEnv *= m_ssgSwEnv.process(); // 掛け算
     }
     else {

@@ -43,7 +43,7 @@ class SsgSwEnv {
 	std::array<std::function<void()>, 2> noteOnFunctions;
 	std::array<std::function<void()>, 2> noteOffFunctions;
 	std::array<std::function<float()>, 2> processFunctions;
-	std::array<std::function<void()>, 2> bypassedReleasedProcessFunctions;
+	std::array<std::function<float(float)>, 7> processFunctionsLinear;
 public:
 	SsgSwEnv();
 	void prepare(int targetIndex, double sampleRate);
@@ -52,19 +52,11 @@ public:
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::S6; }
-	bool isBypassed() const { return bypass; }
+	bool isBypass() const { return bypass; }
 	void setParameters(const SsgSwEnvParams& params);
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
 	void noteOff();
 	float process();
 	void  bypassedReleasedProcess();
-	void noteOnLinear();
-	void noteOffLinear();
-	float processLinear();
-	void  bypassedReleasedProcessLinear();
-	void noteOnCurve();
-	void noteOffCurve();
-	float processCurve();
-	void  bypassedReleasedProcessCurve();
 };

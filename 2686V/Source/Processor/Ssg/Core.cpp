@@ -80,6 +80,10 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 	addSsgSwEnvParameters(layout, code);
 }
 
+void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String code = SsgPrKey::prefix;
+}
+
 void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = SsgPrKey::prefix;
@@ -100,7 +104,7 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.unisonSpread = *apvts.getRawParameterValue(code + SsgPrKey::Unison::spread);
 
     params.ssg.multiple = (int)*apvts.getRawParameterValue(code + SsgPrKey::mul);
-    params.ssg.mutipleRatio = *apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
+    params.ssg.multipleRatio = *apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
     params.ssg.detune = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt);
     params.ssg.detune2 = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt2);
 

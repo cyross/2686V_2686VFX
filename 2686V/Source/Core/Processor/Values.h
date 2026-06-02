@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 
+#include "../Const/Global.h"
+
 namespace CorePrValue
 {
 	inline constexpr float boolThread = 0.5f; // 0.5以上をON、未満をOFFとみなす閾値
@@ -39,7 +41,7 @@ namespace CorePrValue
 		namespace Voices
 		{
 			inline constexpr int min = 1;
-			inline constexpr int max = 8;
+			inline constexpr int max = Global::unisonVoices;
 			inline constexpr int initial = 1;
 		}
 

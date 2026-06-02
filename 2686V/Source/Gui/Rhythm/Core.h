@@ -73,8 +73,8 @@ class RhythmPadGui: public GuiBase
     enum class GraphMode { Amp, Pitch };
     GraphMode currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -149,11 +149,6 @@ class GuiRhythm : public GuiBase
     GuiSlider unisonDetuneSlider;
     GuiSlider unisonSpreadSlider;
 
-    GuiCategoryLabel mvolCat;
-
-    // マスターボリューム(全音源共通の最終出力)
-    GuiMasterVolumeSlider masterVolSlider;
-
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -169,8 +164,6 @@ public:
         unisonVoicesSlider(context),
         unisonDetuneSlider(context),
         unisonSpreadSlider(context),
-        mvolCat(context),
-        masterVolSlider(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
@@ -187,5 +180,4 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void layoutUnisonCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
 };

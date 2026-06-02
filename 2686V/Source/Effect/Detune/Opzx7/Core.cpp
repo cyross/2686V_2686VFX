@@ -24,6 +24,43 @@ const std::array<float, 16> Opzx7Detune::dtScales = {
 // 3: x1.78 (950 cent up)
 const std::array<float, 4> Opzx7Detune::dt2Scales = { 1.0f, 1.414f, 1.581f, 1.781f };
 
+Opzx7Detune::Opzx7Detune()
+{
+	mulScales = {
+		0.5f,   // 0:  x 0.5
+		0.891f, // 1:  x 0.891 (approx sqrt(0.8))
+		1.0f,   // 2:  x 1.0
+		1.414f, // 3:  x 1.414 (approx sqrt(2))
+		1.498f, // 4:  x 1.498 (approx sqrt(2.25))
+		1.581f, // 5:  x 1.581 (approx sqrt(2.5))
+		1.781f, // 6:  x 1.781 (approx sqrt(3.17))
+		2.0f,   // 7:  x 2.0
+		3.0f,   // 8:  x 3.0
+		4.0f,   // 9:  x 4.0
+		5.0f,   // 10: x 5.0
+		6.0f,   // 11: x 6.0
+		7.0f,   // 12: x 7.0
+		8.0f,   // 13: x 8.0
+		9.0f,   // 14: x 9.0
+		10.0f,  // 15: x 10.0
+		11.0f,  // 16: x 11.0
+		12.0f,  // 17: x 12.0
+		13.0f,  // 18: x 13.0
+		14.0f,  // 19: x 14.0
+		15.0f,  // 20: x 15.0
+		0.0f    // 21: x mulRatio
+	};
+
+	detune = 0;
+	realDetune = dtScales[detune];
+
+	detune2 = 0;
+	realDetune2 = dt2Scales[detune2];
+
+	multiple = 2; // デフォルトは x1.0
+	realMultiple = mulScales[multiple];
+}
+
 void Opzx7Detune::setParameters(int dt, int dt2, int mul, float mulRatio)
 {
     detune = dt & 15;
@@ -33,35 +70,8 @@ void Opzx7Detune::setParameters(int dt, int dt2, int mul, float mulRatio)
     realDetune2 = dt2Scales[detune2];
 
     multiple = mul;
-
-    switch (multiple) {
-    case 0:
-        realMultiple = 0.5f;
-        break;
-    case 1: 
-        realMultiple = 0.891f;
-        break;
-    case 2:
-        realMultiple = 1.0f;
-        break;
-    case 3:
-        realMultiple = 1.414f;
-        break;
-    case 4:
-        realMultiple = 1.498f;
-        break;
-    case 5:
-        realMultiple = 1.581f;
-        break;
-    case 6:
-        realMultiple = 1.781f;
-        break;
-    case 21:
-        realMultiple = mulRatio;
-        break;
-    default:
-        realMultiple = (float)(multiple - 5);
-    }
+	mulScales[21] = mulRatio; // 21番目にユーザー指定のmulRatioをセット
+	realMultiple = mulScales[multiple];
 }
 
 float Opzx7Detune::noteOn(float baseFreq) const

@@ -3,6 +3,28 @@
 
 #include "./Core.h"
 
+OpnaLfoCore::OpnaLfoCore() {
+    m_noteOnFunctions = {
+        [this]() {
+            this->m_sdCounter = 0.0f; // フリーラン継続
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = 0.0f; // ms -> 秒
+        },
+        [this]() {
+            // 位相を0に戻す (Sync)
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+
+            this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
+        }
+    };
+}
+
 const std::array<float, 8> OpnaLfoCore::freqs = { 3.98f, 5.56f, 6.02f, 6.37f, 6.88f, 9.63f, 48.1f, 72.2f };
 // 新しい厳密なPMSデプス値 (0, 3.4, 6.7, 10, 14, 20, 40, 80 cent)
 const std::array<float, 8> OpnaLfoCore::pmsDepths = { 0.0f, 0.001965f, 0.003876f, 0.005793f, 0.008122f, 0.011619f, 0.023374f, 0.047294f };
@@ -87,7 +109,8 @@ void OpnaLfoCore::updateTargetSampleRate(double newSampleRate) {
 void OpnaLfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, float pms, float ams, float amSmoothRate)
 {
 	this->m_sdParam = syncDelay;
-	this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
+    this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
+    this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
     this->pmEnable = pm;
     this->m_pmFreq = freqs[std::clamp(pmFreqIndex, 0, 7)];
@@ -105,24 +128,7 @@ void OpnaLfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex
 void OpnaLfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    if (this->m_sdParam == 0) {
-        this->m_sdCounter = 0.0f; // フリーラン継続
-    }
-    else if (this->m_sdParam == 1) {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = 0.0f; // ms -> 秒
-    }
-    else {
-        // 位相を0に戻す (Sync)
-        this->m_pmPhase = 0.0;
-        this->m_amPhase = 0.0;
-
-        this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
-    }
-
+    this->m_noteOnFunctions[this->m_sdIndex]();
     this->m_pmCycleCount = 0;
     this->m_amCycleCount = 0;
 }

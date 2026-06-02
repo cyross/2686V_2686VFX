@@ -110,6 +110,10 @@ set(EDITOR_FILES
     "Source/Core/Editor/PluginEditor.cpp"
 )
 
+set(EFFECT_CORE_FILES
+    "Source/Core/Effect/RateLUT.h"
+)
+
 set(AMP_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/Adsr/Params.h"
     "Source/Effect/Envelope/Amp/Adsr/Core.h"
@@ -150,6 +154,11 @@ set(PITCH_ADSR_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/Params.h"
     "Source/Effect/Envelope/Pitch/Adsr/Core.h"
     "Source/Effect/Envelope/Pitch/Adsr/Core.cpp"
+)
+
+set(OPL_DETUNE_FILES
+    "Source/Effect/Detune/Opl/Core.h"
+    "Source/Effect/Detune/Opl/Core.cpp"
 )
 
 set(OPN_DETUNE_FILES
@@ -566,6 +575,7 @@ source_group("2686V\\Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
 source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
+source_group("2686V\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\Adsr" FILES ${AMP_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdddr" FILES ${FM_RG_ADDDR_FILES})
 source_group("2686V\\Effect\\Envelope\\Amp\\FmRgAdssr" FILES ${FM_RG_ADSSR_FILES})
@@ -574,6 +584,7 @@ source_group("2686V\\Effect\\Envelope\\Amp\\Opzx7Adddr" FILES ${OPZX7_ADDDR_FILE
 source_group("2686V\\Effect\\Envelope\\Amp\\SsgSw" FILES ${SSG_SW_ENV_FILES})
 source_group("2686V\\Effect\\Envelope\\Pitch\\Adsr" FILES ${PITCH_ADSR_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune\\Opm" FILES ${OPM_DETUNE_FILES})
+source_group("2686V\\Effect\\Detune\\Opl" FILES ${OPL_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opn" FILES ${OPN_DETUNE_FILES})
 source_group("2686V\\Effect\\Detune\\Opzx7" FILES ${OPZX7_DETUNE_FILES})
 source_group("2686V\\Effect\\Lfo\\N88" FILES ${N88_LFO_FILES})
@@ -652,6 +663,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${GUI_FILES}
         ${PROCESSOR_FILES}
         ${EDITOR_FILES}
+        ${EFFECT_CORE_FILES}
         ${AMP_ADSR_ENVELOPE_FILES}
         ${FM_RG_ADDDR_FILES}
         ${FM_RG_ADSSR_FILES}
@@ -661,6 +673,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${PITCH_ADSR_ENVELOPE_FILES}
         ${OPM_DETUNE_FILES}
         ${OPN_DETUNE_FILES}
+        ${OPL_DETUNE_FILES}
         ${OPZX7_DETUNE_FILES}
         ${N88_LFO_FILES}
         ${OPNA_LFO_FILES}

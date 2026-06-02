@@ -336,13 +336,6 @@ void GuiAdpcm::setup()
     unisonSpreadSlider.setWantsKeyboardFocus(true);
     unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleMvol, .invisibleTitle = AdpcmGuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-
-    masterVolSlider.setup({ .parent = *this, .id = AdpcmPrKey::masterVol, .title = AdpcmGuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     // 音声ファイル読み込みボタン
     loadButton.setup({ .parent = *this, .title = AdpcmGuiText::File::load , .isReset = false });
     loadButton.addListener(&ctx.editor);
@@ -409,8 +402,6 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutUnisonCat(mRect);
 
     layoutQualityCat(mRect);
-
-    layoutMvolCat(mRect);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)
@@ -472,19 +463,6 @@ void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
-}
-
-void GuiAdpcm::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

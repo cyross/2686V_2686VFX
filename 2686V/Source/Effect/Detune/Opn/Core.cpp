@@ -13,25 +13,34 @@
 // 5: +0.1% (approx)
 // 6: +0.25%
 // 7: +0.45%
-const std::array<float, 4> OpnDetune::dtScales = { 0.0f, 0.001f, 0.0025f, 0.0045f };
+const std::array<float, 8> OpnDetune::dtScales = { 0.0f, -0.0045f, -0.0025f, -0.001f, 0.0f, 0.001f, 0.0025f, 0.0045f };
+
+const std::array<float, 16> OpnDetune::mulScales = {
+    0.5f,   // 0: x0.5
+    1.0f,   // 1: x1.0
+    2.0f,   // 2: x2.0
+    3.0f,   // 3: x3.0
+    4.0f,   // 4: x4.0
+    5.0f,   // 5: x5.0
+    6.0f,   // 6: x6.0
+    7.0f,   // 7: x7.0
+    8.0f,   // 8: x8.0
+    9.0f,   // 9: x9.0
+    10.0f,  // 10: x10.0
+    11.0f,  // 11: x11.0
+    12.0f,  // 12: x12.0
+    13.0f,  // 13: x13.0
+    14.0f,  // 14: x14.0
+    15.0f   // 15: x15.0
+};
 
 void OpnDetune::setParameters(int dt, int mul)
 {
     detune = std::clamp(dt, -3, 3);
-
-    if (detune == 0 || detune == 4)
-    {
-        realDetune = 0.0f;
-    }
-    else if ( detune < 4) { // 1, 2, 3
-        realDetune = -(dtScales[std::clamp(3 - detune, 0, 3)]);
-    }
-    else { // 5, 6, 7
-        realDetune = -(dtScales[std::clamp(detune - 4, 0, 3)]);
-    }
+    realDetune = dtScales[detune + 3];
 
     multiple = mul;
-    realMultiple = (multiple == 0) ? 0.5f : (float)multiple;
+    realMultiple = mulScales[multiple];
 }
 
 float OpnDetune::noteOn(float baseFreq) const

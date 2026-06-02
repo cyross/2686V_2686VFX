@@ -40,9 +40,7 @@ class PitchAdsrEnv {
 
 	std::array<std::function<void()>, 2> noteOnFunctions;
 	std::array<std::function<void()>, 2> noteOffFunctions;
-	std::array<std::function<float(float)>, 2> processFunctions;
-	std::array<std::function<float()>, 2> bypassedReleasedProcessFunctions;
-	std::array<std::function<float()>, 2> bypassedProcessFunctions;
+	std::array<std::array<std::function<float(float)>, 5>, 2> processFunctions;
 public:
 	PitchAdsrEnv();
 	void prepare(int targetIndex, double sampleRate);
@@ -51,7 +49,7 @@ public:
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
-	bool isBypassed() const { return bypass; }
+	bool isBypass() const { return bypass; }
 	void setParameters(const PitchAdsrParams& params);
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
@@ -59,14 +57,4 @@ public:
 	float process(float phaseDelta);
 	float bypassedReleasedProcess();
 	float bypassedProcess();
-	void noteOnLinear();
-	void noteOffLinear();
-	float processLinear(float phaseDelta);
-	float bypassedReleasedProcessLinear();
-	float bypassedProcessLinear();
-	void noteOnCurve();
-	void noteOffCurve();
-	float processCurve(float phaseDelta);
-	float bypassedReleasedProcessCurve();
-	float bypassedProcessCurve();
 };

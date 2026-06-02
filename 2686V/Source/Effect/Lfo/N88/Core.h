@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <cmath>
+#include <array>
+#include <functional>
 
 #include "../../../Generator/Noise/Lfsr/Core.h"
 
@@ -10,12 +12,15 @@ struct N88LfoValues {
 };
 
 class N88LfoCore {
+	std::array<std::function<void()>, 3> m_noteOnFunctions;
+
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_amFreq = 0.0f;
 	float m_pmFreq = 0.0f;
 
 	int m_sdParam = 0;
+	int m_sdIndex = 0;
 	float m_sd = 0.0f;
 
 	int m_pmWaveIndex = 0;
@@ -45,6 +50,8 @@ class N88LfoCore {
 	static const std::array<N88LfoCalculator, 6> pmStrategies;
 	static const std::array<N88LfoCalculator, 6> amStrategies;
 public:
+	N88LfoCore();
+
 	bool amEnable = false;
 	bool pmEnable = false;
 

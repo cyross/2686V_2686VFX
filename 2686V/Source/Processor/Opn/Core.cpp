@@ -58,6 +58,11 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     }
 }
 
+void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String code = OpnPrKey::prefix;
+
+}
+
 void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = OpnPrKey::prefix;

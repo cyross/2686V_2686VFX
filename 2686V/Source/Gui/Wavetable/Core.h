@@ -560,10 +560,6 @@ class GuiWt : public GuiBase
     GuiTextButton customWaveExportBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // Master Volume
-    GuiCategoryLabel mvolCat;
-    GuiMasterVolumeSlider masterVolSlider;
-
     // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
 
@@ -580,8 +576,8 @@ class GuiWt : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
 
-    CurveCore* p_curveCore;
-    GuiCurve* p_guiCurve;
+    CurveCore* p_curveCore = nullptr;
+    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -663,8 +659,6 @@ public:
         customWaveSmoothBtn(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
-        mvolCat(context),
-        masterVolSlider(context),
         sizeSelector(context),
         stepsSelector(context),
         waveSelector(context),
@@ -695,7 +689,6 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutMvolCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutPitchEnvCat(juce::Rectangle<int>& rect);

@@ -54,7 +54,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
-    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.multiple, params.adpcm.mutipleRatio);
+    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.multiple, params.adpcm.multipleRatio);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -240,7 +240,7 @@ float AdpcmCore::getSample()
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypassed() && m_ssgSwEnv.isBypassed())
+    if (m_adsr.isBypass() && m_ssgSwEnv.isBypass())
     {
         // どちらもバイパスの時は完全な矩形波（Gate）動作
         if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
@@ -252,7 +252,7 @@ float AdpcmCore::getSample()
     else
     {
         // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-        if (!m_adsr.isBypassed()) {
+        if (!m_adsr.isBypass()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
             finalEnv *= m_currentLevel; // 掛け算
         }
@@ -261,7 +261,7 @@ float AdpcmCore::getSample()
         }
 
         // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-        if (!m_ssgSwEnv.isBypassed()) {
+        if (!m_ssgSwEnv.isBypass()) {
             finalEnv *= m_ssgSwEnv.process(); // 掛け算
         }
         else {

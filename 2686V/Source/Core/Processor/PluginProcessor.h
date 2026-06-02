@@ -252,6 +252,44 @@ public:
 
 class AudioPlugin2686V : public juce::AudioProcessor
 {
+private:
+    OpnaProcessor prOpna;
+    OpnProcessor prOpn;
+    OplProcessor prOpl;
+    Opl3Processor prOpl3;
+    OpmProcessor prOpm;
+    Opzx7Processor prOpzx7;
+    SsgProcessor prSsg;
+    WtProcessor prWt;
+    RhythmProcessor prRhythm;
+    AdpcmProcessor prAdpcm;
+    BeepProcessor prBeep;
+    FxProcessor prFx;
+    CurveProcessor prCurve;
+
+    CurveCore m_curveCore;
+
+    SynthParams m_currentParams;
+    SynthParams m_previewParams;
+
+    std::atomic<float>* pMode = nullptr;
+    std::atomic<float>* pMonoMode = nullptr;
+
+    std::map<OscMode, PrBase*> prMap;
+
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
+
+    RetroSynthesiser m_synth;
+
+    // 波形プレビュー用
+    juce::Synthesiser previewSynth;
+    std::unique_ptr<SynthSound> previewSound;
+    FxProcessor previewFx;
+
+    void loadStartupSettings(); // 設定の自動読み込み用関数
+    void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
+    void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
 public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
@@ -326,7 +364,7 @@ public:
     void unloadOpzx7WtFile(int opIndex);
 
     // --- Preview(Static) ---
-    void generatePreviewWaveform(std::vector<float>& destBuffer);
+    void generatePreviewWaveform(std::vector<float>* destBuffer);
 
     // --- 仮想キーボード ---
     juce::MidiKeyboardState keyboardState;
@@ -362,33 +400,5 @@ public:
 
     FmClipboard fmClipboard;
 private:
-    OpnaProcessor prOpna;
-    OpnProcessor prOpn;
-    OplProcessor prOpl;
-    Opl3Processor prOpl3;
-    OpmProcessor prOpm;
-    Opzx7Processor prOpzx7;
-    SsgProcessor prSsg;
-    WtProcessor prWt;
-    RhythmProcessor prRhythm;
-    AdpcmProcessor prAdpcm;
-    BeepProcessor prBeep;
-    FxProcessor prFx;
-	CurveProcessor prCurve;
-
-    CurveCore m_curveCore;
-
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-	void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
-
-    RetroSynthesiser m_synth;
-
-    // 波形プレビュー用
-    juce::Synthesiser previewSynth;
-    std::unique_ptr<SynthSound> previewSound;
-    void loadStartupSettings(); // 設定の自動読み込み用関数
-    void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
-    void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

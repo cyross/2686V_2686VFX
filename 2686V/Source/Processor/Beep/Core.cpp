@@ -35,6 +35,10 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     addSsgSwEnvParameters(layout, code);
 }
 
+void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String code = BeepPrKey::prefix;
+}
+
 void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = BeepPrKey::prefix;
@@ -84,7 +88,7 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l6);
 
     params.beep.multiple = (int)*apvts.getRawParameterValue(code + BeepPrKey::mul);
-    params.beep.mutipleRatio = *apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
+    params.beep.multipleRatio = *apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
     params.beep.detune = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt);
     params.beep.detune2 = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt2);
 }

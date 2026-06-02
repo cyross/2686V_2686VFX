@@ -150,12 +150,6 @@ void GuiOpl3::setup()
     monoModeToggle.setWantsKeyboardFocus(true);
     monoModeToggle.setExplicitFocusOrder(++tabOrder);
 
-    mvolCat.setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleMvol, .invisibleTitle = Opl3GuiText::Category::invisibleMvol, .enableChangeDetailVisible = true });
-    masterVolSlider.setup({ .parent = *this, .id = Opl3PrKey::masterVol, .title = Opl3GuiText::MasterVol::title, .isReset = true });
-    masterVolSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    masterVolSlider.setWantsKeyboardFocus(true);
-    masterVolSlider.setExplicitFocusOrder(++tabOrder);
-
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < 7; ++i)
@@ -478,8 +472,6 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     layoutMonoModeCat(mRect);
-
-    layoutMvolCat(mRect);
 
     // --- Operators Section ---
     for (int i = 0; i < 4; ++i)
@@ -807,19 +799,6 @@ void GuiOpl3::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
-}
-
-void GuiOpl3::layoutMvolCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &mvolCat });
-
-    bool visible = mvolCat.isDetailVisible();
-
-    masterVolSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &masterVolSlider.label, .component = &masterVolSlider, .paddingBottom = 0 });
     }
 }
 

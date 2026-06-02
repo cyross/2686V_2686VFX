@@ -14,7 +14,6 @@ class GuiCurve : public GuiBase
     // Pane Groups
     GuiGroup curveGroup;
 
-
     std::array<std::unique_ptr<GuiCurveGraph>, CurvePrValue::params> curveGraphs;
 
     void updateEnabled();

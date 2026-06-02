@@ -18,18 +18,22 @@ void Opl3Core::prepare(double sampleRate) {
 
     double target = getTargetRate(m_rateIndex);
 
-    for (int i = 0; i < 4; i++) {
-        m_operators[i].prepare(i + 1, target);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
 
     m_rateAccumulator = 1.0;
 }
 
 void Opl3Core::setCurveCore(CurveCore* p_curveCore)
 {
-    for (auto& op : m_operators) {
-        op.setCurveCore(p_curveCore);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setCurveCore(p_curveCore);
+    m_operators[1].setCurveCore(p_curveCore);
+    m_operators[2].setCurveCore(p_curveCore);
+    m_operators[3].setCurveCore(p_curveCore);
 }
 
 void Opl3Core::setSampleRate(double sampleRate) {
@@ -51,25 +55,28 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
 		double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) {
-            op.setSampleRate(target);
-        }
+        // 高速化のためのループアンローリング
+		m_operators[0].setSampleRate(target);
+		m_operators[1].setSampleRate(target);
+		m_operators[2].setSampleRate(target);
+		m_operators[3].setSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
 
-    for (int i = 0; i < 4; ++i) {
-        // alg = 5,6 のときは OP3 にも FBを加える
-        float fb = (i==0 || (i==2 && (m_algorithm == 5 || m_algorithm == 6))) ? params.opl3.feedback : 0.0f;
-
-        m_operators[i].setParameters(params.opl3.op[i], fb);
-
-        // ユニゾン・ハーモニー用
-        // モノフォニック状態をオペレータに伝達する
-        m_operators[i].setMonoMode(m_isMonoMode);
-
-        m_opMask[i] = params.opl3.op[i].mask;
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setParameters(params.opl3.op[0], params.opl3.feedback);
+    m_operators[0].setMonoMode(m_isMonoMode);
+    m_opMask[0] = params.opl3.op[0].mask;
+    m_operators[1].setParameters(params.opl3.op[1], 0.0f);
+    m_operators[1].setMonoMode(m_isMonoMode);
+    m_opMask[1] = params.opl3.op[1].mask;
+    m_operators[2].setParameters(params.opl3.op[2], (m_algorithm == 5 || m_algorithm == 6) ? params.opl3.feedback : 0.0f);
+    m_operators[2].setMonoMode(m_isMonoMode);
+    m_opMask[2] = params.opl3.op[2].mask;
+    m_operators[3].setParameters(params.opl3.op[3], 0.0f);
+    m_operators[3].setMonoMode(m_isMonoMode);
+    m_opMask[3] = params.opl3.op[3].mask;
 }
 
 void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
@@ -103,20 +110,31 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     }
 
     // ユニゾン・ハーモニー向けに変更
-    for (auto& op : m_operators) {
-        // 計算した位相のズレをオペレータに渡す
-        op.setUnisonPhaseOffset(phaseOffsetNorm);
+    // 計算した位相のズレをオペレータに渡す
+    m_operators[0].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[1].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-        op.noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
-    }
+    m_operators[0].noteOn(finalFreq, gain, noteNum);
+    m_operators[1].noteOn(finalFreq, gain, noteNum);
+    m_operators[2].noteOn(finalFreq, gain, noteNum);
+    m_operators[3].noteOn(finalFreq, gain, noteNum);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
 }
-void Opl3Core::noteOff() { for (auto& op : m_operators) op.noteOff(); }
+void Opl3Core::noteOff() {
+    m_operators[0].noteOff();
+    m_operators[1].noteOff();
+    m_operators[2].noteOff();
+    m_operators[3].noteOff();
+}
 bool Opl3Core::isPlaying() const {
-    for (const auto& op : m_operators) {
-        if (op.isPlaying()) return true;
-    }
+    if (m_operators[0].isPlaying()) return true;
+    if (m_operators[1].isPlaying()) return true;
+    if (m_operators[2].isPlaying()) return true;
+    if (m_operators[3].isPlaying()) return true;
+
     return false;
 }
 // ピッチベンド (0 - 16383, Center=8192)
@@ -133,7 +151,10 @@ void Opl3Core::setPitchBend(int pitchWheelValue)
     float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
 
     // 全オペレーターに適用
-    for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    m_operators[0].setPitchBendRatio(ratio);
+    m_operators[1].setPitchBendRatio(ratio);
+    m_operators[2].setPitchBendRatio(ratio);
+    m_operators[3].setPitchBendRatio(ratio);
 }
 
 // モジュレーションホイール (0 - 127)
@@ -142,10 +163,10 @@ void Opl3Core::setModulationWheel(int wheelValue)
     // 0.0 ～ 1.0 に正規化
     float modWheel = (float)wheelValue / 127.0f;
 
-    for (int i = 0; i < 4; i++)
-    {
-        m_operators[i].setModWheel(modWheel);
-    }
+    m_operators[0].setModWheel(modWheel);
+    m_operators[1].setModWheel(modWheel);
+    m_operators[2].setModWheel(modWheel);
+    m_operators[3].setModWheel(modWheel);
 }
 
 // --- Opl3Core.cpp : getSample() の全体 ---

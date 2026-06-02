@@ -8,9 +8,11 @@ void OpnCore::prepare(double sampleRate)
 
     double target = getTargetRate(m_rateIndex);
 
-    for (int i = 0; i < 4; i++) {
-        m_operators[i].prepare(i + 1, target);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
 
     m_rateAccumulator = 1.0;
 
@@ -25,9 +27,11 @@ void OpnCore::prepare(double sampleRate)
 
 void OpnCore::setCurveCore(CurveCore* p_curveCore)
 {
-    for (auto& op : m_operators) {
-        op.setCurveCore(p_curveCore);
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setCurveCore(p_curveCore);
+    m_operators[1].setCurveCore(p_curveCore);
+    m_operators[2].setCurveCore(p_curveCore);
+    m_operators[3].setCurveCore(p_curveCore);
 }
 
 void OpnCore::setSampleRate(double sampleRate) {
@@ -62,9 +66,11 @@ void OpnCore::setParameters(const SynthParams& params)
 
 		double target = getTargetRate(m_rateIndex);
 
-        for (auto& op : m_operators) {
-            op.setSampleRate(target);
-        }
+        // 高速化のためのループアンローリング
+        m_operators[0].setSampleRate(target);
+        m_operators[1].setSampleRate(target);
+        m_operators[2].setSampleRate(target);
+        m_operators[3].setSampleRate(target);
 
         m_noiseGen.updateDelta(target);
         m_n88Lfo.updateTargetSampleRate(target);
@@ -72,28 +78,19 @@ void OpnCore::setParameters(const SynthParams& params)
 
     m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
 
-    for (int i = 0; i < 4; ++i) {
-        float fb = 0.0f;
-
-        // ALG=2 の時、OP3にFbを設定
-        if (m_algorithm == 2)
-        {
-            fb = i == 2 ? params.opn.feedback : 0.0f;
-        }
-        else if (i == 0)
-        {
-            fb = params.opn.feedback;
-        }
-
-        // OPN: SSG-EG=False, WaveSelect=False
-        m_operators[i].setParameters(params.opn.op[i], fb);
-
-        // ユニゾン・ハーモニー用
-        // モノフォニック状態をオペレータに伝達する
-        m_operators[i].setMonoMode(m_isMonoMode);
-
-        m_opMask[i] = params.opn.op[i].mask;
-    }
+    // 高速化のためのループアンローリング
+    m_operators[0].setParameters(params.opn.op[0], m_algorithm != 2 ? params.opn.feedback : 0.0f);
+    m_operators[0].setMonoMode(m_isMonoMode);
+    m_opMask[0] = params.opn.op[0].mask;
+    m_operators[1].setParameters(params.opn.op[1], 0.0f);
+    m_operators[1].setMonoMode(m_isMonoMode);
+    m_opMask[1] = params.opn.op[1].mask;
+    m_operators[2].setParameters(params.opn.op[2], m_algorithm == 2 ? params.opn.feedback : 0.0f);
+    m_operators[2].setMonoMode(m_isMonoMode);
+    m_opMask[2] = params.opn.op[2].mask;
+    m_operators[3].setParameters(params.opn.op[3], 0.0f);
+    m_operators[3].setMonoMode(m_isMonoMode);
+    m_opMask[3] = params.opn.op[3].mask;
 }
 
 void OpnCore::noteOn(float freq, float velocity, int midiNote)
@@ -126,12 +123,16 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
     }
 
     // ユニゾン・ハーモニー向けに変更
-    for (auto& op : m_operators) {
-        // 計算した位相のズレをオペレータに渡す
-        op.setUnisonPhaseOffset(phaseOffsetNorm);
+    // 計算した位相のズレをオペレータに渡す
+    m_operators[0].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[1].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-        op.noteOn(finalFreq, gain, noteNum); // 元の freq ではなく、finalFreq を渡す
-    }
+    m_operators[0].noteOn(finalFreq, gain, noteNum);
+    m_operators[1].noteOn(finalFreq, gain, noteNum);
+    m_operators[2].noteOn(finalFreq, gain, noteNum);
+    m_operators[3].noteOn(finalFreq, gain, noteNum);
 
     m_lfoPhase = 0.0; // LFO位相をリセット
     m_rateAccumulator = 0.0; // レートの余りもリセット
@@ -141,14 +142,19 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote)
 
 void OpnCore::noteOff()
 {
-    for (auto& op : m_operators) op.noteOff();
+    m_operators[0].noteOff();
+    m_operators[1].noteOff();
+    m_operators[2].noteOff();
+    m_operators[3].noteOff();
 }
 
 bool OpnCore::isPlaying() const
 {
-    for (const auto& op : m_operators) {
-        if (op.isPlaying()) return true;
-    }
+    if (m_operators[0].isPlaying()) return true;
+    if (m_operators[1].isPlaying()) return true;
+    if (m_operators[2].isPlaying()) return true;
+    if (m_operators[3].isPlaying()) return true;
+
     return false;
 }
 
@@ -166,7 +172,10 @@ void OpnCore::setPitchBend(int pitchWheelValue)
     float ratio = std::pow(2.0f, (norm * semitones) / 12.0f);
 
     // 全オペレーターに適用
-    for (auto& op : m_operators) op.setPitchBendRatio(ratio);
+    m_operators[0].setPitchBendRatio(ratio);
+    m_operators[1].setPitchBendRatio(ratio);
+    m_operators[2].setPitchBendRatio(ratio);
+    m_operators[3].setPitchBendRatio(ratio);
 }
 
 // モジュレーションホイール (0 - 127)

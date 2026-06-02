@@ -47,7 +47,7 @@ struct WtParams
 
     // multiple & detune
     int multiple = 2;      // MULTI: 0~21
-    float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
+    float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;
     int detune2 = 0;
 
