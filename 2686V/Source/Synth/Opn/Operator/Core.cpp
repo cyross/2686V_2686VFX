@@ -48,19 +48,19 @@ void OpnOperator::setSampleRate(double sampleRate)
 
 void OpnOperator::noteOn(float frequency, float velocity, int noteNumber)
 {
-    // ユニゾン・ハーモニー向け対応
-    // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
-
-    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-    while (m_phase >= juce::MathConstants<float>::twoPi) {
-        m_phase -= juce::MathConstants<float>::twoPi;
-    }
-
     m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 
     if (!m_isMonoMode) {
+        // ユニゾン・ハーモニー向け対応
+        // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
+        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+        while (m_phase >= juce::MathConstants<float>::twoPi) {
+            m_phase -= juce::MathConstants<float>::twoPi;
+        }
+
         m_currentLevel = 0.0f;
         m_fb1 = 0.0f;
         m_fb2 = 0.0f;

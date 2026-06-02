@@ -68,25 +68,37 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     float baseFreq = m_fixMode.noteOn(finalFreq);
     m_baseFreq = m_detune.noteOn(baseFreq);
 
-    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    if (!m_isMonoMode) {
+        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
-    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-    while (m_phase >= juce::MathConstants<float>::twoPi) {
-        m_phase -= juce::MathConstants<float>::twoPi;
+        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+        while (m_phase >= juce::MathConstants<float>::twoPi) {
+            m_phase -= juce::MathConstants<float>::twoPi;
+        }
     }
 
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
     m_baseLevel = std::max(0.01f, velocity * 0.25f);
     m_currentLevel = m_adsr.noteOn();
-    m_pitchAdsr.noteOn();
-	m_ssgSwEnv.noteOn();
+
+    if (!m_pitchAdsr.isBypass()) {
+        m_pitchAdsr.noteOn();
+    }
+    if (!m_ssgSwEnv.isBypass()) {
+        m_ssgSwEnv.noteOn();
+    }
 }
 
 void BeepCore::noteOff() {
     m_adsr.noteOff();
-    m_pitchAdsr.noteOff();
-	m_ssgSwEnv.noteOff();
+
+    if (!m_pitchAdsr.isBypass()) {
+        m_pitchAdsr.noteOff();
+    }
+    if (!m_ssgSwEnv.isBypass()) {
+        m_ssgSwEnv.noteOff();
+    }
 }
 
 bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
@@ -98,10 +110,14 @@ void BeepCore::setPitchBend(int pitchWheelValue) {
 }
 
 float BeepCore::getSample() {
-    if (!isPlaying()) {
-        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
-        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
-        m_pitchAdsr.bypassedReleasedProcess();
+    if (!isPlaying() && !m_adsr.isBypass()) {
+        if (m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.bypassedReleasedProcess();
+        }
+
+        if (m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.bypassedReleasedProcess();
+        }
 
         return 0.0f;
     }

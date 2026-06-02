@@ -150,11 +150,15 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(finalFreq);
 
-    m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    if (!m_isMonoMode) {
+        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
-    // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-    while (m_phase >= juce::MathConstants<float>::twoPi) {
-        m_phase -= juce::MathConstants<float>::twoPi;
+        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+        while (m_phase >= juce::MathConstants<float>::twoPi) {
+            m_phase -= juce::MathConstants<float>::twoPi;
+        }
+
+        m_lfo.noteOn();
     }
 
     m_lfoPhase = 0.0; // LFO位相をリセット
@@ -171,16 +175,25 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     m_lastSample = 0.0f;
 
     m_currentLevel = m_adsr.noteOn();
-    m_pitchAdsr.noteOn();
-	m_ssgSwEnv.noteOn();
-    m_lfo.noteOn();
+
+    if (!m_pitchAdsr.isBypass()) {
+        m_pitchAdsr.noteOn();
+    }
+	if (!m_ssgSwEnv.isBypass()) {
+		m_ssgSwEnv.noteOn();
+	}
 }
 
 void SsgCore::noteOff()
 {
     m_adsr.noteOff();
-	m_pitchAdsr.noteOff();
-	m_ssgSwEnv.noteOff();
+
+    if (!m_pitchAdsr.isBypass()) {
+        m_pitchAdsr.noteOff();
+    }
+    if (!m_ssgSwEnv.isBypass()) {
+        m_ssgSwEnv.noteOff();
+    }
 }
 
 bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
@@ -215,6 +228,18 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
+    if (!isPlaying() && m_adsr.isBypass()) {
+        if (m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.bypassedReleasedProcess();
+        }
+
+        if (m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        return 0.0f;
+    }
+
     if (!isPlaying()) {
 		// ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
 		// ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
