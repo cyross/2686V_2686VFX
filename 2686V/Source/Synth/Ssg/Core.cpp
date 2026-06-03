@@ -118,9 +118,17 @@ void SsgCore::setParameters(const SynthParams& params)
     updatePhaseDelta();
 }
 
-void SsgCore::noteOn(float freq, float velocity, int midiNote)
+void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
-    m_baseLevel = std::max(0.01f, velocity * 0.25f);
+    // =====================================================================
+    // モノフォニック・レガート時は、音量（ベロシティ）を更新しない！
+    // 1音目の音量をそのまま引き継ぐことで、音量ジャンプを完全に防ぐ。
+    // =====================================================================
+    if (!isLegato) {
+        // 新規発音の時だけ、ベロシティからベースレベルを計算する
+        m_baseLevel = std::max(0.01f, velocity * 0.25f);
+    }
+    // (レガート時は m_baseLevel は古い値のまま維持される)
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
@@ -150,38 +158,37 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote)
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(finalFreq);
 
-    if (!m_isMonoMode) {
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    if (!isLegato) {
+        if (!m_isMonoMode) {
+            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
-        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-        while (m_phase >= juce::MathConstants<float>::twoPi) {
-            m_phase -= juce::MathConstants<float>::twoPi;
+            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+            while (m_phase >= juce::MathConstants<float>::twoPi) {
+                m_phase -= juce::MathConstants<float>::twoPi;
+            }
+            m_lfo.noteOn();
         }
 
-        m_lfo.noteOn();
+        m_lfoPhase = 0.0;
+        m_rateAccumulator = 0.0;
+        m_hwEnvPhase = 0.0f;
+        m_lastSample = 0.0f;
     }
-
-    m_lfoPhase = 0.0; // LFO位相をリセット
-    m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
-
     updatePhaseDelta();
 
-    m_hwEnvPhase = 0.0f;
+    if (!isLegato) {
+        m_currentLevel = m_adsr.noteOn();
 
-    // Reset Rate Logic
-    m_lastSample = 0.0f;
-
-    m_currentLevel = m_adsr.noteOn();
-
-    if (!m_pitchAdsr.isBypass()) {
-        m_pitchAdsr.noteOn();
+        if (!m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.noteOn();
+        }
+        if (!m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.noteOn();
+        }
     }
-	if (!m_ssgSwEnv.isBypass()) {
-		m_ssgSwEnv.noteOn();
-	}
 }
 
 void SsgCore::noteOff()
@@ -449,8 +456,8 @@ void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     float sample = getSample();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = 0.5f;
-    float basePanR = 0.5f;
+    float basePanL = 1.0f;
+    float basePanR = 1.0f;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0

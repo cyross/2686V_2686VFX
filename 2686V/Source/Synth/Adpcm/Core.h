@@ -22,7 +22,7 @@ public:
 	void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params) override;
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
-    void noteOn(float freq, float velocity, int midiNote) override;
+    void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
     void noteOff() override;
     bool isPlaying() const override;
     void setPitchBend(int pitchWheelValue) override;
@@ -62,6 +62,8 @@ private:
     // Params
     float m_level = 1.0f;
     float m_pan = 0.5f;
+	float m_panL = 1.0f;
+	float m_panR = 1.0f;
 
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;

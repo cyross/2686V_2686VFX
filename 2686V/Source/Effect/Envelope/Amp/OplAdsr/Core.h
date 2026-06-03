@@ -47,6 +47,7 @@ class OplAdsr
 	float releaseDec = 0.0f;
 	float sustainRateDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
+	float m_targetLevel = 1.0f; // アタックの最終到達レベル
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
@@ -61,11 +62,6 @@ class OplAdsr
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
-
-	std::array<std::function<void(const OplAdsrParams&)>, 2> setParameterFunctions;
-	std::array<std::function<float(float, int)>, 2> noteOnFunctions;
-	std::array<std::function<void(int)>, 2> updateIncrementsWithKeyScaleFunctions;
-	std::array<std::array<std::function<float(float)>, 5>, 2> updateEnvelopeStateFunctions;
 public:
 	OplAdsr();
 	void prepare(int posIndex, double sampleRate);

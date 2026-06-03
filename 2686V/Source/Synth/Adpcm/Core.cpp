@@ -39,6 +39,15 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_level = params.adpcm.level;
     m_pan = params.adpcm.pan;
 
+	if (m_pan == 0.5f) {
+		m_panL = 1.0f;
+		m_panR = 1.0f;
+	}
+	else {
+		m_panL = (float)((1 - m_pan) * 2);
+		m_panR = (float)((m_pan) * 2);
+	}
+
     m_pcmOffset = params.adpcm.offset;
     m_pcmRatio = params.adpcm.ratio;
 
@@ -117,61 +126,56 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
     adpcmLowPassFilter(m_adpcmBuffer);
 }
 
-void AdpcmCore::noteOn(float freq, float velocity, int midiNote)
+void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
-    m_position = 0.0;
+    // =====================================================================
+    // 1. ベロシティとベースレベルの更新 (非レガート時のみ)
+    // =====================================================================
+    if (!isLegato) {
+        m_baseLevel = std::max(0.01f, velocity);
+    }
 
+    // =====================================================================
+    // 2. ピッチ・周波数の計算 (レガート時も音程は変わるため毎回実行)
+    // =====================================================================
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
     double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
-
-    if (m_qualityMode == adpcmMode) // ADPCM Mode
-    {
-        currentBufferRate = m_bufferSampleRate;
-    }
-    else // Raw, 24bit, 16bit, 8bit, 5bit, 4bit-Linear
-    {
-        currentBufferRate = m_sourceRate;
-    }
-
-    m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
-
-    // ホストDAWのレートとの比率
-    double rateRatio = currentBufferRate / m_sampleRate;
-
-    // ユニゾン・ハーモニー用
-    // ユニゾンデチューンの計算
     float finalFreq = freq;
 
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
     m_unisonPhaseOffset = 0.0f;
 
     if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
         float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
         finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
 
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
+        // ADPCMでは直接波形の位相としては使いませんが、計算自体は残しておきます
         m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
     }
 
+    // ホストDAWのレートとの比率を加味した再生速度レシオの更新
+    double rateRatio = currentBufferRate / m_sampleRate;
     m_pitchRatio = (m_detune.noteOn(finalFreq) / rootFreq) * rateRatio;
 
-    m_hasFinished = false;
+    // =====================================================================
+    // 3. 発音の初期化 (非レガート・新規発音時のみ実行)
+    // =====================================================================
+    if (!isLegato) {
+        // 再生位置を先頭(オフセット位置)に戻す
+        m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
+        m_hasFinished = false;
+        m_lfoPhase = 0.0;
 
-    m_lfoPhase = 0.0; // LFO位相をリセット
+        // エンベロープの再トリガー
+        m_currentLevel = m_adsr.noteOn();
 
-    m_baseLevel = std::max(0.01f, velocity);
-    m_currentLevel = m_adsr.noteOn();
-    m_pitchAdsr.noteOn();
-    m_ssgSwEnv.noteOn();
+        if (!m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.noteOn();
+        }
+        if (!m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.noteOn();
+        }
+    }
 }
 
 void AdpcmCore::noteOff()
@@ -403,8 +407,8 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     float pan = getCurrentPan();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = 1.0f;
-    float basePanR = 1.0f;
+    float basePanL = m_panL;
+    float basePanR = m_panR;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
@@ -412,8 +416,8 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
         // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
         float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
 
-        basePanL = std::clamp((1.0f - pan) - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(pan + panOffset, 0.0f, 1.0f);
+        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
+        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
 
         // 音量補正 (ボイス数が増えると爆音になるため下げる)
         // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です

@@ -23,7 +23,7 @@ public:
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void virtual setParameters(const FmOpParams& params, float feedback);
-    void virtual noteOn(float frequency, float velocity, int noteNumber) {};
+    void virtual noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) {};
     void virtual noteOff();
     bool virtual isPlaying() const { return m_state != State::Idle; }
     float virtual getCurrentEnvelope() const { return m_currentLevel; }

@@ -310,6 +310,47 @@ void CurveCore::setParameters(const CurveParams& params)
 	this->m_params = params;
 
 	this->index = this->m_params.enable ? 1 : 0; // カーブモードなら1、従来モードなら0
+
+	if (this->index == 1) {
+		bakeCurves();
+	}
+}
+
+void CurveCore::bakeCurves()
+{
+	for (int p = 0; p < (int)CurveParams::Position::Size; ++p) {
+		for (int t = 0; t < (int)CurveParams::Target::Size; ++t) {
+			for (int prm = 0; prm < 8; ++prm) {
+				// 線形や無効なパラメータはスキップしても良いが、単純化のため全部計算する
+				for (int i = 0; i < LUT_SIZE; ++i) {
+					float x = (float)i / (float)(LUT_SIZE - 1); // 0.0 ~ 1.0
+					curveLUT[p][t][prm][i] = processRaw(p, t, prm, x);
+				}
+			}
+		}
+	}
+}
+
+void CurveCore::bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex)
+{
+	// 線形や無効なパラメータはスキップしても良いが、単純化のため全部計算する
+	for (int i = 0; i < LUT_SIZE; ++i) {
+		float x = (float)i / (float)(LUT_SIZE - 1); // 0.0 ~ 1.0
+		curveLUT[positionIndex][targetIndex][paramIndex][i] = processRaw(positionIndex, targetIndex, paramIndex, x);
+	}
+}
+
+// 以前の process の中身 (重い計算)
+float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, float x)
+{
+	if (x <= 1e-5f) return 0.0f;
+	if (x >= 1.0f - 1e-5f) return 1.0f;
+
+	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
+	auto logic = static_cast<CurveParams::Logic>(logicIndex);
+
+	if (logics.find(logic) == logics.end()) return x;
+	return logics[logic](positionIndex, targetIndex, paramIndex, x);
 }
 
 float CurveCore::process(int positionIndex, int targetIndex, int paramIndex, float x)
@@ -322,10 +363,12 @@ float CurveCore::process(int positionIndex, int targetIndex, int paramIndex, flo
 	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
 	auto logic = static_cast<CurveParams::Logic>(logicIndex);
 
-	// 安全装置: マップに登録されていなければ線形を返す
-	if (logics.find(logic) == logics.end()) return x;
+	float fIndex = x * (LUT_SIZE - 1);
+	int i = (int)fIndex;
 
-	return logics[logic](positionIndex, targetIndex, paramIndex, x);
+	// もし更に精度が欲しい場合は線形補間するが、1024段階あれば通常は不要
+	// (ここでは高速化のため単純な切り捨て配列参照にする)
+	return curveLUT[positionIndex][targetIndex][paramIndex][i];
 }
 
 std::function<float(int, int, int, float)> CurveCore::getFunction(int logicIndex) {

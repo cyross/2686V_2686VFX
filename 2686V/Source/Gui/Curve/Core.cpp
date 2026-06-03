@@ -221,11 +221,15 @@ void GuiCurve::setup()
                 logic[p][t][vp]->onChange = [this, p, t, vp] {
                     updateVisible();
                     ctx.editor.resized();
+					ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // カーブのロジックが変わるので、ロジック変更時もカーブをベイクする
                     };
 
                 k[p][t][vp]->setup({ .parent = *this, .id = vpCode + CurvePrKey::k, .title = CurveGuiText::k, .isReset = true });
                 k[p][t][vp]->setWantsKeyboardFocus(true);
                 k[p][t][vp]->setExplicitFocusOrder(++tabOrder);
+                k[p][t][vp]->onValueChange = [this, p, t, vp] {
+					ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // Kの値が変わるとカーブの形状が変わるので、K変更時もカーブをベイクする
+                    };
 
                 for (int vv = 0; vv < CurvePrValue::values; vv++) {
                     const juce::String vvCode = vpCode + CurvePrKey::valueList[vv];
@@ -233,6 +237,9 @@ void GuiCurve::setup()
                     value[p][t][vp][vv]->setup({ .parent = *this, .id = vvCode, .title = "", .isReset = true});
                     value[p][t][vp][vv]->setWantsKeyboardFocus(true);
                     value[p][t][vp][vv]->setExplicitFocusOrder(++tabOrder);
+                    value[p][t][vp][vv]->onValueChange = [this, p, t, vp] {
+						ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // 値が変わるとカーブの形状が変わるので、値変更時もカーブをベイクする
+                        };
                 }
             }
         }

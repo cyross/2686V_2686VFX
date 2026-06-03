@@ -22,6 +22,7 @@ class AmpAdsrEnv {
 	float attackInc = 0.0f;
 	float decayDec = 0.0f;
 	float releaseDec = 0.0f;
+	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
 	// カーブモード用の変数
 	CurveCore* m_curveCore = nullptr;
@@ -29,12 +30,6 @@ class AmpAdsrEnv {
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
-
-	std::array<std::function<float()>, 2> noteOnFunctions;
-	std::array<std::function<void()>, 2> noteOffFunctions;
-	std::array<std::array<std::function<float(float)>, 5>, 2> processFunctions;
-	std::array<std::function<float()>, 2> bypassedReleasedProcessFunctions;
-	std::array<std::function<float()>, 2> bypassedProcessFunctions;
 
 	void updateIncrements();
 public:

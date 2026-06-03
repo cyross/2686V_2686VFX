@@ -31,6 +31,7 @@ class SynthVoice : public juce::SynthesiserVoice
 public:
     SynthVoice();
 
+    void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
 
     AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }

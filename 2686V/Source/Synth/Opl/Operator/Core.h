@@ -22,7 +22,7 @@ public:
 	void prepare(int opIndex, double sampleRate);
 	void setParameters(const OplOpParams& params, float feedback);
 	void setSampleRate(double sampleRate) override;
-	void noteOn(float frequency, float velocity, int noteNumber) override;
+	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	void getSample(float& output, float modulator);
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }

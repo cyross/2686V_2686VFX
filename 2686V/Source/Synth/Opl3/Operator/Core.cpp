@@ -52,6 +52,7 @@ void Opl3Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+	m_lfo.prepare(sampleRate);
 
     m_ampAdsr.setParamMax(
         Opl3PrValue::Op::RgAdsr::Ar::max,
@@ -99,24 +100,30 @@ void Opl3Operator::setParameters(const Opl3OpParams& params, float feedback)
     );
 }
 
-void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
+void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
-    m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 
-    if (!m_isMonoMode) {
-        // ユニゾン・ハーモニー向け対応
-        // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    float oldTargetLevel = m_targetLevel;
 
-        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-        while (m_phase >= juce::MathConstants<float>::twoPi) {
-            m_phase -= juce::MathConstants<float>::twoPi;
+    if (!isLegato)
+    {
+        m_ssgPhase = 0.0;
+
+        if (!m_isMonoMode) {
+            // ユニゾン・ハーモニー向け対応
+            // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
+            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+            while (m_phase >= juce::MathConstants<float>::twoPi) {
+                m_phase -= juce::MathConstants<float>::twoPi;
+            }
+
+            m_currentLevel = 0.0f;
+            m_fb1 = 0.0f;
+            m_fb2 = 0.0f;
         }
-
-        m_currentLevel = 0.0f;
-        m_fb1 = 0.0f;
-        m_fb2 = 0.0f;
     }
 
     // ========================================================
@@ -128,21 +135,46 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
+    if (!isLegato) {
+        if (!m_ampAdsr.isBypass()) {
+            m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
+        }
+        else {
+            m_targetLevel = velocity;
+        }
+
+        // =====================================================================
+        // モノフォニック時のアタックノイズ（音量ジャンプ）防止処理
+        // =====================================================================
+        if (m_isMonoMode && m_currentLevel > 0.0f) {
+            if (m_targetLevel > 0.0001f) {
+                // スピーカー出力音量(current * oldTarget)を維持するため、
+                // 新しい targetLevel に合わせて currentLevel(割合) を逆算して補正する
+                m_currentLevel = m_currentLevel * (oldTargetLevel / m_targetLevel);
+
+                // 割合が 1.0 (100%) を超える場合は、エンベロープ破綻を防ぐためクランプする
+                if (m_currentLevel > 1.0f) {
+                    m_currentLevel = 1.0f;
+                }
+            }
+            else {
+                m_currentLevel = 0.0f;
+            }
+        }
+        // =====================================================================
+
+        if (m_params.pitchEnvEnable) {
+            m_pitchAdsr.noteOn();
+        }
+
+        if (m_params.ssgEnvEnable) {
+            m_ssgSwEnv.noteOn();
+        }
+    }
+
+    // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
     if (!m_ampAdsr.isBypass()) {
-        m_targetLevel = m_ampAdsr.noteOn(velocity, noteNumber);
-
         m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
-    }
-    else {
-        m_targetLevel = velocity;
-    }
-
-    if (m_params.pitchEnvEnable) {
-        m_pitchAdsr.noteOn();
-    }
-
-    if (m_params.ssgEnvEnable) {
-        m_ssgSwEnv.noteOn();
     }
 }
 
@@ -236,7 +268,7 @@ void Opl3Operator::getSample(float& output, float modulator)
     }
 
     // 最後にエンベロープを掛けて出力とする
-    output = rawWave * envVal * m_targetLevel;
+    output = rawWave * envVal;
 
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta;

@@ -35,6 +35,17 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_noteNumber = params.noteNumber;
     m_level = params.level;
     m_pan = params.pan;
+
+    if (m_pan == 0.5f) {
+		m_panL = 1.0f;
+		m_panR = 1.0f;
+
+	}
+    else {
+        m_panL = (float)((1 - m_pan) * 2);
+        m_panR = (float)((m_pan) * 2);
+    }
+
     m_isOneShot = params.isOneShot;
 
     m_pcmOffset = params.pcmOffset;
@@ -59,14 +70,33 @@ void RhythmPad::triggerRelease(double hostSampleRate)
     m_pitchAdsr.noteOff();
 }
 
-void RhythmPad::start(float velocity)
+void RhythmPad::start(float velocity, bool isLegato)
 {
     double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
-    m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
 
-    m_baseLevel = std::max(0.01f, velocity);
-    m_currentEnv = m_adsr.noteOn();
-    m_pitchAdsr.noteOn();
+    float oldBaseLevel = m_baseLevel;
+
+    if (!isLegato) {
+        // 非レガート（新規発音）時のみ、再生位置を初期化し、ベロシティを更新する
+        m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
+        m_baseLevel = std::max(0.01f, velocity);
+    }
+
+    // =====================================================================
+    // モノフォニック・レガート時の音量ジャンプ防止処理
+    // =====================================================================
+    if (isLegato && m_currentEnv > 0.0f) {
+        // レガート時は m_baseLevel を更新しないのが一番安全ですが、
+        // もし更新する場合(Velocityを反映させたい場合)は以下の逆算を行います。
+        // ※今回はSSGと同じく「レガート時は m_baseLevel を維持する（更新しない）」仕様とします。
+        // なので、ここは特に何もしなくてOKです。
+    }
+
+    // エンベロープも非レガート時のみ再トリガーする
+    if (!isLegato) {
+        m_currentEnv = m_adsr.noteOn();
+        m_pitchAdsr.noteOn();
+    }
 }
 
 void RhythmPad::stop()
@@ -249,7 +279,7 @@ void RhythmCore::setSampleData(int padIndex, const std::vector<float>& data, dou
     }
 }
 
-void RhythmCore::noteOn(float freq, float velocity, int midiNote)
+void RhythmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
@@ -281,14 +311,16 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote)
             // 新たなNoteOnを無視してループを継続させる。
             // (あるいは、完全に最初から鳴らし直したい場合は m_position=0 とするが、
             //  今回は「音が重なる/途切れる」のを防ぐため無視するアプローチをとる)
-            if (!pad.m_isOneShot && pad.isPlaying()) {
+            if (!pad.m_isOneShot && pad.isPlaying() && !isLegato) {
+                // 非レガート時のみ、再トリガーを無視してループを継続（既存の仕様）
                 continue; // 何もしない
             }
+
             // ユニゾン・ハーモニー向けに変更
             // 計算した位相のズレをオペレータに渡す
             pad.setUnisonPhaseOffset(phaseOffsetNorm);
 
-            pad.start(velocity);
+            pad.start(velocity, isLegato);
         }
     }
 }
@@ -358,8 +390,8 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
     // すべてのパッドの音を計算し、それぞれの Pan 設定に従って左右に振り分けてミックス
     for (auto& pad : pads) {
         if (pad.isPlaying()) {
-            float panL = (1.0f - pad.m_pan);
-            float panR = pad.m_pan;
+            float basePanL = pad.m_panL;
+            float basePanR = pad.m_panR;
 
             if (m_unisonTotal > 1) {
                 float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
@@ -367,8 +399,8 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
                 // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
                 float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
 
-                panL = std::clamp(panL - panOffset, 0.0f, 1.0f);
-                panR = std::clamp(panR + panOffset, 0.0f, 1.0f);
+                basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
+                basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
 
                 // 音量補正 (ボイス数が増えると爆音になるため下げる)
                 // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
@@ -377,8 +409,8 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
 
             float sample = pad.getSample(m_sampleRate, totalPitchRatio);
 
-            outL += sample * panL;
-            outR += sample * panR;
+            outL += sample * basePanL;
+            outR += sample * basePanR;
         }
     }
 }

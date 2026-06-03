@@ -111,8 +111,18 @@ void WtCore::setParameters(const SynthParams& params)
     updatePhaseDelta();
 }
 
-void WtCore::noteOn(float freq, float velocity, int midiNote)
+void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 {
+    // =====================================================================
+    // モノフォニック・レガート時は、音量（ベロシティ）を更新しない！
+    // 1音目の音量をそのまま引き継ぐことで、音量ジャンプを完全に防ぐ。
+    // =====================================================================
+    if (!isLegato) {
+        // 新規発音の時だけ、ベロシティからベースレベルを計算する
+        m_baseLevel = std::max(0.01f, velocity * 0.25f);
+    }
+    // (レガート時は m_baseLevel は古い値のまま維持される)
+
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
     float finalFreq = freq;
@@ -141,33 +151,35 @@ void WtCore::noteOn(float freq, float velocity, int midiNote)
     // Save for recalculation
     m_currentFrequency = m_detune.noteOn(finalFreq);
 
-    if (!m_isMonoMode) {
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    if (!isLegato) {
+        if (!m_isMonoMode) {
+            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
-        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-        while (m_phase >= juce::MathConstants<float>::twoPi) {
-            m_phase -= juce::MathConstants<float>::twoPi;
+            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+            while (m_phase >= juce::MathConstants<float>::twoPi) {
+                m_phase -= juce::MathConstants<float>::twoPi;
+            }
+            m_lfo.noteOn();
         }
 
-        m_lfo.noteOn();
+        m_modPhase = 0.0f;
+        m_rateAccumulator = 0.0;
+        m_lastSample = 0.0f;
     }
-
-    m_modPhase = 0.0f;
-    m_rateAccumulator = 0.0; // レートの余りもリセット
 
     updatePhaseDelta();
 
-    m_lastSample = 0.0f;
+    if (!isLegato) {
+        m_currentLevel = m_adsr.noteOn();
 
-    m_baseLevel = std::max(0.01f, velocity * 0.25f);
-    m_currentLevel = m_adsr.noteOn();
+        if (!m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.noteOn();
+        }
+        if (!m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.noteOn();
+        }
+    }
 
-    if (!m_pitchAdsr.isBypass()) {
-        m_pitchAdsr.noteOn();
-    }
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOn();
-    }
 }
 
 void WtCore::noteOff()

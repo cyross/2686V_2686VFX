@@ -40,7 +40,17 @@ void BeepCore::setParameters(const SynthParams& params) {
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }
 
-void BeepCore::noteOn(float freq, float velocity, int midiNote) {
+void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
+    // =====================================================================
+    // モノフォニック・レガート時は、音量（ベロシティ）を更新しない！
+    // 1音目の音量をそのまま引き継ぐことで、音量ジャンプを完全に防ぐ。
+    // =====================================================================
+    if (!isLegato) {
+        // 新規発音の時だけ、ベロシティからベースレベルを計算する
+        m_baseLevel = std::max(0.01f, velocity * 0.25f);
+    }
+    // (レガート時は m_baseLevel は古い値のまま維持される)
+
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
     float finalFreq = freq;
@@ -68,25 +78,26 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote) {
     float baseFreq = m_fixMode.noteOn(finalFreq);
     m_baseFreq = m_detune.noteOn(baseFreq);
 
-    if (!m_isMonoMode) {
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
-
-        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-        while (m_phase >= juce::MathConstants<float>::twoPi) {
-            m_phase -= juce::MathConstants<float>::twoPi;
-        }
-    }
-
     m_phaseDelta = m_baseFreq / (float)m_sampleRate;
 
-    m_baseLevel = std::max(0.01f, velocity * 0.25f);
-    m_currentLevel = m_adsr.noteOn();
+    if (!isLegato) {
+        if (!m_isMonoMode) {
+            m_phase = m_unisonPhaseOffset;
 
-    if (!m_pitchAdsr.isBypass()) {
-        m_pitchAdsr.noteOn();
-    }
-    if (!m_ssgSwEnv.isBypass()) {
-        m_ssgSwEnv.noteOn();
+            // 安全のためのラップアラウンド (1.0基準)
+            while (m_phase >= 1.0f) {
+                m_phase -= 1.0f;
+            }
+        }
+
+        m_currentLevel = m_adsr.noteOn();
+
+        if (!m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.noteOn();
+        }
+        if (!m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.noteOn();
+        }
     }
 }
 
@@ -106,6 +117,8 @@ bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPla
 void BeepCore::setPitchBend(int pitchWheelValue) {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
     m_pitchBendRatio = std::pow(2.0f, (norm * 2.0f) / 12.0f);
+
+    // 1.0基準の正しい計算
     m_phaseDelta = (m_baseFreq * m_pitchBendRatio) / (float)m_sampleRate;
 }
 
@@ -175,8 +188,8 @@ void BeepCore::renderNextBlock(float* outR, float* outL, int startSample, int sa
     float sample = getSample();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = 0.5f;
-    float basePanR = 0.5f;
+    float basePanL = 1.0f;
+    float basePanR = 1.0f;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0

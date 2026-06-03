@@ -15,14 +15,34 @@ SynthVoice::SynthVoice()
     coreMap[OscMode::BEEP] = &m_beepCore;
 }
 
+void SynthVoice::prepare(double sampleRate) {
+    m_opnaCore.prepare(sampleRate);
+    m_opnCore.prepare(sampleRate);
+    m_oplCore.prepare(sampleRate);
+    m_opl3Core.prepare(sampleRate);
+    m_opmCore.prepare(sampleRate);
+    m_opzx7Core.prepare(sampleRate);
+    m_ssgCore.prepare(sampleRate);
+    m_wtCore.prepare(sampleRate);
+    m_rhythmCore.prepare(sampleRate);
+    m_adpcmCore.prepare(sampleRate);
+    m_beepCore.prepare(sampleRate);
+}
+
 void SynthVoice::setParameters(const SynthParams& params)
 {
     m_mode = params.mode;
-
-    for (auto& pair : coreMap)
-    {
-        pair.second->setParameters(params);
-    }
+    m_opnaCore.setParameters(params);
+    m_opnCore.setParameters(params);
+    m_oplCore.setParameters(params);
+    m_opl3Core.setParameters(params);
+    m_opmCore.setParameters(params);
+    m_opzx7Core.setParameters(params);
+    m_ssgCore.setParameters(params);
+    m_wtCore.setParameters(params);
+    m_rhythmCore.setParameters(params);
+    m_adpcmCore.setParameters(params);
+    m_beepCore.setParameters(params);
 }
 
 void SynthVoice::startNote(int midiNote, float velocity, juce::SynthesiserSound*, int)
@@ -37,10 +57,17 @@ void SynthVoice::stopNote(float, bool allowTailOff)
 {
     if (allowTailOff)
     {
-        for (int i = 0; i < (int)OscMode::Count; i++)
-        {
-            coreMap[(OscMode)i]->noteOff();
-        }
+        m_opnaCore.noteOff();
+        m_opnCore.noteOff();
+        m_oplCore.noteOff();
+        m_opl3Core.noteOff();
+        m_opmCore.noteOff();
+        m_opzx7Core.noteOff();
+        m_ssgCore.noteOff();
+        m_wtCore.noteOff();
+        m_rhythmCore.noteOff();
+        m_adpcmCore.noteOff();
+        m_beepCore.noteOff();
     }
     else
     {
@@ -77,10 +104,17 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 
     if (newRate > 0.0)
     {
-        for (int i = 0; i < (int)OscMode::Count; i++)
-        {
-            coreMap[(OscMode)i]->prepare(newRate);
-        }
+        m_opnaCore.prepare(newRate);
+        m_opnCore.prepare(newRate);
+        m_oplCore.prepare(newRate);
+        m_opl3Core.prepare(newRate);
+        m_opmCore.prepare(newRate);
+        m_opzx7Core.prepare(newRate);
+        m_ssgCore.prepare(newRate);
+        m_wtCore.prepare(newRate);
+        m_rhythmCore.prepare(newRate);
+        m_adpcmCore.prepare(newRate);
+        m_beepCore.prepare(newRate);
     }
 }
 

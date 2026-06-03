@@ -79,7 +79,7 @@ void Opl3Core::setParameters(const SynthParams& params) {
     m_opMask[3] = params.opl3.op[3].mask;
 }
 
-void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
+void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     // ※トランペット系の音が歪む課題に対応した、かなりな力技
     // 通常のvelocityでは1.0に近くなると音が歪むため、0.25倍して十分な余裕を持たせます。最低値は0.01にして完全な無音を防止します。
     float gain = std::max(0.01f, velocity * 0.25f);
@@ -116,10 +116,10 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote) {
     m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-    m_operators[0].noteOn(finalFreq, gain, noteNum);
-    m_operators[1].noteOn(finalFreq, gain, noteNum);
-    m_operators[2].noteOn(finalFreq, gain, noteNum);
-    m_operators[3].noteOn(finalFreq, gain, noteNum);
+    m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[2].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
 }
@@ -182,10 +182,10 @@ float Opl3Core::getSample() {
         m_rateAccumulator -= 1.0;
         m_prevSample = m_lastSample;
 
-        for (int i = 0; i < 4; ++i)
-        {
-            m_operators[i].processLfo();
-        }
+        m_operators[0].processLfo();
+        m_operators[1].processLfo();
+        m_operators[2].processLfo();
+        m_operators[3].processLfo();
 
         // -------------------------------
 
@@ -254,8 +254,8 @@ void Opl3Core::renderNextBlock(float* outR, float* outL, int startSample, int sa
     float sample = getSample();
 
     // ユニゾン・ハーモニー向けに変更
-    float basePanL = 0.5f;
-    float basePanR = 0.5f;
+    float basePanL = 1.0f;
+    float basePanR = 1.0f;
 
     if (m_unisonTotal > 1) {
         float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0

@@ -21,7 +21,7 @@ public:
 	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
 	void setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate);
-	void noteOn(float frequency, float velocity, int noteNumber) override;
+	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
 	void processLfo();

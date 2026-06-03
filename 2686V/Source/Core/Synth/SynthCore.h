@@ -8,7 +8,7 @@ public:
     void virtual prepare(double sampleRate) {};
     void virtual setSampleRate(double sampleRate) {};
     void virtual setParameters(const SynthParams& params) {};
-    void virtual noteOn(float freq, float velocity, int midiNote) {};
+    void virtual noteOn(float freq, float velocity, int midiNote, bool isLegato = false) {};
     void virtual noteOff() {};
     bool virtual isPlaying() const { return false;  };
     void virtual setPitchBend(int pitchWheelValue) {};

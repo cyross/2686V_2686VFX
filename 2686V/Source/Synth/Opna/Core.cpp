@@ -103,7 +103,7 @@ void OpnaCore::setParameters(const SynthParams& params) {
     m_opMask[3] = params.opna.op[3].mask;
 }
 
-void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
+void OpnaCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     float gain = std::max(0.01f, velocity * 0.25f);
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
 
@@ -138,10 +138,10 @@ void OpnaCore::noteOn(float freq, float velocity, int midiNote) {
     m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-    m_operators[0].noteOn(finalFreq, gain, noteNum);
-    m_operators[1].noteOn(finalFreq, gain, noteNum);
-    m_operators[2].noteOn(finalFreq, gain, noteNum);
-    m_operators[3].noteOn(finalFreq, gain, noteNum);
+    m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[2].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_lfoPhase = 0.0; // LFO位相をリセット
     m_rateAccumulator = 0.0; // レートの余りもリセット

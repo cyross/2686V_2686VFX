@@ -90,6 +90,7 @@ void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+	m_hwLfo.prepare(sampleRate);
 
     m_ampAdsr.setParamMax(
         OpnaPrValue::Op::RgAdsr::Ar::max,
@@ -142,24 +143,28 @@ void OpnaOperator::setParameters(const OpnaOpParams& params, float feedback, flo
     );
 }
 
-void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
+void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
 {
-    m_ssgPhase = 0.0;
     m_noteNumber = noteNumber;
 
-    if (!m_isMonoMode) {
-        // ユニゾン・ハーモニー向け対応
-        // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+    if (!isLegato)
+    {
+        m_ssgPhase = 0.0;
 
-        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-        while (m_phase >= juce::MathConstants<float>::twoPi) {
-            m_phase -= juce::MathConstants<float>::twoPi;
+        if (!m_isMonoMode) {
+            // ユニゾン・ハーモニー向け対応
+            // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
+            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+            // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+            while (m_phase >= juce::MathConstants<float>::twoPi) {
+                m_phase -= juce::MathConstants<float>::twoPi;
+            }
+
+            m_currentLevel = 0.0f;
+            m_fb1 = 0.0f;
+            m_fb2 = 0.0f;
         }
-
-        m_currentLevel = 0.0f;
-        m_fb1 = 0.0f;
-        m_fb2 = 0.0f;
 
         m_hwLfo.noteOn();
     }
@@ -171,21 +176,26 @@ void OpnaOperator::noteOn(float frequency, float velocity, int noteNumber)
 
     m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
 
+    if (!isLegato) {
+        if (!m_ampAdsr.isBypass()) {
+            m_targetLevel = m_ampAdsr.noteOn(velocity);
+        }
+        else {
+            m_targetLevel = velocity;
+        }
+
+        if (m_params.pitchEnvEnable) {
+            m_pitchAdsr.noteOn();
+        }
+
+        if (m_params.ssgEnvEnable) {
+            m_ssgSwEnv.noteOn();
+        }
+    }
+
+    // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
     if (!m_ampAdsr.isBypass()) {
-        m_targetLevel = m_ampAdsr.noteOn(velocity);
-
         m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
-    }
-    else {
-        m_targetLevel = velocity;
-    }
-
-    if (m_params.pitchEnvEnable) {
-        m_pitchAdsr.noteOn();
-    }
-
-    if (m_params.ssgEnvEnable) {
-        m_ssgSwEnv.noteOn();
     }
 }
 

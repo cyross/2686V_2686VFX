@@ -92,7 +92,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_opMask[3] = params.opm.op[3].mask;
 }
 
-void OpmCore::noteOn(float freq, float velocity, int midiNote) {
+void OpmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     int noteNum = (int)(69.0 + 12.0 * std::log2(freq / 440.0));
     float gain = std::max(0.01f, velocity * 0.25f);
 
@@ -127,10 +127,10 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote) {
     m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
 
-    m_operators[0].noteOn(finalFreq, gain, noteNum);
-    m_operators[1].noteOn(finalFreq, gain, noteNum);
-    m_operators[2].noteOn(finalFreq, gain, noteNum);
-    m_operators[3].noteOn(finalFreq, gain, noteNum);
+    m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[2].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
 

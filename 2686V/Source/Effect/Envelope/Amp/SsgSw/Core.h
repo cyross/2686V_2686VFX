@@ -39,11 +39,6 @@ class SsgSwEnv {
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
-
-	std::array<std::function<void()>, 2> noteOnFunctions;
-	std::array<std::function<void()>, 2> noteOffFunctions;
-	std::array<std::function<float()>, 2> processFunctions;
-	std::array<std::function<float(float)>, 7> processFunctionsLinear;
 public:
 	SsgSwEnv();
 	void prepare(int targetIndex, double sampleRate);

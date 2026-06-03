@@ -37,10 +37,6 @@ class PitchAdsrEnv {
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
-
-	std::array<std::function<void()>, 2> noteOnFunctions;
-	std::array<std::function<void()>, 2> noteOffFunctions;
-	std::array<std::array<std::function<float(float)>, 5>, 2> processFunctions;
 public:
 	PitchAdsrEnv();
 	void prepare(int targetIndex, double sampleRate);

@@ -26,6 +26,8 @@ public:
     int m_noteNumber = 0;
     float m_level = 1.0f;
     float m_pan = 0.5f;
+	float m_panL = 1.0f;
+    float m_panR = 1.0f;
     int m_qualityMode = 6; // ADPCM
     int m_rateIndex = 5;   // 16kHz
     bool m_isOneShot = true;
@@ -43,7 +45,7 @@ public:
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
-    void start(float velocity);
+    void start(float velocity, bool isLegato);
     void stop();
     bool isPlaying() const;
     float getSample(double hostSampleRate, float pitchRatio);
@@ -76,12 +78,12 @@ public:
     void setSampleRate(double sampleRate) override;
     void setParameters(const SynthParams& params);
     void setSampleData(int padIndex, const std::vector<float>& data, double rate);
-    void noteOn(float freq, float velocity, int midiNote);
-    void noteOff();
-    bool isPlaying() const;
-    void setPitchBend(int pitchWheelValue);
-    void setModulationWheel(int wheelValue);
-    void setPitchBendRatio(float ratio);
+    void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    void setPitchBendRatio(float ratio) override;
     void getSampleStereo(float& outL, float& outR);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);

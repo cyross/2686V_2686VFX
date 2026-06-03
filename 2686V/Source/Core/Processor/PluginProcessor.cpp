@@ -52,19 +52,25 @@ AudioPlugin2686V::AudioPlugin2686V()
     for (int i = 0; i < Global::totalVoices; i++) {
         auto voice = new SynthVoice();
 
+        voice->prepare(44100.0);
         voice->setCurveCore(&m_curveCore);
         m_synth.addVoice(voice);
     }
+
+    prFx.prepare(44100.0);
+
+    m_curveCore.bakeCurves();
 
     previewSynth.addSound(new SynthSound());
 
     auto prevVoice = new SynthVoice();
 
     prevVoice->setCurveCore(&m_curveCore);
+    prevVoice->prepare(44100.0);
     previewSynth.addVoice(prevVoice);
 
 	previewFx.init(apvts);
-    previewFx.prepare(44000.0);
+    previewFx.prepare(44100.0);
 
     formatManager.registerBasicFormats();
     loadStartupSettings();
@@ -125,14 +131,22 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 
-    // Prepare RhythmCore for all voices
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->getRhythmCore()->prepare(sampleRate);
+            voice->prepare(sampleRate);
         }
     }
 
-	prFx.prepare(sampleRate);
+    previewSynth.setCurrentPlaybackSampleRate(sampleRate);
+
+    for (int i = 0; i < previewSynth.getNumVoices(); ++i) {
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->prepare(sampleRate);
+        }
+    }
+
+    prFx.prepare(sampleRate);
+    previewFx.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -1018,4 +1032,14 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 CurveCore* AudioPlugin2686V::getCurveCore()
 {
     return &m_curveCore;
+}
+
+void AudioPlugin2686V::bakeCurves()
+{
+	m_curveCore.bakeCurves(); // 内部で必要な計算を行う
+}
+
+void AudioPlugin2686V::bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex)
+{
+	m_curveCore.bakeCurvesPrim(positionIndex, targetIndex, paramIndex); // 内部で必要な計算を行う
 }
