@@ -9,6 +9,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -144,10 +145,7 @@ class GuiRhythm : public GuiBase
 	GuiSlider levelSlider;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -160,10 +158,7 @@ public:
         GuiBase(context),
         mainGroup(context),
         levelSlider(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
@@ -179,5 +174,4 @@ public:
     bool isThis(int padIndex, juce::Button* button);
     void updatePresetName(const juce::String& presetName);
     void initParams();
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
 };

@@ -47,8 +47,8 @@ namespace CorePrValue
 
 		namespace Detune
 		{
-			inline constexpr int min = -7200;
-			inline constexpr int max = 7200;
+			inline constexpr int min = -4800;
+			inline constexpr int max = 4800;
 			inline constexpr int initial = 0;
 		}
 

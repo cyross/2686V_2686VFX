@@ -300,3 +300,59 @@ void layoutMainThreeComps(const MainConfigThreeComps& c)
 
     c.rect.removeFromTop(c.paddingBottom);
 }
+
+// メイングループに4つのコンポーネントを均等に貼り付け
+void layoutMainFourComps(const MainConfigFourComps& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.paddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+// メイングループに5つのコンポーネントを均等に貼り付け
+void layoutMainFiveComps(const MainConfigFiveComps& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.paddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}

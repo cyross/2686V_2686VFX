@@ -255,19 +255,7 @@ void GuiOpm::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    unisonCat.setupOtherCategory({ .parent = *this, .title = OpmGuiText::Category::invisibleUnison, .invisibleTitle = OpmGuiText::Category::invisibleUnison, .enableChangeDetailVisible = true });
-
-    unisonVoicesSlider.setup({ .parent = *this, .id = code + OpmPrKey::Unison::voices, .title = OpmGuiText::Unison::voices, .isReset = true });
-    unisonVoicesSlider.setWantsKeyboardFocus(true);
-    unisonVoicesSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonDetuneSlider.setup({ .parent = *this, .id = code + OpmPrKey::Unison::detune, .title = OpmGuiText::Unison::detune, .isReset = true });
-    unisonDetuneSlider.setWantsKeyboardFocus(true);
-    unisonDetuneSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonSpreadSlider.setup({ .parent = *this, .id = code + OpmPrKey::Unison::spread, .title = OpmGuiText::Unison::spread, .isReset = true });
-    unisonSpreadSlider.setWantsKeyboardFocus(true);
-    unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
+    unisonComponent.setupComponent(*this, code, tabOrder);
 
     monoPolyCat.setupOtherCategory({ .parent = *this, .title = OpmGuiText::Category::visibleMonoMode, .invisibleTitle = OpmGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
 
@@ -566,7 +554,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
 
     layoutHwLfoCat(mRect);
 
-    layoutUnisonCat(mRect);
+    unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
 
@@ -1386,22 +1374,5 @@ void GuiOpm::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
     {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
-    }
-}
-
-void GuiOpm::layoutUnisonCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &unisonCat });
-
-    bool visibleUnison = unisonCat.isDetailVisible();
-
-    unisonVoicesSlider.setVisibleWithLabel(visibleUnison);
-    unisonDetuneSlider.setVisibleWithLabel(visibleUnison);
-    unisonSpreadSlider.setVisibleWithLabel(visibleUnison);
-
-    if (visibleUnison)
-    {
-        layoutMain({ .mainRect = rect, .label = &unisonVoicesSlider.label, .component = &unisonVoicesSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonDetuneSlider.label, .component = &unisonDetuneSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonSpreadSlider.label, .component = &unisonSpreadSlider });
     }
 }

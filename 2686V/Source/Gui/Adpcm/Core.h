@@ -9,6 +9,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -40,10 +41,7 @@ class GuiAdpcm : public GuiBase
     GuiToggleButton loopButton;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
@@ -132,10 +130,7 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         qualityCat(context),
         panCat(context),
         adsrCat(context),
@@ -208,7 +203,6 @@ public:
     void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

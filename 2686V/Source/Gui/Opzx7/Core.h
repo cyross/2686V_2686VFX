@@ -11,6 +11,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class GuiOpzx7 : public GuiBase
 {
@@ -144,10 +145,7 @@ class GuiOpzx7 : public GuiBase
     GuiSlider lfoAmdSlider;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+	GuiComponentUnison unisonComponent;
 
     // Mono/Poly Switch
     GuiToggleButton monoModeToggle;
@@ -303,10 +301,7 @@ public:
         lfoAmsSlider(context),
         lfoPmdSlider(context),
         lfoAmdSlider(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+		unisonComponent(context),
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -434,7 +429,6 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);

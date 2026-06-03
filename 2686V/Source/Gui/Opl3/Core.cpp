@@ -131,19 +131,7 @@ void GuiOpl3::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    unisonCat.setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::invisibleUnison, .invisibleTitle = Opl3GuiText::Category::invisibleUnison, .enableChangeDetailVisible = true });
-
-    unisonVoicesSlider.setup({ .parent = *this, .id = code + Opl3PrKey::Unison::voices, .title = Opl3GuiText::Unison::voices, .isReset = true });
-    unisonVoicesSlider.setWantsKeyboardFocus(true);
-    unisonVoicesSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonDetuneSlider.setup({ .parent = *this, .id = code + Opl3PrKey::Unison::detune, .title = Opl3GuiText::Unison::detune, .isReset = true });
-    unisonDetuneSlider.setWantsKeyboardFocus(true);
-    unisonDetuneSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonSpreadSlider.setup({ .parent = *this, .id = code + Opl3PrKey::Unison::spread, .title = Opl3GuiText::Unison::spread, .isReset = true });
-    unisonSpreadSlider.setWantsKeyboardFocus(true);
-    unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
+    unisonComponent.setupComponent(*this, code, tabOrder);
 
     monoPolyCat.setupOtherCategory({ .parent = *this, .title = Opl3GuiText::Category::visibleMonoMode, .invisibleTitle = Opl3GuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
     monoModeToggle.setup({ .parent = *this, .id = Opl3PrKey::monoMode, .title = Opl3GuiText::monoPoly, .isReset = true });
@@ -467,7 +455,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
-    layoutUnisonCat(mRect);
+    unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
 
@@ -1212,22 +1200,5 @@ void GuiOpl3::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
     {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
-    }
-}
-
-void GuiOpl3::layoutUnisonCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &unisonCat });
-
-    bool visibleUnison = unisonCat.isDetailVisible();
-
-    unisonVoicesSlider.setVisibleWithLabel(visibleUnison);
-    unisonDetuneSlider.setVisibleWithLabel(visibleUnison);
-    unisonSpreadSlider.setVisibleWithLabel(visibleUnison);
-
-    if (visibleUnison)
-    {
-        layoutMain({ .mainRect = rect, .label = &unisonVoicesSlider.label, .component = &unisonVoicesSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonDetuneSlider.label, .component = &unisonDetuneSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonSpreadSlider.label, .component = &unisonSpreadSlider });
     }
 }

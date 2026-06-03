@@ -203,19 +203,7 @@ void GuiWt::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    unisonCat.setupOtherCategory({ .parent = *this, .title = WtGuiText::Category::invisibleUnison, .invisibleTitle = WtGuiText::Category::invisibleUnison, .enableChangeDetailVisible = true });
-
-    unisonVoicesSlider.setup({ .parent = *this, .id = code + WtPrKey::Unison::voices, .title = WtGuiText::Unison::voices, .isReset = true });
-    unisonVoicesSlider.setWantsKeyboardFocus(true);
-    unisonVoicesSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonDetuneSlider.setup({ .parent = *this, .id = code + WtPrKey::Unison::detune, .title = WtGuiText::Unison::detune, .isReset = true });
-    unisonDetuneSlider.setWantsKeyboardFocus(true);
-    unisonDetuneSlider.setExplicitFocusOrder(++tabOrder);
-
-    unisonSpreadSlider.setup({ .parent = *this, .id = code + WtPrKey::Unison::spread, .title = WtGuiText::Unison::spread, .isReset = true });
-    unisonSpreadSlider.setWantsKeyboardFocus(true);
-    unisonSpreadSlider.setExplicitFocusOrder(++tabOrder);
+    unisonComponent.setupComponent(*this, code, tabOrder);
 
     levelSlider.setup({ .parent = *this, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -676,7 +664,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutWavefileCat(mRect);
 
-    layoutUnisonCat(mRect);
+    unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
 
@@ -1338,22 +1326,5 @@ void GuiWt::updateGraph()
             isCurveMode,
             0
         );
-    }
-}
-
-void GuiWt::layoutUnisonCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &unisonCat });
-
-    bool visibleUnison = unisonCat.isDetailVisible();
-
-    unisonVoicesSlider.setVisibleWithLabel(visibleUnison);
-    unisonDetuneSlider.setVisibleWithLabel(visibleUnison);
-    unisonSpreadSlider.setVisibleWithLabel(visibleUnison);
-
-    if (visibleUnison)
-    {
-        layoutMain({ .mainRect = rect, .label = &unisonVoicesSlider.label, .component = &unisonVoicesSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonDetuneSlider.label, .component = &unisonDetuneSlider });
-        layoutMain({ .mainRect = rect, .label = &unisonSpreadSlider.label, .component = &unisonSpreadSlider });
     }
 }

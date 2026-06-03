@@ -11,6 +11,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class GuiOpl3 : public GuiBase
 {
@@ -50,10 +51,7 @@ class GuiOpl3 : public GuiBase
     GuiComboBox rateSelector;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     // Mono/Poly切り替えスイッチ
     GuiToggleButton monoModeToggle;
@@ -157,10 +155,7 @@ public:
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -246,7 +241,6 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect);

@@ -546,6 +546,11 @@ set(CURVE_GUI_FILES
     "Source/Gui/Curve/Core.cpp"
 )
 
+set(GUI_COMPONENT_UNISON_FILES
+    "Source/Gui/Components/Unison/Unison.h"
+    "Source/Gui/Components/Unison/Unison.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -608,6 +613,7 @@ source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("2686V\\Gui\\Core" FILES ${GUI_FILES})
+source_group("2686V\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})
@@ -727,6 +733,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${SETTINGS_GUI_FILES}
         ${ABOUT_GUI_FILES}
         ${CURVE_GUI_FILES}
+        ${GUI_COMPONENT_UNISON_FILES}
         ${DOCUMENT_FILES}
     )
 

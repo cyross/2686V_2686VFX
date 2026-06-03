@@ -236,3 +236,36 @@ struct MainConfigThreeComps {
 };
 
 void layoutMainThreeComps(const MainConfigThreeComps& c);
+
+struct MainConfigFourComps {
+    juce::Rectangle<int>& rect;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+	juce::Component* comp4;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int compWidth = CoreGuiValue::MainGroup::Comps::Four::width;
+    int compPaddingRight = CoreGuiValue::MainGroup::Comps::Four::paddingRight;
+};
+
+void layoutMainFourComps(const MainConfigFourComps& c);
+
+struct MainConfigFiveComps {
+    juce::Rectangle<int>& rect;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+	juce::Component* comp4;
+	juce::Component* comp5;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int compWidth = CoreGuiValue::MainGroup::Comps::Five::width;
+    int compPaddingRight = CoreGuiValue::MainGroup::Comps::Five::paddingRight;
+};
+
+void layoutMainFiveComps(const MainConfigFiveComps& c);

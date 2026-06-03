@@ -10,6 +10,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 // ==========================================================
 // Waveform Drawing Container (Super Lightweight Custom Paint)
@@ -466,10 +467,7 @@ class GuiWt : public GuiBase
     GuiCategoryLabel adsrCat;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     // Filter (ADSR)
     GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
@@ -595,10 +593,7 @@ public:
         qualityCat(context),
         modCat(context),
         adsrCat(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         adsrBypassButton(context),
 		startLevelSlider(context),
         attackSlider(context),
@@ -696,7 +691,6 @@ public:
     void layoutWavefileCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutSsgSwEnvCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

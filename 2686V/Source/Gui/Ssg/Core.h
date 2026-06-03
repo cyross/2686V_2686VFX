@@ -9,6 +9,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class GuiSsg : public GuiBase
 {
@@ -51,10 +52,7 @@ class GuiSsg : public GuiBase
     GuiComboBox rateSelector;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     // Amp ADSR
     GuiCategoryLabel adsrCat;
@@ -188,10 +186,7 @@ public:
         waveSelector(context),
         bitSelector(context),
         rateSelector(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         adsrCat(context),
         adsrBypassButton(context),
 		startLevelSlider(context),
@@ -285,7 +280,6 @@ public:
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutSwEnvCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

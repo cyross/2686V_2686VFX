@@ -10,6 +10,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Unison/Unison.h"
 
 class GuiOpn : public GuiBase
 {
@@ -51,10 +52,7 @@ class GuiOpn : public GuiBase
     GuiComboBox rateSelector;
 
     // UNISON/HARMONY
-    GuiCategoryLabel unisonCat;
-    GuiSlider unisonVoicesSlider;
-    GuiSlider unisonDetuneSlider;
-    GuiSlider unisonSpreadSlider;
+    GuiComponentUnison unisonComponent;
 
     GuiCategoryLabel lfoCat;
 
@@ -168,10 +166,7 @@ public:
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
-        unisonCat(context),
-        unisonVoicesSlider(context),
-        unisonDetuneSlider(context),
-        unisonSpreadSlider(context),
+        unisonComponent(context),
         lfoCat(context),
         lfoFreqSlider(context),
         lfoShapeSelector(context),
@@ -264,7 +259,6 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpFixCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutUnisonCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
