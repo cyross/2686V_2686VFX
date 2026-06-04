@@ -67,15 +67,19 @@ void Opl3Core::setParameters(const SynthParams& params) {
     // 高速化のためのループアンローリング
     m_operators[0].setParameters(params.opl3.op[0], params.opl3.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
+    m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opl3.op[0].mask;
     m_operators[1].setParameters(params.opl3.op[1], 0.0f);
     m_operators[1].setMonoMode(m_isMonoMode);
+    m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opl3.op[1].mask;
     m_operators[2].setParameters(params.opl3.op[2], (m_algorithm == 5 || m_algorithm == 6) ? params.opl3.feedback : 0.0f);
     m_operators[2].setMonoMode(m_isMonoMode);
+    m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opl3.op[2].mask;
     m_operators[3].setParameters(params.opl3.op[3], 0.0f);
     m_operators[3].setMonoMode(m_isMonoMode);
+    m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opl3.op[3].mask;
 }
 

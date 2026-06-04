@@ -40,6 +40,7 @@ public:
 
     bool isMonoMode = false;
     bool useVelocity = false;
+    bool pitchResetOnLegato = false;
 
     SynthParams* currentParams = nullptr;
 
@@ -436,6 +437,7 @@ private:
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
     std::atomic<float>* pUseVelocity = nullptr;
+    std::atomic<float>* pPitchResetOnLegato = nullptr;
 
     std::map<OscMode, PrBase*> prMap;
 

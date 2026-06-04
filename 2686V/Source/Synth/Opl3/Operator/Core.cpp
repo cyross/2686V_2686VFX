@@ -163,13 +163,17 @@ void Opl3Operator::noteOn(float frequency, float velocity, int noteNumber, bool 
         }
         // =====================================================================
 
-        if (m_params.pitchEnvEnable) {
+        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
 
         if (m_params.ssgEnvEnable) {
             m_ssgSwEnv.noteOn();
         }
+    }
+
+    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+        m_pitchAdsr.noteOn();
     }
 
     // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する

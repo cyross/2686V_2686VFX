@@ -95,6 +95,13 @@ void RhythmPad::start(float velocity, bool isLegato)
     // エンベロープも非レガート時のみ再トリガーする
     if (!isLegato) {
         m_currentEnv = m_adsr.noteOn();
+
+        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
+            m_pitchAdsr.noteOn();
+        }
+    }
+
+    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
     }
 }
@@ -268,6 +275,7 @@ void RhythmCore::setParameters(const SynthParams& params)
 
     for (int i = 0; i < MaxRhythmPads; ++i) {
         pads[i].setParameters(params.rhythm.pads[i]);
+        pads[i].m_pitchResetOnLegato = params.pitchResetOnLegato;
     }
 }
 

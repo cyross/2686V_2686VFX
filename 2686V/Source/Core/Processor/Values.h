@@ -34,6 +34,11 @@ namespace CorePrValue
 		inline constexpr bool initial = true;
 	}
 
+	namespace PitchResetOnLegato
+	{
+		inline constexpr bool initial = true;
+	}
+
 	namespace Level
 	{
 		inline constexpr float min = CorePrValue::levelMin;

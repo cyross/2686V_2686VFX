@@ -91,15 +91,19 @@ void OpnaCore::setParameters(const SynthParams& params) {
     // 高速化のためのループアンローリング
     m_operators[0].setParameters(params.opna.op[0], m_algorithm != 2 ? params.opna.feedback : 0.0f, params.opna.lfoAmSmRt);
     m_operators[0].setMonoMode(m_isMonoMode);
+    m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opna.op[0].mask;
     m_operators[1].setParameters(params.opna.op[1], 0.0f, params.opna.lfoAmSmRt);
     m_operators[1].setMonoMode(m_isMonoMode);
+    m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opna.op[1].mask;
     m_operators[2].setParameters(params.opna.op[2], m_algorithm == 2 ? params.opna.feedback : 0.0f, params.opna.lfoAmSmRt);
     m_operators[2].setMonoMode(m_isMonoMode);
+    m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opna.op[2].mask;
     m_operators[3].setParameters(params.opna.op[3], 0.0f, params.opna.lfoAmSmRt);
     m_operators[3].setMonoMode(m_isMonoMode);
+    m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opna.op[3].mask;
 }
 

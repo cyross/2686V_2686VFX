@@ -18,12 +18,14 @@ class GuiComponentMidi : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton monoMode;
     GuiToggleButton useVelocity;
+    GuiToggleButton pitchResetOnLegato;
 public:
     GuiComponentMidi(const GuiContext& context) :
         GuiBase(context),
         cat(context),
 		monoMode(context),
-        useVelocity(context)
+        useVelocity(context),
+        pitchResetOnLegato(context)
     {
     }
 

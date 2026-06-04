@@ -117,6 +117,8 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
 
+    m_pitchResetOnLegato = params.pitchResetOnLegato;
+
     updatePhaseDelta();
 }
 
@@ -185,12 +187,17 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     if (!isLegato) {
         m_currentLevel = m_adsr.noteOn();
 
-        if (!m_pitchAdsr.isBypass()) {
+        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
+
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+    }
+
+    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+        m_pitchAdsr.noteOn();
     }
 }
 

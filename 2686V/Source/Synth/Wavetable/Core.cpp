@@ -110,6 +110,8 @@ void WtCore::setParameters(const SynthParams& params)
     m_modDepth = params.wt.modDepth;
     m_modSpeed = params.wt.modSpeed;
 
+    m_pitchResetOnLegato = params.pitchResetOnLegato;
+
     updatePhaseDelta();
 }
 
@@ -175,14 +177,18 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     if (!isLegato) {
         m_currentLevel = m_adsr.noteOn();
 
-        if (!m_pitchAdsr.isBypass()) {
+        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
+
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
     }
 
+    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+        m_pitchAdsr.noteOn();
+    }
 }
 
 void WtCore::noteOff()

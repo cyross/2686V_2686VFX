@@ -34,6 +34,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     pMode = apvts.getRawParameterValue(CorePrKey::mode);
     pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
     pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
+    pPitchResetOnLegato = apvts.getRawParameterValue(CorePrKey::pitchResetOnLegato);
 
     prOpna.init(apvts);
     prOpn.init(apvts);
@@ -118,6 +119,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         CorePrValue::UseVelocity::initial
     ));
 
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        CorePrKey::pitchResetOnLegato,
+        CorePrName::pitchResetOnLegato,
+        CorePrValue::PitchResetOnLegato::initial
+    ));
+
     return layout;
 }
 
@@ -190,6 +197,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     m_synth.useVelocity = useVelo;
     m_currentParams.useVelocity = useVelo;
+
+    bool ptResetOnLegato = (pPitchResetOnLegato->load(std::memory_order_relaxed) > 0.5f);
+
+    m_synth.pitchResetOnLegato = ptResetOnLegato;
+    m_currentParams.pitchResetOnLegato = ptResetOnLegato;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)

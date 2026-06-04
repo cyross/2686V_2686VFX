@@ -25,6 +25,7 @@ struct SynthParams
     // --- Monophonic Mode ---
     bool monoMode = false;
     bool useVelocity = false;
+    bool pitchResetOnLegato = false;
 
     OpnaParams opna;
     OpnParams opn;

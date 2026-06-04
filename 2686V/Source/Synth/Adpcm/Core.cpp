@@ -62,6 +62,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
+    m_pitchResetOnLegato = params.pitchResetOnLegato;
+
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
@@ -172,12 +174,17 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         // エンベロープの再トリガー
         m_currentLevel = m_adsr.noteOn();
 
-        if (!m_pitchAdsr.isBypass()) {
+        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
+
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+    }
+
+    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+        m_pitchAdsr.noteOn();
     }
 }
 

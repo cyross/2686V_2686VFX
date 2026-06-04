@@ -5,6 +5,7 @@
 class SynthCore
 {
 public:
+    bool m_pitchResetOnLegato = false;
     void virtual prepare(double sampleRate) {};
     void virtual setSampleRate(double sampleRate) {};
     void virtual setParameters(const SynthParams& params) {};

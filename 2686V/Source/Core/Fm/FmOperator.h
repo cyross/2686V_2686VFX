@@ -18,6 +18,8 @@ public:
 
     double m_hostSampleRate = 44100.0;
 
+    bool m_pitchResetOnLegato = false;
+
     FmOpParams m_params;
 
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }

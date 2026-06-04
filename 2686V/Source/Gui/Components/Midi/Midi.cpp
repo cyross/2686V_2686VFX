@@ -20,6 +20,10 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     useVelocity.setup({ .parent = parent, .id = "USE_VELICITY", .title = "Use Velocity", .isReset = true });
     useVelocity.setWantsKeyboardFocus(true);
     useVelocity.setExplicitFocusOrder(++tabOrder);
+
+    pitchResetOnLegato.setup({ .parent = parent, .id = "PITCH_RESET_LEGATO", .title = "PitchEnv Reset On Legato", .isReset = true });
+    pitchResetOnLegato.setWantsKeyboardFocus(true);
+    pitchResetOnLegato.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
@@ -30,11 +34,13 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
 
 	monoMode.setVisible(visible);
     useVelocity.setVisible(visible);
+    pitchResetOnLegato.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoMode });
         layoutMain({ .mainRect = rect, .component = &useVelocity });
+        layoutMain({ .mainRect = rect, .component = &pitchResetOnLegato });
     }
 }
 
@@ -46,11 +52,13 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
 
     monoMode.setVisible(visible);
     useVelocity.setVisible(visible);
+    pitchResetOnLegato.setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &monoMode });
         layoutRow({ .rowRect = rect, .component = &useVelocity });
+        layoutRow({ .rowRect = rect, .component = &pitchResetOnLegato });
     }
 }
 
@@ -58,4 +66,5 @@ void GuiComponentMidi::setEnables(bool enabled)
 {
     monoMode.setEnabled(enabled);
     useVelocity.setEnabled(enabled);
+    pitchResetOnLegato.setEnabled(enabled);
 }

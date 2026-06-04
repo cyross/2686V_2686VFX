@@ -22,6 +22,8 @@ public:
     double m_bufferSampleRate = 16000.0;
     double m_sourceRate = 44100.0;
 
+    bool m_pitchResetOnLegato = false;
+
     // Parameters
     int m_noteNumber = 0;
     float m_level = 1.0f;
