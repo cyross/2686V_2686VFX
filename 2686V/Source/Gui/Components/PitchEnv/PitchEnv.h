@@ -13,7 +13,7 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/Core.h"
 #include "../../../Advanced/Curve/Core.h"
-
+#include "../PitchButtons/PitchButtons.h"
 
 class GuiComponentPitchEnv : public GuiBase {
     bool isEnable = false;
@@ -25,9 +25,13 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiSlider decay;
     GuiSlider release;
     GuiSlider startLevel;
+    GuiComponentPitchButtons startLevelButtons;
     GuiSlider attackLevel;
+    GuiComponentPitchButtons attackLevelButtons;
     GuiSlider sustainLevel;
+    GuiComponentPitchButtons sustainLevelButtons;
     GuiSlider releaseLevel;
+    GuiComponentPitchButtons releaseLevelButtons;
 
 public:
     GuiComponentPitchEnv(const GuiContext& context) :
@@ -38,9 +42,13 @@ public:
         decay(context),
         release(context),
         startLevel(context),
+        startLevelButtons(context),
         attackLevel(context),
+        attackLevelButtons(context),
         sustainLevel(context),
-        releaseLevel(context)
+        sustainLevelButtons(context),
+        releaseLevel(context),
+        releaseLevelButtons(context)
     {
     }
 

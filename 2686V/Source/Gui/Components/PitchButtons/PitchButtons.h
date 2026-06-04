@@ -31,9 +31,9 @@ public:
     {
     }
 
-    void setupComponent(juce::Component& parent, GuiSlider& slider, int& tabOrder);
-    void layoutComponent(juce::Rectangle<int>& rect);
-    void layoutComponentRow(juce::Rectangle<int>& rect);
+    void setupComponent(juce::Component& parent, GuiSlider& slider, int& tabOrder, std::optional<juce::Font> font = nullopt);
+    void layoutComponent(juce::Rectangle<int>& rect, int height = 15);
+    void layoutComponentRow(juce::Rectangle<int>& rect, int height = 14);
     void setVisibles(bool visible);
     void setEnables(bool enabled);
 };
