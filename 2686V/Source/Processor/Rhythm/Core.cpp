@@ -55,46 +55,75 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
 
 void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = RhythmPrKey::prefix;
+
+    pMLevel = apvts.getRawParameterValue(code + RhythmPrKey::level);
+    pUnisonVoices = apvts.getRawParameterValue(code + RhythmPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(code + RhythmPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(code + RhythmPrKey::Unison::spread);
+    
+    for (int i = 0; i < RhythmPrValue::pads; i++) {
+        juce::String prefix = code + RhythmPrKey::pad + juce::String(i);
+
+        pLevel[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::volume);
+        pPan[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pan);
+        pNoteNumber[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::note);
+        pQualityMode[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::mode);
+        pRateIndex[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::rate);
+        pIsOneShot[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::oneShot);
+        pPcmOffset[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmOffset);
+        pPcmRatio[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmRatio);
+        pAdsrBypass[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass);
+        pAdsrStl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::stl);
+        pAdsrAr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::ar);
+        pAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::dr);
+        pAdsrSl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::sl);
+        pAdsrRr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::rr);
+        pPitchAdsrBypass[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass);
+        pPitchAdsrAr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ar);
+        pPitchAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::dr);
+        pPitchAdsrRr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rr);
+        pPitchAdsrStl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::stl);
+        pPitchAdsrAtl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::atl);
+        pPitchAdsrSsl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ssl);
+        pPitchAdsrRll[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rll);
+    }
 }
 
 void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = RhythmPrKey::prefix;
-
     // --- Rhythm Parameters ---
-    params.rhythm.level = *apvts.getRawParameterValue(code + RhythmPrKey::level);
+    params.rhythm.level = pMLevel->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
-    params.rhythm.unisonVoices = (int)*apvts.getRawParameterValue(code + RhythmPrKey::Unison::voices);
-    params.rhythm.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + RhythmPrKey::Unison::detune);
-    params.rhythm.unisonSpread = *apvts.getRawParameterValue(code + RhythmPrKey::Unison::spread);
+    params.rhythm.unisonVoices = (int)pMLevel->load(std::memory_order_relaxed);
+    params.rhythm.unisonDetuneCents = (int)pMLevel->load(std::memory_order_relaxed);
+    params.rhythm.unisonSpread = pMLevel->load(std::memory_order_relaxed);
 
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
-        juce::String prefix = code + RhythmPrKey::pad + juce::String(i);
         auto& pad = params.rhythm.pads[i];
-        pad.level = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::volume);
-        pad.pan = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pan);
-        pad.noteNumber = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::note);
-        pad.qualityMode = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::mode);
-        pad.rateIndex = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::rate);
-        pad.isOneShot = (bool)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::oneShot);
-        pad.pcmOffset = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmOffset);
-        pad.pcmRatio = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmRatio);
+        pad.level = pLevel[i]->load(std::memory_order_relaxed);
+        pad.pan = pPan[i]->load(std::memory_order_relaxed);
+        pad.noteNumber = (int)pNoteNumber[i]->load(std::memory_order_relaxed);
+        pad.qualityMode = (int)pQualityMode[i]->load(std::memory_order_relaxed);
+        pad.rateIndex = (int)pRateIndex[i]->load(std::memory_order_relaxed);
+        pad.isOneShot = (bool)pIsOneShot[i]->load(std::memory_order_relaxed);
+        pad.pcmOffset = pPcmOffset[i]->load(std::memory_order_relaxed);
+        pad.pcmRatio = pPcmRatio[i]->load(std::memory_order_relaxed);
 
-        pad.adsr.bypass = (*apvts.getRawParameterValue(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass) > RhythmPrValue::boolThread);
-        pad.adsr.stl = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::stl);
-        pad.adsr.ar = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::ar);
-        pad.adsr.dr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::dr);
-        pad.adsr.sl = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::sl);
-        pad.adsr.rr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::rr);
+        pad.adsr.bypass = (pAdsrBypass[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread);
+        pad.adsr.stl = pAdsrStl[i]->load(std::memory_order_relaxed);
+        pad.adsr.ar = pAdsrAr[i]->load(std::memory_order_relaxed);
+        pad.adsr.dr = pAdsrDr[i]->load(std::memory_order_relaxed);
+        pad.adsr.sl = pAdsrSl[i]->load(std::memory_order_relaxed);
+        pad.adsr.rr = pAdsrRr[i]->load(std::memory_order_relaxed);
 
-        pad.pitchAdsr.bypass = (*apvts.getRawParameterValue(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass) > RhythmPrValue::boolThread);
-        pad.pitchAdsr.ar = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ar);
-        pad.pitchAdsr.dr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::dr);
-        pad.pitchAdsr.rr = *apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rr);
-        pad.pitchAdsr.stl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::stl);
-        pad.pitchAdsr.atl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::atl);
-        pad.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ssl);
-        pad.pitchAdsr.rll = (int)*apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rll);
+        pad.pitchAdsr.bypass = (pPitchAdsrBypass[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread);
+        pad.pitchAdsr.ar = pPitchAdsrAr[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.dr = pPitchAdsrDr[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.rr = pPitchAdsrRr[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.stl = (int)pPitchAdsrStl[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.atl = (int)pPitchAdsrAtl[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.ssl = (int)pPitchAdsrRr[i]->load(std::memory_order_relaxed);
+        pad.pitchAdsr.rll = (int)pPitchAdsrRll[i]->load(std::memory_order_relaxed);
     }
 }
