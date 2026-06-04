@@ -6,7 +6,7 @@
 
 void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
 {
-	cat.setupOtherCategory({
+	cat.setupSwCategory({
         .parent = parent,
         .title = juce::String("") + "[■]--- AMP ENV ---",
         .invisibleTitle = juce::String("") + "[□]--- AMP ENV ---",

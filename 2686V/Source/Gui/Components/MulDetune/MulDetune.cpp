@@ -42,14 +42,24 @@ static std::vector<SelectItem> dtItems = {
     {.name = "+3", .value = 8 }
 };
 
-void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
+void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, bool isHw)
 {
-    cat.setupOtherCategory({
-        .parent = parent,
-        .title = juce::String("") + "[■]--- DETUNE ---",
-        .invisibleTitle = juce::String("") + "[□]--- DETUNE ---",
-        .enableChangeDetailVisible = true
-        });
+    if (isHw) {
+        cat.setupHwCategory({
+            .parent = parent,
+            .title = juce::String("") + "[■]--- DETUNE ---",
+            .invisibleTitle = juce::String("") + "[□]--- DETUNE ---",
+            .enableChangeDetailVisible = true
+            });
+    }
+    else {
+        cat.setupSwCategory({
+            .parent = parent,
+            .title = juce::String("") + "[■]--- DETUNE ---",
+            .invisibleTitle = juce::String("") + "[□]--- DETUNE ---",
+            .enableChangeDetailVisible = true
+            });
+    }
 
     mul.setup({ .parent = parent, .id = code + "_MUL", .title = "Mul", .items = multems, .isReset = true });
     mul.setWantsKeyboardFocus(true);

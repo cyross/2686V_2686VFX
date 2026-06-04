@@ -29,7 +29,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 {
     this->isEnable = isEnable;
 
-    cat.setupOtherCategory({
+    cat.setupSwCategory({
         .parent = parent,
         .title = juce::String("") + "[■]--- SSG SW ENV ---",
         .invisibleTitle = juce::String("") + "[□]--- SSG SW ENV ---",

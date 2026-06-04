@@ -8,7 +8,7 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 {
 	this->isEnable = isEnable;
 
-	cat.setupOtherCategory({
+	cat.setupSwCategory({
         .parent = parent,
         .title = juce::String("") + "[■]--- PITCH ENV ---",
         .invisibleTitle = juce::String("") + "[□]--- PITCH ENV ---",

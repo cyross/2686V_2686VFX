@@ -287,7 +287,7 @@ void GuiOpn::setup()
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
-        fix[i].setupComponent(*this, paramPrefix, tabOrder, OpnGuiText::Fm::Op::Opzx7FreqTo440, 440);
+        fix[i].setupComponent(*this, paramPrefix, tabOrder, OpnGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
 
         catMask[i].setupHwCategory({ .parent = *this, .title = OpnGuiText::Category::visibleMask, .invisibleTitle = OpnGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 

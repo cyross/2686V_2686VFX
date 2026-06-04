@@ -445,7 +445,7 @@ void GuiOpna::setup()
         n88Ams[i].setWantsKeyboardFocus(true);
         n88Ams[i].setExplicitFocusOrder(++tabOrder);
 
-        fix[i].setupComponent(*this, paramPrefix, tabOrder, OpnaGuiText::Fm::Op::Opzx7FreqTo440, 440);
+        fix[i].setupComponent(*this, paramPrefix, tabOrder, OpnaGuiText::Fm::Op::Opzx7FreqTo440, 440, true);
 
         catMask[i].setupHwCategory({ .parent = *this, .title = OpnaGuiText::Category::visibleMask, .invisibleTitle = OpnaGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
@@ -887,7 +887,7 @@ void GuiOpna::layoutN88LfoCat(juce::Rectangle<int>& rect)
 
 void GuiOpna::layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect)
 {
-    layoutRow({ .rowRect = rect, .component = &catSsgEnv[opIndex] });
+    layoutRowCategory({ .rowRect = rect, .component = &catSsgEnv[opIndex] });
 
     bool visible = catSsgEnv[opIndex].isDetailVisible();
 

@@ -6,7 +6,7 @@
 
 void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
 {
-    cat.setupOtherCategory({
+    cat.setupSwCategory({
         .parent = parent,
         .title = juce::String("") + "[■]--- UNISON/HARMONY ---",
         .invisibleTitle = juce::String("") + "[□]--- UNISON/HARMONY ---",

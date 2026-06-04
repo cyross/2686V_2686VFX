@@ -18,14 +18,24 @@ std::array<juce::String, 128> GuiComponentFix::noteLabelText{
     "C8", "C#8", "D8", "D#8", "E8", "F8", "F#8", "G8"
 };
 
-void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& toLabel, int toValue)
+void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder, const juce::String& toLabel, int toValue, bool isHw)
 {
-    cat.setupSwCategory({
-        .parent = parent,
-        .title = juce::String("") + "[■]--- FIX ---",
-        .invisibleTitle = juce::String("") + "[□]--- FIX ---",
-        .enableChangeDetailVisible = true
-    });
+    if (isHw) {
+        cat.setupHwCategory({
+            .parent = parent,
+            .title = juce::String("") + "[■]--- FIX ---",
+            .invisibleTitle = juce::String("") + "[□]--- FIX ---",
+            .enableChangeDetailVisible = true
+            });
+    }
+    else {
+        cat.setupSwCategory({
+            .parent = parent,
+            .title = juce::String("") + "[■]--- FIX ---",
+            .invisibleTitle = juce::String("") + "[□]--- FIX ---",
+            .enableChangeDetailVisible = true
+            });
+    }
 
     enable.setup({ .parent = parent, .id = code + "_FIX", .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);

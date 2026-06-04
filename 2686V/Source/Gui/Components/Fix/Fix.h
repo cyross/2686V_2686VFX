@@ -105,7 +105,7 @@ public:
     {
     }
 
-    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& toLabel, int toValue);
+    void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, const juce::String& toLabel, int toValue, bool isHw = false);
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnables(bool enabled);
