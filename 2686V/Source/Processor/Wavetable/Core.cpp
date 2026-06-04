@@ -202,13 +202,13 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.steps = (int)pStep->load(std::memory_order_relaxed);
     params.wt.waveform = (int)pWave->load(std::memory_order_relaxed);
 
-    params.ssg.fixedMode = (pFixMode->load(std::memory_order_relaxed) > WtPrValue::boolThread);
-    params.ssg.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
+    params.wt.fixedMode = (pFixMode->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
-    params.ssg.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
-    params.ssg.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
-    params.ssg.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
+    params.wt.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
+    params.wt.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
+    params.wt.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
 
     for (int i = 0; i < 32; ++i)
     {

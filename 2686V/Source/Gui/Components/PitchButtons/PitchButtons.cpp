@@ -34,11 +34,11 @@ void GuiComponentPitchButtons::setupComponent(juce::Component& parent, GuiSlider
         slider.setValue(slider.getValue() + 100);
         };
 
-    plus1200.setup({ .parent = parent, .id = "", .title = "+120", .font = font, .isReset = false });
+    plus1200.setup({ .parent = parent, .id = "", .title = "+1200", .font = font, .isReset = false });
     plus1200.setWantsKeyboardFocus(true);
     plus1200.setExplicitFocusOrder(++tabOrder);
     plus1200.onClick = [this, &slider] {
-        slider.setValue(slider.getValue() + 120);
+        slider.setValue(slider.getValue() + 1200);
         };
 }
 
