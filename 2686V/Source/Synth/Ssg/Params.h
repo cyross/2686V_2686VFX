@@ -35,6 +35,10 @@ struct SsgParams
     // 0.0(Tone) - 1.0(Noise)
     float mix = 0.0f;
 
+    // --- Fix Freq ---
+    bool fixedMode = false;
+    float fixedFreq = 2000.0f;
+
     // --- ADSR Filter ---
 
     // Params

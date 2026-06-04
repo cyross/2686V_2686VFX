@@ -19,6 +19,10 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::wveform, code + SsgPrName::waveform, SsgPrValue::waveForm::min, SsgPrValue::waveForm::max, SsgPrValue::waveForm::initial)); // 0:Pulse, 1:Triangle
 
+    // Fix
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::fix, code + SsgPrName::fix, SsgPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::fixFreq, code + SsgPrName::fixFreq, SsgPrValue::FixFreq::min, SsgPrValue::FixFreq::max, SsgPrValue::FixFreq::initial));
+
     // ADSR Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::adsr + SsgPrKey::bypass, code + SsgPrName::Adsr::bypass, SsgPrValue::Adsr::Bypass::initial));
 
@@ -97,6 +101,9 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.waveform = (int)*apvts.getRawParameterValue(code + SsgPrKey::wveform);
     params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + SsgPrKey::bit);
     params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + SsgPrKey::rate);
+
+    params.ssg.fixedMode = (*apvts.getRawParameterValue(code + SsgPrKey::fix) > SsgPrValue::boolThread);
+    params.ssg.fixedFreq = *apvts.getRawParameterValue(code + SsgPrKey::fixFreq);
 
     // ユニゾン・ハーモニー用
     params.ssg.unisonVoices = (int)*apvts.getRawParameterValue(code + SsgPrKey::Unison::voices);

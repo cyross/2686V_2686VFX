@@ -9,6 +9,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
@@ -54,6 +55,8 @@ class GuiSsg : public GuiBase
     GuiComboBox bitSelector;
 
     GuiComboBox rateSelector;
+
+    GuiComponentFix fixComponent;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -154,6 +157,7 @@ public:
         waveSelector(context),
         bitSelector(context),
         rateSelector(context),
+        fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),

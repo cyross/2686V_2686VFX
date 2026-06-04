@@ -14,6 +14,8 @@ namespace AdpcmPrName
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String pcmOffset = " PCM Offset";
 	static inline const juce::String pcmRatio = " PCM Ratio";
+	static inline const juce::String fix = " Fix Enable";
+	static inline const juce::String fixFreq = " Fix Freq";
 
 	// ユニゾン・ハーモニー用
 	namespace Unison

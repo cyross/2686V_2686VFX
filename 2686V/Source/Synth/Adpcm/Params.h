@@ -22,6 +22,10 @@ struct AdpcmParams
     float offset = 0.0f; // ms
     float ratio = 1.0f;
 
+    // --- Fix Freq ---
+    bool fixedMode = false;
+    float fixedFreq = 2000.0f;
+
 	// AmpEnvelope Params
     AmpAdsrParams adsr;
 

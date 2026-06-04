@@ -25,6 +25,8 @@ namespace AdpcmPrKey
 	static inline const juce::String loop = "_LOOP";
 	static inline const juce::String pcmOffset = "_PCM_OFFSET";
 	static inline const juce::String pcmRatio = "_PCM_RATIO";
+	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
+	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 
 	// ユニゾン・ハーモニー用
 	namespace Unison

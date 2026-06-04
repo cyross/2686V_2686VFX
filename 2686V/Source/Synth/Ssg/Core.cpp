@@ -84,6 +84,8 @@ void SsgCore::setParameters(const SynthParams& params)
         params.ssg.lfoAmSmRt
     );
 
+    m_fixMode.setParameters(params.ssg.fixedMode, params.ssg.fixedFreq);
+
     m_waveform = params.ssg.waveform;
 
     m_useHwEnv = params.ssg.useHwEnv;
@@ -156,6 +158,7 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
+    finalFreq = m_fixMode.noteOn(finalFreq);
     m_currentFrequency = m_detune.noteOn(finalFreq);
 
     if (!isLegato) {

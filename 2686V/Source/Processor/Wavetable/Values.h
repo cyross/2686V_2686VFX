@@ -30,6 +30,18 @@ namespace WtPrValue
 		inline constexpr int initial = 3; // 49.7kHz
 	}
 
+	namespace Fix
+	{
+		inline constexpr bool initial = CorePrValue::FixMode::Enable::initial;
+	}
+
+	namespace FixFreq
+	{
+		inline constexpr float min = CorePrValue::FixMode::Freq::min;
+		inline constexpr float max = CorePrValue::FixMode::Freq::max;
+		inline constexpr float initial = CorePrValue::FixMode::Freq::initial;
+	}
+
 	// ユニゾン・ハーモニー用
 	namespace Unison
 	{

@@ -19,6 +19,8 @@ namespace WtPrKey
 	static inline const juce::String wave = "_WAVE";
 	static inline const juce::String sampleSize = "_SIZE";
 	static inline const juce::String steps = "_STEPS";
+	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
+	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 
 	// ユニゾン・ハーモニー用
 	namespace Unison

@@ -10,6 +10,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
@@ -469,6 +470,8 @@ class GuiWt : public GuiBase
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel modCat;
 
+    GuiComponentFix fixComponent;
+
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
@@ -560,6 +563,7 @@ public:
         monoPolyCat(context),
         qualityCat(context),
         modCat(context),
+        fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),

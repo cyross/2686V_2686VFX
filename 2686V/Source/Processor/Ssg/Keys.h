@@ -22,6 +22,8 @@ namespace SsgPrKey
 	static inline const juce::String noiseOnNote = "_NOISE_ON_NOTE";
 	static inline const juce::String mix = "_MIX";
 	static inline const juce::String wveform = "_WAVEFORM";
+	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
+	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 
 	// ユニゾン・ハーモニー用
 	namespace Unison

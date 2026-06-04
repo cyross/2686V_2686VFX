@@ -9,6 +9,7 @@
 #include "../../Effect/Envelope/Pitch/Adsr/Core.h"
 #include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Effect/Detune/Opzx7/Core.h"
+#include "../../Generator/Fm/Fix/Core.h"
 #include "../../Advanced/Curve/Core.h"
 
 // --- Core Class ---
@@ -72,6 +73,7 @@ private:
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
+    FixMode m_fixMode;
 
     float m_currentLevel = 0.0f;
     float m_baseLevel = 0.0f;

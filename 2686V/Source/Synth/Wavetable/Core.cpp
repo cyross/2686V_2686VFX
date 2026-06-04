@@ -47,6 +47,8 @@ void WtCore::setParameters(const SynthParams& params)
 {
     m_level = params.wt.level;
 
+    m_fixMode.setParameters(params.wt.fixedMode, params.wt.fixedFreq);
+
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
@@ -149,6 +151,7 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
  
     // 基本周波数にデチューン成分を加算
     // Save for recalculation
+    finalFreq = m_fixMode.noteOn(finalFreq);
     m_currentFrequency = m_detune.noteOn(finalFreq);
 
     if (!isLegato) {

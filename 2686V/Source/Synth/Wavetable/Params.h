@@ -34,6 +34,10 @@ struct WtParams
     float modSpeed = 1.0f; // Ratio or Hz
     float level = 1.0f;
 
+    // --- Fix Freq ---
+    bool fixedMode = false;
+    float fixedFreq = 2000.0f;
+
     // --- ADSR Filter ---
 
     // Params

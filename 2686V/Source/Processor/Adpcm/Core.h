@@ -14,6 +14,8 @@ class AdpcmProcessor : public PrBase
     std::atomic<float>* pRateIndex = nullptr;
     std::atomic<float>* pPcmOffset = nullptr;
     std::atomic<float>* pPcmRatio = nullptr;
+    std::atomic<float>* pFixMode = nullptr;
+    std::atomic<float>* pFixFreq = nullptr;
 
     std::atomic<float>* pUnisonVoices = nullptr;
     std::atomic<float>* pUnisonDetuneCents = nullptr;

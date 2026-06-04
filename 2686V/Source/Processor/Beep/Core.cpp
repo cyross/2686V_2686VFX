@@ -37,58 +37,106 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 
 void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = BeepPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + BeepPrKey::level);
+    pFixMode = apvts.getRawParameterValue(code + BeepPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(code + BeepPrKey::fixFreq);
+
+    pUnisonVoices = apvts.getRawParameterValue(code + BeepPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(code + BeepPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(code + BeepPrKey::Unison::spread);
+
+    pAdsrBypass = apvts.getRawParameterValue(code + BeepPrKey::adsr + BeepPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(code + BeepPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(code + BeepPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::rr);
+
+    pPitchAdsrBypass = apvts.getRawParameterValue(code + BeepPrKey::pitchAdsr + BeepPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rll);
+
+    pSsgSwEnvBypass = apvts.getRawParameterValue(code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l6);
+
+    pMultiple = apvts.getRawParameterValue(code + BeepPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(code + BeepPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(code + BeepPrKey::dt2);
 }
 
 void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
     const juce::String code = BeepPrKey::prefix;
 
-    params.beep.level = *apvts.getRawParameterValue(code + BeepPrKey::level);
+    params.beep.level = pLevel->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
-    params.beep.unisonVoices = (int)*apvts.getRawParameterValue(code + BeepPrKey::Unison::voices);
-    params.beep.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + BeepPrKey::Unison::detune);
-    params.beep.unisonSpread = *apvts.getRawParameterValue(code + BeepPrKey::Unison::spread);
+    params.beep.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
+    params.beep.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
+    params.beep.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
 
-    params.beep.fixedMode = (*apvts.getRawParameterValue(code + BeepPrKey::fix) > BeepPrValue::boolThread);
-    params.beep.fixedFreq = *apvts.getRawParameterValue(code + BeepPrKey::fixFreq);
-    params.beep.adsr.bypass = (*apvts.getRawParameterValue(code + BeepPrKey::adsr + BeepPrKey::bypass) > BeepPrValue::boolThread);
-    params.beep.adsr.stl = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::stl);
-    params.beep.adsr.ar = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::ar);
-    params.beep.adsr.dr = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::dr);
-    params.beep.adsr.sl = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::sl);
-    params.beep.adsr.rr = *apvts.getRawParameterValue(code + BeepPrKey::Adsr::rr);
+    params.beep.fixedMode = (pFixMode->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
+    params.beep.adsr.bypass = (pAdsrBypass->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.adsr.stl = pAdsrStl->load(std::memory_order_relaxed);
+    params.beep.adsr.ar = pAdsrAr->load(std::memory_order_relaxed);
+    params.beep.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
+    params.beep.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
+    params.beep.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
 
-    params.beep.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + BeepPrKey::pitchAdsr + BeepPrKey::bypass) > BeepPrValue::boolThread);
-    params.beep.pitchAdsr.ar = *apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ar);
-    params.beep.pitchAdsr.dr = *apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::dr);
-    params.beep.pitchAdsr.rr = *apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rr);
-    params.beep.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::stl);
-    params.beep.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::atl);
-    params.beep.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ssl);
-    params.beep.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rll);
+    params.beep.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.dr = pPitchAdsrDr->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.rr = pPitchAdsrRr->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.stl = (int)pPitchAdsrStl->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.atl = (int)pPitchAdsrAtl->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.ssl = (int)pPitchAdsrRr->load(std::memory_order_relaxed);
+    params.beep.pitchAdsr.rll = (int)pPitchAdsrRll->load(std::memory_order_relaxed);
 
-    params.beep.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass) > BeepPrValue::boolThread);
-    params.beep.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::steps);
-    params.beep.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loop) > BeepPrValue::boolThread);
-    params.beep.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopTo);
-    params.beep.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopCount);
-    params.beep.ssgSwEnv.stl = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::stl);
-    params.beep.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r1);
-    params.beep.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l1);
-    params.beep.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r2);
-    params.beep.ssgSwEnv.l2 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l2);
-    params.beep.ssgSwEnv.r3 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r3);
-    params.beep.ssgSwEnv.l3 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l3);
-    params.beep.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r4);
-    params.beep.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l4);
-    params.beep.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r5);
-    params.beep.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l5);
-    params.beep.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r6);
-    params.beep.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l6);
+    params.beep.ssgSwEnv.bypass = (pSsgSwEnvBypass->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.ssgSwEnv.steps = (int)pSsgSwEnvSteps->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.loop = (pSsgSwEnvLoop->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.ssgSwEnv.loopTo = (int)pSsgSwEnvLoopTo->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.loopCount = (int)pSsgSwEnvLoopCount->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.stl = pSsgSwEnvStl->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r1 = pSsgSwEnvR1->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l1 = pSsgSwEnvL1->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r2 = pSsgSwEnvR2->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l2 = pSsgSwEnvL2->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r3 = pSsgSwEnvR3->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l3 = pSsgSwEnvL3->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r4 = pSsgSwEnvR4->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l4 = pSsgSwEnvL4->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r5 = pSsgSwEnvR5->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l5 = pSsgSwEnvL5->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.r6 = pSsgSwEnvR6->load(std::memory_order_relaxed);
+    params.beep.ssgSwEnv.l6 = pSsgSwEnvL6->load(std::memory_order_relaxed);
 
-    params.beep.multiple = (int)*apvts.getRawParameterValue(code + BeepPrKey::mul);
-    params.beep.multipleRatio = *apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
-    params.beep.detune = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt);
-    params.beep.detune2 = (int)*apvts.getRawParameterValue(code + BeepPrKey::dt2);
+    params.beep.multiple = (int)pMultiple->load(std::memory_order_relaxed);
+    params.beep.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
+    params.beep.detune = (int)pDetune->load(std::memory_order_relaxed);
+    params.beep.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
 }

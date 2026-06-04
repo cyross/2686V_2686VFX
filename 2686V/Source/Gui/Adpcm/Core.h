@@ -9,6 +9,7 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
+#include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
@@ -43,6 +44,8 @@ class GuiAdpcm : public GuiBase
 
     // Loop Button
     GuiToggleButton loopButton;
+
+    GuiComponentFix fixComponent;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -99,6 +102,7 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
+        fixComponent(context),
         unisonComponent(context),
         qualityCat(context),
         panCat(context),

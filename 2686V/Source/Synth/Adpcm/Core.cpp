@@ -51,6 +51,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_pcmOffset = params.adpcm.offset;
     m_pcmRatio = params.adpcm.ratio;
 
+    m_fixMode.setParameters(params.adpcm.fixedMode, params.adpcm.fixedFreq);
+
     bool newLoopState = params.adpcm.loop;
     if (m_isLooping != newLoopState) {
         m_isLooping = newLoopState;
@@ -155,6 +157,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // ホストDAWのレートとの比率を加味した再生速度レシオの更新
     double rateRatio = currentBufferRate / m_sampleRate;
+    finalFreq = m_fixMode.noteOn(finalFreq);
     m_pitchRatio = (m_detune.noteOn(finalFreq) / rootFreq) * rateRatio;
 
     // =====================================================================

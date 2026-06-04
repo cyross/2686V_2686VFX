@@ -12,6 +12,7 @@
 #include "../../Effect/Envelope/Amp/SsgSw/Core.h"
 #include "../../Effect/Detune/Opzx7/Core.h"
 #include "../../Effect/Lfo/Opzx7/Core.h"
+#include "../../Generator/Fm/Fix/Core.h"
 #include "../../Advanced/Curve/Core.h"
 
 class WtCore : public SynthCore
@@ -54,6 +55,7 @@ private:
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
     Opzx7LfoCore m_lfo;
+    FixMode m_fixMode;
 
     float m_level = 1.0f;
 

@@ -114,6 +114,8 @@ void GuiAdpcm::setup()
 
     mulDetuneComponent.setupComponent(*this, code, tabOrder);
 
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+
     unisonComponent.setupComponent(*this, code, tabOrder);
 
     // 音声ファイル読み込みボタン
@@ -178,6 +180,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     ssgSwEnvComponent.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

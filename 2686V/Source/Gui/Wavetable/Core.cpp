@@ -165,6 +165,8 @@ void GuiWt::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+
     unisonComponent.setupComponent(*this, code, tabOrder);
 
     levelSlider.setup({ .parent = *this, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
@@ -454,6 +456,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutLfoCat(mRect);
 
     layoutWavefileCat(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

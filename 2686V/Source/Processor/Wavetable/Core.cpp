@@ -45,6 +45,10 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     // Waveform WtPreset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::wave, code + WtPrName::waveform, WtPrValue::WaveForm::min, WtPrValue::WaveForm::max, WtPrValue::WaveForm::initial));
 
+    // Fix
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::fix, code + WtPrName::fix, WtPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::fixFreq, code + WtPrName::fixFreq, WtPrValue::FixFreq::min, WtPrValue::FixFreq::max, WtPrValue::FixFreq::initial));
+
     // ユニゾン・ハーモニー用
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::voices, code + WtPrName::Unison::voices, WtPrValue::Unison::Voices::min, WtPrValue::Unison::Voices::max, WtPrValue::Unison::Voices::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::detune, code + WtPrName::Unison::detune, WtPrValue::Unison::Detune::min, WtPrValue::Unison::Detune::max, WtPrValue::Unison::Detune::initial));
@@ -109,6 +113,9 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.tableSize = (int)*apvts.getRawParameterValue(code + WtPrKey::sampleSize);
     params.wt.steps = (int)*apvts.getRawParameterValue(code + WtPrKey::steps);
     params.wt.waveform = (int)*apvts.getRawParameterValue(code + WtPrKey::wave);
+
+    params.wt.fixedMode = (*apvts.getRawParameterValue(code + WtPrKey::fix) > WtPrValue::boolThread);
+    params.wt.fixedFreq = *apvts.getRawParameterValue(code + WtPrKey::fixFreq);
 
     // ユニゾン・ハーモニー用
     params.wt.unisonVoices = (int)*apvts.getRawParameterValue(code + WtPrKey::Unison::voices);

@@ -119,6 +119,8 @@ void GuiSsg::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+
     unisonComponent.setupComponent(*this, code, tabOrder);
 
     ampEnvComponent.setupComponent(*this, code, tabOrder);
@@ -354,6 +356,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     ssgSwEnvComponent.layoutComponent(mRect);
 
     layoutLfoCat(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

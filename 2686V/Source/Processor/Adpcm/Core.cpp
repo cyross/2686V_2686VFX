@@ -19,6 +19,10 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmOffset, code + AdpcmPrName::pcmOffset, AdpcmPrValue::Offset::min, AdpcmPrValue::Offset::max, AdpcmPrValue::Offset::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmRatio, code + AdpcmPrName::pcmRatio, AdpcmPrValue::Ratio::min, AdpcmPrValue::Ratio::max, AdpcmPrValue::Ratio::initial));
 
+    // Fix
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::fix, code + AdpcmPrName::fix, AdpcmPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::fixFreq, code + AdpcmPrName::fixFreq, AdpcmPrValue::FixFreq::min, AdpcmPrValue::FixFreq::max, AdpcmPrValue::FixFreq::initial));
+
     // ADSR Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, code + AdpcmPrName::Adsr::bypass, AdpcmPrValue::Adsr::Bypass::initial));
 
@@ -54,6 +58,9 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pRateIndex = apvts.getRawParameterValue(code + AdpcmPrKey::rate);
     pPcmOffset = apvts.getRawParameterValue(code + AdpcmPrKey::pcmOffset);
     pPcmRatio = apvts.getRawParameterValue(code + AdpcmPrKey::pcmRatio);
+
+    pFixMode = apvts.getRawParameterValue(code + AdpcmPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(code + AdpcmPrKey::fixFreq);
 
     pUnisonVoices = apvts.getRawParameterValue(code + AdpcmPrKey::Unison::voices);
     pUnisonDetuneCents = apvts.getRawParameterValue(code + AdpcmPrKey::Unison::detune);
@@ -113,6 +120,9 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.rateIndex = (int)pRateIndex->load(std::memory_order_relaxed);
     params.adpcm.offset = pPcmOffset->load(std::memory_order_relaxed);
     params.adpcm.ratio = pPcmRatio->load(std::memory_order_relaxed);
+
+    params.adpcm.fixedMode = (pFixMode->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
+    params.adpcm.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
     params.adpcm.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);

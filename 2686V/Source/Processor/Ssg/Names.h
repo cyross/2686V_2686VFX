@@ -12,6 +12,8 @@ namespace SsgPrName
 	static inline const juce::String waveform = " Waveform";
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String rate = " Rate";
+	static inline const juce::String fix = " Fix Enable";
+	static inline const juce::String fixFreq = " Fix Freq";
 
 	// ユニゾン・ハーモニー用
 	namespace Unison
