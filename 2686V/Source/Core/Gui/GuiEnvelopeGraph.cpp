@@ -396,7 +396,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float slVal = (float)sustainSlider.getValue();
     float rrVal = (float)releaseSlider.getValue();
 
-    float sl = (slMax - slVal) / slMax; // 15=0.0, 0=1.0
+    float sl = slVal / slMax;
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::cyan;

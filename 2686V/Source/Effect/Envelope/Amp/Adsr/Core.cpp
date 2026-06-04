@@ -29,9 +29,15 @@ void AmpAdsrEnv::updateIncrements()
 {
     if (this->sampleRate <= 0.0) return;
 
-    this->attackInc = (1.0f - this->stl) / (float)(std::max(0.00001f, this->ar) * this->sampleRate);
-    this->decayDec = (this->stl - this->sl) / (float)(std::max(0.00001f, this->dr) * this->sampleRate);
-    this->releaseDec = this->sl / (float)(std::max(0.00001f, this->rr) * this->sampleRate);
+    // 1. 純粋な時間進行度 (1サンプルあたりに 0.0 から 1.0 に向かうステップ量)
+    this->attackTimeInc = 1.0f / (float)(std::max(0.00001f, this->ar) * this->sampleRate);
+    this->decayTimeInc = 1.0f / (float)(std::max(0.00001f, this->dr) * this->sampleRate);
+    this->releaseTimeInc = 1.0f / (float)(std::max(0.00001f, this->rr) * this->sampleRate);
+
+    // 2. リニアモード用のレベル増減量
+    this->attackInc = (1.0f - this->stl) * this->attackTimeInc;
+    this->decayDec = (1.0f - this->sl) * this->decayTimeInc;
+    this->releaseDec = this->sl * this->releaseTimeInc;
 }
 
 void AmpAdsrEnv::updateSampleRate(double newSampleRate) {
@@ -164,7 +170,7 @@ float AmpAdsrEnv::process(float currentLevel) {
 
             outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
 
-            this->m_phaseProgress += this->attackInc;
+            this->m_phaseProgress += this->attackTimeInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f;
@@ -195,7 +201,7 @@ float AmpAdsrEnv::process(float currentLevel) {
                 return this->sl;
             }
 
-            this->m_phaseProgress += this->decayDec;
+            this->m_phaseProgress += this->decayTimeInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f; // Sustainに向けて確実に0にリセット！
@@ -230,7 +236,7 @@ float AmpAdsrEnv::process(float currentLevel) {
             }
 
             // 1. 時間(x)を進める
-            this->m_phaseProgress += this->releaseDec;
+            this->m_phaseProgress += this->releaseTimeInc;
 
             if (this->m_phaseProgress >= 1.0f) {
                 this->m_phaseProgress = 0.0f;

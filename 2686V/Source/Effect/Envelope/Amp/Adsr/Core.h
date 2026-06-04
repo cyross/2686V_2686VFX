@@ -24,6 +24,11 @@ class AmpAdsrEnv {
 	float releaseDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 
+	// カーブモード用の「純粋な時間進行(0.0~1.0)」のインクリメント量
+	float attackTimeInc = 0.0f;
+	float decayTimeInc = 0.0f;
+	float releaseTimeInc = 0.0f;
+
 	// カーブモード用の変数
 	CurveCore* m_curveCore = nullptr;
 
