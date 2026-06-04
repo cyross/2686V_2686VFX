@@ -392,7 +392,7 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
     this->onClick = [c] {
         // オペレーター番号は 0始まりを想定しているので +1 して表示
         auto* w = new juce::AlertWindow(
-            juce::String("") + "MML入力(Op" + juce::String(c.opIndex + 1) + ")",
+            juce::String("") + "MML風入力(Op" + juce::String(c.opIndex + 1) + ")",
             c.hintMessage, // ← 外から渡された音源ごとのメッセージ
             juce::AlertWindow::QuestionIcon);
 
