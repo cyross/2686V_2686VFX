@@ -24,6 +24,7 @@ struct SynthParams
 
     // --- Monophonic Mode ---
     bool monoMode = false;
+    bool useVelocity = false;
 
     OpnaParams opna;
     OpnParams opn;

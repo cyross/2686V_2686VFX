@@ -8,6 +8,7 @@ namespace CorePrName
 	static inline const juce::String mode = "Mode";
 	static inline const juce::String master_vol = "Master Vol";
 	static inline const juce::String monoMode = "Monophony Mode";
+	static inline const juce::String useVelocity = "Use Velocity";
 
 	namespace Unison
 	{

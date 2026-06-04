@@ -17,11 +17,13 @@ class GuiComponentMidi : public GuiBase {
     // UNISON/HARMONY
     GuiCategoryLabel cat;
     GuiToggleButton monoMode;
+    GuiToggleButton useVelocity;
 public:
     GuiComponentMidi(const GuiContext& context) :
         GuiBase(context),
         cat(context),
-		monoMode(context)
+		monoMode(context),
+        useVelocity(context)
     {
     }
 

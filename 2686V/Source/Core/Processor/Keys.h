@@ -9,6 +9,7 @@ namespace CorePrKey
 	static inline const juce::String mode = "MODE";
 	static inline const juce::String masterVol = "MASTER_VOL";
 	static inline const juce::String monoMode = "MONO_MODE";
+	static inline const juce::String useVelocity = "USE_VELICITY";
 
 	static inline const juce::String op = "_OP";
 	static inline const juce::String pitchAdsr = "_PITCHENV";

@@ -33,6 +33,7 @@ AudioPlugin2686V::AudioPlugin2686V()
 
     pMode = apvts.getRawParameterValue(CorePrKey::mode);
     pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
+    pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
 
     prOpna.init(apvts);
     prOpn.init(apvts);
@@ -105,20 +106,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prFx.createLayout(layout);
 	prCurve.createLayout(layout);
 
-    // マスターボリューム追加
-    // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
-    // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        CorePrKey::masterVol,      // パラメータID
-        CorePrName::master_vol,      // 表示名
-        juce::NormalisableRange<float>(CorePrValue::MasterVol::min, CorePrValue::MasterVol::max, CorePrValue::MasterVol::interval, CorePrValue::MasterVol::skew), // 範囲とステップ
-        CorePrValue::MasterVol::initial              // デフォルト値
-    ));
-
     layout.add(std::make_unique<juce::AudioParameterBool>(
         CorePrKey::monoMode,
         CorePrName::monoMode,
         CorePrValue::MonoMode::initial
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        CorePrKey::useVelocity,
+        CorePrName::useVelocity,
+        CorePrValue::UseVelocity::initial
     ));
 
     return layout;
@@ -188,6 +185,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     m_synth.isMonoMode = isMono;
     m_currentParams.monoMode = isMono;
+
+    bool useVelo = (pUseVelocity->load(std::memory_order_relaxed) > 0.5f);
+
+    m_synth.useVelocity = useVelo;
+    m_currentParams.useVelocity = useVelo;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)

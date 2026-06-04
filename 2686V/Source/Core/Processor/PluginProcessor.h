@@ -39,6 +39,7 @@ public:
     }
 
     bool isMonoMode = false;
+    bool useVelocity = false;
 
     SynthParams* currentParams = nullptr;
 
@@ -93,6 +94,7 @@ public:
             return;
         }
 
+        float targetVelocity = useVelocity ? velocity : 1.0f;
         bool isLegato = false;
 
         if (isMonoMode) {
@@ -114,7 +116,7 @@ public:
                 currentParams->opna.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -125,7 +127,7 @@ public:
                 currentParams->opn.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -136,7 +138,7 @@ public:
                 currentParams->opl.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -147,7 +149,7 @@ public:
                 currentParams->opl3.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -158,7 +160,7 @@ public:
                 currentParams->opm.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -169,7 +171,7 @@ public:
                 currentParams->opzx7.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -180,7 +182,7 @@ public:
                 currentParams->ssg.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -191,7 +193,7 @@ public:
                 currentParams->wt.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -202,7 +204,7 @@ public:
                 currentParams->rhythm.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -213,7 +215,7 @@ public:
                 currentParams->adpcm.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -224,7 +226,7 @@ public:
                 currentParams->beep.unisonSpread,
                 midiChannel,
                 midiNoteNumber,
-                velocity,
+                targetVelocity,
                 isLegato
             );
             break;
@@ -235,6 +237,8 @@ public:
     // 鍵盤を離した時の挙動をハックする
     void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
     {
+        float targetVelocity = useVelocity ? velocity : 1.0f;
+
         if (isMonoMode)
         {
             // 離されたキーを履歴から削除
@@ -246,7 +250,7 @@ public:
                 for (int i = 0; i < getNumVoices(); ++i) {
                     if (auto* voice = getVoice(i)) {
                         if (voice->isVoiceActive()) {
-                            voice->stopNote(velocity, allowTailOff);
+                            voice->stopNote(targetVelocity, allowTailOff);
                         }
                     }
                 }
@@ -265,7 +269,7 @@ public:
                         currentParams->opna.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -276,7 +280,7 @@ public:
                         currentParams->opn.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -287,7 +291,7 @@ public:
                         currentParams->opl.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -298,7 +302,7 @@ public:
                         currentParams->opl3.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -309,7 +313,7 @@ public:
                         currentParams->opm.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -320,7 +324,7 @@ public:
                         currentParams->opzx7.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -331,7 +335,7 @@ public:
                         currentParams->ssg.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -342,7 +346,7 @@ public:
                         currentParams->wt.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -353,7 +357,7 @@ public:
                         currentParams->rhythm.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -364,7 +368,7 @@ public:
                         currentParams->adpcm.unisonSpread,
                         midiChannel,
                         previousNote,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -375,7 +379,7 @@ public:
                         currentParams->beep.unisonSpread,
                         midiChannel,
                         midiNoteNumber,
-                        velocity,
+                        targetVelocity,
                         true
                     );
                     break;
@@ -384,7 +388,7 @@ public:
         }
         else
         {
-            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, velocity, allowTailOff);
+            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, targetVelocity, allowTailOff);
         }
     }
 
@@ -431,6 +435,7 @@ private:
 
     std::atomic<float>* pMode = nullptr;
     std::atomic<float>* pMonoMode = nullptr;
+    std::atomic<float>* pUseVelocity = nullptr;
 
     std::map<OscMode, PrBase*> prMap;
 

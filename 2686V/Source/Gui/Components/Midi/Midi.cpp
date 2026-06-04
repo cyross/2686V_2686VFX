@@ -16,6 +16,10 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     monoMode.setup({ .parent = parent, .id = "MONO_MODE", .title = "MonoPhonic", .isReset = true });
     monoMode.setWantsKeyboardFocus(true);
     monoMode.setExplicitFocusOrder(++tabOrder);
+
+    useVelocity.setup({ .parent = parent, .id = "USE_VELICITY", .title = "Use Velocity", .isReset = true });
+    useVelocity.setWantsKeyboardFocus(true);
+    useVelocity.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
@@ -25,10 +29,12 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
 	monoMode.setVisible(visible);
+    useVelocity.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &monoMode });
+        layoutMain({ .mainRect = rect, .component = &useVelocity });
     }
 }
 
@@ -39,14 +45,17 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
     monoMode.setVisible(visible);
+    useVelocity.setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &monoMode });
+        layoutRow({ .rowRect = rect, .component = &useVelocity });
     }
 }
 
 void GuiComponentMidi::setEnables(bool enabled)
 {
     monoMode.setEnabled(enabled);
+    useVelocity.setEnabled(enabled);
 }
