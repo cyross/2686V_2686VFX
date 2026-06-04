@@ -7,7 +7,7 @@
 namespace Global
 {
 	static inline const int unisonVoices = 8; // ユニゾン発音数
-	static inline const int voices = 32; // 最大同時発音数
+	static inline const int voices = 10; // 最大同時発音数
 	static inline const int totalVoices = voices * unisonVoices; // 最大同時発音数 * ユニゾン発音数
 
 	namespace Plugin
