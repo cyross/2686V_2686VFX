@@ -86,93 +86,173 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = SsgPrKey::prefix;
+
+    pTone = apvts.getRawParameterValue(code + SsgPrKey::tone);
+    pNoise = apvts.getRawParameterValue(code + SsgPrKey::noise);
+    pNoiseFreq = apvts.getRawParameterValue(code + SsgPrKey::noiseFreq);
+    pNoiseOnNote = apvts.getRawParameterValue(code + SsgPrKey::noiseOnNote);
+    pMix = apvts.getRawParameterValue(code + SsgPrKey::mix);
+    pWaveform = apvts.getRawParameterValue(code + SsgPrKey::wveform);
+    pBit = apvts.getRawParameterValue(code + SsgPrKey::bit);
+    pRate = apvts.getRawParameterValue(code + SsgPrKey::rate);
+
+    pFixMode = apvts.getRawParameterValue(code + SsgPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(code + SsgPrKey::fixFreq);
+
+    pUnisonVoices = apvts.getRawParameterValue(code + SsgPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(code + SsgPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(code + SsgPrKey::Unison::spread);
+
+    pAdsrBypass = apvts.getRawParameterValue(code + SsgPrKey::adsr + SsgPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(code + SsgPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(code + SsgPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(code + SsgPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(code + SsgPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(code + SsgPrKey::Adsr::rr);
+
+    pPitchAdsrBypass = apvts.getRawParameterValue(code + SsgPrKey::pitchAdsr + SsgPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::rll);
+
+    pSsgSwEnvBypass = apvts.getRawParameterValue(code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l6);
+
+    pMultiple = apvts.getRawParameterValue(code + SsgPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(code + SsgPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(code + SsgPrKey::dt2);
+
+    pDutyMode = apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
+    pDutyPreset = apvts.getRawParameterValue(code + SsgPrKey::Duty::preset);
+    pDutyVar = apvts.getRawParameterValue(code + SsgPrKey::Duty::var);
+    pDutyInvert = apvts.getRawParameterValue(code + SsgPrKey::Duty::inv);
+
+    pTriKeyTrk = apvts.getRawParameterValue(code + SsgPrKey::Tri::keyTrk);
+    pTriPeak = apvts.getRawParameterValue(code + SsgPrKey::Tri::peak);
+    pTriFreq = apvts.getRawParameterValue(code + SsgPrKey::Tri::freq);
+
+    pHwEnvEnable = apvts.getRawParameterValue(code + SsgPrKey::HwEnv::enable);
+    pHwEnvShape = apvts.getRawParameterValue(code + SsgPrKey::HwEnv::shape);
+    pHwEnvPeriod = apvts.getRawParameterValue(code + SsgPrKey::HwEnv::period);
+
+    pLfoSyncDelay = apvts.getRawParameterValue(code + SsgPrKey::Lfo::syncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amShape);
+    pLfoPm = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + SsgPrKey::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + SsgPrKey::Lfo::ams);
 }
 
 void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = SsgPrKey::prefix;
-
     // --- SSG Parameters ---
-    params.ssg.level = *apvts.getRawParameterValue(code + SsgPrKey::tone);
-    params.ssg.noiseLevel = *apvts.getRawParameterValue(code + SsgPrKey::noise);
-    params.ssg.noiseFreq = *apvts.getRawParameterValue(code + SsgPrKey::noiseFreq);
-    params.ssg.noiseOnNote = (*apvts.getRawParameterValue(code + SsgPrKey::noiseOnNote) > SsgPrValue::boolThread);
-    params.ssg.mix = *apvts.getRawParameterValue(code + SsgPrKey::mix);
-    params.ssg.waveform = (int)*apvts.getRawParameterValue(code + SsgPrKey::wveform);
-    params.ssg.bitDepth = (int)*apvts.getRawParameterValue(code + SsgPrKey::bit);
-    params.ssg.rateIndex = (int)*apvts.getRawParameterValue(code + SsgPrKey::rate);
+    params.ssg.level = pTone->load(std::memory_order_relaxed);
+    params.ssg.noiseLevel = pNoise->load(std::memory_order_relaxed);
+    params.ssg.noiseFreq = pNoiseFreq->load(std::memory_order_relaxed);
+    params.ssg.noiseOnNote = (pNoiseOnNote->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.mix = pMix->load(std::memory_order_relaxed);
+    params.ssg.waveform = (int)pWaveform->load(std::memory_order_relaxed);
+    params.ssg.bitDepth = (int)pBit->load(std::memory_order_relaxed);
+    params.ssg.rateIndex = (int)pRate->load(std::memory_order_relaxed);
 
-    params.ssg.fixedMode = (*apvts.getRawParameterValue(code + SsgPrKey::fix) > SsgPrValue::boolThread);
-    params.ssg.fixedFreq = *apvts.getRawParameterValue(code + SsgPrKey::fixFreq);
+    params.ssg.fixedMode = (pFixMode->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
-    params.ssg.unisonVoices = (int)*apvts.getRawParameterValue(code + SsgPrKey::Unison::voices);
-    params.ssg.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + SsgPrKey::Unison::detune);
-    params.ssg.unisonSpread = *apvts.getRawParameterValue(code + SsgPrKey::Unison::spread);
+    params.ssg.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
+    params.ssg.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
+    params.ssg.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
 
-    params.ssg.multiple = (int)*apvts.getRawParameterValue(code + SsgPrKey::mul);
-    params.ssg.multipleRatio = *apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
-    params.ssg.detune = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt);
-    params.ssg.detune2 = (int)*apvts.getRawParameterValue(code + SsgPrKey::dt2);
+    params.ssg.multiple = (int)pMultiple->load(std::memory_order_relaxed);
+    params.ssg.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
+    params.ssg.detune = (int)pDetune->load(std::memory_order_relaxed);
+    params.ssg.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
 
-    params.ssg.dutyMode = (int)*apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
-    params.ssg.dutyPreset = (int)*apvts.getRawParameterValue(code + SsgPrKey::Duty::preset);
-    params.ssg.dutyVar = *apvts.getRawParameterValue(code + SsgPrKey::Duty::var);
-    params.ssg.dutyInvert = (*apvts.getRawParameterValue(code + SsgPrKey::Duty::inv) > SsgPrValue::boolThread);
+    params.ssg.dutyMode = (int)pDutyMode->load(std::memory_order_relaxed);
+    params.ssg.dutyPreset = (int)pDutyPreset->load(std::memory_order_relaxed);
+    params.ssg.dutyVar = pDutyVar->load(std::memory_order_relaxed);
+    params.ssg.dutyInvert = (pDutyInvert->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
 
-    params.ssg.triKeyTrack = (*apvts.getRawParameterValue(code + SsgPrKey::Tri::keyTrk) > SsgPrValue::boolThread);
-    params.ssg.triPeak = *apvts.getRawParameterValue(code + SsgPrKey::Tri::peak);
-    params.ssg.triFreq = *apvts.getRawParameterValue(code + SsgPrKey::Tri::freq);
+    params.ssg.triKeyTrack = (pTriKeyTrk->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.triPeak = pTriPeak->load(std::memory_order_relaxed);
+    params.ssg.triFreq = pTriFreq->load(std::memory_order_relaxed);
 
-    params.ssg.adsr.bypass = (*apvts.getRawParameterValue(code + SsgPrKey::adsr + SsgPrKey::bypass) > SsgPrValue::boolThread);
-    params.ssg.adsr.stl = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::stl);
-    params.ssg.adsr.ar = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::ar);
-    params.ssg.adsr.dr = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::dr);
-    params.ssg.adsr.sl = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::sl);
-    params.ssg.adsr.rr = *apvts.getRawParameterValue(code + SsgPrKey::Adsr::rr);
+    params.ssg.adsr.bypass = (pAdsrBypass->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.adsr.stl = pAdsrStl->load(std::memory_order_relaxed);
+    params.ssg.adsr.ar = pAdsrAr->load(std::memory_order_relaxed);
+    params.ssg.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
+    params.ssg.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
+    params.ssg.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
 
-    params.ssg.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + SsgPrKey::pitchAdsr + SsgPrKey::bypass) > SsgPrValue::boolThread);
-    params.ssg.pitchAdsr.ar = *apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::ar);
-    params.ssg.pitchAdsr.dr = *apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::dr);
-    params.ssg.pitchAdsr.rr = *apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::rr);
-    params.ssg.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::stl);
-    params.ssg.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::atl);
-    params.ssg.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::ssl);
-    params.ssg.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::rll);
+    params.ssg.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.dr = pPitchAdsrDr->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.rr = pPitchAdsrRr->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.stl = (int)pPitchAdsrStl->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.atl = (int)pPitchAdsrAtl->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.ssl = (int)pPitchAdsrSsl->load(std::memory_order_relaxed);
+    params.ssg.pitchAdsr.rll = (int)pPitchAdsrRll->load(std::memory_order_relaxed);
 
-    params.ssg.useHwEnv = (*apvts.getRawParameterValue(code + SsgPrKey::HwEnv::enable) > SsgPrValue::boolThread);
-    params.ssg.envShape = (int)*apvts.getRawParameterValue(code + SsgPrKey::HwEnv::shape);
-    params.ssg.envPeriod = *apvts.getRawParameterValue(code + SsgPrKey::HwEnv::period);
+    params.ssg.useHwEnv = (pHwEnvEnable->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.envShape = (int)pHwEnvShape->load(std::memory_order_relaxed);
+    params.ssg.envPeriod = pHwEnvPeriod->load(std::memory_order_relaxed);
 
-	params.ssg.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass) > SsgPrValue::boolThread);
-	params.ssg.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::steps);
-	params.ssg.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loop) > SsgPrValue::boolThread);
-	params.ssg.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopTo);
-	params.ssg.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::loopCount);
-	params.ssg.ssgSwEnv.stl = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::stl);
-	params.ssg.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r1);
-	params.ssg.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l1);
-	params.ssg.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r2);
-	params.ssg.ssgSwEnv.l2 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l2);
-	params.ssg.ssgSwEnv.r3 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r3);
-	params.ssg.ssgSwEnv.l3 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l3);
-	params.ssg.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r4);
-	params.ssg.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l4);
-	params.ssg.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r5);
-    params.ssg.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l5);
-    params.ssg.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::r6);
-    params.ssg.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + SsgPrKey::SsgSwEnv::l6);
+	params.ssg.ssgSwEnv.bypass = (pSsgSwEnvBypass->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+	params.ssg.ssgSwEnv.steps = (int)pSsgSwEnvSteps->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.loop = (pSsgSwEnvLoop->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+	params.ssg.ssgSwEnv.loopTo = (int)pSsgSwEnvLoopTo->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.loopCount = (int)pSsgSwEnvLoopCount->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.stl = pSsgSwEnvStl->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.r1 = pSsgSwEnvR1->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.l1 = pSsgSwEnvL1->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.r2 = pSsgSwEnvR2->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.l2 = pSsgSwEnvL2->load(std::memory_order_relaxed);
+    params.ssg.ssgSwEnv.r3 = pSsgSwEnvR3->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.l3 = pSsgSwEnvL3->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.r4 = pSsgSwEnvR4->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.l4 = pSsgSwEnvL4->load(std::memory_order_relaxed);
+	params.ssg.ssgSwEnv.r5 = pSsgSwEnvR5->load(std::memory_order_relaxed);
+    params.ssg.ssgSwEnv.l5 = pSsgSwEnvL5->load(std::memory_order_relaxed);
+    params.ssg.ssgSwEnv.r6 = pSsgSwEnvR6->load(std::memory_order_relaxed);
+    params.ssg.ssgSwEnv.l6 = pSsgSwEnvL6->load(std::memory_order_relaxed);
 
-    params.ssg.lfoPmFreq = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmFreq);
-    params.ssg.lfoAmFreq = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::amFreq);
-    params.ssg.lfoPmWave = (int)*apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmShape);
-    params.ssg.lfoAmWave = (int)*apvts.getRawParameterValue(code + SsgPrKey::Lfo::amShape);
-    params.ssg.lfoAmSmRt = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::amSmoothRatio);
-    params.ssg.lfoAmEnable = (*apvts.getRawParameterValue(code + SsgPrKey::Lfo::am) > SsgPrValue::boolThread);
-    params.ssg.lfoPmEnable = (*apvts.getRawParameterValue(code + SsgPrKey::Lfo::pm) > SsgPrValue::boolThread);
-    params.ssg.lfoPms = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::pms);
-    params.ssg.lfoAms = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::ams);
-    params.ssg.lfoPmd = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmd);
-    params.ssg.lfoAmd = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::amd);
-    params.ssg.lfoSyncDelay = *apvts.getRawParameterValue(code + SsgPrKey::Lfo::syncDelay);
+    params.ssg.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
+    params.ssg.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);
+    params.ssg.lfoPmWave = (int)pLfoPmShape->load(std::memory_order_relaxed);
+    params.ssg.lfoAmWave = (int)pLfoAmShape->load(std::memory_order_relaxed);
+    params.ssg.lfoAmSmRt = pLfoAmSmoothRatio->load(std::memory_order_relaxed);
+    params.ssg.lfoAmEnable = (pLfoAm->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.lfoPmEnable = (pLfoPm->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.lfoPms = pLfoPms->load(std::memory_order_relaxed);
+    params.ssg.lfoAms = pLfoAms->load(std::memory_order_relaxed);
+    params.ssg.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
+    params.ssg.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
+    params.ssg.lfoSyncDelay = pLfoSyncDelay->load(std::memory_order_relaxed);
 }

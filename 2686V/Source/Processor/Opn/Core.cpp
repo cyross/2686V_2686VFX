@@ -61,86 +61,160 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = OpnPrKey::prefix;
 
-}
+    pAlg = apvts.getRawParameterValue(code + OpnPrKey::alg);
+    pFb = apvts.getRawParameterValue(code + OpnPrKey::fb);
+    pDepth = apvts.getRawParameterValue(code + OpnPrKey::bit);
+    pRate = apvts.getRawParameterValue(code + OpnPrKey::rate);
 
-void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
-{
-    const juce::String code = OpnPrKey::prefix;
+    pN88LfoFreq = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::freq);
+    pN88LfoSyncDelay = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::syncDelay);
+    pN88LfoShape = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::shape);
+    pN88LfoPmEnable = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pm);
+    pN88LfoPmd = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pmd);
+    pN88LfoPms = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pms);
+    pN88LfoAmEnable = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::am);
+    pN88LfoAmSmRt = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::amSmoothRatio);
+    pN88LfoAmd = apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::amd);
 
-    params.opn.algorithm = (int)*apvts.getRawParameterValue(code + OpnPrKey::alg);
-    params.opn.feedback = *apvts.getRawParameterValue(code + OpnPrKey::fb);
-    params.opn.fmBitDepth = (int)*apvts.getRawParameterValue(code + OpnPrKey::bit);
-    params.opn.fmRateIndex = (int)*apvts.getRawParameterValue(code + OpnPrKey::rate);
-    // Int(0〜16383) として読み込み、Hzに変換する
-    float n88Speed = *apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::freq);
-    // ソフトウェアLFOの周波数変換公式 (60Hz割り込み、16bitカウンター)
-    // f = (Speed * 60Hz) / 65536
-    params.opn.lfoFreq = (n88Speed * 60.0f) / 65536.0f;
-    params.opn.lfoWave = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::shape);
-    params.opn.lfoAmSmRt = *apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::amSmoothRatio);
-    params.opn.amEnable = (*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::am) > OpnPrValue::boolThread);
-    params.opn.pmEnable = (*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pm) > OpnPrValue::boolThread);
-    params.opn.lfoPms = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pms);
-    params.opn.lfoPmd = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::pmd);
-    params.opn.lfoAmd = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::amd);
-    params.opn.lfoAms = 0; // グローバルAMSはN88-BASICには存在しないので0固定
-    params.opn.lfoSyncDelay = (int)*apvts.getRawParameterValue(code + OpnPrKey::N88Lfo::syncDelay);
-
-    // ユニゾン・ハーモニー用
-    params.opn.unisonVoices = (int)*apvts.getRawParameterValue(code + OpnPrKey::Unison::voices);
-    params.opn.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + OpnPrKey::Unison::detune);
-    params.opn.unisonSpread = *apvts.getRawParameterValue(code + OpnPrKey::Unison::spread);
+    pUnisonVoices = apvts.getRawParameterValue(code + OpnPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(code + OpnPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(code + OpnPrKey::Unison::spread);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
         juce::String p = code + OpnPrKey::op + juce::String(op);
 
-        params.opn.op[op].multiple = (int)*apvts.getRawParameterValue(p + OpnPrKey::mul);
-        params.opn.op[op].detune = (int)*apvts.getRawParameterValue(p + OpnPrKey::dt);
-        params.opn.op[op].fixedMode = (*apvts.getRawParameterValue(p + OpnPrKey::fix) > OpnPrValue::boolThread);
-        params.opn.op[op].fixedFreq = *apvts.getRawParameterValue(p + OpnPrKey::fixFreq);
+        pOpMultiple[op] = apvts.getRawParameterValue(p + OpnPrKey::mul);
+        pOpDetune[op] = apvts.getRawParameterValue(p + OpnPrKey::dt);
+
+        pOpAdsrBypass[op] = apvts.getRawParameterValue(p + OpnPrKey::ampBypass);
+        pOpAdsrRgAr[op] = apvts.getRawParameterValue(p + OpnPrKey::rgAr);
+        pOpAdsrRgD1r[op] = apvts.getRawParameterValue(p + OpnPrKey::rgDr);
+        pOpAdsrRgD1l[op] = apvts.getRawParameterValue(p + OpnPrKey::rgSl);
+        pOpAdsrRgD2r[op] = apvts.getRawParameterValue(p + OpnPrKey::rgSr);
+        pOpAdsrRgRr[op] = apvts.getRawParameterValue(p + OpnPrKey::rgRr);
+        pOpAdsrRgTl[op] = apvts.getRawParameterValue(p + OpnPrKey::rgTl);
+        pOpAdsrKs[op] = apvts.getRawParameterValue(p + OpnPrKey::ks);
+        pOpAdsrXof[op] = apvts.getRawParameterValue(p + OpnPrKey::xof);
+
+        pOpFixEnable[op] = apvts.getRawParameterValue(p + OpnPrKey::fix);
+        pOpFixFreq[op] = apvts.getRawParameterValue(p + OpnPrKey::fixFreq);
+
+        pOpN88LfoAms[op] = apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
+
+        pOpPitchEnvEnable[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::enable);
+        pOpPitchEnvAr[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::ar);
+        pOpPitchEnvDr[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::dr);
+        pOpPitchEnvRr[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::rr);
+        pOpPitchEnvStl[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::stl);
+        pOpPitchEnvAtl[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::atl);
+        pOpPitchEnvSsl[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::ssl);
+        pOpPitchEnvRll[op] = apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::rll);
+
+        pOpSsgSwEnvEnable[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::enable);
+        pOpSsgSwEnvSteps[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::steps);
+        pOpSsgSwEnvLoop[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loop);
+        pOpSsgSwEnvLoopTo[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loopTo);
+        pOpSsgSwEnvLoopCount[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loopCount);
+        pOpSsgSwEnvStl[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::stl);
+        pOpSsgSwEnvR1[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r1);
+        pOpSsgSwEnvL1[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l1);
+        pOpSsgSwEnvR2[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r2);
+        pOpSsgSwEnvL2[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l2);
+        pOpSsgSwEnvR3[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r3);
+        pOpSsgSwEnvL3[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l3);
+        pOpSsgSwEnvR4[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r4);
+        pOpSsgSwEnvL4[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l4);
+        pOpSsgSwEnvR5[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r5);
+        pOpSsgSwEnvL5[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l5);
+        pOpSsgSwEnvR6[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r6);
+        pOpSsgSwEnvL6[op] = apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l6);
+
+        pOpMask[op] = apvts.getRawParameterValue(p + OpnPrKey::mask);
+    }
+}
+
+void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
+{
+    params.opn.algorithm = (int)pAlg->load(std::memory_order_relaxed);
+
+    params.opn.feedback = pFb->load(std::memory_order_relaxed);
+
+    params.opn.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
+    params.opn.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);
+
+    // Int(0〜16383) として読み込み、Hzに変換する
+    float n88Speed = pN88LfoFreq->load(std::memory_order_relaxed);
+    // ソフトウェアLFOの周波数変換公式 (60Hz割り込み、16bitカウンター)
+    // f = (Speed * 60Hz) / 65536
+    params.opn.lfoFreq = (n88Speed * 60.0f) / 65536.0f;
+    params.opn.lfoWave = (int)pN88LfoShape->load(std::memory_order_relaxed);
+    params.opn.lfoAmSmRt = pN88LfoAmSmRt->load(std::memory_order_relaxed);
+    params.opn.amEnable = (pN88LfoAmEnable->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+    params.opn.pmEnable = (pN88LfoPmEnable->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+    params.opn.lfoPms = (int)pN88LfoPms->load(std::memory_order_relaxed);
+    params.opn.lfoPmd = (int)pN88LfoPmd->load(std::memory_order_relaxed);
+    params.opn.lfoAmd = (int)pN88LfoAmd->load(std::memory_order_relaxed);
+    params.opn.lfoAms = 0; // グローバルAMSはN88-BASICには存在しないので0固定
+    params.opn.lfoSyncDelay = (int)pN88LfoSyncDelay->load(std::memory_order_relaxed);
+
+    // ユニゾン・ハーモニー用
+    params.opn.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
+    params.opn.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
+    params.opn.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
+
+    for (int op = 0; op < OpnPrValue::ops; ++op)
+    {
+        params.opn.op[op].multiple = (int)pOpMultiple[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].detune = (int)pOpDetune[op]->load(std::memory_order_relaxed);
+
+        params.opn.op[op].fixedMode = (pOpFixEnable[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+        params.opn.op[op].fixedFreq = pOpFixFreq[op]->load(std::memory_order_relaxed);
+
         params.opn.op[op].waveSelect = 0; // Sine
-        params.opn.op[op].n88Ams = (int)*apvts.getRawParameterValue(p + OpnPrKey::n88Ams);
-        params.opn.op[op].mask = (*apvts.getRawParameterValue(p + OpnPrKey::mask) > OpnPrValue::boolThread);
 
-        params.opn.op[op].m_adsrParams.ar = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgAr);
-        params.opn.op[op].m_adsrParams.dr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgDr);
-        params.opn.op[op].m_adsrParams.sl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSl);
-        params.opn.op[op].m_adsrParams.sr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgSr);
-        params.opn.op[op].m_adsrParams.rr = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgRr);
-        params.opn.op[op].m_adsrParams.tl = (int)*apvts.getRawParameterValue(p + OpnPrKey::rgTl);
-        params.opn.op[op].m_adsrParams.ks = (int)*apvts.getRawParameterValue(p + OpnPrKey::ks);
-        params.opn.op[op].m_adsrParams.xof = *apvts.getRawParameterValue(p + OpnPrKey::xof) > OpnPrValue::boolThread;
-        params.opn.op[op].m_adsrParams.bypass = *apvts.getRawParameterValue(p + OpnPrKey::ampBypass) > OpnPrValue::boolThread;
+        params.opn.op[op].n88Ams = (int)pOpN88LfoAms[op]->load(std::memory_order_relaxed);
 
-        params.opn.op[op].pitchEnvEnable = (*apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::enable) > OpnPrValue::boolThread);
+        params.opn.op[op].mask = (pOpMask[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+
+        params.opn.op[op].m_adsrParams.ar = (int)pOpAdsrRgAr[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.dr = (int)pOpAdsrRgD1r[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.sl = (int)pOpAdsrRgD1l[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.sr = (int)pOpAdsrRgD2r[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.rr = (int)pOpAdsrRgRr[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+        params.opn.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread;
+
+        params.opn.op[op].pitchEnvEnable = pOpPitchEnvEnable[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread;
         params.opn.op[op].pitchAdsr.bypass = false;
-        params.opn.op[op].pitchAdsr.ar = *apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::ar);
-        params.opn.op[op].pitchAdsr.dr = *apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::dr);
-        params.opn.op[op].pitchAdsr.rr = *apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::rr);
-        params.opn.op[op].pitchAdsr.stl = (int)*apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::stl);
-        params.opn.op[op].pitchAdsr.atl = (int)*apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::atl);
-        params.opn.op[op].pitchAdsr.ssl = (int)*apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::ssl);
-        params.opn.op[op].pitchAdsr.rll = (int)*apvts.getRawParameterValue(p + OpnPrKey::PitchAdsr::rll);
+        params.opn.op[op].pitchAdsr.ar = pOpPitchEnvAr[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.dr = pOpPitchEnvDr[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.rr = pOpPitchEnvRr[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.stl = (int)pOpPitchEnvStl[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.atl = (int)pOpPitchEnvAtl[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.ssl = (int)pOpPitchEnvSsl[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].pitchAdsr.rll = (int)pOpPitchEnvRll[op]->load(std::memory_order_relaxed);
 
-        params.opn.op[op].ssgEnvEnable = (*apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::enable) > OpnPrValue::boolThread);
+        params.opn.op[op].ssgEnvEnable = (pOpSsgSwEnvEnable[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
         params.opn.op[op].ssgSwEnv.bypass = false;
-        params.opn.op[op].ssgSwEnv.steps = (int)*apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::steps);
-        params.opn.op[op].ssgSwEnv.loop = (*apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loop) > OpnPrValue::boolThread);
-        params.opn.op[op].ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loopTo);
-        params.opn.op[op].ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::loopCount);
-        params.opn.op[op].ssgSwEnv.stl = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::stl);
-        params.opn.op[op].ssgSwEnv.r1 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r1);
-        params.opn.op[op].ssgSwEnv.l1 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l1);
-        params.opn.op[op].ssgSwEnv.r2 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r2);
-        params.opn.op[op].ssgSwEnv.l2 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l2);
-        params.opn.op[op].ssgSwEnv.r3 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r3);
-        params.opn.op[op].ssgSwEnv.l3 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l3);
-        params.opn.op[op].ssgSwEnv.r4 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r4);
-        params.opn.op[op].ssgSwEnv.l4 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l4);
-        params.opn.op[op].ssgSwEnv.r5 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r5);
-        params.opn.op[op].ssgSwEnv.l5 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l5);
-        params.opn.op[op].ssgSwEnv.r6 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::r6);
-        params.opn.op[op].ssgSwEnv.l6 = *apvts.getRawParameterValue(p + OpnPrKey::SsgSwEnv::l6);
+        params.opn.op[op].ssgSwEnv.steps = (int)pOpSsgSwEnvSteps[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.loop = (pOpSsgSwEnvLoop[op]->load(std::memory_order_relaxed) > OpnPrValue::boolThread);
+        params.opn.op[op].ssgSwEnv.loopTo = (int)pOpSsgSwEnvLoopTo[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.loopCount = (int)pOpSsgSwEnvLoopCount[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.stl = pOpSsgSwEnvStl[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r1 = pOpSsgSwEnvR1[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l1 = pOpSsgSwEnvL1[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r2 = pOpSsgSwEnvR2[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l2 = pOpSsgSwEnvL2[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r3 = pOpSsgSwEnvR3[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l3 = pOpSsgSwEnvL3[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r4 = pOpSsgSwEnvR4[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l4 = pOpSsgSwEnvL4[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r5 = pOpSsgSwEnvR5[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l5 = pOpSsgSwEnvL5[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.r6 = pOpSsgSwEnvR6[op]->load(std::memory_order_relaxed);
+        params.opn.op[op].ssgSwEnv.l6 = pOpSsgSwEnvL6[op]->load(std::memory_order_relaxed);
     }
 }

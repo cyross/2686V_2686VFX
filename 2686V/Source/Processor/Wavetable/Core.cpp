@@ -12,7 +12,6 @@ void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::Par
         auto paramName = name + juce::String(i);
         layout.add(std::make_unique<juce::AudioParameterFloat>(paramId, paramName, WtPrValue::Custom::min, WtPrValue::Custom::max, WtPrValue::Custom::initial));
     }
-
 }
 
 template <size_t I>
@@ -102,86 +101,190 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
 
 void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = WtPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + WtPrKey::level);
+    pSampleSize = apvts.getRawParameterValue(code + WtPrKey::sampleSize);
+    pStep = apvts.getRawParameterValue(code + WtPrKey::steps);
+    pWave = apvts.getRawParameterValue(code + WtPrKey::wave);
+    pBit = apvts.getRawParameterValue(code + WtPrKey::bit);
+    pRate = apvts.getRawParameterValue(code + WtPrKey::rate);
+
+    for (int i = 0; i < 32; ++i)
+    {
+        pCustom32[i] = apvts.getRawParameterValue(code + WtPrKey::custom32 + juce::String(i));
+    }
+
+    for (int i = 0; i < 64; ++i)
+    {
+        pCustom64[i] = apvts.getRawParameterValue(code + WtPrKey::custom64 + juce::String(i));
+    }
+
+    for (int i = 0; i < 128; ++i)
+    {
+        pCustom128[i] = apvts.getRawParameterValue(code + WtPrKey::custom128 + juce::String(i));
+    }
+
+    for (int i = 0; i < 256; ++i)
+    {
+        pCustom256[i] = apvts.getRawParameterValue(code + WtPrKey::custom256 + juce::String(i));
+    }
+
+    pModEnable = apvts.getRawParameterValue(code + WtPrKey::Mod::enable);
+    pModDepth = apvts.getRawParameterValue(code + WtPrKey::Mod::depth);
+    pModSpeed = apvts.getRawParameterValue(code + WtPrKey::Mod::speed);
+
+    pFixMode = apvts.getRawParameterValue(code + WtPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(code + WtPrKey::fixFreq);
+
+    pUnisonVoices = apvts.getRawParameterValue(code + WtPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(code + WtPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(code + WtPrKey::Unison::spread);
+
+    pAdsrBypass = apvts.getRawParameterValue(code + WtPrKey::adsr + WtPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(code + WtPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(code + WtPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(code + WtPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(code + WtPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(code + WtPrKey::Adsr::rr);
+
+    pPitchAdsrBypass = apvts.getRawParameterValue(code + WtPrKey::pitchAdsr + WtPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rll);
+
+    pSsgSwEnvBypass = apvts.getRawParameterValue(code + WtPrKey::ssgSwEnv + WtPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
+
+    pMultiple = apvts.getRawParameterValue(code + WtPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(code + WtPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(code + WtPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(code + WtPrKey::dt2);
+
+    pLfoSyncDelay = apvts.getRawParameterValue(code + WtPrKey::Lfo::syncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + WtPrKey::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + WtPrKey::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + WtPrKey::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + WtPrKey::Lfo::pmShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + WtPrKey::Lfo::amShape);
+    pLfoPm = apvts.getRawParameterValue(code + WtPrKey::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + WtPrKey::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + WtPrKey::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + WtPrKey::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + WtPrKey::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + WtPrKey::Lfo::ams);
 }
 
 void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = WtPrKey::prefix;
+    params.wt.bitDepth = (int)pBit->load(std::memory_order_relaxed);
+    params.wt.rateIndex = (int)pRate->load(std::memory_order_relaxed);
+    params.wt.tableSize = (int)pSampleSize->load(std::memory_order_relaxed);
+    params.wt.steps = (int)pStep->load(std::memory_order_relaxed);
+    params.wt.waveform = (int)pWave->load(std::memory_order_relaxed);
 
-    params.wt.bitDepth = (int)*apvts.getRawParameterValue(code + WtPrKey::bit);
-    params.wt.rateIndex = (int)*apvts.getRawParameterValue(code + WtPrKey::rate);
-    params.wt.tableSize = (int)*apvts.getRawParameterValue(code + WtPrKey::sampleSize);
-    params.wt.steps = (int)*apvts.getRawParameterValue(code + WtPrKey::steps);
-    params.wt.waveform = (int)*apvts.getRawParameterValue(code + WtPrKey::wave);
-
-    params.wt.fixedMode = (*apvts.getRawParameterValue(code + WtPrKey::fix) > WtPrValue::boolThread);
-    params.wt.fixedFreq = *apvts.getRawParameterValue(code + WtPrKey::fixFreq);
+    params.ssg.fixedMode = (pFixMode->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.ssg.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用
-    params.wt.unisonVoices = (int)*apvts.getRawParameterValue(code + WtPrKey::Unison::voices);
-    params.wt.unisonDetuneCents = (int)*apvts.getRawParameterValue(code + WtPrKey::Unison::detune);
-    params.wt.unisonSpread = *apvts.getRawParameterValue(code + WtPrKey::Unison::spread);
+    params.ssg.unisonVoices = (int)pUnisonVoices->load(std::memory_order_relaxed);
+    params.ssg.unisonDetuneCents = (int)pUnisonDetuneCents->load(std::memory_order_relaxed);
+    params.ssg.unisonSpread = pUnisonSpread->load(std::memory_order_relaxed);
 
-    processCustomWaveBlock(params.wt.customWave32, apvts, code + WtPrKey::custom32);
-    processCustomWaveBlock(params.wt.customWave64, apvts, code + WtPrKey::custom64);
-    processCustomWaveBlock(params.wt.customWave128, apvts, code + WtPrKey::custom128);
-    processCustomWaveBlock(params.wt.customWave256, apvts, code + WtPrKey::custom256);
+    for (int i = 0; i < 32; ++i)
+    {
+        params.wt.customWave32[i] = pCustom32[i]->load(std::memory_order_relaxed);
+    }
 
-    params.wt.modEnable = (*apvts.getRawParameterValue(code + WtPrKey::Mod::enable) > WtPrValue::boolThread);
-    params.wt.modDepth = *apvts.getRawParameterValue(code + WtPrKey::Mod::depth);
-    params.wt.modSpeed = *apvts.getRawParameterValue(code + WtPrKey::Mod::speed);
-    params.wt.level = *apvts.getRawParameterValue(code + WtPrKey::level);
+    for (int i = 0; i < 64; ++i)
+    {
+        params.wt.customWave64[i] = pCustom64[i]->load(std::memory_order_relaxed);
+    }
 
-    params.wt.adsr.bypass = (*apvts.getRawParameterValue(code + WtPrKey::adsr + WtPrKey::bypass) > WtPrValue::boolThread);
-    params.wt.adsr.stl = *apvts.getRawParameterValue(code + WtPrKey::Adsr::stl);
-    params.wt.adsr.ar = *apvts.getRawParameterValue(code + WtPrKey::Adsr::ar);
-    params.wt.adsr.dr = *apvts.getRawParameterValue(code + WtPrKey::Adsr::dr);
-    params.wt.adsr.sl = *apvts.getRawParameterValue(code + WtPrKey::Adsr::sl);
-    params.wt.adsr.rr = *apvts.getRawParameterValue(code + WtPrKey::Adsr::rr);
+    for (int i = 0; i < 128; ++i)
+    {
+        params.wt.customWave128[i] = pCustom128[i]->load(std::memory_order_relaxed);
+    }
 
-    params.wt.pitchAdsr.bypass = (*apvts.getRawParameterValue(code + WtPrKey::pitchAdsr + WtPrKey::bypass) > WtPrValue::boolThread);
-    params.wt.pitchAdsr.ar = *apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ar);
-    params.wt.pitchAdsr.dr = *apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::dr);
-    params.wt.pitchAdsr.rr = *apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rr);
-    params.wt.pitchAdsr.stl = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::stl);
-    params.wt.pitchAdsr.atl = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::atl);
-    params.wt.pitchAdsr.ssl = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ssl);
-    params.wt.pitchAdsr.rll = (int)*apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rll);
+    for (int i = 0; i < 256; ++i)
+    {
+        params.wt.customWave256[i] = pCustom256[i]->load(std::memory_order_relaxed);
+    }
 
-    params.wt.ssgSwEnv.bypass = (*apvts.getRawParameterValue(code + WtPrKey::ssgSwEnv + WtPrKey::bypass) > WtPrValue::boolThread);
-    params.wt.ssgSwEnv.steps = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::steps);
-    params.wt.ssgSwEnv.loop = (*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loop) > WtPrValue::boolThread);
-    params.wt.ssgSwEnv.loopTo = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopTo);
-    params.wt.ssgSwEnv.loopCount = (int)*apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopCount);
-    params.wt.ssgSwEnv.stl = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::stl);
-    params.wt.ssgSwEnv.r1 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r1);
-    params.wt.ssgSwEnv.l1 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l1);
-    params.wt.ssgSwEnv.r2 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r2);
-    params.wt.ssgSwEnv.l2 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l2);
-    params.wt.ssgSwEnv.r3 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r3);
-    params.wt.ssgSwEnv.l3 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l3);
-    params.wt.ssgSwEnv.r4 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r4);
-    params.wt.ssgSwEnv.l4 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l4);
-    params.wt.ssgSwEnv.r5 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r5);
-    params.wt.ssgSwEnv.l5 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l5);
-    params.wt.ssgSwEnv.r6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r6);
-    params.wt.ssgSwEnv.l6 = *apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
+    params.wt.modEnable = (pModEnable->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.modDepth = pModDepth->load(std::memory_order_relaxed);
+    params.wt.modSpeed = pModSpeed->load(std::memory_order_relaxed);
+    params.wt.level = pLevel->load(std::memory_order_relaxed);
 
-    params.wt.multiple = (int)*apvts.getRawParameterValue(code + WtPrKey::mul);
-    params.wt.multipleRatio = *apvts.getRawParameterValue(code + WtPrKey::mulRatio);
-    params.wt.detune = (int)*apvts.getRawParameterValue(code + WtPrKey::dt);
-    params.wt.detune2 = (int)*apvts.getRawParameterValue(code + WtPrKey::dt2);
+    params.wt.adsr.bypass = (pAdsrBypass->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.adsr.stl = pAdsrStl->load(std::memory_order_relaxed);
+    params.wt.adsr.ar = pAdsrAr->load(std::memory_order_relaxed);
+    params.wt.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
+    params.wt.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
+    params.wt.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
 
-    params.wt.lfoPmFreq = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pmFreq);
-    params.wt.lfoAmFreq = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amFreq);
-    params.wt.lfoPmWave = (int)*apvts.getRawParameterValue(code + WtPrKey::Lfo::pmShape);
-    params.wt.lfoAmWave = (int)*apvts.getRawParameterValue(code + WtPrKey::Lfo::amShape);
-    params.wt.lfoAmSmRt = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amSmoothRatio);
-    params.wt.lfoAmEnable = (*apvts.getRawParameterValue(code + WtPrKey::Lfo::am) > WtPrValue::boolThread);
-    params.wt.lfoPmEnable = (*apvts.getRawParameterValue(code + WtPrKey::Lfo::pm) > WtPrValue::boolThread);
-    params.wt.lfoPms = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pms);
-    params.wt.lfoAms = *apvts.getRawParameterValue(code + WtPrKey::Lfo::ams);
-    params.wt.lfoPmd = *apvts.getRawParameterValue(code + WtPrKey::Lfo::pmd);
-    params.wt.lfoAmd = *apvts.getRawParameterValue(code + WtPrKey::Lfo::amd);
-    params.wt.lfoSyncDelay = *apvts.getRawParameterValue(code + WtPrKey::Lfo::syncDelay);
+    params.wt.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.dr = pPitchAdsrDr->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.rr = pPitchAdsrRr->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.stl = (int)pPitchAdsrStl->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.atl = (int)pPitchAdsrAtl->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.ssl = (int)pPitchAdsrSsl->load(std::memory_order_relaxed);
+    params.wt.pitchAdsr.rll = (int)pPitchAdsrRll->load(std::memory_order_relaxed);
+
+    params.wt.ssgSwEnv.bypass = (pSsgSwEnvBypass->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.ssgSwEnv.steps = (int)pSsgSwEnvSteps->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.loop = (pSsgSwEnvLoop->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.ssgSwEnv.loopTo = (int)pSsgSwEnvLoopTo->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.loopCount = (int)pSsgSwEnvLoopCount->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.stl = pSsgSwEnvStl->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r1 = pSsgSwEnvR1->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l1 = pSsgSwEnvL1->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r2 = pSsgSwEnvR2->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l2 = pSsgSwEnvL2->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r3 = pSsgSwEnvR3->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l3 = pSsgSwEnvL3->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r4 = pSsgSwEnvR4->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l4 = pSsgSwEnvL4->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r5 = pSsgSwEnvR5->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l5 = pSsgSwEnvL5->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.r6 = pSsgSwEnvR6->load(std::memory_order_relaxed);
+    params.wt.ssgSwEnv.l6 = pSsgSwEnvL6->load(std::memory_order_relaxed);
+
+    params.wt.multiple = (int)pMultiple->load(std::memory_order_relaxed);
+    params.wt.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
+    params.wt.detune = (int)pDetune->load(std::memory_order_relaxed);
+    params.wt.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
+
+    params.wt.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
+    params.wt.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);
+    params.wt.lfoPmWave = (int)pLfoPmShape->load(std::memory_order_relaxed);
+    params.wt.lfoAmWave = (int)pLfoAmShape->load(std::memory_order_relaxed);
+    params.wt.lfoAmSmRt = pLfoAmSmoothRatio->load(std::memory_order_relaxed);
+    params.wt.lfoAmEnable = (pLfoAm->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.lfoPmEnable = (pLfoPm->load(std::memory_order_relaxed) > WtPrValue::boolThread);
+    params.wt.lfoPms = pLfoPms->load(std::memory_order_relaxed);
+    params.wt.lfoAms = pLfoAms->load(std::memory_order_relaxed);
+    params.wt.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
+    params.wt.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
+    params.wt.lfoSyncDelay = pLfoSyncDelay->load(std::memory_order_relaxed);
 }
