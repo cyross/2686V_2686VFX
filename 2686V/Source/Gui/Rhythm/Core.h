@@ -12,6 +12,7 @@
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -124,6 +125,8 @@ class GuiRhythm : public GuiBase
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
 
+    GuiComponentMidi midiComponent;
+
     // 8 Pads
     std::array<RhythmPadGui, 8> pads;
 public:
@@ -134,6 +137,7 @@ public:
         unisonComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
+        midiComponent(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

@@ -15,6 +15,7 @@
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -67,6 +68,8 @@ class GuiAdpcm : public GuiBase
 
     GuiComboBox rateSelector;
 
+    GuiComponentMidi midiComponent;
+
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -111,6 +114,7 @@ public:
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
         rateSelector(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),

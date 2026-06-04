@@ -42,11 +42,7 @@ void GuiBeep::setup() {
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 
-    monoPolyCat.setupOtherCategory({ .parent = *this, .title = BeepGuiText::Category::visibleMonoMode, .invisibleTitle = BeepGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
-
-    monoModeToggle.setup({ .parent = *this, .id = BeepPrKey::monoMode, .title = BeepGuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+    midiComponent.setupComponent(*this, tabOrder);
 
     setupGraph();
     updateGraph();
@@ -85,7 +81,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     unisonComponent.layoutComponent(mRect);
 
-    layoutMonoModeCat(mRect);
+    midiComponent.layoutComponent(mRect);
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)
@@ -96,19 +92,6 @@ void GuiBeep::updatePresetName(const juce::String& presetName)
 void GuiBeep::initParams()
 {
     this->ctx.audioProcessor.initParams("BEEP_");
-}
-
-void GuiBeep::layoutMonoModeCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
-
-    bool visible = monoPolyCat.isDetailVisible();
-
-    monoModeToggle.setVisible(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
-    }
 }
 
 void GuiBeep::setupGraph()

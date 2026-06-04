@@ -201,11 +201,7 @@ void GuiOpn::setup()
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 
-    monoPolyCat.setupOtherCategory({ .parent = *this, .title = OpnGuiText::Category::visibleMonoMode, .invisibleTitle = OpnGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
-
-    monoModeToggle.setup({ .parent = *this, .id = OpnPrKey::monoMode, .title = OpnGuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+    midiComponent.setupComponent(*this, tabOrder);
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -347,7 +343,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     layoutQualityCat(mRect);
 
-    layoutMonoModeCat(mRect);
+    midiComponent.layoutComponent(mRect);
 
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < 4; ++i)
@@ -648,19 +644,6 @@ void GuiOpn::layoutQualityCat(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
-}
-
-void GuiOpn::layoutMonoModeCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
-
-    bool visible = monoPolyCat.isDetailVisible();
-
-    monoModeToggle.setVisible(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
     }
 }
 

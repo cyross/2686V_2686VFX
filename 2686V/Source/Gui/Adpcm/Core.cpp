@@ -142,6 +142,8 @@ void GuiAdpcm::setup()
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
+    midiComponent.setupComponent(*this, tabOrder);
+
     setupGraph();
     updateGraph();
 }
@@ -186,6 +188,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
+
+    midiComponent.layoutComponent(mRect);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)

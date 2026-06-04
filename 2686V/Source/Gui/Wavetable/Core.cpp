@@ -332,11 +332,7 @@ void GuiWt::setup()
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    monoPolyCat.setupOtherCategory({ .parent = *this, .title = WtGuiText::Category::visibleMonoMode, .invisibleTitle = WtGuiText::Category::invisibleMonoMode, .enableChangeDetailVisible = true });
-
-    monoModeToggle.setup({ .parent = *this, .id = WtPrKey::monoMode, .title = WtGuiText::monoPoly, .isReset = true });
-    monoModeToggle.setWantsKeyboardFocus(true);
-    monoModeToggle.setExplicitFocusOrder(++tabOrder);
+    midiComponent.setupComponent(*this, tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
@@ -463,7 +459,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutQualityCat(mRect);
 
-    layoutMonoModeCat(mRect);
+    midiComponent.layoutComponent(mRect);
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);
@@ -722,19 +718,6 @@ void GuiWt::layoutQualityCat(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
-}
-
-void GuiWt::layoutMonoModeCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &monoPolyCat });
-
-    bool visible = monoPolyCat.isDetailVisible();
-
-    monoModeToggle.setVisible(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &monoModeToggle });
     }
 }
 

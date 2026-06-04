@@ -16,6 +16,7 @@
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 // ==========================================================
 // Waveform Drawing Container (Super Lightweight Custom Paint)
@@ -466,7 +467,6 @@ class GuiWt : public GuiBase
 
     GuiSlider levelSlider;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel modCat;
 
@@ -529,8 +529,7 @@ class GuiWt : public GuiBase
     GuiTextButton customWaveExportBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // Mono/Poly Switch
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // Preset Name Label
     GuiLabel presetNameLabel;
@@ -560,7 +559,6 @@ public:
         customSliders128(context),
         customSliders256(context),
         levelSlider(context),
-        monoPolyCat(context),
         qualityCat(context),
         modCat(context),
         fixComponent(context),
@@ -599,7 +597,7 @@ public:
         customWaveResetTo0Btn(context),
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -619,7 +617,6 @@ public:
     void exportWavetable();
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutWavefileCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);

@@ -15,6 +15,7 @@
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class GuiSsg : public GuiBase
 {
@@ -24,7 +25,6 @@ class GuiSsg : public GuiBase
     GuiGroup dutyGroup;
     GuiGroup triGroup;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel shapeCat;
     GuiCategoryLabel toneCat;
@@ -109,8 +109,7 @@ class GuiSsg : public GuiBase
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
 
-    // Mono/Poly Switch
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // Preset Name Label
     GuiLabel presetNameLabel;
@@ -137,7 +136,6 @@ public:
         voiceGroup(context),
         dutyGroup(context),
         triGroup(context),
-        monoPolyCat(context),
         qualityCat(context),
         shapeCat(context),
         toneCat(context),
@@ -191,7 +189,7 @@ public:
         envEnableButton(context),
         shapeSelector(context),
         periodSlider(context),
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -208,7 +206,6 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void setupGraph();

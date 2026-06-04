@@ -13,11 +13,10 @@
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class GuiBeep : public GuiBase {
     GuiGroup mainGroup;
-
-    GuiCategoryLabel monoPolyCat;
 
     GuiSlider volSlider;
 
@@ -38,8 +37,7 @@ class GuiBeep : public GuiBase {
     // Detune
 	GuiComponentMulDetune mulDetuneComponent;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -62,7 +60,6 @@ class GuiBeep : public GuiBase {
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
-        monoPolyCat(context),
         volSlider(context),
 		fixComponent(context),
         unisonComponent(context),
@@ -70,7 +67,7 @@ public:
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -85,7 +82,6 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
     void initParams();
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
 };

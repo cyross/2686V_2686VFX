@@ -581,6 +581,11 @@ set(GUI_COMPONENT_PITCHBUTTONS_FILES
     "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
 )
 
+set(GUI_COMPONENT_MIDI_FILES
+    "Source/Gui/Components/Midi/Midi.h"
+    "Source/Gui/Components/Midi/Midi.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -649,6 +654,7 @@ source_group("2686V\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE
 source_group("2686V\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
 source_group("2686V\\Gui\\Components\\PitchEnv" FILES ${GUI_COMPONENT_PITCHENV_FILES})
 source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_FILES})
+source_group("2686V\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
@@ -776,6 +782,7 @@ function(create_cyross_plugin TARGET_NAME)
         ${GUI_COMPONENT_PITCHENV_FILES}
         ${GUI_COMPONENT_SSGSWENV_FILES}
         ${GUI_COMPONENT_PITCHBUTTONS_FILES}
+        ${GUI_COMPONENT_MIDI_FILES}
         ${DOCUMENT_FILES}
     )
 

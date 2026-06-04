@@ -15,6 +15,7 @@
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class GuiOpm : public GuiBase
 {
@@ -45,7 +46,6 @@ class GuiOpm : public GuiBase
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op4> opGroups;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -81,8 +81,7 @@ class GuiOpm : public GuiBase
     GuiSlider lfoPmdSlider;
     GuiSlider lfoAmdSlider;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -142,7 +141,6 @@ public:
         GuiBase(context),
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
-        monoPolyCat(context),
         qualityCat(context),
         algFbCat(context),
         algSelector(context),
@@ -191,7 +189,7 @@ public:
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -216,7 +214,6 @@ public:
     void initParams();
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutHwLfoCat(juce::Rectangle<int>& rect);
     void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);

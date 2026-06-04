@@ -14,6 +14,7 @@
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class GuiOpna : public GuiBase
 {
@@ -46,7 +47,6 @@ class GuiOpna : public GuiBase
     std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
     GuiGroup lfoGroup;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -78,8 +78,7 @@ class GuiOpna : public GuiBase
     GuiSlider lfoPmsSlider;
     GuiSlider lfoAmdSlider;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -150,7 +149,6 @@ public:
         opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         freqBtnGroup{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         lfoGroup(context),
-        monoPolyCat(context),
         qualityCat(context),
         algFbCat(context),
         algSelector(context),
@@ -208,7 +206,7 @@ public:
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -233,7 +231,6 @@ public:
     void initParams();
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvelopeCat(int opIndex, juce::Rectangle<int>& rect);

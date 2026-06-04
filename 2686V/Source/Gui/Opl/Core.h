@@ -14,6 +14,7 @@
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/Midi/Midi.h"
 
 class GuiOpl : public GuiBase
 {
@@ -38,7 +39,6 @@ class GuiOpl : public GuiBase
     GuiGroup mainGroup;
     std::array<GuiGroup, Global::Fm::Op2> opGroups;
 
-    GuiCategoryLabel monoPolyCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
     GuiCategoryLabel initCat;
@@ -54,8 +54,7 @@ class GuiOpl : public GuiBase
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
-    // Mono/Poly切り替えスイッチ
-    GuiToggleButton monoModeToggle;
+    GuiComponentMidi midiComponent;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -131,7 +130,6 @@ public:
         GuiBase(context),
         mainGroup(context),
         opGroups{ GuiGroup(context), GuiGroup(context) },
-        monoPolyCat(context),
         qualityCat(context),
         algFbCat(context),
         initCat(context),
@@ -181,7 +179,7 @@ public:
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         adsrCat{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context) },
-        monoModeToggle(context),
+        midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context) },
@@ -206,7 +204,6 @@ public:
     void initParams();
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutMonoModeCat(juce::Rectangle<int>& rect);
     void layoutInitializeCat(Rectangle<int>& rect);
     void layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);

@@ -347,6 +347,8 @@ void GuiRhythm::setup()
     {
         pads[i].setup(*this, i, padNames[i], tabOrder);
     }
+
+    midiComponent.setupComponent(*this, tabOrder);
 }
 
 void GuiRhythm::layout(juce::Rectangle<int> content)
@@ -380,6 +382,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     unisonComponent.layoutComponent(mRect);
+
+    midiComponent.layoutComponent(mRect);
 
     auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
     auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
