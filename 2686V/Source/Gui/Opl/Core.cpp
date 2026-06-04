@@ -226,140 +226,9 @@ void GuiOpl::setup()
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
 
-        catPitchEnv[i].setupSwCategory({ .parent = *this, .title = OplGuiText::Category::visiblePitchAdsr, .invisibleTitle = OplGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
+        pitchEnv[i].setupComponent(*this, paramPrefix, tabOrder, OplPrKey::PitchAdsr::enable, OplGuiText::PitchAdsr::enable, true);
 
-        pitchEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::enable, .title = OplGuiText::PitchAdsr::enable, .isReset = true });
-        pitchEnvEnable[i].setWantsKeyboardFocus(true);
-        pitchEnvEnable[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchAttack[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::ar, .title = OplGuiText::PitchAdsr::ar, .isReset = true });
-        pitchAttack[i].setWantsKeyboardFocus(true);
-        pitchAttack[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchDecay[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::dr , .title = OplGuiText::PitchAdsr::dr, .isReset = true });
-        pitchDecay[i].setWantsKeyboardFocus(true);
-        pitchDecay[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchRelease[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::rr, .title = OplGuiText::PitchAdsr::rr, .isReset = true });
-        pitchRelease[i].setWantsKeyboardFocus(true);
-        pitchRelease[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchStartLevel[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::stl, .title = OplGuiText::PitchAdsr::stl, .isReset = true });
-        pitchStartLevel[i].setWantsKeyboardFocus(true);
-        pitchStartLevel[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchAttackLevel[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::atl, .title = OplGuiText::PitchAdsr::atl, .isReset = true });
-        pitchAttackLevel[i].setWantsKeyboardFocus(true);
-        pitchAttackLevel[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchSustainLevel[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::ssl, .title = OplGuiText::PitchAdsr::ssl, .isReset = true });
-        pitchSustainLevel[i].setWantsKeyboardFocus(true);
-        pitchSustainLevel[i].setExplicitFocusOrder(++tabOrder);
-
-        pitchReleaseLevel[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::PitchAdsr::rll, .title = OplGuiText::PitchAdsr::rll, .isReset = true });
-        pitchReleaseLevel[i].setWantsKeyboardFocus(true);
-        pitchReleaseLevel[i].setExplicitFocusOrder(++tabOrder);
-
-        catSsgSwEnv[i].setupSwCategory({ .parent = *this, .title = OplGuiText::Category::visibleSwEnv, .invisibleTitle = OplGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
-
-        ssgSwEnvEnable[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::enable, .title = OplGuiText::SsgSwEnv::enable, .isReset = true });
-        ssgSwEnvEnable[i].setWantsKeyboardFocus(true);
-        ssgSwEnvEnable[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwSteps[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::steps, .title = OplGuiText::SsgSwEnv::steps, .isReset = true });
-        ssgSwSteps[i].setWantsKeyboardFocus(true);
-        ssgSwSteps[i].setExplicitFocusOrder(++tabOrder);
-        ssgSwSteps[i].onValueChange = [this, i] {
-            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
-
-            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
-            };
-
-        ssgSwEnvLoop[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::loop, .title = OplGuiText::SsgSwEnv::loop, .isReset = true });
-        ssgSwEnvLoop[i].setWantsKeyboardFocus(true);
-        ssgSwEnvLoop[i].setExplicitFocusOrder(++tabOrder);
-        ssgSwEnvLoop[i].onClick = [this, i] {
-            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
-
-            ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
-            ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
-            ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
-            ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
-
-            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
-            };
-
-        ssgSwLoopTo[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::loopTo, .title = OplGuiText::SsgSwEnv::loopTo, .isReset = true });
-        ssgSwLoopTo[i].setWantsKeyboardFocus(true);
-        ssgSwLoopTo[i].setExplicitFocusOrder(++tabOrder);
-        ssgSwLoopTo[i].onValueChange = [this, i] {
-            bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
-
-            applyOpSsgSwEnvLoopValues(i, ssgEnvLoopEnable);
-            };
-
-        ssgSwLoopCount[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::loopCount, .title = OplGuiText::SsgSwEnv::loopCount, .isReset = true });
-        ssgSwLoopCount[i].setWantsKeyboardFocus(true);
-        ssgSwLoopCount[i].setExplicitFocusOrder(++tabOrder);
-
-        bool ssgEnvLoopEnable = ssgSwEnvLoop[i].getToggleState();
-
-        ssgSwLoopTo[i].setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopTo[i].label.setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopCount[i].setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopCount[i].label.setEnabled(ssgEnvLoopEnable);
-
-        ssgSwStartLevel[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::stl, .title = OplGuiText::SsgSwEnv::stl, .isReset = true });
-        ssgSwStartLevel[i].setWantsKeyboardFocus(true);
-        ssgSwStartLevel[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR1[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r1, .title = OplGuiText::SsgSwEnv::r1, .isReset = true });
-        ssgSwR1[i].setWantsKeyboardFocus(true);
-        ssgSwR1[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL1[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l1, .title = OplGuiText::SsgSwEnv::l1, .isReset = true });
-        ssgSwL1[i].setWantsKeyboardFocus(true);
-        ssgSwL1[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR2[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r2, .title = OplGuiText::SsgSwEnv::r2, .isReset = true });
-        ssgSwR2[i].setWantsKeyboardFocus(true);
-        ssgSwR2[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL2[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l2, .title = OplGuiText::SsgSwEnv::l2, .isReset = true });
-        ssgSwL2[i].setWantsKeyboardFocus(true);
-        ssgSwL2[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR3[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r3, .title = OplGuiText::SsgSwEnv::r3, .isReset = true });
-        ssgSwR3[i].setWantsKeyboardFocus(true);
-        ssgSwR3[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL3[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l3, .title = OplGuiText::SsgSwEnv::l3, .isReset = true });
-        ssgSwL3[i].setWantsKeyboardFocus(true);
-        ssgSwL3[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR4[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r4, .title = OplGuiText::SsgSwEnv::r4, .isReset = true });
-        ssgSwR4[i].setWantsKeyboardFocus(true);
-        ssgSwR4[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL4[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l4, .title = OplGuiText::SsgSwEnv::l4, .isReset = true });
-        ssgSwL4[i].setWantsKeyboardFocus(true);
-        ssgSwL4[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR5[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r5, .title = OplGuiText::SsgSwEnv::r5, .isReset = true });
-        ssgSwR5[i].setWantsKeyboardFocus(true);
-        ssgSwR5[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL5[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l5, .title = OplGuiText::SsgSwEnv::l5, .isReset = true });
-        ssgSwL5[i].setWantsKeyboardFocus(true);
-        ssgSwL5[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwR6[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::r6, .title = OplGuiText::SsgSwEnv::r6, .isReset = true });
-        ssgSwR6[i].setWantsKeyboardFocus(true);
-        ssgSwR6[i].setExplicitFocusOrder(++tabOrder);
-
-        ssgSwL6[i].setup({ .parent = *this, .id = paramPrefix + OplPrKey::SsgSwEnv::l6, .title = OplGuiText::SsgSwEnv::l6, .isReset = true });
-        ssgSwL6[i].setWantsKeyboardFocus(true);
-        ssgSwL6[i].setExplicitFocusOrder(++tabOrder);
+        ssgSwEnv[i].setupComponent(*this, paramPrefix, tabOrder, OplPrKey::SsgSwEnv::enable, OplGuiText::SsgSwEnv::enable, true);
 
         catShape[i].setupHwCategory({ .parent = *this, .title = OplGuiText::Category::shape });
 
@@ -536,9 +405,9 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         layoutOpAdsrCat(i, innerRect);
 
-        layoutOpPitchEnvCat(i, innerRect);
+        pitchEnv[i].layoutComponentRow(innerRect);
 
-        layoutOpSsgSwEnvCat(i, innerRect);
+        ssgSwEnv[i].layoutComponentRow(innerRect);
 
         layoutOpLfoCat(i, innerRect);
 
@@ -632,6 +501,8 @@ void GuiOpl::updateOpEnable(int idx, bool enable)
     mask[idx].setEnabled(enable);
     mmlSeparator[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
+    pitchEnv[idx].setEnabled(enable);
+    ssgSwEnv[idx].setEnabled(enable);
 }
 
 void GuiOpl::updateAlgorithmDisplay()
@@ -901,103 +772,6 @@ void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
     }
 }
 
-void GuiOpl::layoutOpPitchEnvCat(int opIndex, juce::Rectangle<int>& rect)
-{
-    layoutRowCategory({ .rowRect = rect, .component = &catPitchEnv[opIndex] });
-
-    bool visible = catPitchEnv[opIndex].isDetailVisible();
-
-    pitchEnvEnable[opIndex].setVisible(visible);
-    pitchAttack[opIndex].setVisibleWithLabel(visible);
-    pitchDecay[opIndex].setVisibleWithLabel(visible);
-    pitchRelease[opIndex].setVisibleWithLabel(visible);
-    pitchStartLevel[opIndex].setVisibleWithLabel(visible);
-    pitchAttackLevel[opIndex].setVisibleWithLabel(visible);
-    pitchSustainLevel[opIndex].setVisibleWithLabel(visible);
-    pitchReleaseLevel[opIndex].setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutRow({ .rowRect = rect, .component = &pitchEnvEnable[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchAttack[opIndex].label, .component = &pitchAttack[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchDecay[opIndex].label, .component = &pitchDecay[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchRelease[opIndex].label, .component = &pitchRelease[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchStartLevel[opIndex].label, .component = &pitchStartLevel[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchAttackLevel[opIndex].label, .component = &pitchAttackLevel[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchSustainLevel[opIndex].label, .component = &pitchSustainLevel[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pitchReleaseLevel[opIndex].label, .component = &pitchReleaseLevel[opIndex] });
-    }
-}
-
-void GuiOpl::layoutOpSsgSwEnvCat(int opIndex, juce::Rectangle<int>& rect)
-{
-    layoutRowCategory({ .rowRect = rect, .component = &catSsgSwEnv[opIndex] });
-
-    bool visible = catSsgSwEnv[opIndex].isDetailVisible();
-
-    ssgSwEnvEnable[opIndex].setVisible(visible);
-    ssgSwSteps[opIndex].setVisibleWithLabel(visible);
-    ssgSwEnvLoop[opIndex].setVisible(visible);
-    ssgSwLoopTo[opIndex].setVisibleWithLabel(visible);
-    ssgSwLoopCount[opIndex].setVisibleWithLabel(visible);
-    ssgSwStartLevel[opIndex].setVisibleWithLabel(visible);
-    ssgSwR1[opIndex].setVisibleWithLabel(visible);
-    ssgSwL1[opIndex].setVisibleWithLabel(visible);
-    ssgSwR2[opIndex].setVisibleWithLabel(visible);
-    ssgSwL2[opIndex].setVisibleWithLabel(visible);
-    ssgSwR3[opIndex].setVisibleWithLabel(visible);
-    ssgSwL3[opIndex].setVisibleWithLabel(visible);
-    ssgSwR4[opIndex].setVisibleWithLabel(visible);
-    ssgSwL4[opIndex].setVisibleWithLabel(visible);
-    ssgSwR5[opIndex].setVisibleWithLabel(visible);
-    ssgSwL5[opIndex].setVisibleWithLabel(visible);
-    ssgSwR6[opIndex].setVisibleWithLabel(visible);
-    ssgSwL6[opIndex].setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutRow({ .rowRect = rect, .component = &ssgSwEnvEnable[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwSteps[opIndex].label, .component = &ssgSwSteps[opIndex] });
-        layoutRow({ .rowRect = rect, .component = &ssgSwEnvLoop[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwLoopTo[opIndex].label, .component = &ssgSwLoopTo[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwLoopCount[opIndex].label, .component = &ssgSwLoopCount[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwStartLevel[opIndex].label, .component = &ssgSwStartLevel[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR1[opIndex].label, .component = &ssgSwR1[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL1[opIndex].label, .component = &ssgSwL1[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR2[opIndex].label, .component = &ssgSwR2[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL2[opIndex].label, .component = &ssgSwL2[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR3[opIndex].label, .component = &ssgSwR3[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL3[opIndex].label, .component = &ssgSwL3[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR4[opIndex].label, .component = &ssgSwR4[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL4[opIndex].label, .component = &ssgSwL4[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR5[opIndex].label, .component = &ssgSwR5[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL5[opIndex].label, .component = &ssgSwL5[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwR6[opIndex].label, .component = &ssgSwR6[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ssgSwL6[opIndex].label, .component = &ssgSwL6[opIndex] });
-    }
-}
-
-void GuiOpl::applyOpSsgSwEnvLoopValues(int opIndex, bool enabled)
-{
-    if (enabled)
-    {
-        int steps = static_cast<int>(ssgSwSteps[opIndex].getValue());
-
-        // Steps が 1 のときはループできないため、Steps を 2 にする
-        if (steps < 2) {
-            steps = 2;
-            ssgSwSteps[opIndex].setValue(steps);
-        }
-
-        int loopTo = static_cast<int>(ssgSwLoopTo[opIndex].getValue());
-
-        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
-        if (steps - loopTo < 2) {
-            ssgSwLoopTo[opIndex].setValue(steps - 2);
-        }
-    }
-}
-
 void GuiOpl::setupGraph(int opIndex)
 {
     addAndMakeVisible(&opGraphs[opIndex]); // グラフを追加
@@ -1015,8 +789,6 @@ void GuiOpl::setupGraph(int opIndex)
     auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
 
     bypass[opIndex].onStateChange = repaintGraph;
-    pitchEnvEnable[opIndex].onStateChange = repaintGraph;
-    ssgSwEnvEnable[opIndex].onStateChange = repaintGraph;
     xof[opIndex].onStateChange = repaintGraph;
 
     rgAr[opIndex].onValueChange = repaintGraph;
@@ -1026,49 +798,8 @@ void GuiOpl::setupGraph(int opIndex)
     rgTl[opIndex].onValueChange = repaintGraph;
     sus[opIndex].onStateChange = repaintGraph;
 
-    pitchAttack[opIndex].onValueChange = repaintGraph;
-    pitchDecay[opIndex].onValueChange = repaintGraph;
-    pitchRelease[opIndex].onValueChange = repaintGraph;
-    pitchStartLevel[opIndex].onValueChange = repaintGraph;
-    pitchAttackLevel[opIndex].onValueChange = repaintGraph;
-    pitchSustainLevel[opIndex].onValueChange = repaintGraph;
-    pitchReleaseLevel[opIndex].onValueChange = repaintGraph;
-
-    ssgSwEnvLoop[opIndex].onStateChange = repaintGraph;
-
-    ssgSwSteps[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
-        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
-        repaintGraph();
-        };
-    ssgSwLoopTo[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
-        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
-        repaintGraph();
-        };
-    ssgSwLoopCount[opIndex].onValueChange = [this, opIndex, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoop[opIndex].getToggleState();
-        applyOpSsgSwEnvLoopValues(opIndex, ssgEnvLoopEnable);
-        repaintGraph();
-        };
-
-    ssgSwR1[opIndex].onValueChange = repaintGraph;
-    ssgSwR2[opIndex].onValueChange = repaintGraph;
-    ssgSwR3[opIndex].onValueChange = repaintGraph;
-    ssgSwR4[opIndex].onValueChange = repaintGraph;
-    ssgSwR5[opIndex].onValueChange = repaintGraph;
-    ssgSwR6[opIndex].onValueChange = repaintGraph;
-
-    ssgSwStartLevel[opIndex].onValueChange = repaintGraph;
-    ssgSwL1[opIndex].onValueChange = repaintGraph;
-    ssgSwL2[opIndex].onValueChange = repaintGraph;
-    ssgSwL3[opIndex].onValueChange = repaintGraph;
-    ssgSwL4[opIndex].onValueChange = repaintGraph;
-    ssgSwL5[opIndex].onValueChange = repaintGraph;
-    ssgSwL6[opIndex].onValueChange = repaintGraph;
+    pitchEnv[opIndex].setupGraph(repaintGraph);
+    ssgSwEnv[opIndex].setupGraph(repaintGraph);
 
     addAndMakeVisible(graphSeparator[opIndex]);
     graphSeparator[opIndex].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
@@ -1141,38 +872,13 @@ void GuiOpl::updateOpGraph(int opIndex)
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        opGraphs[opIndex].updateBypass(!(pitchEnvEnable[opIndex].getToggleState()));
-
-        opGraphs[opIndex].updatePitchEnv(
-            pitchAttack[opIndex],
-            pitchDecay[opIndex],
-            pitchRelease[opIndex],
-            pitchStartLevel[opIndex],
-            pitchAttackLevel[opIndex],
-            pitchSustainLevel[opIndex],
-            pitchReleaseLevel[opIndex],
-            p_curveCore,
-            isCurveMode,
-            posIdx
-        );
+        pitchEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        opGraphs[opIndex].updateBypass(!(ssgSwEnvEnable[opIndex].getToggleState()));
-
-        opGraphs[opIndex].updateSsgSwEnv(
-            ssgSwSteps[opIndex],
-            ssgSwEnvLoop[opIndex],
-            ssgSwLoopTo[opIndex],
-            ssgSwLoopCount[opIndex],
-            { nullptr, &ssgSwR1[opIndex], &ssgSwR2[opIndex], &ssgSwR3[opIndex], &ssgSwR4[opIndex], &ssgSwR5[opIndex], &ssgSwR6[opIndex] },
-            { &ssgSwStartLevel[opIndex], &ssgSwL1[opIndex], &ssgSwL2[opIndex], &ssgSwL3[opIndex], &ssgSwL4[opIndex], &ssgSwL5[opIndex], &ssgSwL6[opIndex] },
-            p_curveCore,
-            isCurveMode,
-            posIdx
-        );
+        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // Amp Env

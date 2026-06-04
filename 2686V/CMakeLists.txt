@@ -551,6 +551,36 @@ set(GUI_COMPONENT_UNISON_FILES
     "Source/Gui/Components/Unison/Unison.cpp"
 )
 
+set(GUI_COMPONENT_FIX_FILES
+    "Source/Gui/Components/Fix/Fix.h"
+    "Source/Gui/Components/Fix/Fix.cpp"
+)
+
+set(GUI_COMPONENT_MULDETUNE_FILES
+    "Source/Gui/Components/MulDetune/MulDetune.h"
+    "Source/Gui/Components/MulDetune/MulDetune.cpp"
+)
+
+set(GUI_COMPONENT_AMPENV_FILES
+    "Source/Gui/Components/AmpEnv/AmpEnv.h"
+    "Source/Gui/Components/AmpEnv/AmpEnv.cpp"
+)
+
+set(GUI_COMPONENT_PITCHENV_FILES
+    "Source/Gui/Components/PitchEnv/PitchEnv.h"
+    "Source/Gui/Components/PitchEnv/PitchEnv.cpp"
+)
+
+set(GUI_COMPONENT_SSGSWENV_FILES
+    "Source/Gui/Components/SsgSwEnv/SsgSwEnv.h"
+    "Source/Gui/Components/SsgSwEnv/SsgSwEnv.cpp"
+)
+
+set(GUI_COMPONENT_PITCHBUTTONS_FILES
+    "Source/Gui/Components/PitchButtons/PitchButtons.h"
+    "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -614,6 +644,12 @@ source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("2686V\\Gui\\Core" FILES ${GUI_FILES})
 source_group("2686V\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
+source_group("2686V\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
+source_group("2686V\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})
+source_group("2686V\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
+source_group("2686V\\Gui\\Components\\PitchEnv" FILES ${GUI_COMPONENT_PITCHENV_FILES})
+source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_FILES})
+source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})
@@ -734,6 +770,12 @@ function(create_cyross_plugin TARGET_NAME)
         ${ABOUT_GUI_FILES}
         ${CURVE_GUI_FILES}
         ${GUI_COMPONENT_UNISON_FILES}
+        ${GUI_COMPONENT_FIX_FILES}
+        ${GUI_COMPONENT_MULDETUNE_FILES}
+        ${GUI_COMPONENT_AMPENV_FILES}
+        ${GUI_COMPONENT_PITCHENV_FILES}
+        ${GUI_COMPONENT_SSGSWENV_FILES}
+        ${GUI_COMPONENT_PITCHBUTTONS_FILES}
         ${DOCUMENT_FILES}
     )
 

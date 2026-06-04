@@ -69,44 +69,6 @@ static std::vector<SelectItem> ssgDmItems = {
     {.name = "1: Variable (Slider)", .value = 2 },
 };
 
-static std::vector<SelectItem> multems = {
-    {.name = " 0: x  0.5",    .value = 1 },
-    {.name = " 1: x  0.891",  .value = 2 },
-    {.name = " 2: x  1",      .value = 3 },
-    {.name = " 3: x  1.414",  .value = 4 },
-    {.name = " 4: x  1.498",  .value = 5 },
-    {.name = " 5: x  1.581",  .value = 6 },
-    {.name = " 6: x  1.781",  .value = 7 },
-    {.name = " 7: x  2",      .value = 8 },
-    {.name = " 8: x  3",      .value = 9 },
-    {.name = " 9: x  4",      .value = 10 },
-    {.name = "10: x  5",      .value = 11 },
-    {.name = "11: x  6",      .value = 12 },
-    {.name = "12: x  7",      .value = 13 },
-    {.name = "13: x  8",      .value = 14 },
-    {.name = "14: x  9",      .value = 15 },
-    {.name = "15: x 10",      .value = 16 },
-    {.name = "16: x 11",      .value = 17 },
-    {.name = "17: x 12",      .value = 18 },
-    {.name = "18: x 13",      .value = 19 },
-    {.name = "19: x 14",      .value = 20 },
-    {.name = "20: x 15",      .value = 21 },
-    {.name = "21: Use Ratio", .value = 22 }
-};
-
-// DT (デチューン1) 用のコンボボックスアイテム
-// レジスタ仕様: 0=0, 1=+1, 2=+2, 3=+3, 4=0, 5=-1, 6=-2, 7=-3
-static std::vector<SelectItem> dtItems = {
-    {.name = " 0", .value = 1 },
-    {.name = "-3", .value = 2 },
-    {.name = "-2", .value = 3 },
-    {.name = "-1", .value = 4 },
-    {.name = " 0", .value = 5 }, // 実質0ですが、レジスタ4として一応用意
-    {.name = "+1", .value = 6 },
-    {.name = "+2", .value = 7 },
-    {.name = "+3", .value = 8 }
-};
-
 static std::vector<SelectItem> lfoPmShapeItems = {
     {.name = "0: Sine",                .value = 1 },
     {.name = "1: Saw Up",              .value = 2 },
@@ -159,184 +121,13 @@ void GuiSsg::setup()
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 
-    adsrCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleAdsr, .invisibleTitle = SsgGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    ampEnvComponent.setupComponent(*this, code, tabOrder);
 
-    adsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::adsr + SsgPrKey::bypass, .title = SsgGuiText::Adsr::bypass, .isReset = true });
-    adsrBypassButton.setWantsKeyboardFocus(true);
-    adsrBypassButton.setExplicitFocusOrder(++tabOrder);
+    pitchEnvComponent.setupComponent(*this, code, tabOrder, SsgPrKey::pitchAdsr + SsgPrKey::bypass, SsgGuiText::PitchAdsr::bypass);
 
-    startLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::stl, .title = SsgGuiText::Adsr::stl, .isReset = true });
-    startLevelSlider.setWantsKeyboardFocus(true);
-    startLevelSlider.setExplicitFocusOrder(++tabOrder);
+    ssgSwEnvComponent.setupComponent(*this, code, tabOrder, SsgPrKey::ssgSwEnv + SsgPrKey::bypass, SsgGuiText::SsgSwEnv::bypass);
 
-    attackSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::ar, .title = SsgGuiText::Adsr::ar, .isReset = true });
-    attackSlider.setWantsKeyboardFocus(true);
-    attackSlider.setExplicitFocusOrder(++tabOrder);
-
-    decaySlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::dr , .title = SsgGuiText::Adsr::dr, .isReset = true });
-    decaySlider.setWantsKeyboardFocus(true);
-    decaySlider.setExplicitFocusOrder(++tabOrder);
-
-    sustainSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::sl, .title = SsgGuiText::Adsr::sl, .isReset = true });
-    sustainSlider.setWantsKeyboardFocus(true);
-    sustainSlider.setExplicitFocusOrder(++tabOrder);
-
-    releaseSlider.setup({ .parent = *this, .id = code + SsgPrKey::Adsr::rr, .title = SsgGuiText::Adsr::rr, .isReset = true });
-    releaseSlider.setWantsKeyboardFocus(true);
-    releaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visiblePitchAdsr, .invisibleTitle = SsgGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
-
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::pitchAdsr + SsgPrKey::bypass, .title = SsgGuiText::PitchAdsr::bypass, .isReset = true });
-    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
-    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::ar, .title = SsgGuiText::PitchAdsr::ar, .isReset = true });
-    pitchAttackSlider.setWantsKeyboardFocus(true);
-    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchDecaySlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::dr , .title = SsgGuiText::PitchAdsr::dr, .isReset = true });
-    pitchDecaySlider.setWantsKeyboardFocus(true);
-    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::rr, .title = SsgGuiText::PitchAdsr::rr, .isReset = true });
-    pitchReleaseSlider.setWantsKeyboardFocus(true);
-    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchStartLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::stl, .title = SsgGuiText::PitchAdsr::stl, .isReset = true });
-    pitchStartLevelSlider.setWantsKeyboardFocus(true);
-    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::atl, .title = SsgGuiText::PitchAdsr::atl, .isReset = true });
-    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
-    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::ssl, .title = SsgGuiText::PitchAdsr::ssl, .isReset = true });
-    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
-    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::PitchAdsr::rll, .title = SsgGuiText::PitchAdsr::rll, .isReset = true });
-    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
-    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwEnvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleSwEnv, .invisibleTitle = SsgGuiText::Category::invisibleSwEnv, .enableChangeDetailVisible = true });
-
-    ssgSwEnvBypassButton.setup({ .parent = *this, .id = code + SsgPrKey::ssgSwEnv + SsgPrKey::bypass, .title = SsgGuiText::SsgSwEnv::bypass, .isReset = true });
-    ssgSwEnvBypassButton.setWantsKeyboardFocus(true);
-    ssgSwEnvBypassButton.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwStepsSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::steps, .title = SsgGuiText::SsgSwEnv::steps, .isReset = true });
-    ssgSwStepsSlider.setWantsKeyboardFocus(true);
-    ssgSwStepsSlider.setExplicitFocusOrder(++tabOrder);
-    ssgSwStepsSlider.onValueChange = [this] {
-        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-        };
-
-    ssgSwEnvLoopButton.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loop, .title = SsgGuiText::SsgSwEnv::loop, .isReset = true });
-    ssgSwEnvLoopButton.setWantsKeyboardFocus(true);
-    ssgSwEnvLoopButton.setExplicitFocusOrder(++tabOrder);
-    ssgSwEnvLoopButton.onClick = [this] {
-		bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-
-        ssgSwLoopToSlider.setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopToSlider.label.setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopCountSlider.setEnabled(ssgEnvLoopEnable);
-        ssgSwLoopCountSlider.label.setEnabled(ssgEnvLoopEnable);
-
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-    };
-
-    ssgSwLoopToSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loopTo, .title = SsgGuiText::SsgSwEnv::loopTo, .isReset = true });
-    ssgSwLoopToSlider.setWantsKeyboardFocus(true);
-    ssgSwLoopToSlider.setExplicitFocusOrder(++tabOrder);
-    ssgSwLoopToSlider.onValueChange = [this] {
-        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-        };
-
-    ssgSwLoopCountSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::loopCount, .title = SsgGuiText::SsgSwEnv::loopCount, .isReset = true });
-    ssgSwLoopCountSlider.setWantsKeyboardFocus(true);
-    ssgSwLoopCountSlider.setExplicitFocusOrder(++tabOrder);
-
-    bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-
-    ssgSwLoopToSlider.setEnabled(ssgEnvLoopEnable);
-    ssgSwLoopToSlider.label.setEnabled(ssgEnvLoopEnable);
-    ssgSwLoopCountSlider.setEnabled(ssgEnvLoopEnable);
-    ssgSwLoopCountSlider.label.setEnabled(ssgEnvLoopEnable);
-
-    ssgSwStartLevelSlider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::stl, .title = SsgGuiText::SsgSwEnv::stl, .isReset = true });
-    ssgSwStartLevelSlider.setWantsKeyboardFocus(true);
-    ssgSwStartLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR1Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r1, .title = SsgGuiText::SsgSwEnv::r1, .isReset = true });
-    ssgSwR1Slider.setWantsKeyboardFocus(true);
-    ssgSwR1Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL1Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l1, .title = SsgGuiText::SsgSwEnv::l1, .isReset = true });
-    ssgSwL1Slider.setWantsKeyboardFocus(true);
-    ssgSwL1Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR2Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r2, .title = SsgGuiText::SsgSwEnv::r2, .isReset = true });
-    ssgSwR2Slider.setWantsKeyboardFocus(true);
-    ssgSwR2Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL2Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l2, .title = SsgGuiText::SsgSwEnv::l2, .isReset = true });
-    ssgSwL2Slider.setWantsKeyboardFocus(true);
-    ssgSwL2Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR3Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r3, .title = SsgGuiText::SsgSwEnv::r3, .isReset = true });
-    ssgSwR3Slider.setWantsKeyboardFocus(true);
-    ssgSwR3Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL3Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l3, .title = SsgGuiText::SsgSwEnv::l3, .isReset = true });
-    ssgSwL3Slider.setWantsKeyboardFocus(true);
-    ssgSwL3Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR4Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r4, .title = SsgGuiText::SsgSwEnv::r4, .isReset = true });
-    ssgSwR4Slider.setWantsKeyboardFocus(true);
-    ssgSwR4Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL4Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l4, .title = SsgGuiText::SsgSwEnv::l4, .isReset = true });
-    ssgSwL4Slider.setWantsKeyboardFocus(true);
-    ssgSwL4Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR5Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r5, .title = SsgGuiText::SsgSwEnv::r5, .isReset = true });
-    ssgSwR5Slider.setWantsKeyboardFocus(true);
-    ssgSwR5Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL5Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l5, .title = SsgGuiText::SsgSwEnv::l5, .isReset = true });
-    ssgSwL5Slider.setWantsKeyboardFocus(true);
-    ssgSwL5Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwR6Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::r6, .title = SsgGuiText::SsgSwEnv::r6, .isReset = true });
-    ssgSwR6Slider.setWantsKeyboardFocus(true);
-    ssgSwR6Slider.setExplicitFocusOrder(++tabOrder);
-
-    ssgSwL6Slider.setup({ .parent = *this, .id = code + SsgPrKey::SsgSwEnv::l6, .title = SsgGuiText::SsgSwEnv::l6, .isReset = true });
-    ssgSwL6Slider.setWantsKeyboardFocus(true);
-    ssgSwL6Slider.setExplicitFocusOrder(++tabOrder);
-
-    detuneCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleDetune, .invisibleTitle = SsgGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
-
-    mul.setup({ .parent = *this, .id = code + SsgPrKey::mul, .title = SsgGuiText::Ssg::Detune::Mul, .items = multems, .isReset = true });
-    mul.setWantsKeyboardFocus(true);
-    mul.setExplicitFocusOrder(++tabOrder);
-
-    mulRatio.setup({ .parent = *this, .id = code + SsgPrKey::mulRatio, .title = SsgGuiText::Ssg::Detune::MulRatio, .isReset = true });
-    mulRatio.setWantsKeyboardFocus(true);
-    mulRatio.setExplicitFocusOrder(++tabOrder);
-
-    dt1.setup({ .parent = *this, .id = code + SsgPrKey::dt, .title = SsgGuiText::Ssg::Detune::Dt1, .items = dtItems, .isReset = true });
-    dt1.setWantsKeyboardFocus(true);
-    dt1.setExplicitFocusOrder(++tabOrder);
-
-    dt2.setup({ .parent = *this, .id = code + SsgPrKey::dt2, .title = SsgGuiText::Ssg::Detune::Dt2, .isReset = true });
-    dt2.setWantsKeyboardFocus(true);
-    dt2.setExplicitFocusOrder(++tabOrder);
+    mulDetuneComponent.setupComponent(*this, code, tabOrder);
 
     hwEnvCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
 
@@ -552,15 +343,15 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutGraph(mRect);
     updateGraph();
 
-    layoutAdsrCat(mRect);
+    ampEnvComponent.layoutComponent(mRect);
 
-    layoutPitchEnvCat(mRect);
+    pitchEnvComponent.layoutComponent(mRect);
 
-    layoutDetuneCat(mRect);
+    mulDetuneComponent.layoutComponent(mRect);
 
     layoutHwEnvCat(mRect);
 
-	layoutSwEnvCat(mRect);
+    ssgSwEnvComponent.layoutComponent(mRect);
 
     layoutLfoCat(mRect);
 
@@ -720,78 +511,6 @@ void GuiSsg::layoutMonoModeCat(juce::Rectangle<int>& rect) {
     }
 }
 
-void GuiSsg::layoutAdsrCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
-
-    bool visible = adsrCat.isDetailVisible();
-
-    adsrBypassButton.setVisible(visible);
-    startLevelSlider.setVisibleWithLabel(visible);
-    attackSlider.setVisibleWithLabel(visible);
-    decaySlider.setVisibleWithLabel(visible);
-    sustainSlider.setVisibleWithLabel(visible);
-    releaseSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
-        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
-        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
-        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
-        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
-    }
-}
-
-void GuiSsg::layoutPitchEnvCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
-
-    bool visible = pitchAdsrCat.isDetailVisible();
-
-    pitchAdsrBypassButton.setVisible(visible);
-    pitchAttackSlider.setVisibleWithLabel(visible);
-    pitchDecaySlider.setVisibleWithLabel(visible);
-    pitchReleaseSlider.setVisibleWithLabel(visible);
-    pitchStartLevelSlider.setVisibleWithLabel(visible);
-    pitchAttackLevelSlider.setVisibleWithLabel(visible);
-    pitchSustainLevelSlider.setVisibleWithLabel(visible);
-    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
-        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
-    }
-}
-
-void GuiSsg::layoutDetuneCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &detuneCat });
-
-    bool visible = detuneCat.isDetailVisible();
-
-    mul.setVisibleWithLabel(visible);
-    mulRatio.setVisibleWithLabel(visible);
-    dt1.setVisibleWithLabel(visible);
-    dt2.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &mul.label, .component = &mul });
-        layoutMain({ .mainRect = rect, .label = &mulRatio.label, .component = &mulRatio });
-        layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
-        layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
-    }
-}
-
 void GuiSsg::layoutLfoCat(juce::Rectangle<int>& rect)
 {
     layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
@@ -849,75 +568,6 @@ void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiSsg::layoutSwEnvCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &ssgSwEnvCat });
-
-    bool visible = ssgSwEnvCat.isDetailVisible();
-
-	ssgSwEnvBypassButton.setVisible(visible);
-	ssgSwStepsSlider.setVisibleWithLabel(visible);
-	ssgSwEnvLoopButton.setVisible(visible);
-	ssgSwLoopToSlider.setVisibleWithLabel(visible);
-	ssgSwLoopCountSlider.setVisibleWithLabel(visible);
-	ssgSwStartLevelSlider.setVisibleWithLabel(visible);
-	ssgSwR1Slider.setVisibleWithLabel(visible);
-	ssgSwL1Slider.setVisibleWithLabel(visible);
-	ssgSwR2Slider.setVisibleWithLabel(visible);
-	ssgSwL2Slider.setVisibleWithLabel(visible);
-	ssgSwR3Slider.setVisibleWithLabel(visible);
-	ssgSwL3Slider.setVisibleWithLabel(visible);
-    ssgSwR4Slider.setVisibleWithLabel(visible);
-	ssgSwL4Slider.setVisibleWithLabel(visible);
-	ssgSwR5Slider.setVisibleWithLabel(visible);
-    ssgSwL5Slider.setVisibleWithLabel(visible);
-    ssgSwR6Slider.setVisibleWithLabel(visible);
-    ssgSwL6Slider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &ssgSwEnvBypassButton });
-        layoutMain({ .mainRect = rect, .label = &ssgSwStepsSlider.label, .component = &ssgSwStepsSlider });
-        layoutMain({ .mainRect = rect, .component = &ssgSwEnvLoopButton });
-        layoutMain({ .mainRect = rect, .label = &ssgSwLoopToSlider.label, .component = &ssgSwLoopToSlider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwLoopCountSlider.label, .component = &ssgSwLoopCountSlider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwStartLevelSlider.label, .component = &ssgSwStartLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR1Slider.label, .component = &ssgSwR1Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL1Slider.label, .component = &ssgSwL1Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR2Slider.label, .component = &ssgSwR2Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL2Slider.label, .component = &ssgSwL2Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR3Slider.label, .component = &ssgSwR3Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL3Slider.label, .component = &ssgSwL3Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR4Slider.label, .component = &ssgSwR4Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL4Slider.label, .component = &ssgSwL4Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR5Slider.label, .component = &ssgSwR5Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL5Slider.label, .component = &ssgSwL5Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwR6Slider.label, .component = &ssgSwR6Slider });
-        layoutMain({ .mainRect = rect, .label = &ssgSwL6Slider.label, .component = &ssgSwL6Slider });
-    }
-}
-
-void GuiSsg::applySsgSwEnvLoopValues(bool enabled)
-{
-    if (enabled)
-    {
-        int steps = static_cast<int>(ssgSwStepsSlider.getValue());
-
-        // Steps が 1 のときはループできないため、Steps を 2 にする
-        if (steps < 2) {
-            steps = 2;
-            ssgSwStepsSlider.setValue(steps);
-        }
-
-        int loopTo = static_cast<int>(ssgSwLoopToSlider.getValue());
-
-        // Steps - LoopTo が 2未満のときは、LoopTo を Steps - 2 にする
-        if (steps - loopTo < 2) {
-            ssgSwLoopToSlider.setValue(steps - 2);
-        }
-    }
-}
-
 void GuiSsg::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
@@ -934,59 +584,11 @@ void GuiSsg::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
 
-    adsrBypassButton.onStateChange = repaintGraph;
-    pitchAdsrBypassButton.onStateChange = repaintGraph;
-    ssgSwEnvBypassButton.onStateChange = repaintGraph;
+    ampEnvComponent.setupGraph(repaintGraph);
 
-    startLevelSlider.onValueChange = repaintGraph;
-    attackSlider.onValueChange = repaintGraph;
-    decaySlider.onValueChange = repaintGraph;
-    sustainSlider.onValueChange = repaintGraph;
-    releaseSlider.onValueChange = repaintGraph;
+    pitchEnvComponent.setupGraph(repaintGraph);
 
-    pitchAttackSlider.onValueChange = repaintGraph;
-    pitchDecaySlider.onValueChange = repaintGraph;
-    pitchReleaseSlider.onValueChange = repaintGraph;
-    pitchStartLevelSlider.onValueChange = repaintGraph;
-    pitchAttackLevelSlider.onValueChange = repaintGraph;
-    pitchSustainLevelSlider.onValueChange = repaintGraph;
-    pitchReleaseLevelSlider.onValueChange = repaintGraph;
-
-    ssgSwEnvLoopButton.onStateChange = repaintGraph;
-
-    ssgSwStepsSlider.onValueChange = [this, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-        repaintGraph();
-        };
-    ssgSwLoopToSlider.onValueChange = [this, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-        repaintGraph();
-        };
-    ssgSwLoopCountSlider.onValueChange = [this, repaintGraph]() {
-        // 既存のループ設定ロジックを呼んだ後に再描画
-        bool ssgEnvLoopEnable = ssgSwEnvLoopButton.getToggleState();
-        applySsgSwEnvLoopValues(ssgEnvLoopEnable);
-        repaintGraph();
-        };
-
-    ssgSwR1Slider.onValueChange = repaintGraph;
-    ssgSwR2Slider.onValueChange = repaintGraph;
-    ssgSwR3Slider.onValueChange = repaintGraph;
-    ssgSwR4Slider.onValueChange = repaintGraph;
-    ssgSwR5Slider.onValueChange = repaintGraph;
-    ssgSwR6Slider.onValueChange = repaintGraph;
-
-    ssgSwStartLevelSlider.onValueChange = repaintGraph;
-    ssgSwL1Slider.onValueChange = repaintGraph;
-    ssgSwL2Slider.onValueChange = repaintGraph;
-    ssgSwL3Slider.onValueChange = repaintGraph;
-    ssgSwL4Slider.onValueChange = repaintGraph;
-    ssgSwL5Slider.onValueChange = repaintGraph;
-    ssgSwL6Slider.onValueChange = repaintGraph;
+    ssgSwEnvComponent.setupGraph(repaintGraph);
 
     addAndMakeVisible(graphSeparator);
     graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
@@ -1038,54 +640,18 @@ void GuiSsg::updateGraph()
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        graph.updateBypass(pitchAdsrBypassButton.getToggleState());
-
-        graph.updatePitchEnv(
-            pitchAttackSlider,
-            pitchDecaySlider,
-            pitchReleaseSlider,
-            pitchStartLevelSlider,
-            pitchAttackLevelSlider,
-            pitchSustainLevelSlider,
-            pitchReleaseLevelSlider,
-            p_curveCore,
-            isCurveMode,
-            0
-        );
+        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        graph.updateBypass(ssgSwEnvBypassButton.getToggleState());
-
-        graph.updateSsgSwEnv(
-            ssgSwStepsSlider,
-            ssgSwEnvLoopButton,
-            ssgSwLoopToSlider,
-            ssgSwLoopCountSlider,
-            { nullptr, &ssgSwR1Slider, &ssgSwR2Slider, &ssgSwR3Slider, &ssgSwR4Slider, &ssgSwR5Slider, &ssgSwR6Slider },
-            { &ssgSwStartLevelSlider, &ssgSwL1Slider, &ssgSwL2Slider, &ssgSwL3Slider, &ssgSwL4Slider, &ssgSwL5Slider, &ssgSwL6Slider },
-            p_curveCore,
-            isCurveMode,
-            0
-        );
+        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        graph.updateBypass(adsrBypassButton.getToggleState());
-
-        graph.updateAmpEnv(
-            startLevelSlider,
-            attackSlider,
-            decaySlider,
-            sustainSlider,
-            releaseSlider,
-            p_curveCore,
-            isCurveMode,
-            0
-        );
+        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
 }

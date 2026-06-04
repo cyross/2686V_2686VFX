@@ -145,65 +145,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     setupPanBtn(panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
     setupPanBtn(panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
 
-    adsrCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visibleAdsr, .invisibleTitle = RhythmGuiText::Category::invisibleAdsr, .enableChangeDetailVisible = true });
+    ampEnvComponent.setupComponent(*this, padPrefix, tabOrder);
 
-    adsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::adsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::Adsr::bypass, .isReset = true });
-    adsrBypassButton.setWantsKeyboardFocus(true);
-    adsrBypassButton.setExplicitFocusOrder(++tabOrder);
-
-    startLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::stl, .title = RhythmGuiText::Rhythm::Pad::Adsr::stl, .isReset = true });
-    startLevelSlider.setWantsKeyboardFocus(true);
-    startLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    attackSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::ar, .title = RhythmGuiText::Rhythm::Pad::Adsr::ar, .isReset = true });
-    attackSlider.setWantsKeyboardFocus(true);
-    attackSlider.setExplicitFocusOrder(++tabOrder);
-
-    decaySlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::dr , .title = RhythmGuiText::Rhythm::Pad::Adsr::dr, .isReset = true });
-    decaySlider.setWantsKeyboardFocus(true);
-    decaySlider.setExplicitFocusOrder(++tabOrder);
-
-    sustainSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::sl, .title = RhythmGuiText::Rhythm::Pad::Adsr::sl, .isReset = true });
-    sustainSlider.setWantsKeyboardFocus(true);
-    sustainSlider.setExplicitFocusOrder(++tabOrder);
-
-    releaseSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::Adsr::rr, .title = RhythmGuiText::Rhythm::Pad::Adsr::rr, .isReset = true });
-    releaseSlider.setWantsKeyboardFocus(true);
-    releaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAdsrCat.setupSwCategory({ .parent = *this, .title = RhythmGuiText::Category::visiblePitchAdsr, .invisibleTitle = RhythmGuiText::Category::invisiblePitchAdsr, .enableChangeDetailVisible = true });
-
-    pitchAdsrBypassButton.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass, .isReset = true });
-    pitchAdsrBypassButton.setWantsKeyboardFocus(true);
-    pitchAdsrBypassButton.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::ar, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::ar, .isReset = true });
-    pitchAttackSlider.setWantsKeyboardFocus(true);
-    pitchAttackSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchDecaySlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::dr , .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::dr, .isReset = true });
-    pitchDecaySlider.setWantsKeyboardFocus(true);
-    pitchDecaySlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::rr, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::rr, .isReset = true });
-    pitchReleaseSlider.setWantsKeyboardFocus(true);
-    pitchReleaseSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchStartLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::stl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::stl, .isReset = true });
-    pitchStartLevelSlider.setWantsKeyboardFocus(true);
-    pitchStartLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchAttackLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::atl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::atl, .isReset = true });
-    pitchAttackLevelSlider.setWantsKeyboardFocus(true);
-    pitchAttackLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchSustainLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::ssl, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::ssl, .isReset = true });
-    pitchSustainLevelSlider.setWantsKeyboardFocus(true);
-    pitchSustainLevelSlider.setExplicitFocusOrder(++tabOrder);
-
-    pitchReleaseLevelSlider.setup({ .parent = *this, .id = padPrefix + RhythmPrKey::Pad::PitchAdsr::rll, .title = RhythmGuiText::Rhythm::Pad::PitchAdsr::rll, .isReset = true });
-    pitchReleaseLevelSlider.setWantsKeyboardFocus(true);
-    pitchReleaseLevelSlider.setExplicitFocusOrder(++tabOrder);
+    pitchEnvComponent.setupComponent(*this, padPrefix, tabOrder, RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass);
 
     setupGraph();
     updateGraph();
@@ -229,9 +173,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutPanCat(padRect);
 
-    layoutAdsrCat(padRect);
+    ampEnvComponent.layoutComponent(padRect);
 
-	layoutPitchEnvCat(padRect);
+    pitchEnvComponent.layoutComponent(padRect);
 
     layoutQualityCat(padRect);
 }
@@ -284,58 +228,6 @@ void RhythmPadGui::layoutPanCat(juce::Rectangle<int>& rect)
     }
 }
 
-void RhythmPadGui::layoutAdsrCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &adsrCat });
-
-    bool visible = adsrCat.isDetailVisible();
-
-    adsrBypassButton.setVisible(visible);
-    startLevelSlider.setVisibleWithLabel(visible);
-    attackSlider.setVisibleWithLabel(visible);
-    decaySlider.setVisibleWithLabel(visible);
-    sustainSlider.setVisibleWithLabel(visible);
-    releaseSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &adsrBypassButton });
-        layoutMain({ .mainRect = rect, .label = &startLevelSlider.label, .component = &startLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &attackSlider.label, .component = &attackSlider });
-        layoutMain({ .mainRect = rect, .label = &decaySlider.label, .component = &decaySlider });
-        layoutMain({ .mainRect = rect, .label = &sustainSlider.label, .component = &sustainSlider });
-        layoutMain({ .mainRect = rect, .label = &releaseSlider.label, .component = &releaseSlider });
-    }
-}
-
-void RhythmPadGui::layoutPitchEnvCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &pitchAdsrCat });
-
-    bool visible = pitchAdsrCat.isDetailVisible();
-
-    pitchAdsrBypassButton.setVisible(visible);
-    pitchAttackSlider.setVisibleWithLabel(visible);
-    pitchDecaySlider.setVisibleWithLabel(visible);
-    pitchReleaseSlider.setVisibleWithLabel(visible);
-    pitchStartLevelSlider.setVisibleWithLabel(visible);
-    pitchAttackLevelSlider.setVisibleWithLabel(visible);
-    pitchSustainLevelSlider.setVisibleWithLabel(visible);
-    pitchReleaseLevelSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &pitchAdsrBypassButton });
-        layoutMain({ .mainRect = rect, .label = &pitchAttackSlider.label, .component = &pitchAttackSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchDecaySlider.label, .component = &pitchDecaySlider });
-        layoutMain({ .mainRect = rect, .label = &pitchReleaseSlider.label, .component = &pitchReleaseSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchStartLevelSlider.label, .component = &pitchStartLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchAttackLevelSlider.label, .component = &pitchAttackLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchSustainLevelSlider.label, .component = &pitchSustainLevelSlider });
-        layoutMain({ .mainRect = rect, .label = &pitchReleaseLevelSlider.label, .component = &pitchReleaseLevelSlider });
-    }
-}
-
 void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
 
@@ -367,22 +259,9 @@ void RhythmPadGui::setupGraph()
 
     auto repaintGraph = [this]() { updateGraph(); };
 
-    adsrBypassButton.onStateChange = repaintGraph;
-    pitchAdsrBypassButton.onStateChange = repaintGraph;
+    ampEnvComponent.setupGraph(repaintGraph);
 
-    startLevelSlider.onValueChange = repaintGraph;
-    attackSlider.onValueChange = repaintGraph;
-    decaySlider.onValueChange = repaintGraph;
-    sustainSlider.onValueChange = repaintGraph;
-    releaseSlider.onValueChange = repaintGraph;
-
-    pitchAttackSlider.onValueChange = repaintGraph;
-    pitchDecaySlider.onValueChange = repaintGraph;
-    pitchReleaseSlider.onValueChange = repaintGraph;
-    pitchStartLevelSlider.onValueChange = repaintGraph;
-    pitchAttackLevelSlider.onValueChange = repaintGraph;
-    pitchSustainLevelSlider.onValueChange = repaintGraph;
-    pitchReleaseLevelSlider.onValueChange = repaintGraph;
+    pitchEnvComponent.setupGraph(repaintGraph);
 
     addAndMakeVisible(graphSeparator);
     graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
@@ -432,37 +311,10 @@ void RhythmPadGui::updateGraph()
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        graph.updateBypass(pitchAdsrBypassButton.getToggleState());
-
-        graph.updatePitchEnv(
-            pitchAttackSlider,
-            pitchDecaySlider,
-            pitchReleaseSlider,
-            pitchStartLevelSlider,
-            pitchAttackLevelSlider,
-            pitchSustainLevelSlider,
-            pitchReleaseLevelSlider,
-            p_curveCore,
-            isCurveMode,
-            0
-        );
+        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
-    // =============================================================
-    // Amp Env
-    // =============================================================
     else {
-        graph.updateBypass(adsrBypassButton.getToggleState());
-
-        graph.updateAmpEnv(
-            startLevelSlider,
-            attackSlider,
-            decaySlider,
-            sustainSlider,
-            releaseSlider,
-            p_curveCore,
-            isCurveMode,
-            0
-        );
+        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
 }
 

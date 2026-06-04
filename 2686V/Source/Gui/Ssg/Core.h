@@ -10,6 +10,10 @@
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
 #include "../../Gui/Components/Unison/Unison.h"
+#include "../../Gui/Components/MulDetune/MulDetune.h"
+#include "../../Gui/Components/AmpEnv/AmpEnv.h"
+#include "../../Gui/Components/PitchEnv/PitchEnv.h"
+#include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 
 class GuiSsg : public GuiBase
 {
@@ -55,52 +59,16 @@ class GuiSsg : public GuiBase
     GuiComponentUnison unisonComponent;
 
     // Amp ADSR
-    GuiCategoryLabel adsrCat;
-    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
-    GuiSlider startLevelSlider;
-    GuiSlider attackSlider;
-    GuiSlider decaySlider;
-    GuiSlider sustainSlider;
-    GuiSlider releaseSlider;
+    GuiComponentAmpEnv ampEnvComponent;
 
     // Pitch ADSR
-    GuiCategoryLabel pitchAdsrCat;
-    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
-    GuiSlider pitchAttackSlider;
-    GuiSlider pitchDecaySlider;
-    GuiSlider pitchReleaseSlider;
-    GuiSlider pitchStartLevelSlider;
-    GuiSlider pitchAttackLevelSlider;
-    GuiSlider pitchSustainLevelSlider;
-    GuiSlider pitchReleaseLevelSlider;
+    GuiComponentPitchEnv pitchEnvComponent;
 
     // SSG SW Env
-    GuiCategoryLabel ssgSwEnvCat;
-    GuiToggleButton ssgSwEnvBypassButton; // SSG SW Env Bypass Switch
-    GuiSlider ssgSwStepsSlider;
-    GuiToggleButton ssgSwEnvLoopButton;
-    GuiSlider ssgSwLoopToSlider;
-    GuiSlider ssgSwLoopCountSlider;
-    GuiSlider ssgSwStartLevelSlider;
-    GuiSlider ssgSwR1Slider;
-    GuiSlider ssgSwL1Slider;
-    GuiSlider ssgSwR2Slider;
-    GuiSlider ssgSwL2Slider;
-    GuiSlider ssgSwR3Slider;
-    GuiSlider ssgSwL3Slider;
-    GuiSlider ssgSwR4Slider;
-    GuiSlider ssgSwL4Slider;
-    GuiSlider ssgSwR5Slider;
-    GuiSlider ssgSwL5Slider;
-    GuiSlider ssgSwR6Slider;
-    GuiSlider ssgSwL6Slider;
+    GuiComponentSsgSwEnv ssgSwEnvComponent;
 
     // Detune
-    GuiCategoryLabel detuneCat;
-    GuiComboBox mul;
-    GuiSlider mulRatio;
-    GuiComboBox dt1;
-    GuiSlider dt2;
+    GuiComponentMulDetune mulDetuneComponent;
 
     // LFO
     GuiCategoryLabel lfoCat;
@@ -187,46 +155,10 @@ public:
         bitSelector(context),
         rateSelector(context),
         unisonComponent(context),
-        adsrCat(context),
-        adsrBypassButton(context),
-		startLevelSlider(context),
-        attackSlider(context),
-        decaySlider(context),
-        sustainSlider(context),
-        releaseSlider(context),
-		pitchAdsrCat(context),
-        pitchAdsrBypassButton(context),
-        pitchAttackSlider(context),
-		pitchDecaySlider(context),
-		pitchReleaseSlider(context),
-		pitchStartLevelSlider(context),
-		pitchAttackLevelSlider(context),
-		pitchSustainLevelSlider(context),
-		pitchReleaseLevelSlider(context),
-		ssgSwEnvCat(context),
-		ssgSwEnvBypassButton(context),
-		ssgSwStepsSlider(context),
-		ssgSwEnvLoopButton(context),
-		ssgSwLoopToSlider(context),
-		ssgSwLoopCountSlider(context),
-		ssgSwStartLevelSlider(context),
-		ssgSwR1Slider(context),
-		ssgSwL1Slider(context),
-		ssgSwR2Slider(context),
-		ssgSwL2Slider(context),
-		ssgSwR3Slider(context),
-		ssgSwL3Slider(context),
-		ssgSwR4Slider(context),
-		ssgSwL4Slider(context),
-		ssgSwR5Slider(context),
-        ssgSwL5Slider(context),
-        ssgSwR6Slider(context),
-        ssgSwL6Slider(context),
-        detuneCat(context),
-        mul(context),
-        mulRatio(context),
-        dt1(context),
-		dt2(context),
+        ampEnvComponent(context),
+        pitchEnvComponent(context),
+        ssgSwEnvComponent(context),
+		mulDetuneComponent(context),
         lfoCat(context),
         lfoPmFreqSlider(context),
         lfoAmFreqSlider(context),
@@ -262,7 +194,6 @@ public:
         graphBtnPitch(context),
         graphBtnSsg(context),
         graphSeparator(context)
-
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -274,13 +205,8 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutMonoModeCat(juce::Rectangle<int>& rect);
-    void layoutAdsrCat(juce::Rectangle<int>& rect);
-    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
-    void layoutDetuneCat(juce::Rectangle<int>& rect);
     void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
-    void layoutSwEnvCat(juce::Rectangle<int>& rect);
-    void applySsgSwEnvLoopValues(bool enabled);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
 };

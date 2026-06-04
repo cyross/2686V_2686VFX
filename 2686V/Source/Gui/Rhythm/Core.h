@@ -10,6 +10,8 @@
 #include "../../Gui/Curve/Core.h"
 #include "../../Advanced/Curve/Core.h"
 #include "../../Gui/Components/Unison/Unison.h"
+#include "../../Gui/Components/AmpEnv/AmpEnv.h"
+#include "../../Gui/Components/PitchEnv/PitchEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -47,24 +49,10 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton oneShotButton;
 
     // Amp ADSR
-    GuiCategoryLabel adsrCat;
-    GuiToggleButton adsrBypassButton; // ADSR Bypass Switch
-    GuiSlider startLevelSlider;
-    GuiSlider attackSlider;
-    GuiSlider decaySlider;
-    GuiSlider sustainSlider;
-    GuiSlider releaseSlider;
+    GuiComponentAmpEnv ampEnvComponent;
 
     // Pitch ADSR
-    GuiCategoryLabel pitchAdsrCat;
-    GuiToggleButton pitchAdsrBypassButton; // ADSR Bypass Switch
-    GuiSlider pitchAttackSlider;
-    GuiSlider pitchDecaySlider;
-    GuiSlider pitchReleaseSlider;
-    GuiSlider pitchStartLevelSlider;
-    GuiSlider pitchAttackLevelSlider;
-    GuiSlider pitchSustainLevelSlider;
-    GuiSlider pitchReleaseLevelSlider;
+    GuiComponentPitchEnv pitchEnvComponent;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -100,22 +88,8 @@ public:
         panToRBtn(context),
         volSlider(context),
         oneShotButton(context),
-        adsrCat(context),
-        adsrBypassButton(context),
-        startLevelSlider(context),
-        attackSlider(context),
-        decaySlider(context),
-        sustainSlider(context),
-        releaseSlider(context),
-        pitchAdsrCat(context),
-        pitchAdsrBypassButton(context),
-        pitchAttackSlider(context),
-        pitchDecaySlider(context),
-        pitchReleaseSlider(context),
-        pitchStartLevelSlider(context),
-        pitchAttackLevelSlider(context),
-        pitchSustainLevelSlider(context),
-        pitchReleaseLevelSlider(context),
+        ampEnvComponent(context),
+        pitchEnvComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphSeparator(context)
@@ -131,7 +105,6 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutAdsrCat(juce::Rectangle<int>& rect);
-    void layoutPitchEnvCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

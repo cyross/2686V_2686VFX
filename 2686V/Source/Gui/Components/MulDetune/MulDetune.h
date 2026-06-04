@@ -12,24 +12,23 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/Core.h"
 #include "../../../Advanced/Curve/Core.h"
-#include "../PitchButtons/PitchButtons.h"
 
-class GuiComponentUnison : public GuiBase {
-    // UNISON/HARMONY
+class GuiComponentMulDetune : public GuiBase {
+    // MULTIPLE/DETUNE
     GuiCategoryLabel cat;
-    GuiSlider voices;
-    GuiSlider detune;
-    GuiComponentPitchButtons detuneButtons;
-    GuiSlider spread;
+    GuiComboBox mul;
+    GuiSlider mulRatio;
+    GuiComboBox dt1;
+    GuiSlider dt2;
 
 public:
-    GuiComponentUnison(const GuiContext& context) :
+    GuiComponentMulDetune(const GuiContext& context) :
         GuiBase(context),
         cat(context),
-        voices(context),
-        detune(context),
-        detuneButtons(context),
-        spread(context)
+        mul(context),
+        mulRatio(context),
+        dt1(context),
+        dt2(context)
     {
     }
 
