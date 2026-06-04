@@ -353,24 +353,6 @@ float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, 
 	return logics[logic](positionIndex, targetIndex, paramIndex, x);
 }
 
-float CurveCore::process(int positionIndex, int targetIndex, int paramIndex, float x)
-{
-	// 極微小な誤差による破綻を防ぐためのガード
-	// (これがないと、スプライン計算などで x=0 のときに意図せず 1.0 を返したりする場合があります)
-	if (x <= 1e-5f) return 0.0f;
-	if (x >= 1.0f - 1e-5f) return 1.0f;
-
-	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
-	auto logic = static_cast<CurveParams::Logic>(logicIndex);
-
-	float fIndex = x * (LUT_SIZE - 1);
-	int i = (int)fIndex;
-
-	// もし更に精度が欲しい場合は線形補間するが、1024段階あれば通常は不要
-	// (ここでは高速化のため単純な切り捨て配列参照にする)
-	return curveLUT[positionIndex][targetIndex][paramIndex][i];
-}
-
 std::function<float(int, int, int, float)> CurveCore::getFunction(int logicIndex) {
 	return logics[(CurveParams::Logic)logicIndex];
 }
