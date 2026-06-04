@@ -141,34 +141,6 @@ float PitchAdsrEnv::process(float phaseDelta) {
             }
 
             return phaseDelta;
-            // DR(Decay Rate)が0の時は、減衰せずにATLを永遠に維持する
-            if (this->dr <= 0.0f)
-            {
-                this->currentCents = this->atl;
-            }
-            else {
-                this->phaseProgress += this->decayDelta;
-
-                if (this->phaseProgress >= 1.0f) {
-                    this->phaseProgress = 0.0f;
-                    this->currentCents = this->ssl;
-                    this->state = State::Sustain;
-                }
-                else {
-                    // atl から ssl へ向かって補間
-                    this->currentCents = this->atl + (this->ssl - this->atl) * this->phaseProgress;
-                }
-            }
-
-            // --- セント値を周波数比に変換して phaseDelta に適用 ---
-            if (this->currentCents != 0.0f) {
-                // 1200セント = 1オクターブ (2倍の周波数)
-                // 例: +1200 なら 2.0, -1200 なら 0.5, 0 なら 1.0 になる
-                pitchRatio = std::pow(2.0f, this->currentCents / 1200.0f);
-                phaseDelta *= pitchRatio;
-            }
-
-            return phaseDelta;
         case State::Sustain:
             this->currentCents = this->ssl;
 
