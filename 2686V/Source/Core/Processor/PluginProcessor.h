@@ -41,6 +41,7 @@ public:
     bool isMonoMode = false;
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
+    float fixedVelocity = 1.0f;
 
     SynthParams* currentParams = nullptr;
 
@@ -95,7 +96,7 @@ public:
             return;
         }
 
-        float targetVelocity = useVelocity ? velocity : 1.0f;
+        float targetVelocity = useVelocity ? velocity : fixedVelocity;
         bool isLegato = false;
 
         if (isMonoMode) {
@@ -238,7 +239,7 @@ public:
     // 鍵盤を離した時の挙動をハックする
     void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
     {
-        float targetVelocity = useVelocity ? velocity : 1.0f;
+        float targetVelocity = useVelocity ? velocity : fixedVelocity;
 
         if (isMonoMode)
         {
@@ -438,6 +439,7 @@ private:
     std::atomic<float>* pMonoMode = nullptr;
     std::atomic<float>* pUseVelocity = nullptr;
     std::atomic<float>* pPitchResetOnLegato = nullptr;
+    std::atomic<float>* pFixedVelocity = nullptr;
 
     std::map<OscMode, PrBase*> prMap;
 

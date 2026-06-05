@@ -11,6 +11,7 @@ namespace CorePrKey
 	static inline const juce::String monoMode = "MONO_MODE";
 	static inline const juce::String useVelocity = "USE_VELICITY";
 	static inline const juce::String pitchResetOnLegato = "PITCH_RESET_LEGATO";
+	static inline const juce::String fixedVelocity = "FIXED_VELICITY";
 
 	static inline const juce::String op = "_OP";
 	static inline const juce::String pitchAdsr = "_PITCHENV";

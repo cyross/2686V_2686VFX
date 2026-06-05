@@ -35,6 +35,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
     pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
     pPitchResetOnLegato = apvts.getRawParameterValue(CorePrKey::pitchResetOnLegato);
+    pFixedVelocity = apvts.getRawParameterValue(CorePrKey::fixedVelocity);
 
     prOpna.init(apvts);
     prOpn.init(apvts);
@@ -125,6 +126,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
         CorePrValue::PitchResetOnLegato::initial
     ));
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        CorePrKey::fixedVelocity,
+        CorePrName::fixedVelocity,
+        CorePrValue::FixedVelocity::min,
+        CorePrValue::FixedVelocity::max,
+        CorePrValue::FixedVelocity::initial
+    ));
+
     return layout;
 }
 
@@ -202,6 +211,11 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     m_synth.pitchResetOnLegato = ptResetOnLegato;
     m_currentParams.pitchResetOnLegato = ptResetOnLegato;
+
+    float fixedVelocity = pFixedVelocity->load(std::memory_order_relaxed);
+
+    m_synth.fixedVelocity = fixedVelocity;
+    m_currentParams.fixedVelocity = fixedVelocity;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)

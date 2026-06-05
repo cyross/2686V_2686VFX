@@ -10,6 +10,7 @@ namespace CorePrName
 	static inline const juce::String monoMode = "Monophony Mode";
 	static inline const juce::String useVelocity = "Use Velocity";
 	static inline const juce::String pitchResetOnLegato = "Pitch Reset On Legato";
+	static inline const juce::String fixedVelocity = "Fixed Velocity";
 
 	namespace Unison
 	{

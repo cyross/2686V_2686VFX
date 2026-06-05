@@ -26,6 +26,7 @@ struct SynthParams
     bool monoMode = false;
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
+    float fixedVelocity = 1.0f;
 
     OpnaParams opna;
     OpnParams opn;

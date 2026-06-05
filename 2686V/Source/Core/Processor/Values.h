@@ -39,6 +39,13 @@ namespace CorePrValue
 		inline constexpr bool initial = true;
 	}
 
+	namespace FixedVelocity
+	{
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
 	namespace Level
 	{
 		inline constexpr float min = CorePrValue::levelMin;
