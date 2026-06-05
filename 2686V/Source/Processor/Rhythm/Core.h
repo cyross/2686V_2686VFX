@@ -25,6 +25,7 @@ class RhythmProcessor : public PrBase
     std::array<std::atomic<float>*, 8> pAdsrDr = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 8> pAdsrSl = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 8> pAdsrRr = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 8> pAdsrKor = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 8> pPitchAdsrBypass = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 8> pPitchAdsrAr = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 8> pPitchAdsrDr = { nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, nullptr, nullptr };

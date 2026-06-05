@@ -53,6 +53,7 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     this->rr = params.rr;
     this->ks = params.ks;
     this->xof = params.xof;
+    this->kor = params.kor;
 
     this->bypass = params.bypass;
 
@@ -198,7 +199,8 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
         attackInc = calcRegRate(ar, arMax, false, true);
         decayDec = calcRegRate(d1r, d1rMax, false, false);
         sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, d2rMax, false, false);
-        releaseDec = calcRegRate(rr, rrMax, true, false);
+        releaseTimeInc = calcRegRate(rr, rrMax, true, false);
+        releaseDec = kor ? 0.0f : releaseTimeInc;
     }
     else {
         // ====================================================================
@@ -252,7 +254,8 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
         attackInc = calcRegRate(ar, arMax, (int)CurveParams::TargetRegValue::Ar, false, true);
         decayDec = calcRegRate(d1r, d1rMax, (int)CurveParams::TargetRegValue::Dr, false, false);
         sustainRateDec = (d2r == 0) ? 0.0f : calcRegRate(d2r, d2rMax, (int)CurveParams::TargetRegValue::Sr, false, false);
-        releaseDec = calcRegRate(rr, rrMax, (int)CurveParams::TargetRegValue::Rr, true, false);
+        releaseTimeInc = calcRegRate(rr, rrMax, (int)CurveParams::TargetRegValue::Rr, true, false);
+        releaseDec = kor ? 0.0f : releaseTimeInc;
     }
 }
 
@@ -313,6 +316,16 @@ float FmRgAdddr::updateEnvelopeState(float currentLevel)
                 }
                 return currentLevel;
             case State::Release:
+                // kor向けに時間を進める
+                this->m_phaseProgress += this->releaseTimeInc;
+
+                if (this->m_phaseProgress >= 1.0f) {
+                    this->m_phaseProgress = 0.0f;
+                    this->state = State::Idle;
+                    currentLevel = 0.0f;
+                    return 0.0f;
+                }
+
                 currentLevel -= releaseDec;
 
                 if (currentLevel <= 0.001f) {
@@ -452,6 +465,10 @@ float FmRgAdddr::updateEnvelopeState(float currentLevel)
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
                 return 0.0f;
+            }
+
+            if (kor) {
+                return this->m_releaseStartLevel;
             }
 
             // 2. カーブ取得

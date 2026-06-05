@@ -190,6 +190,7 @@ namespace Opl3GuiText
 
 			static inline const juce::String sus = u8"Sus";
 			static inline const juce::String xof = u8"Xof";
+			static inline const juce::String kor = u8"Kor";
 			static inline const juce::String bypass = u8"Bypass";
 
 			static inline const juce::String phaseOffset = u8"P.Offset";

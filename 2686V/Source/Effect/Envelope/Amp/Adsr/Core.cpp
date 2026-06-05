@@ -21,6 +21,7 @@ void AmpAdsrEnv::setParameters(const AmpAdsrParams& params) {
 	this->sl = params.sl;
 	this->rr = params.rr;
 	this->stl = params.stl;
+    this->kor = params.kor;
 	this->bypass = params.bypass;
     this->updateIncrements();
 }
@@ -37,7 +38,7 @@ void AmpAdsrEnv::updateIncrements()
     // 2. リニアモード用のレベル増減量
     this->attackInc = (1.0f - this->stl) * this->attackTimeInc;
     this->decayDec = (1.0f - this->sl) * this->decayTimeInc;
-    this->releaseDec = this->sl * this->releaseTimeInc;
+    this->releaseDec = this->kor ? 0.0f : this->sl * this->releaseTimeInc;
 }
 
 void AmpAdsrEnv::updateSampleRate(double newSampleRate) {
@@ -70,6 +71,7 @@ void AmpAdsrEnv::noteOff() {
 
     if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
         this->state = State::Release;
+        this->m_phaseProgress = 0.0f; // kor向け
     }
     else {
         this->state = State::Release;
@@ -131,6 +133,15 @@ float AmpAdsrEnv::process(float currentLevel) {
         case State::Sustain:
             return currentLevel;
         case State::Release:
+            // kor向けに時間を進める
+            this->m_phaseProgress += this->releaseTimeInc;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->state = State::Idle;
+                return 0.0f;
+            }
+
             currentLevel -= this->releaseDec;
 
             if (currentLevel <= 0.001f) {
@@ -242,6 +253,10 @@ float AmpAdsrEnv::process(float currentLevel) {
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
                 return 0.0f;
+            }
+
+            if (this->kor) {
+                return this->m_releaseStartLevel;
             }
 
             // 2. カーブコアからYを取得

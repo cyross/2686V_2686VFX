@@ -65,6 +65,7 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
     this->ks = params.ks;
     this->sus = params.sus;
     this->xof = params.xof;
+    this->kor = params.kor;
 
     this->bypass = params.bypass;
 
@@ -236,7 +237,8 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
             attackInc = calcRegRate(rg.ar, rgMax.ar, false, true);
             decayDec = calcRegRate(rg.d1r, rgMax.d1r, false, false);
             sustainRateDec = (rg.d2r == 0) ? 0.0f : calcRegRate(rg.d2r, rgMax.d2r, false, false);
-            releaseDec = calcRegRate(this->sus ? 5 : rg.rr, rgMax.rr, true, false);
+            releaseTimeInc = calcRegRate(this->sus ? 5 : rg.rr, rgMax.rr, true, false);;
+            releaseDec = kor ? 0.0f : releaseTimeInc;
         }
         // ====================================================================
         // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
@@ -266,7 +268,8 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
 
             attackInc = calcInc(real.ar);
             decayDec = calcInc(real.d1r);
-            releaseDec = calcInc(this->sus ? 1.5f : real.rr, true);
+            releaseTimeInc = calcInc(this->sus ? 1.5f : real.rr, true);
+            releaseDec = kor ? 0.0f : releaseTimeInc;
 
             if (real.d2r <= 0.001f) {
                 sustainRateDec = 0.0f;
@@ -335,7 +338,8 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
             attackInc = calcRegRate(rg.ar, rgMax.ar, (int)CurveParams::TargetRegValue::Ar, false, true);
             decayDec = calcRegRate(rg.d1r, rgMax.d1r, (int)CurveParams::TargetRegValue::Dr, false, false);
             sustainRateDec = (rg.d2r == 0) ? 0.0f : calcRegRate(rg.d2r, rgMax.d2r, (int)CurveParams::TargetRegValue::Sr, false, false);
-            releaseDec = calcRegRate(this->sus ? 5 : rg.rr, rgMax.rr, (int)CurveParams::TargetRegValue::Rr, true, false);
+            releaseTimeInc = calcRegRate(this->sus ? 5 : rg.rr, rgMax.rr, (int)CurveParams::TargetRegValue::Rr, true, false);
+            releaseDec = kor ? 0.0f : releaseTimeInc;
         }
         // ====================================================================
         // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
@@ -367,7 +371,8 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
 
             attackInc = calcInc(real.ar);
             decayDec = calcInc(real.d1r);
-            releaseDec = calcInc(this->sus ? 1.5f : real.rr, true);
+            releaseTimeInc = calcInc(this->sus ? 1.5f : real.rr, true);
+            releaseDec = kor ? 0.0f : releaseTimeInc;
 
             if (real.d2r <= 0.001f) {
                 sustainRateDec = 0.0f;
@@ -441,6 +446,16 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
 
             return currentLevel;
         case State::Release:
+            // kor向けに時間を進める
+            this->m_phaseProgress += this->releaseTimeInc;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->state = State::Idle;
+                currentLevel = 0.0f;
+                return 0.0f;
+            }
+
             currentLevel -= currentReleaseDec;
 
             if (currentLevel <= 0.001f) {
@@ -584,6 +599,10 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
                 return 0.0f;
+            }
+
+            if (kor) {
+                return this->m_releaseStartLevel;
             }
 
             // 2. カーブ取得

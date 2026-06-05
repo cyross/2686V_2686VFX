@@ -361,6 +361,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     const GuiSlider& decaySlider,
     const GuiSlider& sustainSlider,
     const GuiSlider& releaseSlider,
+    const GuiToggleButton& korButton,
     CurveCore* p_curveCore,
     bool isCurveMode,
     int posIdx
@@ -398,6 +399,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
 
     float sl = slVal / slMax;
 
+    bool isKor = korButton.getToggleState();
+
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::cyan;
     int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
@@ -431,13 +434,25 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float noteOffPositionX = currentTotalWidth;
 
     // 4. Release (通常時のみカーブを適用)
-    phases.push_back({
-        .widthPx = rateToWidth(rrVal, rrMax),
-        .startLevel = sl,
-        .endLevel = 0.0f,
-        .color = color,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
-        });
+    if (isKor) {
+        // korでは、rrが終わるまでslをキープ
+        phases.push_back({
+            .widthPx = rateToWidth(rrVal, rrMax),
+            .startLevel = sl,
+            .endLevel = sl,
+            .color = juce::Colours::yellow,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            });
+    }
+    else {
+        phases.push_back({
+            .widthPx = rateToWidth(rrVal, rrMax),
+            .startLevel = sl,
+            .endLevel = 0.0f,
+            .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            });
+    }
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
 }

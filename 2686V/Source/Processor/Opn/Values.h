@@ -149,6 +149,11 @@ namespace OpnPrValue
 			inline constexpr bool initial = false;
 		}
 
+		namespace Kor
+		{
+			inline constexpr bool initial = false;
+		}
+
 		namespace AmpBypass
 		{
 			inline constexpr bool initial = false;

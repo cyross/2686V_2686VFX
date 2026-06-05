@@ -29,6 +29,7 @@ class FmRgAdddr
 	int tlMax = 0;
 
 	bool xof = false;
+	bool kor = false;
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
@@ -40,6 +41,7 @@ class FmRgAdddr
 	float releaseDec = 0.0f;
 	float sustainRateDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
+	float releaseTimeInc = 0.0f;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

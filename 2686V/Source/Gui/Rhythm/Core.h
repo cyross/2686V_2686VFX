@@ -105,7 +105,6 @@ public:
     bool isThis(juce::Button* button);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
-    void layoutAdsrCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

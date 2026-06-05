@@ -147,6 +147,7 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pAdsrDr = apvts.getRawParameterValue(code + WtPrKey::Adsr::dr);
     pAdsrSl = apvts.getRawParameterValue(code + WtPrKey::Adsr::sl);
     pAdsrRr = apvts.getRawParameterValue(code + WtPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(code + WtPrKey::Adsr::kor);
 
     pPitchAdsrBypass = apvts.getRawParameterValue(code + WtPrKey::pitchAdsr + WtPrKey::bypass);
     pPitchAdsrAr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ar);
@@ -243,6 +244,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
     params.wt.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
     params.wt.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
+    params.wt.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > WtPrValue::boolThread;
 
     params.wt.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > WtPrValue::boolThread);
     params.wt.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);

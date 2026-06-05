@@ -20,6 +20,7 @@ class BeepProcessor : public PrBase {
     std::atomic<float>* pAdsrDr = nullptr;
     std::atomic<float>* pAdsrSl = nullptr;
     std::atomic<float>* pAdsrRr = nullptr;
+    std::atomic<float>* pAdsrKor = nullptr;
 
     std::atomic<float>* pPitchAdsrBypass = nullptr;
     std::atomic<float>* pPitchAdsrAr = nullptr;

@@ -43,6 +43,7 @@ class Opzx7Adddr
 	int ks = 0;
 	bool sus = false;
 	bool xof = false;
+	bool kor = false;
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate
@@ -56,6 +57,7 @@ class Opzx7Adddr
 	float releaseDec = 0.0f;
 	float currentReleaseDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
+	float releaseTimeInc = 0.0f;
 
 	// rrが無限大のとき、ストッパーの役目を果たす
 	int releaseCounter = 0;

@@ -65,6 +65,7 @@ public:
         const GuiSlider& decaySlider,
         const GuiSlider& sustainSlider,
         const GuiSlider& releaseSlider,
+        const GuiToggleButton& korButton,
         CurveCore* p_curveCore,
         bool isCurveMode,
         int posIdx

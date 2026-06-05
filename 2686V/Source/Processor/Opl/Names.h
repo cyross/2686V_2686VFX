@@ -33,6 +33,7 @@ namespace OplPrName
 	static inline const juce::String sus = CorePrName::Fm::Op::sus;
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
 	static inline const juce::String xof = " XOF";
+	static inline const juce::String kor = " KOR";
 	static inline const juce::String ampBypass = " AMP Bypass";
 
 	static inline const juce::String rgAr = CorePrName::Fm::Op::rgAr;

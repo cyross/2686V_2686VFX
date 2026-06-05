@@ -78,6 +78,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::dr);
         pAdsrSl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::sl);
         pAdsrRr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::rr);
+        pAdsrKor[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::kor);
         pPitchAdsrBypass[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass);
         pPitchAdsrAr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ar);
         pPitchAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::dr);
@@ -116,6 +117,7 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.adsr.dr = pAdsrDr[i]->load(std::memory_order_relaxed);
         pad.adsr.sl = pAdsrSl[i]->load(std::memory_order_relaxed);
         pad.adsr.rr = pAdsrRr[i]->load(std::memory_order_relaxed);
+        pad.adsr.kor = pAdsrKor[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread;
 
         pad.pitchAdsr.bypass = (pPitchAdsrBypass[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread);
         pad.pitchAdsr.ar = pPitchAdsrAr[i]->load(std::memory_order_relaxed);

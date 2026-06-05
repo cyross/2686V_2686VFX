@@ -329,6 +329,10 @@ void GuiOpm::setup()
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
 
+        kor[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::kor, .title = OpmGuiText::Fm::Op::kor, .isReset = true });
+        kor[i].setWantsKeyboardFocus(true);
+        kor[i].setExplicitFocusOrder(++tabOrder);
+
         bypass[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpmPrKey::ampBypass, .title = OpmGuiText::Fm::Op::bypass, .isReset = true });
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
@@ -511,6 +515,7 @@ void GuiOpm::updateOpEnable(int idx, bool enable)
     ks[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
     xof[idx].setEnabled(enable);
+    kor[idx].setEnabled(enable);
     bypass[idx].setEnabled(enable);
     fix[idx].setEnables(enable);
     catMask[idx].setEnabled(enable);
@@ -805,6 +810,7 @@ void GuiOpm::setupGraph(int opIndex)
 
     bypass[opIndex].onStateChange = repaintGraph;
     xof[opIndex].onStateChange = repaintGraph;
+    kor[opIndex].onStateChange = repaintGraph;
 
     rgAr[opIndex].onValueChange = repaintGraph;
     rgD1r[opIndex].onValueChange = repaintGraph;
@@ -908,6 +914,7 @@ void GuiOpm::updateOpGraph(int opIndex)
         }
 
         bool isXof = xof[opIndex].getToggleState();
+        bool isKor = kor[opIndex].getToggleState();
 
         float arMax = (float)rgAr[opIndex].getMaximum();
         float d1rMax = (float)rgD1r[opIndex].getMaximum();
@@ -992,6 +999,16 @@ void GuiOpm::updateOpGraph(int opIndex)
                 .startXOffsetPx = noteOffPositionX
                 });
         }
+        else if (isKor) {
+            phases.push_back({
+                .widthPx = rateToWidth(rrVal, rrMax),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = releaseStartLevel * tlScale,
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
         else {
             phases.push_back({
                 .widthPx = rateToWidth(rrVal, rrMax),
@@ -1015,11 +1032,13 @@ void GuiOpm::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
     bool visible = catOptional[opIndex].isDetailVisible();
 
     xof[opIndex].setVisible(visible);
+    kor[opIndex].setVisible(visible);
     bypass[opIndex].setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
 }

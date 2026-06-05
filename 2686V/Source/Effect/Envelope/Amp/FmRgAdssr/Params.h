@@ -10,5 +10,6 @@ struct FmRgAdssrParams
 	int tl = 0;
 	int ks = 0;
 	bool xof = false;
+	bool kor = false;
 	bool bypass = false;
 };

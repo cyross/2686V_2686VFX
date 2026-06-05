@@ -50,6 +50,7 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::sus, namePrefix + OplPrName::sus, OplPrValue::Op::Sus::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::xof, namePrefix + OplPrName::xof, OplPrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::kor, namePrefix + OplPrName::kor, OplPrValue::Op::Kor::initial)); // Kor (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OplPrKey::ampBypass, namePrefix + OplPrName::ampBypass, OplPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
@@ -85,6 +86,7 @@ void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pOpAdsrKsl[op] = apvts.getRawParameterValue(p + OplPrKey::ksl);
         pOpAdsrSus[op] = apvts.getRawParameterValue(p + OplPrKey::sus);
         pOpAdsrXof[op] = apvts.getRawParameterValue(p + OplPrKey::xof);
+        pOpAdsrKor[op] = apvts.getRawParameterValue(p + OplPrKey::kor);
         pOpAdsrEgType[op] = apvts.getRawParameterValue(p + OplPrKey::egType);
 
         pOpLfoEg[op] = apvts.getRawParameterValue(p + OplPrKey::eg);
@@ -161,6 +163,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opl.op[op].m_adsrParams.ksl = (int)pOpAdsrKsl[op]->load(std::memory_order_relaxed);
         params.opl.op[op].m_adsrParams.sus = pOpAdsrSus[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
         params.opl.op[op].m_adsrParams.xof = pOpAdsrXof[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
+        params.opl.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
         params.opl.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
 
         params.opl.op[op].pitchEnvEnable = pOpPitchEnvEnable[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;

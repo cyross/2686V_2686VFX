@@ -124,6 +124,7 @@ class GuiOpna : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> rgTl;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
     std::array<GuiToggleButton, Global::Fm::Op4> xof;
+    std::array<GuiToggleButton, Global::Fm::Op4> kor;
     std::array<GuiToggleButton, Global::Fm::Op4> bypass;
 
     void applyMmlString(const juce::String& mml, int opIndex);
@@ -205,6 +206,7 @@ public:
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
         presetNameLabel(context),

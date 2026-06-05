@@ -110,6 +110,7 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pAdsrDr = apvts.getRawParameterValue(code + SsgPrKey::Adsr::dr);
     pAdsrSl = apvts.getRawParameterValue(code + SsgPrKey::Adsr::sl);
     pAdsrRr = apvts.getRawParameterValue(code + SsgPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(code + SsgPrKey::Adsr::kor);
 
     pPitchAdsrBypass = apvts.getRawParameterValue(code + SsgPrKey::pitchAdsr + SsgPrKey::bypass);
     pPitchAdsrAr = apvts.getRawParameterValue(code + SsgPrKey::PitchAdsr::ar);
@@ -213,6 +214,7 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
     params.ssg.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
     params.ssg.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
+    params.ssg.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > SsgPrValue::boolThread;
 
     params.ssg.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
     params.ssg.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);

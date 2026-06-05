@@ -24,6 +24,7 @@ class GuiComponentAmpEnv : public GuiBase {
     GuiSlider decay;
     GuiSlider sustain;
     GuiSlider release;
+    GuiToggleButton kor;
 
 public:
     GuiComponentAmpEnv(const GuiContext& context) :
@@ -34,7 +35,8 @@ public:
         decay(context),
         sustain(context),
         release(context),
-        startLevel(context)
+        startLevel(context),
+        kor(context)
     {
     }
 

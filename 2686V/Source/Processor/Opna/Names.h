@@ -37,6 +37,7 @@ namespace OpnaPrName
 	static inline const juce::String rgTl = CorePrName::Fm::Op::rgTl;
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
 	static inline const juce::String xof = " XOF";
+	static inline const juce::String kor = " KOR";
 	static inline const juce::String ampBypass = " AMP Bypass";
 
 	// ユニゾン・ハーモニー用

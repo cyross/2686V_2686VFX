@@ -35,6 +35,7 @@ class OpnProcessor : public PrBase
     std::array<std::atomic<float>*, 4> pOpAdsrRgTl = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrKs = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrXof = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpAdsrKor = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpFixEnable = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpFixFreq = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpN88LfoAms = { nullptr, nullptr, nullptr, nullptr };

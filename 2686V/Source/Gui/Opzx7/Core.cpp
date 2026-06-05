@@ -484,6 +484,10 @@ void GuiOpzx7::setup()
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
 
+        kor[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::kor, .title = Opzx7GuiText::Fm::Op::kor, .isReset = true });
+        kor[i].setWantsKeyboardFocus(true);
+        kor[i].setExplicitFocusOrder(++tabOrder);
+
         catWaveShape[i].setupHwCategory({ .parent = *this, .title = Opzx7GuiText::Category::waveShape });
 
         ws[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ws, .title = Opzx7GuiText::Fm::Op::Ws, .items = opzx7WsItems, .isReset = true });
@@ -760,6 +764,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i] });
         layoutRow({ .rowRect = innerRect, .component = &sus[i] });
         layoutRow({ .rowRect = innerRect, .component = &xof[i] });
+        layoutRow({ .rowRect = innerRect, .component = &kor[i] });
 
 		layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
 
@@ -935,6 +940,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     rgTl[idx].setEnabled(enable);
     sus[idx].setEnabled(enable);
     xof[idx].setEnabled(enable);
+    kor[idx].setEnabled(enable);
     pitchEnv[idx].setEnabled(enable);
     ssgSwEnv[idx].setEnabled(enable);
 }
@@ -1283,6 +1289,7 @@ void GuiOpzx7::setupGraph(int opIndex)
     rgTl[opIndex].onValueChange = repaintGraph;
     sus[opIndex].onStateChange = repaintGraph;
     xof[opIndex].onStateChange = repaintGraph;
+    kor[opIndex].onStateChange = repaintGraph;
 
     pitchEnv[opIndex].setupGraph(repaintGraph);
     ssgSwEnv[opIndex].setupGraph(repaintGraph);
@@ -1381,6 +1388,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         bool isRg = rgEn[opIndex].getToggleState();
         bool isSus = sus[opIndex].getToggleState();
         bool isXof = xof[opIndex].getToggleState();
+        bool isKor = kor[opIndex].getToggleState();
 
         auto getValue = [isRg](GuiSlider& rgSlider, GuiSlider& realSlider) -> float {
             return isRg ? (float)rgSlider.getValue() : (float)realSlider.getValue();
@@ -1486,6 +1494,16 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f, 
                 .isDashed = true, 
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
+        else if (isKor) {
+            phases.push_back({
+                .widthPx = rateToWidth(rrVal, rrMax),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = releaseStartLevel * tlScale,
                 .color = juce::Colours::yellow,
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX

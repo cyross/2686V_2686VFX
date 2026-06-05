@@ -66,6 +66,7 @@ namespace BeepGuiText
 			static inline const juce::String Sl = u8"Sl";
 			static inline const juce::String Rr = u8"Rr";
 			static inline const juce::String Stl = u8"Stl";
+			static inline const juce::String kor = u8"Kor";
 		}
 	}
 

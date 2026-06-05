@@ -102,9 +102,10 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, Global::Fm::Op2> rgSl;
     std::array<GuiSlider, Global::Fm::Op2> rgRr;
     std::array<GuiSlider, Global::Fm::Op2> rgTl;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
-    std::array<GuiToggleButton, Global::Fm::Op4> xof;
-    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
+    std::array<GuiCategoryLabel, Global::Fm::Op2> catOptional;
+    std::array<GuiToggleButton, Global::Fm::Op2> xof;
+    std::array<GuiToggleButton, Global::Fm::Op2> kor;
+    std::array<GuiToggleButton, Global::Fm::Op2> bypass;
 
     std::array<GuiCategoryLabel, Global::Fm::Op2> adsrCat;
     std::array<GuiToggleButton, Global::Fm::Op2> sus;
@@ -174,11 +175,12 @@ public:
         rgSl{ GuiSlider(context), GuiSlider(context) },
         rgRr{ GuiSlider(context), GuiSlider(context) },
         rgTl{ GuiSlider(context), GuiSlider(context) },
-        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
-        xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        xof{ GuiToggleButton(context),GuiToggleButton(context) },
+        bypass{ GuiToggleButton(context),GuiToggleButton(context) },
         adsrCat{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context) },
+        kor{ GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),

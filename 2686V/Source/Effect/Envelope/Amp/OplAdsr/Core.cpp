@@ -57,6 +57,7 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
     this->sus = params.sus;
     this->egType = params.egType;
     this->xof = params.xof;
+    this->kor = params.kor;
 
     this->bypass = params.bypass;
 
@@ -209,7 +210,8 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
         this->attackInc = calcRegRate(this->ar, this->arMax, false, true);
         this->decayDec = calcRegRate(this->dr, this->drMax, false, false);
         this->sustainRateDec = 0.0f;
-        this->releaseDec = calcRegRate(this->sus ? 5 : this->rr, this->rrMax, true, false);
+        releaseTimeInc = calcRegRate(this->sus ? 5 : this->rr, this->rrMax, true, false);;
+        releaseDec = kor ? 0.0f : releaseTimeInc;
     }
     else {
         // ====================================================================
@@ -264,7 +266,8 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
         attackInc = calcRegRate(this->ar, this->arMax, (int)CurveParams::TargetRegValue::Ar, false, true);
         decayDec = calcRegRate(this->dr, this->drMax, (int)CurveParams::TargetRegValue::Dr, false, false);
         sustainRateDec = 0.0f;
-        releaseDec = calcRegRate(this->sus ? 5 : this->rr, this->rrMax, (int)CurveParams::TargetRegValue::Rr, true, false);
+        releaseTimeInc = calcRegRate(rr, rrMax, (int)CurveParams::TargetRegValue::Rr, true, false);
+        releaseDec = kor ? 0.0f : releaseTimeInc;
     }
 }
 
@@ -329,6 +332,16 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
 
             return currentLevel;
         case State::Release:
+            // kor向けに時間を進める
+            this->m_phaseProgress += this->releaseTimeInc;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->state = State::Idle;
+                currentLevel = 0.0f;
+                return 0.0f;
+            }
+
             currentLevel -= this->releaseDec * this->m_targetLevel;
 
             if (currentLevel <= 0.001f) {
@@ -479,6 +492,10 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
                 this->m_phaseProgress = 0.0f;
                 this->state = State::Idle;
                 return 0.0f;
+            }
+
+            if (kor) {
+                return this->m_releaseStartLevel;
             }
 
             // 2. カーブ取得

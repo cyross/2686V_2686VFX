@@ -225,6 +225,7 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiToggleButton, Global::Fm::Op4> sus; // Sus
     std::array<GuiToggleButton, Global::Fm::Op4> xof; // Xof
+    std::array<GuiToggleButton, Global::Fm::Op4> kor;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
@@ -331,6 +332,7 @@ public:
         rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),

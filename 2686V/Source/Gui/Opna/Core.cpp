@@ -376,6 +376,10 @@ void GuiOpna::setup()
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
 
+        kor[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnaPrKey::kor, .title = OpnaGuiText::Fm::Op::kor, .isReset = true });
+        kor[i].setWantsKeyboardFocus(true);
+        kor[i].setExplicitFocusOrder(++tabOrder);
+
         bypass[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + OpnaPrKey::ampBypass, .title = OpnaGuiText::Fm::Op::bypass, .isReset = true });
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
@@ -606,6 +610,7 @@ void GuiOpna::updateOpEnable(int idx, bool enable)
     ks[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
     xof[idx].setEnabled(enable);
+    kor[idx].setEnabled(enable);
     bypass[idx].setEnabled(enable);
     catSsgEnv[idx].setEnabled(enable);
     se[idx].setEnabledWithLabel(enable);
@@ -943,6 +948,7 @@ void GuiOpna::setupGraph(int opIndex)
 
     bypass[opIndex].onStateChange = repaintGraph;
     xof[opIndex].onStateChange = repaintGraph;
+    kor[opIndex].onStateChange = repaintGraph;
 
     rgAr[opIndex].onValueChange = repaintGraph;
     rgDr[opIndex].onValueChange = repaintGraph;
@@ -1046,6 +1052,7 @@ void GuiOpna::updateOpGraph(int opIndex)
         }
 
         bool isXof = xof[opIndex].getToggleState();
+        bool isKor = kor[opIndex].getToggleState();
 
         float arMax = (float)rgAr[opIndex].getMaximum();
         float drMax = (float)rgDr[opIndex].getMaximum();
@@ -1130,6 +1137,16 @@ void GuiOpna::updateOpGraph(int opIndex)
                 .startXOffsetPx = noteOffPositionX
                 });
         }
+        else if (isKor) {
+            phases.push_back({
+                .widthPx = rateToWidth(rrVal, rrMax),
+                .startLevel = releaseStartLevel * tlScale,
+                .endLevel = releaseStartLevel * tlScale,
+                .color = juce::Colours::yellow,
+                .moveToStart = true,
+                .startXOffsetPx = noteOffPositionX
+                });
+        }
         else {
             phases.push_back({
                 .widthPx = rateToWidth(rrVal, rrMax),
@@ -1153,11 +1170,13 @@ void GuiOpna::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
     bool visible = catOptional[opIndex].isDetailVisible();
 
     xof[opIndex].setVisible(visible);
+    kor[opIndex].setVisible(visible);
     bypass[opIndex].setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
 }

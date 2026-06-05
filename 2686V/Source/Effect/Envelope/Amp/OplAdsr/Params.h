@@ -12,5 +12,6 @@ struct OplAdsrParams
 	bool egType = false;
 	bool sus = false;
 	bool xof = false;
+	bool kor = false;
 	bool bypass = false;
 };

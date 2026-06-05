@@ -75,6 +75,7 @@ namespace Opzx7PrName
 
 	static inline const juce::String sus = " SUS";
 	static inline const juce::String xof = " XOF";
+	static inline const juce::String kor = " KOR";
 	static inline const juce::String ampBypass = " AMP Bypass";
 
 	// ユニゾン・ハーモニー用

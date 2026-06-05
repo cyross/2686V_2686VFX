@@ -146,6 +146,11 @@ namespace CorePrValue
 			inline constexpr float max = CorePrValue::levelMax;
 			inline constexpr float initial = CorePrValue::levelMin;
 		}
+
+		namespace Kor
+		{
+			inline constexpr bool initial = false;
+		}
 	}
 
 	namespace PitchAdsr

@@ -53,6 +53,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pAdsrDr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::dr);
     pAdsrSl = apvts.getRawParameterValue(code + BeepPrKey::Adsr::sl);
     pAdsrRr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(code + BeepPrKey::Adsr::kor);
 
     pPitchAdsrBypass = apvts.getRawParameterValue(code + BeepPrKey::pitchAdsr + BeepPrKey::bypass);
     pPitchAdsrAr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ar);
@@ -108,6 +109,7 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
     params.beep.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
     params.beep.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
+    params.beep.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > BeepPrValue::boolThread;
 
     params.beep.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
     params.beep.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);

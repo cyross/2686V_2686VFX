@@ -36,6 +36,10 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	release.setup({ .parent = parent, .id = code + "_RR", .title = "Rr", .isReset = true });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
+
+	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "Kor", .isReset = true });
+	kor.setWantsKeyboardFocus(true);
+	kor.setExplicitFocusOrder(++tabOrder);
 }
 
 void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -50,6 +54,7 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	kor.setVisible(visible);
 
     if (visible)
     {
@@ -59,7 +64,8 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay });
 		layoutMain({ .mainRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
-    }
+		layoutMain({ .mainRect = rect, .component = &kor });
+	}
 }
 
 void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
@@ -74,6 +80,7 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	kor.setVisible(visible);
 
 	if (visible)
 	{
@@ -83,6 +90,7 @@ void GuiComponentAmpEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay });
 		layoutRow({ .rowRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release });
+		layoutRow({ .rowRect = rect, .component = &kor });
 	}
 }
 
@@ -93,6 +101,7 @@ void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
 	decay.onValueChange = repaintGraph;
 	sustain.onValueChange = repaintGraph;
 	release.onValueChange = repaintGraph;
+	kor.onStateChange = repaintGraph;
 }
 
 void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
@@ -104,6 +113,7 @@ void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curve
 		decay,
 		sustain,
 		release,
+		kor,
 		p_curveCore,
 		isCurveMode,
 		posIdx
@@ -117,4 +127,5 @@ void GuiComponentAmpEnv::setEnabled(bool enabled) {
 	sustain.setEnabled(enabled);
 	release.setEnabled(enabled);
 	startLevel.setEnabled(enabled);
+	kor.setEnabled(enabled);
 }

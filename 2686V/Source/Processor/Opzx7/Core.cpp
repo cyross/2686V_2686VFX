@@ -89,6 +89,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::sus, namePrefix + Opzx7PrName::sus, Opzx7PrValue::Op::Sus::initial)); // Sus (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::xof, namePrefix + Opzx7PrName::xof, Opzx7PrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::kor, namePrefix + Opzx7PrName::kor, Opzx7PrValue::Op::Kor::initial)); // Kor (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::ampBypass, namePrefix + Opzx7PrName::ampBypass, Opzx7PrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
@@ -150,6 +151,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 		pOpAdsrKs[op] = apvts.getRawParameterValue(p + Opzx7PrKey::ks);
 		pOpAdsrSus[op] = apvts.getRawParameterValue(p + Opzx7PrKey::sus);
 		pOpAdsrXof[op] = apvts.getRawParameterValue(p + Opzx7PrKey::xof);
+        pOpAdsrKor[op] = apvts.getRawParameterValue(p + Opzx7PrKey::kor);
 
 		pOpSsgEg[op] = apvts.getRawParameterValue(p + Opzx7PrKey::se);
 		pOpSsgEgFreq[op] = apvts.getRawParameterValue(p + Opzx7PrKey::seFreq);
@@ -258,6 +260,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.sus = (pOpAdsrSus[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread;
         params.opzx7.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread;
 
         params.opzx7.op[op].ssgEg = (int)pOpSsgEg[op]->load(std::memory_order_relaxed);

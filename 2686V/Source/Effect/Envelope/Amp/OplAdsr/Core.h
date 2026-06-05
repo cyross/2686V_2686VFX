@@ -27,6 +27,7 @@ class OplAdsr
 	bool sus = false;
 	bool egType = false;
 	bool xof = false;
+	bool kor = false;
 	bool bypass = false;
 
 	int arMax = 0;
@@ -48,6 +49,7 @@ class OplAdsr
 	float sustainRateDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
 	float m_targetLevel = 1.0f; // アタックの最終到達レベル
+	float releaseTimeInc = 0.0f;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

@@ -49,6 +49,7 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opl3PrKey::rgTl, namePrefix + Opl3PrName::rgTl, Opl3PrValue::Op::RgAdsr::Tl::min, Opl3PrValue::Op::RgAdsr::Tl::max, Opl3PrValue::Op::RgAdsr::Tl::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opl3PrKey::xof, namePrefix + Opl3PrName::xof, Opl3PrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opl3PrKey::kor, namePrefix + Opl3PrName::kor, Opl3PrValue::Op::Kor::initial)); // Kor (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opl3PrKey::ampBypass, namePrefix + Opl3PrName::ampBypass, Opl3PrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
@@ -83,6 +84,7 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts) {
         pOpAdsrKsr[op] = apvts.getRawParameterValue(p + Opl3PrKey::ksr);
         pOpAdsrKsl[op] = apvts.getRawParameterValue(p + Opl3PrKey::ksl);
         pOpAdsrXof[op] = apvts.getRawParameterValue(p + Opl3PrKey::xof);
+        pOpAdsrKor[op] = apvts.getRawParameterValue(p + Opl3PrKey::kor);
         pOpAdsrEgType[op] = apvts.getRawParameterValue(p + Opl3PrKey::egType);
 
         pOpLfoEg[op] = apvts.getRawParameterValue(p + Opl3PrKey::eg);
@@ -158,6 +160,7 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opl3.op[op].m_adsrParams.ksr = pOpAdsrKsr[op]->load(std::memory_order_relaxed) > Opl3PrValue::boolThread;
         params.opl3.op[op].m_adsrParams.ksl = (int)pOpAdsrKsl[op]->load(std::memory_order_relaxed);
         params.opl3.op[op].m_adsrParams.xof = pOpAdsrXof[op]->load(std::memory_order_relaxed) > Opl3PrValue::boolThread;
+        params.opl3.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > Opl3PrValue::boolThread;
         params.opl3.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > Opl3PrValue::boolThread;
 
         params.opl3.op[op].pitchEnvEnable = pOpPitchEnvEnable[op]->load(std::memory_order_relaxed) > Opl3PrValue::boolThread;

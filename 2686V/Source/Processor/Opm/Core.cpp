@@ -60,6 +60,7 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgTl, namePrefix + OpmPrName::rgTl, OpmPrValue::Op::RgAdsr::Tl::min, OpmPrValue::Op::RgAdsr::Tl::max, OpmPrValue::Op::RgAdsr::Tl::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::xof, namePrefix + OpmPrName::xof, OpmPrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::kor, namePrefix + OpmPrName::kor, OpmPrValue::Op::Kor::initial)); // Kor (Switch)
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::ampBypass, namePrefix + OpmPrName::ampBypass, OpmPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
@@ -110,6 +111,7 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pOpAdsrRgTl[op] = apvts.getRawParameterValue(p + OpmPrKey::rgTl);
         pOpAdsrKs[op] = apvts.getRawParameterValue(p + OpmPrKey::ks);
         pOpAdsrXof[op] = apvts.getRawParameterValue(p + OpmPrKey::xof);
+        pOpAdsrKor[op] = apvts.getRawParameterValue(p + OpmPrKey::kor);
 
         pOpFixEnable[op] = apvts.getRawParameterValue(p + OpmPrKey::fix);
         pOpFixFreq[op] = apvts.getRawParameterValue(p + OpmPrKey::fixFreq);
@@ -192,6 +194,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].m_adsrParams.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
         params.opm.op[op].m_adsrParams.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
         params.opm.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread);
+        params.opm.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread;
         params.opm.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread;
 
         params.opm.op[op].fixedMode = (pOpFixEnable[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread);

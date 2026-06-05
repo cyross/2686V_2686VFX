@@ -15,6 +15,7 @@ class AmpAdsrEnv {
 	float dr = 0.0f;
 	float sl = 1.0f;
 	float rr = 0.2f;
+	bool kor = false;
 	bool bypass = false;
 
 	double sampleRate = 44100.0; // DAW Host Sample Rate

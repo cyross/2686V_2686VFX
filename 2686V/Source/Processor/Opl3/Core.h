@@ -24,6 +24,7 @@ class Opl3Processor : public PrBase
     std::array<std::atomic<float>*, 4> pOpAdsrKsr = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrKsl = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrXof = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpAdsrKor = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrEgType = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpLfoEg = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpLfoPmEnable = { nullptr, nullptr, nullptr, nullptr };

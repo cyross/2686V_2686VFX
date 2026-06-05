@@ -134,6 +134,11 @@ namespace AdpcmPrValue
 			inline constexpr float max = CorePrValue::Adsr::Stl::max;
 			inline constexpr float initial = CorePrValue::Adsr::Stl::initial;
 		}
+
+		namespace Kor
+		{
+			inline constexpr bool initial = false;
+		}
 	}
 
 	namespace PitchAdsr
