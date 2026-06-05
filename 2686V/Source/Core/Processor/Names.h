@@ -120,6 +120,7 @@ namespace CorePrName
 			static inline const juce::String dt = " DT";
 			static inline const juce::String dt1 = " DT1";
 			static inline const juce::String dt2 = " DT2";
+			static inline const juce::String dt3 = " DT3";
 			static inline const juce::String se = " SSG Env";
 			static inline const juce::String seFreq = " SSG Env Freq";
 			static inline const juce::String ks = " KS";

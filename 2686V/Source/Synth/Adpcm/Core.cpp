@@ -67,7 +67,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
-    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.multiple, params.adpcm.multipleRatio);
+    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.detune3, params.adpcm.multiple, params.adpcm.multipleRatio);
 
     m_rootNote = params.adpcm.rootNote;
 

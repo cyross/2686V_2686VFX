@@ -12,6 +12,7 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/Core.h"
 #include "../../../Advanced/Curve/Core.h"
+#include "../PitchButtons/PitchButtons.h"
 
 class GuiComponentMulDetune : public GuiBase {
     // MULTIPLE/DETUNE
@@ -20,6 +21,8 @@ class GuiComponentMulDetune : public GuiBase {
     GuiSlider mulRatio;
     GuiComboBox dt1;
     GuiSlider dt2;
+    GuiSlider dt3;
+    GuiComponentPitchButtons dt3Buttons;
 
 public:
     GuiComponentMulDetune(const GuiContext& context) :
@@ -28,7 +31,9 @@ public:
         mul(context),
         mulRatio(context),
         dt1(context),
-        dt2(context)
+        dt2(context),
+        dt3(context),
+        dt3Buttons(context)
     {
     }
 

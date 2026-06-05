@@ -24,6 +24,7 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::mulRatio, code + BeepPrName::mulRatio, BeepPrValue::MulRatio::min, BeepPrValue::MulRatio::max, BeepPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt, code + BeepPrName::dt1, BeepPrValue::Dt1::min, BeepPrValue::Dt1::max, BeepPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt2, code + BeepPrName::dt2, BeepPrValue::Dt2::min, BeepPrValue::Dt2::max, BeepPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt3, code + BeepPrName::dt3, BeepPrValue::Dt3::min, BeepPrValue::Dt3::max, BeepPrValue::Dt3::initial));
 
     // ユニゾン・ハーモニー用
     layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::Unison::voices, code + BeepPrName::Unison::voices, BeepPrValue::Unison::Voices::min, BeepPrValue::Unison::Voices::max, BeepPrValue::Unison::Voices::initial));
@@ -85,6 +86,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pMultipleRatio = apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
     pDetune = apvts.getRawParameterValue(code + BeepPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + BeepPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(code + BeepPrKey::dt3);
 }
 
 void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -139,4 +141,5 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
     params.beep.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.beep.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
+    params.beep.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
 }

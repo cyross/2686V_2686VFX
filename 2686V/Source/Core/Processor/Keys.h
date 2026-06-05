@@ -152,6 +152,7 @@ namespace CorePrKey
 
 				static inline const juce::String dt1 = "_DT1";
 				static inline const juce::String dt2 = "_DT2";
+				static inline const juce::String dt3 = "_DT3";
 
 				static inline const juce::String tl = "_TL";
 

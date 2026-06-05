@@ -32,6 +32,7 @@ class Opzx7Processor : public PrBase
     std::array<std::atomic<float>*, 4> pOpMultipleRatio = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpDetune = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpDetune2 = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpDetune3 = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrBypass = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrRgEnable = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrRealAr = { nullptr, nullptr, nullptr, nullptr };

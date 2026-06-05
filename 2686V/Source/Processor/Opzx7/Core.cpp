@@ -45,6 +45,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::mulRatio, namePrefix + Opzx7PrName::mulRatio, Opzx7PrValue::Op::MulRatio::min, Opzx7PrValue::Op::MulRatio::max, Opzx7PrValue::Op::MulRatio::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::dt, namePrefix + Opzx7PrName::dt1, Opzx7PrValue::Op::Dt1::min, Opzx7PrValue::Op::Dt1::max, Opzx7PrValue::Op::Dt1::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::dt2, namePrefix + Opzx7PrName::dt2, Opzx7PrValue::Op::Dt2::min, Opzx7PrValue::Op::Dt2::max, Opzx7PrValue::Op::Dt2::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::dt3, namePrefix + Opzx7PrName::dt3, Opzx7PrValue::Op::Dt3::min, Opzx7PrValue::Op::Dt3::max, Opzx7PrValue::Op::Dt3::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::tl, namePrefix + Opzx7PrName::tl, Opzx7PrValue::Op::Adsr::Tl::min, Opzx7PrValue::Op::Adsr::Tl::max, Opzx7PrValue::Op::Adsr::Tl::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::ar, namePrefix + Opzx7PrName::ar, Opzx7PrValue::Op::Adsr::Ar::min, Opzx7PrValue::Op::Adsr::Ar::max, Opzx7PrValue::Op::Adsr::Ar::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::d1r, namePrefix + Opzx7PrName::d1r, Opzx7PrValue::Op::Adsr::D1r::min, Opzx7PrValue::Op::Adsr::D1r::max, Opzx7PrValue::Op::Adsr::D1r::initial));
@@ -130,6 +131,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 		pOpMultipleRatio[op] = apvts.getRawParameterValue(p + Opzx7PrKey::mulRatio);
 		pOpDetune[op] = apvts.getRawParameterValue(p + Opzx7PrKey::dt);
 		pOpDetune2[op] = apvts.getRawParameterValue(p + Opzx7PrKey::dt2);
+        pOpDetune3[op] = apvts.getRawParameterValue(p + Opzx7PrKey::dt3);
 
         pOpAdsrBypass[op] = apvts.getRawParameterValue(p + Opzx7PrKey::ampBypass);
         pOpAdsrRgEnable[op] = apvts.getRawParameterValue(p + Opzx7PrKey::rgEn);
@@ -237,6 +239,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].multipleRatio = pOpMultipleRatio[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].detune = (int)pOpDetune[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].detune2 = (int)pOpDetune2[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].detune3 = (int)pOpDetune3[op]->load(std::memory_order_relaxed);
 
         params.opzx7.op[op].m_adsrParams.rgEnable = pOpAdsrRgEnable[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread;
 

@@ -410,6 +410,12 @@ void GuiOpzx7::setup()
         dt2[i].setWantsKeyboardFocus(true);
         dt2[i].setExplicitFocusOrder(++tabOrder);
 
+        dt3[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::dt3, .title = Opzx7GuiText::Fm::Op::Dt3, .isReset = true });
+        dt3[i].setWantsKeyboardFocus(true);
+        dt3[i].setExplicitFocusOrder(++tabOrder);
+
+        dt3Btns[i].setupComponent(*this, dt3[i], tabOrder);
+
         rgEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::rgEn, .title = Opzx7GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
         rgEn[i].setExplicitFocusOrder(++tabOrder);
@@ -727,6 +733,10 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
+        layoutRow({ .rowRect = innerRect, .label = &dt3[i].label, .component = &dt3[i] });
+
+        dt3Btns[i].layoutComponentRow(innerRect);
+
         layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
         updateRgDisplayAsOp(i, rgMode);
         if (rgMode)
@@ -874,6 +884,8 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
 
     dt1[idx].setEnabledWithLabel(enable);
     dt2[idx].setEnabledWithLabel(enable);
+    dt3[idx].setEnabledWithLabel(enable);
+    dt3Btns[idx].setEnabled(enable);
     ar[idx].setEnabledWithLabel(enable);
     d1r[idx].setEnabledWithLabel(enable);
     d1l[idx].setEnabledWithLabel(enable);

@@ -55,7 +55,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.wt.adsr);
     m_pitchAdsr.setParameters(params.wt.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.wt.ssgSwEnv);
-	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.multiple, params.wt.multipleRatio);
+	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.detune3, params.wt.multiple, params.wt.multipleRatio);
     m_lfo.setParameters(
         params.wt.lfoSyncDelay,
         params.wt.lfoPmEnable, params.wt.lfoAmEnable,

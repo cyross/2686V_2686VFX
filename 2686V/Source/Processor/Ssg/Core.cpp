@@ -37,6 +37,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::mulRatio, code + SsgPrName::mulRatio, SsgPrValue::MulRatio::min, SsgPrValue::MulRatio::max, SsgPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::dt, code + SsgPrName::dt1, SsgPrValue::Dt1::min, SsgPrValue::Dt1::max, SsgPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::dt2, code + SsgPrName::dt2, SsgPrValue::Dt2::min, SsgPrValue::Dt2::max, SsgPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::dt3, code + SsgPrName::dt3, SsgPrValue::Dt3::min, SsgPrValue::Dt3::max, SsgPrValue::Dt3::initial));
 
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Duty::mode, code + SsgPrName::Duty::mode, SsgPrValue::Duty::Mode::min, SsgPrValue::Duty::Mode::max, SsgPrValue::Duty::Mode::initial)); // Duty Mode: 0=Preset, 1=Variable
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Duty::preset, code + SsgPrName::Duty::preset, SsgPrValue::Duty::Preset::min, SsgPrValue::Duty::Preset::max, SsgPrValue::Duty::Preset::initial)); // Preset: 0~8
@@ -142,6 +143,7 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pMultipleRatio = apvts.getRawParameterValue(code + SsgPrKey::mulRatio);
     pDetune = apvts.getRawParameterValue(code + SsgPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + SsgPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(code + SsgPrKey::dt3);
 
     pDutyMode = apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
     pDutyPreset = apvts.getRawParameterValue(code + SsgPrKey::Duty::preset);
@@ -194,6 +196,7 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
     params.ssg.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.ssg.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
+    params.ssg.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
 
     params.ssg.dutyMode = (int)pDutyMode->load(std::memory_order_relaxed);
     params.ssg.dutyPreset = (int)pDutyPreset->load(std::memory_order_relaxed);

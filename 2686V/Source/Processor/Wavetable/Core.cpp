@@ -71,6 +71,7 @@ void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::mulRatio, code + WtPrName::mulRatio, WtPrValue::MulRatio::min, WtPrValue::MulRatio::max, WtPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt, code + WtPrName::dt1, WtPrValue::Dt1::min, WtPrValue::Dt1::max, WtPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt2, code + WtPrName::dt2, WtPrValue::Dt2::min, WtPrValue::Dt2::max, WtPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt> (code + WtPrKey::dt3, code + WtPrName::dt3, WtPrValue::Dt3::min, WtPrValue::Dt3::max, WtPrValue::Dt3::initial));
 
     // ADSR Bypass Switch
     layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::adsr + WtPrKey::bypass, code + WtPrName::Adsr::bypass, WtPrValue::Adsr::Bypass::initial));
@@ -179,6 +180,7 @@ void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pMultipleRatio = apvts.getRawParameterValue(code + WtPrKey::mulRatio);
     pDetune = apvts.getRawParameterValue(code + WtPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + WtPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(code + WtPrKey::dt3);
 
     pLfoSyncDelay = apvts.getRawParameterValue(code + WtPrKey::Lfo::syncDelay);
     pLfoAmSmoothRatio = apvts.getRawParameterValue(code + WtPrKey::Lfo::amSmoothRatio);
@@ -274,6 +276,7 @@ void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTre
     params.wt.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
     params.wt.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.wt.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
+    params.wt.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
 
     params.wt.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
     params.wt.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);

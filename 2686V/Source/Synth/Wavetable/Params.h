@@ -54,6 +54,7 @@ struct WtParams
     float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;
     int detune2 = 0;
+    int detune3 = 0;
 
     // LFO Speed Freq (approx 3Hz - 30Hz)
     float lfoAmFreq = 5.0f;

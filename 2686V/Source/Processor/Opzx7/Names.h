@@ -27,6 +27,7 @@ namespace Opzx7PrName
 	static inline const juce::String dt = CorePrName::Fm::Op::dt;
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;
 	static inline const juce::String dt2 = CorePrName::Fm::Op::dt2;
+	static inline const juce::String dt3 = CorePrName::Fm::Op::dt3;
 	static inline const juce::String se = CorePrName::Fm::Op::se;
 	static inline const juce::String seFreq = CorePrName::Fm::Op::seFreq;
 	static inline const juce::String ks = CorePrName::Fm::Op::ks;

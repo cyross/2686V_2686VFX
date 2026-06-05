@@ -621,6 +621,13 @@ namespace CorePrValue
 			inline constexpr int max = 3;
 			inline constexpr int initial = 0;
 		}
+
+		namespace Dt3
+		{
+			inline constexpr int min = -4800;
+			inline constexpr int max = 4800;
+			inline constexpr int initial = 0;
+		}
 	}
 
 	namespace FixMode {

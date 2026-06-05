@@ -1,4 +1,7 @@
-﻿#include "./Core.h"
+﻿#include <cmath>
+#include <algorithm>
+
+#include "./Core.h"
 
 // 実機(YM2151/2608)の挙動を模倣するため、定数加算ではなく周波数比例させます。
 // これにより「キーによって周波数値が変わる（高音ほど変化Hzが大きい）」挙動になります。
@@ -51,6 +54,10 @@ Opzx7Detune::Opzx7Detune()
 		0.0f    // 21: x mulRatio
 	};
 
+	for (int i = 0; i < 10000; i++) {
+		dt3Scales[i] = std::pow(2.0, (float)(i - 4800) / 1200.0);
+	}
+
 	detune = 0;
 	realDetune = dtScales[detune];
 
@@ -59,15 +66,21 @@ Opzx7Detune::Opzx7Detune()
 
 	multiple = 2; // デフォルトは x1.0
 	realMultiple = mulScales[multiple];
+
+	detune3 = 0;
+	realDetune3 = 0.0f;
 }
 
-void Opzx7Detune::setParameters(int dt, int dt2, int mul, float mulRatio)
+void Opzx7Detune::setParameters(int dt, int dt2, int dt3, int mul, float mulRatio)
 {
     detune = dt & 15;
     realDetune = dtScales[detune];
 
     detune2 = dt2 & 3;
     realDetune2 = dt2Scales[detune2];
+
+	detune3 = dt3;
+	realDetune3 = dt3Scales[std::clamp(detune3, -4800, 4800) + 4800]; // detune3 = -4800 - 4800
 
     multiple = mul;
 	mulScales[21] = mulRatio; // 21番目にユーザー指定のmulRatioをセット
@@ -79,6 +92,6 @@ float Opzx7Detune::noteOn(float baseFreq) const
     // 基本周波数にデチューン成分を加算
     float detunedBaseFreq = baseFreq + baseFreq * realDetune;
 
-    // Final Frequency = (Base + DT1) * MUL * DT2
-    return detunedBaseFreq * realMultiple * realDetune2;
+    // Final Frequency = (Base + DT1) * MUL * DT2 * DT3
+    return detunedBaseFreq * realMultiple * realDetune2 * realDetune3;
 }

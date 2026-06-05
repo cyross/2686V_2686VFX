@@ -252,6 +252,13 @@ namespace SsgPrValue
 		inline constexpr int initial = CorePrValue::Opzx7Detune::Dt2::initial;
 	}
 
+	namespace Dt3
+	{
+		inline constexpr int min = CorePrValue::Opzx7Detune::Dt3::min;
+		inline constexpr int max = CorePrValue::Opzx7Detune::Dt3::max;
+		inline constexpr int initial = CorePrValue::Opzx7Detune::Dt3::initial;
+	}
+
 	namespace SsgSwEnv
 	{
 		namespace Bypass

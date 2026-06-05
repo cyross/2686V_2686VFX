@@ -37,6 +37,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::mulRatio, code + AdpcmPrName::mulRatio, AdpcmPrValue::MulRatio::min, AdpcmPrValue::MulRatio::max, AdpcmPrValue::MulRatio::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt3, code + AdpcmPrName::dt3, AdpcmPrValue::Dt3::min, AdpcmPrValue::Dt3::max, AdpcmPrValue::Dt3::initial));
 
     // ユニゾン・ハーモニー用
     layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::Unison::voices, code + AdpcmPrName::Unison::voices, AdpcmPrValue::Unison::Voices::min, AdpcmPrValue::Unison::Voices::max, AdpcmPrValue::Unison::Voices::initial));
@@ -105,6 +106,7 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pMultipleRatio = apvts.getRawParameterValue(code + AdpcmPrKey::mulRatio);
     pDetune = apvts.getRawParameterValue(code + AdpcmPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + AdpcmPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(code + AdpcmPrKey::dt3);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -167,4 +169,5 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.multipleRatio = pMultipleRatio->load(std::memory_order_relaxed);
     params.adpcm.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.adpcm.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
+    params.adpcm.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
 }

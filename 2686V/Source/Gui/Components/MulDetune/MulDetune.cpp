@@ -76,6 +76,12 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
     dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "Dt2", .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
+
+    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "Dt3", .isReset = true });
+    dt3.setWantsKeyboardFocus(true);
+    dt3.setExplicitFocusOrder(++tabOrder);
+
+    dt3Buttons.setupComponent(parent, dt3, tabOrder);
 }
 
 void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
@@ -88,6 +94,8 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
     mulRatio.setVisibleWithLabel(visible);
 	dt1.setVisibleWithLabel(visible);
 	dt2.setVisibleWithLabel(visible);
+    dt3.setVisibleWithLabel(visible);
+    dt3Buttons.setVisibles(visible);
 
     if (visible)
     {
@@ -95,5 +103,7 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &mulRatio.label, .component = &mulRatio });
         layoutMain({ .mainRect = rect, .label = &dt1.label, .component = &dt1 });
         layoutMain({ .mainRect = rect, .label = &dt2.label, .component = &dt2 });
+        layoutMain({ .mainRect = rect, .label = &dt3.label, .component = &dt3 });
+        dt3Buttons.layoutComponent(rect);
     }
 }

@@ -72,7 +72,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.multiple, params.ssg.multipleRatio);
+    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.detune3, params.ssg.multiple, params.ssg.multipleRatio);
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
         params.ssg.lfoSyncDelay,

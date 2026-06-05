@@ -61,6 +61,7 @@ class SsgProcessor : public PrBase
     std::atomic<float>* pMultipleRatio = nullptr;
     std::atomic<float>* pDetune = nullptr;
     std::atomic<float>* pDetune2 = nullptr;
+    std::atomic<float>* pDetune3 = nullptr;
 
     std::atomic<float>* pDutyMode = nullptr;
     std::atomic<float>* pDutyPreset = nullptr;

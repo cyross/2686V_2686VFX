@@ -29,6 +29,7 @@ namespace Opzx7PrKey
 	static inline const juce::String mulRatio = "_MUL_RATIO";
 	static inline const juce::String dt = CorePrKey::Post::Fm::Op::dt;
 	static inline const juce::String dt2 = CorePrKey::Post::Fm::Op::dt2;
+	static inline const juce::String dt3 = CorePrKey::Post::Fm::Op::dt3;
 	static inline const juce::String tl = CorePrKey::Post::Fm::Op::tl;
 	static inline const juce::String ar = CorePrKey::Post::Fm::Op::ar;
 	static inline const juce::String rr = CorePrKey::Post::Fm::Op::rr;

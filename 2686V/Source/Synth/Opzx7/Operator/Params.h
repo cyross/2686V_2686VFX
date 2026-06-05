@@ -15,6 +15,7 @@ struct Opzx7OpParams
     float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;        // DT: 0~7
     int detune2 = 0;       // DT2: OPL3/OPM Only
+    int detune3 = 0;
     int ssgEg = 0;         // SE: 0~15 (SSG-EG)
     // FM SSG-EG Frequency (SSG-EGの周期速度)
     // 0.1Hz(ゆっくり) ～ 50Hz(高速) 程度を想定

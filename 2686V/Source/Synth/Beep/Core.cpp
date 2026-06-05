@@ -37,7 +37,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
     m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
-    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.multiple, params.beep.multipleRatio);
+    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.detune3, params.beep.multiple, params.beep.multipleRatio);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
 }

@@ -16,6 +16,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Gui/Components/PitchButtons/PitchButtons.h"
 
 class GuiOpzx7 : public GuiBase
 {
@@ -165,6 +166,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> mulRatio;
     std::array<GuiSlider, Global::Fm::Op4> dt1;
     std::array<GuiSlider, Global::Fm::Op4> dt2;
+    std::array<GuiSlider, Global::Fm::Op4> dt3;
+    std::array<GuiComponentPitchButtons, Global::Fm::Op4> dt3Btns;
     std::array<GuiSlider, Global::Fm::Op4> tl;
     std::array<GuiSlider, Global::Fm::Op4> ar;
     std::array<GuiSlider, Global::Fm::Op4> d1r;
@@ -275,6 +278,8 @@ public:
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        dt3{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        dt3Btns{ GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

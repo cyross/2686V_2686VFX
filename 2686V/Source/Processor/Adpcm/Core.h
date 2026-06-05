@@ -62,6 +62,7 @@ class AdpcmProcessor : public PrBase
     std::atomic<float>* pMultipleRatio = nullptr;
     std::atomic<float>* pDetune = nullptr;
     std::atomic<float>* pDetune2 = nullptr;
+    std::atomic<float>* pDetune3 = nullptr;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;

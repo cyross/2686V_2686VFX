@@ -65,6 +65,7 @@ class WtProcessor : public PrBase
     std::atomic<float>* pMultipleRatio = nullptr;
     std::atomic<float>* pDetune = nullptr;
     std::atomic<float>* pDetune2 = nullptr;
+    std::atomic<float>* pDetune3 = nullptr;
 
     std::atomic<float>* pModEnable = nullptr;
     std::atomic<float>* pModDepth = nullptr;

@@ -40,6 +40,7 @@ struct AdpcmParams
     float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;
     int detune2 = 0;
+    int detune3 = 0;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8
