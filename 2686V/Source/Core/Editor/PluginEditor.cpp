@@ -51,6 +51,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     audioProcessor.apvts.addParameterListener(CorePrKey::mode, this);
 
     setupLogo();
+    setupMiniLogo();
 
     opnaGui->setup();
     opnGui->setup();
@@ -205,6 +206,77 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     updateParameterInitializeButtons();
 
+    addAndMakeVisible(miniModeLabel);
+    miniModeLabel.setVisible(false);
+
+    addAndMakeVisible(miniPresetLabel);
+    miniPresetLabel.setVisible(false);
+
+    addAndMakeVisible(toggleMiniBtn);
+    toggleMiniBtn.setVisible(true);
+    toggleMiniBtn.setLookAndFeel(&miniToggleBtnLF);
+    toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::cyan.darker(0.8f));
+    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
+    toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan.darker(0.2f).withAlpha(0.9f));
+    toggleMiniBtn.onClick = [this] {
+        isMiniPlayerMode = !isMiniPlayerMode;
+
+        updatePreviewVisibilityToProcessor();
+
+        if (isMiniPlayerMode) {
+            // --- ミニプレイヤーモードへ移行 ---
+
+            // 1. 通常のUIを隠す
+            tabs.setVisible(false);
+            logoLabel.setVisible(false);
+            panicButton.setVisible(false);
+
+            miniLogoLabel.setVisible(true);
+            miniLogoLabel.setBounds(10, 244, 200, 48);
+
+            // 2. ミニ用のUIを表示
+            miniPresetLabel.setVisible(true);
+            miniPresetLabel.setText(juce::String("") + "Preset: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+            miniPresetLabel.setBounds(5, 260, 150, 15);
+            miniModeLabel.setVisible(true);
+            miniModeLabel.setBounds(5, 278, 150, 15);
+            miniModeLabel.setText(juce::String("") + "Mode: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+
+            // プレビューは強制表示＆ミニ用の位置へ
+            realtimePreview.setVisible(true);
+            realtimePreview.setBounds(10, 50, 200, 200);
+
+            // 3. ウィンドウサイズを縮小 (例: 幅220, 高さ300)
+            setSize(220, 300);
+
+            // ※ タイマー(プレビュー更新)を確実に回す
+            startTimerHz(15);
+        }
+        else {
+            // --- 通常モードへ復帰 ---
+
+            // 1. ミニ用のUIを隠す
+            miniPresetLabel.setVisible(false);
+            miniModeLabel.setVisible(false);
+
+            miniLogoLabel.setVisible(false);
+
+            // 2. 通常のUIを表示
+            tabs.setVisible(true);
+            logoLabel.setVisible(true);
+            panicButton.setVisible(true);
+
+            // プレビューは、本来の isPreviewVisible の状態に戻す
+            realtimePreview.setVisible(isPreviewVisible);
+
+            // 3. ウィンドウサイズを復元
+            updateKeyboardVisibility(); // これで元のサイズが再計算されてセットされます
+            resized(); // 通常レイアウトに戻す
+
+            updateTimerState();
+        }
+        };
+
     midiKeyboard = std::make_unique<juce::MidiKeyboardComponent>(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard);
 
     // 鍵盤を画面に追加し、PCキーボードのフォーカスを受け取れるようにする
@@ -279,10 +351,25 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
 void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 {
 	drawBg(g);
+
+    if (isMiniPlayerMode) {
+        g.setColour(juce::Colours::black.withAlpha(0.3f));
+        g.fillRect(5, 5, 210, 290);
+    }
 }
 
 void AudioPlugin2686VEditor::resized()
 {
+    if (isMiniPlayerMode) {
+        // ミニモード用のレイアウト
+        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20); // 右上に配置
+        miniPresetLabel.setBounds(10, 5, 150, 20);
+        miniModeLabel.setBounds(10, 25, 150, 20);
+        miniLogoLabel.setBounds(10, 244, 200, 48);
+        // プレビューはonClickで設定済みでも良いし、ここで動的配置しても良い
+        return; // 通常のレイアウト処理には行かせない！
+    }
+
     auto area = getLocalBounds();
 
     // 画面の一番下を鍵盤UIに割り当てる
@@ -311,6 +398,7 @@ void AudioPlugin2686VEditor::resized()
     copyParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
     initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
 #endif
+    toggleMiniBtn.setBounds(getWidth() - 315 - previewPaddingRight, 5, 30, 20); // 右上に配置
 
     logoLabel.setBounds(area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height));
 
@@ -416,6 +504,27 @@ void AudioPlugin2686VEditor::setupLogo()
 
     // 最背面へ移動 (これでタブの後ろに行きます)
     logoLabel.toBack();
+}
+
+void AudioPlugin2686VEditor::setupMiniLogo()
+{
+    miniLogoLabel.setVisible(false);
+
+    miniLogoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
+
+    // フォント変更: Bold + Italic, サイズ 128.0f
+    miniLogoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, 40.0f, juce::Font::bold | juce::Font::italic));
+
+    // 右下寄せ
+    miniLogoLabel.setJustificationType(juce::Justification::bottomRight);
+
+    // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
+    miniLogoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
+
+    addAndMakeVisible(miniLogoLabel);
+
+    // 最背面へ移動 (これでタブの後ろに行きます)
+    miniLogoLabel.toBack();
 }
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
@@ -874,7 +983,7 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
 
 void AudioPlugin2686VEditor::timerCallback()
 {
-    if (isPreviewVisible)
+    if (isPreviewVisible || isMiniPlayerMode)
     {
         // 1. 静的波形（完成波形）の更新
         std::vector<float> staticData;
@@ -904,7 +1013,7 @@ void AudioPlugin2686VEditor::updateTimerState()
 
 void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
 {
-    audioProcessor.previewVisiblity = isPreviewVisible;
+    audioProcessor.previewVisiblity = isPreviewVisible || isMiniPlayerMode;
 }
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)

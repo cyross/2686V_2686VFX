@@ -81,6 +81,7 @@ public:
     void updateAdpcmFileName(const juce::String finename);
     void updateOpzx7FileNames(const juce::String finename);
     void setupLogo();
+    void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
     void loadSettingsFile();
@@ -187,6 +188,13 @@ private:
     // 緑系のリアルタイムプレビュー
     GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
     bool isPreviewVisible = false;
+
+    bool isMiniPlayerMode = false;
+    juce::Label miniPresetLabel;
+    juce::Label miniModeLabel;
+    SystemButtonLF miniToggleBtnLF;
+    juce::TextButton toggleMiniBtn{ "M" }; // 切り替えボタン
+    juce::Label miniLogoLabel;
 
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;
