@@ -85,3 +85,18 @@ void GuiAbout::layout(juce::Rectangle<int> content)
 
     gplLinkButton.setBounds(gplLinkArea);
 }
+
+void GuiAbout::paint(juce::Graphics& g)
+{
+    // 描画領域を取得
+    auto area = getLocalBounds().toFloat();
+
+    // 半透明の黒色を設定 (0.6f の部分で透明度を 0.0〜1.0 の間で調整できます)
+    g.setColour(juce::Colours::black.withAlpha(0.6f));
+
+    // 角丸の矩形で塗りつぶす (角を少し丸くするとUIになじみやすいです)
+    g.fillRoundedRectangle(area, 8.0f);
+
+    // ※ 角丸が不要で真四角にしたい場合は以下を使用します
+    // g.fillRect(area);
+}

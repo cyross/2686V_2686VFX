@@ -44,4 +44,5 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void paint(juce::Graphics& g) override;
 };
