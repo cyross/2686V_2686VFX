@@ -1,8 +1,8 @@
 ﻿#include "PluginProcessor.h"
 
-#include "../Processor/Names.h"
-#include "../../Gui/Settings/Keys.h"
-#include "../../Gui/Settings/Values.h"
+#include "../Processor/ProcessorNames.h"
+#include "../../Gui/Settings/SettingsKeys.h"
+#include "../../Gui/Settings/SettingsValues.h"
 
 #include "../Gui/GuiValues.h"
 
@@ -19,22 +19,61 @@ AudioPlugin2686V::AudioPlugin2686V()
     apvts(*this, &undoManager, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
-    p_curveCore = std::make_unique<CurveCore>(m_curveCore);
+    prMap[OscMode::OPNA] = &prOpna;
+    prMap[OscMode::OPN] = &prOpn;
+    prMap[OscMode::OPL] = &prOpl;
+    prMap[OscMode::OPL3] = &prOpl3;
+    prMap[OscMode::OPM] = &prOpm;
+    prMap[OscMode::OPZX7] = &prOpzx7;
+    prMap[OscMode::SSG] = &prSsg;
+    prMap[OscMode::WAVETABLE] = &prWt;
+    prMap[OscMode::RHYTHM] = &prRhythm;
+    prMap[OscMode::ADPCM] = &prAdpcm;
+    prMap[OscMode::BEEP] = &prBeep;
+
+    pMode = apvts.getRawParameterValue(CorePrKey::mode);
+    pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
+    pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
+    pPitchResetOnLegato = apvts.getRawParameterValue(CorePrKey::pitchResetOnLegato);
+    pFixedVelocity = apvts.getRawParameterValue(CorePrKey::fixedVelocity);
+
+    prOpna.init(apvts);
+    prOpn.init(apvts);
+    prOpl.init(apvts);
+    prOpl3.init(apvts);
+    prOpm.init(apvts);
+    prOpzx7.init(apvts);
+    prSsg.init(apvts);
+    prWt.init(apvts);
+    prRhythm.init(apvts);
+    prAdpcm.init(apvts);
+    prBeep.init(apvts);
+    prFx.init(apvts);
+    prCurve.init(apvts);
 
     m_synth.addSound(new SynthSound());
-    for (int i = 0; i < Global::voices; i++) {
+    for (int i = 0; i < Global::totalVoices; i++) {
         auto voice = new SynthVoice();
 
-        voice->setCurveCore(p_curveCore.get());
+        voice->prepare(44100.0);
+        voice->setCurveCore(&m_curveCore);
         m_synth.addVoice(voice);
     }
+
+    prFx.prepare(44100.0);
+
+    m_curveCore.bakeCurves();
 
     previewSynth.addSound(new SynthSound());
 
     auto prevVoice = new SynthVoice();
 
-    prevVoice->setCurveCore(p_curveCore.get());
+    prevVoice->setCurveCore(&m_curveCore);
+    prevVoice->prepare(44100.0);
     previewSynth.addVoice(prevVoice);
+
+	previewFx.init(apvts);
+    previewFx.prepare(44100.0);
 
     formatManager.registerBasicFormats();
     loadStartupSettings();
@@ -69,20 +108,30 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prFx.createLayout(layout);
 	prCurve.createLayout(layout);
 
-    // マスターボリューム追加
-    // 範囲: -60dB (無音に近い) ～ +6dB (少しブースト可能)
-    // 初期値: -3.0dB (FMは音がデカいので少し下げておくのがコツ)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        CorePrKey::masterVol,      // パラメータID
-        CorePrName::master_vol,      // 表示名
-        juce::NormalisableRange<float>(CorePrValue::MasterVol::min, CorePrValue::MasterVol::max, CorePrValue::MasterVol::interval, CorePrValue::MasterVol::skew), // 範囲とステップ
-        CorePrValue::MasterVol::initial              // デフォルト値
-    ));
-
     layout.add(std::make_unique<juce::AudioParameterBool>(
         CorePrKey::monoMode,
         CorePrName::monoMode,
         CorePrValue::MonoMode::initial
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        CorePrKey::useVelocity,
+        CorePrName::useVelocity,
+        CorePrValue::UseVelocity::initial
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        CorePrKey::pitchResetOnLegato,
+        CorePrName::pitchResetOnLegato,
+        CorePrValue::PitchResetOnLegato::initial
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        CorePrKey::fixedVelocity,
+        CorePrName::fixedVelocity,
+        CorePrValue::FixedVelocity::min,
+        CorePrValue::FixedVelocity::max,
+        CorePrValue::FixedVelocity::initial
     ));
 
     return layout;
@@ -95,14 +144,22 @@ void AudioPlugin2686V::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     m_synth.setCurrentPlaybackSampleRate(sampleRate);
 
-    // Prepare RhythmCore for all voices
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->getRhythmCore()->prepare(sampleRate);
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->prepare(sampleRate);
         }
     }
 
-	prFx.prepare(sampleRate);
+    previewSynth.setCurrentPlaybackSampleRate(sampleRate);
+
+    for (int i = 0; i < previewSynth.getNumVoices(); ++i) {
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            voice->prepare(sampleRate);
+        }
+    }
+
+    prFx.prepare(sampleRate);
+    previewFx.prepare(sampleRate);
 }
 
 // ============================================================================
@@ -123,79 +180,55 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // 不要なチャンネルのクリア
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
-
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-    SynthParams params;
+    m_synth.currentParams = &m_currentParams;
 
     // 【シンセモード】
     // 入力バッファはノイズの原因になるのでクリアする
     buffer.clear();
 
     // --- Global ---
-    int m = (int)*apvts.getRawParameterValue(CorePrKey::mode);
-    params.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
+    int m = (int)pMode->load(std::memory_order_relaxed);
+    m_currentParams.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
-    switch (params.mode)
-    {
-    case OscMode::OPNA:
-        prOpna.processBlock(params, apvts);
-        break;
-    case OscMode::OPN:
-		prOpn.processBlock(params, apvts);
-        break;
-    case OscMode::OPL:
-		prOpl.processBlock(params, apvts);
-        break;
-    case OscMode::OPL3:
-		prOpl3.processBlock(params, apvts);
-        break;
-    case OscMode::OPM:
-		prOpm.processBlock(params, apvts);
-        break;
-    case OscMode::OPZX7:
-		prOpzx7.processBlock(params, apvts);
-        break;
-    case OscMode::SSG:
-		prSsg.processBlock(params, apvts);
-        break;
-    case OscMode::WAVETABLE:
-		prWt.processBlock(params, apvts);
-        break;
-    case OscMode::RHYTHM:
-		prRhythm.processBlock(params, apvts);
-        break;
-    case OscMode::ADPCM:
-		prAdpcm.processBlock(params, apvts);
-        break;
-    case OscMode::BEEP:
-        prBeep.processBlock(params, apvts);
-        break;
-    }
+    prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
 
 	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
-	prCurve.processBlock(params, apvts);
+	prCurve.processBlock(m_currentParams, apvts);
 
-    bool isMono = (*apvts.getRawParameterValue(CorePrKey::monoMode) > 0.5f);
+    bool isMono = (pMonoMode->load(std::memory_order_relaxed) > 0.5f);
 
     m_synth.isMonoMode = isMono;
-    params.monoMode = isMono;
+    m_currentParams.monoMode = isMono;
 
-    p_curveCore->setParameters(params.curve);
+    bool useVelo = (pUseVelocity->load(std::memory_order_relaxed) > 0.5f);
+
+    m_synth.useVelocity = useVelo;
+    m_currentParams.useVelocity = useVelo;
+
+    bool ptResetOnLegato = (pPitchResetOnLegato->load(std::memory_order_relaxed) > 0.5f);
+
+    m_synth.pitchResetOnLegato = ptResetOnLegato;
+    m_currentParams.pitchResetOnLegato = ptResetOnLegato;
+
+    float fixedVelocity = pFixedVelocity->load(std::memory_order_relaxed);
+
+    m_synth.fixedVelocity = fixedVelocity;
+    m_currentParams.fixedVelocity = fixedVelocity;
 
     // Apply to each voice
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
-            voice->setParameters(params);
+            voice->setParameters(m_currentParams);
         }
     }
 
-    // シンセの発音 (FXモードではスキップ)
+    m_curveCore.setParameters(m_currentParams.curve);
+
+    // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     // ヘッドルーム適応
@@ -204,35 +237,8 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         buffer.applyGain(headroomGain);
     }
 
-	prFx.processBlock(buffer, params, apvts);
+	prFx.processBlock(buffer, m_currentParams, apvts);
 
-    float dbValue = *apvts.getRawParameterValue(CorePrKey::masterVol);
-
-    // 2. dBをリニアな倍率(0.0 ～ 2.0くらい)に変換
-    // -60dBなら 0.001, 0dBなら 1.0, +6dBなら 2.0
-    float linearGain = juce::Decibels::decibelsToGain(dbValue);
-
-    // 3. バッファ全体に適用
-    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-    {
-        auto* data = buffer.getWritePointer(ch);
-        int numSamples = buffer.getNumSamples();
-
-        for (int i = 0; i < numSamples; ++i)
-        {
-            // 1. マスターボリューム適用
-            float sample = data[i] * linearGain;
-
-            // 2. ソフトクリップ処理 (Satuation)
-            // どんなに大きな音が来ても -1.0 ～ +1.0 の範囲に滑らかに収める
-            // これにより「バリバリ」という割れが「太い歪み」に変わります
-            sample = std::tanh(sample);
-
-            data[i] = sample;
-        }
-    }
-
-    // FX専用プラグインでもリアルタイム波形を取得できるようにする
     if (previewVisiblity)
     {
         auto* finalOutL = buffer.getReadPointer(0);
@@ -295,7 +301,7 @@ void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
         // Important: Distribute data to all Voices
         for (int i = 0; i < m_synth.getNumVoices(); ++i)
         {
-            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
             {
                 // Set while letting AdpcmCore handle "Resampling & 4bit degradation"
                 voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
@@ -327,7 +333,7 @@ void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
 
         // Set data to the specified pad of RhythmCore for all voices
         for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-            if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
                 voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
             }
         }
@@ -351,7 +357,7 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
-    int currentMode = (int)*apvts.getRawParameterValue(CorePrKey::mode);
+    int currentMode = (int)pMode->load(std::memory_order_relaxed);
     if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
         lastActiveSynthMode = (OscMode)currentMode;
     }
@@ -661,7 +667,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
     // 全ボイスの ADPCM Core に空データをセット（＝クリア）
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
             // レートはなんでも良いので適当な値(44100)を渡す
             voice->getAdpcmCore()->setSampleData(emptyData, 44100.0);
@@ -683,7 +689,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     // 全ボイスの Rhythm Core の該当パッドに空データをセット
     for (int i = 0; i < m_synth.getNumVoices(); ++i)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i)))
+        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
             voice->getRhythmCore()->setSampleData(padIndex, emptyData, 44100.0);
         }
@@ -804,7 +810,7 @@ void AudioPlugin2686V::initPreset()
     auto& params = getParameters();
     for (auto* param : params)
     {
-        if (auto* p = dynamic_cast<juce::AudioProcessorParameterWithID*>(param))
+        if (auto* p = static_cast<juce::AudioProcessorParameterWithID*>(param))
         {
             // getDefaultValue() は正規化された値を返すのでそのままセット
             p->setValueNotifyingHost(p->getDefaultValue());
@@ -902,30 +908,32 @@ void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
     }
 }
 
-void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
+void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
 {
     // 1. パラメータの取得と設定
-    SynthParams currentParams;
-    int m = (int)*apvts.getRawParameterValue(CorePrKey::mode);
-    currentParams.mode = (OscMode)m;
+    int m = (int)pMode->load(std::memory_order_relaxed);
+    m_previewParams.mode = (OscMode)m;
 
-    switch (currentParams.mode) {
-    case OscMode::OPNA:      prOpna.processBlock(currentParams, apvts); break;
-    case OscMode::OPN:       prOpn.processBlock(currentParams, apvts); break;
-    case OscMode::OPL:       prOpl.processBlock(currentParams, apvts); break;
-    case OscMode::OPL3:      prOpl3.processBlock(currentParams, apvts); break;
-    case OscMode::OPM:       prOpm.processBlock(currentParams, apvts); break;
-    case OscMode::OPZX7:     prOpzx7.processBlock(currentParams, apvts); break;
-    case OscMode::SSG:       prSsg.processBlock(currentParams, apvts); break;
-    case OscMode::WAVETABLE: prWt.processBlock(currentParams, apvts); break;
-    case OscMode::RHYTHM:    prRhythm.processBlock(currentParams, apvts); break;
-    case OscMode::ADPCM:     prAdpcm.processBlock(currentParams, apvts); break;
-    case OscMode::BEEP:      prBeep.processBlock(currentParams, apvts); break;
+    switch (m_previewParams.mode) {
+    case OscMode::OPNA:      prOpna.processBlock(m_previewParams, apvts); break;
+    case OscMode::OPN:       prOpn.processBlock(m_previewParams, apvts); break;
+    case OscMode::OPL:       prOpl.processBlock(m_previewParams, apvts); break;
+    case OscMode::OPL3:      prOpl3.processBlock(m_previewParams, apvts); break;
+    case OscMode::OPM:       prOpm.processBlock(m_previewParams, apvts); break;
+    case OscMode::OPZX7:     prOpzx7.processBlock(m_previewParams, apvts); break;
+    case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
+    case OscMode::WAVETABLE: prWt.processBlock(m_previewParams, apvts); break;
+    case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
+    case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
+    case OscMode::BEEP:      prBeep.processBlock(m_previewParams, apvts); break;
     }
 
     if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
-        voice->setParameters(currentParams);
+        voice->setParameters(m_previewParams);
         for (int i = 0; i < 4; ++i) voice->setOpzx7PcmBuffer(i, &opzx7PcmBuffers[i]);
+
+        // ユニゾン・ハーモニー向けに追加
+        voice->stopNote(0.0f, false);
     }
 
     // 2. 1周期をピッタリ整数サンプルにするため、SampleRateを44000Hzに偽装する
@@ -946,22 +954,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
     renderBuffer.clear();
     previewSynth.renderNextBlock(renderBuffer, juce::MidiBuffer(), 0, renderSamples);
 
-    // 一時的なFXプロセッサを作成（現在の状態を汚さないため）
-    FxProcessor tempFx;
-    tempFx.prepare(44000.0);
-    // 現在のパラメータを適用してFX処理
-    tempFx.processBlock(renderBuffer, currentParams, apvts);
-
-    // マスターボリュームとソフトクリッパーの適用
-    float dbValue = *apvts.getRawParameterValue(CorePrKey::masterVol);
-    float linearGain = juce::Decibels::decibelsToGain(dbValue);
-
-    for (int ch = 0; ch < renderBuffer.getNumChannels(); ++ch) {
-        auto* data = renderBuffer.getWritePointer(ch);
-        for (int i = 0; i < renderSamples; ++i) {
-            data[i] = std::tanh(data[i] * linearGain);
-        }
-    }
+	previewFx.processBlock(renderBuffer, m_previewParams, apvts);
 
     auto* readPtr = renderBuffer.getReadPointer(0);
 
@@ -986,7 +979,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 
     // 1周期分 ＋ 1サンプル（次の周期の始まりの0）を取得する
     int drawSamples = samplesPerCycle + 1;
-    destBuffer.assign(drawSamples, 0.0f);
+    destBuffer->assign(drawSamples, 0.0f);
 
     float maxAmplitude = 0.0001f;
     for (int i = 0; i < drawSamples; ++i) {
@@ -996,11 +989,16 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>& destBuffer)
 
     for (int i = 0; i < drawSamples; ++i) {
         float val = readPtr[startIndex + i] - dcOffset;
-        destBuffer[i] = val / maxAmplitude;
+        (*destBuffer)[i] = val / maxAmplitude;
     }
 
     // 8. 停止
     previewSynth.noteOff(1, 69, 0.0f, false);
+
+    // ユニゾン・ハーモニー向けに追加
+    if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
+        voice->stopNote(0.0f, false);
+    }
 }
 
 void AudioPlugin2686V::panic()
@@ -1061,5 +1059,15 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 
 CurveCore* AudioPlugin2686V::getCurveCore()
 {
-    return p_curveCore.get();
+    return &m_curveCore;
+}
+
+void AudioPlugin2686V::bakeCurves()
+{
+	m_curveCore.bakeCurves(); // 内部で必要な計算を行う
+}
+
+void AudioPlugin2686V::bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex)
+{
+	m_curveCore.bakeCurvesPrim(positionIndex, targetIndex, paramIndex); // 内部で必要な計算を行う
 }

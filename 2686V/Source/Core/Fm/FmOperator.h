@@ -5,7 +5,7 @@
 #include <array>
 #include <algorithm>
 
-#include "../synth/SynthParams.h"
+#include "../Synth/SynthParams.h"
 #include "./FmOpParams.h"
 
 // ==========================================================
@@ -18,12 +18,14 @@ public:
 
     double m_hostSampleRate = 44100.0;
 
+    bool m_pitchResetOnLegato = false;
+
     FmOpParams m_params;
 
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
     void virtual setParameters(const FmOpParams& params, float feedback);
-    void virtual noteOn(float frequency, float velocity, int noteNumber) {};
+    void virtual noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) {};
     void virtual noteOff();
     bool virtual isPlaying() const { return m_state != State::Idle; }
     float virtual getCurrentEnvelope() const { return m_currentLevel; }

@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../Synth/Mode.h"
+#include "../Synth/SynthMode.h"
 
 // FM音源のパラメータをコピー・ペーストするために使用
 struct FmOpClipboard

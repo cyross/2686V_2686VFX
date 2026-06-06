@@ -2,22 +2,22 @@
 
 #include <JuceHeader.h>
 
-#include "./Mode.h"
+#include "./SynthMode.h"
 #include "./SynthParams.h"
 #include "./SynthCore.h"
 
-#include "../../Synth/Opna/Core.h"
-#include "../../Synth/Opn/Core.h"
-#include "../../Synth/Opl/Core.h"
-#include "../../Synth/Opl3/Core.h"
-#include "../../Synth/Opm/Core.h"
-#include "../../Synth/Opzx7/Core.h"
-#include "../../Synth/Ssg/Core.h"
-#include "../../Synth/Wavetable/Core.h"
-#include "../../Synth/Rhythm/Core.h"
-#include "../../Synth/Adpcm/Core.h"
-#include "../../Synth/Beep/Core.h"
-#include "../../Advanced/Curve/Core.h"
+#include "../../Synth/Opna/SynthOpna.h"
+#include "../../Synth/Opn/SynthOpn.h"
+#include "../../Synth/Opl/SynthOpl.h"
+#include "../../Synth/Opl3/SynthOpl3.h"
+#include "../../Synth/Opm/SynthOpm.h"
+#include "../../Synth/Opzx7/SynthOpzx7.h"
+#include "../../Synth/Ssg/SynthSsg.h"
+#include "../../Synth/Wavetable/SynthWt.h"
+#include "../../Synth/Rhythm/SynthRhythm.h"
+#include "../../Synth/Adpcm/SynthAdpcm.h"
+#include "../../Synth/Beep/SynthBeep.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {
@@ -31,6 +31,7 @@ class SynthVoice : public juce::SynthesiserVoice
 public:
     SynthVoice();
 
+    void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
 
     AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
@@ -62,6 +63,12 @@ public:
     void setCurveCore(CurveCore* p_curveCore);
 
     std::map<OscMode, SynthCore *> coreMap;
+
+    // ユニゾン・ハーモニー用
+    void setUnisonParams(int index, int total, float detune, float spread) 
+    {
+        coreMap[m_mode]->setUnisonParams(index, total, detune, spread);
+    }
 private:
     OscMode m_mode = OscMode::OPNA;
     OpnaCore m_opnaCore;

@@ -3,7 +3,7 @@
 
 #include <JuceHeader.h>
 
-#include "SynthHelpers.h"
+#include "./SynthHelpers.h"
 
 double getTargetRate(int index, double defaultValue) {
     switch (index) {

@@ -1,4 +1,4 @@
-﻿#include "FmCore.h"
+﻿#include "./FmCore.h"
 
 const std::array<FmCore::BaseAlgRouting, 8> FmCore::baseRoutings = { {
     // in2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4

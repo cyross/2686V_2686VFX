@@ -1,5 +1,7 @@
-﻿#include "GuiEnvelopeGraph.h"
-#include "../../Advanced/Curve/Params.h"
+﻿#include <cmath>
+
+#include "./GuiEnvelopeGraph.h"
+#include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 GuiEnvelopeGraph::GuiEnvelopeGraph() { setOpaque(false); }
 
@@ -32,6 +34,14 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
         g.setColour(juce::Colours::white.withAlpha(0.8f));
         g.setFont(12.0f);
         g.drawText(currentTitle, graphArea.withTrimmedLeft(4).withTrimmedTop(2), juce::Justification::topLeft, false);
+    }
+
+    if (isBypass) {
+        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setFont(14.0f);
+        g.drawText(juce::String("") + "バイパス中", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+
+        return;
     }
 
     if (currentPhases.empty()) return;
@@ -67,12 +77,26 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     float basePixelY = (currentType == EnvType::Pitch) ? graphArea.getCentreY() : graphArea.getBottom();
     float heightScale = (currentType == EnvType::Pitch) ? (graphArea.getHeight() / 2.0f) : graphArea.getHeight();
 
+    bool hasMax = false;
+    float maxX = 0.0f;
+    float maxY = 0.0f;
+    juce::Colour maxColour = juce::Colours::white;
+
     for (const auto& phase : currentPhases) {
-        if (phase.widthPx <= 0.0f) continue;
+        if (phase.widthPx <= 0.0f && !phase.isMax) continue;
 
         // ジャンプ指定がある場合、X座標を移動させて新しい線を引く準備をする
         if (phase.moveToStart) {
             currentPixelX = graphArea.getX() + (phase.startXOffsetPx * scaleX);
+        }
+
+        if (phase.isMax) {
+            hasMax = true;
+            maxX = currentPixelX;
+            maxY = basePixelY - (phase.startLevel * heightScale);
+            maxColour = phase.color;
+
+            continue;
         }
 
         float actualWidth = phase.widthPx * scaleX;
@@ -96,7 +120,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             // 2. カーブ関数を通した生のY値を取得
             float rawY = phase.curveFunc(curveX);
 
-            if (isnan(rawY)) {
+            if (std::isnan(rawY)) {
                 rawY = yStart; // NAN回避
             }
 
@@ -135,6 +159,11 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             g.setColour(phase.phaseLineColor.withAlpha(0.3f));
             g.drawLine(currentPixelX, graphArea.getY(), currentPixelX, graphArea.getBottom(), 2.0f);
         }
+    }
+
+    if (hasMax) {
+        g.setColour(maxColour);
+        g.drawLine(maxX, maxY, maxX, basePixelY, 2.0f);
     }
 }
 
@@ -334,6 +363,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     const GuiSlider& decaySlider,
     const GuiSlider& sustainSlider,
     const GuiSlider& releaseSlider,
+    const GuiToggleButton& korButton,
     CurveCore* p_curveCore,
     bool isCurveMode,
     int posIdx
@@ -369,7 +399,9 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float slVal = (float)sustainSlider.getValue();
     float rrVal = (float)releaseSlider.getValue();
 
-    float sl = (slMax - slVal) / slMax; // 15=0.0, 0=1.0
+    float sl = slVal / slMax;
+
+    bool isKor = korButton.getToggleState();
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::cyan;
@@ -404,13 +436,25 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float noteOffPositionX = currentTotalWidth;
 
     // 4. Release (通常時のみカーブを適用)
-    phases.push_back({
-        .widthPx = rateToWidth(rrVal, rrMax),
-        .startLevel = sl,
-        .endLevel = 0.0f,
-        .color = color,
-        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
-        });
+    if (isKor) {
+        // korでは、rrが終わるまでslをキープ
+        phases.push_back({
+            .widthPx = rateToWidth(rrVal, rrMax),
+            .startLevel = sl,
+            .endLevel = sl,
+            .color = juce::Colours::yellow,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            });
+    }
+    else {
+        phases.push_back({
+            .widthPx = rateToWidth(rrVal, rrMax),
+            .startLevel = sl,
+            .endLevel = 0.0f,
+            .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
+            });
+    }
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Amp, "Amp Env", phases);
 }

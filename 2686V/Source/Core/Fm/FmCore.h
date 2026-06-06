@@ -4,7 +4,7 @@
 #include <array>
 #include <cmath>
 
-#include "../synth/synthCore.h"
+#include "../Synth/SynthCore.h"
 
 class FmCore : public SynthCore
 {

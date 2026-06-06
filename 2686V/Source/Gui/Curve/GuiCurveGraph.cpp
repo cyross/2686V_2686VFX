@@ -1,4 +1,6 @@
-﻿#include "GuiCurveGraph.h"
+﻿#include <cmath>
+
+#include "./GuiCurveGraph.h"
 
 GuiCurveGraph::GuiCurveGraph()
 {
@@ -131,7 +133,7 @@ void GuiCurveGraph::paint(juce::Graphics& g)
         float ny = evaluateCurve(nx);
 
         // NaN のときは 0.0 にする
-        if (isnan(ny)) {
+        if (std::isnan(ny)) {
             ny = 0.0f;
         }
 

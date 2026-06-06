@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 
 struct FmOpParams
 {
@@ -17,7 +17,7 @@ struct FmOpParams
     float sustainRate = 0.0f; // SR: Sustain Rate
 
     int multiple = 1;      // MULTI: 0~15
-    float mutipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
+    float multipleRatio = 0.5f; // MULTI Ratio 0.5-27.57
     int detune = 0;        // DT: 0~7
     int detune2 = 0;       // DT2: OPL3/OPM Only
     float totalLevel = 0.0f;

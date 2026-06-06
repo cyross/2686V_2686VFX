@@ -5,26 +5,26 @@
 #include <span>
 
 #include "../Processor/PluginProcessor.h"
-#include "../Fm/SliderRegMap.h"
+#include "../Fm/FmSliderRegMap.h"
 #include "../Gui/GuiLF.h"
-#include "./GuiText.h"
+#include "./EditorGuiText.h"
 
-#include "../../Gui/Opna/Core.h"
-#include "../../Gui/Opn/Core.h"
-#include "../../Gui/Opl/Core.h"
-#include "../../Gui/Opl3/Core.h"
-#include "../../Gui/Opm/Core.h"
-#include "../../Gui/Opzx7/Core.h"
-#include "../../Gui/Ssg/Core.h"
-#include "../../Gui/Wavetable/Core.h"
-#include "../../Gui/Rhythm/Core.h"
-#include "../../Gui/Adpcm/Core.h"
-#include "../../Gui/Beep/Core.h"
-#include "../../Gui/Preset/Core.h"
-#include "../../Gui/Fx/Core.h"
-#include "../../Gui/Settings/Core.h"
-#include "../../Gui/About/Core.h"
-#include "../../Gui/Curve/Core.h"
+#include "../../Gui/Opna/GuiOpna.h"
+#include "../../Gui/Opn/GuiOpn.h"
+#include "../../Gui/Opl/GuiOpl.h"
+#include "../../Gui/Opl3/GuiOpl3.h"
+#include "../../Gui/Opm/GuiOpm.h"
+#include "../../Gui/Opzx7/GuiOpzx7.h"
+#include "../../Gui/Ssg/GuiSsg.h"
+#include "../../Gui/Wavetable/GuiWt.h"
+#include "../../Gui/Rhythm/GuiRhythm.h"
+#include "../../Gui/Adpcm/GuiAdpcm.h"
+#include "../../Gui/Beep/GuiBeep.h"
+#include "../../Gui/Preset/GuiPreset.h"
+#include "../../Gui/Fx/GuiFx.h"
+#include "../../Gui/Settings/GuiSettings.h"
+#include "../../Gui/About/GuiAbout.h"
+#include "../../Gui/Curve/GuiCurve.h"
 
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
@@ -47,11 +47,11 @@ public:
         float cornerSize = 2.0f; // 角丸のサイズ（お好みで調整してください）
 
         // 背景の塗りつぶし
-        juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+        juce::Colour baseColour = backgroundColour.darker(0.6f).withMultipliedAlpha(button.isEnabled() ? 0.7f : 0.4f);
 
         // マウスホバー時やクリック時は少し明るくする
         if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
-            baseColour = baseColour.brighter(0.1f);
+            baseColour = baseColour.brighter(0.5f);
 
         g.setColour(baseColour);
         g.fillRoundedRectangle(bounds, cornerSize);
@@ -81,6 +81,7 @@ public:
     void updateAdpcmFileName(const juce::String finename);
     void updateOpzx7FileNames(const juce::String finename);
     void setupLogo();
+    void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);
     void drawBg(juce::Graphics& g);
     void loadSettingsFile();
@@ -184,11 +185,20 @@ private:
     // 波形プレビュー用
     SystemButtonLF togglePreviewButtonLF;
     juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
-    // 青系のリアルタイムプレビュー
-    GuiWaveformPreview staticPreview{ juce::Colour(0xff0a1a3a), juce::Colours::cyan };
     // 緑系のリアルタイムプレビュー
-    GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
+    juce::Label previewLabel;
+    GuiWaveformPreview realtimePreview{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue };
     bool isPreviewVisible = false;
+
+    enum class ViewMode { Full = 0, MiniPlayer = 1, Minimum = 2 };
+    ViewMode viewMode = ViewMode::Full;
+    juce::Label miniPresetLabel;
+    juce::Label miniModeLabel;
+    SystemButtonLF miniToggleBtnLF;
+    juce::TextButton toggleMiniBtn;
+    juce::Label miniLogoLabel;
+    juce::ImageComponent mainIconImage;
+    juce::ImageComponent miniIconImage;
 
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;

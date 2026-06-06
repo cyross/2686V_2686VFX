@@ -2,20 +2,20 @@
 
 #include <array>
 
-#include "./Mode.h"
+#include "./SynthMode.h"
 
-#include "../../Synth/Opna/Params.h"
-#include "../../Synth/Opn/Params.h"
-#include "../../Synth/Opl/Params.h"
-#include "../../Synth/Opl3/Params.h"
-#include "../../Synth/Opm/Params.h"
-#include "../../Synth/Opzx7/Params.h"
-#include "../../Synth/Ssg/Params.h"
-#include "../../Synth/Wavetable/Params.h"
-#include "../../Synth/Rhythm/Params.h"
-#include "../../Synth/Adpcm/Params.h"
-#include "../../Synth/Beep/Params.h"
-#include "../../Advanced/Curve/Params.h"
+#include "../../Synth/Opna/SynthOpnaParams.h"
+#include "../../Synth/Opn/SynthOpnParams.h"
+#include "../../Synth/Opl/SynthOplParams.h"
+#include "../../Synth/Opl3/SynthOpl3Params.h"
+#include "../../Synth/Opm/SynthOpmParams.h"
+#include "../../Synth/Opzx7/SynthOpzx7Params.h"
+#include "../../Synth/Ssg/SynthSsgParams.h"
+#include "../../Synth/Wavetable/SynthWtParams.h"
+#include "../../Synth/Rhythm/SynthRhythmParams.h"
+#include "../../Synth/Adpcm/SynthAdpcmParams.h"
+#include "../../Synth/Beep/SynthBeepParams.h"
+#include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {
@@ -24,6 +24,9 @@ struct SynthParams
 
     // --- Monophonic Mode ---
     bool monoMode = false;
+    bool useVelocity = false;
+    bool pitchResetOnLegato = false;
+    float fixedVelocity = 1.0f;
 
     OpnaParams opna;
     OpnParams opn;

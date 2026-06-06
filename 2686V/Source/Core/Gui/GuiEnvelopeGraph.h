@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "./GuiComponents.h"
-#include "../../Advanced/Curve/Core.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class GuiEnvelopeGraph : public juce::Component
 {
@@ -32,6 +32,7 @@ public:
         float startXOffsetPx = 0.0f; // グラフ左端からの相対X座標 (moveToStart が true の場合のみ使用)
         bool drawPhaseLine = true;
         juce::Colour phaseLineColor = juce::Colours::white;
+        bool isMax = false; // 値が最大値 = 縦の直線
     };
 
     void setEnvelope(EnvType type, const juce::String& title, const std::vector<PhaseDef>& phases);
@@ -64,12 +65,15 @@ public:
         const GuiSlider& decaySlider,
         const GuiSlider& sustainSlider,
         const GuiSlider& releaseSlider,
+        const GuiToggleButton& korButton,
         CurveCore* p_curveCore,
         bool isCurveMode,
         int posIdx
     );
+    void updateBypass(bool bypass) { this->isBypass = bypass; }
 private:
     EnvType currentType = EnvType::Amp;
     juce::String currentTitle;
     std::vector<PhaseDef> currentPhases;
+    bool isBypass;
 };
