@@ -35,10 +35,8 @@ namespace SsgGuiText
 	namespace Group
 	{
 		static inline const juce::String mainGroup = juce::String("") + "SSGチャンネル設定";
-		static inline const juce::String voice = juce::String("") + "音声設定";
 		static inline const juce::String ssgDuty = u8"矩形波(デューティ比)設定";
 		static inline const juce::String ssgTri = juce::String("") + "三角波設定";
-		static inline const juce::String ssgHwEnv = juce::String("") + "エンベロープ";
 	}
 
 	namespace Adsr
