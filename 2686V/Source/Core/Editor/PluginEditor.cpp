@@ -18,6 +18,8 @@
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
 
+#include "AppIconForAbout.h"
+
 AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
 {
@@ -223,56 +225,32 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
         updatePreviewVisibilityToProcessor();
 
+        tabs.setVisible(!isMiniPlayerMode);
+        logoLabel.setVisible(!isMiniPlayerMode);
+        panicButton.setVisible(!isMiniPlayerMode);
+
+        miniLogoLabel.setVisible(isMiniPlayerMode);
+        mainIconImage.setVisible(!isMiniPlayerMode);
+        miniIconImage.setVisible(isMiniPlayerMode);
+        miniPresetLabel.setVisible(isMiniPlayerMode);
+        miniModeLabel.setVisible(isMiniPlayerMode);
+        realtimePreview.setVisible(isMiniPlayerMode || isPreviewVisible);
+
         if (isMiniPlayerMode) {
             // --- ミニプレイヤーモードへ移行 ---
-
-            // 1. 通常のUIを隠す
-            tabs.setVisible(false);
-            logoLabel.setVisible(false);
-            panicButton.setVisible(false);
-
-            miniLogoLabel.setVisible(true);
             miniLogoLabel.setBounds(10, 244, 200, 48);
-
-            // 2. ミニ用のUIを表示
-            miniPresetLabel.setVisible(true);
             miniPresetLabel.setText(juce::String("") + "Preset: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
             miniPresetLabel.setBounds(5, 260, 150, 15);
-            miniModeLabel.setVisible(true);
             miniModeLabel.setBounds(5, 278, 150, 15);
             miniModeLabel.setText(juce::String("") + "Mode: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
-
-            // プレビューは強制表示＆ミニ用の位置へ
-            realtimePreview.setVisible(true);
             realtimePreview.setBounds(10, 50, 200, 200);
-
-            // 3. ウィンドウサイズを縮小 (例: 幅220, 高さ300)
             setSize(220, 300);
-
-            // ※ タイマー(プレビュー更新)を確実に回す
             startTimerHz(15);
         }
         else {
             // --- 通常モードへ復帰 ---
-
-            // 1. ミニ用のUIを隠す
-            miniPresetLabel.setVisible(false);
-            miniModeLabel.setVisible(false);
-
-            miniLogoLabel.setVisible(false);
-
-            // 2. 通常のUIを表示
-            tabs.setVisible(true);
-            logoLabel.setVisible(true);
-            panicButton.setVisible(true);
-
-            // プレビューは、本来の isPreviewVisible の状態に戻す
-            realtimePreview.setVisible(isPreviewVisible);
-
-            // 3. ウィンドウサイズを復元
-            updateKeyboardVisibility(); // これで元のサイズが再計算されてセットされます
-            resized(); // 通常レイアウトに戻す
-
+            updateKeyboardVisibility();
+            resized();
             updateTimerState();
         }
         };
@@ -362,12 +340,20 @@ void AudioPlugin2686VEditor::resized()
 {
     if (isMiniPlayerMode) {
         // ミニモード用のレイアウト
-        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20); // 右上に配置
+        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
         miniPresetLabel.setBounds(10, 5, 150, 20);
         miniModeLabel.setBounds(10, 25, 150, 20);
         miniLogoLabel.setBounds(10, 244, 200, 48);
-        // プレビューはonClickで設定済みでも良いし、ここで動的配置しても良い
-        return; // 通常のレイアウト処理には行かせない！
+
+        int textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
+        int textHeight = (int)miniLogoLabel.getFont().getHeight();
+        int iconSize = textHeight - 12;
+        int iconX = 210 - textWidth - iconSize - 8;
+        int iconY = 244 + textHeight / 2 - 6;
+
+        miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
+
+        return;
     }
 
     auto area = getLocalBounds();
@@ -381,7 +367,6 @@ void AudioPlugin2686VEditor::resized()
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
-        // 上下に並べる
         realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
     }
 
@@ -400,7 +385,16 @@ void AudioPlugin2686VEditor::resized()
 #endif
     toggleMiniBtn.setBounds(getWidth() - 315 - previewPaddingRight, 5, 30, 20); // 右上に配置
 
-    logoLabel.setBounds(area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height));
+    auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
+    logoLabel.setBounds(reducedArea);
+
+    int mainTextWidth = (int)logoLabel.getFont().getStringWidthFloat(logoLabel.getText());
+    int mainTextHeight = (int)logoLabel.getFont().getHeight();
+    int mainIconSize = mainTextHeight - 44;
+    int mainIconX = reducedArea.getRight() - mainTextWidth - mainIconSize - 15; // 余白15px
+    int mainIconY = reducedArea.getBottom() - ((mainTextHeight + mainIconSize) / 2);
+
+    mainIconImage.setBounds(mainIconX, mainIconY, mainIconSize, mainIconSize);
 
     tabs.setBounds(area);
 
@@ -490,41 +484,41 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 void AudioPlugin2686VEditor::setupLogo()
 {
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-
-    // フォント変更: Bold + Italic, サイズ 128.0f
     logoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, EditorGuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
-
-    // 右下寄せ
     logoLabel.setJustificationType(juce::Justification::bottomRight);
-
-    // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
     logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
-
     addAndMakeVisible(logoLabel);
-
-    // 最背面へ移動 (これでタブの後ろに行きます)
     logoLabel.toBack();
+
+    auto iconImg = juce::ImageCache::getFromMemory(
+        AppIconAboutForAboutData::icon_png,
+        AppIconAboutForAboutData::icon_pngSize
+    );
+    mainIconImage.setImage(iconImg);
+    mainIconImage.setImagePlacement(juce::RectanglePlacement::centred);
+    mainIconImage.setAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha);
+    addAndMakeVisible(mainIconImage);
+    mainIconImage.toBack();
 }
 
 void AudioPlugin2686VEditor::setupMiniLogo()
 {
-    miniLogoLabel.setVisible(false);
-
     miniLogoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-
-    // フォント変更: Bold + Italic, サイズ 128.0f
     miniLogoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, 40.0f, juce::Font::bold | juce::Font::italic));
-
-    // 右下寄せ
     miniLogoLabel.setJustificationType(juce::Justification::bottomRight);
-
-    // 色設定 (背景になじむように少し透明度を入れると良いですが、ここでは白ではっきり表示)
     miniLogoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
-
-    addAndMakeVisible(miniLogoLabel);
-
-    // 最背面へ移動 (これでタブの後ろに行きます)
+    addChildComponent(miniLogoLabel);
     miniLogoLabel.toBack();
+
+    auto iconImg = juce::ImageCache::getFromMemory(
+        AppIconAboutForAboutData::icon_png,
+        AppIconAboutForAboutData::icon_pngSize
+    );
+    miniIconImage.setImage(iconImg);
+    miniIconImage.setImagePlacement(juce::RectanglePlacement::centred);
+    miniIconImage.setAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha);
+    addChildComponent(miniIconImage);
+    miniIconImage.toBack();
 }
 
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)

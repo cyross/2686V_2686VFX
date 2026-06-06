@@ -16,7 +16,7 @@ namespace EditorGuiValue
 	{
 		static inline const juce::String fontFamily = "Times New Roman";
 		static inline constexpr float fontSize = 96.0f;
-		static inline constexpr float fontAlpha = 0.3f;
+		static inline constexpr float fontAlpha = 0.6f;
 	}
 
 	namespace About

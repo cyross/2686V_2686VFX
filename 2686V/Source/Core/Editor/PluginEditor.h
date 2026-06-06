@@ -195,6 +195,8 @@ private:
     SystemButtonLF miniToggleBtnLF;
     juce::TextButton toggleMiniBtn{ "M" }; // 切り替えボタン
     juce::Label miniLogoLabel;
+    juce::ImageComponent mainIconImage;
+    juce::ImageComponent miniIconImage;
 
     std::unique_ptr<GuiFx> fxGui; // FX
     std::unique_ptr<GuiSettings> settingsGui;
