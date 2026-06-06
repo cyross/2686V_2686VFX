@@ -227,7 +227,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
         tabs.setVisible(!isMiniPlayerMode);
         logoLabel.setVisible(!isMiniPlayerMode);
-        panicButton.setVisible(!isMiniPlayerMode);
 
         miniLogoLabel.setVisible(isMiniPlayerMode);
         mainIconImage.setVisible(!isMiniPlayerMode);
@@ -344,6 +343,7 @@ void AudioPlugin2686VEditor::resized()
         miniPresetLabel.setBounds(10, 5, 150, 20);
         miniModeLabel.setBounds(10, 25, 150, 20);
         miniLogoLabel.setBounds(10, 244, 200, 48);
+        panicButton.setBounds(getWidth() - 35, 28, 30, 20);
 
         int textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
         int textHeight = (int)miniLogoLabel.getFont().getHeight();
