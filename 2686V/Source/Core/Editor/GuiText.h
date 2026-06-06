@@ -30,45 +30,53 @@ namespace EditorGuiText
 	{
 		static inline const juce::String show = u8">>";
 		static inline const juce::String hide = u8"<<";
-		static inline const juce::String tooltipShow = u8"Hide Preview";
-		static inline const juce::String tooltipHide = u8"Show Preview";
+		static inline const juce::String label = juce::String("") + "波形プレビュー(オシロスコープ)";
+		static inline const juce::String tooltipShow = juce::String("") + "波形プレビューを表示します。";
+		static inline const juce::String tooltipHide = juce::String("") + "波形プレビューを隠します。";
 	}
 
 	namespace Panic
 	{
 		static inline const juce::String title = u8"!";
-		static inline const juce::String tooltip = u8"Reset Audio Engine";
+		static inline const juce::String tooltip = juce::String("") + "オーディオエンジンを初期状態に戻します。";
 	}
 
 	namespace Undo
 	{
 		static inline const juce::String title = u8"Un";
-		static inline const juce::String tooltip = u8"Undo";
-		static inline const juce::String tooltipNone = u8"Nothing to undo";
+		static inline const juce::String tooltip = juce::String("") + "編集を履歴から戻します。";
+		static inline const juce::String tooltipNone = juce::String("") + "編集履歴がありません。";
 	}
 
 	namespace Redo
 	{
 		static inline const juce::String title = u8"Re";
-		static inline const juce::String tooltip = u8"Redo";
-		static inline const juce::String tooltipNone = u8"Nothing to Redo";
+		static inline const juce::String tooltip = juce::String("") + "履歴にある編集をやり直します。";
+		static inline const juce::String tooltipNone = juce::String("") + "編集履歴がありません。";
 	}
 
 	namespace Copy
 	{
 		static inline const juce::String title = u8"C";
-		static inline const juce::String tooltip = u8"Copy FM Parameters";
+		static inline const juce::String tooltip = juce::String("") + "現在のFM音源のパラメータをクリップボードにコピーします。";
 	}
 
 	namespace Paste
 	{
 		static inline const juce::String title = u8"P";
-		static inline const juce::String tooltip = u8"Paste FM Parameters";
+		static inline const juce::String tooltip = juce::String("") + "クリップボードにコピーしたFMパラメータを現在の画面に貼り付けます";
 	}
 
 	namespace Reset
 	{
 		static inline const juce::String title = u8"Reset";
-		static inline const juce::String tooltip = u8"Reset Parameters";
+		static inline const juce::String tooltip = juce::String("") + "現在の音源のパラメータを初期化します。";
+	}
+
+	namespace MiniPlayer
+	{
+		static inline const juce::String title = u8"M";
+		static inline const juce::String tooltip = juce::String("") + "ウインドウをミニプレイヤーに切り替えます。";
+		static inline const juce::String tooltipReset = juce::String("") + "ウインドウをフル表示に切り替えます。";
 	}
 }

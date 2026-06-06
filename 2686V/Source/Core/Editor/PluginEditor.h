@@ -47,11 +47,11 @@ public:
         float cornerSize = 2.0f; // 角丸のサイズ（お好みで調整してください）
 
         // 背景の塗りつぶし
-        juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+        juce::Colour baseColour = backgroundColour.darker(0.6f).withMultipliedAlpha(button.isEnabled() ? 0.7f : 0.4f);
 
         // マウスホバー時やクリック時は少し明るくする
         if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
-            baseColour = baseColour.brighter(0.1f);
+            baseColour = baseColour.brighter(0.5f);
 
         g.setColour(baseColour);
         g.fillRoundedRectangle(bounds, cornerSize);
@@ -186,14 +186,15 @@ private:
     SystemButtonLF togglePreviewButtonLF;
     juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
     // 緑系のリアルタイムプレビュー
-    GuiWaveformPreview realtimePreview{ juce::Colour(0xff0a3a1a), juce::Colours::lightgreen };
+    juce::Label previewLabel;
+    GuiWaveformPreview realtimePreview{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue };
     bool isPreviewVisible = false;
 
     bool isMiniPlayerMode = false;
     juce::Label miniPresetLabel;
     juce::Label miniModeLabel;
     SystemButtonLF miniToggleBtnLF;
-    juce::TextButton toggleMiniBtn{ "M" }; // 切り替えボタン
+    juce::TextButton toggleMiniBtn;
     juce::Label miniLogoLabel;
     juce::ImageComponent mainIconImage;
     juce::ImageComponent miniIconImage;

@@ -101,18 +101,26 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     addChildComponent(realtimePreview);
 
+    // 波形プレビューラベル
+    addChildComponent(previewLabel);
+    previewLabel.setText(EditorGuiText::Preview::label, juce::NotificationType::dontSendNotification);
+    previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+    previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+
     // プレビュー表示切替ボタン
     addAndMakeVisible(togglePreviewBtn);
     togglePreviewBtn.setButtonText(getPreviewButtonText());
     togglePreviewBtn.setTooltip(getPreviewTooltipText());
     togglePreviewBtn.setLookAndFeel(&togglePreviewButtonLF);
     togglePreviewBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green.withAlpha(0.9f));
+    togglePreviewBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
         updatePreviewVisibilityToProcessor();
 
         realtimePreview.setVisible(isPreviewVisible);
+        previewLabel.setVisible(isPreviewVisible);
         togglePreviewBtn.setButtonText(getPreviewButtonText());
         togglePreviewBtn.setTooltip(getPreviewTooltipText());
 
@@ -132,7 +140,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     panicButton.setTooltip(EditorGuiText::Panic::tooltip);
     panicButton.setLookAndFeel(&panicButtonLF);
     panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red.withAlpha(0.9f));
+    panicButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
     panicButton.onClick = [this] {
         audioProcessor.panic();
         };
@@ -144,8 +153,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     undoButton.setButtonText(EditorGuiText::Undo::title);
     undoButton.setTooltip(getUndoTooltipText());
     undoButton.setLookAndFeel(&undoButtonLF);
-    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::yellow);
-    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
+    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    undoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
     undoButton.onClick = [this] {
         audioProcessor.undoManager.undo();
         };
@@ -156,8 +166,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     redoButton.setButtonText(EditorGuiText::Redo::title);
     redoButton.setTooltip(getRedoTooltipText());
     redoButton.setLookAndFeel(&redoButtonLF);
-    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue.withAlpha(0.9f));
+    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    redoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
     redoButton.onClick = [this] {
         audioProcessor.undoManager.redo();
         };
@@ -172,8 +183,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     copyParamsButton.setButtonText(EditorGuiText::Copy::title);
     copyParamsButton.setTooltip(EditorGuiText::Copy::tooltip);
     copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
-    copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
+    copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    copyParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
     copyParamsButton.onClick = [this] {
         copyFmParamsToString();
         copyFmParamsToObject();
@@ -185,8 +197,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     pasteParamsButton.setButtonText(EditorGuiText::Paste::title);
     pasteParamsButton.setTooltip(EditorGuiText::Paste::tooltip);
     pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
-    pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow.darker(0.6f).withAlpha(0.9f));
+    pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    pasteParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
     pasteParamsButton.onClick = [this] {
         pasteFmParamsFromObject();
         };
@@ -197,11 +210,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addAndMakeVisible(initParamsButton);
     initParamsButton.setVisible(true);
     initParamsButton.setButtonText(EditorGuiText::Reset::title);
-    initParamsButton.setTooltip(EditorGuiText::Redo::tooltip);
+    initParamsButton.setTooltip(EditorGuiText::Reset::tooltip);
     initParamsButton.setLookAndFeel(&initParamsButtonLF);
-    initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white.darker(0.8f));
-    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
-    initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white.darker(0.2f).withAlpha(0.9f));
+    initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white);
     initParamsButton.onClick = [this] {
         initParams();
         };
@@ -214,12 +227,16 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addAndMakeVisible(miniPresetLabel);
     miniPresetLabel.setVisible(false);
 
+    // ミニプレイヤー表示切替ボタン
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
+    toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::title);
+    toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltip);
     toggleMiniBtn.setLookAndFeel(&miniToggleBtnLF);
-    toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::cyan.darker(0.8f));
-    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
-    toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan.darker(0.2f).withAlpha(0.9f));
+    toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan);
+    toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, juce::Colours::cyan);
     toggleMiniBtn.onClick = [this] {
         isMiniPlayerMode = !isMiniPlayerMode;
 
@@ -233,21 +250,29 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         miniIconImage.setVisible(isMiniPlayerMode);
         miniPresetLabel.setVisible(isMiniPlayerMode);
         miniModeLabel.setVisible(isMiniPlayerMode);
+        previewLabel.setVisible(isMiniPlayerMode);
         realtimePreview.setVisible(isMiniPlayerMode || isPreviewVisible);
 
         if (isMiniPlayerMode) {
             // --- ミニプレイヤーモードへ移行 ---
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipReset);
             miniLogoLabel.setBounds(10, 244, 200, 48);
-            miniPresetLabel.setText(juce::String("") + "Preset: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+            miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
             miniPresetLabel.setBounds(5, 260, 150, 15);
             miniModeLabel.setBounds(5, 278, 150, 15);
-            miniModeLabel.setText(juce::String("") + "Mode: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+            miniModeLabel.setText(juce::String("") + "音源: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
             realtimePreview.setBounds(10, 50, 200, 200);
+            previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+            previewLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+            previewLabel.setBounds(10, 50, 180, 20);
             setSize(220, 300);
             startTimerHz(15);
         }
         else {
             // --- 通常モードへ復帰 ---
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltip);
+            previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+            previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
             updateKeyboardVisibility();
             resized();
             updateTimerState();
@@ -367,6 +392,7 @@ void AudioPlugin2686VEditor::resized()
     if (isPreviewVisible)
     {
         auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
+        previewLabel.setBounds(rightArea.getX() + 4, 300, 200, 20);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
     }
 
