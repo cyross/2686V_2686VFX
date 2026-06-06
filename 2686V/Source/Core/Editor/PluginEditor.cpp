@@ -426,7 +426,7 @@ void AudioPlugin2686VEditor::resized()
 
     // タブの中身（コンテンツ領域）
     auto content = tabs.getLocalBounds();
-    auto tabContent = content.removeFromLeft(content.getWidth() - 300);
+    auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height); // 全体の余白
 
     opnaGui->layout(tabContent);

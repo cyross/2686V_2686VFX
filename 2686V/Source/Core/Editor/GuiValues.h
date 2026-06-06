@@ -40,4 +40,9 @@ namespace EditorGuiValue
 			static inline constexpr int height = 10;
 		}
 	}
+
+	namespace Fx
+	{
+		static inline constexpr int width = 300;
+	}
 }
