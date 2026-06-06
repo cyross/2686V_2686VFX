@@ -21,7 +21,6 @@ class GuiSsg : public GuiBase
 {
     // Pane Groups
     GuiGroup mainGroup;
-    GuiGroup voiceGroup;
     GuiGroup dutyGroup;
     GuiGroup triGroup;
 
@@ -133,7 +132,6 @@ public:
 	GuiSsg(const GuiContext& context) :
         GuiBase(context), 
         mainGroup(context),
-        voiceGroup(context),
         dutyGroup(context),
         triGroup(context),
         qualityCat(context),

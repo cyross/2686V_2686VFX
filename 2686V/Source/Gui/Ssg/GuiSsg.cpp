@@ -214,8 +214,6 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(*this, tabOrder);
 
-	voiceGroup.setup(*this, SsgGuiText::Group::voice);
-
     shapeCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::shape });
 
     waveSelector.setup({ .parent = *this, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
@@ -341,6 +339,18 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     layoutGraph(mRect);
     updateGraph();
 
+    layoutMainCategory({ .mainRect = mRect, .label = &shapeCat });
+    layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector, });
+    layoutMainCategory({ .mainRect = mRect, .label = &toneCat });
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
+    layoutMainCategory({ .mainRect = mRect, .label = &noiseCat });
+    layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
+    layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutMain({ .mainRect = mRect, .component = &noiseOnNoteButton, });
+    layoutMainCategory({ .mainRect = mRect, .label = &mixCat });
+    layoutMain({ .mainRect = mRect, .label = &mixSlider.label, .component = &mixSlider });
+    layoutMainThreeComps({ .rect = mRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+
     ampEnvComponent.layoutComponent(mRect);
 
     pitchEnvComponent.layoutComponent(mRect);
@@ -362,26 +372,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     midiComponent.layoutComponent(mRect);
 
     auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
-
-    // --- Voice Group ---
-    auto voiceArea = paramArea.removeFromTop(230);
-
-    voiceGroup.setBounds(voiceArea);
-    auto vRect = voiceGroup.getBounds().reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
-
-    vRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
-
-    layoutRowCategory({ .rowRect = vRect, .label = &shapeCat });
-    layoutRow({ .rowRect = vRect, .label = &waveSelector.label, .component = &waveSelector, });
-    layoutRowCategory({ .rowRect = vRect, .label = &toneCat });
-    layoutRow({ .rowRect = vRect, .label = &levelSlider.label, .component = &levelSlider, });
-    layoutRowCategory({ .rowRect = vRect, .label = &noiseCat });
-    layoutRow({ .rowRect = vRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutRow({ .rowRect = vRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutRow({ .rowRect = vRect, .component = &noiseOnNoteButton, });
-    layoutRowCategory({ .rowRect = vRect, .label = &mixCat });
-    layoutRow({ .rowRect = vRect, .label = &mixSlider.label, .component = &mixSlider });
-    layoutRowThreeComps({ .rect = vRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     // Wave Group
     float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::wveform);
