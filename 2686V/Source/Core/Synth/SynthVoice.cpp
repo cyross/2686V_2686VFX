@@ -1,4 +1,4 @@
-﻿#include "SynthVoice.h"
+﻿#include "./SynthVoice.h"
 
 SynthVoice::SynthVoice()
 {

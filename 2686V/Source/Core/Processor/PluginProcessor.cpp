@@ -1,8 +1,8 @@
 ﻿#include "PluginProcessor.h"
 
-#include "../Processor/Names.h"
-#include "../../Gui/Settings/Keys.h"
-#include "../../Gui/Settings/Values.h"
+#include "../Processor/ProcessorNames.h"
+#include "../../Gui/Settings/SettingsKeys.h"
+#include "../../Gui/Settings/SettingsValues.h"
 
 #include "../Gui/GuiValues.h"
 

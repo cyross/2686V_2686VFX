@@ -3,18 +3,18 @@
 #include <initializer_list>
 #include <utility>
 
-#include "PluginEditor.h"
+#include "./PluginEditor.h"
 
 #include "../Processor/PluginProcessor.h"
 
-#include "../Processor/Keys.h"
-#include "../Const/FileValues.h"
-#include "../../Gui/Preset/Keys.h"
+#include "../Processor/ProcessorKeys.h"
+#include "../Const/ConstFileValues.h"
+#include "../../Gui/Preset/PresetKeys.h"
 
-#include "../Fm/SliderRegMap.h"
-#include "../Fm/RegisterConverter.h"
+#include "../Fm/FmSliderRegMap.h"
+#include "../Fm/FmRegisterConverter.h"
 
-#include "./GuiValues.h"
+#include "./EditorGuiValues.h"
 #include "../Gui/GuiColor.h"
 #include "../Gui/GuiContext.h"
 
@@ -230,49 +230,114 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // ミニプレイヤー表示切替ボタン
     addAndMakeVisible(toggleMiniBtn);
     toggleMiniBtn.setVisible(true);
-    toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::title);
-    toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltip);
+    toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
+    toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
     toggleMiniBtn.setLookAndFeel(&miniToggleBtnLF);
     toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
     toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
     toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan);
     toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, juce::Colours::cyan);
     toggleMiniBtn.onClick = [this] {
-        isMiniPlayerMode = !isMiniPlayerMode;
-
         updatePreviewVisibilityToProcessor();
 
-        tabs.setVisible(!isMiniPlayerMode);
-        logoLabel.setVisible(!isMiniPlayerMode);
+        switch (viewMode) {
+        case ViewMode::Full: // -> MiniPlayer
+            viewMode = ViewMode::MiniPlayer;
 
-        miniLogoLabel.setVisible(isMiniPlayerMode);
-        mainIconImage.setVisible(!isMiniPlayerMode);
-        miniIconImage.setVisible(isMiniPlayerMode);
-        miniPresetLabel.setVisible(isMiniPlayerMode);
-        miniModeLabel.setVisible(isMiniPlayerMode);
-        previewLabel.setVisible(isMiniPlayerMode);
-        realtimePreview.setVisible(isMiniPlayerMode || isPreviewVisible);
+            tabs.setVisible(false);
+            logoLabel.setVisible(false);
+            miniLogoLabel.setVisible(true);
+            mainIconImage.setVisible(false);
+            miniIconImage.setVisible(true);
+            miniPresetLabel.setVisible(true);
+            miniModeLabel.setVisible(true);
+            previewLabel.setVisible(true);
+            realtimePreview.setVisible(true);
 
-        if (isMiniPlayerMode) {
             // --- ミニプレイヤーモードへ移行 ---
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipReset);
+            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMinimum);
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMinimum);
             miniLogoLabel.setBounds(10, 244, 200, 48);
             miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
             miniPresetLabel.setBounds(5, 260, 150, 15);
-            miniModeLabel.setBounds(5, 278, 150, 15);
             miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+            miniModeLabel.setBounds(5, 278, 150, 15);
             realtimePreview.setBounds(10, 50, 200, 200);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
             previewLabel.setFont(juce::Font(12.0f, juce::Font::bold));
             previewLabel.setBounds(10, 50, 180, 20);
+
             setSize(220, 300);
+
             startTimerHz(15);
-        }
-        else {
-            // --- 通常モードへ復帰 ---
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltip);
+
+            break;
+        case ViewMode::MiniPlayer: // -> Minimum
+            viewMode = ViewMode::Minimum;
+
+            tabs.setVisible(false);
+            logoLabel.setVisible(false);
+            miniLogoLabel.setVisible(true);
+            mainIconImage.setVisible(false);
+            miniIconImage.setVisible(true);
+            miniPresetLabel.setVisible(true);
+            miniModeLabel.setVisible(true);
+            previewLabel.setVisible(false);
+            realtimePreview.setVisible(false);
+
+            // --- ミニマムモードへ移行 ---
+            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToFull);
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToFull);
+            miniLogoLabel.setBounds(10, 44, 200, 48);
+            miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+            miniPresetLabel.setBounds(5, 5, 150, 15);
+            miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+            miniModeLabel.setBounds(5, 25, 150, 15);
+
+            setSize(220, 100);
+
+            break;
+        case ViewMode::Minimum: // -> Full
+            viewMode = ViewMode::Full;
+
+            tabs.setVisible(true);
+            logoLabel.setVisible(true);
+            miniLogoLabel.setVisible(false);
+            mainIconImage.setVisible(true);
+            miniIconImage.setVisible(false);
+            miniPresetLabel.setVisible(false);
+            miniModeLabel.setVisible(false);
+            previewLabel.setVisible(isPreviewVisible);
+            realtimePreview.setVisible(isPreviewVisible);
+
+            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
             previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+
+            updateKeyboardVisibility();
+            resized();
+            updateTimerState();
+
+            break;
+        default: // -> Full
+            viewMode = ViewMode::Full;
+
+            tabs.setVisible(true);
+            logoLabel.setVisible(true);
+            miniLogoLabel.setVisible(false);
+            mainIconImage.setVisible(true);
+            miniIconImage.setVisible(false);
+            miniPresetLabel.setVisible(false);
+            miniModeLabel.setVisible(false);
+            previewLabel.setVisible(isPreviewVisible);
+            realtimePreview.setVisible(isPreviewVisible);
+
+            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
+            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
+            previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+            previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+
             updateKeyboardVisibility();
             resized();
             updateTimerState();
@@ -354,27 +419,63 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 {
 	drawBg(g);
 
-    if (isMiniPlayerMode) {
+    switch (viewMode) {
+    case ViewMode::Full:
+        break;
+    case ViewMode::MiniPlayer:
         g.setColour(juce::Colours::black.withAlpha(0.3f));
         g.fillRect(5, 5, 210, 290);
+        break;
+    case ViewMode::Minimum:
+        g.setColour(juce::Colours::black.withAlpha(0.3f));
+        g.fillRect(5, 5, 210, 90);
+        break;
     }
 }
 
 void AudioPlugin2686VEditor::resized()
 {
-    if (isMiniPlayerMode) {
+    int textWidth = 0;
+    int textHeight = 0;
+    int iconSize = 0;
+    int iconX = 0;
+    int iconY = 0;
+
+    switch (viewMode) {
+    case ViewMode::MiniPlayer:
         // ミニモード用のレイアウト
         toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
-        miniPresetLabel.setBounds(10, 5, 150, 20);
-        miniModeLabel.setBounds(10, 25, 150, 20);
-        miniLogoLabel.setBounds(10, 244, 200, 48);
         panicButton.setBounds(getWidth() - 35, 28, 30, 20);
 
-        int textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
-        int textHeight = (int)miniLogoLabel.getFont().getHeight();
-        int iconSize = textHeight - 12;
-        int iconX = 210 - textWidth - iconSize - 8;
-        int iconY = 244 + textHeight / 2 - 6;
+        miniPresetLabel.setBounds(10, 5, 150, 20);
+        miniModeLabel.setBounds(10, 25, 150, 20);
+
+        miniLogoLabel.setBounds(10, 244, 200, 48);
+
+        textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
+        textHeight = (int)miniLogoLabel.getFont().getHeight();
+        iconSize = textHeight - 12;
+        iconX = 210 - textWidth - iconSize - 8;
+        iconY = 244 + textHeight / 2 - 6;
+
+        miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
+
+        return;
+    case ViewMode::Minimum:
+        // ミニモード用のレイアウト
+        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
+        panicButton.setBounds(getWidth() - 35, 28, 30, 20);
+
+        miniPresetLabel.setBounds(10, 5, 150, 20);
+        miniModeLabel.setBounds(10, 25, 150, 20);
+
+        miniLogoLabel.setBounds(10, 44, 200, 48);
+
+        textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
+        textHeight = (int)miniLogoLabel.getFont().getHeight();
+        iconSize = textHeight - 12;
+        iconX = 210 - textWidth - iconSize - 8;
+        iconY = 44 + textHeight / 2 - 6;
 
         miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
 
@@ -1017,7 +1118,7 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
 
 void AudioPlugin2686VEditor::timerCallback()
 {
-    if (isPreviewVisible || isMiniPlayerMode)
+    if (isPreviewVisible || viewMode == ViewMode::MiniPlayer)
     {
         // 1. 静的波形（完成波形）の更新
         std::vector<float> staticData;
@@ -1047,7 +1148,7 @@ void AudioPlugin2686VEditor::updateTimerState()
 
 void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
 {
-    audioProcessor.previewVisiblity = isPreviewVisible || isMiniPlayerMode;
+    audioProcessor.previewVisiblity = isPreviewVisible || viewMode == ViewMode::MiniPlayer;
 }
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)

@@ -1,0 +1,62 @@
+﻿#pragma once
+#include <cmath>
+#include <algorithm>
+#include <vector>
+#include "../Synth/SynthMode.h"
+
+struct RegisterUnit
+{
+    const juce::String key;
+    int value;
+};
+
+class RegisterConverter
+{
+public:
+    static int convertFmMul(int regValue);
+    static int convertFmDt(int regValue);
+    static int convertMmlDtToReg(int mmlDtValue);
+    static int convertMmlDt2ToReg(int mmlDt2Value);
+    static float convertFmAr(int regValue);
+    static float convertFmRr(int regValue);
+    static float convertFmDr(int regValue);
+    static float convertFmSl(int regValue);
+    static float convertFmTl(int regValue);
+    static int convertFmKs(int regValue);
+    static bool convertFmMask(int regValue);
+
+    // --- For Common / OPNA / OPN
+    static float convertFmSr(int regValue);
+    static int convertFmRg15(int regValue);
+    static int convertFmRg31(int regValue);
+    static int convertFmRg63(int regValue);
+    static int convertFmRg127(int regValue);
+
+    // --- For OPM / OPZX7 ---
+    static int convertFmDt2(int regValue);
+    static float convertFmRrOpzx7(int regValue);
+    static float convertFmTlOpzx7(int regValue);
+    static int convertFmMulOpzx7(int regValue);
+    static int convertFmDtOpzx7(int mmlDtValue);
+
+    // --- For OPL / OPL3 ---
+    // --- 0-15 / 0-63 Scale ---
+    static float convertOplAr(int regValue);
+    static float convertOplDr(int regValue);
+    static float convertOplRr(int regValue);
+    static float convertOplSl(int regValue);
+    static float convertOplTl(int regValue);
+    static int convertOplMul(int regValue);
+    static int convertOplDt(int regValue);
+    static bool convertOplAm(int regValue);
+    static bool convertOplVib(int regValue);
+    static bool convertOplEgType(int regValue);
+    static bool convertOplKsr(int regValue);
+    static int convertOplKsl(int regValue);
+
+	static auto convertFmParam31(int regValue) -> std::optional<float>;
+    static auto convertFmParam15(int regValue) -> std::optional<float>;
+	static auto convertFmParamSl(int regValue) -> std::optional<float>;
+
+    static std::vector<RegisterUnit> convertToRegisterUnit(const juce::String& input);
+};

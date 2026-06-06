@@ -5,7 +5,7 @@
 #include <array>
 #include <algorithm>
 
-#include "../synth/SynthParams.h"
+#include "../Synth/SynthParams.h"
 #include "./FmOpParams.h"
 
 // ==========================================================

@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "./GuiComponents.h"
-#include "../../Advanced/Curve/Core.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class GuiEnvelopeGraph : public juce::Component
 {

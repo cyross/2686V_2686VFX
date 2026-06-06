@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Effect/Envelope/Pitch/Adsr/Params.h"
+#include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 
 struct FmOpParams
 {

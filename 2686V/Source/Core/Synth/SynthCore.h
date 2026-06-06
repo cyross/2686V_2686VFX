@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "SynthParams.h"
+#include "./SynthParams.h"
 
 class SynthCore
 {

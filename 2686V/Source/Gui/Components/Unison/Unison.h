@@ -4,14 +4,14 @@
 #include <array>
 #include <vector>
 
-#include "../../../Core/Const/Global.h"
+#include "../../../Core/Const/ConstGlobal.h"
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../../Gui/Curve/Core.h"
-#include "../../../Advanced/Curve/Core.h"
+#include "../../../Gui/Curve/GuiCurve.h"
+#include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
 class GuiComponentUnison : public GuiBase {

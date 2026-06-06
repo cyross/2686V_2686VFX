@@ -1,5 +1,7 @@
-﻿#include "GuiEnvelopeGraph.h"
-#include "../../Advanced/Curve/Params.h"
+﻿#include <cmath>
+
+#include "./GuiEnvelopeGraph.h"
+#include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 GuiEnvelopeGraph::GuiEnvelopeGraph() { setOpaque(false); }
 
@@ -118,7 +120,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
             // 2. カーブ関数を通した生のY値を取得
             float rawY = phase.curveFunc(curveX);
 
-            if (isnan(rawY)) {
+            if (std::isnan(rawY)) {
                 rawY = yStart; // NAN回避
             }
 

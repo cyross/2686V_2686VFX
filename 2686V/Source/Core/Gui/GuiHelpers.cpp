@@ -1,9 +1,9 @@
-﻿#include "GuiHelpers.h"
+﻿#include "./GuiHelpers.h"
 
-#include "../Const/MmlKeys.h"
+#include "../Const/ConstMmlKeys.h"
 
-#include "../../Core/Fm/RegisterType.h"
-#include "../../Core/Fm/RegisterConverter.h"
+#include "../../Core/Fm/FmRegisterType.h"
+#include "../../Core/Fm/FmRegisterConverter.h"
 
 #include "./GuiValues.h"
 

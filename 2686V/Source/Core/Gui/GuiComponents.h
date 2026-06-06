@@ -13,7 +13,7 @@
 #include "./GuiValues.h"
 #include "./GuiText.h"
 
-#include "../../Core/Fm/SliderRegMap.h"
+#include "../../Core/Fm/FmSliderRegMap.h"
 
 using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;

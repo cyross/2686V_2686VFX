@@ -1,0 +1,509 @@
+﻿#include "./GuiFx.h"
+
+#include "../../Core/Processor/PluginProcessor.h"
+
+#include "../../Processor/Fx/ProcessorFxKeys.h"
+#include "../../Processor/Fx/ProcessorFxValues.h"
+
+#include "../../Core/Gui/GuiHelpers.h"
+#include "./GuiFxValues.h"
+#include "./GuiFxText.h"
+#include "../../Core/Gui/GuiStructs.h"
+
+static std::vector<SelectItem> flTypeItems = {
+    {.name = "LPF", .value = 1 },
+    {.name = "HPF", .value = 2 },
+    {.name = "BPF", .value = 3 }
+};
+
+void GuiFx::setup()
+{
+    const juce::String code = FxPrKey::prefix;
+    int tabOrder = 1;
+    const juce::Colour groupBgColour = juce::Colours::darkblue.withAlpha(0.25f);
+
+    // MainGroup
+    mainGroup.setup(*this, FxGuiText::Group::mainGroup);
+    mainGroup.setBackgroundColor(groupBgColour);
+
+	bypassToggle.setup({ .parent = *this, .id = code + FxPrKey::bypass, .title = FxGuiText::Fx::masterBypass, .isReset = true });
+    bypassToggle.setWantsKeyboardFocus(true);
+    bypassToggle.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(mainSeparator);
+    mainSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset });
+    resetBtn.setWantsKeyboardFocus(true);
+    resetBtn.setExplicitFocusOrder(++tabOrder);
+    resetBtn.onClick = [&] { this->ctx.audioProcessor.initParams("FX_"); };
+
+    // Filter Group
+    filterGroup.setup(*this, FxGuiText::Group::fxFilter);
+    filterGroup.setBackgroundColor(groupBgColour);
+    const juce::String filterPrefix = code + FxPrKey::fil;
+
+    flBypassBtn.setup({ .parent = *this, .id = filterPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    flBypassBtn.setWantsKeyboardFocus(true);
+    flBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(flSeparator);
+    flSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    flTypeSelector.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::type, .title = FxGuiText::Fx::Filter::type, .items = flTypeItems, .isReset = true });
+    flTypeSelector.setWantsKeyboardFocus(true);
+    flTypeSelector.setExplicitFocusOrder(++tabOrder);
+
+    flFreqSlider.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::freq, .title = FxGuiText::Fx::Filter::freq, .isReset = true });
+    flFreqSlider.setWantsKeyboardFocus(true);
+    flFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    flQSlider.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::q, .title = FxGuiText::Fx::Filter::q, .isReset = true });
+    flQSlider.setWantsKeyboardFocus(true);
+    flQSlider.setExplicitFocusOrder(++tabOrder);
+
+    flMixSlider.setup({ .parent = *this, .id = filterPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    flMixSlider.setWantsKeyboardFocus(true);
+    flMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    flDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    flDryBtn.onClick = [&] { flMixSlider.setValue(0.0f); };
+    flDryBtn.setWantsKeyboardFocus(true);
+    flDryBtn.setExplicitFocusOrder(++tabOrder);
+
+    flHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    flHalfBtn.onClick = [&] { flMixSlider.setValue(0.5f); };
+    flHalfBtn.setWantsKeyboardFocus(true);
+    flHalfBtn.setExplicitFocusOrder(++tabOrder);
+
+    flWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    flWetBtn.onClick = [&] { flMixSlider.setValue(1.0f); };
+    flWetBtn.setWantsKeyboardFocus(true);
+    flWetBtn.setExplicitFocusOrder(++tabOrder);
+
+    // 3Band EQ Group
+    eq3bGroup.setup(*this, FxGuiText::Group::fxEq3B);
+    eq3bGroup.setBackgroundColor(groupBgColour);
+    const juce::String eq3bPrefix = code + FxPrKey::eq3b;
+
+    eq3bBypassBtn.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    eq3bBypassBtn.setWantsKeyboardFocus(true);
+    eq3bBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(eq3bSeparator);
+    eq3bSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    eq3bLowGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::lowGainDb, .title = FxGuiText::Fx::Eq3b::lowGainDb, .isReset = true });
+    eq3bLowGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bLowGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMidFreqSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::midFreq, .title = FxGuiText::Fx::Eq3b::midFreq, .isReset = true });
+    eq3bMidFreqSlider.setWantsKeyboardFocus(true);
+    eq3bMidFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMidGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::midGainDb, .title = FxGuiText::Fx::Eq3b::midGainDb, .isReset = true });
+    eq3bMidGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bMidGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bHighGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::highGainDb, .title = FxGuiText::Fx::Eq3b::highGainDb, .isReset = true });
+    eq3bHighGainDbSlider.setWantsKeyboardFocus(true);
+    eq3bHighGainDbSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bMixSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    eq3bMixSlider.setWantsKeyboardFocus(true);
+    eq3bMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    eq3bDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    eq3bDryBtn.onClick = [&] { eq3bMixSlider.setValue(0.0f); };
+    eq3bDryBtn.setWantsKeyboardFocus(true);
+    eq3bDryBtn.setExplicitFocusOrder(++tabOrder);
+
+    eq3bHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    eq3bHalfBtn.onClick = [&] { eq3bMixSlider.setValue(0.5f); };
+    eq3bHalfBtn.setWantsKeyboardFocus(true);
+    eq3bHalfBtn.setExplicitFocusOrder(++tabOrder);
+
+    eq3bWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    eq3bWetBtn.onClick = [&] { eq3bMixSlider.setValue(1.0f); };
+    eq3bWetBtn.setWantsKeyboardFocus(true);
+    eq3bWetBtn.setExplicitFocusOrder(++tabOrder);
+
+    // Tremolo Group
+	tremGroup.setup(*this, FxGuiText::Group::fxTremolo);
+    tremGroup.setBackgroundColor(groupBgColour);
+    const juce::String trmPrefix = code + FxPrKey::trm;
+
+    tBypassBtn.setup({ .parent = *this, .id = trmPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    tBypassBtn.setWantsKeyboardFocus(true);
+    tBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(tSeparator);
+    tSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    tRateSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::Tremolo::rate, .title = FxGuiText::Fx::Tremolo::rate, .isReset = true });
+    tRateSlider.setWantsKeyboardFocus(true);
+    tRateSlider.setExplicitFocusOrder(++tabOrder);
+
+    tDepthSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::Tremolo::depth, .title = FxGuiText::Fx::Tremolo::depth, .isReset = true });
+    tDepthSlider.setWantsKeyboardFocus(true);
+    tDepthSlider.setExplicitFocusOrder(++tabOrder);
+
+    tMixSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    tMixSlider.setWantsKeyboardFocus(true);
+    tMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    tDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    tDryBtn.setWantsKeyboardFocus(true);
+    tDryBtn.setExplicitFocusOrder(++tabOrder);
+    tDryBtn.onClick = [&] { tMixSlider.setValue(0.0f); };
+
+    tHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    tHalfBtn.setWantsKeyboardFocus(true);
+    tHalfBtn.setExplicitFocusOrder(++tabOrder);
+    tHalfBtn.onClick = [&] { tMixSlider.setValue(0.5f); };
+
+    tWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    tWetBtn.setWantsKeyboardFocus(true);
+    tWetBtn.setExplicitFocusOrder(++tabOrder);
+    tWetBtn.onClick = [&] { tMixSlider.setValue(1.0f); };
+
+    // Vibrato Group
+	vibGroup.setup(*this, FxGuiText::Group::fxVibrato);
+    vibGroup.setBackgroundColor(groupBgColour);
+    const juce::String vibPrefix = code + FxPrKey::vib;
+
+    vBypassBtn.setup({ .parent = *this, .id = vibPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    vBypassBtn.setWantsKeyboardFocus(true);
+    vBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(vSeparator);
+    vSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    vRateSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::Vibrato::rate, .title = FxGuiText::Fx::Vibrate::rate, .isReset = true });
+    vRateSlider.setWantsKeyboardFocus(true);
+    vRateSlider.setExplicitFocusOrder(++tabOrder);
+
+    vDepthSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::Vibrato::depth, .title = FxGuiText::Fx::Vibrate::depth, .isReset = true });
+    vDepthSlider.setWantsKeyboardFocus(true);
+    vDepthSlider.setExplicitFocusOrder(++tabOrder);
+
+    vMixSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    vMixSlider.setWantsKeyboardFocus(true);
+    vMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    vDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    vDryBtn.setWantsKeyboardFocus(true);
+    vDryBtn.setExplicitFocusOrder(++tabOrder);
+    vDryBtn.onClick = [&] { vMixSlider.setValue(0.0f); };
+
+    vHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    vHalfBtn.setWantsKeyboardFocus(true);
+    vHalfBtn.setExplicitFocusOrder(++tabOrder);
+    vHalfBtn.onClick = [&] { vMixSlider.setValue(0.5f); };
+
+    vWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    vWetBtn.setWantsKeyboardFocus(true);
+    vWetBtn.setExplicitFocusOrder(++tabOrder);
+    vWetBtn.onClick = [&] { vMixSlider.setValue(1.0f); };
+
+    // Modern Bit Crusher Group
+	mbcGroup.setup(*this, FxGuiText::Group::fxMbc);
+    mbcGroup.setBackgroundColor(groupBgColour);
+    const juce::String mbcPrefix = code + FxPrKey::mbc;
+
+    mbcBypassBtn.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    mbcBypassBtn.setWantsKeyboardFocus(true);
+    mbcBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(mbcSeparator);
+    mbcSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    mbcBitsSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::Mbc::bit, .title = FxGuiText::Fx::Mbc::bit, .isReset = true });
+    mbcBitsSlider.setWantsKeyboardFocus(true);
+    mbcBitsSlider.setExplicitFocusOrder(++tabOrder);
+
+    mbcRateSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::Mbc::rate, .title = FxGuiText::Fx::Mbc::rate, .isReset = true });
+    mbcRateSlider.setWantsKeyboardFocus(true);
+    mbcRateSlider.setExplicitFocusOrder(++tabOrder);
+
+    mbcMixSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    mbcMixSlider.setWantsKeyboardFocus(true);
+    mbcMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    mbcDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    mbcDryBtn.setWantsKeyboardFocus(true);
+    mbcDryBtn.setExplicitFocusOrder(++tabOrder);
+
+    mbcDryBtn.onClick = [&] { mbcMixSlider.setValue(0.0f); };
+    mbcDryBtn.setWantsKeyboardFocus(true);
+    mbcDryBtn.setExplicitFocusOrder(++tabOrder);
+
+    mbcHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    mbcHalfBtn.setWantsKeyboardFocus(true);
+    mbcHalfBtn.setExplicitFocusOrder(++tabOrder);
+    mbcHalfBtn.onClick = [&] { mbcMixSlider.setValue(0.5f); };
+
+    mbcWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    mbcWetBtn.setWantsKeyboardFocus(true);
+    mbcWetBtn.setExplicitFocusOrder(++tabOrder);
+    mbcWetBtn.onClick = [&] { mbcMixSlider.setValue(1.0f); };
+
+    // Delay Group
+	delayGroup.setup(*this, FxGuiText::Group::fxDelay);
+    delayGroup.setBackgroundColor(groupBgColour);
+    const juce::String dlyPrefix = code + FxPrKey::dly;
+
+    dBypassBtn.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    dBypassBtn.setWantsKeyboardFocus(true);
+    dBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(dSeparator);
+    dSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    dTimeSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::Delay::time, .title = FxGuiText::Fx::Delay::time, .isReset = true });
+    dTimeSlider.setWantsKeyboardFocus(true);
+    dTimeSlider.setExplicitFocusOrder(++tabOrder);
+
+    dFbSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::Delay::fb, .title = FxGuiText::Fx::Delay::fb, .isReset = true });
+    dFbSlider.setWantsKeyboardFocus(true);
+    dFbSlider.setExplicitFocusOrder(++tabOrder);
+
+    dMixSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    dMixSlider.setWantsKeyboardFocus(true);
+    dMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    dDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    dDryBtn.setWantsKeyboardFocus(true);
+    dDryBtn.setExplicitFocusOrder(++tabOrder);
+    dDryBtn.onClick = [&] { dMixSlider.setValue(0.0f); };
+
+    dHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    dHalfBtn.setWantsKeyboardFocus(true);
+    dHalfBtn.setExplicitFocusOrder(++tabOrder);
+    dHalfBtn.onClick = [&] { dMixSlider.setValue(0.5f); };
+
+    dWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    dWetBtn.setWantsKeyboardFocus(true);
+    dWetBtn.setExplicitFocusOrder(++tabOrder);
+    dWetBtn.onClick = [&] { dMixSlider.setValue(1.0f); };
+
+    // Reverb Group
+	reverbGroup.setup(*this, FxGuiText::Group::fxReverb);
+    reverbGroup.setBackgroundColor(groupBgColour);
+    const juce::String rvbPrefix = code + FxPrKey::rvb;
+
+    rBypassBtn.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::bypass, .title = FxGuiText::Fx::bypass, .isReset = true });
+    rBypassBtn.setWantsKeyboardFocus(true);
+    rBypassBtn.setExplicitFocusOrder(++tabOrder);
+
+    addAndMakeVisible(rSeparator);
+    rSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    rSizeSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::Reverb::size, .title = FxGuiText::Fx::Reverb::size, .isReset = true });
+    rSizeSlider.setWantsKeyboardFocus(true);
+    rSizeSlider.setExplicitFocusOrder(++tabOrder);
+
+    rDampSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::Reverb::damp, .title = FxGuiText::Fx::Reverb::damp, .isReset = true });
+    rDampSlider.setWantsKeyboardFocus(true);
+    rDampSlider.setExplicitFocusOrder(++tabOrder);
+
+    rMixSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::mix, .title = FxGuiText::Fx::mix, .isReset = true });
+    rMixSlider.setWantsKeyboardFocus(true);
+    rMixSlider.setExplicitFocusOrder(++tabOrder);
+
+    rDryBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::dry });
+    rDryBtn.setWantsKeyboardFocus(true);
+    rDryBtn.setExplicitFocusOrder(++tabOrder);
+    rDryBtn.onClick = [&] { rMixSlider.setValue(0.0f); };
+
+    rHalfBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::mix });
+    rHalfBtn.setWantsKeyboardFocus(true);
+    rHalfBtn.setExplicitFocusOrder(++tabOrder);
+    rHalfBtn.onClick = [&] { rMixSlider.setValue(0.5f); };
+
+    rWetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::Mix::wet });
+    rWetBtn.setWantsKeyboardFocus(true);
+    rWetBtn.setExplicitFocusOrder(++tabOrder);
+    rWetBtn.onClick = [&] { rMixSlider.setValue(1.0f); };
+}
+
+void GuiFx::layout(juce::Rectangle<int> content)
+{
+    auto pageArea = content.withZeroOrigin();
+
+    auto fxArea = pageArea.removeFromLeft(FxGuiValue::Fx::MainWidth);
+
+    auto mainArea = fxArea.removeFromTop(FxGuiValue::Fx::MainHeight);
+
+    mainGroup.setBounds(mainArea);
+
+    auto mRect = mainArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    mRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutMain({ .mainRect = mRect, .component = &bypassToggle });
+
+    // 区切り線エリアを確保
+    auto separatorArea = mRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    mainSeparator.setBounds(separatorArea);
+
+    layoutMain({ .mainRect = mRect, .component = &resetBtn });
+
+    auto row1 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
+    auto row2 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
+    auto row3 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+    pageArea.removeFromTop(FxGuiValue::PaddingBottom::block);
+    auto row4 = fxArea.removeFromTop(FxGuiValue::Fx::AreaHeightBig);
+
+    // Filter
+    auto flArea = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    filterGroup.setBounds(flArea);
+
+    auto flRect = flArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    flRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = flRect, .component = &flBypassBtn });
+
+    // 区切り線エリアを確保
+    auto flSprArea = flRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    flSeparator.setBounds(flSprArea);
+
+    layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    flRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // 3-Band EQ
+    auto eq3bArea = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    eq3bGroup.setBounds(eq3bArea);
+
+    auto eq3bRect = eq3bArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    eq3bRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = eq3bRect, .component = &eq3bBypassBtn });
+
+    // 区切り線エリアを確保
+    auto eq3bSprArea = eq3bRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    eq3bSeparator.setBounds(eq3bSprArea);
+
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bLowGainDbSlider.label, .component = &eq3bLowGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidFreqSlider.label, .component = &eq3bMidFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidGainDbSlider.label, .component = &eq3bMidGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bHighGainDbSlider.label, .component = &eq3bHighGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    eq3bRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = eq3bRect, .label = &eq3bMixSlider.label, .component = &eq3bMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // Tremolo
+    auto trmArea = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    tremGroup.setBounds(trmArea);
+
+    auto trmRect = trmArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    trmRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = trmRect, .component = &tBypassBtn });
+
+    // 区切り線エリアを確保
+    auto trmSprArea = trmRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    tSeparator.setBounds(trmSprArea);
+
+    layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    trmRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // Vibrato
+    auto vibArea = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    vibGroup.setBounds(vibArea);
+
+    auto vibRect = vibArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    vibRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = vibRect, .component = &vBypassBtn });
+
+    // 区切り線エリアを確保
+    auto vibSprArea = vibRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    vSeparator.setBounds(vibSprArea);
+
+    layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    vibRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // Modern Bit Crusher
+    auto mbcArea = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    mbcGroup.setBounds(mbcArea);
+
+    auto mbcRect = mbcArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    mbcRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
+
+    // 区切り線エリアを確保
+    auto mbcSprArea = mbcRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    mbcSeparator.setBounds(mbcSprArea);
+
+    layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    mbcRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // Delay
+    auto dlyArea = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    delayGroup.setBounds(dlyArea);
+
+    auto dlyRect = dlyArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    dlyRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn });
+
+    // 区切り線エリアを確保
+    auto dlySprArea = dlyRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    dSeparator.setBounds(dlySprArea);
+
+    layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    dlyRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+
+    // Reverb
+    auto rvbArea = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
+
+    reverbGroup.setBounds(rvbArea);
+
+    auto rvbRect = rvbArea.reduced(FxGuiValue::Group::Padding::width, FxGuiValue::Group::Padding::height);
+
+    rvbRect.removeFromTop(FxGuiValue::Group::TitlePaddingTop);
+
+    layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn });
+
+    // 区切り線エリアを確保
+    auto rvbSprArea = rvbRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
+    rSeparator.setBounds(rvbSprArea);
+
+    layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    rvbRect.removeFromTop(FxGuiValue::Padding::space);
+    layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
+    layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+}
