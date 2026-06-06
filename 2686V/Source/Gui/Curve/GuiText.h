@@ -6,12 +6,12 @@
 
 namespace CurveGuiText
 {
-	static inline const juce::String curveGroup = u8"Curve";
+	static inline const juce::String curveGroup = juce::String("") + "カーブ編集";
 	static inline const juce::String position = u8"Position";
 	static inline const juce::String target = u8"Target";
 	static inline const juce::String param = u8"Param";
-	static inline const juce::String enable = u8"Enable";
-	static inline const juce::String logic = u8"Logic";
+	static inline const juce::String enable = juce::String("") + "カーブモード";
+	static inline const juce::String logic = juce::String("") + "ロジック";
 	static inline const juce::String k = u8"K";
 	static inline const juce::String rate = u8"Rate";
 	static inline const juce::String posX = u8"Pos X";

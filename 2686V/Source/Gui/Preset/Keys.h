@@ -20,7 +20,7 @@ namespace PresetKey
 		{
 			static inline const juce::String genre = juce::String("") + "ジャンル";
 			static inline const juce::String fileName = juce::String("") + "ファイル名";
-			static inline const juce::String mode = juce::String("") + "音源";
+			static inline const juce::String mode = juce::String("") + "チャンネル";
 			static inline const juce::String name = juce::String("") + "プリセット名";
 			static inline const juce::String author = juce::String("") + "作者名";
 			static inline const juce::String version = juce::String("") + "バージョン";
@@ -38,7 +38,7 @@ namespace PresetKey
 			static inline const juce::String auther = juce::String("") + "作者名: ";
 			static inline const juce::String version = juce::String("") + "バージョン: ";
 			static inline const juce::String comment = juce::String("") + "コメント: ";
-			static inline const juce::String mode = juce::String("") + "音源: ";
+			static inline const juce::String mode = juce::String("") + "チャンネル: ";
 			static inline const juce::String genre = juce::String("") + "ジャンル: ";
 			static inline const juce::String filePath = juce::String("") + "ファイルパス: ";
 		};

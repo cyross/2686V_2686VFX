@@ -119,7 +119,7 @@ void GuiSsg::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 

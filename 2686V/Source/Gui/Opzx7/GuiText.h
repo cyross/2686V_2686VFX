@@ -6,18 +6,8 @@
 
 namespace Opzx7GuiText
 {
-	static inline const juce::String mode = u8"Mode";
-
 	static inline const juce::String bit = u8"Bit";
 	static inline const juce::String rate = u8"Rate";
-
-	static inline const juce::String monoPoly = u8"MonoPhonic";
-
-	namespace MasterVol
-	{
-		static inline const juce::String title = u8"M.Vol";
-		static inline const juce::String unit = u8" dB";
-	}
 
 	namespace Category
 	{
@@ -25,40 +15,18 @@ namespace Opzx7GuiText
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
 		static inline const juce::String waveShape = u8"--- WAVE SHAPE ---";
-		static inline const juce::String visiblePhase = u8"[■]--- PHASE ---";
-		static inline const juce::String invisiblePhase = u8"[□]--- PHASE ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
-		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
-		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
-		static inline const juce::String visibleSwEnv = u8"[■]--- SSG SW ENV ---";
-		static inline const juce::String invisibleSwEnv = u8"[□]--- SSG SW ENV ---";
-		static inline const juce::String visibleFix = u8"[■]--- FIX ---";
-		static inline const juce::String invisibleFix = u8"[□]--- FIX ---";
-		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
-		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG HW ENV ---";
 		static inline const juce::String invisibleSsgEnv = u8"[□]--- SSG HW ENV ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
-		static inline const juce::String mml = u8"--- MML ---";
 		static inline const juce::String visiblePanpot = u8"[■]--- PANPOT ---";
 		static inline const juce::String invisiblePanpot = u8"[□]--- PANPOT ---";
-		static inline const juce::String visibleMonoMode = u8"[■]--- MONO/POLY ---";
-		static inline const juce::String invisibleMonoMode = u8"[□]--- MONO/POLY ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
-		static inline const juce::String visibleUnison = u8"[■]--- UNISON/HARMONY ---";
-		static inline const juce::String invisibleUnison = u8"[□]--- UNISON/HARMONY ---";
-	}
-
-	namespace Unison
-	{
-		static inline const juce::String voices = "Voices";
-		static inline const juce::String detune = "Detune";
-		static inline const juce::String spread = "Spread";
 	}
 
 	namespace File
@@ -70,44 +38,18 @@ namespace Opzx7GuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = u8"Main";
-		static inline const juce::String opPrefix = u8"Op";
+		static inline const juce::String mainGroup = juce::String("") + "OPZX7チャンネル設定";
+		static inline const juce::String opPrefix = juce::String("") + "オペレーター";
 	}
 
 	namespace PitchAdsr
 	{
 		static inline const juce::String enable = u8"Enable";
-		static inline const juce::String bypass = u8"Bypass";
-		static inline const juce::String ar = u8"Ar";
-		static inline const juce::String dr = u8"Dr";
-		static inline const juce::String rr = u8"Rr";
-		static inline const juce::String stl = u8"Stl";
-		static inline const juce::String atl = u8"Atl";
-		static inline const juce::String ssl = u8"Ssl";
-		static inline const juce::String rll = u8"Rll";
 	}
 
 	namespace SsgSwEnv
 	{
 		static inline const juce::String enable = u8"Enable";
-		static inline const juce::String bypass = u8"Bypass";
-		static inline const juce::String steps = u8"Steps";
-		static inline const juce::String loop = u8"Loop";
-		static inline const juce::String loopTo = u8"Loop To";
-		static inline const juce::String loopCount = u8"Loop Cnt";
-		static inline const juce::String stl = u8"Stl";
-		static inline const juce::String r1 = u8"R1";
-		static inline const juce::String l1 = u8"L1";
-		static inline const juce::String r2 = u8"R2";
-		static inline const juce::String l2 = u8"L2";
-		static inline const juce::String r3 = u8"R3";
-		static inline const juce::String l3 = u8"L3";
-		static inline const juce::String r4 = u8"R4";
-		static inline const juce::String l4 = u8"L4";
-		static inline const juce::String r5 = u8"R5";
-		static inline const juce::String l5 = u8"L5";
-		static inline const juce::String r6 = u8"R6";
-		static inline const juce::String l6 = u8"L6";
 	}
 
 	namespace Fm
@@ -127,9 +69,6 @@ namespace Opzx7GuiText
 		static inline const juce::String amd = u8"Amd";
 		static inline const juce::String pmd = u8"Pmd";
 		static inline const juce::String amSmoothRatio = u8"As Ratio";
-		static inline const juce::String initLfoToOpl = u8"Init Lfo: OPL";
-		static inline const juce::String initLfoToOpll = u8"Init Lfo: OPLL";
-		static inline const juce::String pan = u8"Pan";
 		static inline const juce::String panpot = u8"Panpot";
 		static inline const juce::String panpotEnable = u8"Enable";
 
@@ -142,12 +81,9 @@ namespace Opzx7GuiText
 
 		namespace Op
 		{
-			static inline const juce::String key = u8"Op";
+			static inline const juce::String key = juce::String("") + "オペレーター";
 			static inline const juce::String Ar = u8"Ar";
-			static inline const juce::String Dr = u8"Dr";
-			static inline const juce::String Sl = u8"Sl";
 			static inline const juce::String Rr = u8"Rr";
-			static inline const juce::String Sr = u8"Sr";
 			static inline const juce::String D1r = u8"D1r";
 			static inline const juce::String D1l = u8"D1l";
 			static inline const juce::String D2r = u8"D2r";
@@ -159,8 +95,6 @@ namespace Opzx7GuiText
 			static inline const juce::String Dt2 = u8"Dt2";
 			static inline const juce::String Dt3 = u8"Dt3";
 			static inline const juce::String Ks = u8"Ks";
-			static inline const juce::String Ksr = u8"Ksr";
-			static inline const juce::String Ksl = u8"Ksl";
 			static inline const juce::String Mask = u8"Mask";
 			static inline const juce::String Fix = u8"Enable";
 			static inline const juce::String FFreq = u8"Freq";
@@ -183,17 +117,7 @@ namespace Opzx7GuiText
 			static inline const juce::String EgType = u8"EgType";
 			static inline const juce::String Eg = u8"Eg";
 			static inline const juce::String Ws = u8"W.Shape";
-			static inline const juce::String FreqTo0 = u8"Freq -> 0Hz";
-			static inline const juce::String FreqTo440 = u8"Freq -> 440Hz";
-			static inline const juce::String Opzx7FreqTo0 = u8"->0";
-			static inline const juce::String Opzx7FreqTo05 = u8"->0.5";
-			static inline const juce::String Opzx7FreqTo1 = u8"->1";
-			static inline const juce::String Opzx7FreqTo2 = u8"->2";
 			static inline const juce::String Opzx7FreqTo440 = u8"->440";
-			static inline const juce::String ArTo000 = u8"-> 0.00";
-			static inline const juce::String ArTo003 = u8"-> 0.03";
-			static inline const juce::String RrTo000 = u8"-> 0.00";
-			static inline const juce::String RrTo003 = u8"-> 0.03";
 			static inline const juce::String PcmOffset = u8"Offset";
 			static inline const juce::String PcmRatio = u8"Ratio";
 			static inline const juce::String RgEn = u8"Register Mode";
@@ -202,8 +126,6 @@ namespace Opzx7GuiText
 			static inline const juce::String xof = u8"Xof";
 			static inline const juce::String kor = u8"Kor";
 			static inline const juce::String bypass = u8"Bypass";
-
-			static inline const juce::String phaseOffset = u8"P.Offset";
 		}
 	}
 }

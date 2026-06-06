@@ -6,18 +6,8 @@
 
 namespace RhythmGuiText
 {
-	static inline const juce::String mode = u8"Mode";
-
 	static inline const juce::String bit = u8"Bit";
 	static inline const juce::String rate = u8"Rate";
-
-	static inline const juce::String monoPoly = u8"MonoPhonic";
-
-	namespace MasterVol
-	{
-		static inline const juce::String title = u8"M.Vol";
-		static inline const juce::String unit = u8" dB";
-	}
 
 	namespace Category
 	{
@@ -25,23 +15,8 @@ namespace RhythmGuiText
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
-		static inline const juce::String visiblePitchAdsr = u8"[■]--- PITCH ENV ---";
-		static inline const juce::String invisiblePitchAdsr = u8"[□]--- PITCH ENV ---";
-		static inline const juce::String visibleMvol = u8"[■]--- MASTER VOLUME ---";
-		static inline const juce::String invisibleMvol = u8"[□]--- MASTER VOLUME ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
-		static inline const juce::String visibleUnison = u8"[■]--- UNISON/HARMONY ---";
-		static inline const juce::String invisibleUnison = u8"[□]--- UNISON/HARMONY ---";
-	}
-
-	namespace Unison
-	{
-		static inline const juce::String voices = "Voices";
-		static inline const juce::String detune = "Detune";
-		static inline const juce::String spread = "Spread";
 	}
 
 	namespace File
@@ -53,7 +28,7 @@ namespace RhythmGuiText
 
 	namespace Group
 	{
-		static inline const juce::String mainGroup = u8"Main";
+		static inline const juce::String mainGroup = juce::String("") + "リズム音源チャンネル設定";
 		static inline const juce::String padPrefix = u8"Pad";
 	}
 
@@ -84,25 +59,11 @@ namespace RhythmGuiText
 			namespace Adsr
 			{
 				static inline const juce::String bypass = u8"Bypass";
-				static inline const juce::String ar = u8"Ar";
-				static inline const juce::String dr = u8"Dr";
-				static inline const juce::String sl = u8"Sl";
-				static inline const juce::String rr = u8"Rr";
-				static inline const juce::String stl = u8"Stl";
-				static inline const juce::String kor = u8"Kor";
 			}
 
 			namespace PitchAdsr
 			{
-				static inline const juce::String enable = u8"Enable";
 				static inline const juce::String bypass = u8"Bypass";
-				static inline const juce::String ar = u8"Ar";
-				static inline const juce::String dr = u8"Dr";
-				static inline const juce::String rr = u8"Rr";
-				static inline const juce::String stl = u8"Stl";
-				static inline const juce::String atl = u8"Atl";
-				static inline const juce::String ssl = u8"Ssl";
-				static inline const juce::String rll = u8"Rll";
 			}
 		}
 	}

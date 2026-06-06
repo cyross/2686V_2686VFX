@@ -59,17 +59,17 @@ static std::vector<SelectItem> wtTsItems = {
 };
 
 static std::vector<SelectItem> wtStepsItems = {
-    {.name = " 0: Free",   .value =  1 },
-    {.name = " 1: 16(+)",  .value =  2 },
-    {.name = " 2: 32(+)",  .value =  3 },
-    {.name = " 3: 64(+)",  .value =  4 },
-    {.name = " 4: 128(+)", .value =  5 },
-    {.name = " 5: 256(+)", .value =  6 },
-    {.name = " 6: 16(-)",  .value =  7 },
-    {.name = " 7: 32(-)",  .value =  8 },
-    {.name = " 8: 64(-)",  .value =  9 },
-    {.name = " 9: 128(-)", .value = 10 },
-    {.name = "10: 256(-)", .value = 11 },
+    {.name = juce::String("") + "段階なし",   .value =  1 },
+    {.name = juce::String("") + " 16段階(  7 /   8)",  .value =  2 },
+    {.name = juce::String("") + " 32段階( 15 /  16)",  .value =  3 },
+    {.name = juce::String("") + " 64段階( 31 /  32)",  .value =  4 },
+    {.name = juce::String("") + "128段階( 63 /  64)", .value =  5 },
+    {.name = juce::String("") + "256段階(127 / 128)", .value =  6 },
+    {.name = juce::String("") + " 16段階(  8 /   7)",  .value =  7 },
+    {.name = juce::String("") + " 32段階( 16 /  15)",  .value =  8 },
+    {.name = juce::String("") + " 64段階( 32 /  31)",  .value =  9 },
+    {.name = juce::String("") + "128段階( 64 /  63)", .value = 10 },
+    {.name = juce::String("") + "256段階(128 / 127)", .value = 11 },
 };
 
 static std::vector<SelectItem> lfoPmShapeItems = {
@@ -165,7 +165,7 @@ void GuiWt::setup()
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 

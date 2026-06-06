@@ -11,8 +11,8 @@ namespace PresetValue
 		// メタデータの初期値
 		namespace Initial
 		{
-			static inline const juce::String name = "Init Preset";
-			static inline const juce::String author = "Anonymous User";
+			static inline const juce::String name = "";
+			static inline const juce::String author = "";
 			static inline const juce::String version = "1.0.0";
 			static inline const juce::String comment = "";
 			static inline const juce::String mode = "-";
@@ -32,13 +32,13 @@ namespace PresetValue
 		// メタデータをクリップボードに貼り付ける際の前置詞
 		namespace ClipBoardPrefix
 		{
-			static inline const juce::String name = "Name: ";
-			static inline const juce::String auther = "Author: ";
-			static inline const juce::String version = "Ver: ";
-			static inline const juce::String comment = "Comment: ";
-			static inline const juce::String mode = "Mode: ";
-			static inline const juce::String genre = "Genre: ";
-			static inline const juce::String filePath = "File Path: ";
+			static inline const juce::String name = juce::String("") + "プリセット名: ";
+			static inline const juce::String auther = juce::String("") + "作者名: ";
+			static inline const juce::String version = juce::String("") + "バージョン: ";
+			static inline const juce::String comment = juce::String("") + "コメント: ";
+			static inline const juce::String mode = juce::String("") + "チャンネル: ";
+			static inline const juce::String genre = juce::String("") + "ジャンル: ";
+			static inline const juce::String filePath = juce::String("") + "ファイルパス: ";
 		};
 	}
 
@@ -56,7 +56,7 @@ namespace PresetValue
 
 		namespace Message
 		{
-			static inline const juce::String invalidXmlNotice = "Invalid XML";
+			static inline const juce::String invalidXmlNotice = juce::String("") + "XMLの書式が不正です！";
 		}
 	}
 };

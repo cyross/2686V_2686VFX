@@ -114,7 +114,7 @@ void GuiAdpcm::setup()
 
     mulDetuneComponent.setupComponent(*this, code, tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440Hz", 440);
+    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 

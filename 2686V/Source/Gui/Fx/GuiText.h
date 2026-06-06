@@ -8,21 +8,21 @@ namespace FxGuiText
 {
 	namespace Group
 	{
-		static inline const juce::String mainGroup = u8"FX";
-		static inline const juce::String fxTremolo = u8"Tremolo";
-		static inline const juce::String fxVibrato = u8"Vibrato";
-		static inline const juce::String fxMbc = u8"Modern Bit Crusher";
-		static inline const juce::String fxDelay = u8"Delay";
-		static inline const juce::String fxReverb = u8"Reverb";
-		static inline const juce::String fxFilter = u8"Filter";
-		static inline const juce::String fxEq3B = u8"3-Band EQ";
+		static inline const juce::String mainGroup = juce::String("") + "エフェクター";
+		static inline const juce::String fxTremolo = juce::String("") + "トレモロ";
+		static inline const juce::String fxVibrato = juce::String("") + "ビブラート";
+		static inline const juce::String fxMbc = juce::String("") + "ビットクラッシャー";
+		static inline const juce::String fxDelay = juce::String("") + "ディレイ";
+		static inline const juce::String fxReverb = juce::String("") + "リバーブ";
+		static inline const juce::String fxFilter = juce::String("") + "フィルター";
+		static inline const juce::String fxEq3B = juce::String("") + "3バンドイコライザー";
 	}
 
 	namespace Fx
 	{
-		static inline const juce::String masterBypass = u8"Bypass";
-		static inline const juce::String bypass = u8"Bypass";
-		static inline const juce::String reset = u8"Reset";
+		static inline const juce::String masterBypass = juce::String("") + "バイパス";
+		static inline const juce::String bypass = juce::String("") + "バイパス";
+		static inline const juce::String reset = juce::String("") + "パラメータリセット";
 		static inline const juce::String mix = u8"Mix";
 		
 		namespace Mix

@@ -30,7 +30,7 @@ void GuiBeep::setup() {
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
-	fixComponent.setupComponent(*this, code, tabOrder, BeepGuiText::Beep::To2k, 2000);
+	fixComponent.setupComponent(*this, code, tabOrder, "-> 2K", 2000);
 
     ampEnvComponent.setupComponent(*this, code, tabOrder);
 

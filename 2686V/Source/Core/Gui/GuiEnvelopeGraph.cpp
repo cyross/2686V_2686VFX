@@ -37,7 +37,7 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     if (isBypass) {
         g.setColour(juce::Colours::white.withAlpha(0.8f));
         g.setFont(14.0f);
-        g.drawText("BYPASS", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+        g.drawText(juce::String("") + "バイパス中", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
 
         return;
     }

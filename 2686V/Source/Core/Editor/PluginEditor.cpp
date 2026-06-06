@@ -260,7 +260,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
             miniPresetLabel.setBounds(5, 260, 150, 15);
             miniModeLabel.setBounds(5, 278, 150, 15);
-            miniModeLabel.setText(juce::String("") + "音源: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+            miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
             realtimePreview.setBounds(10, 50, 200, 200);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
             previewLabel.setFont(juce::Font(12.0f, juce::Font::bold));
@@ -576,10 +576,10 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
     // 1. リズム音源のファイル名を復元
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
-    updateRhythmFileNames("Reload");
+    updateRhythmFileNames(juce::String("") + "再読み込み");
 
     // 2. ADPCMのファイル名を復元
-    updateAdpcmFileName("Reload");
+    updateAdpcmFileName(juce::String("") + "再読み込み");
 
     // 3. OPZX7のPCMファイル名を復元
     for (int i = 0; i < 4; ++i) {
@@ -608,7 +608,7 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
 void AudioPlugin2686VEditor::loadSettingsFile()
 {
-    fileChooser = std::make_unique<juce::FileChooser>("Load Environment Settings",
+    fileChooser = std::make_unique<juce::FileChooser>(juce::String("") + "ファイルから環境設定を読み込み",
         juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
 
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
@@ -688,10 +688,10 @@ void AudioPlugin2686VEditor::saveCurrentPreset()
 
         juce::AlertWindow::showAsync(juce::MessageBoxOptions()
             .withIconType(juce::MessageBoxIconType::WarningIcon)
-            .withTitle("Overwrite Preset")
-            .withMessage("Overwrite existing preset file?\n\n" + saveFile.getFileName())
-            .withButton("Overwrite")
-            .withButton("Cancel"),
+            .withTitle(juce::String("") + "プリセットの上書き")
+            .withMessage(juce::String("") + "プリセットファイルの内容を指定したファイルに上書きしてもいいですか？\n\n" + saveFile.getFileName())
+            .withButton(juce::String("") + "上書き")
+            .withButton(juce::String("") + "キャンセル"),
             [this, saveFile](int result) {
                 if (result == 1) {
                     audioProcessor.savePreset(saveFile);
@@ -716,12 +716,19 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
     juce::File defaultFile = presetGui->currentFolder.getChildFile(filename);
 
-    openWriteFileChooser("Save Preset As", defaultFile, "*.xml", [this](const juce::FileChooser& fc) {
+    openWriteFileChooser(juce::String("") + "ファイルを指定してプリセットを保存", defaultFile, "*.xml", [this](const juce::FileChooser& fc) {
         auto file = fc.getResult();
         if (file != juce::File{}) {
             // 保存したファイルパスを記録
             audioProcessor.presetFilePath = file.getFullPathName();
-            presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment, audioProcessor.presetGenre, audioProcessor.presetFilePath);
+            presetGui->setMetaData(
+                audioProcessor.presetName,
+                audioProcessor.presetAuthor,
+                audioProcessor.presetVersion,
+                audioProcessor.presetComment,
+                audioProcessor.presetGenre,
+                audioProcessor.presetFilePath
+            );
 
             audioProcessor.savePreset(file);
             scanPresets();
@@ -835,14 +842,21 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
 {
     // AlertWindowをヒープに確保 (enterModalState(true) で自動的に削除されます)
-    auto* w = new juce::AlertWindow("Set Register Value", "Enter integer value:", juce::AlertWindow::QuestionIcon);
+    auto* w = new juce::AlertWindow(
+        juce::String("") + "レジスタ値の設定",
+        juce::String("") + "入力している値:",
+        juce::AlertWindow::QuestionIcon);
 
     // テキストエディタを追加
-    w->addTextEditor("regInput", "", "0");
+    w->addTextEditor(
+        "regInput",
+        "",
+        "0"
+    );
 
     // ボタン設定
-    w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
-    w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+    w->addButton(juce::String("") + "設定", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+    w->addButton(juce::String("") + "キャンセル", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
     // モーダル表示
     w->enterModalState(true, juce::ModalCallbackFunction::create([onValueEntered, w](int result) {
@@ -877,10 +891,10 @@ void AudioPlugin2686VEditor::assignTooltipsRecursive(juce::Component* parentComp
                 bool isInteger = (std::abs(interval - 1.0) < 0.001) || (interval > 0.9);
 
                 if (isInteger) {
-                    tooltipText = juce::String((int)min) + " - " + juce::String((int)max);
+                    tooltipText = juce::String("") + "現在の値: " + juce::String((int)min) + " - " + juce::String((int)max);
                 }
                 else {
-                    tooltipText = juce::String(min, 1) + " - " + juce::String(max, 1);
+                    tooltipText = juce::String("") + "現在の値: " + juce::String(min, 1) + " - " + juce::String(max, 1);
                 }
 
                 slider->setTooltip(tooltipText);
