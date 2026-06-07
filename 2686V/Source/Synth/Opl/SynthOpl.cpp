@@ -188,7 +188,7 @@ float OplCore::getSample() {
     float fraction = (float)(m_rateAccumulator / stepSize);
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    return m_prevSample + (m_lastSample - m_prevSample) * fraction * 2.0f;
 }
 
 void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

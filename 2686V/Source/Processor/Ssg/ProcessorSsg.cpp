@@ -43,6 +43,8 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Duty::preset, code + SsgPrName::Duty::preset, SsgPrValue::Duty::Preset::min, SsgPrValue::Duty::Preset::max, SsgPrValue::Duty::Preset::initial)); // Preset: 0~8
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Duty::var, code + SsgPrName::Duty::var, SsgPrValue::Duty::Var::min, SsgPrValue::Duty::Var::max, SsgPrValue::Duty::Var::initial)); // Variable: 0.0 ~ 0.5
     layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::Duty::inv, code + SsgPrName::Duty::invert, SsgPrValue::Duty::Inv::initial)); // Invert
+    layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::Duty::fc, code + SsgPrName::Duty::fc, SsgPrValue::Duty::Fc::initial)); // Famicom Mode
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Duty::fcFluc, code + SsgPrName::Duty::fcFluc, SsgPrValue::Duty::FcFluc::min, SsgPrValue::Duty::FcFluc::max, SsgPrValue::Duty::FcFluc::initial)); // Famicom Mode Fluctuation: 0.0 ~ 1.0
 
     layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::Tri::keyTrk, code + SsgPrName::Tri::keyTrack, SsgPrValue::Tri::KeyTrack::initial)); // Key Track Switch (Default ON)
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Tri::peak, code + SsgPrName::Tri::peak, SsgPrValue::Tri::Peak::min, SsgPrValue::Tri::Peak::max, SsgPrValue::Tri::Peak::initial)); // Triangle Peak: 0.0 ~ 1.0
@@ -150,6 +152,8 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pDutyPreset = apvts.getRawParameterValue(code + SsgPrKey::Duty::preset);
     pDutyVar = apvts.getRawParameterValue(code + SsgPrKey::Duty::var);
     pDutyInvert = apvts.getRawParameterValue(code + SsgPrKey::Duty::inv);
+    pDutyFc = apvts.getRawParameterValue(code + SsgPrKey::Duty::fc);
+    pDutyFcFluc = apvts.getRawParameterValue(code + SsgPrKey::Duty::fcFluc);
 
     pTriKeyTrk = apvts.getRawParameterValue(code + SsgPrKey::Tri::keyTrk);
     pTriPeak = apvts.getRawParameterValue(code + SsgPrKey::Tri::peak);
@@ -203,6 +207,8 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.dutyPreset = (int)pDutyPreset->load(std::memory_order_relaxed);
     params.ssg.dutyVar = pDutyVar->load(std::memory_order_relaxed);
     params.ssg.dutyInvert = (pDutyInvert->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.dutyFc = (pDutyFc->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
+    params.ssg.dutyFcFluc = pDutyFcFluc->load(std::memory_order_relaxed);
 
     params.ssg.triKeyTrack = (pTriKeyTrk->load(std::memory_order_relaxed) > SsgPrValue::boolThread);
     params.ssg.triPeak = pTriPeak->load(std::memory_order_relaxed);

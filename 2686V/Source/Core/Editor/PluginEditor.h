@@ -78,8 +78,9 @@ public:
     void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
     void updateRhythmFileNames(const juce::String finename);
-    void updateAdpcmFileName(const juce::String finename);
-    void updateOpzx7FileNames(const juce::String finename);
+    void updateAdpcmFileNames(const juce::String finename);
+    void updateOpzx7PcmFileNames(const juce::String finename);
+    void updateOpzx7WtFileNames(const juce::String finename);
     void setupLogo();
     void setupMiniLogo();
     void setupTabs(juce::TabbedComponent& tabs);

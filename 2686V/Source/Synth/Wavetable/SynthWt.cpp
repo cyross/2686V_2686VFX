@@ -403,7 +403,7 @@ float WtCore::getSample()
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 
-    return m_lastSample * finalEnv * m_level * m_baseLevel;
+    return m_lastSample * finalEnv * m_level * m_baseLevel * 8.0f;
  }
 
 // 波形データ生成

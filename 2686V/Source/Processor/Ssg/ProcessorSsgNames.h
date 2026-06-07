@@ -47,6 +47,8 @@ namespace SsgPrName
 		static inline const juce::String preset = " Duty Preset";
 		static inline const juce::String var = " Duty Var";
 		static inline const juce::String invert = " Duty Invert";
+		static inline const juce::String fc = " Duty FC Mode";
+		static inline const juce::String fcFluc = " Duty FC Fluctuation";
 	}
 
 	namespace Tri

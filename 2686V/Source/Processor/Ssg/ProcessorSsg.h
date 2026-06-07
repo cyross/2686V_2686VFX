@@ -68,6 +68,8 @@ class SsgProcessor : public PrBase
     std::atomic<float>* pDutyPreset = nullptr;
     std::atomic<float>* pDutyVar = nullptr;
     std::atomic<float>* pDutyInvert = nullptr;
+    std::atomic<float>* pDutyFc = nullptr;
+    std::atomic<float>* pDutyFcFluc = nullptr;
     std::atomic<float>* pTriKeyTrk = nullptr;
     std::atomic<float>* pTriPeak = nullptr;
     std::atomic<float>* pTriFreq = nullptr;

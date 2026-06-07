@@ -71,6 +71,12 @@ struct SsgParams
     // Duty Invert Switch
     bool dutyInvert = false;
 
+    // Famicom Mode
+    bool dutyFc = false;
+
+    // Famicom Mode Fluctuation
+    float dutyFcFluc = 0.2f;
+
     // --- Triangle Params ---
 
     // Triangle Key Track Switch

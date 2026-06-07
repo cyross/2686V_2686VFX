@@ -72,6 +72,8 @@ private:
     int m_dutyPreset = 0;
     float m_dutyVar = 0.5f;
     bool m_dutyInvert = false;
+    bool m_dutyFc = false;
+    float m_dutyFcFluc = 0.2f;
 
 	// Triangle Params
     bool m_triKeyTrack = true;
