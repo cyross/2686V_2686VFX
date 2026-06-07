@@ -9,6 +9,9 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiCurveGraph.h"
 
+class AudioPlugin2686V;
+class AudioPlugin2686VEditor;
+
 class GuiCurve : public GuiBase
 {
     // Pane Groups

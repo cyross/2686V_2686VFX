@@ -17,6 +17,9 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 
+class AudioPlugin2686V;
+class AudioPlugin2686VEditor;
+
 class GuiSsg : public GuiBase
 {
     // Pane Groups

@@ -17,6 +17,7 @@
 
 class GuiComponentPitchEnv : public GuiBase {
     bool isEnable = false;
+    juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
 
     // PITCH ENV
     GuiCategoryLabel cat;

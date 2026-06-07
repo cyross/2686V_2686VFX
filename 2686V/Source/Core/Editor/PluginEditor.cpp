@@ -104,7 +104,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // 波形プレビューラベル
     addChildComponent(previewLabel);
     previewLabel.setText(EditorGuiText::Preview::label, juce::NotificationType::dontSendNotification);
-    previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+    previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
     previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
 
     // プレビュー表示切替ボタン
@@ -264,7 +264,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             miniModeLabel.setBounds(5, 278, 150, 15);
             realtimePreview.setBounds(10, 50, 200, 200);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-            previewLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+            previewLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
             previewLabel.setBounds(10, 50, 180, 20);
 
             setSize(220, 300);
@@ -315,7 +315,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
             toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-            previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+            previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
 
             updateKeyboardVisibility();
 
@@ -340,7 +340,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
             toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
             previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-            previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+            previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
 
             updateKeyboardVisibility();
 
@@ -458,7 +458,7 @@ void AudioPlugin2686VEditor::resized()
 
         miniLogoLabel.setBounds(10, 244, 200, 48);
 
-        textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
+        textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
         textHeight = (int)miniLogoLabel.getFont().getHeight();
         iconSize = textHeight - 12;
         iconX = 210 - textWidth - iconSize - 8;
@@ -477,7 +477,7 @@ void AudioPlugin2686VEditor::resized()
 
         miniLogoLabel.setBounds(10, 44, 200, 48);
 
-        textWidth = (int)miniLogoLabel.getFont().getStringWidthFloat(miniLogoLabel.getText());
+        textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
         textHeight = (int)miniLogoLabel.getFont().getHeight();
         iconSize = textHeight - 12;
         iconX = 210 - textWidth - iconSize - 8;
@@ -521,7 +521,7 @@ void AudioPlugin2686VEditor::resized()
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     logoLabel.setBounds(reducedArea);
 
-    int mainTextWidth = (int)logoLabel.getFont().getStringWidthFloat(logoLabel.getText());
+    int mainTextWidth = (int)juce::GlyphArrangement::getStringWidth(logoLabel.getFont(), juce::StringRef(logoLabel.getText()));
     int mainTextHeight = (int)logoLabel.getFont().getHeight();
     int mainIconSize = mainTextHeight - 44;
     int mainIconX = reducedArea.getRight() - mainTextWidth - mainIconSize - 15; // 余白15px
@@ -617,7 +617,13 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 void AudioPlugin2686VEditor::setupLogo()
 {
     logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-    logoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, EditorGuiValue::WaterMarkLogo::fontSize, juce::Font::bold | juce::Font::italic));
+    logoLabel.setFont(juce::Font(
+        juce::FontOptions(
+            EditorGuiValue::WaterMarkLogo::fontFamily,
+            EditorGuiValue::WaterMarkLogo::fontSize,
+            juce::Font::bold | juce::Font::italic
+        )
+    ));
     logoLabel.setJustificationType(juce::Justification::bottomRight);
     logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
     addAndMakeVisible(logoLabel);
@@ -637,7 +643,15 @@ void AudioPlugin2686VEditor::setupLogo()
 void AudioPlugin2686VEditor::setupMiniLogo()
 {
     miniLogoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-    miniLogoLabel.setFont(juce::Font(EditorGuiValue::WaterMarkLogo::fontFamily, 40.0f, juce::Font::bold | juce::Font::italic));
+    miniLogoLabel.setFont(
+        juce::Font(
+            juce::FontOptions(
+                EditorGuiValue::WaterMarkLogo::fontFamily,
+                40.0f,
+                juce::Font::bold | juce::Font::italic
+            )
+        )
+    );
     miniLogoLabel.setJustificationType(juce::Justification::bottomRight);
     miniLogoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
     addChildComponent(miniLogoLabel);

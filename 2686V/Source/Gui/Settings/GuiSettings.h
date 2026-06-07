@@ -9,6 +9,8 @@
 
 class GuiSettings : public GuiBase
 {
+    juce::Font toggleFont = juce::Font(juce::FontOptions(16.0f));
+
     GuiGroup mainGroup;
 
     // 壁紙のファイルパス

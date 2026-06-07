@@ -18,6 +18,9 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
 
+class AudioPlugin2686V;
+class AudioPlugin2686VEditor;
+
 class GuiOpzx7 : public GuiBase
 {
     /*

@@ -9,6 +9,8 @@
 
 class GuiPreset : public GuiBase
 {
+    juce::Font buttonFont = juce::Font(juce::FontOptions(16.0f));
+
     GuiGroup mainGroup;
     GuiGroup metaGroup;
 

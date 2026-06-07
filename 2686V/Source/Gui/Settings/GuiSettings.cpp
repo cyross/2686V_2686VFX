@@ -145,7 +145,7 @@ void GuiSettings::setup()
     };
 
     // --- Toggle Tooltip Visible Toggle Button ---
-    tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = juce::Font(16.0f), .isReset = false});
+    tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false});
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
     tooltipToggle.setWantsKeyboardFocus(true);
     tooltipToggle.setExplicitFocusOrder(++tabOrder);
@@ -155,7 +155,7 @@ void GuiSettings::setup()
         ctx.editor.setTooltipState(newState); // 即座に反映
         };
 
-	useHeadroomToggle.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームを確保", .font = juce::Font(16.0f), .isReset = false });
+	useHeadroomToggle.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームを確保", .font = toggleFont, .isReset = false });
     useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
     useHeadroomToggle.setWantsKeyboardFocus(true);
     useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
@@ -180,7 +180,7 @@ void GuiSettings::setup()
         ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
     };
 
-    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = juce::String("") + "仮想MIDIキーボード表示", .font = juce::Font(16.0f), .isReset = false });
+    virtualMidiKeyboardToggle.setup({ .parent = *this, .title = juce::String("") + "仮想MIDIキーボード表示", .font = toggleFont , .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
     virtualMidiKeyboardToggle.setExplicitFocusOrder(++tabOrder);
     virtualMidiKeyboardToggle.setToggleState(ctx.audioProcessor.showVirtualKeyboard, juce::dontSendNotification);

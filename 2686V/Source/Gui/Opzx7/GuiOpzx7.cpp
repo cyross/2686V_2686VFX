@@ -3,6 +3,7 @@
 #include "./GuiOpzx7.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
+#include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
@@ -245,7 +246,7 @@ void GuiOpzx7::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     addAndMakeVisible(presetNameSeparator);

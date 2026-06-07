@@ -3,6 +3,7 @@
 #include "./GuiSsg.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
+#include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Processor/Ssg/ProcessorSsgKeys.h"
 #include "../../Processor/Ssg/ProcessorSsgValues.h"
@@ -104,7 +105,7 @@ void GuiSsg::setup()
 
     presetNameLabel.setup({ .parent = *this, .title = "" });
     presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(18.0f));
+    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
     addAndMakeVisible(presetNameSeparator);

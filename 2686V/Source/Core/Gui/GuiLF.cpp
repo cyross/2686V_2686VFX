@@ -39,7 +39,7 @@ void CustomTabLookAndFeel::drawTabButton(juce::TabBarButton& button, juce::Graph
     g.setColour(contentColour); // 色を確定
 
     // テキスト描画
-    g.setFont(juce::Font(16.0f).withStyle(button.isFrontTab() ? juce::Font::bold : juce::Font::plain));
+    g.setFont(juce::Font(juce::FontOptions(16.0f)).withStyle(button.isFrontTab() ? juce::Font::bold : juce::Font::plain));
     g.drawText(name, area, juce::Justification::centred, true);
 }
 

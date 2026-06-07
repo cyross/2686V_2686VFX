@@ -16,6 +16,7 @@
 
 class GuiComponentSsgSwEnv : public GuiBase {
     bool isEnable = false;
+    juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
 
     // SSG SW ENV
     GuiCategoryLabel cat;

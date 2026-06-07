@@ -19,41 +19,41 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
 
-	attack.setup({ .parent = parent, .id = code + "_PITCH_AR", .title = "Ar", .isReset = true, .labelFont = juce::Font(6.0f) });
+	attack.setup({ .parent = parent, .id = code + "_PITCH_AR", .title = "Ar", .isReset = true, .labelFont = labelFont });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
 
-	decay.setup({ .parent = parent, .id = code + "_PITCH_DR", .title = "Dr", .isReset = true, .labelFont = juce::Font(6.0f) });
+	decay.setup({ .parent = parent, .id = code + "_PITCH_DR", .title = "Dr", .isReset = true, .labelFont = labelFont });
 	decay.setWantsKeyboardFocus(true);
 	decay.setExplicitFocusOrder(++tabOrder);
 
-	release.setup({ .parent = parent, .id = code + "_PITCH_RR", .title = "Rr", .isReset = true, .labelFont = juce::Font(6.0f) });
+	release.setup({ .parent = parent, .id = code + "_PITCH_RR", .title = "Rr", .isReset = true, .labelFont = labelFont });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
-	startLevel.setup({ .parent = parent, .id = code + "_PITCH_STL", .title = "Stl", .isReset = true, .labelFont = juce::Font(6.0f) });
+	startLevel.setup({ .parent = parent, .id = code + "_PITCH_STL", .title = "Stl", .isReset = true, .labelFont = labelFont });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
 
-	startLevelButtons.setupComponent(parent, startLevel, tabOrder, juce::Font(6.0f));
+	startLevelButtons.setupComponent(parent, startLevel, tabOrder, labelFont);
 
-	attackLevel.setup({ .parent = parent, .id = code + "_PITCH_ATL", .title = "Atl", .isReset = true, .labelFont = juce::Font(6.0f) });
+	attackLevel.setup({ .parent = parent, .id = code + "_PITCH_ATL", .title = "Atl", .isReset = true, .labelFont = labelFont });
 	attackLevel.setWantsKeyboardFocus(true);
 	attackLevel.setExplicitFocusOrder(++tabOrder);
 
-	attackLevelButtons.setupComponent(parent, attackLevel, tabOrder, juce::Font(6.0f));
+	attackLevelButtons.setupComponent(parent, attackLevel, tabOrder, labelFont);
 
-	sustainLevel.setup({ .parent = parent, .id = code + "_PITCH_SSL", .title = "Ssl", .isReset = true, .labelFont = juce::Font(6.0f) });
+	sustainLevel.setup({ .parent = parent, .id = code + "_PITCH_SSL", .title = "Ssl", .isReset = true, .labelFont = labelFont });
 	sustainLevel.setWantsKeyboardFocus(true);
 	sustainLevel.setExplicitFocusOrder(++tabOrder);
 
-	sustainLevelButtons.setupComponent(parent, sustainLevel, tabOrder, juce::Font(6.0f));
+	sustainLevelButtons.setupComponent(parent, sustainLevel, tabOrder, labelFont);
 
-	releaseLevel.setup({ .parent = parent, .id = code + "_PITCH_RLL", .title = "Rll", .isReset = true, .labelFont = juce::Font(6.0f) });
+	releaseLevel.setup({ .parent = parent, .id = code + "_PITCH_RLL", .title = "Rll", .isReset = true, .labelFont = labelFont });
 	releaseLevel.setWantsKeyboardFocus(true);
 	releaseLevel.setExplicitFocusOrder(++tabOrder);
 
-	releaseLevelButtons.setupComponent(parent, releaseLevel, tabOrder, juce::Font(6.0f));
+	releaseLevelButtons.setupComponent(parent, releaseLevel, tabOrder, labelFont);
 }
 
 void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)

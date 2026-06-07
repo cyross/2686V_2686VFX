@@ -40,7 +40,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
 
-    steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "Steps", .isReset = true, .labelFont = juce::Font(6.0f) });
+    steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "Steps", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
     steps.setExplicitFocusOrder(++tabOrder);
     steps.onValueChange = [this] {
@@ -63,7 +63,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "Loop To", .isReset = true, .labelFont = juce::Font(6.0f) });
+    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "Loop To", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -72,7 +72,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "Loop Cnt", .isReset = true, .labelFont = juce::Font(6.0f) });
+    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "Loop Cnt", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -83,55 +83,55 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     loopCount.setEnabled(ssgEnvLoopEnable);
     loopCount.label.setEnabled(ssgEnvLoopEnable);
 
-    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "Stl", .isReset = true, .labelFont = juce::Font(6.0f) });
+    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "Stl", .isReset = true, .labelFont = labelFont });
     startLevel.setWantsKeyboardFocus(true);
     startLevel.setExplicitFocusOrder(++tabOrder);
 
-    r1.setup({ .parent = parent, .id = code + "_SSGSW_R1", .title = "R1", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r1.setup({ .parent = parent, .id = code + "_SSGSW_R1", .title = "R1", .isReset = true, .labelFont = labelFont });
     r1.setWantsKeyboardFocus(true);
     r1.setExplicitFocusOrder(++tabOrder);
 
-    l1.setup({ .parent = parent, .id = code + "_SSGSW_L1", .title = "L1", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l1.setup({ .parent = parent, .id = code + "_SSGSW_L1", .title = "L1", .isReset = true, .labelFont = labelFont });
     l1.setWantsKeyboardFocus(true);
     l1.setExplicitFocusOrder(++tabOrder);
 
-    r2.setup({ .parent = parent, .id = code + "_SSGSW_R2", .title = "R2", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r2.setup({ .parent = parent, .id = code + "_SSGSW_R2", .title = "R2", .isReset = true, .labelFont = labelFont });
     r2.setWantsKeyboardFocus(true);
     r2.setExplicitFocusOrder(++tabOrder);
 
-    l2.setup({ .parent = parent, .id = code + "_SSGSW_L2", .title = "L2", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l2.setup({ .parent = parent, .id = code + "_SSGSW_L2", .title = "L2", .isReset = true, .labelFont = labelFont });
     l2.setWantsKeyboardFocus(true);
     l2.setExplicitFocusOrder(++tabOrder);
 
-    r3.setup({ .parent = parent, .id = code + "_SSGSW_R3", .title = "R3", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r3.setup({ .parent = parent, .id = code + "_SSGSW_R3", .title = "R3", .isReset = true, .labelFont = labelFont });
     r3.setWantsKeyboardFocus(true);
     r3.setExplicitFocusOrder(++tabOrder);
 
-    l3.setup({ .parent = parent, .id = code + "_SSGSW_L3", .title = "L3", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l3.setup({ .parent = parent, .id = code + "_SSGSW_L3", .title = "L3", .isReset = true, .labelFont = labelFont });
     l3.setWantsKeyboardFocus(true);
     l3.setExplicitFocusOrder(++tabOrder);
 
-    r4.setup({ .parent = parent, .id = code + "_SSGSW_R4", .title = "R4", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r4.setup({ .parent = parent, .id = code + "_SSGSW_R4", .title = "R4", .isReset = true, .labelFont = labelFont });
     r4.setWantsKeyboardFocus(true);
     r4.setExplicitFocusOrder(++tabOrder);
 
-    l4.setup({ .parent = parent, .id = code + "_SSGSW_L4", .title = "L4", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l4.setup({ .parent = parent, .id = code + "_SSGSW_L4", .title = "L4", .isReset = true, .labelFont = labelFont });
     l4.setWantsKeyboardFocus(true);
     l4.setExplicitFocusOrder(++tabOrder);
 
-    r5.setup({ .parent = parent, .id = code + "_SSGSW_R5", .title = "R5", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r5.setup({ .parent = parent, .id = code + "_SSGSW_R5", .title = "R5", .isReset = true, .labelFont = labelFont });
     r5.setWantsKeyboardFocus(true);
     r5.setExplicitFocusOrder(++tabOrder);
 
-    l5.setup({ .parent = parent, .id = code + "_SSGSW_L5", .title = "L5", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l5.setup({ .parent = parent, .id = code + "_SSGSW_L5", .title = "L5", .isReset = true, .labelFont = labelFont });
     l5.setWantsKeyboardFocus(true);
     l5.setExplicitFocusOrder(++tabOrder);
 
-    r6.setup({ .parent = parent, .id = code + "_SSGSW_R6", .title = "R6", .isReset = true, .labelFont = juce::Font(6.0f) });
+    r6.setup({ .parent = parent, .id = code + "_SSGSW_R6", .title = "R6", .isReset = true, .labelFont = labelFont });
     r6.setWantsKeyboardFocus(true);
     r6.setExplicitFocusOrder(++tabOrder);
 
-    l6.setup({ .parent = parent, .id = code + "_SSGSW_L6", .title = "L6", .isReset = true, .labelFont = juce::Font(6.0f) });
+    l6.setup({ .parent = parent, .id = code + "_SSGSW_L6", .title = "L6", .isReset = true, .labelFont = labelFont });
     l6.setWantsKeyboardFocus(true);
     l6.setExplicitFocusOrder(++tabOrder);
 }
