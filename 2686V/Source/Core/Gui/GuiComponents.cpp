@@ -1,8 +1,80 @@
-﻿#include "GuiComponents.h"
+﻿#include "./GuiComponents.h"
 
 #include "../Editor/PluginEditor.h"
 
 #include "./GuiText.h"
+
+// コンストラクタで色を受け取る
+GuiWaveformPreview::GuiWaveformPreview(juce::Colour background, juce::Colour line, juce::Colour border, juce::Colour axis)
+    : bgColor(background), lineColor(line), borderColor(border), axisColor(axis)
+{
+}
+
+void GuiWaveformPreview::pushBuffer(const float* data, int numSamples)
+{
+    if (numSamples <= 0) return;
+    m_displayBuffer.assign(data, data + numSamples);
+    repaint(); // データが来たら再描画
+}
+
+void GuiWaveformPreview::paint(juce::Graphics& g)
+{
+    // カスタム背景色で塗りつぶし
+    g.fillAll(bgColor);
+
+    // 軸線とメモリを描画
+    float xAxis = getWidth() / 8.0f;
+    float yAxis = getHeight() / 8.0f;
+
+    g.setColour(axisColor.withAlpha(0.8f));
+
+    g.drawLine(0.0f, yAxis * 4.0f, xAxis * 8.0f, yAxis * 4.0f);
+    g.drawLine(xAxis * 4.0f, 0.0f, xAxis * 4.0f, yAxis * 8.0f);
+
+    g.setColour(axisColor.darker(0.1f).withAlpha(0.8f));
+
+    g.drawLine(0.0f, yAxis * 2.0f, xAxis * 8.0f, yAxis * 2.0f);
+    g.drawLine(0.0f, yAxis * 6.0f, xAxis * 8.0f, yAxis * 6.0f);
+    g.drawLine(xAxis * 2.0f, 0.0f, xAxis * 2.0f, yAxis * 8.0f);
+    g.drawLine(xAxis * 6.0f, 0.0f, xAxis * 6.0f, yAxis * 8.0f);
+
+    g.setColour(axisColor.darker(0.3f).withAlpha(0.5f));
+
+    g.drawLine(0.0f, yAxis * 1.0f, xAxis * 8.0f, yAxis * 1.0f);
+    g.drawLine(0.0f, yAxis * 3.0f, xAxis * 8.0f, yAxis * 3.0f);
+    g.drawLine(0.0f, yAxis * 5.0f, xAxis * 8.0f, yAxis * 5.0f);
+    g.drawLine(0.0f, yAxis * 7.0f, xAxis * 8.0f, yAxis * 7.0f);
+
+    g.drawLine(xAxis * 1.0f, 0.0f, xAxis * 1.0f, yAxis * 8.0f);
+    g.drawLine(xAxis * 3.0f, 0.0f, xAxis * 3.0f, yAxis * 8.0f);
+    g.drawLine(xAxis * 5.0f, 0.0f, xAxis * 5.0f, yAxis * 8.0f);
+    g.drawLine(xAxis * 7.0f, 0.0f, xAxis * 7.0f, yAxis * 8.0f);
+
+    if (m_displayBuffer.empty()) return;
+
+    juce::Path wavePath;
+    float halfHeight = getHeight() / 2.0f;
+
+    float xStep = 0.0f;
+    if (m_displayBuffer.size() > 1) {
+        xStep = (float)getWidth() / (m_displayBuffer.size() - 1);
+    }
+
+    wavePath.startNewSubPath(0, halfHeight - (m_displayBuffer[0] * halfHeight));
+
+    for (size_t i = 1; i < m_displayBuffer.size(); ++i) {
+        float x = i * xStep;
+        float y = halfHeight - (m_displayBuffer[i] * halfHeight);
+        wavePath.lineTo(x, y);
+    }
+
+    // カスタム波形色で描画
+    g.setColour(lineColor);
+    g.strokePath(wavePath, juce::PathStrokeType(2.0f));
+
+    g.setColour(borderColor);
+    g.drawRect(getLocalBounds(), 1);
+}
 
 void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
 {
