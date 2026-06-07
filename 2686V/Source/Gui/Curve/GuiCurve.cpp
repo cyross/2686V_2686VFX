@@ -3,6 +3,7 @@
 #include "./GuiCurve.h"
 
 #include "../../Core/Processor/PluginProcessor.h"
+#include "../../Core/Editor/PluginEditor.h"
 
 #include "../../Processor/Curve/ProcessorCurveKeys.h"
 #include "../../Processor/Curve/ProcessorCurveValues.h"

@@ -215,9 +215,12 @@ protected:
     class ComboBoxLF : public juce::LookAndFeel_V4
     {
     public:
+        ComboBoxLF(): juce::LookAndFeel_V4() {
+        }
+
         // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
-        juce::Font selectedFont{ 13.0f };
-        juce::Font dropdownFont{ 14.0f };
+        juce::Font selectedFont = juce::Font(juce::FontOptions(13.0f));
+        juce::Font dropdownFont = juce::Font(juce::FontOptions(14.0f));
 
         // ドロップダウンメニューのフォントサイズを上書き
         juce::Font getPopupMenuFont() override {
@@ -271,8 +274,8 @@ public:
         std::optional<juce::Font> labelFont = std::nullopt;
         juce::Justification labelJustification = juce::Justification::centred;
         juce::Colour labelColor = GuiColor::Label::Text;
-        std::optional<juce::Font> selectedFont = juce::Font(13.0f);
-        std::optional<juce::Font> dropdownFont = juce::Font(16.0f);
+        std::optional<juce::Font> selectedFont = juce::Font(juce::FontOptions(13.0f));
+        std::optional<juce::Font> dropdownFont = juce::Font(juce::FontOptions(16.0f));
         RegisterType regType = RegisterType::None;
     };
 
@@ -296,9 +299,10 @@ class GuiToggleButton : public juce::ToggleButton, public GuiBaseComponent
 protected:
     std::unique_ptr<ButtonAttachment> att;
     juce::Justification textJustification = juce::Justification::centred;
-    juce::Font buttonFont{ 12.0f }; 
+    juce::Font buttonFont = juce::Font(juce::FontOptions(12.0f));
 public:
-    GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {}
+    GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {
+    }
 
     struct Config {
         juce::Component& parent;
@@ -323,7 +327,7 @@ protected:
     class TextButtonLF : public juce::LookAndFeel_V4
     {
     public:
-        std::optional<juce::Font> customFont = juce::Font(13.0f);
+        std::optional<juce::Font> customFont = juce::Font(juce::FontOptions(13.0f));
 
         // テキストボタンのフォントを要求された時に呼ばれる関数をオーバーライド
         juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
@@ -332,7 +336,7 @@ protected:
                 return customFont.value();
             }
             // 指定がない場合は、ボタンの高さに合わせたJUCEの標準フォントを返す
-            return juce::Font(juce::jmin(16.0f, (float)buttonHeight * 0.6f));
+            return juce::Font(juce::FontOptions(juce::jmin(16.0f, (float)buttonHeight * 0.6f)));
         }
     };
 
@@ -522,7 +526,7 @@ class GuiCategoryLabel : public GuiLabel
     bool detailVisible = false;
 	juce::String visibleText = juce::String();
     juce::String invisibleText = juce::String();
-    juce::Font font = juce::Font(16.0f, juce::Font::bold);
+    juce::Font font = juce::Font(juce::FontOptions(16.0f, juce::Font::bold));
 	juce::Colour labelColor = GuiColor::Label::CategoryText;
 public:
     GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}

@@ -181,7 +181,7 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
 
     g.setFont(buttonFont);
     juce::String text = getButtonText();
-    float textWidth = (float)g.getCurrentFont().getStringWidth(text);
+    float textWidth = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), juce::StringRef(text));
     float totalWidth = boxSize + gap + textWidth;
 
     float alpha = isEnabled() ? 1.0f : 0.5f;
@@ -428,7 +428,7 @@ void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
     this->invisibleText = c.invisibleTitle.value_or(""); // 詳細テキストがない場合は空文字
     this->detailVisible = c.detailVisible;
     this->enableChangeDetailVisible = c.enableChangeDetailVisible;
-    this->font = c.font.value_or(juce::Font(16.0f, juce::Font::bold)); // ハードウェアカテゴリは太字の大きめフォントがデフォルト
+    this->font = c.font.value_or(juce::Font(juce::FontOptions(16.0f, juce::Font::bold))); // ハードウェアカテゴリは太字の大きめフォントがデフォルト
 
     GuiLabel::setup({ .parent = c.parent, .title = ((!this->enableChangeDetailVisible || this->detailVisible) ? this->visibleText : this->invisibleText), .font = font, .justification = c.justification, .color = colour });
 

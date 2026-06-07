@@ -29,7 +29,7 @@
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
 public:
-    juce::Font buttonFont{ 20.0f, 1 };
+    juce::Font buttonFont = juce::Font(juce::FontOptions(20.0f, 1));
 
     juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override
     {
