@@ -96,6 +96,8 @@ void SsgCore::setParameters(const SynthParams& params)
     m_dutyPreset = params.ssg.dutyPreset;
     m_dutyVar = params.ssg.dutyVar;
     m_dutyInvert = params.ssg.dutyInvert;
+    m_dutyFc = params.ssg.dutyFc;
+    m_dutyFcFluc = params.ssg.dutyFcFluc;
 
     m_triKeyTrack = params.ssg.triKeyTrack;
     m_triPeak = params.ssg.triPeak;
@@ -387,17 +389,32 @@ float SsgCore::getSample()
 
         if (m_waveform == 0) // Pulse
         {
-            float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
+            if (m_dutyFc) {
+                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
 
-            if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
 
-            // 極端なデューティ比による波形消失を防ぐ最低保証
-            float minDuty = phaseInc;
-            if (currentDuty < minDuty) currentDuty = minDuty;
-            if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
+                // 極端なデューティ比による波形消失を防ぐ最低保証
+                float minDuty = phaseInc;
+                if (currentDuty < minDuty) currentDuty = minDuty;
+                if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
 
-            toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+                toneSample = (m_phase < currentDuty)
+                    ? (1.0f - m_dutyFcFluc * (m_phase / currentDuty))
+                    : (-1.0f + m_dutyFcFluc * ((m_phase - currentDuty) / (1.0f - currentDuty)));
+             }
+            else {
+                float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
 
+                if (m_dutyInvert) currentDuty = 1.0f - currentDuty;
+
+                // 極端なデューティ比による波形消失を防ぐ最低保証
+                float minDuty = phaseInc;
+                if (currentDuty < minDuty) currentDuty = minDuty;
+                if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
+
+                toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+            }
         }
         else // Triangle
         {

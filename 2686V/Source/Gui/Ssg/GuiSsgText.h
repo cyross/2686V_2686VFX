@@ -88,6 +88,8 @@ namespace SsgGuiText
 			static inline const juce::String preset = u8"Preset";
 			static inline const juce::String var = u8"Ratio";
 			static inline const juce::String invert = u8"Invert Phrase";
+			static inline const juce::String fc = u8"FC Mode";
+			static inline const juce::String fcFluc = u8"FC Fluc";
 		}
 
 		namespace Tri

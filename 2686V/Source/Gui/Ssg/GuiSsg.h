@@ -97,6 +97,8 @@ class GuiSsg : public GuiBase
     GuiComboBox dutyPresetSelector;
     GuiSlider dutyVarSlider;
     GuiToggleButton dutyInvertButton;
+    GuiToggleButton dutyFcButton;
+    GuiSlider dutyFcFlucSlider;
 
     // Triangle
     GuiToggleButton triKeyTrackButton;
@@ -181,6 +183,8 @@ public:
         dutyPresetSelector(context),
         dutyVarSlider(context),
         dutyInvertButton(context),
+        dutyFcButton(context),
+        dutyFcFlucSlider(context),
         triKeyTrackButton(context),
         triFreqSlider(context),
         triPeakSlider(context),

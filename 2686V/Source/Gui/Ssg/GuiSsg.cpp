@@ -279,9 +279,17 @@ void GuiSsg::setup()
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
+    dutyFcButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
+    dutyFcButton.setWantsKeyboardFocus(true);
+    dutyFcButton.setExplicitFocusOrder(++tabOrder);
+
+    dutyFcFlucSlider.setup({ .parent = *this, .id = code + SsgPrKey::Duty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
+    dutyFcFlucSlider.setWantsKeyboardFocus(true);
+    dutyFcFlucSlider.setExplicitFocusOrder(++tabOrder);
+
     pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true, .isResized = true });
+    dutyInvertButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
@@ -397,6 +405,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyModeSelector.setVisibleWithLabel(true);
         dutyVarSlider.setValue(true);
         dutyVarSlider.label.setVisible(true);
+        dutyFcButton.setVisible(true);
+        dutyFcFlucSlider.setValue(true);
+        dutyFcFlucSlider.label.setVisible(true);
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
@@ -418,6 +429,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             layoutRow({ .rowRect = dRect, .label = &dutyVarSlider.label, .component = &dutyVarSlider, });
         }
 
+        layoutRow({ .rowRect = dRect, .component = &dutyFcButton });
+        layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
+
         layoutRowCategory({ .rowRect = dRect, .label = &pulseInvCat });
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
@@ -430,6 +444,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyModeSelector.setVisibleWithLabel(false);
         dutyInvertButton.setVisible(false);
         dutyPresetSelector.setVisibleWithLabel(false);
+        dutyFcButton.setVisible(false);
+        dutyFcFlucSlider.setValue(false);
+        dutyFcFlucSlider.label.setVisible(false);
         dutyVarSlider.setVisible(false);
         dutyVarSlider.label.setVisible(false);
 

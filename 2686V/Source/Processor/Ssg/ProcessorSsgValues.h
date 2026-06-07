@@ -134,6 +134,18 @@ namespace SsgPrValue
 		{
 			inline constexpr float initial = false; // 初期値
 		}
+
+		namespace Fc
+		{
+			inline constexpr float initial = false; // 初期値
+		}
+
+		namespace FcFluc
+		{
+			inline constexpr float min = 0.0f; // 最小値
+			inline constexpr float max = 1.0f;  // 最大値
+			inline constexpr float initial = 0.2f; // 初期値
+		}
 	}
 
 	namespace Tri

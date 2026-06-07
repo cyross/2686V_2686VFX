@@ -39,6 +39,8 @@ namespace SsgPrKey
 		static inline const juce::String preset = "_DUTY_PRESET";
 		static inline const juce::String var = "_DUTY_VAR";
 		static inline const juce::String inv = "_DUTY_INV";
+		static inline const juce::String fc = "_DUTY_FC_MODE";
+		static inline const juce::String fcFluc = "_DUTY_FC_FLUC";
 	};
 
 	namespace Tri
