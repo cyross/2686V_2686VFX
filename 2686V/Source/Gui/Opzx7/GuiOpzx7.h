@@ -362,6 +362,12 @@ public:
             pcmFileNameLabel[i].setText(fileName, juce::dontSendNotification);
         }
     }
+    void updateAllWtFileName(const juce::String& fileName) {
+        for (int i = 0; i < 4; i++)
+        {
+            wtFileNameLabel[i].setText(fileName, juce::dontSendNotification);
+        }
+    }
     void updateOpEnable(int idx, bool enable);
 	void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();

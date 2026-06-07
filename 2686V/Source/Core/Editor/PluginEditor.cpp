@@ -363,6 +363,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     int initialHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
     setSize(EditorGuiValue::Window::width, initialHeight);
+
+    // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
+    updateRhythmFileNames("Reload");
+    updateAdpcmFileNames("Reload");
+    updateOpzx7PcmFileNames("Reload");
+    updateOpzx7WtFileNames("Reload");
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -695,26 +701,11 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
 
     presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment, audioProcessor.presetGenre, audioProcessor.presetFilePath);
 
-    // 1. リズム音源のファイル名を復元
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
-    updateRhythmFileNames(juce::String("") + "再読み込み");
-
-    // 2. ADPCMのファイル名を復元
-    updateAdpcmFileName(juce::String("") + "再読み込み");
-
-    // 3. OPZX7のPCMファイル名を復元
-    for (int i = 0; i < 4; ++i) {
-        juce::String path = audioProcessor.opzx7PcmFilePaths[i];
-        juce::String text = Io::empty;
-
-        if (path.isNotEmpty()) {
-            // 相対パスを絶対パスに復元してからファイル名を取得する
-            juce::File f = audioProcessor.resolvePath(path);
-            text = f.getFileName();
-        }
-
-        opzx7Gui->updatePcmFileName(i, text);
-    }
+    updateRhythmFileNames("Reload");
+    updateAdpcmFileNames("Reload");
+    updateOpzx7PcmFileNames("Reload");
+    updateOpzx7WtFileNames("Reload");
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CorePrKey::mode);
@@ -1073,7 +1064,7 @@ void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
     }
 }
 
-void AudioPlugin2686VEditor::updateOpzx7FileNames(const juce::String filename)
+void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename)
 {
     if (filename == Io::empty) {
         for (int i = 0; i < 4; ++i)
@@ -1101,7 +1092,35 @@ void AudioPlugin2686VEditor::updateOpzx7FileNames(const juce::String filename)
     }
 }
 
-void AudioPlugin2686VEditor::updateAdpcmFileName(const juce::String filename)
+void AudioPlugin2686VEditor::updateOpzx7WtFileNames(const juce::String filename)
+{
+    if (filename == Io::empty) {
+        for (int i = 0; i < 4; ++i)
+        {
+            opzx7Gui->updateWtFileName(i, filename);
+        }
+
+    }
+    else {
+        for (int i = 0; i < 4; ++i)
+        {
+            juce::String path = audioProcessor.opzx7WtFilePaths[i];
+            juce::String text = Io::empty;
+
+            if (path.isNotEmpty())
+            {
+                // パスが存在すればファイル名を取得
+                // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
+                juce::File f = audioProcessor.resolvePath(path);
+                text = f.getFileName();
+            }
+
+            opzx7Gui->updateWtFileName(i, text);
+        }
+    }
+}
+
+void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
 {
     if (filename == Io::empty) {
         adpcmGui->updateFileName(filename);
