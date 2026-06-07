@@ -238,11 +238,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan);
     toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, juce::Colours::cyan);
     toggleMiniBtn.onClick = [this] {
-        updatePreviewVisibilityToProcessor();
-
         switch (viewMode) {
         case ViewMode::Full: // -> MiniPlayer
             viewMode = ViewMode::MiniPlayer;
+
+            updatePreviewVisibilityToProcessor();
 
             tabs.setVisible(false);
             logoLabel.setVisible(false);
@@ -300,6 +300,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         case ViewMode::Minimum: // -> Full
             viewMode = ViewMode::Full;
 
+            updatePreviewVisibilityToProcessor();
+
             tabs.setVisible(true);
             logoLabel.setVisible(true);
             miniLogoLabel.setVisible(false);
@@ -316,7 +318,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
 
             updateKeyboardVisibility();
+
             resized();
+
             updateTimerState();
 
             break;
@@ -339,7 +343,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             previewLabel.setFont(juce::Font(24.0f, juce::Font::bold));
 
             updateKeyboardVisibility();
+
             resized();
+
             updateTimerState();
         }
         };
