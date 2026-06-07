@@ -1,7 +1,9 @@
 ﻿#include "./SynthRhythm.h"
 
 #include "../../Core/Synth/SynthHelpers.h"
-#include "../../Generator/Pcm/GenPcm.h"
+#include "../../Generator/Pcm/Adpcm/GenAdpcm.h"
+#include "../../Generator/Pcm/Dpcm/GenDpcm.h"
+#include "../../Generator/Pcm/Helper/GenPcmHelper.h"
 
 void RhythmPad::prepare(double hostSampleRate)
 {
@@ -26,7 +28,7 @@ void RhythmPad::setSampleData(const std::vector<float>& sourceData, double sourc
 {
     m_rawBuffer = sourceData;
     m_sourceRate = sourceRate;
-    refreshAdpcmBuffer();
+    refreshPcmBuffer();
 }
 
 // Update parameters and check for buffer regeneration
@@ -55,13 +57,16 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_pitchAdsr.setParameters(params.pitchAdsr);
 
     bool needRefresh = false;
-    if (m_qualityMode != params.qualityMode) { m_qualityMode = params.qualityMode; }
+    if (m_qualityMode != params.qualityMode) {
+        m_qualityMode = params.qualityMode;
+        needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
+    }
     if (m_rateIndex != params.rateIndex) {
         m_rateIndex = params.rateIndex;
         needRefresh = true;
     }
 
-    if (needRefresh) refreshAdpcmBuffer();
+    if (needRefresh) refreshPcmBuffer();
 }
 
 void RhythmPad::triggerRelease(double hostSampleRate)
@@ -72,7 +77,9 @@ void RhythmPad::triggerRelease(double hostSampleRate)
 
 void RhythmPad::start(float velocity, bool isLegato)
 {
-    double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
+    // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
+    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
 
     float oldBaseLevel = m_baseLevel;
 
@@ -151,11 +158,12 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
         }
     }
 
-    double currentBufferRate = (m_qualityMode == 7) ? m_bufferSampleRate : m_sourceRate;
+    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
     double increment = m_pitchAdsr.process((currentBufferRate / hostSampleRate) * pitchRatio);
 
     // 総サイズと再生終了位置の計算
-    size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
+    size_t totalSize = isEncodedMode ? m_pcmBuffer.size() : m_rawBuffer.size();
     if (totalSize == 0) return 0.0f;
 
     double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
@@ -170,7 +178,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
     float output = 0.0f;
 
     // ループと終端の判定を endPosition に基づいて行う
-    if (m_qualityMode == adpcmMode)
+    if (isEncodedMode)
     {
         if (m_position >= endPosition) {
             if (m_isOneShot) {
@@ -184,7 +192,7 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
 
         int idx = (int)m_position;
         if (idx >= totalSize) idx = offsetSamples; // 安全ガード
-        output = m_adpcmBuffer[idx] / 32768.0f;
+        output = m_pcmBuffer[idx] / 32768.0f;
     }
     else // Raw / PCM Playback
     {
@@ -205,14 +213,14 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
         float frac = (float)(m_position - idx0);
         output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
 
-        output = bitReduction(output, m_qualityMode);
+        output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
     m_position += increment;
     return output * m_level * finalEnv * m_baseLevel;
 }
 
-void RhythmPad::refreshAdpcmBuffer()
+void RhythmPad::refreshPcmBuffer()
 {
     // Copy the same resampling & encoding logic as AdpcmCore here
     // (To avoid code duplication, it's best to extract Codec to a separate header, but omitted here)
@@ -224,25 +232,38 @@ void RhythmPad::refreshAdpcmBuffer()
     m_bufferSampleRate = targetRate;
 
     double step = m_sourceRate / targetRate;
-    Ym2608AdpcmCodec codec;
-    codec.reset();
-    m_adpcmBuffer.clear();
-    m_adpcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
+
+    m_pcmBuffer.clear();
+    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
 
     double pos = 0;
-    while (pos < m_rawBuffer.size()) {
-        int index = (int)pos;
 
-        if (index >= m_rawBuffer.size()) break;
+    if (m_qualityMode == dpcmMode) {
+        DpcmCodec codec;
+        codec.reset();
 
-        int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
+            if (index >= m_rawBuffer.size()) break;
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+            pos += step;
+        }
+    }
+    else { // adpcmMode
+        Ym2608AdpcmCodec codec;
+        codec.reset();
 
-        m_adpcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-        pos += step;
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
+            if (index >= m_rawBuffer.size()) break;
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+            pos += step;
+        }
     }
 
-    adpcmLowPassFilter(m_adpcmBuffer);
+    GenPcmHelper::lowPassFilter(m_pcmBuffer);
 }
 
 void RhythmCore::prepare(double sampleRate)

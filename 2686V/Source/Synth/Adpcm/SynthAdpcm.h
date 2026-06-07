@@ -4,7 +4,6 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Synth/SynthCore.h"
-#include "../../Generator/Pcm/GenPcm.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
@@ -51,8 +50,8 @@ private:
     double m_bufferSampleRate = 16000.0; // Internal Data Sample Rate
 
     // Processed ADPCM Data (stored as int16 for playback)
-    std::vector<float> m_rawBuffer;       // Raw Data (32bit)
-    std::vector<int16_t> m_adpcmBuffer;   // Processed Data (4bit ADPCM)
+    std::vector<float> m_rawBuffer;     // Raw Data (32bit)
+    std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
     int m_qualityMode = 6;
     int m_rateIndex = 3;
 
@@ -87,7 +86,7 @@ private:
     // LFO
     double m_lfoPhase = 0.0;
 
-    void refreshAdpcmBuffer();
+    void refreshPcmBuffer();
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

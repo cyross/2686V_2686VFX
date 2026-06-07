@@ -72,7 +72,7 @@ namespace RhythmPrValue
 
 		namespace Rate
 		{
-			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 11k 9: 8k 10: 5.5k 11: 4k 12: 2k
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
 			inline constexpr int min = CorePrValue::Pcm::Rate::min;
 			inline constexpr int max = CorePrValue::Pcm::Rate::max;
 			inline constexpr int initial = CorePrValue::Pcm::Rate::initial;

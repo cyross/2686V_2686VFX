@@ -62,8 +62,12 @@ set(SSG_NOISE_GEN_FILES
 )
 
 set(PCM_GENERATOR_FILES
-    "Source/Generator/Pcm/GenPcm.h"
-    "Source/Generator/Pcm/GenPcm.cpp"
+    "Source/Generator/Pcm/Adpcm/GenAdpcm.h"
+    "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
+    "Source/Generator/Pcm/Dpcm/GenDpcm.h"
+    "Source/Generator/Pcm/Dpcm/GenDpcm.cpp"
+    "Source/Generator/Pcm/Helper/GenDpcm.h"
+    "Source/Generator/Pcm/Helper/GenDpcm.cpp"
 )
 
 set(FM_FILES
