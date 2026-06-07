@@ -6,6 +6,7 @@
 #include "./SynthHelpers.h"
 
 double getTargetRate(int index, double defaultValue) {
+    // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
     switch (index) {
         case 1:
             return 96000.0; // 96kHz
@@ -18,20 +19,22 @@ double getTargetRate(int index, double defaultValue) {
         case 5:
             return 44100.0; // 44.1kHz
         case 6:
-            return 22050.0; // 22.05kHz
+            return 33075.0; // 33.08kHz
         case 7:
-            return 16000.0; // 16kHz
+            return 22050.0; // 22.05kHz
         case 8:
-            return 12000.0; // 12kHz
+            return 16000.0; // 16kHz
         case 9:
-            return 11000.0; // 11.00kHz
+            return 12000.0; // 12kHz
         case 10:
-            return 8000.0;  // 8kHz
+            return 11025.0; // 11.03kHz
         case 11:
-            return 5550.0;  // 55.5kHz
+            return 8000.0;  // 8kHz
         case 12:
-            return 4410.0;  // 4kHz
+            return 5551.0;  // 5.55kHz
         case 13:
+            return 4410.0;  // 4kHz
+        case 14:
             return 2205.0;  // 2kHz
     }
 
@@ -47,7 +50,7 @@ float getTargetBitDepth(int index)
     case 3: return 31.0f;   // 6-bit (-31 ~ 0 ~ +31 の63段階)
     case 4: return 127.0f;  // 8-bit (-127 ~ 0 ~ +127 の255段階)
     case 5: return 0.0f;    // Raw (32-bit float / 量子化なし)
-    case 6: return 63.0f;   // ★追加した 7-bit (OPLL)
+    case 6: return 63.0f;   // 7-bit (OPLL)
     }
 
     return 127.0f;
@@ -55,7 +58,7 @@ float getTargetBitDepth(int index)
 
 float getTargetMaxVal(int index)
 {
-    // 4bit ADPCM は、別処理になるため対応不要
+    // 4bit ADPCM (index=7) と 1bit DPCM (index=8)は、別処理になるため対応不要
     switch (index) {
     // 32bit Float
     case 1:

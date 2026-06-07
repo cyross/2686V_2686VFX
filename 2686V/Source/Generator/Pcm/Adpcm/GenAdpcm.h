@@ -1,8 +1,6 @@
 ﻿#pragma once
 
-#include <cmath>
-#include <vector>
-#include <random>
+#include <cstdint>
 
 // --- YM2608 ADPCM Algorithm Implementation ---
 namespace OpnaAdpcm {
@@ -31,6 +29,3 @@ private:
 
 // --- ADPCMになるモード番号 ---
 static const int adpcmMode = 7;
-
-void adpcmLowPassFilter(std::vector<int16_t>& adpcmBuffer);
-float bitReduction(float input, int qIndex);

@@ -6,7 +6,9 @@
 
 #include "../../Core/Synth/SynthMode.h"
 #include "../../Core/Synth/SynthHelpers.h"
-#include "../../Generator/Pcm/GenPcm.h"
+#include "../../Generator/Pcm/Adpcm/GenAdpcm.h"
+#include "../../Generator/Pcm/Dpcm/GenDpcm.h"
+#include "../../Generator/Pcm/Helper/GenPcmHelper.h"
 
 void AdpcmCore::prepare(double sampleRate)
 {
@@ -75,6 +77,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     if (m_qualityMode != params.adpcm.qualityMode) {
         m_qualityMode = params.adpcm.qualityMode;
+        needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
     }
 
     if (m_rateIndex != params.adpcm.rateIndex) {
@@ -83,7 +86,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     }
 
     if (needRefresh) {
-        refreshAdpcmBuffer();
+        refreshPcmBuffer();
     }
 }
 
@@ -106,28 +109,46 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
 
     double step = sourceRate / targetRate;
 
-    Ym2608AdpcmCodec codec;
-    codec.reset();
-
-    m_adpcmBuffer.clear();
-    m_adpcmBuffer.reserve((size_t)(sourceData.size() / step));
+    m_pcmBuffer.clear();
+    m_pcmBuffer.reserve((size_t)(sourceData.size() / step));
 
     double pos = 0;
-    while (pos < sourceData.size()) {
-        int index = (int)pos;
-        if (index >= sourceData.size()) break;
 
-        int16_t input = (int16_t)(sourceData[index] * 32767.0f);
+    // --- ロード時もDPCM/ADPCM設定に従ってエンコードする ---
+    if (m_qualityMode == dpcmMode)
+    {
+        DpcmCodec codec;
+        codec.reset();
+        while (pos < sourceData.size()) {
+            int index = (int)pos;
 
-        // Encode -> Decode (劣化処理)
-        uint8_t encoded = codec.encode(input);
-        int16_t decoded = codec.decode(encoded);
+            if (index >= sourceData.size()) break;
 
-        m_adpcmBuffer.push_back(decoded);
-        pos += step;
+            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
+
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
+    }
+    else
+    {
+        Ym2608AdpcmCodec codec;
+        codec.reset();
+        while (pos < sourceData.size()) {
+            int index = (int)pos;
+
+            if (index >= sourceData.size()) break;
+
+            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
+
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
     }
 
-    adpcmLowPassFilter(m_adpcmBuffer);
+    GenPcmHelper::lowPassFilter(m_pcmBuffer);
 }
 
 void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -143,7 +164,10 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     // 2. ピッチ・周波数の計算 (レガート時も音程は変わるため毎回実行)
     // =====================================================================
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
-    double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
+
+    // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
+    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
     float finalFreq = freq;
 
     m_unisonPhaseOffset = 0.0f;
@@ -243,9 +267,11 @@ float AdpcmCore::getSample()
         return 0.0f;
     }
 
+    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+
     // Safety check for empty buffers
-    if ((m_qualityMode == 6 && m_adpcmBuffer.empty()) ||
-        (m_qualityMode != 6 && m_rawBuffer.empty())) {
+    if ((isEncodedMode && m_pcmBuffer.empty()) ||
+        (!isEncodedMode && m_rawBuffer.empty())) {
         return 0.0f;
     }
 
@@ -302,7 +328,7 @@ float AdpcmCore::getSample()
     float output = 0.0f;
 
     double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
-    size_t totalSize = (m_qualityMode == adpcmMode) ? m_adpcmBuffer.size() : m_rawBuffer.size();
+    size_t totalSize = (m_qualityMode == adpcmMode) ? m_pcmBuffer.size() : m_rawBuffer.size();
 
     // 終端位置の計算
     double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
@@ -315,9 +341,9 @@ float AdpcmCore::getSample()
     double endPosition = offsetSamples + playSize;
 
     // --- Mode Switching ---
-    if (m_qualityMode == adpcmMode) // 4-bit ADPCM (OPNA Style)
+    if (isEncodedMode) // 4-bit ADPCM (OPNA Style) or 1-bit DPCM
     {
-        size_t bufSize = m_adpcmBuffer.size();
+        size_t bufSize = m_pcmBuffer.size();
 
         // ループ・終了判定
         if (m_position >= endPosition) {
@@ -331,8 +357,8 @@ float AdpcmCore::getSample()
         }
 
         int index = (int)m_position;
-        if (index < m_adpcmBuffer.size()) {
-            output = m_adpcmBuffer[index] / 32768.0f;
+        if (index < m_pcmBuffer.size()) {
+            output = m_pcmBuffer[index] / 32768.0f;
         }
     }
     else // PCM Modes (Bit Crushing)
@@ -362,7 +388,7 @@ float AdpcmCore::getSample()
             output = s0 * (1.0f - frac) + s1 * frac;
         }
 
-        output = bitReduction(output, m_qualityMode);
+        output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
     // Advance position
@@ -371,7 +397,7 @@ float AdpcmCore::getSample()
     return output * m_level * finalEnv * m_baseLevel;
 }
 
-void AdpcmCore::refreshAdpcmBuffer()
+void AdpcmCore::refreshPcmBuffer()
 {
     if (m_rawBuffer.empty()) return;
 
@@ -390,25 +416,48 @@ void AdpcmCore::refreshAdpcmBuffer()
     double step = m_sourceRate / targetRate;
     if (step <= 0.0) step = 1.0;
 
-    Ym2608AdpcmCodec codec;
-    codec.reset();
-
-    m_adpcmBuffer.clear();
-    m_adpcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
+    m_pcmBuffer.clear();
+    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
 
     double pos = 0;
-    while (pos < m_rawBuffer.size()) {
-        int index = (int)pos;
-        if (index >= m_rawBuffer.size()) break;
 
-        int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+    // --- DPCMとADPCMの分岐エンコード ---
+    if (m_qualityMode == dpcmMode)
+    {
+        DpcmCodec codec;
+        codec.reset();
 
-        m_adpcmBuffer.push_back(codec.decode(codec.encode(input)));
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
 
-        pos += step;
+            if (index >= m_rawBuffer.size()) break;
+
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
+    }
+    else
+    {
+        Ym2608AdpcmCodec codec;
+        codec.reset();
+
+        while (pos < m_rawBuffer.size()) {
+            int index = (int)pos;
+
+            if (index >= m_rawBuffer.size()) break;
+
+            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
+
+            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
+
+            pos += step;
+        }
     }
 
-    adpcmLowPassFilter(m_adpcmBuffer);
+    GenPcmHelper::lowPassFilter(m_pcmBuffer);
 }
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

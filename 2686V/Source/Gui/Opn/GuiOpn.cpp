@@ -32,14 +32,15 @@ static std::vector<SelectItem> rateItems = {
     {.name = " 3: 49.7kHz",  .value = 3 },
     {.name = " 4: 48kHz",    .value = 4 },
     {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 22.05kHz", .value = 6 },
-    {.name = " 7: 16kHz",    .value = 7 },
-    {.name = " 8: 12kHz",    .value = 8 },
-    {.name = " 9: 11kHz",    .value = 9 },
-    {.name = "10: 8kHz",     .value = 10 },
-    {.name = "11: 5.5kHz",   .value = 11 },
-    {.name = "12: 4kHz",     .value = 12 },
-    {.name = "13: 2kHz",     .value = 13 },
+    {.name = " 6: 33.08kHz", .value = 6 },
+    {.name = " 7: 22.05kHz", .value = 7 },
+    {.name = " 8: 16kHz",    .value = 8 },
+    {.name = " 9: 12kHz",    .value = 9 },
+    {.name = "10: 11kHz",    .value = 10 },
+    {.name = "11: 8kHz",     .value = 11 },
+    {.name = "12: 5.5kHz",   .value = 12 },
+    {.name = "13: 4kHz",     .value = 13 },
+    {.name = "14: 2kHz",     .value = 14 },
 };
 
 static std::vector<SelectItem> opnAlgItems = {

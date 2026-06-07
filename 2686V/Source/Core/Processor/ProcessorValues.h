@@ -356,8 +356,9 @@ namespace CorePrValue
 
 		namespace Rate
 		{
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
 			inline constexpr int min = 1; // 96kHz
-			inline constexpr int max = 13; // 2kHz
+			inline constexpr int max = 14; // 2kHz
 			inline constexpr int initial = 2; // 55.5kHz
 		}
 	}
@@ -367,15 +368,16 @@ namespace CorePrValue
 		namespace Bit
 		{
 			inline constexpr int min = 1; // Raw (32bit)
-			inline constexpr int max = 7; // 4-bit ADPCM
+			inline constexpr int max = 8; // 7-bit DPCM
 			inline constexpr int initial = 7; // 4-bit ADPCM
 		}
 
 		namespace Rate
 		{
-			inline constexpr int min = 1; // 2kHz
-			inline constexpr int max = 13; // 96kHz
-			inline constexpr int initial = 7; // 16kHz
+			// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
+			inline constexpr int min = 1; // 96kHz
+			inline constexpr int max = 14; // 2kHz
+			inline constexpr int initial = 8; // 16kHz
 		}
 
 		namespace Offset

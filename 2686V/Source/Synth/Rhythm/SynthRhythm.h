@@ -14,9 +14,8 @@
 class RhythmPad
 {
 public:
-    // Holds raw data and converted data
-    std::vector<float> m_rawBuffer;
-    std::vector<int16_t> m_adpcmBuffer;
+    std::vector<float> m_rawBuffer;     // Raw Data (32bit)
+    std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
 
     double m_position = 0.0;
     double m_bufferSampleRate = 16000.0;
@@ -61,7 +60,7 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
 
-    void refreshAdpcmBuffer();
+    void refreshPcmBuffer();
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
