@@ -454,7 +454,7 @@ float SsgCore::getSample()
 
     float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
 
-    return interpolatedSample * finalEnv * m_baseLevel; 
+    return interpolatedSample * finalEnv * m_baseLevel * 8.0f; 
 }
 
 void SsgCore::updatePhaseDelta() {

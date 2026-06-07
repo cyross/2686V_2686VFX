@@ -394,7 +394,7 @@ float AdpcmCore::getSample()
     // Advance position
     m_position += currentIncrement;
 
-    return output * m_level * finalEnv * m_baseLevel;
+    return output * m_level * finalEnv * m_baseLevel * 4.0f;
 }
 
 void AdpcmCore::refreshPcmBuffer()

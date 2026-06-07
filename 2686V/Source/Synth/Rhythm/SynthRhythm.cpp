@@ -436,7 +436,7 @@ void RhythmCore::getSampleStereo(float& outL, float& outR)
                 float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
             }
 
-            float sample = pad.getSample(m_sampleRate, totalPitchRatio);
+            float sample = pad.getSample(m_sampleRate, totalPitchRatio) * 4.0f;
 
             outL += sample * basePanL;
             outR += sample * basePanR;
