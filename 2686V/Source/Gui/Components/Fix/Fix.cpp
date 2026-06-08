@@ -443,6 +443,7 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
 
 void GuiComponentFix::setEnables(bool enabled)
 {
+    cat.setEnabled(enabled);
     enable.setEnabled(enabled);
     freq.setEnabled(enabled);
     freqTo.setEnabled(enabled);

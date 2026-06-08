@@ -777,7 +777,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     dt1[idx].setEnabledWithLabel(enable);
     dt2[idx].setEnabledWithLabel(enable);
     dt3[idx].setEnabledWithLabel(enable);
-    dt3Btns[idx].setEnabled(enable);
+    dt3Btns[idx].setEnables(enable);
     ar[idx].setEnabledWithLabel(enable);
     d1r[idx].setEnabledWithLabel(enable);
     d1l[idx].setEnabledWithLabel(enable);
@@ -791,6 +791,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     bypass[idx].setEnabled(enable);
     fix[idx].setEnables(enable);
     lfo[idx].setEnabled(enable);
+    catWaveShape[idx].setEnabled(enable);
     ws[idx].setEnabledWithLabel(enable);
     loadPcmBtn[idx].setEnabled(enable);
     clearPcmBtn[idx].setEnabled(enable);
@@ -818,6 +819,13 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     kor[idx].setEnabled(enable);
     pitchEnv[idx].setEnabled(enable);
     ssgSwEnv[idx].setEnabled(enable);
+    catSsgEnv[idx].setEnabled(enable);
+    se[idx].setEnabled(enable);
+    seFreq[idx].setEnabled(enable);
+    opGraphs[idx].setEnabled(enable);
+    graphBtnAmp[idx].setEnabled(enable);
+    graphBtnPitch[idx].setEnabled(enable);
+    graphBtnSsg[idx].setEnabled(enable);
 }
 
 void GuiOpzx7::updateOnWsChange(int idx)
