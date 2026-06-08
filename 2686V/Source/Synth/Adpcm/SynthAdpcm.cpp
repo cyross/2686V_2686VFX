@@ -70,6 +70,21 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
     m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.detune3, params.adpcm.multiple, params.adpcm.multipleRatio);
+    m_lfo.setParameters(
+        params.adpcm.lfoPmSyncDelay,
+        params.adpcm.lfoAmSyncDelay,
+        params.adpcm.lfoPmEnable,
+        params.adpcm.lfoAmEnable,
+        params.adpcm.lfoPmFreq,
+        params.adpcm.lfoAmFreq,
+        params.adpcm.lfoPmWave,
+        params.adpcm.lfoAmWave,
+        params.adpcm.lfoPms,
+        params.adpcm.lfoPmd,
+        params.adpcm.lfoAms,
+        params.adpcm.lfoAmd,
+        params.adpcm.lfoAmSmRt
+    );
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -205,6 +220,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+        m_lfo.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -391,10 +407,41 @@ float AdpcmCore::getSample()
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
-    // Advance position
-    m_position += currentIncrement;
+    // ==========================================
+    // Opzx7 LFO の計算 (AM / PM)
+    // ==========================================
+    m_lfo.getSample();
 
-    return output * m_level * finalEnv * m_baseLevel * 4.0f;
+    // 1. Amplitude Modulation (AM / 音量)
+    float amMultiplier = 1.0f;
+
+    if (m_lfo.am.enable) {
+        // depthDb はセットアップ時に計算済みなので、そのままdB減衰に変換
+        float attenDb = m_lfo.value.am * m_lfo.am.depthDb;
+        amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
+    }
+
+    // 2. Pitch Modulation (PM / 音程)
+    float pitchModCents = 0.0f;
+
+    if (m_lfo.pm.enable) {
+        // depthCent も計算済みなので、そのままセント値に変換
+        pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
+    }
+
+    // セントを周波数倍率(レシオ)に変換
+    float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+
+    // ==========================================
+    // 周波数倍率の決定
+    // (PitchBend × Opzx7のPM × ModWheelのPM)
+    // ==========================================
+    float freqMult = m_pitchBendRatio * opzx7PitchMod;
+
+    // Advance position
+    m_position += currentIncrement * freqMult;
+
+    return output * m_level * finalEnv * m_baseLevel * amMultiplier * 4.0f;
 }
 
 void AdpcmCore::refreshPcmBuffer()

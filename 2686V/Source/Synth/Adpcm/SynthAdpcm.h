@@ -10,6 +10,7 @@
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 
 // --- Core Class ---
 
@@ -73,6 +74,7 @@ private:
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
     FixMode m_fixMode;
+    Opzx7LfoCore m_lfo;
 
     float m_currentLevel = 0.0f;
     float m_baseLevel = 0.0f;

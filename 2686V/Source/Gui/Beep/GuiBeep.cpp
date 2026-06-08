@@ -41,6 +41,8 @@ void GuiBeep::setup() {
 
 	mulDetuneComponent.setupComponent(*this, code, tabOrder);
 
+    lfoComponent.setupComponent(*this, code, tabOrder);
+
     unisonComponent.setupComponent(*this, code, tabOrder);
 
     midiComponent.setupComponent(*this, tabOrder);
@@ -79,6 +81,8 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     ssgSwEnvComponent.layoutComponent(mRect);
 
 	mulDetuneComponent.layoutComponent(mRect);
+
+    lfoComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

@@ -14,6 +14,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -39,6 +40,8 @@ class GuiBeep : public GuiBase {
 
     // Detune
 	GuiComponentMulDetune mulDetuneComponent;
+
+    GuiComponentLfoOpzx7 lfoComponent;
 
     GuiComponentMidi midiComponent;
 
@@ -70,6 +73,7 @@ public:
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
+        lfoComponent(context),
         midiComponent(context),
         presetNameLabel(context),
         presetNameSeparator(context),

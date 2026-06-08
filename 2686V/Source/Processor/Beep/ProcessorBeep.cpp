@@ -34,6 +34,7 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
     addSsgSwEnvParameters(layout, code);
+    addOpzx7LfoParameters(layout, code);
 }
 
 void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -88,6 +89,20 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pDetune = apvts.getRawParameterValue(code + BeepPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + BeepPrKey::dt2);
     pDetune3 = apvts.getRawParameterValue(code + BeepPrKey::dt3);
+
+    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
 }
 
 void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -144,4 +159,18 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     params.beep.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.beep.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
     params.beep.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
+
+    params.beep.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
+    params.beep.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);
+    params.beep.lfoPmWave = (int)pLfoPmShape->load(std::memory_order_relaxed);
+    params.beep.lfoAmWave = (int)pLfoAmShape->load(std::memory_order_relaxed);
+    params.beep.lfoAmSmRt = pLfoAmSmoothRatio->load(std::memory_order_relaxed);
+    params.beep.lfoAmEnable = (pLfoAm->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.lfoPmEnable = (pLfoPm->load(std::memory_order_relaxed) > BeepPrValue::boolThread);
+    params.beep.lfoPms = pLfoPms->load(std::memory_order_relaxed);
+    params.beep.lfoAms = pLfoAms->load(std::memory_order_relaxed);
+    params.beep.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
+    params.beep.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
+    params.beep.lfoPmSyncDelay = pLfoPmSyncDelay->load(std::memory_order_relaxed);
+    params.beep.lfoAmSyncDelay = pLfoAmSyncDelay->load(std::memory_order_relaxed);
 }

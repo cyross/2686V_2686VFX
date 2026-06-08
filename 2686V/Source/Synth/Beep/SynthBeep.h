@@ -10,6 +10,7 @@
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 
 class BeepCore : public SynthCore
 {
@@ -60,6 +61,7 @@ private:
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
+    Opzx7LfoCore m_lfo;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
