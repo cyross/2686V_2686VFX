@@ -16,6 +16,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -76,21 +77,7 @@ class GuiSsg : public GuiBase
     GuiComponentMulDetune mulDetuneComponent;
 
     // LFO
-    GuiCategoryLabel lfoCat;
-    GuiSlider lfoPmFreqSlider;
-    GuiSlider lfoAmFreqSlider;
-    GuiSlider lfoSyncDelaySlider;
-    GuiTextButton lfoSyncDelayToZeroBtn;
-    GuiTextButton lfoSyncDelayToOneBtn;
-    GuiSlider lfoAmSmRtSlider;
-    GuiComboBox lfoPmShapeSelector;
-    GuiComboBox lfoAmShapeSelector;
-    GuiToggleButton lfoPmToggle;
-    GuiToggleButton lfoAmToggle;
-    GuiSlider lfoPmsSlider;
-    GuiSlider lfoAmsSlider;
-    GuiSlider lfoPmdSlider;
-    GuiSlider lfoAmdSlider;
+    GuiComponentLfoOpzx7 lfo;
 
     // Duty
     GuiComboBox dutyModeSelector; // Preset / Variable
@@ -164,21 +151,7 @@ public:
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
-        lfoCat(context),
-        lfoPmFreqSlider(context),
-        lfoAmFreqSlider(context),
-        lfoSyncDelaySlider(context),
-        lfoSyncDelayToZeroBtn(context),
-        lfoSyncDelayToOneBtn(context),
-        lfoAmSmRtSlider(context),
-        lfoPmShapeSelector(context),
-        lfoAmShapeSelector(context),
-        lfoPmToggle(context),
-        lfoAmToggle(context),
-        lfoPmsSlider(context),
-        lfoAmsSlider(context),
-        lfoPmdSlider(context),
-        lfoAmdSlider(context),
+        lfo(context),
         dutyModeSelector(context),
         dutyPresetSelector(context),
         dutyVarSlider(context),
@@ -211,7 +184,6 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutLfoCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

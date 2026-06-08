@@ -17,6 +17,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
+#include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -136,20 +137,7 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton panToRBtn;
 
     // LFO
-    GuiCategoryLabel lfoCat;
-    GuiSlider lfoFreqSlider;
-    GuiSlider lfoSyncDelaySlider;
-	GuiTextButton lfoSyncDelayToZeroBtn;
-    GuiTextButton lfoSyncDelayToOneBtn;
-    GuiSlider lfoAmSmRtSlider;
-    GuiComboBox lfoPgShapeSelector;
-    GuiComboBox lfoEgShapeSelector;
-    GuiToggleButton lfoPmToggle;
-    GuiToggleButton lfoAmToggle;
-    GuiSlider lfoPmsSlider;
-    GuiSlider lfoAmsSlider;
-    GuiSlider lfoPmdSlider;
-    GuiSlider lfoAmdSlider;
+    GuiComponentLfoOpzx7 glLfo;
 
     // UNISON/HARMONY
 	GuiComponentUnison unisonComponent;
@@ -194,19 +182,9 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiCategoryLabel, Global::Fm::Op4> catSsgEnv;
     std::array<GuiComboBox, Global::Fm::Op4> se;
     std::array<GuiSlider, Global::Fm::Op4> seFreq;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
-    std::array<GuiSlider, Global::Fm::Op4> lFreq;
-    std::array<GuiSlider, Global::Fm::Op4> syncDelay;
-    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToZero;
-    std::array<GuiTextButton, Global::Fm::Op4> syncDelayToOne;
-    std::array<GuiToggleButton, Global::Fm::Op4> pm;  // OPLの vib に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> pgShape;
-    std::array<GuiSlider, Global::Fm::Op4> pms;
-    std::array<GuiSlider, Global::Fm::Op4> pmd;
-    std::array<GuiToggleButton, Global::Fm::Op4> am;  // OPMでは AMS-EN に相当)
-    std::array<GuiComboBox, Global::Fm::Op4> egShape;
-    std::array<GuiSlider, Global::Fm::Op4> ams;
-    std::array<GuiSlider, Global::Fm::Op4> amd;
+
+    // LFO
+    std::array<GuiComponentLfoOpzx7, Global::Fm::Op4> lfo;
 
     // Pitch ADSR
     std::array<GuiComponentPitchEnv, Global::Fm::Op4> pitchEnv;
@@ -263,20 +241,7 @@ public:
         panToLBtn(context),
         panToCBtn(context),
         panToRBtn(context),
-        lfoCat(context),
-        lfoFreqSlider(context),
-        lfoSyncDelaySlider(context),
-		lfoSyncDelayToZeroBtn(context),
-		lfoSyncDelayToOneBtn(context),
-        lfoAmSmRtSlider(context),
-        lfoPgShapeSelector(context),
-        lfoEgShapeSelector(context),
-        lfoPmToggle(context),
-        lfoAmToggle(context),
-        lfoPmsSlider(context),
-        lfoAmsSlider(context),
-        lfoPmdSlider(context),
-        lfoAmdSlider(context),
+        glLfo(context),
 		unisonComponent(context),
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -307,19 +272,7 @@ public:
         catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        lFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        syncDelay{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-		syncDelayToZero{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        syncDelayToOne{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        pm{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        pgShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pmd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
-        egShape{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        lfo{ GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -382,8 +335,6 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
-    void layoutLfoCat(juce::Rectangle<int>& rect);
-    void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);

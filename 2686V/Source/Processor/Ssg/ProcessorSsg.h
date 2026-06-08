@@ -78,7 +78,9 @@ class SsgProcessor : public PrBase
     std::atomic<float>* pHwEnvEnable = nullptr;
     std::atomic<float>* pHwEnvShape = nullptr;
     std::atomic<float>* pHwEnvPeriod = nullptr;
-    std::atomic<float>* pLfoSyncDelay = nullptr;
+
+    std::atomic<float>* pLfoPmSyncDelay = nullptr;
+    std::atomic<float>* pLfoAmSyncDelay = nullptr;
     std::atomic<float>* pLfoAmSmoothRatio = nullptr;
     std::atomic<float>* pLfoPmFreq = nullptr;
     std::atomic<float>* pLfoAmFreq = nullptr;

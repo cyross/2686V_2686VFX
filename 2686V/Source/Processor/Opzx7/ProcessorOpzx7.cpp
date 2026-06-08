@@ -16,18 +16,6 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::bit, code + Opzx7PrName::bit, Opzx7PrValue::Bit::min, Opzx7PrValue::Bit::max, Opzx7PrValue::Bit::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::rate, code + Opzx7PrName::rate, Opzx7PrValue::Rate::min, Opzx7PrValue::Rate::max, Opzx7PrValue::Rate::initial)); // Default 6 (16kHz)
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::freq, code + Opzx7PrName::GlLfo::freq, Opzx7PrValue::Lfo::PmFreq::min, Opzx7PrValue::Lfo::PmFreq::max, Opzx7PrValue::Lfo::PmFreq::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::GlLfo::syncDelay, code + Opzx7PrName::GlLfo::syncDelay, Opzx7PrValue::Lfo::SyncDelay::min, Opzx7PrValue::Lfo::SyncDelay::max, Opzx7PrValue::Lfo::SyncDelay::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::amSmoothRatio, code + Opzx7PrName::GlLfo::amSmoothRatio, Opzx7PrValue::Lfo::AmSmRt::min, Opzx7PrValue::Lfo::AmSmRt::max, Opzx7PrValue::Lfo::AmSmRt::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::GlLfo::pgShape, code + Opzx7PrName::GlLfo::pgShape, Opzx7PrValue::Lfo::PmShape::min, Opzx7PrValue::Lfo::PmShape::max, Opzx7PrValue::Lfo::PmShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::GlLfo::egShape, code + Opzx7PrName::GlLfo::egShape, Opzx7PrValue::Lfo::AmShape::min, Opzx7PrValue::Lfo::AmShape::max, Opzx7PrValue::Lfo::AmShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + Opzx7PrKey::GlLfo::am, code + Opzx7PrName::GlLfo::am, Opzx7PrValue::Lfo::Am::initial)); // AM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + Opzx7PrKey::GlLfo::pm, code + Opzx7PrName::GlLfo::pm, Opzx7PrValue::Lfo::Pm::initial)); // PM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::pms, code + Opzx7PrName::GlLfo::pms, Opzx7PrValue::Lfo::Pms::min, Opzx7PrValue::Lfo::Pms::max, Opzx7PrValue::Lfo::Pms::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::ams, code + Opzx7PrName::GlLfo::ams, Opzx7PrValue::Lfo::Ams::min, Opzx7PrValue::Lfo::Ams::max, Opzx7PrValue::Lfo::Ams::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::pmd, code + Opzx7PrName::GlLfo::pmd, Opzx7PrValue::Lfo::Pmd::min, Opzx7PrValue::Lfo::Pmd::max, Opzx7PrValue::Lfo::Pmd::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::GlLfo::amd, code + Opzx7PrName::GlLfo::amd, Opzx7PrValue::Lfo::Amd::min, Opzx7PrValue::Lfo::Amd::max, Opzx7PrValue::Lfo::Amd::initial));
-
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::panpot, code + Opzx7PrName::panpot, Opzx7PrValue::Panpot::min, Opzx7PrValue::Panpot::max, Opzx7PrValue::Panpot::initial));
     layout.add(std::make_unique<juce::AudioParameterBool>(code + Opzx7PrKey::panpot_en, code + Opzx7PrName::panpot_en, Opzx7PrValue::PanpotEnable::initial)); // PM Enable (Switch)
 
@@ -35,6 +23,8 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::Unison::voices, code + Opzx7PrName::Unison::voices, Opzx7PrValue::Unison::Voices::min, Opzx7PrValue::Unison::Voices::max, Opzx7PrValue::Unison::Voices::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + Opzx7PrKey::Unison::detune, code + Opzx7PrName::Unison::detune, Opzx7PrValue::Unison::Detune::min, Opzx7PrValue::Unison::Detune::max, Opzx7PrValue::Unison::Detune::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::Unison::spread, code + Opzx7PrName::Unison::spread, Opzx7PrValue::Unison::Spread::min, Opzx7PrValue::Unison::Spread::max, Opzx7PrValue::Unison::Spread::initial));
+
+    addOpzx7LfoParameters(layout, code);
 
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
     {
@@ -66,16 +56,6 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::pcmOffset, namePrefix + Opzx7PrName::pcmOffset, Opzx7PrValue::Op::Offset::min, Opzx7PrValue::Op::Offset::max, Opzx7PrValue::Op::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::pcmRatio, namePrefix + Opzx7PrName::pcmRatio, Opzx7PrValue::Op::Ratio::min, Opzx7PrValue::Op::Ratio::max, Opzx7PrValue::Op::Ratio::initial));
 
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::lfoFreq, namePrefix + Opzx7PrName::lfoFreq, Opzx7PrValue::Lfo::PmFreq::min, Opzx7PrValue::Lfo::PmFreq::max, Opzx7PrValue::Lfo::PmFreq::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::syncDelay, namePrefix + Opzx7PrName::syncDelay, Opzx7PrValue::Lfo::SyncDelay::min, Opzx7PrValue::Lfo::SyncDelay::max, Opzx7PrValue::Lfo::SyncDelay::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::am, namePrefix + Opzx7PrName::am, Opzx7PrValue::Lfo::Am::initial)); // AM Enable (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::vib, namePrefix + Opzx7PrName::vib, Opzx7PrValue::Lfo::Pm::initial)); // PM Enable (Switch)
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::pgShape, namePrefix + Opzx7PrName::pgShape, Opzx7PrValue::Lfo::PmShape::min, Opzx7PrValue::Lfo::PmShape::max, Opzx7PrValue::Lfo::PmShape::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + Opzx7PrKey::egShape, namePrefix + Opzx7PrName::egShape, Opzx7PrValue::Lfo::AmShape::min, Opzx7PrValue::Lfo::AmShape::max, Opzx7PrValue::Lfo::AmShape::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::pms, namePrefix + Opzx7PrName::pms, Opzx7PrValue::Lfo::Pms::min, Opzx7PrValue::Lfo::Pms::max, Opzx7PrValue::Lfo::Pms::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::ams, namePrefix + Opzx7PrName::ams, Opzx7PrValue::Lfo::Ams::min, Opzx7PrValue::Lfo::Ams::max, Opzx7PrValue::Lfo::Ams::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::pmd, namePrefix + Opzx7PrName::pmd, Opzx7PrValue::Lfo::Pmd::min, Opzx7PrValue::Lfo::Pmd::max, Opzx7PrValue::Lfo::Pmd::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + Opzx7PrKey::amd, namePrefix + Opzx7PrName::amd, Opzx7PrValue::Lfo::Amd::min, Opzx7PrValue::Lfo::Amd::max, Opzx7PrValue::Lfo::Amd::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(prefix + Opzx7PrKey::mask, namePrefix + Opzx7PrName::mask, Opzx7PrValue::Op::Mask::initial)); // OP Mask (Switch)
 
@@ -94,6 +74,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 
         addOpPitchEnvParameters(layout, prefix, namePrefix);
         addOpSsgSwEnvParameters(layout, prefix, namePrefix);
+        addOpOpzx7LfoParameters(layout, prefix, namePrefix);
     }
 }
 
@@ -105,17 +86,19 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     pDepth = apvts.getRawParameterValue(code + Opzx7PrKey::bit);
     pRate = apvts.getRawParameterValue(code + Opzx7PrKey::rate);
 
-    pLfoFreq = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::freq);
-    pLfoSyncDelay = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::syncDelay);
-    pLfoPmWave = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::pgShape);
-    pLfoAmWave = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::egShape);
-    pLfoAmSmRt = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::amSmoothRatio);
-    pLfoAmEnable = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::am);
-    pLfoPms = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::pms);
-    pLfoPmd = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::pmd);
-    pLfoPmEnable = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::pm);
-    pLfoAms = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::ams);
-    pLfoAmd = apvts.getRawParameterValue(code + Opzx7PrKey::GlLfo::amd);
+    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
 
     pPanpotEnable = apvts.getRawParameterValue(code + Opzx7PrKey::panpot_en);
     pPanpot = apvts.getRawParameterValue(code + Opzx7PrKey::panpot);
@@ -163,16 +146,19 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 		pOpPcmOffset[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pcmOffset);
 		pOpPcmRatio[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pcmRatio);
 
-		pOpLfoFreq[op] = apvts.getRawParameterValue(p + Opzx7PrKey::lfoFreq);
-		pOpLfoSyncDelay[op] = apvts.getRawParameterValue(p + Opzx7PrKey::syncDelay);
-		pOpLfoPmEnable[op] = apvts.getRawParameterValue(p + Opzx7PrKey::vib);
-        pOpLfoPmShape[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pgShape);
-        pOpLfoPms[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pms);
-		pOpLfoPmd[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pmd);
-		pOpLfoAmEnable[op] = apvts.getRawParameterValue(p + Opzx7PrKey::am);
-        pOpLfoAmShape[op] = apvts.getRawParameterValue(p + Opzx7PrKey::egShape);
-        pOpLfoAms[op] = apvts.getRawParameterValue(p + Opzx7PrKey::ams);
-		pOpLfoAmd[op] = apvts.getRawParameterValue(p + Opzx7PrKey::amd);
+        pOpLfoPmSyncDelay[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pmSyncDelay);
+        pOpLfoAmSyncDelay[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::amSyncDelay);
+        pOpLfoAmSmoothRatio[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::amSmoothRatio);
+        pOpLfoPmFreq[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pmFreq);
+        pOpLfoAmFreq[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::amFreq);
+        pOpLfoPmShape[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pgShape);
+        pOpLfoAmShape[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::egShape);
+        pOpLfoPm[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pm);
+        pOpLfoAm[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::am);
+        pOpLfoPmd[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pmd);
+        pOpLfoPms[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pms);
+        pOpLfoAmd[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::amd);
+        pOpLfoAms[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::ams);
 
 		pOpPitchEnvEnable[op] = apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::enable);
 		pOpPitchEnvAr[op] = apvts.getRawParameterValue(p + Opzx7PrKey::PitchAdsr::ar);
@@ -215,15 +201,17 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.opzx7.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opzx7.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);
 
-    params.opzx7.lfoFreq = pLfoFreq->load(std::memory_order_relaxed);
-    params.opzx7.lfoSyncDelay = pLfoSyncDelay->load(std::memory_order_relaxed);
-    params.opzx7.pmEnable = (pLfoPmEnable->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-    params.opzx7.pgLfoWave = (int)pLfoPmWave->load(std::memory_order_relaxed);
+    params.opzx7.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
+    params.opzx7.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);
+    params.opzx7.lfoPmSyncDelay = pLfoPmSyncDelay->load(std::memory_order_relaxed);
+    params.opzx7.lfoAmSyncDelay = pLfoAmSyncDelay->load(std::memory_order_relaxed);
+    params.opzx7.pmEnable = (pLfoPm->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+    params.opzx7.pgLfoWave = (int)pLfoPmShape->load(std::memory_order_relaxed);
     params.opzx7.lfoPms = pLfoPms->load(std::memory_order_relaxed);
     params.opzx7.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
-    params.opzx7.amEnable = (pLfoAmEnable->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-    params.opzx7.egLfoWave = (int)pLfoAmWave->load(std::memory_order_relaxed);
-    params.opzx7.lfoAmSmRt = pLfoAmSmRt->load(std::memory_order_relaxed);
+    params.opzx7.amEnable = (pLfoAm->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+    params.opzx7.egLfoWave = (int)pLfoAmShape->load(std::memory_order_relaxed);
+    params.opzx7.lfoAmSmRt = pLfoAmSmoothRatio->load(std::memory_order_relaxed);
     params.opzx7.lfoAms = pLfoAms->load(std::memory_order_relaxed);
     params.opzx7.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
 
@@ -273,16 +261,19 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].pcmOffset = pOpPcmOffset[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].pcmRatio = pOpPcmRatio[op]->load(std::memory_order_relaxed);
 
-        params.opzx7.op[op].lfoFreq = pOpLfoFreq[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].lfoSyncDelay = (int)pOpLfoSyncDelay[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].vibEnable = (pOpLfoPmEnable[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].amEnable = (pOpLfoAmEnable[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].lfoPmFreq = pOpLfoPmFreq[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].lfoAmFreq = pOpLfoAmFreq[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].lfoPmSyncDelay = (int)pOpLfoPmSyncDelay[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].lfoAmSyncDelay = (int)pOpLfoAmSyncDelay[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].vibEnable = (pOpLfoPm[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].amEnable = (pOpLfoAm[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].pgLfoWave = (int)pOpLfoPmShape[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].egLfoWave = (int)pOpLfoAmShape[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].pms = pOpLfoPms[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].ams = pOpLfoAms[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].pmd = pOpLfoPmd[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].amd = pOpLfoAmd[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].lfoAmSmRt = pOpLfoAmSmoothRatio[op]->load(std::memory_order_relaxed);
 
 		params.opzx7.op[op].pitchEnvEnable = pOpPitchEnvEnable[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread;
         params.opzx7.op[op].pitchAdsr.bypass = false;

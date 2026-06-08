@@ -72,7 +72,8 @@ class WtProcessor : public PrBase
     std::atomic<float>* pModDepth = nullptr;
     std::atomic<float>* pModSpeed = nullptr;
 
-    std::atomic<float>* pLfoSyncDelay = nullptr;
+    std::atomic<float>* pLfoPmSyncDelay = nullptr;
+    std::atomic<float>* pLfoAmSyncDelay = nullptr;
     std::atomic<float>* pLfoAmSmoothRatio = nullptr;
     std::atomic<float>* pLfoPmFreq = nullptr;
     std::atomic<float>* pLfoAmFreq = nullptr;

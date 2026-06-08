@@ -57,12 +57,18 @@ void WtCore::setParameters(const SynthParams& params)
 	m_ssgSwEnv.setParameters(params.wt.ssgSwEnv);
 	m_detune.setParameters(params.wt.detune, params.wt.detune2, params.wt.detune3, params.wt.multiple, params.wt.multipleRatio);
     m_lfo.setParameters(
-        params.wt.lfoSyncDelay,
-        params.wt.lfoPmEnable, params.wt.lfoAmEnable,
-        params.wt.lfoPmFreq, params.wt.lfoAmFreq,
-        params.wt.lfoPmWave, params.wt.lfoAmWave,
-        params.wt.lfoPms, params.wt.lfoPmd,
-        params.wt.lfoAms, params.wt.lfoAmd,
+        params.wt.lfoPmSyncDelay,
+        params.wt.lfoAmSyncDelay,
+        params.wt.lfoPmEnable,
+        params.wt.lfoAmEnable,
+        params.wt.lfoPmFreq,
+        params.wt.lfoAmFreq,
+        params.wt.lfoPmWave,
+        params.wt.lfoAmWave,
+        params.wt.lfoPms,
+        params.wt.lfoPmd,
+        params.wt.lfoAms,
+        params.wt.lfoAmd,
         params.wt.lfoAmSmRt
     );
 
@@ -296,15 +302,15 @@ float WtCore::getSample()
 
         // 1. Amplitude Modulation (AM / 音量)
         float amMultiplier = 1.0f;
-        if (m_lfo.amEnable) {
-            float attenDb = m_lfo.value.am * m_lfo.depthDb;
+        if (m_lfo.am.enable) {
+            float attenDb = m_lfo.value.am * m_lfo.am.depthDb;
             amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
         }
 
         // 2. Pitch Modulation (PM / 音程)
         float pitchModCents = 0.0f;
-        if (m_lfo.pmEnable) {
-            pitchModCents += m_lfo.value.pm * m_lfo.depthCent;
+        if (m_lfo.pm.enable) {
+            pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
         }
         float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
 

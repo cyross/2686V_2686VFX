@@ -733,4 +733,87 @@ namespace CorePrValue
 			inline constexpr int initial = 0;
 		}
 	}
+
+	namespace Lfo
+	{
+		namespace AmFreq
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::AmFreq::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::AmFreq::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::AmFreq::initial;
+		}
+
+		namespace PmFreq
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::PmFreq::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::PmFreq::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::PmFreq::initial;
+		}
+
+		namespace AmSmRt
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::AmSmRt::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::AmSmRt::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::AmSmRt::initial;
+		}
+
+		namespace Am
+		{
+			inline constexpr bool initial = CorePrValue::Opzx7Lfo::Am::initial;
+		}
+
+		namespace Ams
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::Ams::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::Ams::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::Ams::initial;
+		}
+
+		namespace Amd
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::Amd::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::Amd::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::Amd::initial;
+		}
+
+		namespace Pm
+		{
+			inline constexpr bool initial = CorePrValue::Opzx7Lfo::Pm::initial;
+		}
+
+		namespace Pms
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::Pms::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::Pms::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::Pms::initial;
+		}
+
+		namespace Pmd
+		{
+			inline constexpr float min = CorePrValue::Opzx7Lfo::Pmd::min;
+			inline constexpr float max = CorePrValue::Opzx7Lfo::Pmd::max;
+			inline constexpr float initial = CorePrValue::Opzx7Lfo::Pmd::initial;
+		}
+
+		namespace SyncDelay
+		{
+			inline constexpr int min = CorePrValue::Opzx7Lfo::SyncDelay::min;
+			inline constexpr int max = CorePrValue::Opzx7Lfo::SyncDelay::max;
+			inline constexpr int initial = CorePrValue::Opzx7Lfo::SyncDelay::initial;
+		}
+
+		namespace PmShape
+		{
+			inline constexpr int min = CorePrValue::Opzx7Lfo::PmShape::min;
+			inline constexpr int max = CorePrValue::Opzx7Lfo::PmShape::max;
+			inline constexpr int initial = CorePrValue::Opzx7Lfo::PmShape::initial;
+		}
+
+		namespace AmShape
+		{
+			inline constexpr int min = CorePrValue::Opzx7Lfo::AmShape::min;
+			inline constexpr int max = CorePrValue::Opzx7Lfo::AmShape::max;
+			inline constexpr int initial = CorePrValue::Opzx7Lfo::AmShape::initial;
+		}
+	}
 }

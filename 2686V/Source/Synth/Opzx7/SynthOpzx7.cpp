@@ -82,12 +82,18 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_isMonoMode = params.monoMode;
 
     m_lfo.setParameters(
-        params.opzx7.lfoSyncDelay,
-        params.opzx7.pmEnable, params.opzx7.amEnable,
-        params.opzx7.lfoFreq, params.opzx7.lfoFreq,
-        params.opzx7.pgLfoWave, params.opzx7.egLfoWave,
-        params.opzx7.lfoPms, params.opzx7.lfoPmd,
-        params.opzx7.lfoAms, params.opzx7.lfoAmd,
+        params.opzx7.lfoPmSyncDelay,
+        params.opzx7.lfoAmSyncDelay,
+        params.opzx7.pmEnable,
+        params.opzx7.amEnable,
+        params.opzx7.lfoPmFreq,
+        params.opzx7.lfoAmFreq,
+        params.opzx7.pgLfoWave,
+        params.opzx7.egLfoWave,
+        params.opzx7.lfoPms,
+        params.opzx7.lfoPmd,
+        params.opzx7.lfoAms,
+        params.opzx7.lfoAmd,
         params.opzx7.lfoAmSmRt
     );
 

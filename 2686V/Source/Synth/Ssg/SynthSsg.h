@@ -100,9 +100,6 @@ private:
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
 
-    double m_lfoPhase = 0.0;
-    float m_lfoFreq = 5.0f;
-
     void updatePhaseDelta();
 
     // ユニゾン・ハーモニー用

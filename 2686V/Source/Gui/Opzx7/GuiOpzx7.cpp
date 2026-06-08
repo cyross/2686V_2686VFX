@@ -303,67 +303,7 @@ void GuiOpzx7::setup()
         panpotSlider.setValue(31, juce::sendNotification);
         };
 
-    lfoCat.setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleLfo, .invisibleTitle = Opzx7GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
-
-    lfoFreqSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::freq, .title = Opzx7GuiText::Fm::lfoFreq, .isReset = true });
-    lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoFreqSlider.setWantsKeyboardFocus(true);
-    lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::amSmoothRatio, .title = Opzx7GuiText::Fm::amSmoothRatio, .isReset = true });
-    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
-    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::syncDelay, .title = Opzx7GuiText::Fm::lfoSyncDelay, .isReset = true });
-    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
-    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false});
-    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToZeroBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(0.0f);
-        };
-
-    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
-    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToOneBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(1.0f);
-        };
-
-    lfoPmToggle.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::pm, .title = Opzx7GuiText::Fm::pmEn, .isReset = true });
-    lfoPmToggle.setWantsKeyboardFocus(true);
-    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoPgShapeSelector.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::pgShape, .title = Opzx7GuiText::Fm::lfoPgShape, .items = lfoShapeItems, .isReset = true });
-    lfoPgShapeSelector.setWantsKeyboardFocus(true);
-    lfoPgShapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmsSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::pms, .title = Opzx7GuiText::Fm::pms, .isReset = true });
-    lfoPmsSlider.setWantsKeyboardFocus(true);
-    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmdSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::pmd, .title = Opzx7GuiText::Fm::pmd, .isReset = true });
-    lfoPmdSlider.setWantsKeyboardFocus(true);
-    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmToggle.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::am, .title = Opzx7GuiText::Fm::amEn, .isReset = true });
-    lfoAmToggle.setWantsKeyboardFocus(true);
-    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoEgShapeSelector.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::egShape, .title = Opzx7GuiText::Fm::lfoEgShape, .items = lfoShapeItems, .isReset = true });
-    lfoEgShapeSelector.setWantsKeyboardFocus(true);
-    lfoEgShapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmsSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::ams, .title = Opzx7GuiText::Fm::ams, .isReset = true });
-    lfoAmsSlider.setWantsKeyboardFocus(true);
-    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmdSlider.setup({ .parent = *this, .id = code + Opzx7PrKey::GlLfo::amd, .title = Opzx7GuiText::Fm::amd, .isReset = true });
-    lfoAmdSlider.setWantsKeyboardFocus(true);
-    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+    glLfo.setupComponent(*this, code, tabOrder);
 
     unisonComponent.setupComponent(*this, code, tabOrder);
 
@@ -594,62 +534,7 @@ void GuiOpzx7::setup()
 
         ssgSwEnv[i].setupComponent(*this, paramPrefix, tabOrder, Opzx7PrKey::SsgSwEnv::enable, Opzx7GuiText::SsgSwEnv::enable, true);
 
-        catLfo[i].setupSwCategory({ .parent = *this, .title = Opzx7GuiText::Category::visibleLfo, .invisibleTitle = Opzx7GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
-
-        lFreq[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::lfoFreq, .title = Opzx7GuiText::Fm::Op::Freqs, .isReset = true });
-        lFreq[i].setWantsKeyboardFocus(true);
-        lFreq[i].setExplicitFocusOrder(++tabOrder);
-
-        syncDelay[i].setup({ .parent = *this, .id = paramPrefix + Opzx7PrKey::syncDelay, .title = Opzx7GuiText::Fm::Op::SyncDelay, .isReset = true });
-        syncDelay[i].setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-        syncDelay[i].setWantsKeyboardFocus(true);
-        syncDelay[i].setExplicitFocusOrder(++tabOrder);
-
-        syncDelayToZero[i].setup({.parent = *this, .title = "Async", .isReset = false, .isResized = false});
-        syncDelayToZero[i].setWantsKeyboardFocus(true);
-        syncDelayToZero[i].setExplicitFocusOrder(++tabOrder);
-        syncDelayToZero[i].onClick = [this, i] {
-            syncDelay[i].setValue(0.0f);
-            };
-
-        syncDelayToOne[i].setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
-        syncDelayToOne[i].setWantsKeyboardFocus(true);
-        syncDelayToOne[i].setExplicitFocusOrder(++tabOrder);
-        syncDelayToOne[i].onClick = [this, i] {
-            syncDelay[i].setValue(1.0f);
-            };
-
-        pm[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::vib, .title = Opzx7GuiText::Fm::Op::PmEn, .isReset = true });
-        pm[i].setWantsKeyboardFocus(true);
-        pm[i].setExplicitFocusOrder(++tabOrder);
-
-        pgShape[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::pgShape, .title = Opzx7GuiText::Fm::Op::PgShape, .items = lfoShapeItems, .isReset = true });
-        pgShape[i].setWantsKeyboardFocus(true);
-        pgShape[i].setExplicitFocusOrder(++tabOrder);
-
-        pms[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::pms, .title = Opzx7GuiText::Fm::Op::Pms, .isReset = true });
-        pms[i].setWantsKeyboardFocus(true);
-        pms[i].setExplicitFocusOrder(++tabOrder);
-
-        pmd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::pmd, .title = Opzx7GuiText::Fm::Op::Pmd, .isReset = true });
-        pmd[i].setWantsKeyboardFocus(true);
-        pmd[i].setExplicitFocusOrder(++tabOrder);
-
-        am[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::am, .title = Opzx7GuiText::Fm::Op::AmEn, .isReset = true });
-        am[i].setWantsKeyboardFocus(true);
-        am[i].setExplicitFocusOrder(++tabOrder);
-
-        egShape[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::egShape, .title = Opzx7GuiText::Fm::Op::EgShape, .items = lfoShapeItems, .isReset = true });
-        egShape[i].setWantsKeyboardFocus(true);
-        egShape[i].setExplicitFocusOrder(++tabOrder);
-
-        ams[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ams, .title = Opzx7GuiText::Fm::Op::Ams, .isReset = true });
-        ams[i].setWantsKeyboardFocus(true);
-        ams[i].setExplicitFocusOrder(++tabOrder);
-
-        amd[i].setup(GuiSlider::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::amd, .title = Opzx7GuiText::Fm::Op::Amd, .isReset = true });
-        amd[i].setWantsKeyboardFocus(true);
-        amd[i].setExplicitFocusOrder(++tabOrder);
+        lfo[i].setupComponent(*this, paramPrefix, tabOrder);
 
         fix[i].setupComponent(*this, paramPrefix, tabOrder, Opzx7GuiText::Fm::Op::Opzx7FreqTo440, 440);
 
@@ -708,7 +593,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     layoutPanpotCat(mRect);
 
-    layoutLfoCat(mRect);
+    glLfo.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 
@@ -790,7 +675,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         ssgSwEnv[i].layoutComponentRow(innerRect);
 
-        layoutOpLfoCat(i, innerRect);
+        lfo[i].layoutComponentRow(innerRect);
 
         fix[i].layoutComponentRow(innerRect);
 
@@ -905,19 +790,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     catOptional[idx].setEnabled(enable);
     bypass[idx].setEnabled(enable);
     fix[idx].setEnables(enable);
-    catLfo[idx].setEnabled(enable);
-    lFreq[idx].setEnabledWithLabel(enable);
-    syncDelay[idx].setEnabledWithLabel(enable);
-    syncDelayToZero[idx].setEnabled(enable);
-    syncDelayToOne[idx].setEnabled(enable);
-    pm[idx].setEnabled(enable);
-    pgShape[idx].setEnabledWithLabel(enable);
-    pms[idx].setEnabledWithLabel(enable);
-    pmd[idx].setEnabledWithLabel(enable);
-    am[idx].setEnabled(enable);
-    egShape[idx].setEnabledWithLabel(enable);
-    ams[idx].setEnabledWithLabel(enable);
-    amd[idx].setEnabledWithLabel(enable);
+    lfo[idx].setEnabled(enable);
     ws[idx].setEnabledWithLabel(enable);
     loadPcmBtn[idx].setEnabled(enable);
     clearPcmBtn[idx].setEnabled(enable);
@@ -1171,43 +1044,6 @@ void GuiOpzx7::layoutPanpotCat(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiOpzx7::layoutLfoCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
-
-    bool visible = lfoCat.isDetailVisible();
-
-    lfoFreqSlider.setVisibleWithLabel(visible);
-    lfoAmSmRtSlider.setVisibleWithLabel(visible);
-    lfoSyncDelaySlider.setVisibleWithLabel(visible);
-    lfoSyncDelayToZeroBtn.setVisible(visible);
-    lfoSyncDelayToOneBtn.setVisible(visible);
-    lfoPmToggle.setVisible(visible);
-    lfoPgShapeSelector.setVisibleWithLabel(visible);
-    lfoPmsSlider.setVisibleWithLabel(visible);
-    lfoPmdSlider.setVisibleWithLabel(visible);
-    lfoAmToggle.setVisible(visible);
-    lfoEgShapeSelector.setVisibleWithLabel(visible);
-    lfoAmsSlider.setVisibleWithLabel(visible);
-    lfoAmdSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &lfoFreqSlider.label, .component = &lfoFreqSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
-        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
-        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
-        layoutMain({ .mainRect = rect, .label = &lfoPgShapeSelector.label, .component = &lfoPgShapeSelector });
-        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
-        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
-        layoutMain({ .mainRect = rect, .label = &lfoEgShapeSelector.label, .component = &lfoEgShapeSelector });
-        layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
-    }
-}
-
 void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
 {
     layoutRowCategory({ .rowRect = rect, .component = &catSsgEnv[opIndex] });
@@ -1221,41 +1057,6 @@ void GuiOpzx7::layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect)
     {
         layoutRow({ .rowRect = rect, .label = &se[opIndex].label, .component = &se[opIndex] });
         layoutRow({ .rowRect = rect, .label = &seFreq[opIndex].label, .component = &seFreq[opIndex], });
-    }
-}
-
-void GuiOpzx7::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
-{
-    layoutRowCategory({ .rowRect = rect, .component = &catLfo[opIndex] });
-
-    bool visible = catLfo[opIndex].isDetailVisible();
-
-    lFreq[opIndex].setVisibleWithLabel(visible);
-    syncDelay[opIndex].setVisibleWithLabel(visible);
-    syncDelayToZero[opIndex].setVisible(visible);
-    syncDelayToOne[opIndex].setVisible(visible);
-    pm[opIndex].setVisible(visible);
-    pgShape[opIndex].setVisibleWithLabel(visible);
-    pms[opIndex].setVisibleWithLabel(visible);
-    pmd[opIndex].setVisibleWithLabel(visible);
-    am[opIndex].setVisible(visible);
-    egShape[opIndex].setVisibleWithLabel(visible);
-    ams[opIndex].setVisibleWithLabel(visible);
-    amd[opIndex].setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutRow({ .rowRect = rect, .label = &lFreq[opIndex].label, .component = &lFreq[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &syncDelay[opIndex].label, .component = &syncDelay[opIndex] });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &syncDelayToZero[opIndex], .comp2 = &syncDelayToOne[opIndex] });
-        layoutRow({ .rowRect = rect, .component = &pm[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pgShape[opIndex].label, .component = &pgShape[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pms[opIndex].label, .component = &pms[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pmd[opIndex].label, .component = &pmd[opIndex] });
-        layoutRow({ .rowRect = rect, .component = &am[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &egShape[opIndex].label, .component = &egShape[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ams[opIndex].label, .component = &ams[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
     }
 }
 

@@ -357,7 +357,21 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_lfo.setParameters(params.lfoSyncDelay, params.vibEnable, params.amEnable, params.lfoFreq, params.lfoFreq, params.pgLfoWave, params.egLfoWave, params.pms, params.pmd, params.ams, params.amd, 0.01f);
+    m_lfo.setParameters(
+        params.lfoPmSyncDelay,
+        params.lfoAmSyncDelay,
+        params.vibEnable,
+        params.amEnable,
+        params.lfoPmFreq,
+        params.lfoAmFreq,
+        params.pgLfoWave,
+        params.egLfoWave,
+        params.pms,
+        params.pmd,
+        params.ams,
+        params.amd,
+        params.lfoAmSmRt
+    );
 }
 
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -513,12 +527,12 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     float totalAmpMod = 1.0f;
 
     // ① グローバルAM (最大 96dB の減衰)
-    if (glLfo.amEnable) {
-        totalAmpMod *= std::pow(10.0f, -(glLfo.value.am * glLfo.depthDb) / 20.0f);
+    if (glLfo.am.enable) {
+        totalAmpMod *= std::pow(10.0f, -(glLfo.value.am * glLfo.am.depthDb) / 20.0f);
     }
 
-    if (m_lfo.amEnable) {
-        totalAmpMod *= std::pow(10.0f, -(m_lfo.value.am * m_lfo.depthDb) / 20.0f);
+    if (m_lfo.am.enable) {
+        totalAmpMod *= std::pow(10.0f, -(m_lfo.value.am * m_lfo.am.depthDb) / 20.0f);
     }
 
     envVal *= totalAmpMod;
@@ -529,12 +543,12 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     float currentPitchCent = 1.0f;
 
     // ① グローバルPM (最大 ±1200 Cent の揺れ幅 = ±1オクターブ)
-    if (glLfo.pmEnable) {
-        currentPitchCent += glLfo.value.pm * glLfo.depthCent;
+    if (glLfo.pm.enable) {
+        currentPitchCent += glLfo.value.pm * glLfo.pm.depthCent;
     }
 
-    if (m_lfo.pmEnable) {
-        currentPitchCent += m_lfo.value.pm * m_lfo.depthCent;
+    if (m_lfo.pm.enable) {
+        currentPitchCent += m_lfo.value.pm * m_lfo.pm.depthCent;
     }
 
     // ③ モジュレーションホイール (Global LFO を使用、最大200セント)

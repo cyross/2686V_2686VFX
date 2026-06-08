@@ -71,28 +71,6 @@ static std::vector<SelectItem> ssgDmItems = {
     {.name = "1: Variable (Slider)", .value = 2 },
 };
 
-static std::vector<SelectItem> lfoPmShapeItems = {
-    {.name = "0: Sine",                .value = 1 },
-    {.name = "1: Saw Up",              .value = 2 },
-    {.name = "2: Saw Down",            .value = 3 },
-    {.name = "3: Square",              .value = 4 },
-    {.name = "4: Triangle",            .value = 5 },
-    {.name = "5: Sample & Hold",       .value = 6 },
-    {.name = "6: Saw Down & One Shot", .value = 7 },
-    {.name = "7: Triangle & One Shot", .value = 8 },
-};
-
-static std::vector<SelectItem> lfoAmShapeItems = {
-    {.name = "0: Sine",                .value = 1 },
-    {.name = "1: Saw Up",              .value = 2 },
-    {.name = "2: Saw Down",            .value = 3 },
-    {.name = "3: Square",              .value = 4 },
-    {.name = "4: Triangle",            .value = 5 },
-    {.name = "5: Sample & Hold",       .value = 6 },
-    {.name = "6: Saw Down & One Shot", .value = 7 },
-    {.name = "7: Triangle & One Shot", .value = 8 },
-};
-
 void GuiSsg::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
@@ -147,72 +125,11 @@ void GuiSsg::setup()
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleLfo, .invisibleTitle = SsgGuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
-
-    lfoPmFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmFreq, .title = SsgGuiText::Lfo::pmSpeed, .isReset = true });
-    lfoPmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoPmFreqSlider.setWantsKeyboardFocus(true);
-    lfoPmFreqSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amFreq, .title = SsgGuiText::Lfo::amSpeed, .isReset = true });
-    lfoAmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoAmFreqSlider.setWantsKeyboardFocus(true);
-    lfoAmFreqSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmSmRtSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amSmoothRatio, .title = SsgGuiText::Lfo::amSmoothRatio, .isReset = true });
-    lfoAmSmRtSlider.setWantsKeyboardFocus(true);
-    lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSyncDelaySlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::syncDelay, .title = SsgGuiText::Lfo::syncDelay, .isReset = true });
-    lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    lfoSyncDelaySlider.setWantsKeyboardFocus(true);
-    lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoSyncDelayToZeroBtn.setup({ .parent = *this, .title = "Async", .isReset = false, .isResized = false });
-    lfoSyncDelayToZeroBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToZeroBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToZeroBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(0.0f);
-        };
-
-    lfoSyncDelayToOneBtn.setup({ .parent = *this, .title = "Sync", .isReset = false, .isResized = false });
-    lfoSyncDelayToOneBtn.setWantsKeyboardFocus(true);
-    lfoSyncDelayToOneBtn.setExplicitFocusOrder(++tabOrder);
-    lfoSyncDelayToOneBtn.onClick = [this] {
-        lfoSyncDelaySlider.setValue(1.0f);
-        };
-
-    lfoPmToggle.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pm, .title = SsgGuiText::Lfo::pmEn, .isReset = true });
-    lfoPmToggle.setWantsKeyboardFocus(true);
-    lfoPmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmShapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmShape, .title = SsgGuiText::Lfo::pmShape, .items = lfoPmShapeItems, .isReset = true });
-    lfoPmShapeSelector.setWantsKeyboardFocus(true);
-    lfoPmShapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmsSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pms, .title = SsgGuiText::Lfo::pms, .isReset = true });
-    lfoPmsSlider.setWantsKeyboardFocus(true);
-    lfoPmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoPmdSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::pmd, .title = SsgGuiText::Lfo::pmd, .isReset = true });
-    lfoPmdSlider.setWantsKeyboardFocus(true);
-    lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmToggle.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::am, .title = SsgGuiText::Lfo::amEn, .isReset = true });
-    lfoAmToggle.setWantsKeyboardFocus(true);
-    lfoAmToggle.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmShapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amShape, .title = SsgGuiText::Lfo::amShape, .items = lfoAmShapeItems, .isReset = true });
-    lfoAmShapeSelector.setWantsKeyboardFocus(true);
-    lfoAmShapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmsSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::ams, .title = SsgGuiText::Lfo::ams, .isReset = true });
-    lfoAmsSlider.setWantsKeyboardFocus(true);
-    lfoAmsSlider.setExplicitFocusOrder(++tabOrder);
-
-    lfoAmdSlider.setup({ .parent = *this, .id = code + SsgPrKey::Lfo::amd, .title = SsgGuiText::Lfo::amd, .isReset = true });
-    lfoAmdSlider.setWantsKeyboardFocus(true);
-    lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+    lfo.setupComponent(
+        *this,
+        code,
+        tabOrder
+    );
 
     midiComponent.setupComponent(*this, tabOrder);
 
@@ -371,7 +288,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
-    layoutLfoCat(mRect);
+    lfo.layoutComponent(mRect);
 
     fixComponent.layoutComponent(mRect);
 
@@ -504,45 +421,6 @@ void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {
     {
         layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
-}
-
-void GuiSsg::layoutLfoCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &lfoCat });
-
-    bool visible = lfoCat.isDetailVisible();
-
-    lfoPmFreqSlider.setVisibleWithLabel(visible);
-    lfoAmFreqSlider.setVisibleWithLabel(visible);
-    lfoAmSmRtSlider.setVisibleWithLabel(visible);
-    lfoSyncDelaySlider.setVisibleWithLabel(visible);
-    lfoSyncDelayToZeroBtn.setVisible(visible);
-    lfoSyncDelayToOneBtn.setVisible(visible);
-    lfoPmToggle.setVisible(visible);
-    lfoPmShapeSelector.setVisibleWithLabel(visible);
-    lfoPmsSlider.setVisibleWithLabel(visible);
-    lfoPmdSlider.setVisibleWithLabel(visible);
-    lfoAmToggle.setVisible(visible);
-    lfoAmShapeSelector.setVisibleWithLabel(visible);
-    lfoAmsSlider.setVisibleWithLabel(visible);
-    lfoAmdSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .label = &lfoPmFreqSlider.label, .component = &lfoPmFreqSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoAmFreqSlider.label, .component = &lfoAmFreqSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
-        layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
-        layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
-        layoutMain({ .mainRect = rect, .label = &lfoPmShapeSelector.label, .component = &lfoPmShapeSelector });
-        layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
-        layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
-        layoutMain({ .mainRect = rect, .label = &lfoAmShapeSelector.label, .component = &lfoAmShapeSelector });
-        layoutMain({ .mainRect = rect, .label = &lfoAmsSlider.label, .component = &lfoAmsSlider });
-        layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
     }
 }
 

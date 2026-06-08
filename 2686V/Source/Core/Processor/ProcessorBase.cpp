@@ -89,3 +89,37 @@ void PrBase::addOpSsgSwEnvParameters(juce::AudioProcessorValueTreeState::Paramet
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::SsgSwEnv::r6, namePrefix + CorePrName::SsgSwEnv::Post::r6, CorePrValue::SsgSwEnv::R6::min, CorePrValue::SsgSwEnv::R6::max, CorePrValue::SsgSwEnv::R6::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::SsgSwEnv::l6, namePrefix + CorePrName::SsgSwEnv::Post::l6, CorePrValue::SsgSwEnv::L6::min, CorePrValue::SsgSwEnv::L6::max, CorePrValue::SsgSwEnv::L6::initial));
 }
+
+void PrBase::addOpzx7LfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix)
+{
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pmFreq, prefix + CorePrName::Lfo::Post::pmFreq, CorePrValue::Lfo::PmFreq::min, CorePrValue::Lfo::PmFreq::max, CorePrValue::Lfo::PmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amFreq, prefix + CorePrName::Lfo::Post::amFreq, CorePrValue::Lfo::AmFreq::min, CorePrValue::Lfo::AmFreq::max, CorePrValue::Lfo::AmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::pmSyncDelay, prefix + CorePrName::Lfo::Post::pmSyncDelay, CorePrValue::Lfo::SyncDelay::min, CorePrValue::Lfo::SyncDelay::max, CorePrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::amSyncDelay, prefix + CorePrName::Lfo::Post::amSyncDelay, CorePrValue::Lfo::SyncDelay::min, CorePrValue::Lfo::SyncDelay::max, CorePrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amSmoothRatio, prefix + CorePrName::Lfo::Post::amSmoothRatio, CorePrValue::Lfo::AmSmRt::min, CorePrValue::Lfo::AmSmRt::max, CorePrValue::Lfo::AmSmRt::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::pgShape, prefix + CorePrName::Lfo::Post::pgShape, CorePrValue::Lfo::PmShape::min, CorePrValue::Lfo::PmShape::max, CorePrValue::Lfo::PmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::egShape, prefix + CorePrName::Lfo::Post::egShape, CorePrValue::Lfo::AmShape::min, CorePrValue::Lfo::AmShape::max, CorePrValue::Lfo::AmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + CorePrKey::Post::Lfo::am, prefix + CorePrName::Lfo::Post::am, CorePrValue::Lfo::Am::initial)); // AM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + CorePrKey::Post::Lfo::pm, prefix + CorePrName::Lfo::Post::pm, CorePrValue::Lfo::Pm::initial)); // PM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pms, prefix + CorePrName::Lfo::Post::pms, CorePrValue::Lfo::Pms::min, CorePrValue::Lfo::Pms::max, CorePrValue::Lfo::Pms::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::ams, prefix + CorePrName::Lfo::Post::ams, CorePrValue::Lfo::Ams::min, CorePrValue::Lfo::Ams::max, CorePrValue::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pmd, prefix + CorePrName::Lfo::Post::pmd, CorePrValue::Lfo::Pmd::min, CorePrValue::Lfo::Pmd::max, CorePrValue::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amd, prefix + CorePrName::Lfo::Post::amd, CorePrValue::Lfo::Amd::min, CorePrValue::Lfo::Amd::max, CorePrValue::Lfo::Amd::initial));
+}
+
+void PrBase::addOpOpzx7LfoParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix)
+{
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pmFreq, namePrefix + CorePrName::Lfo::Post::pmFreq, CorePrValue::Lfo::PmFreq::min, CorePrValue::Lfo::PmFreq::max, CorePrValue::Lfo::PmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amFreq, namePrefix + CorePrName::Lfo::Post::amFreq, CorePrValue::Lfo::PmFreq::min, CorePrValue::Lfo::PmFreq::max, CorePrValue::Lfo::PmFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::pmSyncDelay, namePrefix + CorePrName::Lfo::Post::pmSyncDelay, CorePrValue::Lfo::SyncDelay::min, CorePrValue::Lfo::SyncDelay::max, CorePrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::amSyncDelay, namePrefix + CorePrName::Lfo::Post::amSyncDelay, CorePrValue::Lfo::SyncDelay::min, CorePrValue::Lfo::SyncDelay::max, CorePrValue::Lfo::SyncDelay::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amSmoothRatio, namePrefix + CorePrName::Lfo::Post::amSmoothRatio, CorePrValue::Lfo::AmSmRt::min, CorePrValue::Lfo::AmSmRt::max, CorePrValue::Lfo::AmSmRt::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::pgShape, namePrefix + CorePrName::Lfo::Post::pgShape, CorePrValue::Lfo::PmShape::min, CorePrValue::Lfo::PmShape::max, CorePrValue::Lfo::PmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + CorePrKey::Post::Lfo::egShape, namePrefix + CorePrName::Lfo::Post::egShape, CorePrValue::Lfo::AmShape::min, CorePrValue::Lfo::AmShape::max, CorePrValue::Lfo::AmShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + CorePrKey::Post::Lfo::am, namePrefix + CorePrName::Lfo::Post::am, CorePrValue::Lfo::Am::initial)); // AM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + CorePrKey::Post::Lfo::pm, namePrefix + CorePrName::Lfo::Post::pm, CorePrValue::Lfo::Pm::initial)); // PM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pms, namePrefix + CorePrName::Lfo::Post::pms, CorePrValue::Lfo::Pms::min, CorePrValue::Lfo::Pms::max, CorePrValue::Lfo::Pms::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::ams, namePrefix + CorePrName::Lfo::Post::ams, CorePrValue::Lfo::Ams::min, CorePrValue::Lfo::Ams::max, CorePrValue::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::pmd, namePrefix + CorePrName::Lfo::Post::pmd, CorePrValue::Lfo::Pmd::min, CorePrValue::Lfo::Pmd::max, CorePrValue::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + CorePrKey::Post::Lfo::amd, namePrefix + CorePrName::Lfo::Post::amd, CorePrValue::Lfo::Amd::min, CorePrValue::Lfo::Amd::max, CorePrValue::Lfo::Amd::initial));
+}

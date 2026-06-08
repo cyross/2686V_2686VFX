@@ -100,8 +100,9 @@ namespace SsgPrName
 
 	namespace Lfo
 	{
-		static inline const juce::String pmFreq = " LFO PM Speed";
-		static inline const juce::String amFreq = " LFO AM Speed";
+		static inline const juce::String pmFreq = " PM LFO Speed";
+		static inline const juce::String amFreq = " AM LFO Speed";
+		static inline const juce::String shape = " LFO Shape";
 		static inline const juce::String pmShape = " LFO PM Shape";
 		static inline const juce::String amShape = " LFO AM Shape";
 		static inline const juce::String am = " LFO Am Enable";
@@ -111,6 +112,7 @@ namespace SsgPrName
 		static inline const juce::String pmd = " LFO PMD";
 		static inline const juce::String amd = " LFO AMD";
 		static inline const juce::String amSmoothRatio = " LFO AM Smooth Rate";
-		static inline const juce::String syncDelay = " LFO Sync Delay";
+		static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
+		static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
 	}
 }
