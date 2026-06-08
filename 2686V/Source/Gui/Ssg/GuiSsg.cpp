@@ -320,11 +320,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         pulseInvCat.setVisible(true);
         dutyModeSelector.setVisibleWithLabel(true);
-        dutyVarSlider.setValue(true);
-        dutyVarSlider.label.setVisible(true);
+        dutyVarSlider.setVisibleWithLabel(true);
         dutyFcButton.setVisible(true);
-        dutyFcFlucSlider.setValue(true);
-        dutyFcFlucSlider.label.setVisible(true);
+        dutyFcFlucSlider.setVisibleWithLabel(true);
         dutyInvertButton.setVisible(true);
 
         dutyGroup.setBounds(waveArea);
@@ -362,10 +360,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyInvertButton.setVisible(false);
         dutyPresetSelector.setVisibleWithLabel(false);
         dutyFcButton.setVisible(false);
-        dutyFcFlucSlider.setValue(false);
-        dutyFcFlucSlider.label.setVisible(false);
-        dutyVarSlider.setVisible(false);
-        dutyVarSlider.label.setVisible(false);
+        dutyFcFlucSlider.setVisibleWithLabel(false);
+        dutyVarSlider.setVisibleWithLabel(false);
 
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisibleWithLabel(true);
