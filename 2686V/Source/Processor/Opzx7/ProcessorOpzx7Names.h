@@ -41,7 +41,8 @@ namespace Opzx7PrName
 	static inline const juce::String vib = CorePrName::Fm::Op::vib;
 	static inline const juce::String amsEn = CorePrName::Fm::Op::amsEn;
 
-	static inline const juce::String lfoFreq = CorePrName::Fm::Op::lfoFreq;
+	static inline const juce::String pmFreq = CorePrName::Fm::Op::lfoFreq;
+	static inline const juce::String amFreq = CorePrName::Fm::Op::lfoFreq;
 	static inline const juce::String freqs = CorePrName::Fm::Op::freqs;
 
 	static inline const juce::String pgShape = CorePrName::Fm::Op::pgShape;
@@ -57,7 +58,10 @@ namespace Opzx7PrName
 	static inline const juce::String n88Pmd = CorePrName::Fm::Op::n88Pmd;
 	static inline const juce::String n88Pms = CorePrName::Fm::Op::n88Pms;
 
-	static inline const juce::String syncDelay = CorePrName::Fm::Op::syncDelay;
+	static inline const juce::String pmSyncDelay = CorePrName::Fm::Op::pmSyncDelay;
+	static inline const juce::String amSyncDelay = CorePrName::Fm::Op::amSyncDelay;
+	static inline const juce::String amSmoothRate = CorePrName::Fm::Op::amSmoothRatio;
+
 	static inline const juce::String egType = CorePrName::Fm::Op::egType;
 	static inline const juce::String eg = CorePrName::Fm::Op::eg;
 	static inline const juce::String pcmOffset = " PCM Offset";
@@ -123,17 +127,19 @@ namespace Opzx7PrName
 
 	namespace GlLfo
 	{
-		static inline const juce::String freq = " Global LFO Speed";
-		static inline const juce::String shape = " Global LFO Shape";
-		static inline const juce::String pgShape = " Global LFO PM Shape";
-		static inline const juce::String egShape = " Global LFO AM Shape";
-		static inline const juce::String am = " Global LFO Am Enable";
-		static inline const juce::String pm = " Global LFO Pm Enable";
-		static inline const juce::String ams = " Global LFO AMS";
-		static inline const juce::String pms = " Global LFO PMS";
-		static inline const juce::String pmd = " Global LFO PMD";
-		static inline const juce::String amd = " Global LFO AMD";
-		static inline const juce::String amSmoothRatio = " Global LFO AM Smooth Rate";
-		static inline const juce::String syncDelay = " Global LFO Sync Delay";
+		static inline const juce::String pmFreq = " PM LFO Speed";
+		static inline const juce::String amFreq = " AM LFO Speed";
+		static inline const juce::String shape = " LFO Shape";
+		static inline const juce::String pgShape = " LFO PM Shape";
+		static inline const juce::String egShape = " LFO AM Shape";
+		static inline const juce::String am = " LFO Am Enable";
+		static inline const juce::String pm = " LFO Pm Enable";
+		static inline const juce::String ams = " LFO AMS";
+		static inline const juce::String pms = " LFO PMS";
+		static inline const juce::String pmd = " LFO PMD";
+		static inline const juce::String amd = " LFO AMD";
+		static inline const juce::String amSmoothRatio = " LFO AM Smooth Rate";
+		static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
+		static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
 	}
 }

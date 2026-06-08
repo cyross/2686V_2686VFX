@@ -86,7 +86,8 @@ struct WtParams
     float lfoAmSmRt = 0.005f;
 
     // LFO Sync Delay
-    int lfoSyncDelay = 0;
+    int lfoPmSyncDelay = 0;
+    int lfoAmSyncDelay = 0;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8

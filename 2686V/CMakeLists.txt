@@ -172,6 +172,8 @@ set(LFO_FILES
     "Source/Effect/Lfo/Opm/LfoOpm.cpp"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.h"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
+    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
+    "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.cpp"
 )
 
 set(FX_EFFECT_FILES
@@ -541,6 +543,11 @@ set(GUI_COMPONENT_MIDI_FILES
     "Source/Gui/Components/Midi/Midi.cpp"
 )
 
+set(GUI_COMPONENT_LFO_OPZX7_FILES
+    "Source/Gui/Components/LfoOpzx7/LfoOpzx7.h"
+    "Source/Gui/Components/LfoOpzx7/LfoOpzx7.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -591,6 +598,7 @@ source_group("2686V\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE
 source_group("2686V\\Gui\\Components\\AmpEnv" FILES ${GUI_COMPONENT_AMPENV_FILES})
 source_group("2686V\\Gui\\Components\\PitchEnv" FILES ${GUI_COMPONENT_PITCHENV_FILES})
 source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_FILES})
+source_group("2686V\\Gui\\Components\\Lfo\\Opzx7" FILES ${GUI_COMPONENT_LFO_OPZX7_FILES})
 source_group("2686V\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})

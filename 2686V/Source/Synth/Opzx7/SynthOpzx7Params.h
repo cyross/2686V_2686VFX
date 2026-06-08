@@ -27,7 +27,8 @@ struct Opzx7Params
     // -- OPNA/OPM/OPZX7 LFO(Global) ---
 
     // LFO Speed Freq (approx 3Hz - 30Hz)
-    float lfoFreq = 5.0f;
+    float lfoPmFreq = 5.0f;
+    float lfoAmFreq = 5.0f;
 
     // LFO Enable Flag
     bool amEnable = false;
@@ -56,7 +57,8 @@ struct Opzx7Params
     float lfoAmSmRt = 0.005f;
 
     // LFO Sync Delay
-    int lfoSyncDelay = 0;
+    int lfoPmSyncDelay = 0;
+    int lfoAmSyncDelay = 0;
 
     // --- OPLL Preset ---
     int opllPreset = 0; // OPLL Preset Instrument Index

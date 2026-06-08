@@ -101,6 +101,8 @@ namespace CorePrName
 				static inline const juce::String amd = " LFO AMD";
 				static inline const juce::String amSmoothRatio = " LFO ASMRT";
 				static inline const juce::String syncDelay = " LFO Sync Delay";
+				static inline const juce::String pmSyncDelay = "_LFO PM Sync Delay";
+				static inline const juce::String amSyncDelay = "_LFO AM Sync Delay";
 			}
 		}
 
@@ -136,6 +138,8 @@ namespace CorePrName
 			static inline const juce::String amsEn = " LFO AMS Enable";
 
 			static inline const juce::String lfoFreq = " LFO Freq";
+			static inline const juce::String pmFreq = " LFO PM Freq";
+			static inline const juce::String amFreq = " LFO AM Freq";
 			static inline const juce::String freqs = " LFO Freqs";
 
 			static inline const juce::String pgShape = " LFO PM Shape";
@@ -152,6 +156,11 @@ namespace CorePrName
 			static inline const juce::String n88Pms = " N88 LFO PMS";
 
 			static inline const juce::String syncDelay = " LFO Sync Delay";
+			static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
+			static inline const juce::String amSyncDelay = " LFO AM ync Delay";
+
+			static inline const juce::String amSmoothRatio = " LFO ASMRT";
+
 			static inline const juce::String egType = " EG Type";
 			static inline const juce::String eg = " EG Shape";
 			static inline const juce::String pcmOffset = " PCM Offset";
@@ -172,8 +181,27 @@ namespace CorePrName
 
 			static inline const juce::String sus = " SUS";
 			static inline const juce::String xof = " XOF";
+		}
+	}
 
-			static inline const juce::String phaseOffset = "Phase Offset";
+	namespace Lfo
+	{
+		namespace Post {
+			static inline const juce::String pmFreq = " PM LFO Speed";
+			static inline const juce::String amFreq = " AM LFO Speed";
+			static inline const juce::String shape = " LFO Shape";
+			static inline const juce::String pgShape = " LFO PM Shape";
+			static inline const juce::String egShape = " LFO AM Shape";
+			static inline const juce::String am = " LFO Am Enable";
+			static inline const juce::String pm = " LFO Pm Enable";
+			static inline const juce::String vib = CorePrName::Fm::Op::vib;
+			static inline const juce::String ams = " LFO AMS";
+			static inline const juce::String pms = " LFO PMS";
+			static inline const juce::String pmd = " LFO PMD";
+			static inline const juce::String amd = " LFO AMD";
+			static inline const juce::String amSmoothRatio = " LFO AM Smooth Rate";
+			static inline const juce::String pmSyncDelay = " LFO PM Sync Delay";
+			static inline const juce::String amSyncDelay = " LFO AM Sync Delay";
 		}
 	}
 }

@@ -28,9 +28,13 @@ struct Opzx7OpParams
     int egLfoWave = 0;
 
     // LFO Sync Delay
-    int lfoSyncDelay = 0;
-    int lfoFreqIndex = 0;
-    float lfoFreq = 0.0f;
+    int lfoPmSyncDelay = 0;
+    int lfoAmSyncDelay = 0;
+    int lfoPmFreqIndex = 0;
+    int lfoAmFreqIndex = 0;
+    float lfoPmFreq = 0.0f;
+    float lfoAmFreq = 0.0f;
+    float lfoAmSmRt = 0.0f;
 
     // オペレーターごとのLFO個別感度（上乗せ分）
     float pms = 0; // 個別 Pitch Mod Sensitivity (0-7)

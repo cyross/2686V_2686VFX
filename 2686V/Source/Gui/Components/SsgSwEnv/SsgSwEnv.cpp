@@ -291,6 +291,7 @@ void GuiComponentSsgSwEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 void GuiComponentSsgSwEnv::setEnabled(bool enabled) {
     bool ssgEnvLoopEnable = loop.getToggleState();
 
+    cat.setEnabled(enabled);
     flag.setEnabled(enabled);
     steps.setEnabled(enabled);
     loop.setEnabled(enabled);

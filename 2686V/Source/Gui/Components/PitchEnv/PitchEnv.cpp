@@ -157,6 +157,7 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_cur
 }
 
 void GuiComponentPitchEnv::setEnabled(bool enabled) {
+	cat.setEnabled(enabled);
 	flag.setEnabled(enabled);
 	attack.setEnabled(enabled);
 	decay.setEnabled(enabled);

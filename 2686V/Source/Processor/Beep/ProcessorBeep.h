@@ -57,6 +57,20 @@ class BeepProcessor : public PrBase {
     std::atomic<float>* pDetune = nullptr;
     std::atomic<float>* pDetune2 = nullptr;
     std::atomic<float>* pDetune3 = nullptr;
+
+    std::atomic<float>* pLfoPmSyncDelay = nullptr;
+    std::atomic<float>* pLfoAmSyncDelay = nullptr;
+    std::atomic<float>* pLfoAmSmoothRatio = nullptr;
+    std::atomic<float>* pLfoPmFreq = nullptr;
+    std::atomic<float>* pLfoAmFreq = nullptr;
+    std::atomic<float>* pLfoPmShape = nullptr;
+    std::atomic<float>* pLfoAmShape = nullptr;
+    std::atomic<float>* pLfoPm = nullptr;
+    std::atomic<float>* pLfoAm = nullptr;
+    std::atomic<float>* pLfoPmd = nullptr;
+    std::atomic<float>* pLfoPms = nullptr;
+    std::atomic<float>* pLfoAmd = nullptr;
+    std::atomic<float>* pLfoAms = nullptr;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;

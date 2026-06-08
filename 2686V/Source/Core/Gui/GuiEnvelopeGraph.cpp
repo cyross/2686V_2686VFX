@@ -24,6 +24,14 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
     g.setColour(juce::Colours::grey.withAlpha(0.3f));
     g.drawRect(graphArea, 1.0f);
 
+    if (!isEnabled()) {
+        g.setColour(juce::Colours::white.withAlpha(0.8f));
+        g.setFont(14.0f);
+        g.drawText(juce::String("") + "利用不可", graphArea.withTrimmedRight(4).withTrimmedBottom(2), juce::Justification::bottomRight, false);
+
+        return;
+    }
+
     // センターライン (Pitch用)
     if (currentType == EnvType::Pitch) {
         g.setColour(juce::Colours::grey.withAlpha(0.5f));

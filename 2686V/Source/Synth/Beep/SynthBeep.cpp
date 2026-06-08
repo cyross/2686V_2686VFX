@@ -9,6 +9,7 @@ void BeepCore::prepare(double sampleRate) {
     m_pitchAdsr.prepare(0, 44100.0);
     m_ssgSwEnv.prepare(0, 44100.0);
     m_fixMode.setParameters(false, 2000.0f);
+    m_lfo.prepare(44100.0);
 }
 
 void BeepCore::setCurveCore(CurveCore* p_curveCore)
@@ -40,6 +41,21 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.detune3, params.beep.multiple, params.beep.multipleRatio);
 
 	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
+    m_lfo.setParameters(
+        params.beep.lfoPmSyncDelay,
+        params.beep.lfoAmSyncDelay,
+        params.beep.lfoPmEnable,
+        params.beep.lfoAmEnable,
+        params.beep.lfoPmFreq,
+        params.beep.lfoAmFreq,
+        params.beep.lfoPmWave,
+        params.beep.lfoAmWave,
+        params.beep.lfoPms,
+        params.beep.lfoPmd,
+        params.beep.lfoAms,
+        params.beep.lfoAmd,
+        params.beep.lfoAmSmRt
+    );
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -101,6 +117,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+        m_lfo.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -171,11 +188,50 @@ float BeepCore::getSample() {
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
 
-    m_phase += newPhaseDelta;
+    // ==========================================
+    // Opzx7 LFO の計算 (AM / PM)
+    // ==========================================
+    m_lfo.getSample();
+
+    // 1. Amplitude Modulation (AM / 音量)
+    float amMultiplier = 1.0f;
+
+    if (m_lfo.am.enable) {
+        // depthDb はセットアップ時に計算済みなので、そのままdB減衰に変換
+        float attenDb = m_lfo.value.am * m_lfo.am.depthDb;
+        amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
+    }
+
+    // 2. Pitch Modulation (PM / 音程)
+    float pitchModCents = 0.0f;
+
+    if (m_lfo.pm.enable) {
+        // depthCent も計算済みなので、そのままセント値に変換
+        pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
+    }
+
+    // セントを周波数倍率(レシオ)に変換
+    float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+
+    float modDepth = m_modWheel * 0.03f;
+    float mwPitchMod = 1.0f + (m_lfo.value.pm * modDepth);
+
+    // ==========================================
+    // 周波数倍率の決定
+    // (PitchBend × Opzx7のPM × ModWheelのPM)
+    // ==========================================
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
+
+    float phaseInc = 0.0f;
+
+    phaseInc = newPhaseDelta * freqMult;
+
+    m_phase += phaseInc;
+
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
     // 音量に変換
-    return output * finalEnv * m_baseLevel * m_level;
+    return output * finalEnv * m_baseLevel * m_level * amMultiplier;
 }
 
 // モジュレーションホイール (0 - 127)

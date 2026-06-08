@@ -119,6 +119,8 @@ void GuiAdpcm::setup()
 
     mulDetuneComponent.setupComponent(*this, code, tabOrder);
 
+    lfoComponent.setupComponent(*this, code, tabOrder);
+
     fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
 
     unisonComponent.setupComponent(*this, code, tabOrder);
@@ -187,6 +189,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     ssgSwEnvComponent.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
+    
+    lfoComponent.layoutComponent(mRect);
 
     fixComponent.layoutComponent(mRect);
 

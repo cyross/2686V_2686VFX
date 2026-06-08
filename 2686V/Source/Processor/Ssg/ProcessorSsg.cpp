@@ -64,19 +64,6 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     // 実機のPeriodは値が大きいほど遅いですが、スライダーは右に行くほど速い方が直感的なためHzにします
     layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::HwEnv::period, code + SsgPrName::HwEnv::period, SsgPrValue::HwEnv::Period::min, SsgPrValue::HwEnv::Period::max, SsgPrValue::HwEnv::Period::initial)); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::pmFreq, code + SsgPrName::Lfo::pmFreq, SsgPrValue::Lfo::PmFreq::min, SsgPrValue::Lfo::PmFreq::max, SsgPrValue::Lfo::PmFreq::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::amFreq, code + SsgPrName::Lfo::amFreq, SsgPrValue::Lfo::AmFreq::min, SsgPrValue::Lfo::AmFreq::max, SsgPrValue::Lfo::AmFreq::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Lfo::syncDelay, code + SsgPrName::Lfo::syncDelay, SsgPrValue::Lfo::SyncDelay::min, SsgPrValue::Lfo::SyncDelay::max, SsgPrValue::Lfo::SyncDelay::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::amSmoothRatio, code + SsgPrName::Lfo::amSmoothRatio, SsgPrValue::Lfo::AmSmRt::min, SsgPrValue::Lfo::AmSmRt::max, SsgPrValue::Lfo::AmSmRt::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Lfo::pmShape, code + SsgPrName::Lfo::pmShape, SsgPrValue::Lfo::PmShape::min, SsgPrValue::Lfo::PmShape::max, SsgPrValue::Lfo::PmShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Lfo::amShape, code + SsgPrName::Lfo::amShape, SsgPrValue::Lfo::AmShape::min, SsgPrValue::Lfo::AmShape::max, SsgPrValue::Lfo::AmShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::Lfo::am, code + SsgPrName::Lfo::am, SsgPrValue::Lfo::Am::initial)); // AM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + SsgPrKey::Lfo::pm, code + SsgPrName::Lfo::pm, SsgPrValue::Lfo::Pm::initial)); // PM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::pms, code + SsgPrName::Lfo::pms, SsgPrValue::Lfo::Pms::min, SsgPrValue::Lfo::Pms::max, SsgPrValue::Lfo::Pms::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::ams, code + SsgPrName::Lfo::ams, SsgPrValue::Lfo::Ams::min, SsgPrValue::Lfo::Ams::max, SsgPrValue::Lfo::Ams::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::pmd, code + SsgPrName::Lfo::pmd, SsgPrValue::Lfo::Pmd::min, SsgPrValue::Lfo::Pmd::max, SsgPrValue::Lfo::Pmd::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::Lfo::amd, code + SsgPrName::Lfo::amd, SsgPrValue::Lfo::Amd::min, SsgPrValue::Lfo::Amd::max, SsgPrValue::Lfo::Amd::initial));
-
     // ユニゾン・ハーモニー用
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Unison::voices, code + SsgPrName::Unison::voices, SsgPrValue::Unison::Voices::min, SsgPrValue::Unison::Voices::max, SsgPrValue::Unison::Voices::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + SsgPrKey::Unison::detune, code + SsgPrName::Unison::detune, SsgPrValue::Unison::Detune::min, SsgPrValue::Unison::Detune::max, SsgPrValue::Unison::Detune::initial));
@@ -85,6 +72,7 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
 	addSsgSwEnvParameters(layout, code);
+    addOpzx7LfoParameters(layout, code);
 }
 
 void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -163,18 +151,19 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pHwEnvShape = apvts.getRawParameterValue(code + SsgPrKey::HwEnv::shape);
     pHwEnvPeriod = apvts.getRawParameterValue(code + SsgPrKey::HwEnv::period);
 
-    pLfoSyncDelay = apvts.getRawParameterValue(code + SsgPrKey::Lfo::syncDelay);
-    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amSmoothRatio);
-    pLfoPmFreq = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmFreq);
-    pLfoAmFreq = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amFreq);
-    pLfoPmShape = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmShape);
-    pLfoAmShape = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amShape);
-    pLfoPm = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pm);
-    pLfoAm = apvts.getRawParameterValue(code + SsgPrKey::Lfo::am);
-    pLfoPmd = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pmd);
-    pLfoPms = apvts.getRawParameterValue(code + SsgPrKey::Lfo::pms);
-    pLfoAmd = apvts.getRawParameterValue(code + SsgPrKey::Lfo::amd);
-    pLfoAms = apvts.getRawParameterValue(code + SsgPrKey::Lfo::ams);
+    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
 }
 
 void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -265,5 +254,6 @@ void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.ssg.lfoAms = pLfoAms->load(std::memory_order_relaxed);
     params.ssg.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
     params.ssg.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
-    params.ssg.lfoSyncDelay = pLfoSyncDelay->load(std::memory_order_relaxed);
+    params.ssg.lfoPmSyncDelay = pLfoPmSyncDelay->load(std::memory_order_relaxed);
+    params.ssg.lfoAmSyncDelay = pLfoAmSyncDelay->load(std::memory_order_relaxed);
 }

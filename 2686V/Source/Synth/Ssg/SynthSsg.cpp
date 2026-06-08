@@ -75,12 +75,18 @@ void SsgCore::setParameters(const SynthParams& params)
     m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.detune3, params.ssg.multiple, params.ssg.multipleRatio);
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
     m_lfo.setParameters(
-        params.ssg.lfoSyncDelay,
-        params.ssg.lfoPmEnable, params.ssg.lfoAmEnable,
-        params.ssg.lfoPmFreq, params.ssg.lfoAmFreq,
-        params.ssg.lfoPmWave, params.ssg.lfoAmWave,
-        params.ssg.lfoPms, params.ssg.lfoPmd,
-        params.ssg.lfoAms, params.ssg.lfoAmd,
+        params.ssg.lfoPmSyncDelay,
+        params.ssg.lfoAmSyncDelay,
+        params.ssg.lfoPmEnable,
+        params.ssg.lfoAmEnable,
+        params.ssg.lfoPmFreq,
+        params.ssg.lfoAmFreq,
+        params.ssg.lfoPmWave,
+        params.ssg.lfoAmWave,
+        params.ssg.lfoPms,
+        params.ssg.lfoPmd,
+        params.ssg.lfoAms,
+        params.ssg.lfoAmd,
         params.ssg.lfoAmSmRt
     );
 
@@ -176,7 +182,6 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
-        m_lfoPhase = 0.0;
         m_rateAccumulator = 0.0;
         m_hwEnvPhase = 0.0f;
         m_lastSample = 0.0f;
@@ -314,37 +319,25 @@ float SsgCore::getSample()
         // 1. Amplitude Modulation (AM / 音量)
         float amMultiplier = 1.0f;
 
-        if (m_lfo.amEnable) {
+        if (m_lfo.am.enable) {
             // depthDb はセットアップ時に計算済みなので、そのままdB減衰に変換
-            float attenDb = m_lfo.value.am * m_lfo.depthDb;
+            float attenDb = m_lfo.value.am * m_lfo.am.depthDb;
             amMultiplier = std::pow(10.0f, -attenDb / 20.0f);
         }
 
         // 2. Pitch Modulation (PM / 音程)
         float pitchModCents = 0.0f;
 
-        if (m_lfo.pmEnable) {
+        if (m_lfo.pm.enable) {
             // depthCent も計算済みなので、そのままセント値に変換
-            pitchModCents += m_lfo.value.pm * m_lfo.depthCent;
+            pitchModCents += m_lfo.value.pm * m_lfo.pm.depthCent;
         }
 
         // セントを周波数倍率(レシオ)に変換
         float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
  
-        // ==========================================
-        // LFO Calculation (Software Vibrato)
-        // ==========================================
-        double lfoInc = m_lfoFreq / m_targetRate;
-        m_lfoPhase += lfoInc;
-        if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
-
-        float lfoVal = 0.0f;
-        if (m_lfoPhase < 0.25)      lfoVal = (float)(m_lfoPhase * 4.0);
-        else if (m_lfoPhase < 0.75) lfoVal = (float)(1.0 - (m_lfoPhase - 0.25) * 4.0);
-        else                        lfoVal = (float)(-1.0 + (m_lfoPhase - 0.75) * 4.0);
-
         float modDepth = m_modWheel * 0.03f;
-        float mwPitchMod = 1.0f + (lfoVal * modDepth);
+        float mwPitchMod = 1.0f + (m_lfo.value.pm * modDepth);
 
         // ==========================================
         // 周波数倍率の決定

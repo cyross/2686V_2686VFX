@@ -47,6 +47,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     addEnvParameters(layout, code);
     addPitchEnvParameters(layout, code);
     addSsgSwEnvParameters(layout, code);
+    addOpzx7LfoParameters(layout, code);
 }
 
 void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -108,6 +109,20 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pDetune = apvts.getRawParameterValue(code + AdpcmPrKey::dt);
     pDetune2 = apvts.getRawParameterValue(code + AdpcmPrKey::dt2);
     pDetune3 = apvts.getRawParameterValue(code + AdpcmPrKey::dt3);
+
+    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -172,4 +187,18 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.detune = (int)pDetune->load(std::memory_order_relaxed);
     params.adpcm.detune2 = (int)pDetune2->load(std::memory_order_relaxed);
     params.adpcm.detune3 = (int)pDetune3->load(std::memory_order_relaxed);
+
+    params.adpcm.lfoPmFreq = pLfoPmFreq->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmFreq = pLfoAmFreq->load(std::memory_order_relaxed);
+    params.adpcm.lfoPmWave = (int)pLfoPmShape->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmWave = (int)pLfoAmShape->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmSmRt = pLfoAmSmoothRatio->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmEnable = (pLfoAm->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
+    params.adpcm.lfoPmEnable = (pLfoPm->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
+    params.adpcm.lfoPms = pLfoPms->load(std::memory_order_relaxed);
+    params.adpcm.lfoAms = pLfoAms->load(std::memory_order_relaxed);
+    params.adpcm.lfoPmd = pLfoPmd->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmd = pLfoAmd->load(std::memory_order_relaxed);
+    params.adpcm.lfoPmSyncDelay = pLfoPmSyncDelay->load(std::memory_order_relaxed);
+    params.adpcm.lfoAmSyncDelay = pLfoAmSyncDelay->load(std::memory_order_relaxed);
 }

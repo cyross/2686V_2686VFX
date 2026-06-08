@@ -57,20 +57,19 @@ namespace Opzx7PrKey
 	static inline const juce::String se = CorePrKey::Post::Fm::Op::se;
 	static inline const juce::String seFreq = CorePrKey::Post::Fm::Op::seFreq;
 
-	static inline const juce::String lfoFreq = CorePrKey::Post::Fm::Op::lfoFreq;
-
-	static inline const juce::String am = CorePrKey::Post::Fm::Op::am;
-	static inline const juce::String vib = CorePrKey::Post::Fm::Op::vib;
-
+	static inline const juce::String pmFreq = "_LFO_PM_FREQ";
+	static inline const juce::String amFreq = "_LFO_AM_FREQ";
 	static inline const juce::String pgShape = CorePrKey::Post::Fm::Op::pgShape;
 	static inline const juce::String egShape = CorePrKey::Post::Fm::Op::egShape;
-
+	static inline const juce::String am = CorePrKey::Post::Fm::Op::am;
+	static inline const juce::String vib = CorePrKey::Post::Fm::Op::vib;
 	static inline const juce::String pms = CorePrKey::Post::Fm::Op::pms;
 	static inline const juce::String ams = CorePrKey::Post::Fm::Op::ams;
 	static inline const juce::String pmd = CorePrKey::Post::Fm::Op::pmd;
 	static inline const juce::String amd = CorePrKey::Post::Fm::Op::amd;
-
-	static inline const juce::String syncDelay = CorePrKey::Post::Fm::Op::syncDelay;
+	static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
+	static inline const juce::String pmSyncDelay = "_LFO_PM_SYNC_DELAY";
+	static inline const juce::String amSyncDelay = "_LFO_AM_SYNC_DELAY";
 
 	static inline const juce::String ws = CorePrKey::Post::Fm::Op::ws;
 
@@ -121,7 +120,8 @@ namespace Opzx7PrKey
 
 	namespace GlLfo
 	{
-		static inline const juce::String freq = "_LFO_FREQ";
+		static inline const juce::String pmFreq = "_LFO_PM_FREQ";
+		static inline const juce::String amFreq = "_LFO_AM_FREQ";
 		static inline const juce::String shape = "_LFO_SHAPE";
 		static inline const juce::String pgShape = "_LFO_PG_SHAPE";
 		static inline const juce::String egShape = "_LFO_EG_SHAPE";
@@ -132,7 +132,8 @@ namespace Opzx7PrKey
 		static inline const juce::String pmd = "_LFO_PMD";
 		static inline const juce::String amd = "_LFO_AMD";
 		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
-		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
+		static inline const juce::String pmSyncDelay = "_LFO_PM_SYNC_DELAY";
+		static inline const juce::String amSyncDelay = "_LFO_AM_SYNC_DELAY";
 	};
 };
 

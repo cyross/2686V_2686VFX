@@ -97,8 +97,9 @@ namespace WtPrKey
 
 	namespace Lfo
 	{
-		static inline const juce::String pmFreq = "_LFO_PG_FREQ";
+		static inline const juce::String pmFreq = "_LFO_PM_FREQ";
 		static inline const juce::String amFreq = "_LFO_AM_FREQ";
+		static inline const juce::String shape = "_LFO_SHAPE";
 		static inline const juce::String pmShape = "_LFO_PM_SHAPE";
 		static inline const juce::String amShape = "_LFO_AM_SHAPE";
 		static inline const juce::String am = "_LFO_AM";
@@ -108,7 +109,8 @@ namespace WtPrKey
 		static inline const juce::String pmd = "_LFO_PMD";
 		static inline const juce::String amd = "_LFO_AMD";
 		static inline const juce::String amSmoothRatio = "_LFO_ASMRT";
-		static inline const juce::String syncDelay = "_LFO_SYNC_DELAY";
+		static inline const juce::String pmSyncDelay = "_LFO_PM_SYNC_DELAY";
+		static inline const juce::String amSyncDelay = "_LFO_AM_SYNC_DELAY";
 	};
 };
 
