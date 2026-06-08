@@ -71,10 +71,10 @@ namespace FxGuiText
 
 		namespace Eq3b
 		{
-			static inline const juce::String lowGainDb = u8"L-Gain";
-			static inline const juce::String midFreq = u8"M-Freq";
-			static inline const juce::String midGainDb = u8"M-Gain";
-			static inline const juce::String highGainDb = u8"H-Gain";
+			static inline const juce::String lowGainDb = u8"L-Gn";
+			static inline const juce::String midFreq = u8"M-Fq";
+			static inline const juce::String midGainDb = u8"M-Gn";
+			static inline const juce::String highGainDb = u8"H-Gn";
 		}
 	}
 }
