@@ -13,6 +13,11 @@ class GuiSettings : public GuiBase
 
     GuiGroup mainGroup;
 
+    // 高解像度対応
+    GuiComboBox uiScaleSelector;
+
+    GuiSeparator separator1;
+
     // 壁紙のファイルパス
     GuiLabel wallpaperLabel;
     GuiLabel wallpaperPathLabel;
@@ -25,6 +30,8 @@ class GuiSettings : public GuiBase
     // 2: Fit
     // 3: Original
     GuiComboBox wallpaperModeSelector;
+
+    GuiSeparator separator2;
 
     // Directories
     GuiLabel sampleDirLabel;
@@ -39,20 +46,30 @@ class GuiSettings : public GuiBase
     GuiLabel wavetableDirPathLabel;
     GuiTextButton wavetableDirBrowseBtn;
 
-    // Global Settings I/O
-    GuiTextButton saveSettingsBtn;
-    GuiTextButton loadSettingsBtn;
-    GuiTextButton saveStartupSettingsBtn;
+    GuiSeparator separator3;
 
     // Tooltip Visible Switch
     GuiToggleButton tooltipToggle;
+
+    GuiSeparator separator4;
 
     // For Headroom
     GuiToggleButton useHeadroomToggle;
     GuiSlider headroomGainSlider;
 
+    GuiSeparator separator5;
+
     // 仮想MIDIキーボード表示制御
     GuiToggleButton virtualMidiKeyboardToggle;
+
+    GuiSeparator separator6;
+
+    // Global Settings I/O
+    GuiTextButton saveSettingsBtn;
+    GuiTextButton loadSettingsBtn;
+    GuiTextButton saveStartupSettingsBtn;
+
+    GuiSeparator separator7;
 
     // アンドゥ・リドゥ履歴消去
     GuiTextButton clearUndoHistoryBtn;
@@ -60,11 +77,14 @@ public:
     GuiSettings(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        uiScaleSelector(context),
+        separator1(context),
         wallpaperLabel(context),
         wallpaperPathLabel(context),
         wallpaperBrowseBtn(context),
         wallpaperClearBtn(context),
         wallpaperModeSelector(context),
+        separator2(context),
         sampleDirLabel(context),
         sampleDirPathLabel(context),
         sampleDirBrowseBtn(context),
@@ -74,13 +94,18 @@ public:
         wavetableDirLabel(context),
         wavetableDirPathLabel(context),
         wavetableDirBrowseBtn(context),
+        separator3(context),
+        tooltipToggle(context),
+        separator4(context),
+        useHeadroomToggle(context),
+        headroomGainSlider(context),
+        separator5(context),
         virtualMidiKeyboardToggle(context),
+        separator6(context),
         saveSettingsBtn(context),
         loadSettingsBtn(context),
         saveStartupSettingsBtn(context),
-        tooltipToggle(context),
-        useHeadroomToggle(context),
-        headroomGainSlider(context),
+        separator7(context),
         clearUndoHistoryBtn(context)
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -88,6 +113,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath);
+    void setSettings(int uiScaleIndex, const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath);
 	void setWallpaperPath(const juce::String& wallpaperPath);
+    float getUiScale(int index);
 };

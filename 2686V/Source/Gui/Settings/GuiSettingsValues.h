@@ -83,6 +83,7 @@ namespace SettingsGuiValue
 		static inline constexpr int RowHeight = 30;
 		static inline constexpr int LabelWidth = 180;
 		static inline constexpr int LongLabelWidth = 220;
+		static inline constexpr int UiScaleSelectorWidth = 320;
 		static inline constexpr int ModeSelectorWidth = 320;
 		static inline constexpr int BrowseButtonWidth = 80;
 		static inline constexpr int ClearButtonWidth = 60;

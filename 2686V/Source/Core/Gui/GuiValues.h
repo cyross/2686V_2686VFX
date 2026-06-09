@@ -106,7 +106,7 @@ namespace CoreGuiValue
 
 				namespace ClearBtn
 				{
-					static constexpr int width = 20;
+					static constexpr int width = 35;
 				}
 			}
 		}
@@ -276,7 +276,7 @@ namespace CoreGuiValue
 
 			namespace ClearBtn
 			{
-				static constexpr int width = 20;
+				static constexpr int width = 35;
 			}
 		}
 
@@ -294,7 +294,7 @@ namespace CoreGuiValue
 
 			namespace ClearBtn
 			{
-				static constexpr int width = 20;
+				static constexpr int width = 35;
 			}
 		}
 

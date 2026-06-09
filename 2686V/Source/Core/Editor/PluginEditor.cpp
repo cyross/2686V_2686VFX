@@ -127,7 +127,10 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         // ウィンドウの幅を動的に変更
         int newWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
         int height = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
+
         setSize(newWidth, height); // 高さは固定、幅を伸縮
+
+        setScaleFactor(uiScale);
 
         // タイマーのON/OFFを切り替え
         updateTimerState();
@@ -269,6 +272,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
             setSize(220, 300);
 
+            setScaleFactor(uiScale);
+
             startTimerHz(15);
 
             break;
@@ -295,6 +300,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             miniModeLabel.setBounds(5, 25, 150, 15);
 
             setSize(220, 100);
+
+            setScaleFactor(uiScale);
 
             break;
         case ViewMode::Minimum: // -> Full
@@ -363,6 +370,11 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     int initialHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
     setSize(EditorGuiValue::Window::width, initialHeight);
+
+    // Processor から uiScale を取得
+    uiScale = settingsGui->getUiScale(audioProcessor.uiScaleIndex);
+
+    setScaleFactor(uiScale);
 
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
     updateRhythmFileNames("Reload");
@@ -731,6 +743,7 @@ void AudioPlugin2686VEditor::loadSettingsFile()
 
                 // UI反映
                 settingsGui->setSettings(
+                    audioProcessor.uiScaleIndex,
                     audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
                     audioProcessor.defaultSampleDir,
                     audioProcessor.defaultPresetDir,
@@ -1153,6 +1166,8 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
     int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
 
     setSize(targetWidth, targetHeight);
+
+    setScaleFactor(uiScale);
 }
 
 void AudioPlugin2686VEditor::timerCallback()

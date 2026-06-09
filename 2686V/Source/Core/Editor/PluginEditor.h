@@ -136,8 +136,15 @@ public:
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
     GuiCurve* getCurveGui();
+    void updateUiScale(float newScale) {
+        uiScale = newScale;
+
+        setScaleFactor(uiScale);
+    };
 private:
     AudioPlugin2686V& audioProcessor;
+
+    float uiScale = 1.0f;
 
     CustomTabLookAndFeel customTabLF;
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };

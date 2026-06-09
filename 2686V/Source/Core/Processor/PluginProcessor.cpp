@@ -538,6 +538,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
 {
     juce::XmlElement xml(SettingsKey::envCode);
 
+    xml.setAttribute(SettingsKey::uiScaleIndex, uiScaleIndex);
     xml.setAttribute(SettingsKey::wallpaperPath, wallpaperPath);
     xml.setAttribute(SettingsKey::wallpaperMode, wallpaperMode);
     xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
@@ -559,6 +560,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
 
     if (xml.get() != nullptr && xml->hasTagName(SettingsKey::envCode))
     {
+        uiScaleIndex = xml->getIntAttribute(SettingsKey::uiScaleIndex, 3);
         wallpaperPath = xml->getStringAttribute(SettingsKey::wallpaperPath);
         wallpaperMode = xml->getIntAttribute(SettingsKey::wallpaperMode);
         defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
