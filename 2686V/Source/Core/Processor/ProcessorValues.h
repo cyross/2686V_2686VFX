@@ -8,21 +8,12 @@ namespace CorePrValue
 {
 	inline constexpr float boolThread = 0.5f; // 0.5以上をON、未満をOFFとみなす閾値
 	inline constexpr float rateMin = 0.001f;
-	inline constexpr float rateMax = 5.0f;
+	inline constexpr float rateMax = Global::RateMaxSeconds::real;
 	inline constexpr float levelMin = 0.0;
 	inline constexpr float levelMax = 1.0f;
 	inline constexpr int pitchLevelMin = -4800;
 	inline constexpr int pitchLevelMax = 4800;
 	inline constexpr int pitchLevelIni = 0;
-
-	namespace MasterVol
-	{
-		inline constexpr float min = -60.0f; // 最小値（dB）
-		inline constexpr float max = 6.0f;   // 最大値（dB）
-		inline constexpr float interval = 0.1f; // ステップ値（dB）
-		inline constexpr float skew = 1.0f; // スキュー（1.0は線形）
-		inline constexpr float initial = 0.0f; // デフォルト値（dB）
-	}
 
 	namespace MonoMode
 	{
