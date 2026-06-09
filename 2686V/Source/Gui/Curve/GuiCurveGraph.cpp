@@ -201,8 +201,8 @@ float GuiCurveGraph::evaluateCurve(float x) const
     auto val = [&](int idx) -> float { return (idx < boundSliders.size()) ? (float)boundSliders[idx]->getValue() : 0.0f; };
 
     auto cLin = [](float x) { return x; };
-    auto cAEx = [](float x) { return std::sqrt(1.0f - std::pow(1.0f - x, 2.0f)); };
-    auto cALg = [](float x) { return 1.0f - std::sqrt(1.0f - std::pow(x, 2.0f)); };
+    auto cAEx = [](float x) { return 1.0f - std::sqrt(1.0f - std::pow(x, 2.0f)); };
+    auto cALg = [](float x) { return std::sqrt(1.0f - std::pow(1.0f - x, 2.0f)); };
     auto cExp = [&](float x, float r) { float rate = r * kVal; return std::abs(rate) < 0.001f ? x : (std::exp(rate * x) - 1.0f) / (std::exp(rate) - 1.0f); };
     auto cLog = [&](float x, float r) { float rate = r * kVal; return std::abs(rate) < 0.001f ? x : std::log(1.0f + rate * x) / std::log(1.0f + rate); };
     auto cSp1 = [](float x, float cx, float cy) { float t = x; return (1.0f - t) * (1.0f - t) * 0.0f + 2.0f * (1.0f - t) * t * cy + t * t * 1.0f; };

@@ -15,18 +15,18 @@ CurveCore::CurveCore() {
 	// -------------------------------------------------------------
 	auto calcLinear = [](float x) { return x; };
 
-	auto calcArcExp = [](float x) { return std::sqrt(1.0f - std::pow(1.0f - x, 2.0f)); };
+	auto calcArcExp = [](float x) { return 1.0f - std::sqrt(1.0f - std::pow(x, 2.0f)); };
 
-	auto calcArcLog = [](float x) { return 1.0f - std::sqrt(1.0f - std::pow(x, 2.0f)); };
+	auto calcArcLog = [](float x) { return std::sqrt(1.0f - std::pow(1.0f - x, 2.0f)); };
 
 	auto calcExp = [](float x, float rate) {
 		if (std::abs(rate) < 0.001f) return x;
-		return std::log(1.0f + rate * x) / std::log(1.0f + rate);
+		return std::exp(1.0f + rate * x) / std::exp(1.0f + rate);
 		};
 
 	auto calcLog = [](float x, float rate) {
 		if (std::abs(rate) < 0.001f) return x;
-		return (std::exp(rate * x) - 1.0f) / (std::exp(rate) - 1.0f);
+		return (std::log(rate * x) - 1.0f) / (std::log(rate) - 1.0f);
 		};
 
 	// 1点スプライン (二次ベジェ曲線の厳密解)
