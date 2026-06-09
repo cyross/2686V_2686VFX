@@ -569,6 +569,7 @@ public:
 
     void bakeCurves();
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
+    void resetMidiSettings();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

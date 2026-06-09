@@ -1073,3 +1073,10 @@ void AudioPlugin2686V::bakeCurvesPrim(int positionIndex, int targetIndex, int pa
 {
 	m_curveCore.bakeCurvesPrim(positionIndex, targetIndex, paramIndex); // 内部で必要な計算を行う
 }
+
+void AudioPlugin2686V::resetMidiSettings() {
+    m_synth.isMonoMode = false;
+    m_synth.useVelocity = false;
+    m_synth.fixedVelocity = 0.5f;
+    m_synth.pitchResetOnLegato = false;
+}

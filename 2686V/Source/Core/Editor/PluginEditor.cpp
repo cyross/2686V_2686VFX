@@ -1260,6 +1260,15 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             return true; // イベントを消費
         }
     }
+    else {
+        // Q (Reset Midi Settings
+        if (key.getKeyCode() == 'Q' || key.getKeyCode() == 'q')
+        {
+            resetMidiSettings();
+
+            return true; // イベントを消費
+        }
+    }
 
     return false; // 他のキー入力は通常の処理へ
 }
@@ -1467,3 +1476,7 @@ void AudioPlugin2686VEditor::updateUiScale(float newScale) {
 
     setSize(targetWidth, targetHeight); // DAWに新しいサイズを通知
 };
+
+void AudioPlugin2686VEditor::resetMidiSettings() {
+    audioProcessor.resetMidiSettings();
+}

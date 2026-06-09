@@ -138,6 +138,7 @@ public:
     bool keyPressed(const juce::KeyPress& key) override;
     GuiCurve* getCurveGui();
     void updateUiScale(float newScale);
+    void resetMidiSettings();
 private:
     AudioPlugin2686V& audioProcessor;
 

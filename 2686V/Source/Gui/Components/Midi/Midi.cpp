@@ -28,6 +28,19 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     pitchResetOnLegato.setup({ .parent = parent, .id = "PITCH_RESET_LEGATO", .title = "PitchEnv Reset On Legato", .isReset = true });
     pitchResetOnLegato.setWantsKeyboardFocus(true);
     pitchResetOnLegato.setExplicitFocusOrder(++tabOrder);
+
+    parent.addAndMakeVisible(resetSeparator);
+    resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    resetButton.setup(GuiTextButton::Config{ .parent = parent, .title = "Reset", .isReset = true });
+    resetButton.setWantsKeyboardFocus(true);
+    resetButton.setExplicitFocusOrder(++tabOrder);
+    resetButton.onClick = [this] {
+        monoMode.setToggleState(false, juce::NotificationType::sendNotification);
+        useVelocity.setToggleState(false, juce::NotificationType::sendNotification);
+        fixedVelocity.setValue(0.5f, juce::NotificationType::sendNotification);
+        pitchResetOnLegato.setToggleState(false, juce::NotificationType::sendNotification);
+        };
 }
 
 void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
@@ -40,6 +53,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
     useVelocity.setVisible(visible);
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
+    resetSeparator.setVisible(visible);
+    resetButton.setVisible(visible);
 
     if (visible)
     {
@@ -47,6 +62,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &useVelocity });
         layoutMain({ .mainRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutMain({ .mainRect = rect, .component = &pitchResetOnLegato });
+        layoutMain({ .mainRect = rect, .component = &resetSeparator });
+        layoutMain({ .mainRect = rect, .component = &resetButton });
     }
 }
 
@@ -60,6 +77,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
     useVelocity.setVisible(visible);
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
+    resetSeparator.setVisible(visible);
+    resetButton.setVisible(visible);
 
     if (visible)
     {
@@ -67,6 +86,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .component = &useVelocity });
         layoutRow({ .rowRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutRow({ .rowRect = rect, .component = &pitchResetOnLegato });
+        layoutRow({ .rowRect = rect, .component = &resetSeparator });
+        layoutRow({ .rowRect = rect, .component = &resetButton });
     }
 }
 
