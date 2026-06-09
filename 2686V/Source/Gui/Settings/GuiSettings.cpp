@@ -19,19 +19,25 @@
 
 static std::vector<SelectItem> uiScaleItems = {
     {.name = "25%",  .value = 1 },
-    {.name = "50%",  .value = 2 },
-    {.name = "75%",  .value = 3 },
-    {.name = "100%", .value = 4 },
-    {.name = "125%", .value = 5 },
-    {.name = "150%", .value = 6 },
-    {.name = "175%", .value = 7 },
-    {.name = "200%", .value = 8 },
-    {.name = "250%", .value = 9 },
-    {.name = "300%", .value = 10 }
+    {.name = "30%",  .value = 2 },
+    {.name = "40%",  .value = 3 },
+    {.name = "50%",  .value = 4 },
+    {.name = "60%",  .value = 5 },
+    {.name = "70%",  .value = 6 },
+    {.name = "75%",  .value = 7 },
+    {.name = "80%",  .value = 8 },
+    {.name = "90%",  .value = 9 },
+    {.name = "100%", .value = 10 },
+    {.name = "125%", .value = 11 },
+    {.name = "150%", .value = 12 },
+    {.name = "175%", .value = 13 },
+    {.name = "200%", .value = 14 },
+    {.name = "250%", .value = 15 },
+    {.name = "300%", .value = 16 }
 };
 
-static std::array<float, 10> uiScaleLUT = {
-    0.25f, 0.5f, 0.75f, 1.00f, 1.25f, 1.50f, 1.75f, 2.00f, 2.50f, 3.00f
+static std::array<float, 16> uiScaleLUT = {
+    0.25f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.75f, 0.8f, 0.9f, 1.00f, 1.25f, 1.50f, 1.75f, 2.00f, 2.50f, 3.00f
 };
 
 void GuiSettings::setup()

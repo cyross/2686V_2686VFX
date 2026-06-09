@@ -540,7 +540,7 @@ public:
     std::atomic<float> realTimeBuffer[512];
 
     // --- Settings Data ---
-    int uiScaleIndex = 3; // 高解像度対応(0ベース、初期値: 100%)
+    int uiScaleIndex = 9; // 高解像度対応(0ベース、初期値: 100%)
     juce::String wallpaperPath;
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
