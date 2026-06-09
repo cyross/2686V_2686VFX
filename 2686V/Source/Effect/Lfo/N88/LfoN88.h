@@ -12,8 +12,6 @@ struct N88LfoValues {
 };
 
 class N88LfoCore {
-	std::array<std::function<void()>, 3> m_noteOnFunctions;
-
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_amFreq = 0.0f;
@@ -44,11 +42,6 @@ class N88LfoCore {
 	float m_currentNoiseSample = 0.0f;
 
 	LfsrNoiseGen m_noiseGen;
-
-	using N88LfoCalculator = float(*)(double phase, float noise);
-
-	static const std::array<N88LfoCalculator, 6> pmStrategies;
-	static const std::array<N88LfoCalculator, 6> amStrategies;
 public:
 	N88LfoCore();
 

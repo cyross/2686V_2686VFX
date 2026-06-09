@@ -4,25 +4,6 @@
 
 const std::array<float, 9> SsgCore::dutyPresets = { 0.5f, 0.4375f, 0.375f, 0.3125f, 0.25f, 0.20f, 0.1875f, 0.125f, 0.0625f };
 
-namespace {
-    // =================================================================
-    // 波形ストラテジー配列の定義
-    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
-    // =================================================================
-    using HwEnvGainCalculator = float(*)(float p, float n, bool e);
-
-    const std::array<HwEnvGainCalculator, 8> hwGainStrategies = { {
-        [](float p, float n, bool e) { return 1.0f - n; },
-        [](float p, float n, bool e) { return (p < 1.0) ? (1.0f - n) : 0.0f; },
-        [](float p, float n, bool e) { return e ? (1.0f - n) : n; },
-        [](float p, float n, bool e) { return (p < 1.0) ? (1.0f - n) : 0.0f; },
-        [](float p, float n, bool e) { return n; },
-        [](float p, float n, bool e) { return (p < 1.0) ? n : 1.0f; },
-        [](float p, float n, bool e) { return e ? n : (1.0f - n); },
-        [](float p, float n, bool e) { return (p < 1.0) ? n : 1.0f; },
-    } };
-}
-
 SsgCore::SsgCore() : SynthCore() {
 }
 
@@ -372,7 +353,34 @@ float SsgCore::getSample()
             bool isEvenCycle = ((int)p % 2 == 0);
             float phaseNorm = (float)(p - std::floor(p));
 
-            hwEnvGain = hwGainStrategies[m_envShape](p, phaseNorm, isEvenCycle);
+            switch (m_envShape) {
+            case 0:
+                hwEnvGain = 1.0f - phaseNorm;
+                break;
+            case 1:
+                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
+                break;
+            case 2:
+                hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm;
+                break;
+            case 3:
+                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
+                break;
+            case 4:
+                hwEnvGain = phaseNorm;
+                break;
+            case 5:
+                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
+                break;
+            case 6:
+                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
+                break;
+            case 7:
+                hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm);
+                break;
+            default:
+                hwEnvGain = phaseNorm;
+            }
         }
 
         // ==========================================

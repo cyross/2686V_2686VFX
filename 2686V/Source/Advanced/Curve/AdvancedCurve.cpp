@@ -352,7 +352,3 @@ float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, 
 	if (logics.find(logic) == logics.end()) return x;
 	return logics[logic](positionIndex, targetIndex, paramIndex, x);
 }
-
-std::function<float(int, int, int, float)> CurveCore::getFunction(int logicIndex) {
-	return logics[(CurveParams::Logic)logicIndex];
-}

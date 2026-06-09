@@ -7,8 +7,6 @@
 #include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 class Opzx7LfoCoreUnit {
-	std::array<std::function<void()>, 3> m_noteOnFunctions;
-
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_freq = 0.0f;
@@ -34,11 +32,6 @@ class Opzx7LfoCoreUnit {
 
 	float m_smooth = 0.0f;
 	float m_smoothRate = 0.0f;
-
-	using Opzx7LfoCalculator = float(*)(double phase, float noise);
-
-	// 波形計算アルゴリズム配列
-	static const std::array<Opzx7LfoCalculator, 8> lfoStrategies;
 public:
 	Opzx7LfoCoreUnit();
 

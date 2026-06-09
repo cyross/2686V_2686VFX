@@ -12,8 +12,6 @@ struct OpmLfoValues {
 };
 
 class OpmLfoCore {
-	std::array<std::function<void()>, 3> m_noteOnFunctions;
-
 	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
 	float m_amFreq = 0.0f;
@@ -47,14 +45,6 @@ class OpmLfoCore {
 	float m_currentNoiseSample = 0.0f;
 
 	LfsrNoiseGen m_noiseGen;
-
-	using OpmLfoCalculator = float(*)(double phase, float noise);
-
-	// OPZ7/PG-LFO波形の計算アルゴリズム配列
-	static const std::array<OpmLfoCalculator, 4> lfoPmStrategies;
-
-	// OPZ7/EG-LFO波形の計算アルゴリズム配列
-	static const std::array<OpmLfoCalculator, 4> lfoAmStrategies;
 
 	static const std::array<float, 4> amsDepths;
 

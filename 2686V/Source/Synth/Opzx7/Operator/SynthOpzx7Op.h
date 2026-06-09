@@ -43,9 +43,6 @@ private:
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 
-	using SsgWaveCalculator = float(*)(double p);
-	static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;
-
 	// ユニゾン・ハーモニー用
 	bool m_isMonoMode = false;
 	float m_unisonPhaseOffset = 0.0f;
