@@ -5,6 +5,7 @@
 namespace SettingsKey
 {
 	static inline const juce::String envCode = "PREF_2686V";
+	static inline const juce::String uiScaleIndex = "uiScaleIndex";
 	static inline const juce::String wallpaperPath = "wallpaperPath";
 	static inline const juce::String wallpaperMode = "wallpaperMode";
 	static inline const juce::String defaultSampleDir = "defaultSampleDir";

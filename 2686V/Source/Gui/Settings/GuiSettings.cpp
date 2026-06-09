@@ -1,4 +1,5 @@
-﻿#include <vector>
+﻿#include <array>
+#include <vector>
 
 #include "./GuiSettings.h"
 
@@ -16,20 +17,62 @@
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiSettingsHelpers.h"
 
+static std::vector<SelectItem> uiScaleItems = {
+    {.name = "25%",  .value = 1 },
+    {.name = "50%",  .value = 2 },
+    {.name = "75%",  .value = 3 },
+    {.name = "100%", .value = 4 },
+    {.name = "125%", .value = 5 },
+    {.name = "150%", .value = 6 },
+    {.name = "175%", .value = 7 },
+    {.name = "200%", .value = 8 },
+    {.name = "250%", .value = 9 },
+    {.name = "300%", .value = 10 }
+};
+
+static std::array<float, 10> uiScaleLUT = {
+    0.25f, 0.5f, 0.75f, 1.00f, 1.25f, 1.50f, 1.75f, 2.00f, 2.50f, 3.00f
+};
+
 void GuiSettings::setup()
 {
     std::vector<SelectItem> wpModeItems = {
-        {.name = "Stretch", .value = 1 },
-        {.name = "Fill",  .value = 2 },
-        {.name = "Fit",  .value = 3 },
-        {.name = "Original",   .value = 4 },
+        {.name = juce::String("") + "Stretch(画面アスペクト比維持・画面全体カバー)", .value = 1 },
+        {.name = juce::String("") + "Fill(画像アスペクト比維持・画面全体カバー)",  .value = 2 },
+        {.name = juce::String("") + "Fit(画像アスペクト比準拠・見切りあり)",  .value = 3 },
+        {.name = juce::String("") + "Original(入力画像そのまま・センタリング)",   .value = 4 },
     };
 
     int tabOrder = 1;
+    float separatorThick = 3.0f;
 
     mainGroup.setup(*this, SettingsGuiText::Group::settingEnv);
 
-    auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = "Browse...") {
+    // UI拡大率
+    uiScaleSelector.setup({
+        .parent = *this,
+        .id = "",
+        .title = juce::String("") + "UIスケール",
+        .items = uiScaleItems,
+        .isReset = false,
+        .labelColor = juce::Colours::yellow
+        });
+    uiScaleSelector.setSelectedId(ctx.audioProcessor.uiScaleIndex + 1, juce::dontSendNotification);
+    uiScaleSelector.setWantsKeyboardFocus(true);
+    uiScaleSelector.setExplicitFocusOrder(++tabOrder);
+    uiScaleSelector.onChange = [this] {
+        int index = uiScaleSelector.getSelectedItemIndex();
+
+        ctx.audioProcessor.uiScaleIndex = index;
+        ctx.editor.updateUiScale(uiScaleLUT[index]);
+        ctx.editor.resized();
+
+        };
+
+    addAndMakeVisible(separator1);
+    separator1.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
+
+    auto setupRow = [&](GuiLabel& lbl, juce::String title, GuiLabel& pathLbl, GuiTextButton& btn, juce::String btnText = juce::String("") + "ファイル選択") {
 		lbl.setup({ .parent = *this, .title = title });
 		pathLbl.setup({ .parent = *this, .title = Io::empty });
         pathLbl.setColour(juce::Label::outlineColourId, juce::Colours::white);
@@ -58,7 +101,7 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = "X", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = juce::String("") + "解除", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
@@ -76,6 +119,9 @@ void GuiSettings::setup()
         ctx.audioProcessor.wallpaperMode = wallpaperModeSelector.getSelectedId() - 1;
         ctx.editor.repaint(); // Editor全体の再描画を呼び出す
     };
+
+    addAndMakeVisible(separator2);
+    separator2.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
 
     // --- ADPCM Dir ---
     setupRow(sampleDirLabel, juce::String("") + "サンプルファイルディレクトリ:", sampleDirPathLabel, sampleDirBrowseBtn);
@@ -144,8 +190,11 @@ void GuiSettings::setup()
         );
     };
 
+    addAndMakeVisible(separator3);
+    separator3.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
+
     // --- Toggle Tooltip Visible Toggle Button ---
-    tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false});
+    tooltipToggle.setup({ .parent = *this, .title = juce::String("") + "ツールチップを表示", .font = toggleFont, .isReset = false });
     tooltipToggle.setToggleState(ctx.audioProcessor.showTooltips, juce::dontSendNotification);
     tooltipToggle.setWantsKeyboardFocus(true);
     tooltipToggle.setExplicitFocusOrder(++tabOrder);
@@ -155,7 +204,10 @@ void GuiSettings::setup()
         ctx.editor.setTooltipState(newState); // 即座に反映
         };
 
-	useHeadroomToggle.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームを確保", .font = toggleFont, .isReset = false });
+    addAndMakeVisible(separator4);
+    separator4.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
+
+    useHeadroomToggle.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームを確保", .font = toggleFont, .isReset = false });
     useHeadroomToggle.setToggleState(ctx.audioProcessor.useHeadroom, juce::dontSendNotification);
     useHeadroomToggle.setWantsKeyboardFocus(true);
     useHeadroomToggle.setExplicitFocusOrder(++tabOrder);
@@ -166,7 +218,7 @@ void GuiSettings::setup()
         };
 
     // --- Headroom Gain Slider---
-	headroomGainSlider.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームゲイン", .isReset = false });
+    headroomGainSlider.setup({ .parent = *this, .title = juce::String("") + "ヘッドルームゲイン", .isReset = false });
     headroomGainSlider.setWantsKeyboardFocus(true);
     headroomGainSlider.setExplicitFocusOrder(++tabOrder);
     headroomGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -178,7 +230,10 @@ void GuiSettings::setup()
 
     headroomGainSlider.onValueChange = [this] {
         ctx.audioProcessor.headroomGain = (float)headroomGainSlider.getValue();
-    };
+        };
+
+    addAndMakeVisible(separator5);
+    separator5.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
 
     virtualMidiKeyboardToggle.setup({ .parent = *this, .title = juce::String("") + "仮想MIDIキーボード表示", .font = toggleFont , .isReset = false });
     virtualMidiKeyboardToggle.setWantsKeyboardFocus(true);
@@ -188,10 +243,13 @@ void GuiSettings::setup()
         ctx.audioProcessor.showVirtualKeyboard = !ctx.audioProcessor.showVirtualKeyboard;
 
         ctx.editor.updateKeyboardVisibility();
-    };
+        };
+
+    addAndMakeVisible(separator6);
+    separator6.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
 
     // --- Save Preference Button ---
-	saveSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルに保存", .isReset = false });
+    saveSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルに保存", .isReset = false });
     saveSettingsBtn.setWantsKeyboardFocus(true);
     saveSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveSettingsBtn.onClick = [this] {
@@ -206,10 +264,10 @@ void GuiSettings::setup()
                 }
             }
         );
-    };
+        };
 
     // --- Load Preference Button ---
-	loadSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルから読み込み", .isReset = false });
+    loadSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "設定ファイルから読み込み", .isReset = false });
     loadSettingsBtn.setWantsKeyboardFocus(true);
     loadSettingsBtn.setExplicitFocusOrder(++tabOrder);
     loadSettingsBtn.onClick = [this] {
@@ -237,11 +295,14 @@ void GuiSettings::setup()
                         ctx.editor.updatePresetPath();
                         ctx.editor.scanPresets(); // リスト更新関数を呼ぶ
                     }
+
+                    // UIスケール反映
+                    ctx.editor.updateUiScale(ctx.audioProcessor.uiScaleIndex);
                 }
             }
 
         );
-    };
+        };
 
     saveStartupSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "標準設定として保存", .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.setWantsKeyboardFocus(true);
@@ -260,12 +321,13 @@ void GuiSettings::setup()
             // 2. XMLデータの作成
             juce::XmlElement xml(SettingsKey::envCode);
 
+            xml.setAttribute(SettingsKey::uiScaleIndex, ctx.audioProcessor.uiScaleIndex);
             xml.setAttribute(SettingsKey::wallpaperPath, ctx.audioProcessor.wallpaperPath);
             xml.setAttribute(SettingsKey::wallpaperMode, ctx.audioProcessor.wallpaperMode);
             xml.setAttribute(SettingsKey::defaultSampleDir, ctx.audioProcessor.defaultSampleDir);
             xml.setAttribute(SettingsKey::defaultPresetDir, ctx.audioProcessor.defaultPresetDir);
             xml.setAttribute(SettingsKey::showTooltips, ctx.audioProcessor.showTooltips);
-            xml.setAttribute(SettingsKey::useHeadroom , ctx.audioProcessor.useHeadroom);
+            xml.setAttribute(SettingsKey::useHeadroom, ctx.audioProcessor.useHeadroom);
             xml.setAttribute(SettingsKey::headroomGain, ctx.audioProcessor.headroomGain);
             xml.setAttribute(SettingsKey::showVirtualKeyboard, ctx.audioProcessor.showVirtualKeyboard);
 
@@ -292,6 +354,9 @@ void GuiSettings::setup()
             }
         };
 
+    addAndMakeVisible(separator7);
+    separator7.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
+
     // --- Clear Undo/Redo History Button ---
     clearUndoHistoryBtn.setup({ .parent = *this, .title = juce::String("") + "アンドゥ・リドゥ履歴の初期化", .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
@@ -303,6 +368,7 @@ void GuiSettings::setup()
 
 void GuiSettings::layout(juce::Rectangle<int> content)
 {
+    int separatorHeight = 20;
     auto pageArea = content.withZeroOrigin();
 
     mainGroup.setBounds(pageArea);
@@ -310,7 +376,15 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sRect = pageArea.reduced(SettingsGuiValue::Group::Padding::width, SettingsGuiValue::Group::Padding::height);
     sRect.removeFromTop(SettingsGuiValue::Group::TitlePaddingTop);
 
-    // 1. WallpaperPath
+    // 1. UI Scale
+    auto rowUiScale = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    uiScaleSelector.label.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    uiScaleSelector.setBounds(rowUiScale.removeFromLeft(SettingsGuiValue::Settings::UiScaleSelectorWidth));
+
+    auto sp1Rect = sRect.removeFromTop(separatorHeight);
+    separator1.setBounds(sp1Rect);
+
+    // 2. WallpaperPath
     auto rowWpPath = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     wallpaperLabel.setBounds(rowWpPath.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     wallpaperClearBtn.setBounds(rowWpPath.removeFromRight(SettingsGuiValue::Settings::ClearButtonWidth));
@@ -319,14 +393,15 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 2. WallpaperMode
+    // 3. WallpaperMode
     auto rowWpMode = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     wallpaperModeSelector.label.setBounds(rowWpMode.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     wallpaperModeSelector.setBounds(rowWpMode.removeFromLeft(SettingsGuiValue::Settings::ModeSelectorWidth));
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    auto sp2Rect = sRect.removeFromTop(separatorHeight);
+    separator2.setBounds(sp2Rect);
 
-    // 3. ADPCM Dir
+    // 4. ADPCM Dir
     auto rowAdpcmDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     sampleDirLabel.setBounds(rowAdpcmDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     sampleDirBrowseBtn.setBounds(rowAdpcmDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
@@ -334,7 +409,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 4. Preset Dir
+    // 5. Preset Dir
     auto rowPresetDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     presetDirLabel.setBounds(rowPresetDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     presetDirBrowseBtn.setBounds(rowPresetDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
@@ -342,52 +417,59 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 5. Wavetable Dir
+    // 6. Wavetable Dir
     auto rowWavetableDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     wavetableDirPathLabel.setBounds(rowWavetableDir);
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 6. Tooltip Visible Row
+    auto sp3Rect = sRect.removeFromTop(separatorHeight);
+    separator3.setBounds(sp3Rect);
+
+    // 7. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    auto sp4Rect = sRect.removeFromTop(separatorHeight);
+    separator4.setBounds(sp4Rect);
 
-    // 6. Headroom Row
+    // 8. Headroom Row
     auto rowHeadroom = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 7. Headroom Row
+    // 9. Headroom Gain Row
     auto rowHeadroomGain = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    auto sp5Rect = sRect.removeFromTop(separatorHeight);
+    separator5.setBounds(sp5Rect);
 
-    // 8. Virtual Keyboard Row
+    // 10. Virtual Keyboard Row
     auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
+    auto sp6Rect = sRect.removeFromTop(separatorHeight);
+    separator6.setBounds(sp6Rect);
 
-    // 9. Config IO Buttons (Fixed Layout)
+    // 11. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
 
     layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight });
 
-    sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight + 8);
+    auto sp7Rect = sRect.removeFromTop(separatorHeight);
+    separator7.setBounds(sp7Rect);
 
-    // 9. Config IO Buttons (Fixed Layout)
+    // 12. Clear Undo/Redo History Button
     auto rowClearHistoryBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }
 
-void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)
+void GuiSettings::setSettings(int uiScaleIndex, const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath)
 {
+    uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
     wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
     sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
     presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
@@ -397,4 +479,8 @@ void GuiSettings::setSettings(const juce::String& wallpaperPath, const juce::Str
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)
 {
     wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
+}
+
+float GuiSettings::getUiScale(int index) {
+    return uiScaleLUT[index];
 }

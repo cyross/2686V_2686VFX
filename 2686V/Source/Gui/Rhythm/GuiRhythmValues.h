@@ -56,7 +56,7 @@ namespace RhythmGuiValue
 
 			namespace ClearBtn
 			{
-				static constexpr int width = 20;
+				static constexpr int width = 35;
 			}
 		}
 
