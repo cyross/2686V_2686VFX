@@ -8,6 +8,7 @@
 #include "../Fm/FmSliderRegMap.h"
 #include "../Gui/GuiLF.h"
 #include "./EditorGuiText.h"
+#include "./EditorGuiValues.h"
 
 #include "../../Gui/Opna/GuiOpna.h"
 #include "../../Gui/Opn/GuiOpn.h"
@@ -136,11 +137,7 @@ public:
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
     GuiCurve* getCurveGui();
-    void updateUiScale(float newScale) {
-        uiScale = newScale;
-
-        setScaleFactor(uiScale);
-    };
+    void updateUiScale(float newScale);
 private:
     AudioPlugin2686V& audioProcessor;
 
@@ -228,6 +225,8 @@ private:
     inline juce::String getPreviewTooltipText();
     inline juce::String getUndoTooltipText();
     inline juce::String getRedoTooltipText();
+
+    void parentHierarchyChanged() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686VEditor)
 };

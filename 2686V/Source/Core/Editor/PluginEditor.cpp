@@ -124,13 +124,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         togglePreviewBtn.setButtonText(getPreviewButtonText());
         togglePreviewBtn.setTooltip(getPreviewTooltipText());
 
-        // ウィンドウの幅を動的に変更
-        int newWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-        int height = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-
-        setSize(newWidth, height); // 高さは固定、幅を伸縮
-
-        setScaleFactor(uiScale);
+        updateUiScale(uiScale);
 
         // タイマーのON/OFFを切り替え
         updateTimerState();
@@ -270,9 +264,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             previewLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
             previewLabel.setBounds(10, 50, 180, 20);
 
-            setSize(220, 300);
-
             setScaleFactor(uiScale);
+
+            setSize(220, 300);
 
             startTimerHz(15);
 
@@ -299,9 +293,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
             miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
             miniModeLabel.setBounds(5, 25, 150, 15);
 
-            setSize(220, 100);
-
             setScaleFactor(uiScale);
+
+            setSize(220, 100);
 
             break;
         case ViewMode::Minimum: // -> Full
@@ -326,8 +320,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
             updateKeyboardVisibility();
 
-            resized();
-
             updateTimerState();
 
             break;
@@ -351,8 +343,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
             updateKeyboardVisibility();
 
-            resized();
-
             updateTimerState();
         }
         };
@@ -368,13 +358,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     addAndMakeVisible(*fxGui);
     fxGui->setVisible(true);
 
-    int initialHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-    setSize(EditorGuiValue::Window::width, initialHeight);
-
     // Processor から uiScale を取得
     uiScale = settingsGui->getUiScale(audioProcessor.uiScaleIndex);
-
-    setScaleFactor(uiScale);
+    updateUiScale(uiScale);
 
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
     updateRhythmFileNames("Reload");
@@ -1161,13 +1147,7 @@ void AudioPlugin2686VEditor::updateKeyboardVisibility()
         midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
     }
 
-    // プレビューの開閉状態（幅）と、キーボードの開閉状態（高さ）を両方考慮してリサイズ
-    int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-    int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-
-    setSize(targetWidth, targetHeight);
-
-    setScaleFactor(uiScale);
+    updateUiScale(uiScale);
 }
 
 void AudioPlugin2686VEditor::timerCallback()
@@ -1466,3 +1446,24 @@ inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
 GuiCurve* AudioPlugin2686VEditor::getCurveGui() {
     return curveGui.get();
 }
+
+void AudioPlugin2686VEditor::parentHierarchyChanged()
+{
+    juce::AudioProcessorEditor::parentHierarchyChanged();
+
+    // DAW(VST3/AU)がウィンドウをアタッチした際、ホストのデフォルトDPIで
+    // スケールが強制上書きされてしまうため、ここでカスタムスケールを再適用する
+    updateUiScale(uiScale);
+}
+
+void AudioPlugin2686VEditor::updateUiScale(float newScale) {
+    uiScale = newScale;
+
+    setScaleFactor(uiScale);
+
+    // プレビューと鍵盤の表示状態から、現在の論理サイズを計算して適用する
+    int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
+    int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
+
+    setSize(targetWidth, targetHeight); // DAWに新しいサイズを通知
+};
