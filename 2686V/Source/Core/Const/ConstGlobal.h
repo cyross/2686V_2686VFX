@@ -45,4 +45,14 @@ namespace Global
 			static inline const juce::String notice = "VST is a registered trademark of Steinberg Media Technologies GmbH.";
 		}
 	};
+
+	namespace RateMinSeconds {
+		static inline constexpr float reg = 0.0f; // レジスタレートの最長=0秒
+		static inline constexpr float real = 0.0f; // 実数レートの最長=0秒
+	}
+
+	namespace RateMaxSeconds {
+		static inline constexpr float reg = 5.0f; // レジスタレートの最長=5秒
+		static inline constexpr float real = 10.0f; // 実数レートの最長=10秒
+	}
 };

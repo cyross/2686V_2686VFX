@@ -3,89 +3,6 @@
 #include "../../../Core/Fm/FmCore.h"
 #include "../../../Processor/Opna/ProcessorOpnaValues.h"
 
-const std::array<OpnaOperator::SsgWaveCalculator, 16> OpnaOperator::ssgWaveStrategies = { {
-    [](double p) { // 00: normal
-        return 1.0f;
-    },
-    [](double p) { // 01
-        return 1.0f;
-    },
-    [](double p) { // 02: Saw Down
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return 1.0f - (float)subPos;
-    },
-    [](double p) { // 03
-        return 1.0f;
-    },
-    [](double p) { // 04: Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 05
-        return 1.0f;
-    },
-    [](double p) { // 06: Triangle
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (1.0f - (float)subPos) : (float)subPos;
-    },
-    [](double p) { // 07
-        return 1.0f;
-    },
-    [](double p) { // 08: Alt Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 09: Saw Up
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (float)subPos;
-    },
-    [](double p) { // 10
-        return 1.0f;
-    },
-    [](double p) { // 11: Saw Up & Hopd
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-    [](double p) { // 12
-        return 1.0f;
-    },
-    [](double p) { // 13: Triangle & Invert
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (float)subPos : (1.0f - (float)subPos);
-    },
-    [](double p) { // 14
-        return 1.0f;
-    },
-    [](double p) { // 15: Alt Saw Up & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-} };
-
 void OpnaOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
@@ -254,7 +171,85 @@ void OpnaOperator::getSample(float& output, float modulator, const N88LfoCore& n
     if (m_params.ssgEg > 0) {
         int safeWave = std::clamp(m_params.ssgEg, 0, 15);
 
-        envVal *= ssgWaveStrategies[safeWave](m_ssgPhase);
+        int cycle = (int)m_ssgPhase;
+        double subPos = m_ssgPhase - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        switch (safeWave) {
+        case 0:
+            // 00: normal
+            // 変更無し
+            break;
+        case 1:
+            // 01: 未使用
+            // 変更無し
+            break;
+        case 2:
+            // 02: Saw Down
+            envVal *= 1.0f - (float)subPos;
+
+            break;
+        case 3:
+            // 03 未使用
+            // 変更無し
+            break;
+        case 4:
+            // 04: Saw Down & Hold
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+
+            break;
+        case 5:
+            // 05 未使用
+            // 変更無し
+            break;
+        case 6:
+            // 06: Triangle
+            envVal *= isEven ? (1.0f - (float)subPos) : (float)subPos;
+
+            break;
+        case 7:
+            // 07 未使用
+            // 変更無し
+            break;
+        case 8:
+            // 08: Alt Saw Down & Hold
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+
+            break;
+        case 9:
+            // 09: Saw Up
+            envVal *= (float)subPos;
+
+            break;
+        case 10:
+            // 10 未使用
+            // 変更無し
+            break;
+        case 11:
+            // 11: Saw Up & Hopd
+            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+
+            break;
+        case 12:
+            // 12 未使用
+            // 変更無し
+            break;
+        case 13:
+            // 13: Triangle & Invert
+            envVal *= isEven ? (float)subPos : (1.0f - (float)subPos);
+
+            break;
+        case 14:
+            // 14 未使用
+            // 変更無し
+            break;
+        case 15:
+            // 15: Alt Saw Up & Hold
+            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+
+            break;
+        }
+
         m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
     }
 

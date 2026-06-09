@@ -1,9 +1,10 @@
 ﻿#include "./FmRegisterConverter.h"
+#include "../Const/ConstGlobal.h"
 
 auto RegisterConverter::convertFmParam31(int regValue) -> std::optional<float>
 {
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 31) return 0.0f; // Fastest
+    if (regValue <= 0) return Global::RateMaxSeconds::reg; // Slowest
+    if (regValue >= 31) return Global::RateMinSeconds::reg; // Fastest
 
     // Clamp 0-31
     float r = (float)std::clamp(regValue, 0, 31);
@@ -24,8 +25,8 @@ auto RegisterConverter::convertFmParam31(int regValue) -> std::optional<float>
 
 auto RegisterConverter::convertFmParam15(int regValue) -> std::optional<float>
 {
-    if (regValue <= 0) return 5.0f; // Slowest
-    if (regValue >= 15) return 0.0f; // Fastest
+    if (regValue <= 0) return Global::RateMaxSeconds::reg; // Slowest
+    if (regValue >= 15) return Global::RateMinSeconds::reg; // Fastest
 
     // Clamp 0-15
     float r = (float)std::clamp(regValue, 0, 15);
@@ -64,7 +65,7 @@ auto RegisterConverter::convertFmParamSl(int regValue) -> std::optional<float>
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertFmAr(int regValue)
 {
-	return convertFmParam31(regValue).value_or(5.0f);
+	return convertFmParam31(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- Envelope Generator Rate (RR) ---
@@ -72,7 +73,7 @@ float RegisterConverter::convertFmAr(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertFmRr(int regValue)
 {
-    return convertFmParam15(regValue).value_or(5.0f);
+    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- Envelope Generator Rate (DR, SR) ---
@@ -80,15 +81,15 @@ float RegisterConverter::convertFmRr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertFmDr(int regValue)
 {
-    return convertFmParam31(regValue).value_or(5.0f);
+    return convertFmParam31(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- Sustain Rate (SR) Converter ---
 // Register: 0 (Slowest) - 31 (Fastest)
-// Output: Time in Seconds (0.03s - 10.0s)
+// Output: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertFmSr(int regValue)
 {
-    return convertFmParam31(regValue).value_or(5.0f);
+    return convertFmParam31(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 
@@ -170,7 +171,7 @@ int RegisterConverter::convertFmRg127(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertOplAr(int regValue)
 {
-    return convertFmParam15(regValue).value_or(5.0f);
+    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- OPL: Decay Rate (DR) ---
@@ -178,7 +179,7 @@ float RegisterConverter::convertOplAr(int regValue)
 // VST Param: Time in Seconds (0.0s - 5.0s)
 float RegisterConverter::convertOplDr(int regValue)
 {
-    return convertFmParam15(regValue).value_or(5.0f);
+    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- OPL: Release Rate (RR) ---
@@ -186,7 +187,7 @@ float RegisterConverter::convertOplDr(int regValue)
 // VST Param: Time in Seconds (0.03s - 5.0s)
 float RegisterConverter::convertOplRr(int regValue)
 {
-    return convertFmParam15(regValue).value_or(5.0f);
+    return convertFmParam15(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 // --- OPL: Sustain Level (SL) ---
@@ -326,7 +327,7 @@ std::vector<RegisterUnit> RegisterConverter::convertToRegisterUnit(const juce::S
 
 float RegisterConverter::convertFmRrOpzx7(int regValue)
 {
-    return convertFmParam31(regValue).value_or(5.0f);
+    return convertFmParam31(regValue).value_or(Global::RateMaxSeconds::reg);
 }
 
 float RegisterConverter::convertFmTlOpzx7(int regValue)

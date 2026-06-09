@@ -4,100 +4,7 @@
 #include "./LfoN88.h"
 
 N88LfoCore::N88LfoCore() {
-    m_noteOnFunctions = {
-        [this]() {
-            this->m_sdCounter = 0.0f; // フリーラン継続
-
-            // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
-            // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
-            if (this->m_isOneshotPm || this->m_isOneshotAm) {
-                this->m_pmPhase = 0.0;
-                this->m_amPhase = 0.0;
-            }
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-
-            this->m_sdCounter = 0.0f; // ms -> 秒
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-
-            this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
-        }
-    };
 }
-
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (N888BASIC(86)準拠)
-// -----------------------------------------------------------
-const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::pmStrategies = { {
-    // 0: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? phase * 2.0 - 1.0 : phase * 2.0 - 2.0);
-    },
-    // 1: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : 0.0f;
-    },
-    // 2: Triangle
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.25)       pm = (float)(phase * 4.0);
-        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
-        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
-
-        return pm;
-    },
-    // 3: Sample & Hold
-    [](double /*phase*/, float noise) -> float {
-        return noise;
-    },
-    // 4: Saw Down & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
-    },
-    // 5: Triangle & One Shot
-    [](double phase, float /*noise*/) ->float {
-        float pm = 0.0f;
-        if (phase < 0.25)       pm = (float)(phase * 4.0);
-        else if (phase < 0.5)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
-        else                    pm = 0.0;
-
-        return pm;
-    }
-} };
-
-const std::array<N88LfoCore::N88LfoCalculator, 6> N88LfoCore::amStrategies = { {
-    // 0: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        return (float)phase;
-    },
-    // 1: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : 0.0f;
-    },
-    // 2: Triangle
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? (float)(phase * 2.0) : (float)(1.0 - (phase - 0.5) * 2.0);
-    },
-    // 3: Sample & Hold
-    [](double /*phase*/, float noise) -> float {
-        return (noise + 1.0f) * 0.5f;
-    },
-    // 4: Saw Down & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? 1.0 - phase : 0.0);
-    },
-    // 5: Triangle & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? (float)(phase * 2.0) : 0.0f;
-    }
-} };
 
 inline void N88LfoCore::updatePhaseDelta()
 {
@@ -150,13 +57,47 @@ void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, fl
 void N88LfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    this->m_noteOnFunctions[this->m_sdIndex]();
+    switch (this->m_sdIndex) {
+    case 0:
+        this->m_sdCounter = 0.0f; // フリーラン継続
+
+        // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
+        // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
+        if (this->m_isOneshotPm || this->m_isOneshotAm) {
+            this->m_pmPhase = 0.0;
+            this->m_amPhase = 0.0;
+        }
+        break;
+    case 1:
+        // 位相を0に戻す (Sync)
+        this->m_pmPhase = 0.0;
+        this->m_amPhase = 0.0;
+
+        this->m_sdCounter = 0.0f; // ms -> 秒
+        break;
+    case 2:
+        // 位相を0に戻す (Sync)
+        this->m_pmPhase = 0.0;
+        this->m_amPhase = 0.0;
+
+        this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
+    }
     this->m_pmCycleCount = 0;
     this->m_amCycleCount = 0;
 }
 
 void N88LfoCore::getSample()
 {
+    // 両方無効なら何も計算せずに現在のスムージング値だけ返して終了
+    if (!this->pmEnable && !this->amEnable) {
+        this->value.pm = 0.0f;
+        // AMのスムージング（0に向かって減衰する処理）だけは行うか、必要に応じて処理
+        this->amSmooth += (0.0f - this->amSmooth) * this->m_amSmoothRate;
+        this->value.am = this->amSmooth;
+
+        return;
+    }
+
     // Sync Delay 更新
     if (this->m_sdCounter > 0.0f) {
         this->m_sdCounter -= 1.0f / (float)this->m_sampleRate;
@@ -193,8 +134,59 @@ void N88LfoCore::getSample()
             }
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            pmVal = pmStrategies[this->m_pmWaveIndex](this->m_pmPhase, this->m_currentNoiseSample);
-            amVal = amStrategies[this->m_amWaveIndex](this->m_amPhase, this->m_currentNoiseSample);
+            switch (this->m_pmWaveIndex) {
+            case 0:
+                pmVal = (float)(this->m_pmPhase < 0.5 ? this->m_pmPhase * 2.0 - 1.0 : this->m_pmPhase * 2.0 - 2.0);
+
+                break;
+            case 1:
+                pmVal = (this->m_pmPhase < 0.5) ? 1.0f : 0.0f;
+
+                break;
+            case 2:
+                if (this->m_pmPhase < 0.25)      pmVal = (float)(this->m_pmPhase * 4.0);
+                else if (this->m_pmPhase < 0.75) pmVal = (float)(1.0 - (this->m_pmPhase - 0.25) * 4.0);
+                else                             pmVal = (float)(-1.0 + (this->m_pmPhase - 0.75) * 4.0);
+
+                break;
+            case 3:
+                pmVal = this->m_currentNoiseSample;
+
+                break;
+            case 4:
+                pmVal = (float)(this->m_pmPhase < 0.5 ? 1.0 - this->m_pmPhase * 2.0 : 0.0);
+
+                break;
+            case 5:
+                if (this->m_pmPhase < 0.25)     pmVal = (float)(this->m_pmPhase * 4.0);
+                else if (this->m_pmPhase < 0.5) pmVal = (float)(1.0 - (this->m_pmPhase - 0.25) * 4.0);
+                else                            pmVal = 0.0;
+            }
+
+            switch (this->m_amWaveIndex) {
+            case 0:
+                amVal = (float)this->m_pmPhase;
+
+                break;
+            case 1:
+                amVal = (this->m_pmPhase < 0.5) ? 1.0f : 0.0f;
+
+                break;
+            case 2:
+                amVal = (this->m_pmPhase < 0.5) ? (float)(this->m_pmPhase * 2.0) : (float)(1.0 - (this->m_pmPhase - 0.5) * 2.0);
+
+                break;
+            case 3:
+                amVal = (this->m_currentNoiseSample + 1.0f) * 0.5f;
+
+                break;
+            case 4:
+                amVal = (float)(this->m_pmPhase < 0.5 ? 1.0 - this->m_pmPhase : 0.0);
+
+                break;
+            case 5:
+                amVal = (this->m_pmPhase < 0.5) ? (float)(this->m_pmPhase * 2.0) : 0.0f;
+            }
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshotPm && this->m_pmCycleCount > 0) pmVal = 0.0f;

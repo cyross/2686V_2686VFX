@@ -1,320 +1,6 @@
 ﻿#include "./SynthOpzx7Op.h"
 #include "../../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
-namespace {
-    // =================================================================
-    // 波形生成用のユーティリティ関数群
-    // =================================================================
-    inline bool isOddQuad(float phase) {
-        return phase < 0.25f || (phase >= 0.5f && phase < 0.75f);
-    }
-
-    inline float doubleSine(float p) {
-        return std::sin(p * 2.0f);
-    }
-
-    inline float halfLevelSign(float sine) {
-        if (sine > 0.5f) return 0.5f;
-        if (sine < -0.5f) return -0.5f;
-        return sine;
-    }
-    
-    inline float triangle(float phase) {
-        float value = phase * 4.0f;
-        if (phase < 0.25f) return value;
-        if (phase < 0.75f) return 2.0f - value;
-        return value - 4.0f;
-    }
-
-    inline float dsTriangle(float phase) {
-        float position = phase >= 0.5f ? phase - 0.5f : phase;
-        float value = position * 8.0f;
-        if (position < 0.125f) return value;
-        if (position < 0.375f) return 2.0f - value;
-        return value - 4.0f;
-    }
-
-    inline float diagram(float phase) {
-        float value = phase * 2.0f;
-        if (phase < 0.5f) return value;
-        return value - 2.0f;
-    }
-
-    inline float dsDiagram(float phase) {
-        float position = phase >= 0.5f ? phase - 0.5f : phase;
-        float value = position * 4.0f;
-        if (position < 0.25f) return value;
-        return value - 2.0f;
-    }
-
-    inline float absHalfSawUp(float phase) {
-        float value = phase * 2.0f;
-        if (phase < 0.5f) return value;
-        return value - 1.0f;
-    }
-
-    inline float dsAbsHalfSawUp(float phase) {
-        float position = phase >= 0.5f ? phase - 0.5f : phase;
-        float value = position * 4.0f;
-        if (position < 0.25f) return value;
-        return value - 1.0f;
-    }
-
-    inline float reverseSign(float phase, float nP) {
-        float s2 = std::sin(phase + 0.5f * juce::MathConstants<float>::pi);
-        if (nP < 0.25f) return 1.0f - s2;
-        if (nP < 0.5f) return 1.0f + s2;
-        if (nP < 0.75f) return -1.0f - s2;
-        return s2 - 1.0f;
-    }
-
-    inline float doubleReverseSine(float phase, float nP) {
-        float s2 = std::sin((phase + 0.75f * juce::MathConstants<float>::pi) * 2.0f);
-        if (nP < 0.125f) return 1.0f + s2;
-        if (nP < 0.25f) return 1.0f - s2;
-        if (nP < 0.375f) return s2 - 1.0f;
-        return -1.0f - s2;
-    }
-
-    // =================================================================
-    // 波形ストラテジー配列の定義
-    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
-    // =================================================================
-    using WaveCalculator = float(*)(float p, float n, float s);
-
-    const std::array<WaveCalculator, 73> waveStrategies = { {
-        // 0: Sine
-        [](float p, float n, float s) { return s; },
-        // 1: Half Sine
-        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
-        // 2: Abs Sine
-        [](float p, float n, float s) { return std::abs(s); },
-        // 3: Quadra Abs Half Sine
-        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(s) : 0.0f; },
-        // 4: Alt Sine
-        [](float p, float n, float s) { return n < 0.5f ? doubleSine(p) : 0.0f; },
-        // 5: Alt Abs Sine
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleSine(p)) : 0.0f; },
-        // 6: Square
-        [](float p, float n, float s) { return n < 0.5f ? 1.0f : -1.0f; },
-        // 7: Log Saw
-        [](float p, float n, float s) { float saw = 1.0f - n * 2.0f; return saw * saw * saw; },
-        // 8: Pudding Sine
-        [](float p, float n, float s) { return halfLevelSign(s); },
-        // 9: Half Pudding Sine
-        [](float p, float n, float s) { return n < 0.5f ? halfLevelSign(s) : 0.0f; },
-        // 10: Abs Pudding Sine
-        [](float p, float n, float s) { return std::abs(halfLevelSign(s)); },
-        // 11: Quad Abs Pudding Sine
-        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(halfLevelSign(s)) : 0.0f; },
-        // 12: Mini Alt Sine
-        [](float p, float n, float s) { return n < 0.5f ? std::sin(p * 2.0f) * 0.5f : 0.0f; },
-        // 13: Mini Alt Abs Sine
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f; },
-        // 14: Half Square
-        [](float p, float n, float s) { return n < 0.5f ? 1.0f : 0.0f; },
-        // 15: Wavetable (Dummy: 実際の処理はメソッド内で分岐)
-        [](float p, float n, float s) { return 0.0f; },
-        // 16: Triangle
-        [](float p, float n, float s) { return triangle(n); },
-        // 17: Half Triangle
-        [](float p, float n, float s) { return n < 0.5f ? triangle(n) : 0.0f; },
-        // 18: Abs Triangle
-        [](float p, float n, float s) { return std::abs(triangle(n)); },
-        // 19: Quad Abs Triangle
-        [](float p, float n, float s) { return isOddQuad(n) ? std::abs(triangle(n)) : 0.0f; },
-        // 20: Alt Triangle
-        [](float p, float n, float s) { return n < 0.5f ? dsTriangle(n) : 0.0f; },
-        // 21: Alt Abs Triangle
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(dsTriangle(n)) : 0.0f; },
-        // 22: Quad Half Square
-        [](float p, float n, float s) { return isOddQuad(n) ? 1.0f : 0.0f; },
-        // 23: None
-        [](float p, float n, float s) { return 0.0f; },
-        // 24: Diagram
-        [](float p, float n, float s) { return diagram(n); },
-        // 25: Half Diagram
-        [](float p, float n, float s) { return n < 0.5f ? diagram(n) : 0.0f; },
-        // 26: Abs Half Saw Up
-        [](float p, float n, float s) { return absHalfSawUp(n); },
-        // 27: Quad Abs Half Saw Up
-        [](float p, float n, float s) { return isOddQuad(n) ? absHalfSawUp(n) : 0.0f; },
-        // 28: Alt Diagram
-        [](float p, float n, float s) { return n < 0.5f ? dsDiagram(n) : 0.0f; },
-        // 29: Alt Quad Abs Half Saw Up
-        [](float p, float n, float s) { return n < 0.5f ? dsAbsHalfSawUp(n) : 0.0f; },
-        // 30: Quad Square
-        [](float p, float n, float s) { return n < 0.25f ? 1.0f : 0.0f; },
-        // 31: PCM (Dummy: 実際の処理はメソッド内で分岐)
-        [](float p, float n, float s) { return 0.0f; },
-        // 32: 
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f; },
-        // 33:
-        [](float p, float n, float s) { float sign = (n < 0.5f) ? 1.0f : -1.0f; return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f)); },
-        // 34:
-        [](float p, float n, float s) { return 1.0f - n * 2.0f; },
-        // 35:
-        [](float p, float n, float s) { return n * 2.0f - 1.0f; },
-        // 36:
-        [](float p, float n, float s) { return (1.0f - n * 2.0f) * 0.5f + s * 0.5f; },
-        // 37:
-        [](float p, float n, float s) { return n < 0.25f ? 1.0f : -1.0f; },
-        // 38:
-        [](float p, float n, float s) { return n < 0.125f ? 1.0f : -1.0f; },
-        // 39:
-        [](float p, float n, float s) { return n < 0.0625f ? 1.0f : -1.0f; },
-        // 40:
-        [](float p, float n, float s) { return std::tanh(s * 5.0f); },
-        // 41:
-        [](float p, float n, float s) { return std::exp(-100.0f * std::pow(n - 0.5f, 2.0f)) * 2.0f - 1.0f; },
-        // 42:
-        [](float p, float n, float s) { return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f; },
-        // 43:
-        [](float p, float n, float s) { return (1.0f - n * 2.0f) * std::sin(p * 4.0f); },
-        // 44:
-        [](float p, float n, float s) { return (1.0f - n * 2.0f) * std::sin(p * 8.0f); },
-        // 45:
-        [](float p, float n, float s) { float tri = (n < 0.5f ? (4.0f * n - 1.0f) : (3.0f - 4.0f * n)); return tri * std::sin(p * 3.0f); },
-        // 46:
-        [](float p, float n, float s) { return s * s * s; },
-        // 47:
-        [](float p, float n, float s) { return std::sin(p) * std::sin(p * 2.0f); },
-        // 48:
-        [](float p, float n, float s) { return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f); },
-        // 49:
-        [](float p, float n, float s) { return s * std::cos(p * 2.5f); },
-        // 50:
-        [](float p, float n, float s) { return std::sin(p) * std::sin(p * 1.414f); },
-        // 51:
-        [](float p, float n, float s) { return std::sin(p) * std::cos(p * 0.5f); },
-        // 52:
-        [](float p, float n, float s) { return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f); },
-        // 53: PD Resonance (Casio CZ Style)
-        [](float p, float n, float s) { return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f; },
-        // 54: PD Resonance High
-        [](float p, float n, float s) { return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f; },
-        // 55: 4-Step Sine
-        [](float p, float n, float s) { return std::round(s * 2.0f) / 2.0f; },
-        // 56: 8-Step Sine
-        [](float p, float n, float s) { return std::round(s * 4.0f) / 4.0f; },
-        // 57: Wavefolded Sine (Soft)
-        [](float p, float n, float s) { float fs = s * 1.5f; if (fs > 1.0f) return 2.0f - fs; if (fs < -1.0f) return -2.0f - fs; return fs; },
-        // 58: Wavefolded Sine (Hard)
-        [](float p, float n, float s) { float fs = s * 2.5f; return std::sin(fs * juce::MathConstants<float>::halfPi); },
-        // 59: Bitwise XOR Fractal
-        [](float p, float n, float s) { uint8_t pi = (uint8_t)(n * 255.0f); uint8_t xv = pi ^ (pi >> 1); return ((float)xv / 255.0f) * 2.0f - 1.0f; },
-        // 60: Bitwise AND Texture
-        [](float p, float n, float s) { uint8_t pi = (uint8_t)(n * 255.0f); uint8_t av = pi & (pi << 1); return ((float)av / 255.0f) * 2.0f - 1.0f; },
-        // 61: Self-Modulated Sine (FB=1)
-        [](float p, float n, float s) { return std::sin(p + 1.0f * std::sin(p)); },
-        // 62: Self-Modulated Sine (FB=2)
-        [](float p, float n, float s) { return std::sin(p + 2.0f * std::sin(p)); },
-        // 63: OPZ(TX81Z) W2
-        [](float p, float n, float s) { return reverseSign(p, n); },
-        // 64: OPZ(TX81Z) W3
-        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
-        // 65: OPZ(TX81Z) W4
-        [](float p, float n, float s) { return n < 0.5f ? reverseSign(p, n) : 0.0f; },
-        // 66: OPZ(TX81Z) W5
-        [](float p, float n, float s) { return n < 0.5f ? doubleSine(p) : 0.0f; },
-        // 67: OPZ(TX81Z) W6
-        [](float p, float n, float s) { return n < 0.5f ? doubleReverseSine(p, n) : 0.0f; },
-        // 68: OPZ(TX81Z) W7
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleSine(p)) : 0.0f; },
-        // 69: OPZ(TX81Z) W8
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleReverseSine(p, n)) : 0.0f; },
-        // 70: Cubic Triangle
-        [](float p, float n, float s) { float tri = triangle(n); return tri * tri * tri; },
-        // 71: Inverse Circle
-        [](float p, float n, float s) { float tri = triangle(n); float absTri = std::abs(tri); float sign = (tri >= 0.0f) ? 1.0f : -1.0f; return sign * (1.0f - std::sqrt(std::max(0.0f, 1.0f - absTri * absTri))); },
-        // 72: Exponential Spike
-        [](float p, float n, float s) { float lp = std::fmod(n * 2.0f, 1.0f); float sign = (n < 0.5f) ? 1.0f : -1.0f; return sign * std::exp(-lp * 8.0f); }
-    } };
-}
-
-const std::array<Opzx7Operator::SsgWaveCalculator, 16> Opzx7Operator::ssgWaveStrategies = { {
-    [](double p) { // 00: normal
-        return 1.0f;
-    },
-    [](double p) { // 01
-        return 1.0f;
-    },
-    [](double p) { // 02: Saw Down
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return 1.0f - (float)subPos;
-    },
-    [](double p) { // 03
-        return 1.0f;
-    },
-    [](double p) { // 04: Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 05
-        return 1.0f;
-    },
-    [](double p) { // 06: Triangle
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (1.0f - (float)subPos) : (float)subPos;
-    },
-    [](double p) { // 07
-        return 1.0f;
-    },
-    [](double p) { // 08: Alt Saw Down & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
-    },
-    [](double p) { // 09: Saw Up
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (float)subPos;
-    },
-    [](double p) { // 10
-        return 1.0f;
-    },
-    [](double p) { // 11: Saw Up & Hopd
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-    [](double p) { // 12
-        return 1.0f;
-    },
-    [](double p) { // 13: Triangle & Invert
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return isEven ? (float)subPos : (1.0f - (float)subPos);
-    },
-    [](double p) { // 14
-        return 1.0f;
-    },
-    [](double p) { // 15: Alt Saw Up & Hold
-        int cycle = (int)p;
-        double subPos = p - cycle;
-        bool isEven = (cycle % 2 == 0);
-
-        return (cycle == 0) ? (float)subPos : 1.0f;
-    },
-} };
-
 void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
@@ -512,7 +198,85 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     if (m_params.ssgEg > 0) {
         int safeWave = std::clamp(m_params.ssgEg, 0, 15);
 
-        envVal *= ssgWaveStrategies[safeWave](m_ssgPhase);
+        int cycle = (int)m_ssgPhase;
+        double subPos = m_ssgPhase - cycle;
+        bool isEven = (cycle % 2 == 0);
+
+        switch (safeWave) {
+        case 0:
+            // 00: normal
+            // 変更無し
+            break;
+        case 1:
+            // 01: 未使用
+            // 変更無し
+            break;
+        case 2:
+            // 02: Saw Down
+            envVal *= 1.0f - (float)subPos;
+
+            break;
+        case 3:
+            // 03 未使用
+            // 変更無し
+            break;
+        case 4:
+            // 04: Saw Down & Hold
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+
+            break;
+        case 5:
+            // 05 未使用
+            // 変更無し
+            break;
+        case 6:
+            // 06: Triangle
+            envVal *= isEven ? (1.0f - (float)subPos) : (float)subPos;
+
+            break;
+        case 7:
+            // 07 未使用
+            // 変更無し
+            break;
+        case 8:
+            // 08: Alt Saw Down & Hold
+            envVal *= (cycle == 0) ? (1.0f - (float)subPos) : 0.0f;
+
+            break;
+        case 9:
+            // 09: Saw Up
+            envVal *= (float)subPos;
+
+            break;
+        case 10:
+            // 10 未使用
+            // 変更無し
+            break;
+        case 11:
+            // 11: Saw Up & Hopd
+            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+
+            break;
+        case 12:
+            // 12 未使用
+            // 変更無し
+            break;
+        case 13:
+            // 13: Triangle & Invert
+            envVal *= isEven ? (float)subPos : (1.0f - (float)subPos);
+
+            break;
+        case 14:
+            // 14 未使用
+            // 変更無し
+            break;
+        case 15:
+            // 15: Alt Saw Up & Hold
+            envVal *= (cycle == 0) ? (float)subPos : 1.0f;
+
+            break;
+        }
+
         m_ssgPhase += (double)m_ssgEgFreq / m_sampleRate;
     }
 
@@ -699,9 +463,267 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     }
 
     // =================================================================
-    // ストラテジー配列による高速な波形計算
+    // ストラテジーによる高速な波形計算
     // =================================================================
     int safeWave = std::clamp(wave, 0, 72);
 
-    return waveStrategies[safeWave](p, normPhase, s);
+    // =================================================================
+    // 波形生成用のユーティリティ関数群
+    // =================================================================
+    auto isOddQuad = [](float phase) {
+        return phase < 0.25f || (phase >= 0.5f && phase < 0.75f);
+        };
+
+    auto doubleSine = [](float p) {
+        return std::sin(p * 2.0f);
+        };
+
+    auto halfLevelSign = [](float sine) {
+        if (sine > 0.5f) return 0.5f;
+        if (sine < -0.5f) return -0.5f;
+        return sine;
+        };
+
+    auto triangle = [](float phase) {
+        float value = phase * 4.0f;
+        if (phase < 0.25f) return value;
+        if (phase < 0.75f) return 2.0f - value;
+        return value - 4.0f;
+        };
+
+    auto dsTriangle = [](float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 8.0f;
+        if (position < 0.125f) return value;
+        if (position < 0.375f) return 2.0f - value;
+        return value - 4.0f;
+        };
+
+    auto diagram = [](float phase) {
+        float value = phase * 2.0f;
+        if (phase < 0.5f) return value;
+        return value - 2.0f;
+        };
+
+    auto dsDiagram = [](float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 4.0f;
+        if (position < 0.25f) return value;
+        return value - 2.0f;
+        };
+
+    auto absHalfSawUp = [](float phase) {
+        float value = phase * 2.0f;
+        if (phase < 0.5f) return value;
+        return value - 1.0f;
+        };
+
+    auto dsAbsHalfSawUp = [](float phase) {
+        float position = phase >= 0.5f ? phase - 0.5f : phase;
+        float value = position * 4.0f;
+        if (position < 0.25f) return value;
+        return value - 1.0f;
+        };
+
+    auto reverseSign = [](float phase, float nP) {
+        float s2 = std::sin(phase + 0.5f * juce::MathConstants<float>::pi);
+        if (nP < 0.25f) return 1.0f - s2;
+        if (nP < 0.5f) return 1.0f + s2;
+        if (nP < 0.75f) return -1.0f - s2;
+        return s2 - 1.0f;
+        };
+
+    auto doubleReverseSine = [](float phase, float nP) {
+        float s2 = std::sin((phase + 0.75f * juce::MathConstants<float>::pi) * 2.0f);
+        if (nP < 0.125f) return 1.0f + s2;
+        if (nP < 0.25f) return 1.0f - s2;
+        if (nP < 0.375f) return s2 - 1.0f;
+        return -1.0f - s2;
+        };
+
+    // =================================================================
+    // 波形ストラテジー配列の定義
+    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
+    // =================================================================
+    float val = 0.0f;
+    float sign = 0.0f;
+    uint8_t pi = 0;
+
+    switch (safeWave) {
+    case 0:
+        return s;
+    case 1:
+        return normPhase < 0.5f ? s : 0.0f;
+    case 2:
+        return std::abs(s);
+    case 3:
+        return isOddQuad(normPhase) ? std::abs(s) : 0.0f;
+    case 4:
+        return normPhase < 0.5f ? doubleSine(p) : 0.0f;
+    case 5:
+        return normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f;
+    case 6:
+        return normPhase < 0.5f ? 1.0f : -1.0f;
+    case 7:
+        val = 1.0f - normPhase * 2.0f;
+        
+        return val * val * val;
+    case 8:
+        return halfLevelSign(s);
+    case 9:
+        return normPhase < 0.5f ? halfLevelSign(s) : 0.0f;
+    case 10:
+        return std::abs(halfLevelSign(s));
+    case 11:
+        return isOddQuad(normPhase) ? std::abs(halfLevelSign(s)) : 0.0f;
+    case 12:
+        return normPhase < 0.5f ? std::sin(p * 2.0f) * 0.5f : 0.0f;
+    case 13:
+        return normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) * 0.5f : 0.0f;
+    case 14:
+        return normPhase < 0.5f ? 1.0f : 0.0f;
+    case 15:
+        return 0.0f;
+    case 16:
+        return triangle(normPhase);
+    case 17:
+        return normPhase < 0.5f ? triangle(normPhase) : 0.0f;
+    case 18:
+        return std::abs(triangle(normPhase));
+    case 19:
+        return isOddQuad(normPhase) ? std::abs(triangle(normPhase)) : 0.0f;
+    case 20:
+        return normPhase < 0.5f ? dsTriangle(normPhase) : 0.0f;
+    case 21:
+        return normPhase < 0.5f ? std::abs(dsTriangle(normPhase)) : 0.0f;
+    case 22:
+        return isOddQuad(normPhase) ? 1.0f : 0.0f;
+    case 23:
+        return 0.0f;
+    case 24:
+        return diagram(normPhase);
+    case 25:
+        return normPhase < 0.5f ? diagram(normPhase) : 0.0f;
+    case 26:
+        return absHalfSawUp(normPhase);
+    case 27:
+        return isOddQuad(normPhase) ? absHalfSawUp(normPhase) : 0.0f;
+    case 28:
+        return normPhase < 0.5f ? dsDiagram(normPhase) : 0.0f;
+    case 29:
+        return normPhase < 0.5f ? dsAbsHalfSawUp(normPhase) : 0.0f;
+    case 30:
+        return normPhase < 0.25f ? 1.0f : 0.0f;
+    case 31:
+        return 0.0f;
+    case 32:
+        return normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f;
+    case 33:
+        sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+        return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+    case 34:
+        return 1.0f - normPhase * 2.0f;
+    case 35:
+        return normPhase * 2.0f - 1.0f;
+    case 36:
+        return (1.0f - normPhase * 2.0f) * 0.5f + s * 0.5f;
+    case 37:
+        return normPhase < 0.25f ? 1.0f : -1.0f;
+    case 38:
+        return normPhase < 0.125f ? 1.0f : -1.0f;
+    case 39:
+        return normPhase < 0.0625f ? 1.0f : -1.0f;
+    case 40:
+        return std::tanh(s * 5.0f);
+    case 41:
+        return std::exp(-100.0f * std::pow(normPhase - 0.5f, 2.0f)) * 2.0f - 1.0f;
+    case 42:
+        return std::sin(p) + std::sin(p * 3.0f) * 0.5f + std::sin(p * 5.0f) * 0.25f;
+    case 43:
+        return (1.0f - normPhase * 2.0f) * std::sin(p * 4.0f);
+    case 44:
+        return (1.0f - normPhase * 2.0f) * std::sin(p * 8.0f);
+    case 45:
+        val = (normPhase < 0.5f ? (4.0f * normPhase - 1.0f) : (3.0f - 4.0f * normPhase));
+
+        return val * std::sin(p * 3.0f);
+    case 46:
+        return s * s * s;
+    case 47:
+        return std::sin(p) * std::sin(p * 2.0f);
+    case 48:
+        return s + 0.5f * std::sin(p * 2.0f) + 0.25f * std::sin(p * 4.0f);
+    case 49:
+        return s * std::cos(p * 2.5f);
+    case 50:
+        return std::sin(p) * std::sin(p * 1.414f);
+    case 51:
+        return std::sin(p) * std::cos(p * 0.5f);
+    case 52:
+        return std::sin(p * 13.0f) * std::cos(p * 7.0f) * std::sin(p * 2.0f);
+    case 53:
+        return (1.0f - std::cos(p)) * std::sin(p * 5.0f) * 0.5f;
+    case 54:
+        return (1.0f - std::cos(p)) * std::sin(p * 9.0f) * 0.5f;
+    case 55:
+        return std::round(s * 2.0f) / 2.0f;
+    case 56:
+        return std::round(s * 4.0f) / 4.0f;
+    case 57:
+        val = s * 1.5f;
+
+        if (val > 1.0f) return 2.0f - val;
+        if (val < -1.0f) return -2.0f - val;
+
+        return val;
+    case 58:
+        val = s * 2.5f;
+
+        return std::sin(val * juce::MathConstants<float>::halfPi);
+    case 59:
+        pi = (uint8_t)(normPhase * 255.0f);
+        pi = pi ^ (pi >> 1);
+        
+        return ((float)pi / 255.0f) * 2.0f - 1.0f;
+    case 60:
+        pi = (uint8_t)(normPhase * 255.0f);
+        pi = pi & (pi << 1);
+
+        return ((float)pi / 255.0f) * 2.0f - 1.0f;
+    case 61:
+        return std::sin(p + 1.0f * std::sin(p));
+    case 62:
+        return std::sin(p + 2.0f * std::sin(p));
+    case 63:
+        return reverseSign(p, normPhase);
+    case 64:
+        return normPhase < 0.5f ? s : 0.0f;
+    case 65:
+        return normPhase < 0.5f ? reverseSign(p, normPhase) : 0.0f;
+    case 66:
+        return normPhase < 0.5f ? doubleSine(p) : 0.0f;
+    case 67:
+        return normPhase < 0.5f ? doubleReverseSine(p, normPhase) : 0.0f;
+    case 68:
+        return normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f;
+    case 69:
+        return normPhase < 0.5f ? std::abs(doubleReverseSine(p, normPhase)) : 0.0f;
+    case 70:
+        val = triangle(normPhase);
+        
+        return val * val * val;
+    case 71:
+        val = triangle(normPhase);
+        sign = (val >= 0.0f) ? 1.0f : -1.0f;
+        val = std::abs(val);
+
+        return sign * (1.0f - std::sqrt(std::max(0.0f, 1.0f - val * val)));
+    case 72:
+        val = std::fmod(normPhase * 2.0f, 1.0f);
+        sign = (normPhase < 0.5f) ? 1.0f : -1.0f;
+
+        return sign * std::exp(-val * 8.0f);
+    default:
+        return s;
+    }
 }

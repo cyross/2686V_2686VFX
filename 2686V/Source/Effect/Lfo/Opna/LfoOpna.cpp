@@ -4,89 +4,12 @@
 #include "./LfoOpna.h"
 
 OpnaLfoCore::OpnaLfoCore() {
-    m_noteOnFunctions = {
-        [this]() {
-            this->m_sdCounter = 0.0f; // フリーラン継続
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-
-            this->m_sdCounter = 0.0f; // ms -> 秒
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_pmPhase = 0.0;
-            this->m_amPhase = 0.0;
-
-            this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
-        }
-    };
 }
 
 const std::array<float, 8> OpnaLfoCore::freqs = { 3.98f, 5.56f, 6.02f, 6.37f, 6.88f, 9.63f, 48.1f, 72.2f };
 // 新しい厳密なPMSデプス値 (0, 3.4, 6.7, 10, 14, 20, 40, 80 cent)
 const std::array<float, 8> OpnaLfoCore::pmsDepths = { 0.0f, 0.001965f, 0.003876f, 0.005793f, 0.008122f, 0.011619f, 0.023374f, 0.047294f };
 const std::array<float, 4> OpnaLfoCore::amsDepths = { 0.0f, 0.14886f, 0.49305f, 0.74296f };
-
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM PG)
-// -----------------------------------------------------------
-const std::array<OpnaLfoCore::OpnaLfoCalculator, 5> OpnaLfoCore::lfoPmStrategies = { {
-    // 0: Sine
-    [](double phase, float /*noise*/) -> float {
-        return  (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-    },
-    // 1: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase);
-    },
-    // 2: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : -1.0f;
-    },
-    // 3: Triangle
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.25)       pm = (float)(phase * 4.0);
-        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
-        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
-
-        return pm;
-    },
-    // 4: Noise
-    [](double /*phase*/, float noise) -> float {
-        return noise;
-    }
-} };
-
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム (OPM EG)
-// -----------------------------------------------------------
-const std::array<OpnaLfoCore::OpnaLfoCalculator, 5> OpnaLfoCore::lfoAmStrategies = { {
-    // 0: Sine
-    [](double phase, float /*noise*/) -> float {
-        float pm = (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-        return (pm + 1.0f) * 0.5f;
-    },
-    // 1: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase);
-    },
-    // 2: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : 0.0f;
-    },
-    // 3: Triangle
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? (float)(phase * 2.0) : (float)(1.0 - (phase - 0.5) * 2.0);
-    },
-    // 4: Noise
-    [](double /*phase*/, float noise) -> float {
-        return (noise + 1.0f) * 0.5f;
-    }
-} };
 
 inline void OpnaLfoCore::updatePhaseDelta()
 {
@@ -128,13 +51,51 @@ void OpnaLfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex
 void OpnaLfoCore::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    this->m_noteOnFunctions[this->m_sdIndex]();
+    switch (this->m_sdIndex) {
+    case 0:
+        this->m_sdCounter = 0.0f; // フリーラン継続
+
+        break;
+    case 1:
+        // 位相を0に戻す (Sync)
+        this->m_pmPhase = 0.0;
+        this->m_amPhase = 0.0;
+
+        this->m_sdCounter = 0.0f; // ms -> 秒
+
+        break;
+    case 2:
+        // 位相を0に戻す (Sync)
+        this->m_pmPhase = 0.0;
+        this->m_amPhase = 0.0;
+
+        this->m_sdCounter = this->m_sd / 1000.0f; // ms -> 秒
+    }
+
     this->m_pmCycleCount = 0;
     this->m_amCycleCount = 0;
 }
 
 void OpnaLfoCore::getSample()
 {
+    if (!this->pmEnable && !this->amEnable) {
+        // PMは即座に0.0に
+        this->value.pm = 0.0f;
+
+        // AMは「無効な状態(1.0f)」へ向けてスムージングを継続し、完全に到達したら計算をスキップ
+        if (std::abs(this->amSmooth) > 0.0001f) {
+            this->amSmooth += (0.0f - this->amSmooth) * this->m_amSmoothRate;
+            this->value.am = 1.0f - (this->amSmooth * this->ams);
+        }
+        else {
+            this->amSmooth = 0.0f;
+            this->value.am = 1.0f; // 無効時のデフォルト値
+        }
+
+        // 余分な計算をせずに抜ける
+        return;
+    }
+
     float localAmLfo = 0.0f;
     float localPmLfo = 0.0f;
 
@@ -168,8 +129,49 @@ void OpnaLfoCore::getSample()
             }
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            localPmLfo = lfoPmStrategies[3](this->m_pmPhase, 0.0f);
-            localAmLfo = lfoAmStrategies[3](this->m_amPhase, 0.0f);
+            switch (this->m_pgIndex) {
+            case 0:
+                localPmLfo = (float)std::sin(this->m_pmPhase * 2.0 * juce::MathConstants<double>::pi);
+
+                break;
+            case 1:
+                localPmLfo = (float)(1.0 - this->m_pmPhase);
+
+                break;
+            case 2:
+                localPmLfo = (this->m_pmPhase < 0.5) ? 1.0f : -1.0f;
+
+                break;
+            case 3:
+                if (this->m_pmPhase < 0.25)       localPmLfo = (float)(this->m_pmPhase * 4.0);
+                else if (this->m_pmPhase < 0.75)  localPmLfo = (float)(1.0 - (this->m_pmPhase - 0.25) * 4.0);
+                else                              localPmLfo = (float)(-1.0 + (this->m_pmPhase - 0.75) * 4.0);
+
+                break;
+            case 4:
+                localPmLfo = 0.0f;
+            }
+
+            switch (this->m_egIndex) {
+            case 0:
+                localAmLfo = ((float)std::sin(this->m_amPhase * 2.0 * juce::MathConstants<double>::pi) + 1.0f) * 0.5f;
+
+                break;
+            case 1:
+                localAmLfo = (float)(1.0 - this->m_amPhase);
+
+                break;
+            case 2:
+                localAmLfo = (this->m_amPhase < 0.5) ? 1.0f : 0.0f;
+
+                break;
+            case 3:
+                localAmLfo = (this->m_amPhase < 0.5) ? (float)(this->m_amPhase * 2.0) : (float)(1.0 - (this->m_amPhase - 0.5) * 2.0);
+
+                break;
+            case 4:
+                localAmLfo = (0.0f + 1.0f) * 0.5f;
+            }
         }
     }
 

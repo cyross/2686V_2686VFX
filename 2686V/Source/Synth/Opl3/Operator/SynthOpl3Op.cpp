@@ -1,51 +1,6 @@
 ﻿#include "./SynthOpl3Op.h"
 #include "../../../Processor/Opl3/ProcessorOpl3Values.h"
 
-namespace {
-    inline float doubleSine(float p) {
-        return std::sin(p * 2.0f);
-    }
-
-    // =================================================================
-    // 波形ストラテジー配列の定義
-    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
-    // =================================================================
-    using WaveCalculator = float(*)(float p, float n, float s);
-
-    const std::array<WaveCalculator, 10> waveStrategies = { {
-        // 0: Sine
-        [](float p, float n, float s) { return s; },
-        // 1: Half Sine
-        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
-        // 2: Abs Sine
-        [](float p, float n, float s) { return std::abs(s); },
-        // 3: Pulse Sine
-        [](float p, float n, float s) { return n < 0.25f ? s : 0.0f; },
-        // 4: Alternative Sine
-        [](float p, float n, float s) { return n < 0.5f ? doubleSine(p) : 0.0f; },
-        // 5: Alternative Abs Sine
-        [](float p, float n, float s) { return n < 0.5f ? std::abs(doubleSine(p)) : 0.0f; },
-        // 6: Square
-        [](float p, float n, float s) { return n < 0.5f ? 1.0f : -1.0f; },
-        // 7: Derived Square
-        [](float p, float n, float s) {
-            float newP = p / 2.0f + 0.5f * juce::MathConstants<float>::pi;
-
-            return std::sin(newP);
-        },
-        // 8: [EX01]Round Square
-        [](float p, float n, float s) {
-            float sign = (n < 0.5f) ? 1.0f : -1.0f;
-            return sign * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
-        },
-        // 9: [EX02]Log Saw
-        [](float p, float n, float s) {
-            float saw = 1.0f - n * 2.0f;
-            return saw * saw * saw;
-        },
-    } };
-}
-
 const std::array<float, 4> Opl3Operator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
 
 void Opl3Operator::prepare(int opIndex, double sampleRate) {
@@ -301,5 +256,38 @@ float Opl3Operator::calcWaveform(double phase, int wave)
 
     int safeWave = std::clamp(wave, 0, 10);
 
-    return waveStrategies[safeWave](p, normPhase, s);
+    switch (safeWave) {
+    case 0:
+        // 0: Sine
+        return s;
+    case 1:
+        // 1: Half Sine
+        return normPhase < 0.5f ? s : 0.0f;
+    case 2:
+        // 2: Abs Sine
+        return std::abs(s);
+    case 3:
+        // 3: Pulse Sine
+        return normPhase < 0.25f ? s : 0.0f;
+    case 4:
+        // 4: Alternative Sine
+        return normPhase < 0.5f ? doubleSine(p) : 0.0f;
+    case 5:
+        // 5: Alternative Abs Sine
+        return normPhase < 0.5f ? std::abs(doubleSine(p)) : 0.0f;
+    case 6:
+        // 6: Square
+        return normPhase < 0.5f ? 1.0f : -1.0f;
+    case 7:
+        // 7: Derived Square
+        return std::sin(p / 2.0f + 0.5f * juce::MathConstants<float>::pi);
+    case 8:
+        // 8: [EX01]Round Square
+        return ((normPhase < 0.5f) ? 1.0f : -1.0f) * (1.0f - std::pow(1.0f - std::abs(s), 4.0f));
+    case 9:
+        // 9: [EX02]Log Saw
+        return (1.0f - normPhase * 2.0f) * (1.0f - normPhase * 2.0f) * (1.0f - normPhase * 2.0f);
+    }
+
+    return s;
 }

@@ -4,78 +4,7 @@
 #include "./LfoOpzx7Unit.h"
 
 Opzx7LfoCoreUnit::Opzx7LfoCoreUnit() {
-    m_noteOnFunctions = {
-        [this]() {
-            // フリーラン継続
-            this->m_sdCounter = 0.0f;
-
-            // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
-            // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
-            if (this->m_isOneshot) {
-                this->m_phase = 0.0;
-            }
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_phase = 0.0;
-            this->m_sdCounter = 0.0f;
-        },
-        [this]() {
-            // 位相を0に戻す (Sync)
-            this->m_phase = 0.0;
-            this->m_sdCounter = this->m_sd / 1000.0f;
-        }
-    };
 }
-
-// -----------------------------------------------------------
-// LFO 波形算出アルゴリズム
-// -----------------------------------------------------------
-const std::array<Opzx7LfoCoreUnit::Opzx7LfoCalculator, 8> Opzx7LfoCoreUnit::lfoStrategies = { {
-        // 0: Sine
-        [](double phase, float /*noise*/) -> float {
-            return (float)std::sin(phase * 2.0 * juce::MathConstants<double>::pi);
-        },
-    // 1: Saw Up
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.5) pm = (float)(phase * 2.0);
-        else             pm = (float)(-1.0 + (phase - 0.5) * 2.0);
-
-        return pm;
-    },
-    // 2: Saw Down
-    [](double phase, float /*noise*/) -> float {
-        return (float)(1.0 - phase * 2.0);
-    },
-    // 3: Square
-    [](double phase, float /*noise*/) -> float {
-        return (phase < 0.5) ? 1.0f : -1.0f;
-    },
-    // 4: Triangle
-    [](double phase, float /*noise*/) -> float {
-        float pm = 0.0f;
-        if (phase < 0.25)       pm = (float)(phase * 4.0);
-        else if (phase < 0.75)  pm = (float)(1.0 - (phase - 0.25) * 4.0);
-        else                    pm = (float)(-1.0 + (phase - 0.75) * 4.0);
-
-        return pm;
-    },
-    // 5: Sample & Hold (Noise)
-    [](double /*phase*/, float noise) -> float {
-        return noise;
-    },
-    // 6: Saw Down & One Shot
-    [](double phase, float /*noise*/) -> float {
-        return (float)(phase < 0.5 ? 1.0 - phase * 2.0 : 0.0);
-    },
-    // 7: Triangle & One Shot
-    [](double phase, float /*noise*/) -> float {
-        if (phase < 0.25)      return (float)(phase * 4.0);
-        else if (phase < 0.5)  return (float)(1.0 - (phase - 0.25) * 4.0);
-        else                   return 0.0;
-    }
-} };
 
 inline void Opzx7LfoCoreUnit::updatePhaseDelta()
 {
@@ -119,7 +48,30 @@ void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int
 void Opzx7LfoCoreUnit::noteOn()
 {
     // LFO Sync Delay が 0より大きければ、位相をリセット(Sync)してディレイ開始
-    this->m_noteOnFunctions[this->m_sdIndex]();
+    switch (this->m_sdIndex) {
+    case 0:
+        // フリーラン継続
+        this->m_sdCounter = 0.0f;
+
+        // ディレイ0(フリーラン設定)であっても、ワンショット波形の時は
+        // 毎回アタマから再生されないと不自然なので強制的にSyncさせる
+        if (this->m_isOneshot) {
+            this->m_phase = 0.0;
+        }
+
+        break;
+    case 1:
+        // 位相を0に戻す (Sync)
+        this->m_phase = 0.0;
+        this->m_sdCounter = 0.0f;
+
+        break;
+    case 2:
+        // 位相を0に戻す (Sync)
+        this->m_phase = 0.0;
+        this->m_sdCounter = this->m_sd / 1000.0f;
+    }
+
     this->m_sdCycleCount = 0;
 }
 
@@ -150,7 +102,43 @@ float Opzx7LfoCoreUnit::getSample()
             }
 
             // (※ノイズが必要な場合は共有のノイズジェネレータか乱数を使用)
-            val = Opzx7LfoCoreUnit::lfoStrategies[this->m_waveIndex](this->m_phase, this->m_currentNoiseSample);
+            switch (this->m_waveIndex) {
+            case 0:
+                val = (float)std::sin(this->m_phase * 2.0 * juce::MathConstants<double>::pi);
+
+                break;
+            case 1:
+                if (this->m_phase < 0.5) val = (float)(this->m_phase * 2.0);
+                else                     val = (float)(-1.0 + (this->m_phase - 0.5) * 2.0);
+
+                break;
+            case 2:
+                val = (float)(1.0 - this->m_phase * 2.0);
+
+                break;
+            case 3:
+                val = (this->m_phase < 0.5) ? 1.0f : -1.0f;
+
+                break;
+            case 4:
+                if (this->m_phase < 0.25)       val = (float)(this->m_phase * 4.0);
+                else if (this->m_phase < 0.75)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
+                else                            val = (float)(-1.0 + (this->m_phase - 0.75) * 4.0);
+
+                break;
+            case 5:
+                val = this->m_currentNoiseSample;
+
+                break;
+            case 6:
+                val = (float)(this->m_phase < 0.5 ? 1.0 - this->m_phase * 2.0 : 0.0);
+
+                break;
+            case 7:
+                if (this->m_phase < 0.25)      val = (float)(this->m_phase * 4.0);
+                else if (this->m_phase < 0.5)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
+                else                           val = 0.0;
+            }
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshot && this->m_sdCycleCount > 0) val = 0.0f;
@@ -162,11 +150,19 @@ float Opzx7LfoCoreUnit::getSample()
 
 float Opzx7LfoCoreUnit::getSamplePm()
 {
+    if (!this->enable) {
+        return 0.0f;
+    }
+
     return getSample();
 }
 
 float Opzx7LfoCoreUnit::getSampleAm()
 {
+    if (!this->enable) {
+        return 1.0f;
+    }
+
     float val = getSample();
 
     // AMクリックノイズ防止スムージング

@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "./EnvOpzx7Adddr.h"
+#include "../../../../Core/Const/ConstGlobal.h"
 
 Opzx7Adddr::Opzx7Adddr()
 {
@@ -206,7 +207,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
                 // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
                 // ゆっくり（約5秒）減衰して消えるようにする。
                 if (regVal <= 1 && isRR) {
-                    return 1.0f / (5.0f * (float)sampleRate);
+                    return 1.0f / (Global::RateMaxSeconds::reg * (float)sampleRate);
                 }
 
                 // 実効レート = 基本レート(0-31) * 2 + KSR (0-3)
@@ -276,7 +277,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
             }
             else {
                 // Sustain Rate は値(0.0~1.0)が小さいほど遅い（長い）という特殊な仕様
-                float srTime = 5.0f * (1.0f - real.d2r);
+                float srTime = Global::RateMaxSeconds::real * (1.0f - real.d2r);
                 sustainRateDec = calcInc(srTime);
             }
         }
@@ -305,7 +306,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
                 if (regVal == 0 && !isRR) return 0.0f;
 
                 if (regVal <= 1 && isRR) {
-                    return 1.0f / (5.0f * (float)sampleRate);
+                    return 1.0f / (Global::RateMaxSeconds::reg * (float)sampleRate);
                 }
 
                 int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
@@ -379,7 +380,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
             }
             else {
                 // Sustain Rate は値(0.0~1.0)が小さいほど遅い（長い）という特殊な仕様
-                float srTime = 5.0f * (1.0f - real.d2r);
+                float srTime = Global::RateMaxSeconds::real * (1.0f - real.d2r);
                 sustainRateDec = calcInc(srTime);
             }
         }

@@ -38,5 +38,4 @@ public:
 		// (ここでは高速化のため単純な切り捨て配列参照にする)
 		return curveLUT[positionIndex][targetIndex][paramIndex][i];
     };
-	std::function<float(int, int, int, float)> getFunction(int logicIndex);
 };

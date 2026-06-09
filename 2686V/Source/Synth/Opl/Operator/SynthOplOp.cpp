@@ -5,25 +5,6 @@
 
 const std::array<float, 4> OplOperator::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
 
-namespace {
-    // =================================================================
-    // 波形ストラテジー配列の定義
-    // (引数: ラジアン位相 p, 正規化位相 n, サイン波 s)
-    // =================================================================
-    using WaveCalculator = float(*)(float p, float n, float s);
-
-    const std::array<WaveCalculator, 4> waveStrategies = { {
-        // 0: Sine
-        [](float p, float n, float s) { return s; },
-        // 1: Half Sine
-        [](float p, float n, float s) { return n < 0.5f ? s : 0.0f; },
-        // 2: Abs Sine
-        [](float p, float n, float s) { return std::abs(s); },
-        // 3: Pulse Sine
-        [](float p, float n, float s) { return n < 0.25f ? s : 0.0f; },
-    } };
-}
-
 void OplOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
@@ -271,5 +252,20 @@ float OplOperator::calcWaveform(double phase, int wave)
 
     int safeWave = std::clamp(wave, 0, 3);
 
-    return waveStrategies[safeWave](p, normPhase, s);
+    switch (safeWave) {
+    case 0:
+        // Sine
+        return s;
+    case 1:
+        // 1: Half Sine
+        return normPhase < 0.5f ? s : 0.0f;
+    case 2:
+        // 2: Abs Sine
+        return std::abs(s);
+    case 3:
+        // 3: Pulse Sine
+        return normPhase < 0.25f ? s : 0.0f;
+    }
+
+    return s;
 }
