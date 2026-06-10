@@ -165,7 +165,9 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Global::Fm::Op4> d1l;
     std::array<GuiSlider, Global::Fm::Op4> d2r;
     std::array<GuiSlider, Global::Fm::Op4> rr;
-    std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiToggleButton, Global::Fm::Op4> ksEn;
+    std::array<GuiToggleButton, Global::Fm::Op4> ksr;
+    std::array<GuiComboBox, Global::Fm::Op4> ksl;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
     std::array<GuiToggleButton, Global::Fm::Op4> bypass;
     std::array<GuiComponentFix, Global::Fm::Op4> fix;
@@ -255,7 +257,9 @@ public:
         d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksEn{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        ksr{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        ksl{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },

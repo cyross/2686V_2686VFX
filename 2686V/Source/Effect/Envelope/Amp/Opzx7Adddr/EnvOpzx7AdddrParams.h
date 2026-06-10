@@ -25,7 +25,9 @@ struct Opzx7AdddrParams
 	bool rgEnable = false;
 	Opzx7RealAdssrParams real;
 	Opzx7RgAdssrParams rg;
-	int ks = 0;
+	bool ksr = false;
+	int ksl = 0;
+	bool ksEn = false;
 	bool sus = false;
 	bool xof = false;
 	bool kor = false;

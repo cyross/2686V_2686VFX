@@ -122,11 +122,21 @@ namespace Opzx7PrValue
 			inline constexpr int initial = CorePrValue::Opzx7Detune::Dt3::initial;
 		}
 
-		namespace Ks
+		namespace Ksr
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace Ksl
 		{
 			inline constexpr int min = 0; // 最小値
 			inline constexpr int max = 3; // 最大値
 			inline constexpr int initial = 0; // 最大値
+		}
+
+		namespace KsEn
+		{
+			inline constexpr bool initial = false;
 		}
 
 		namespace Se

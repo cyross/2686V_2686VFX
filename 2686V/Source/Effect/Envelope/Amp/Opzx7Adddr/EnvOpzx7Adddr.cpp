@@ -4,6 +4,8 @@
 #include "./EnvOpzx7Adddr.h"
 #include "../../../../Core/Const/ConstGlobal.h"
 
+const std::array<float, 4> Opzx7Adddr::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
+
 Opzx7Adddr::Opzx7Adddr()
 {
     auto calcTimeInSecond = [&](int effectiveRate, bool isAttack) -> float {
@@ -63,7 +65,9 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
     this->rg.rr = params.rg.rr;
     this->rg.tl = params.rg.tl;
 
-    this->ks = params.ks;
+    this->ksr = params.ksr;
+    this->ksl = params.ksl;
+    this->ksEn = params.ksEn;
     this->sus = params.sus;
     this->xof = params.xof;
     this->kor = params.kor;
@@ -91,7 +95,7 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
             this->m_sustain = this->real.d1l;
         }
 
-        this->updateIncrementsWithKeyScale(m_noteNumber);
+        this->updateIncrements(m_noteNumber);
     }
     else {
         if (this->rgEnable)
@@ -126,7 +130,7 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
             this->m_sustain = this->real.d1l;
         }
 
-        this->updateIncrementsWithKeyScale(m_noteNumber);
+        this->updateIncrements(m_noteNumber);
     }
 }
 
@@ -139,22 +143,35 @@ float Opzx7Adddr::noteOn(float velocity) {
 
     state = State::Attack;
 
+    float attenuationDb = 0.0f;
+
     if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
         // TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = (rgEnable ? rg.tl : real.tl) * 0.75f;
-        float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-
-        return velocity * tlGain;
+        attenuationDb = (rgEnable ? rg.tl : real.tl) * 0.75f;
     }
     else {
         // TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float attenuationDb = (this->totalLevel * 63.0f) * 0.75f;
-        float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
-
-        return velocity * tlGain;
+        attenuationDb = (this->totalLevel * 63.0f) * 0.75f;
     }
+
+    float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+    float kslAttenuation = 1.0f;
+
+    if ((this->rgEnable || this->ksEn) && this->ksl > 0) {
+        // C3(48) を基準とし、それより高い音符で音量を減衰させる (OPL準拠)
+        float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
+
+        if (octaveDiff < 0.0f) octaveDiff = 0.0f; // 低音域では減衰しない
+
+        float totalDb = dbPerOcts[std::clamp(this->ksl, 0, 3)] * octaveDiff;
+
+        kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
+    }
+
+    // Velocity × TLゲイン × KSLゲイン を最終的な初期レベルとして返す
+    return velocity * tlGain * kslAttenuation;
 }
 
 void Opzx7Adddr::noteOff() {
@@ -171,7 +188,7 @@ void Opzx7Adddr::noteOff() {
     currentReleaseDec = getReleaseDec();
 }
 
-void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
+void Opzx7Adddr::updateIncrements(int noteNumber)
 {
     m_noteNumber = noteNumber;
 
@@ -196,7 +213,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
 
             int noteOffset = noteNumber % 12;
             int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-            ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+            ksrValue = this->ksr ? keyRate : (keyRate >> 2);
 
             // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
             // isAttack 引数を追加し、アタックと減衰で時間を調整する
@@ -246,23 +263,36 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
         // ====================================================================
         else
         {
-            // KeyScaleによるスケーリング計算のバグを修正
             float rateScale = 1.0f;
-            if (ks > 0) {
-                // m_noteNumber(通常0〜127) を使ってスケールを計算するが、
-                // 係数を小さくして急激な倍率変化を防ぐ
-                float noteFactor = (float)(noteNumber) / 127.0f;
-                rateScale = 1.0f + ((float)ks * noteFactor * 0.5f);
+
+            if (this->ksEn) {
+                // OPLライクなキースケールの計算
+                int octave = (noteNumber / 12) - 1;
+                if (octave < 0) octave = 0;
+                if (octave > 7) octave = 7;
+
+                int noteOffset = noteNumber % 12;
+                int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+
+                // ksr(1bitフラグ)の状態に応じてスケーリングの強さを変える
+                int ksrValue = this->ksr ? keyRate : (keyRate >> 2);
+
+                // 実効レート(0-63)のような絶対的なインクリメント加算ではなく、
+                // 秒数ベースのモードに合わせて「倍率」として適用するアプローチ
+
+                // 例: ksrValue が大きい（高音）ほど、rateScaleが大きくなり時間が短くなる
+                // ※ ここの倍率(0.1fなど)は、聴感上で自然に減衰が早くなるように適宜調整してください。
+                rateScale = 1.0f + ((float)ksrValue * 0.1f);
             }
 
             // param(秒数) に対してスケーリングを行う。
             // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
             auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
-                // スケールを適用した実際の秒数（短くなる）
                 float scaledSeconds = paramInSeconds / rateScale;
                 // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
                 float minSeconds = isRR ? 0.005f : 0.001f;
                 float finalSeconds = std::max(minSeconds, scaledSeconds);
+
                 // サンプルレートから「1サンプルあたりに進む量」を返す
                 return 1.0f / (finalSeconds * (float)sampleRate);
                 };
@@ -299,7 +329,7 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
 
             int noteOffset = noteNumber % 12;
             int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-            ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+            ksrValue = this->ksr ? keyRate : (keyRate >> 2);
 
             // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
             auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {
@@ -347,21 +377,32 @@ void Opzx7Adddr::updateIncrementsWithKeyScale(int noteNumber)
         // ====================================================================
         else
         {
-            // KeyScaleによるスケーリング計算のバグを修正
             float rateScale = 1.0f;
-            if (ks > 0) {
-                // m_noteNumber(通常0〜127) を使ってスケールを計算するが、
-                // 係数を小さくして急激な倍率変化を防ぐ
-                float noteFactor = (float)(noteNumber) / 127.0f;
-                rateScale = 1.0f + ((float)ks * noteFactor * 0.5f);
+
+            if (this->ksEn) {
+                // OPLライクなキースケールの計算
+                int octave = (noteNumber / 12) - 1;
+                if (octave < 0) octave = 0;
+                if (octave > 7) octave = 7;
+
+                int noteOffset = noteNumber % 12;
+                int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+
+                // ksr(1bitフラグ)の状態に応じてスケーリングの強さを変える
+                int ksrValue = this->ksr ? keyRate : (keyRate >> 2);
+
+                // 実効レート(0-63)のような絶対的なインクリメント加算ではなく、
+                // 秒数ベースのモードに合わせて「倍率」として適用するアプローチ
+
+                // 例: ksrValue が大きい（高音）ほど、rateScaleが大きくなり時間が短くなる
+                // ※ ここの倍率(0.1fなど)は、聴感上で自然に減衰が早くなるように適宜調整してください。
+                rateScale = 1.0f + ((float)ksrValue * 0.1f);
             }
 
             // param(秒数) に対してスケーリングを行う。
             // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
             auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
-                // スケールを適用した実際の秒数（短くなる）
                 float scaledSeconds = paramInSeconds / rateScale;
-
                 // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
                 float minSeconds = isRR ? 0.005f : 0.001f;
                 float finalSeconds = std::max(minSeconds, scaledSeconds);

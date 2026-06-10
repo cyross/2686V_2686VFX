@@ -146,7 +146,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
 
     // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
     if (!m_ampAdsr.isBypass()) {
-        m_ampAdsr.updateIncrementsWithKeyScale(m_noteNumber);
+        m_ampAdsr.updateIncrements(m_noteNumber);
     }
 }
 

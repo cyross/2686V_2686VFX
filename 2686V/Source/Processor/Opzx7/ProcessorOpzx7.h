@@ -49,7 +49,9 @@ class Opzx7Processor : public PrBase
     std::array<std::atomic<float>*, 4> pOpAdsrRgD2r = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrRgRr = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrRgTl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrKs = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpAdsrKsr = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpAdsrKsl = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, 4> pOpAdsrKsEn = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrSus = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrXof = { nullptr, nullptr, nullptr, nullptr };
     std::array<std::atomic<float>*, 4> pOpAdsrKor = { nullptr, nullptr, nullptr, nullptr };

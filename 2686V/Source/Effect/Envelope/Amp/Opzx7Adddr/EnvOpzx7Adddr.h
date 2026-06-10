@@ -37,10 +37,13 @@ class Opzx7Adddr
 	Opzx7RgAdssrParams rg;
 	Opzx7RgAdssrParams rgMax;
 
+	static const std::array<float, 4> dbPerOcts; // KSLの減衰カーブ定義
 	std::array<float, 64> timeInSecondsLut;
 	std::array<float, 64> attcckTimeInSecondsLut;
 
-	int ks = 0;
+	bool ksr = false;
+	int ksl = 0;
+	bool ksEn = false;
 	bool sus = false;
 	bool xof = false;
 	bool kor = false;
@@ -96,7 +99,7 @@ public:
 	void setParameters(const Opzx7AdddrParams& params);
 	float noteOn(float velocity);
 	void noteOff();
-	void updateIncrementsWithKeyScale(int noteNumber);
+	void updateIncrements(int noteNumber);
 	float updateEnvelopeState(float currentLevel);
 	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
 };

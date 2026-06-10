@@ -18,9 +18,9 @@ namespace Opzx7PrName
 
 	static inline const juce::String ar = CorePrName::Fm::Op::ar;
 	static inline const juce::String rr = CorePrName::Fm::Op::rr;
-	static inline const juce::String d1r = CorePrName::Fm::Op::d1r;
-	static inline const juce::String d1l = CorePrName::Fm::Op::d1l;
-	static inline const juce::String d2r = CorePrName::Fm::Op::d2r;
+	static inline const juce::String d1r = CorePrName::Fm::Op::dr;
+	static inline const juce::String d1l = CorePrName::Fm::Op::sl;
+	static inline const juce::String d2r = CorePrName::Fm::Op::sr;
 	static inline const juce::String mul = CorePrName::Fm::Op::mul;
 	static inline const juce::String mulRatio = " MUL Ratio";
 	static inline const juce::String tl = CorePrName::Fm::Op::tl;
@@ -33,6 +33,7 @@ namespace Opzx7PrName
 	static inline const juce::String ks = CorePrName::Fm::Op::ks;
 	static inline const juce::String ksr = CorePrName::Fm::Op::ksr;
 	static inline const juce::String ksl = CorePrName::Fm::Op::ksl;
+	static inline const juce::String ksEn = " KS Enable";
 	static inline const juce::String fix = CorePrName::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrName::Fm::Op::fixFreq;
 	static inline const juce::String ws = CorePrName::Fm::Op::ws;

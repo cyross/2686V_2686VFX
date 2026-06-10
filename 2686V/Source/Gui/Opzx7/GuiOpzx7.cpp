@@ -109,11 +109,11 @@ static std::vector<SelectItem> multems = {
     { .name = "21: Use Ratio", .value = 22 }
 };
 
-static std::vector<SelectItem> ksItems = {
-    {.name = "0 OFF",      .value = 1},
-    {.name = "1 (Weak)",   .value = 2},
-    {.name = "2 (Mid)",    .value = 3},
-    {.name = "3 (Strong)", .value = 4}
+static std::vector<SelectItem> kslItems = {
+    {.name = "KSL: 0 OFF",         .value = 1},
+    {.name = "KSL: 1 (1.5dB/oct)", .value = 2},
+    {.name = "KSL: 2 (3.0dB/oct)", .value = 3},
+    {.name = "KSL: 3 (6.0db/oct)", .value = 4}
 };
 
 static std::vector<SelectItem> lfoShapeItems = {
@@ -414,9 +414,17 @@ void GuiOpzx7::setup()
         tl[i].setWantsKeyboardFocus(true);
         tl[i].setExplicitFocusOrder(++tabOrder);
 
-        ks[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ks, .title = Opzx7GuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
-        ks[i].setWantsKeyboardFocus(true);
-        ks[i].setExplicitFocusOrder(++tabOrder);
+        ksEn[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ksEn, .title = Opzx7GuiText::Fm::Op::KsEn, .isReset = true });
+        ksEn[i].setWantsKeyboardFocus(true);
+        ksEn[i].setExplicitFocusOrder(++tabOrder);
+
+        ksr[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ksr, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
+        ksr[i].setWantsKeyboardFocus(true);
+        ksr[i].setExplicitFocusOrder(++tabOrder);
+
+        ksl[i].setup(GuiComboBox::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::ksl, .title = Opzx7GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
+        ksl[i].setWantsKeyboardFocus(true);
+        ksl[i].setExplicitFocusOrder(++tabOrder);
 
         sus[i].setup(GuiToggleButton::Config{ .parent = *this, .id = paramPrefix + Opzx7PrKey::sus, .title = Opzx7GuiText::Fm::Op::sus, .isReset = true });
         sus[i].setWantsKeyboardFocus(true);
@@ -647,8 +655,10 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
             layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
             layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+            layoutRow({ .rowRect = innerRect, .component = &ksEn[i] });
         }
-        layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i] });
+        layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
+        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
         layoutRow({ .rowRect = innerRect, .component = &sus[i] });
         layoutRow({ .rowRect = innerRect, .component = &xof[i] });
         layoutRow({ .rowRect = innerRect, .component = &kor[i] });
@@ -711,7 +721,7 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
         { mmlPrefixDto,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertFmDtOpzx7(v), juce::sendNotification); } },
         { mmlPrefixDt2,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
         { mmlPrefixDtt,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
-        { mmlPrefixKs,   [&](int v) { ks[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
+        { mmlPrefixKs,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
@@ -784,7 +794,9 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     rr[idx].setEnabledWithLabel(enable);
     d2r[idx].setEnabledWithLabel(enable);
     tl[idx].setEnabledWithLabel(enable);
-    ks[idx].setEnabledWithLabel(enable);
+    ksEn[idx].setEnabled(enable);
+    ksr[idx].setEnabled(enable);
+    ksl[idx].setEnabledWithLabel(enable);
     se[idx].setEnabledWithLabel(enable);
     seFreq[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
@@ -958,7 +970,7 @@ void GuiOpzx7::copyFmParamsToString()
     auto formatOpExt = [this](int index) {
         // ' MUL AR DR SL RR TL KSR KSL
         return juce::String::formatted(
-            u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d KS%d\n",
+            u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d KSR%d KSL%d\n",
             (int)this->mul[index].getSelectedId() - 1,
             this->dt1[index].getValue(),
             (int)this->dt2[index].getValue(),
@@ -968,7 +980,8 @@ void GuiOpzx7::copyFmParamsToString()
             (int)this->rgD2r[index].getValue(),
             (int)this->rgRr[index].getValue(),
             (int)this->rgTl[index].getValue(),
-            this->ks[index].getSelectedId() - 1
+            this->ksr[index].getToggleState() ? 1 : 0,
+            this->ksl[index].getSelectedId() - 1
         );
         };
     auto formatOpsExt = [this, formatOpExt]() {

@@ -36,7 +36,9 @@ namespace Opzx7PrKey
 	static inline const juce::String d1r = CorePrKey::Post::Fm::Op::d1r;
 	static inline const juce::String d1l = CorePrKey::Post::Fm::Op::d1l;
 	static inline const juce::String d2r = CorePrKey::Post::Fm::Op::d2r;
-	static inline const juce::String ks = CorePrKey::Post::Fm::Op::ks;
+	static inline const juce::String ksr = CorePrKey::Post::Fm::Op::ksr;
+	static inline const juce::String ksl = CorePrKey::Post::Fm::Op::ksl;
+	static inline const juce::String ksEn = "_KS_EN";
 	static inline const juce::String rgEn = CorePrKey::Post::Fm::Op::rgEn;
 	static inline const juce::String rgAr = CorePrKey::Post::Fm::Op::rgAr;
 	static inline const juce::String rgRr = CorePrKey::Post::Fm::Op::rgRr;

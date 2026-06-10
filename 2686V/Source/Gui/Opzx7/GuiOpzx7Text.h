@@ -84,9 +84,9 @@ namespace Opzx7GuiText
 			static inline const juce::String key = juce::String("") + "オペレーター";
 			static inline const juce::String Ar = u8"Ar";
 			static inline const juce::String Rr = u8"Rr";
-			static inline const juce::String D1r = u8"D1r";
-			static inline const juce::String D1l = u8"D1l";
-			static inline const juce::String D2r = u8"D2r";
+			static inline const juce::String D1r = u8"Dr";
+			static inline const juce::String D1l = u8"Sl";
+			static inline const juce::String D2r = u8"Sr";
 			static inline const juce::String Mul = u8"Mul";
 			static inline const juce::String MulRatio = u8"M.Ratio";
 			static inline const juce::String Tl = u8"Tl";
@@ -94,7 +94,9 @@ namespace Opzx7GuiText
 			static inline const juce::String Dt1 = u8"Dt1";
 			static inline const juce::String Dt2 = u8"Dt2";
 			static inline const juce::String Dt3 = u8"Dt3";
-			static inline const juce::String Ks = u8"Ks";
+			static inline const juce::String Ksr = u8"Ksr";
+			static inline const juce::String Ksl = u8"Ksl";
+			static inline const juce::String KsEn = u8"KsEn";
 			static inline const juce::String Mask = u8"Mask";
 			static inline const juce::String Fix = u8"Enable";
 			static inline const juce::String FFreq = u8"Freq";
