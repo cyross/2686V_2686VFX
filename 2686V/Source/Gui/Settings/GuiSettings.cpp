@@ -303,7 +303,7 @@ void GuiSettings::setup()
                     }
 
                     // UIスケール反映
-                    ctx.editor.updateUiScale(ctx.audioProcessor.uiScaleIndex);
+                    ctx.editor.updateUiScale(getUiScale(ctx.audioProcessor.uiScaleIndex));
                 }
             }
 
