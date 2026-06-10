@@ -19,7 +19,7 @@ class AudioPlugin2686VEditor;
 
 class RhythmPadGui: public GuiBase
 {
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
 
     GuiLabel fileNameLabel;
     GuiTextButton loadButton;
@@ -112,7 +112,7 @@ public:
 
 class GuiRhythm : public GuiBase
 {
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
 
     // Master Level
 	GuiSlider levelSlider;

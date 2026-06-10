@@ -89,39 +89,39 @@ void GuiSsg::setup()
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    qualityCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = *this, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + SsgPrKey::rate, .title = SsgGuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::rate, .title = SsgGuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
+    fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
-    unisonComponent.setupComponent(*this, code, tabOrder);
+    unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    ampEnvComponent.setupComponent(*this, code, tabOrder);
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(*this, code, tabOrder, SsgPrKey::pitchAdsr + SsgPrKey::bypass, SsgGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, SsgPrKey::pitchAdsr + SsgPrKey::bypass, SsgGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(*this, code, tabOrder, SsgPrKey::ssgSwEnv + SsgPrKey::bypass, SsgGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, SsgPrKey::ssgSwEnv + SsgPrKey::bypass, SsgGuiText::SsgSwEnv::bypass);
 
-    mulDetuneComponent.setupComponent(*this, code, tabOrder);
+    mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    hwEnvCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
+    hwEnvCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
 
-    envEnableButton.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
+    envEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
     envEnableButton.setWantsKeyboardFocus(true);
     envEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    shapeSelector.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+    shapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    periodSlider.setup({ .parent = *this, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
+    periodSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -131,52 +131,52 @@ void GuiSsg::setup()
         tabOrder
     );
 
-    midiComponent.setupComponent(*this, tabOrder);
+    midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    shapeCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::shape });
+    shapeCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::shape });
 
-    waveSelector.setup({ .parent = *this, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::ssgTone });
+    toneCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgTone });
 
-    levelSlider.setup({ .parent = *this, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::ssgNoise });
+    noiseCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgNoise });
 
-    noiseSlider.setup({ .parent = *this, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::noiseFreq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseFreq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseOnNoteButton.setup({ .parent = *this, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
+    noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
 
-    mixCat.setupHwCategory({ .parent = *this, .title = SsgGuiText::Category::mix });
+    mixCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::mix });
 
     // 初期状態反映
-    mixSlider.setup({ .parent = *this, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
-    mixSetTone.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::tone, .isReset = false, .isResized = false });
+    mixSetTone.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Ssg::Voice::tone, .isReset = false, .isResized = false });
     mixSetTone.setWantsKeyboardFocus(true);
     mixSetTone.setExplicitFocusOrder(++tabOrder);
     mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
 
-    mixSetMix.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::mix, .isReset = false, .isResized = false });
+    mixSetMix.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Ssg::Voice::mix, .isReset = false, .isResized = false });
     mixSetMix.setWantsKeyboardFocus(true);
     mixSetMix.setExplicitFocusOrder(++tabOrder);
     mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
 
-    mixSetNoise.setup({ .parent = *this, .title = SsgGuiText::Ssg::Voice::noise, .isReset = false, .isResized = false });
+    mixSetNoise.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Ssg::Voice::noise, .isReset = false, .isResized = false });
     mixSetNoise.setWantsKeyboardFocus(true);
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
@@ -253,18 +253,20 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mainArea = pageArea.removeFromLeft(SsgGuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
-    mRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
+    auto mmRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
+    mmRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mRect.removeFromTop(SsgGuiValue::MainGroup::Separator::height);
+    auto presetNameSeparatorArea = mmRect.removeFromTop(SsgGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     // グラフ用の区画を確保
-    layoutGraph(mRect);
+    layoutGraph(mmRect);
     updateGraph();
+
+    juce::Rectangle<int> mRect(0, mmRect.getHeight(), mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMainCategory({ .mainRect = mRect, .label = &shapeCat });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector, });
@@ -393,6 +395,11 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
     }
+
+    int usedHeight = 2000 - mRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    mainGroup.setContentHeight(usedHeight + 20);
 }
 
 void GuiSsg::updatePresetName(const juce::String& presetName)

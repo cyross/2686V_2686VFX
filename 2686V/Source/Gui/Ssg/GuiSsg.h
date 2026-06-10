@@ -24,7 +24,7 @@ class AudioPlugin2686VEditor;
 class GuiSsg : public GuiBase
 {
     // Pane Groups
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
     GuiGroup dutyGroup;
     GuiGroup triGroup;
 

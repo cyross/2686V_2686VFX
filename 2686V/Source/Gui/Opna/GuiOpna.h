@@ -45,10 +45,8 @@ class GuiOpna : public GuiBase
         {{"([C:FB])", "([C])", "([C])", "([C])"}}           // 07
     }};
 
-    GuiGroup mainGroup;
-    std::array<GuiGroup, Global::Fm::Op4> opGroups;
-    std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
-    GuiGroup lfoGroup;
+    GuiScrollGroup mainGroup;
+    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -150,9 +148,7 @@ public:
 	GuiOpna(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
-        freqBtnGroup{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
-        lfoGroup(context),
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         qualityCat(context),
         algFbCat(context),
         algSelector(context),

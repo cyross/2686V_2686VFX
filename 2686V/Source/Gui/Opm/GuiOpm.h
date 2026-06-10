@@ -46,8 +46,8 @@ class GuiOpm : public GuiBase
         {{"([C:FB])", "([C])", "([C])", "([C])"}}           // 07
     } };
 
-    GuiGroup mainGroup;
-    std::array<GuiGroup, Global::Fm::Op4> opGroups;
+    GuiScrollGroup mainGroup;
+    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -144,7 +144,7 @@ public:
     GuiOpm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         qualityCat(context),
         algFbCat(context),
         algSelector(context),

@@ -20,7 +20,7 @@ class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
 class GuiBeep : public GuiBase {
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
 
     GuiSlider volSlider;
 

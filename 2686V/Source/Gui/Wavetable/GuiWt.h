@@ -73,7 +73,7 @@ public:
 class GuiWt : public GuiBase
 {
     // Groups
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
     GuiGroup customWaveGroup;
 
     WaveformContainer<32> customSliders32;

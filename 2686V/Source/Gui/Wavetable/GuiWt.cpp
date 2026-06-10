@@ -585,29 +585,29 @@ void GuiWt::setup()
     presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    addAndMakeVisible(presetNameSeparator);
+    mainGroup.contentCanvas.addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    qualityCat.setupHwCategory({ .parent = *this, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = *this, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + WtPrKey::rate, .title = WtGuiText::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::rate, .title = WtGuiText::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
+    fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
-    unisonComponent.setupComponent(*this, code, tabOrder);
+    unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    levelSlider.setup({ .parent = *this, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
+    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::level, .title = WtGuiText::Wt::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
     // Waveform
-    waveSelector.setup({ .parent = *this, .id = code + WtPrKey::wave, .title = WtGuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::wave, .title = WtGuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
@@ -617,12 +617,12 @@ void GuiWt::setup()
         };
 
     // Custom Wave Size
-    sizeSelector.setup({ .parent = *this, .id = code + WtPrKey::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
+    sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
     sizeSelector.setExplicitFocusOrder(++tabOrder);
 
     // Steps
-    stepsSelector.setup({ .parent = *this, .id = code + WtPrKey::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
+    stepsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
     stepsSelector.setWantsKeyboardFocus(true);
     stepsSelector.setExplicitFocusOrder(++tabOrder);
     stepsSelector.onChange = [this] {
@@ -675,36 +675,36 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    modCat.setupHwCategory({ .parent = *this, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
+    modCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
-    modEnableButton.setup({ .parent = *this, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
+    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
     modEnableButton.setWantsKeyboardFocus(true);
     modEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    modDepthSlider.setup({ .parent = *this, .id = code + WtPrKey::Mod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
+    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
     modDepthSlider.setWantsKeyboardFocus(true);
     modDepthSlider.setExplicitFocusOrder(++tabOrder);
 
-    modSpeedSlider.setup({ .parent = *this, .id = code + WtPrKey::Mod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
+    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
-    ampEnvComponent.setupComponent(*this, code, tabOrder);
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(*this, code, tabOrder, WtPrKey::pitchAdsr + WtPrKey::bypass, WtGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, WtPrKey::pitchAdsr + WtPrKey::bypass, WtGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(*this, code, tabOrder, WtPrKey::ssgSwEnv + WtPrKey::bypass, WtGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, WtPrKey::ssgSwEnv + WtPrKey::bypass, WtGuiText::SsgSwEnv::bypass);
 
-    mulDetuneComponent.setupComponent(*this, code, tabOrder);
+    mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     lfo.setupComponent(
-        *this,
+        mainGroup.contentCanvas,
         code,
         tabOrder
     );
 
-    midiComponent.setupComponent(*this, tabOrder);
+    midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     // Custom Wave Group
 	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
@@ -785,18 +785,20 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto mainArea = pageArea.removeFromLeft(WtGuiValue::MainGroup::width);
 
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
-    mRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
+    auto mmRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
+    mmRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mRect.removeFromTop(WtGuiValue::MainGroup::Separator::height);
+    auto presetNameSeparatorArea = mmRect.removeFromTop(WtGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     // グラフ用の区画を確保
-    layoutGraph(mRect);
+    layoutGraph(mmRect);
     updateGraph();
+
+    juce::Rectangle<int> mRect(0, mmRect.getHeight(), mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
 
@@ -832,6 +834,11 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    int usedHeight = 2000 - mRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    mainGroup.setContentHeight(usedHeight + 20);
 
     bool isMod = modEnableButton.getToggleState();
     modDepthSlider.setEnabledWithLabel(isMod);

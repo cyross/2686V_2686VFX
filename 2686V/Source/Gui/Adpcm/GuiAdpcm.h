@@ -24,7 +24,7 @@ class AudioPlugin2686VEditor;
 class GuiAdpcm : public GuiBase
 {
     // --- ADPCM Page ---
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
 
     GuiComboBox modeSelector;
 
