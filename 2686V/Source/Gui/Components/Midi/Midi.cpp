@@ -32,7 +32,7 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     parent.addAndMakeVisible(resetSeparator);
     resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    resetButton.setup(GuiTextButton::Config{ .parent = parent, .title = "Reset", .isReset = true });
+    resetButton.setup(GuiTextButton::Config{ .parent = parent, .title = "Reset", .isReset = false });
     resetButton.setWantsKeyboardFocus(true);
     resetButton.setExplicitFocusOrder(++tabOrder);
     resetButton.onClick = [this] {

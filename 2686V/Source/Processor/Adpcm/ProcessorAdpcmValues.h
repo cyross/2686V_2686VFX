@@ -10,6 +10,7 @@ namespace AdpcmPrValue
 
 	namespace Bit
 	{
+		// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 		inline constexpr int min = CorePrValue::Pcm::Bit::min;
 		inline constexpr int max = CorePrValue::Pcm::Bit::max;
 		inline constexpr int initial = CorePrValue::Pcm::Bit::initial;
@@ -17,7 +18,7 @@ namespace AdpcmPrValue
 
 	namespace Rate
 	{
-		// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
+		// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
 		inline constexpr int min = CorePrValue::Pcm::Rate::min;
 		inline constexpr int max = CorePrValue::Pcm::Rate::max;
 		inline constexpr int initial = CorePrValue::Pcm::Rate::initial;

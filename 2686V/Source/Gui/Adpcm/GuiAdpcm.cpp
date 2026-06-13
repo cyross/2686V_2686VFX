@@ -12,17 +12,25 @@
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiAdpcmHelpers.h"
 
+// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 static std::vector<SelectItem> qualityItems = {
-    {.name = "1: Raw (32bit)", .value = 1 },
-    {.name = "2: 24-bit PCM",  .value = 2 },
-    {.name = "3: 16-bit PCM",  .value = 3 },
-    {.name = "4: 8-bit PCM",   .value = 4 },
-    {.name = "5: 5-bit PCM",   .value = 5 },
-    {.name = "6: 4-bit PCM",   .value = 6 },
-    {.name = "7: 4-bit ADPCM", .value = 7 },
-    {.name = "8: 1-bit DPCM",  .value = 8 },
+    {.name = " 1: Raw (32bit)", .value =  1 },
+    {.name = " 2: 24-bit PCM",  .value =  2 },
+    {.name = " 3: 20-bit PCM",  .value =  3 },
+    {.name = " 4: 16-bit PCM",  .value =  4 },
+    {.name = " 5: 12-bit PCM",  .value =  5 },
+    {.name = " 6: 10-bit PCM",  .value =  6 },
+    {.name = " 7: 9-bit PCM",   .value =  7 },
+    {.name = " 8: 8-bit PCM",   .value =  8 },
+    {.name = " 9: 7-bit PCM",   .value =  9 },
+    {.name = "10: 6-bit PCM",   .value = 10 },
+    {.name = "11: 5-bit PCM",   .value = 11 },
+    {.name = "12: 4-bit PCM",   .value = 12 },
+    {.name = "13: 4-bit ADPCM", .value = 13 },
+    {.name = "14: 1-bit DPCM",  .value = 14 },
 };
 
+// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
 static std::vector<SelectItem> rateItems = {
     {.name = " 1: 96kHz",    .value =  1 },
     {.name = " 2: 55.5kHz",  .value =  2 },
@@ -30,14 +38,15 @@ static std::vector<SelectItem> rateItems = {
     {.name = " 4: 48kHz",    .value =  4 },
     {.name = " 5: 44.1kHz",  .value =  5 },
     {.name = " 6: 33.08kHz", .value =  6 },
-    {.name = " 7: 22.05kHz", .value =  7 },
-    {.name = " 8: 16kHz",    .value =  8 },
-    {.name = " 9: 12kHz",    .value =  9 },
-    {.name = "10: 11kHz",    .value = 10 },
-    {.name = "11: 8kHz",     .value = 11 },
-    {.name = "12: 5.5kHz",   .value = 12 },
-    {.name = "13: 4kHz",     .value = 13 },
-    {.name = "14: 2kHz",     .value = 14 },
+    {.name = " 7: 32kHz",    .value =  7 },
+    {.name = " 8: 22.05kHz", .value =  8 },
+    {.name = " 9: 16kHz",    .value =  9 },
+    {.name = "10: 12kHz",    .value = 10 },
+    {.name = "11: 11kHz",    .value = 11 },
+    {.name = "12: 8kHz",     .value = 12 },
+    {.name = "12: 5.5kHz",   .value = 13 },
+    {.name = "13: 4kHz",     .value = 14 },
+    {.name = "15: 2kHz",     .value = 15 },
 };
 
 void GuiAdpcm::setup()

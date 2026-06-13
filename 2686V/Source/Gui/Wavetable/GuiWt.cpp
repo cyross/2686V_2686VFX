@@ -15,15 +15,23 @@
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiWtHelpers.h"
 
+// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 static std::vector<SelectItem> bdItems = {
-    {.name = "1: 4-bit (16 steps)",  .value = 1 },
-    {.name = "2: 5-bit (32 steps)",  .value = 2 },
-    {.name = "3: 6-bit (64 steps)",  .value = 3 },
-    {.name = "4: 8-bit (256 steps)", .value = 4 },
-    {.name = "5: Raw",               .value = 5 },
-    {.name = "6: 7-bit (OPLL/128 steps)", .value = 6 }
+    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
+    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
+    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
+    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
+    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
+    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
+    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
+    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
+    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
+    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
+    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
+    {.name = "12: Raw",                     .value = 12 }
 };
 
+// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
 static std::vector<SelectItem> rateItems = {
     {.name = " 1: 96kHz",    .value = 1 },
     {.name = " 2: 55.5kHz",  .value = 2 },
@@ -31,14 +39,15 @@ static std::vector<SelectItem> rateItems = {
     {.name = " 4: 48kHz",    .value = 4 },
     {.name = " 5: 44.1kHz",  .value = 5 },
     {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 22.05kHz", .value = 7 },
-    {.name = " 8: 16kHz",    .value = 8 },
-    {.name = " 9: 12kHz",    .value = 9 },
-    {.name = "10: 11kHz",    .value = 10 },
-    {.name = "11: 8kHz",     .value = 11 },
-    {.name = "12: 5.5kHz",   .value = 12 },
-    {.name = "13: 4kHz",     .value = 13 },
-    {.name = "14: 2kHz",     .value = 14 },
+    {.name = " 7: 32kHz",    .value = 7 },
+    {.name = " 8: 22.05kHz", .value = 8 },
+    {.name = " 9: 16kHz",    .value = 9 },
+    {.name = "10: 12kHz",    .value = 10 },
+    {.name = "11: 11kHz",    .value = 11 },
+    {.name = "12: 8kHz",     .value = 12 },
+    {.name = "12: 5.5kHz",   .value = 13 },
+    {.name = "13: 4kHz",     .value = 14 },
+    {.name = "15: 2kHz",     .value = 15 },
 };
 
 static std::vector<SelectItem> wtWsItems = {
@@ -798,7 +807,12 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutGraph(mmRect);
     updateGraph();
 
-    juce::Rectangle<int> mRect(0, mmRect.getHeight(), mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+    mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
+
+    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
 

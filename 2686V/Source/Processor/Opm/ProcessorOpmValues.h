@@ -12,6 +12,7 @@ namespace OpmPrValue
 
 	namespace Bit
 	{
+		// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 		inline constexpr int min = CorePrValue::Quality::Bit::min;
 		inline constexpr int max = CorePrValue::Quality::Bit::max;
 		inline constexpr int initial = CorePrValue::Quality::Bit::initial;
@@ -19,7 +20,7 @@ namespace OpmPrValue
 
 	namespace Rate
 	{
-		// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k 7: 22.05k, 8: 16k, 9: 12k, 10: 11k 11: 8k 12: 5.5k 13: 4k 14: 2k
+		// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
 		inline constexpr int min = CorePrValue::Quality::Rate::min;
 		inline constexpr int max = CorePrValue::Quality::Rate::max;
 		inline constexpr int initial = CorePrValue::Quality::Rate::initial;

@@ -21,4 +21,4 @@ private:
 };
 
 // --- DPCMになるモード番号 ---
-static const int dpcmMode = 8;
+static const int dpcmMode = 14;
