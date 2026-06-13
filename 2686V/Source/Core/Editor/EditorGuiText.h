@@ -16,6 +16,7 @@ namespace EditorGuiText
 		static inline const juce::String opzx7 = u8"OPZX7";
 		static inline const juce::String ssg = u8"SSG";
 		static inline const juce::String wt = u8"WT";
+		static inline const juce::String wt2 = u8"WT2";
 		static inline const juce::String rhythm = u8"RHYTHM";
 		static inline const juce::String adpcm = u8"ADPCM";
 		static inline const juce::String beep = u8"BEEP";
@@ -23,7 +24,7 @@ namespace EditorGuiText
 		static inline const juce::String preset = u8"PRESET";
 		static inline const juce::String settings = u8"SETTINGS";
 		static inline const juce::String about = u8"ABOUT";
-		static inline const juce::String advanced = u8"ADVANCED";
+		static inline const juce::String advanced = u8"ADV";
 	}
 
 	namespace Preview

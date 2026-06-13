@@ -4,7 +4,7 @@
 
 #include "../../Core/Processor/ProcessorValues.h"
 
-namespace WtPrValue
+namespace Wt2PrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
@@ -80,12 +80,12 @@ namespace WtPrValue
 		inline constexpr int initial = 0; // 最大値
 	}
 
-	namespace Steps
+	namespace Resolution
 	{
-		// 0, +16, +32, +64, +128, +256, -16, -32, -64, -128, -256
-		inline constexpr int min = 0; // 最小値
-		inline constexpr int max = 10; // 最大値
-		inline constexpr int initial = 0; // 最大値
+		// 16, 32, 64, 128, 256
+		inline constexpr int min = 0;
+		inline constexpr int max = 4;
+		inline constexpr int initial = 0;
 	}
 
 	namespace WaveForm
@@ -97,9 +97,9 @@ namespace WtPrValue
 
 	namespace Custom
 	{
-		inline constexpr float min = -1.0f; // 最小値
-		inline constexpr float max = 1.0f;  // 最大値
-		inline constexpr float initial = 0.0f; // 初期値
+		inline constexpr int min = 0; // 最小値
+		inline constexpr int max = 255;  // 最大値
+		inline constexpr int initial = 0; // 初期値
 	}
 
 	namespace Mod

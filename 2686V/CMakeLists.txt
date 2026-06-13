@@ -247,6 +247,12 @@ set(WT_SYNTH_FILES
     "Source/Synth/Wavetable/SynthWtParams.h"
 )
 
+set(WT2_SYNTH_FILES
+    "Source/Synth/Wt2/SynthWt2.h"
+    "Source/Synth/Wt2/SynthWt2.cpp"
+    "Source/Synth/Wt2/SynthWt2Params.h"
+)
+
 set(RHYTHM_SYNTH_FILES
     "Source/Synth/Rhythm/SynthRhythm.h"
     "Source/Synth/Rhythm/SynthRhythm.cpp"
@@ -333,6 +339,14 @@ set(WT_PROCESSOR_FILES
     "Source/Processor/Wavetable/ProcessorWtValues.h"
     "Source/Processor/Wavetable/ProcessorWt.h"
     "Source/Processor/Wavetable/ProcessorWt.cpp"
+)
+
+set(WT2_PROCESSOR_FILES
+    "Source/Processor/Wt2/ProcessorWt2Keys.h"
+    "Source/Processor/Wt2/ProcessorWt2Names.h"
+    "Source/Processor/Wt2/ProcessorWt2Values.h"
+    "Source/Processor/Wt2/ProcessorWt2.h"
+    "Source/Processor/Wt2/ProcessorWt2.cpp"
 )
 
 set(RHYTHM_PROCESSOR_FILES
@@ -433,6 +447,15 @@ set(WT_GUI_FILES
     "Source/Gui/Wavetable/GuiWtValues.h"
     "Source/Gui/Wavetable/GuiWt.h"
     "Source/Gui/Wavetable/GuiWt.cpp"
+)
+
+set(WT2_GUI_FILES
+    "Source/Gui/Wt2/GuiWt2Helpers.h"
+    "Source/Gui/Wt2/GuiWt2Helpers.cpp"
+    "Source/Gui/Wt2/GuiWt2Text.h"
+    "Source/Gui/Wt2/GuiWt2Values.h"
+    "Source/Gui/Wt2/GuiWt2.h"
+    "Source/Gui/Wt2/GuiWt2.cpp"
 )
 
 set(RHYTHM_GUI_FILES
@@ -567,7 +590,8 @@ source_group("2686V\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
 source_group("2686V\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
 source_group("2686V\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
 source_group("2686V\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
-source_group("2686V\\Synth\\Wavetable" FILES ${WT_SYNTH_FILES})
+source_group("2686V\\Synth\\Wt" FILES ${WT_SYNTH_FILES})
+source_group("2686V\\Synth\\Wt2" FILES ${WT2_SYNTH_FILES})
 source_group("2686V\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
 source_group("2686V\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
 source_group("2686V\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
@@ -585,7 +609,8 @@ source_group("2686V\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
-source_group("2686V\\Processor\\Wavetable" FILES ${WT_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Wt" FILES ${WT_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Wt2" FILES ${WT2_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
@@ -609,7 +634,8 @@ source_group("2686V\\Gui\\Tab\\Opl3" FILES ${OPL3_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opm" FILES ${OPM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Ssg" FILES ${SSG_GUI_FILES})
-source_group("2686V\\Gui\\Tab\\Wavetable" FILES ${WT_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Wt" FILES ${WT_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Wt2" FILES ${WT2_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Rhythm" FILES ${RHYTHM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Adpcm" FILES ${ADPCM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Beep" FILES ${BEEP_GUI_FILES})

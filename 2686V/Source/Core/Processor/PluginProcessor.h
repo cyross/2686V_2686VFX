@@ -14,6 +14,7 @@
 #include "../../Processor/Opzx7/ProcessorOpzx7.h"
 #include "../../Processor/Ssg/ProcessorSsg.h"
 #include "../../Processor/Wavetable/ProcessorWt.h"
+#include "../../Processor/Wt2/ProcessorWt2.h"
 #include "../../Processor/Rhythm/ProcessorRhythm.h"
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Beep/ProcessorBeep.h"
@@ -199,7 +200,18 @@ public:
                 isLegato
             );
             break;
-		case OscMode::RHYTHM:
+        case OscMode::WT2:
+            voiceUnison(
+                currentParams->wt2.unisonVoices,
+                currentParams->wt2.unisonDetuneCents,
+                currentParams->wt2.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+        case OscMode::RHYTHM:
             voiceUnison(
                 currentParams->rhythm.unisonVoices,
                 currentParams->rhythm.unisonDetuneCents,
@@ -352,6 +364,17 @@ public:
                         true
                     );
                     break;
+                case OscMode::WT2:
+                    voiceUnison(
+                        currentParams->wt2.unisonVoices,
+                        currentParams->wt2.unisonDetuneCents,
+                        currentParams->wt2.unisonSpread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
                 case OscMode::RHYTHM:
                     voiceUnison(
                         currentParams->rhythm.unisonVoices,
@@ -424,6 +447,7 @@ private:
     Opzx7Processor prOpzx7;
     SsgProcessor prSsg;
     WtProcessor prWt;
+    Wt2Processor prWt2;
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;

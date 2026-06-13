@@ -27,6 +27,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::OPZX7] = &prOpzx7;
     prMap[OscMode::SSG] = &prSsg;
     prMap[OscMode::WAVETABLE] = &prWt;
+    prMap[OscMode::WT2] = &prWt2;
     prMap[OscMode::RHYTHM] = &prRhythm;
     prMap[OscMode::ADPCM] = &prAdpcm;
     prMap[OscMode::BEEP] = &prBeep;
@@ -45,6 +46,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     prOpzx7.init(apvts);
     prSsg.init(apvts);
     prWt.init(apvts);
+    prWt2.init(apvts);
     prRhythm.init(apvts);
     prAdpcm.init(apvts);
     prBeep.init(apvts);
@@ -91,7 +93,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:RHYTHM, 10:ADPCM. 11:FX, 12:PRESET, 13:SETTING, 14:ABOUT
+    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:WT2 10:RHYTHM, 11:ADPCM. 12:FX, 13:PRESET, 14:SETTING, 15:ABOUT
     layout.add(std::make_unique<juce::AudioParameterInt>(CorePrKey::mode, CorePrName::mode, 0, CoreGuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
@@ -102,7 +104,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prOpzx7.createLayout(layout);
 	prSsg.createLayout(layout);
 	prWt.createLayout(layout);
-	prRhythm.createLayout(layout);
+    prWt2.createLayout(layout);
+    prRhythm.createLayout(layout);
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
 	prFx.createLayout(layout);
@@ -838,6 +841,7 @@ void AudioPlugin2686V::initPreset()
 
     for (int i = 0; i < 4; i++) {
         unloadOpzx7PcmFile(i);
+        unloadOpzx7WtFile(i);
     }
 }
 
@@ -869,6 +873,7 @@ void AudioPlugin2686V::initParams(const juce::String& code)
     if (code == "OPZX7_") {
         for (int i = 0; i < 4; i++) {
             unloadOpzx7PcmFile(i);
+            unloadOpzx7WtFile(i);
         }
     }
 }
@@ -925,6 +930,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
     case OscMode::OPZX7:     prOpzx7.processBlock(m_previewParams, apvts); break;
     case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
     case OscMode::WAVETABLE: prWt.processBlock(m_previewParams, apvts); break;
+    case OscMode::WT2:       prWt2.processBlock(m_previewParams, apvts); break;
     case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
     case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
     case OscMode::BEEP:      prBeep.processBlock(m_previewParams, apvts); break;

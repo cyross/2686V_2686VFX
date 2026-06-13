@@ -713,6 +713,18 @@ void GuiWt::setup()
         tabOrder
     );
 
+    waveFileCat.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleWaveFile, .invisibleTitle = WtGuiText::Category::invisibleWaveFile, .enableChangeDetailVisible = true });
+
+    customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveImportBtn.setWantsKeyboardFocus(true);
+    customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveImportBtn.onClick = [this] { importWavetable(); };
+
+    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveExportBtn.setWantsKeyboardFocus(true);
+    customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
+    customWaveExportBtn.onClick = [this] { exportWavetable(); };
+
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     // Custom Wave Group
@@ -768,18 +780,6 @@ void GuiWt::setup()
         else if (sizeId == 3) customSliders128.applySmoothing();
         else if (sizeId == 4) customSliders256.applySmoothing();
         };
-
-    waveFileCat.setup({ .parent = *this, .title = WtGuiText::Category::visibleWaveFile, .invisibleTitle = WtGuiText::Category::invisibleWaveFile, .enableChangeDetailVisible = true });
-
-    customWaveImportBtn.setup({ .parent = *this, .title = WtGuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
-    customWaveImportBtn.setWantsKeyboardFocus(true);
-    customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
-    customWaveImportBtn.onClick = [this] { importWavetable(); };
-
-    customWaveExportBtn.setup({ .parent = *this, .title = WtGuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
-    customWaveExportBtn.setWantsKeyboardFocus(true);
-    customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
-    customWaveExportBtn.onClick = [this] { exportWavetable(); };
 
     applySteps();
 

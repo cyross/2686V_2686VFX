@@ -70,6 +70,15 @@ namespace GuiColor {
 			static inline const juce::Colour M01 = juce::Colours::black.withAlpha(0.7f);
 		}
 	};
+	namespace Waveform2Container {
+		static inline const juce::Colour Track = juce::Colours::white.withAlpha(0.5f);
+		static inline const juce::Colour Thumb = juce::Colour::fromRGB(0x8, 0x8, 0xB3);
+		namespace ResetBtn {
+			static inline const juce::Colour ToCenter = juce::Colours::green.withAlpha(0.7f);
+			static inline const juce::Colour ToMax = juce::Colours::red.withAlpha(0.7f);
+			static inline const juce::Colour To0 = juce::Colours::blue.withAlpha(0.7f);
+		}
+	};
 	namespace Settings {
 		static inline const juce::Colour SaveAsDefaultBtnBg = juce::Colours::green.withAlpha(0.5f);
 	};
