@@ -174,8 +174,17 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> ksCat;
     std::array<GuiToggleButton, Opzx7PrValue::ops> ksEn;
-    std::array<GuiToggleButton, Opzx7PrValue::ops> ksr;
-    std::array<GuiComboBox, Opzx7PrValue::ops> ksl;
+    std::array<GuiComboBox, Opzx7PrValue::ops> ksMode;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> ksrMA7;
+    std::array<GuiComboBox, Opzx7PrValue::ops> kslMA7;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> ksrOPZ;
+    std::array<GuiComboBox, Opzx7PrValue::ops> kslOPZ;
+    std::array<GuiSlider, Opzx7PrValue::ops> ksBp;
+    std::array<GuiComboBox, Opzx7PrValue::ops> ksLc;
+    std::array<GuiComboBox, Opzx7PrValue::ops> ksRc;
+    std::array<GuiSlider, Opzx7PrValue::ops> ksLd;
+    std::array<GuiSlider, Opzx7PrValue::ops> ksRd;
+    std::array<GuiSlider, Opzx7PrValue::ops> ksRs;
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catOptional;
     std::array<GuiToggleButton, Opzx7PrValue::ops> bypass;
@@ -274,8 +283,17 @@ public:
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ksEn{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        ksr{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        ksl{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksMode{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksrMA7{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        kslMA7{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksrOPZ{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        kslOPZ{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksBp{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ksLc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksRc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksLd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ksRd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ksRs{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },

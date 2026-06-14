@@ -7,6 +7,7 @@
 
 #include "../../Processor/Opzx7/ProcessorOpzx7Keys.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
 
@@ -118,13 +119,6 @@ static std::vector<SelectItem> multems = {
     { .name = "21: Use Ratio", .value = 22 }
 };
 
-static std::vector<SelectItem> kslItems = {
-    {.name = "KSL: 0 OFF",         .value = 1},
-    {.name = "KSL: 1 (1.5dB/oct)", .value = 2},
-    {.name = "KSL: 2 (3.0dB/oct)", .value = 3},
-    {.name = "KSL: 3 (6.0db/oct)", .value = 4}
-};
-
 static std::vector<SelectItem> lfoShapeItems = {
     {.name = "0: Sine",                .value = 1 },
     {.name = "1: Saw Up",              .value = 2 },
@@ -222,6 +216,37 @@ static std::vector<SelectItem> opzx7WsItems = {
     {.name = "70 [EX038]Cubic Triangle",            .value = 71},
     {.name = "71 [EX039]Inverse Circle",            .value = 72},
     {.name = "72 [EX040]Exponential Spike",         .value = 73},
+};
+
+static std::vector<SelectItem> ksModeItems = {
+    {.name = "0: MA7", .value = 1 },
+    {.name = "1: OPZ", .value = 2 },
+    {.name = "2: OPS", .value = 3 }
+};
+
+static std::vector<SelectItem> kslMA7Items = {
+    {.name = "KSL: 0 OFF",         .value = 1},
+    {.name = "KSL: 1 (1.5dB/oct)", .value = 2},
+    {.name = "KSL: 2 (3.0dB/oct)", .value = 3},
+    {.name = "KSL: 3 (6.0db/oct)", .value = 4}
+};
+
+static std::vector<SelectItem> kslOPZItems = {
+    {.name = "KSL: 0 OFF",         .value = 1},
+    {.name = "KSL: 1 (1.5dB/oct)", .value = 2},
+    {.name = "KSL: 2 (3.0dB/oct)", .value = 3},
+    {.name = "KSL: 3 (4.5db/oct)", .value = 4},
+    {.name = "KSL: 4 (6.0db/oct)", .value = 5},
+    {.name = "KSL: 5 (7.5dB/oct)", .value = 6},
+    {.name = "KSL: 6 (9.0dB/oct)", .value = 7},
+    {.name = "KSL: 7 (12.0db/oct)", .value = 8}
+};
+
+static std::vector<SelectItem> ksCurveItems = {
+    {.name = "0: -LIN", .value = 1 },
+    {.name = "1: -EXP", .value = 2 },
+    {.name = "2: +EXP", .value = 3 },
+    {.name = "3: +LIN", .value = 4 }
 };
 
 void GuiOpzx7::setup()
@@ -444,13 +469,52 @@ void GuiOpzx7::setup()
         ksEn[i].setWantsKeyboardFocus(true);
         ksEn[i].setExplicitFocusOrder(++tabOrder);
 
-        ksr[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksr, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
-        ksr[i].setWantsKeyboardFocus(true);
-        ksr[i].setExplicitFocusOrder(++tabOrder);
+        ksMode[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksMode, .title = "Mode", .items = ksModeItems, .isReset = true });
+        ksMode[i].setWantsKeyboardFocus(true);
+        ksMode[i].setExplicitFocusOrder(++tabOrder);
+        ksMode[i].onChange = [this]() {
+            ctx.editor.resized();
+            };
 
-        ksl[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksl, .title = Opzx7GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
-        ksl[i].setWantsKeyboardFocus(true);
-        ksl[i].setExplicitFocusOrder(++tabOrder);
+        ksrMA7[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksrMA7, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
+        ksrMA7[i].setWantsKeyboardFocus(true);
+        ksrMA7[i].setExplicitFocusOrder(++tabOrder);
+
+        kslMA7[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::kslMA7, .title = Opzx7GuiText::Fm::Op::Ksl, .items = kslMA7Items, .isReset = true });
+        kslMA7[i].setWantsKeyboardFocus(true);
+        kslMA7[i].setExplicitFocusOrder(++tabOrder);
+
+        ksrOPZ[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksrOPZ, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
+        ksrOPZ[i].setWantsKeyboardFocus(true);
+        ksrOPZ[i].setExplicitFocusOrder(++tabOrder);
+
+        kslOPZ[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::kslOPZ, .title = Opzx7GuiText::Fm::Op::Ksl, .items = kslOPZItems, .isReset = true });
+        kslOPZ[i].setWantsKeyboardFocus(true);
+        kslOPZ[i].setExplicitFocusOrder(++tabOrder);
+
+        ksBp[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksBp, .title = "B.P", .isReset = true});
+        ksBp[i].setWantsKeyboardFocus(true);
+        ksBp[i].setExplicitFocusOrder(++tabOrder);
+
+        ksLc[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksLc, .title = "L.Cur", .items = ksCurveItems, .isReset = true});
+        ksLc[i].setWantsKeyboardFocus(true);
+        ksLc[i].setExplicitFocusOrder(++tabOrder);
+
+        ksRc[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksRc, .title = "R.Cur", .items = ksCurveItems, .isReset = true });
+        ksRc[i].setWantsKeyboardFocus(true);
+        ksRc[i].setExplicitFocusOrder(++tabOrder);
+
+        ksLd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksLd, .title = "L.Dep", .isReset = true });
+        ksLd[i].setWantsKeyboardFocus(true);
+        ksLd[i].setExplicitFocusOrder(++tabOrder);
+
+        ksRd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksRd, .title = "R.Dep", .isReset = true });
+        ksRd[i].setWantsKeyboardFocus(true);
+        ksRd[i].setExplicitFocusOrder(++tabOrder);
+
+        ksRs[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksRs, .title = "R.SC", .isReset = true});
+        ksRs[i].setWantsKeyboardFocus(true);
+        ksRs[i].setExplicitFocusOrder(++tabOrder);
 
         sus[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::sus, .title = Opzx7GuiText::Fm::Op::sus, .isReset = true });
         sus[i].setWantsKeyboardFocus(true);
@@ -813,7 +877,6 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
         { mmlPrefixDto,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertFmDtOpzx7(v), juce::sendNotification); } },
         { mmlPrefixDt2,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
         { mmlPrefixDtt,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
-        { mmlPrefixKs,   [&](int v) { ksl[opIndex].setSelectedItemIndex(RegisterConverter::convertFmKs(v), juce::sendNotification); } },
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
@@ -887,8 +950,22 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     d2r[idx].setEnabledWithLabel(enable);
     tl[idx].setEnabledWithLabel(enable);
     ksEn[idx].setEnabled(enable);
-    ksr[idx].setEnabled(enable);
-    ksl[idx].setEnabledWithLabel(enable);
+    ksrMA7[idx].setEnabled(enable);
+    kslMA7[idx].setEnabledWithLabel(enable);
+    ksrOPZ[idx].setEnabled(enable);
+    kslOPZ[idx].setEnabledWithLabel(enable);
+    ksBp[idx].setEnabled(enable);
+    ksBp[idx].setEnabledWithLabel(enable);
+    ksLc[idx].setEnabled(enable);
+    ksLc[idx].setEnabledWithLabel(enable);
+    ksRc[idx].setEnabled(enable);
+    ksRc[idx].setEnabledWithLabel(enable);
+    ksLd[idx].setEnabled(enable);
+    ksLd[idx].setEnabledWithLabel(enable);
+    ksRd[idx].setEnabled(enable);
+    ksRd[idx].setEnabledWithLabel(enable);
+    ksRs[idx].setEnabled(enable);
+    ksRs[idx].setEnabledWithLabel(enable);
     se[idx].setEnabledWithLabel(enable);
     seFreq[idx].setEnabledWithLabel(enable);
     catOptional[idx].setEnabled(enable);
@@ -1098,7 +1175,7 @@ void GuiOpzx7::copyFmParamsToString()
     auto formatOpExt = [this](int index) {
         // ' MUL AR DR SL RR TL KSR KSL
         return juce::String::formatted(
-            u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d KSR%d KSL%d\n",
+            u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d\n",
             (int)this->mul[index].getSelectedId() - 1,
             this->dt1[index].getValue(),
             (int)this->dt2[index].getValue(),
@@ -1107,9 +1184,7 @@ void GuiOpzx7::copyFmParamsToString()
             (int)this->rgD1l[index].getValue(),
             (int)this->rgD2r[index].getValue(),
             (int)this->rgRr[index].getValue(),
-            (int)this->rgTl[index].getValue(),
-            this->ksr[index].getToggleState() ? 1 : 0,
-            this->ksl[index].getSelectedId() - 1
+            (int)this->rgTl[index].getValue()
         );
         };
     auto formatOpsExt = [this, formatOpExt]() {
@@ -1272,18 +1347,47 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
     layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
 
     bool visible = ksCat[opIndex].isDetailVisible();
+    KeyScaleMode mode = (KeyScaleMode)(ksMode[opIndex].getSelectedItemIndex());
 
     ksEn[opIndex].setVisible(visible && !rgMode);
-    ksl[opIndex].setVisibleWithLabel(visible);
-    ksl[opIndex].setVisibleWithLabel(visible);
+    ksMode[opIndex].setVisibleWithLabel(visible);
+    ksrMA7[opIndex].setVisible(visible && mode == KeyScaleMode::MA7);
+    kslMA7[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::MA7);
+    ksrOPZ[opIndex].setVisible(visible && mode == KeyScaleMode::OPZ);
+    kslOPZ[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPZ);
+    ksBp[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksBp[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksLc[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksRc[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksLd[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksRd[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksRs[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
 
     if (visible) {
         if (!rgMode) {
             layoutRow({ .rowRect = rect, .component = &ksEn[opIndex] });
         }
 
-        layoutRow({ .rowRect = rect, .component = &ksr[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ksl[opIndex].label, .component = &ksl[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ksMode[opIndex].label, .component = &ksMode[opIndex] });
+
+        switch (mode) {
+        case KeyScaleMode::MA7:
+            layoutRow({ .rowRect = rect, .component = &ksrMA7[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &kslMA7[opIndex].label, .component = &kslMA7[opIndex] });
+            break;
+        case KeyScaleMode::OPZ:
+            layoutRow({ .rowRect = rect, .component = &ksrOPZ[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &kslOPZ[opIndex].label, .component = &kslOPZ[opIndex] });
+            break;
+        case KeyScaleMode::OPS:
+            layoutRow({ .rowRect = rect, .label = &ksBp[opIndex].label, .component = &ksBp[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksLc[opIndex].label, .component = &ksLc[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksRc[opIndex].label, .component = &ksRc[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksLd[opIndex].label, .component = &ksLd[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksRd[opIndex].label, .component = &ksRd[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksRs[opIndex].label, .component = &ksRs[opIndex] });
+            break;
+        }
     }
 }
 

@@ -29,72 +29,87 @@ struct Opzx7RgAdssr
 class Opzx7Adddr
 {
 	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
-	State state = State::Idle;
+	State m_state = State::Idle;
 
-	bool rgEnable = false;
+	bool m_rgEnable = false;
 
-	Opzx7RealAdssrParams real;
-	Opzx7RgAdssrParams rg;
-	Opzx7RgAdssrParams rgMax;
+	Opzx7RealAdssrParams m_real;
+	Opzx7RgAdssrParams m_rg;
+	Opzx7RgAdssrParams m_rgMax;
 
-	static const std::array<float, 4> dbPerOcts; // KSLの減衰カーブ定義
+	static const std::array<float, 4> m_dbPerOctsMA7; // KSLの減衰カーブ定義
+	static const std::array<float, 8> m_dbPerOctsOPZ;
+
 	std::array<float, 64> timeInSecondsLut;
 	std::array<float, 64> attcckTimeInSecondsLut;
 
-	bool ksr = false;
-	int ksl = 0;
-	bool ksEn = false;
-	bool sus = false;
-	bool xof = false;
-	bool kor = false;
-	bool bypass = false;
+	bool m_ksEn = false;
+	KeyScaleMode m_ksMode = KeyScaleMode::MA7;
+	bool m_ksrMA7 = false;
+	int m_kslMA7 = 0;
+	bool m_ksrOPZ = false;
+	int m_kslOPZ = 0;
+	int m_ksBp = 60;
+	int m_ksLc = 0;
+	int m_ksRc = 0;
+	float m_ksLd = 0.0f;
+	float m_ksRd = 0.0f;
+	int m_ksRs = 0;
 
-	double sampleRate = 44100.0; // DAW Host Sample Rate
+	bool m_sus = false;
+	bool m_xof = false;
+	bool m_kor = false;
+	bool m_bypass = false;
 
-	float totalLevel = 0.0f;
+	double m_sampleRate = 44100.0; // DAW Host Sample Rate
 
-	float attackInc = 0.0f;
-	float decayDec = 0.0f;
-	float sustainRateDec = 0.0f;
-	float susReleaseDec = 0.0f;
-	float releaseDec = 0.0f;
-	float currentReleaseDec = 0.0f;
+	float m_totalLevel = 0.0f;
+
+	float m_attackInc = 0.0f;
+	float m_decayDec = 0.0f;
+	float m_sustainRateDec = 0.0f;
+	float m_susReleaseDec = 0.0f;
+	float m_releaseDec = 0.0f;
+	float m_currentReleaseDec = 0.0f;
 	float m_attackStartLevel = 0.0f; // アタック開始時のレベル
-	float releaseTimeInc = 0.0f;
+	float m_releaseTimeInc = 0.0f;
 
 	// rrが無限大のとき、ストッパーの役目を果たす
-	int releaseCounter = 0;
+	int m_releaseCounter = 0;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
 	inline float getReleaseDec() const
 	{
-		if (sus) {
-			return susReleaseDec;
+		if (m_sus) {
+			return m_susReleaseDec;
 		}
 		else {
-			return releaseDec;
+			return m_releaseDec;
 		}
 	}
 
 	int m_noteNumber = 60; // C3
 
 	// カーブモード用の変数
-	int positionIndex = 1; // 1,2,3,4
+	int m_positionIndex = 1; // 1,2,3,4
 	CurveCore* m_curveCore = nullptr;
 
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+
+	int calcRateScaling() const;
+	float calcLevelScalingDb() const;
 public:
 	Opzx7Adddr();
 	void prepare(int posIndex, double sampleRate);
 	void updateSampleRate(double newSampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	bool isBypass() const { return bypass; }
-	bool isPlaying() const { return state != State::Idle; }
-	bool isIdle() const { return state == State::Idle; }
-	bool isRelease() const { return state == State::Release; }
+	bool isBypass() const { return m_bypass; }
+	bool isPlaying() const { return m_state != State::Idle; }
+	bool isIdle() const { return m_state == State::Idle; }
+	bool isRelease() const { return m_state == State::Release; }
 	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const Opzx7AdddrParams& params);
 	float noteOn(float velocity);

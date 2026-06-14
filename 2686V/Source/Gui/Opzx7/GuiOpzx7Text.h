@@ -99,9 +99,16 @@ namespace Opzx7GuiText
 			static inline const juce::String Dt1 = u8"Dt1";
 			static inline const juce::String Dt2 = u8"Dt2";
 			static inline const juce::String Dt3 = u8"Dt3";
+			static inline const juce::String KsEn = u8"Enable";
+			static inline const juce::String KsMode = u8"Mode";
 			static inline const juce::String Ksr = u8"Ksr";
 			static inline const juce::String Ksl = u8"Ksl";
-			static inline const juce::String KsEn = u8"KsEn";
+			static inline const juce::String KsBp = u8"KsBp";
+			static inline const juce::String KsLc = u8"KsLc";
+			static inline const juce::String KsRc = u8"KsRc";
+			static inline const juce::String KsLd = u8"KsLd";
+			static inline const juce::String KsRd = u8"KsRd";
+			static inline const juce::String KsRs = u8"KsRs";
 			static inline const juce::String Mask = u8"Mask";
 			static inline const juce::String Fix = u8"Enable";
 			static inline const juce::String FFreq = u8"Freq";

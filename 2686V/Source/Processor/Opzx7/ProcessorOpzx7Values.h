@@ -133,21 +133,82 @@ namespace Opzx7PrValue
 			inline constexpr int initial = CorePrValue::Opzx7Detune::Dt3::initial;
 		}
 
-		namespace Ksr
+		namespace KsEn
 		{
 			inline constexpr bool initial = false;
 		}
 
-		namespace Ksl
+		namespace KsMode
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 2;
+			inline constexpr int initial = 0;
+		}
+
+		namespace KsMA7
+		{
+			inline constexpr bool initial = false;
+		}
+
+		namespace KslMA7
 		{
 			inline constexpr int min = 0; // 最小値
 			inline constexpr int max = 3; // 最大値
 			inline constexpr int initial = 0; // 最大値
 		}
 
-		namespace KsEn
+		namespace KsOPZ
 		{
 			inline constexpr bool initial = false;
+		}
+
+		namespace KslOPZ
+		{
+			inline constexpr int min = 0; // 最小値
+			inline constexpr int max = 7; // 最大値
+			inline constexpr int initial = 0; // 最大値
+		}
+
+		namespace KsBp
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 127;
+			inline constexpr int initial = 60;
+		}
+
+		namespace KsLc
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
+
+		namespace KsRc
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
+
+		namespace KsLd
+		{
+			inline constexpr float min = 0.0;
+			inline constexpr float max = 1.0;
+			inline constexpr float initial = 0.0;
+		}
+
+		namespace KsRd
+		{
+			inline constexpr float min = 0.0;
+			inline constexpr float max = 1.0;
+			inline constexpr float initial = 0.0;
+		}
+
+		namespace KsRs
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 7;
+			inline constexpr int initial = 0;
 		}
 
 		namespace Se
