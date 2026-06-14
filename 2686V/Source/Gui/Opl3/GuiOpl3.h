@@ -75,6 +75,8 @@ class GuiOpl3 : public GuiBase
     std::array<GuiToggleButton, Opl3PrValue::ops> am;
     std::array<GuiToggleButton, Opl3PrValue::ops> vib;
     std::array<GuiToggleButton, Opl3PrValue::ops> egType;
+
+    std::array<GuiCategoryLabel, Opl3PrValue::ops> ksCat;
     std::array<GuiToggleButton, Opl3PrValue::ops> ksr;
     std::array<GuiComboBox, Opl3PrValue::ops> ksl; // Key Scale Level
 
@@ -144,6 +146,7 @@ public:
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         egType{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ksr{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         ksl{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
@@ -200,6 +203,7 @@ public:
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

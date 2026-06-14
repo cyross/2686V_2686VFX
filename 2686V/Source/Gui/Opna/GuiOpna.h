@@ -94,7 +94,10 @@ class GuiOpna : public GuiBase
 
     std::array<GuiComboBox, OpnaPrValue::ops> mul;
     std::array<GuiComboBox, OpnaPrValue::ops> dt;
+
+    std::array<GuiCategoryLabel, OpnaPrValue::ops> ksCat;
     std::array<GuiComboBox, OpnaPrValue::ops> ks;
+
     std::array<GuiCategoryLabel, OpnaPrValue::ops> catSsgEnv;
     std::array<GuiComboBox, OpnaPrValue::ops> se;
     std::array<GuiSlider, OpnaPrValue::ops> seFreq;
@@ -180,6 +183,7 @@ public:
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -243,6 +247,7 @@ public:
     void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

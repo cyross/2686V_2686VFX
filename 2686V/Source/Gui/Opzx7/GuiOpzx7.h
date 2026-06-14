@@ -168,9 +168,12 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Opzx7PrValue::ops> d1l;
     std::array<GuiSlider, Opzx7PrValue::ops> d2r;
     std::array<GuiSlider, Opzx7PrValue::ops> rr;
+
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> ksCat;
     std::array<GuiToggleButton, Opzx7PrValue::ops> ksEn;
     std::array<GuiToggleButton, Opzx7PrValue::ops> ksr;
     std::array<GuiComboBox, Opzx7PrValue::ops> ksl;
+
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catOptional;
     std::array<GuiToggleButton, Opzx7PrValue::ops> bypass;
     std::array<GuiComponentFix, Opzx7PrValue::ops> fix;
@@ -264,6 +267,7 @@ public:
         d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ksEn{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         ksr{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         ksl{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -359,6 +363,7 @@ public:
     void layoutPanpotCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

@@ -21,6 +21,8 @@ namespace Opzx7GuiText
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG HW ENV ---";
 		static inline const juce::String invisibleSsgEnv = u8"[□]--- SSG HW ENV ---";
+		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
+		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String visiblePanpot = u8"[■]--- PANPOT ---";

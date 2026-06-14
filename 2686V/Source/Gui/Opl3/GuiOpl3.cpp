@@ -201,6 +201,8 @@ void GuiOpl3::setup()
         egType[i].setWantsKeyboardFocus(true);
         egType[i].setExplicitFocusOrder(++tabOrder);
 
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleKs, .invisibleTitle = Opl3GuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+
         ksr[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::ksr, .title = Opl3GuiText::Fm::Op::Ksr, .isReset = true });
         ksr[i].setWantsKeyboardFocus(true);
         ksr[i].setExplicitFocusOrder(++tabOrder);
@@ -387,10 +389,11 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
         layoutRow({ .rowRect = innerRect, .component = &egType[i] });
-        layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
+
         layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
         layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
+
+        layoutOpKsCat(i, innerRect);
 
         layoutOpOptionalCat(i, innerRect);
 
@@ -721,6 +724,20 @@ void GuiOpl3::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .component = &pmsTo64[opIndex] });
         layoutRow({ .rowRect = rect, .label = &pmd[opIndex].label, .component = &pmd[opIndex] });
         layoutRowTwoComps({ .rect = rect, .comp1 = &pmdTo7[opIndex], .comp2 = &pmdTo14[opIndex] });
+    }
+}
+
+void GuiOpl3::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
+
+    bool visible = ksCat[opIndex].isDetailVisible();
+
+    ksr[opIndex].setVisible(visible);
+    ksl[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .component = &ksr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ksl[opIndex].label, .component = &ksl[opIndex] });
     }
 }
 

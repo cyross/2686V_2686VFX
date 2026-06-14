@@ -102,6 +102,8 @@ class GuiOpm : public GuiBase
     std::array<GuiComboBox, OpmPrValue::ops> mul;
     std::array<GuiSlider, OpmPrValue::ops> dt1;
     std::array<GuiSlider, OpmPrValue::ops> dt2;
+
+    std::array<GuiCategoryLabel, OpmPrValue::ops> ksCat;
     std::array<GuiComboBox, OpmPrValue::ops> ks;
 
     // Pitch ADSR
@@ -179,6 +181,7 @@ public:
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
@@ -228,6 +231,7 @@ public:
     void layoutHwLfoCat(juce::Rectangle<int>& rect);
     void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

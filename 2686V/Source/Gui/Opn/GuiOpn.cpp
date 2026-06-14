@@ -274,6 +274,8 @@ void GuiOpn::setup()
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpnGuiText::Category::visibleKs, .invisibleTitle = OpnGuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+
         ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpnPrKey::ks, .title = OpnGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
@@ -410,7 +412,8 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
         layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
-        layoutRow({ .rowRect = innerRect, .label = &ks[i].label, .component = &ks[i] });
+
+        layoutOpKsCat(i, innerRect);
 
         layoutOpOptionalCat(i, innerRect);
 
@@ -737,6 +740,18 @@ void GuiOpn::layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .label = &n88Ams[opIndex].label, .component = &n88Ams[opIndex] });
+    }
+}
+
+void GuiOpn::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
+
+    bool visible = ksCat[opIndex].isDetailVisible();
+
+    ks[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &ks[opIndex].label, .component = &ks[opIndex] });
     }
 }
 

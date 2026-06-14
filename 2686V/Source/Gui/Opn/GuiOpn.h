@@ -86,6 +86,8 @@ class GuiOpn : public GuiBase
 
     std::array<GuiComboBox, OpnPrValue::ops> mul;
     std::array<GuiComboBox, OpnPrValue::ops> dt;
+
+    std::array<GuiCategoryLabel, OpnPrValue::ops> ksCat;
     std::array<GuiComboBox, OpnPrValue::ops> ks; // Key Scale (0-3)
 
     std::array<GuiScrollGroup, OpnPrValue::ops> opGroups;
@@ -159,6 +161,7 @@ public:
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
@@ -210,6 +213,7 @@ public:
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
 };

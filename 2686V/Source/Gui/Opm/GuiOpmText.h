@@ -18,6 +18,8 @@ namespace OpmGuiText
 		static inline const juce::String invisibileHwLfo = u8"[□]--- HW LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
+		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
+		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";

@@ -427,6 +427,8 @@ void GuiOpzx7::setup()
         tl[i].setWantsKeyboardFocus(true);
         tl[i].setExplicitFocusOrder(++tabOrder);
 
+        ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleKs, .invisibleTitle = Opzx7GuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
+
         ksEn[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksEn, .title = Opzx7GuiText::Fm::Op::KsEn, .isReset = true });
         ksEn[i].setWantsKeyboardFocus(true);
         ksEn[i].setExplicitFocusOrder(++tabOrder);
@@ -721,10 +723,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
             layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
             layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
             layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
-            layoutRow({ .rowRect = innerRect, .component = &ksEn[i] });
         }
-        layoutRow({ .rowRect = innerRect, .component = &ksr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &ksl[i].label, .component = &ksl[i] });
+
         layoutRow({ .rowRect = innerRect, .component = &sus[i] });
         layoutRow({ .rowRect = innerRect, .component = &xof[i] });
         layoutRow({ .rowRect = innerRect, .component = &kor[i] });
@@ -748,6 +748,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         {
             layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWt2Btn[i], .pcmFileNameLabel = &wt2FileNameLabel[i], .clearPcmBtn = &clearWt2Btn[i] });
         }
+
+        layoutOpKsCat(i, innerRect, rgMode);
 
         layoutOpOptionalCat(i, innerRect);
 
@@ -1237,6 +1239,25 @@ void GuiOpzx7::setupGraph(int opIndex)
 
     addAndMakeVisible(graphSeparator[opIndex]);
     graphSeparator[opIndex].setup({.lineThick = 2.0f, .lineColour = juce::Colours::grey});
+}
+
+void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode) {
+    layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
+
+    bool visible = ksCat[opIndex].isDetailVisible();
+
+    ksEn[opIndex].setVisible(visible && !rgMode);
+    ksl[opIndex].setVisibleWithLabel(visible);
+    ksl[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        if (!rgMode) {
+            layoutRow({ .rowRect = rect, .component = &ksEn[opIndex] });
+        }
+
+        layoutRow({ .rowRect = rect, .component = &ksr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ksl[opIndex].label, .component = &ksl[opIndex] });
+    }
 }
 
 void GuiOpzx7::setGraphMode(int opIndex, GraphMode mode)
