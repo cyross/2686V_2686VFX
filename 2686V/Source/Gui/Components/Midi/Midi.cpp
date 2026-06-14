@@ -32,10 +32,20 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     parent.addAndMakeVisible(resetSeparator);
     resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    resetButton.setup(GuiTextButton::Config{ .parent = parent, .title = "Reset", .isReset = false });
-    resetButton.setWantsKeyboardFocus(true);
-    resetButton.setExplicitFocusOrder(++tabOrder);
-    resetButton.onClick = [this] {
+    monoButton.setup(GuiTextButton::Config{ .parent = parent, .title = "-> Monophonic", .isReset = false });
+    monoButton.setWantsKeyboardFocus(true);
+    monoButton.setExplicitFocusOrder(++tabOrder);
+    monoButton.onClick = [this] {
+        monoMode.setToggleState(true, juce::NotificationType::sendNotification);
+        useVelocity.setToggleState(true, juce::NotificationType::sendNotification);
+        fixedVelocity.setValue(1.0f, juce::NotificationType::sendNotification);
+        pitchResetOnLegato.setToggleState(true, juce::NotificationType::sendNotification);
+        };
+
+    polyButton.setup(GuiTextButton::Config{ .parent = parent, .title = "-> Polyphonic", .isReset = false });
+    polyButton.setWantsKeyboardFocus(true);
+    polyButton.setExplicitFocusOrder(++tabOrder);
+    polyButton.onClick = [this] {
         monoMode.setToggleState(false, juce::NotificationType::sendNotification);
         useVelocity.setToggleState(false, juce::NotificationType::sendNotification);
         fixedVelocity.setValue(0.5f, juce::NotificationType::sendNotification);
@@ -54,7 +64,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
     resetSeparator.setVisible(visible);
-    resetButton.setVisible(visible);
+    monoButton.setVisible(visible);
+    polyButton.setVisible(visible);
 
     if (visible)
     {
@@ -63,7 +74,8 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutMain({ .mainRect = rect, .component = &pitchResetOnLegato });
         layoutMain({ .mainRect = rect, .component = &resetSeparator });
-        layoutMain({ .mainRect = rect, .component = &resetButton });
+        layoutMain({ .mainRect = rect, .component = &monoButton });
+        layoutMain({ .mainRect = rect, .component = &polyButton });
     }
 }
 
@@ -78,7 +90,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
     resetSeparator.setVisible(visible);
-    resetButton.setVisible(visible);
+    monoButton.setVisible(visible);
+    polyButton.setVisible(visible);
 
     if (visible)
     {
@@ -87,7 +100,8 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutRow({ .rowRect = rect, .component = &pitchResetOnLegato });
         layoutRow({ .rowRect = rect, .component = &resetSeparator });
-        layoutRow({ .rowRect = rect, .component = &resetButton });
+        layoutRow({ .rowRect = rect, .component = &monoButton });
+        layoutRow({ .rowRect = rect, .component = &polyButton });
     }
 }
 
@@ -98,4 +112,6 @@ void GuiComponentMidi::setEnables(bool enabled)
     fixedVelocity.setEnabled(enabled);
     fixedVelocity.label.setEnabled(enabled);
     pitchResetOnLegato.setEnabled(enabled);
+    monoButton.setEnabled(enabled);
+    polyButton.setEnabled(enabled);
 }
