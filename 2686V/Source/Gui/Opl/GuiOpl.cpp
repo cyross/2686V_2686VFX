@@ -135,7 +135,19 @@ void GuiOpl::setup()
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
-    initCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Category::visibleInitialize, .invisibleTitle = OplGuiText::Category::invisibleInitialize, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Category::visibleUtil, .invisibleTitle = OplGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
     initLfoToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Fm::initLfoToOpl });
     initLfoToOplBtn.setWantsKeyboardFocus(true);
@@ -162,6 +174,15 @@ void GuiOpl::setup()
             pms[i].setValue(6.06, juce::sendNotification);
             pmd[i].setValue(13.7, juce::sendNotification);
         }
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyOpParamToOpl3Btn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3" });
+    copyOpParamToOpl3Btn.setWantsKeyboardFocus(true);
+    copyOpParamToOpl3Btn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamToOpl3Btn.onClick = [this] {
         };
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
@@ -391,13 +412,13 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
-    layoutInitializeCat(mRect);
-
     unisonComponent.layoutComponent(mRect);
 
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
 
@@ -734,19 +755,34 @@ void GuiOpl::layoutQualityCat(juce::Rectangle<int>& rect) {
     }
 }
 
-void GuiOpl::layoutInitializeCat(Rectangle<int>& rect)
+void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
 {
-    layoutMainCategory({ .mainRect = rect, .label = &initCat });
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
 
-    bool visible = initCat.isDetailVisible();
+    bool visible = utilityCat.isDetailVisible();
 
+    broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
     initLfoToOplBtn.setVisible(visible);
     initLfoToOpllBtn.setVisible(visible);
+    uSep002.setVisible(false);
+    copyOpParamToOpl3Btn.setVisible(false);
 
     if (visible)
     {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
         layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
         layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
+/*
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl3Btn });
+*/
     }
 }
 
@@ -1055,4 +1091,8 @@ void GuiOpl::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
+}
+
+void GuiOpl::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

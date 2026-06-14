@@ -365,6 +365,17 @@ void GuiRhythm::setup()
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleUtil, .invisibleTitle = RhythmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
     // Setup Pads
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
@@ -415,6 +426,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    layoutUtilityCat(mRect);
+
     int usedHeight = 2000 - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
@@ -426,6 +439,20 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // Remaining area for 8 pads
     applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);
     applyPads(bottomPadsArea, bottomPadsArea.getWidth() / 4, 4, 4);
+}
+
+void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+    }
 }
 
 void GuiRhythm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
@@ -492,4 +519,8 @@ void GuiRhythm::initParams()
         this->ctx.audioProcessor.unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);
     }
+}
+
+void GuiRhythm::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

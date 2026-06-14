@@ -83,6 +83,14 @@ class GuiOpna : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton copyParamsToOpnBtn;
+    GuiSeparator uSep002;
+    GuiSlider copyHwLfoFromSlider;
+    GuiTextButton copyHwLfoParamsBtn;
+
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -180,6 +188,13 @@ public:
         lfoPmdSlider(context),
         lfoPmsSlider(context),
         lfoAmdSlider(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
+        copyParamsToOpnBtn(context),
+        uSep002(context),
+        copyHwLfoFromSlider(context),
+        copyHwLfoParamsBtn(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -239,6 +254,7 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
@@ -250,4 +266,5 @@ public:
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

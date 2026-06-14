@@ -62,6 +62,14 @@ class GuiOpl3 : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton initLfoToOplBtn;
+    GuiTextButton initLfoToOpllBtn;
+    GuiSeparator uSep002;
+    GuiTextButton copyOpParamToOplBtn;
+
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -140,6 +148,13 @@ public:
         bitSelector(context),
         rateSelector(context),
         unisonComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
+        initLfoToOplBtn(context),
+        initLfoToOpllBtn(context),
+        uSep002(context),
+        copyOpParamToOplBtn(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -199,6 +214,7 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
@@ -206,4 +222,5 @@ public:
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

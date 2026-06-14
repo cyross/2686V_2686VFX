@@ -44,7 +44,6 @@ class GuiOpl : public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
-    GuiCategoryLabel initCat;
 
     GuiSlider levelSlider;
 
@@ -53,13 +52,18 @@ class GuiOpl : public GuiBase
     GuiComboBox bitSelector;
     GuiComboBox rateSelector;
 
-    GuiTextButton initLfoToOplBtn;
-    GuiTextButton initLfoToOpllBtn;
-
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
     GuiComponentMidi midiComponent;
+
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton initLfoToOplBtn;
+    GuiTextButton initLfoToOpllBtn;
+    GuiSeparator uSep002;
+    GuiTextButton copyOpParamToOpl3Btn;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -141,15 +145,19 @@ public:
         mainGroup(context),
         qualityCat(context),
         algFbCat(context),
-        initCat(context),
         levelSlider(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
+        unisonComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
         initLfoToOplBtn(context),
         initLfoToOpllBtn(context),
-        unisonComponent(context),
+        uSep002(context),
+        copyOpParamToOpl3Btn(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context) },
@@ -217,11 +225,12 @@ public:
     void initParams();
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutInitializeCat(Rectangle<int>& rect);
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

@@ -150,6 +150,9 @@ class GuiOpzx7 : public GuiBase
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
 
@@ -254,6 +257,8 @@ public:
         panToRBtn(context),
         glLfo(context),
 		unisonComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -358,6 +363,7 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
@@ -366,4 +372,5 @@ public:
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

@@ -140,6 +140,7 @@ public:
     GuiCurve* getCurveGui();
     void updateUiScale(float newScale);
     void resetMidiSettings();
+    void breadcastLevel(float level);
 private:
     AudioPlugin2686V& audioProcessor;
 

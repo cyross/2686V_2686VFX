@@ -20,6 +20,8 @@ namespace Wt2GuiText
 		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
 		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
 		static inline const juce::String invisibleWaveFile = u8"[□]--- WAVE FILE ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace Group
@@ -83,5 +85,10 @@ namespace Wt2GuiText
 			static inline const juce::String toMax = u8"-> Max";
 			static inline const juce::String to0 = u8"-> 0";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

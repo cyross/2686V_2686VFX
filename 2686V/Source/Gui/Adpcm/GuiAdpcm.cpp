@@ -160,6 +160,17 @@ void GuiAdpcm::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleUtil, .invisibleTitle = AdpcmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
     setupGraph();
     updateGraph();
 }
@@ -216,6 +227,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    layoutUtilityCat(mRect);
+
     int usedHeight = 2000 - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
@@ -267,6 +280,20 @@ void GuiAdpcm::initParams()
     this->ctx.audioProcessor.initParams("ADPCM_");
     this->ctx.audioProcessor.unloadAdpcmFile();
     updateFileName(Io::empty);
+}
+
+void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+    }
 }
 
 void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -404,4 +431,8 @@ void GuiAdpcm::updateGraph()
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+}
+
+void GuiAdpcm::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

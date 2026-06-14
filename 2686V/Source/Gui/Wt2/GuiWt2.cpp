@@ -514,7 +514,19 @@ void GuiWt2::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
-    waveFileCat.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleWaveFile, .invisibleTitle = Wt2GuiText::Category::invisibleWaveFile, .enableChangeDetailVisible = true });
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleUtil, .invisibleTitle = Wt2GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
     customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -626,8 +638,6 @@ void GuiWt2::layout(juce::Rectangle<int> content)
 
     lfo.layoutComponent(mRect);
 
-    layoutWavefileCat(mRect);
-
     fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
@@ -635,6 +645,8 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
 
@@ -917,17 +929,24 @@ void GuiWt2::layoutModulationCat(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiWt2::layoutWavefileCat(juce::Rectangle<int>& rect)
+void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 {
-    layoutMainCategory({ .mainRect = rect, .label = &waveFileCat });
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
 
-    bool visible = waveFileCat.isDetailVisible();
+    bool visible = utilityCat.isDetailVisible();
 
+    broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
     customWaveImportBtn.setVisible(visible);
     customWaveExportBtn.setVisible(visible);
 
     if (visible)
     {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
         layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
         layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
     }
@@ -1019,4 +1038,8 @@ void GuiWt2::updateGraph()
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+}
+
+void GuiWt2::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

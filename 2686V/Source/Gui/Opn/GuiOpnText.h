@@ -24,6 +24,8 @@ namespace OpnGuiText
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace Group
@@ -110,5 +112,10 @@ namespace OpnGuiText
 			static inline const juce::String kor = u8"Kor";
 			static inline const juce::String bypass = u8"Bypass";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

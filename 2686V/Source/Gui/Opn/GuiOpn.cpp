@@ -218,6 +218,26 @@ void GuiOpn::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Category::visibleUtil, .invisibleTitle = OpnGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA" });
+    copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
+    copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
+    copyParamsToOpnaBtn.onClick = [this] {
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < OpnPrValue::algorithms; ++i)
@@ -374,6 +394,8 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
 
@@ -678,6 +700,27 @@ void GuiOpn::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visibleMask)
     {
         layoutRow({ .rowRect = rect, .component = &mask[opIndex] });
+    }
+}
+
+void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(false);
+    copyParamsToOpnaBtn.setVisible(false);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        //auto uSep001Area = rect.removeFromTop(4);
+        //uSep001.setBounds(uSep001Area);
+
+        //layoutMain({ .mainRect = rect, .component = &copyParamsToOpnaBtn });
     }
 }
 
@@ -1004,4 +1047,8 @@ void GuiOpn::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
+}
+
+void GuiOpn::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

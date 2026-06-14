@@ -146,6 +146,17 @@ void GuiSsg::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleUtil, .invisibleTitle = SsgGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
     shapeCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::shape });
 
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
@@ -320,6 +331,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     midiComponent.layoutComponent(mRect);
 
+    layoutUtilityCat(mRect);
+
     int usedHeight = 2000 - mRect.getHeight();
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
@@ -465,6 +478,20 @@ void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
     }
 }
 
+void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+    }
+}
+
 void GuiSsg::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
@@ -551,4 +578,8 @@ void GuiSsg::updateGraph()
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+}
+
+void GuiSsg::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

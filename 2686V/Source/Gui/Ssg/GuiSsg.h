@@ -104,6 +104,9 @@ class GuiSsg : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+
     // Preset Name Label
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -171,6 +174,8 @@ public:
         shapeSelector(context),
         periodSlider(context),
         midiComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -188,6 +193,8 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
+    void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

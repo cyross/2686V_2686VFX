@@ -1490,3 +1490,19 @@ void AudioPlugin2686VEditor::updateUiScale(float newScale) {
 void AudioPlugin2686VEditor::resetMidiSettings() {
     audioProcessor.resetMidiSettings();
 }
+
+// 現在のチャンネルのレベルを全チャンネルに伝播
+void AudioPlugin2686VEditor::breadcastLevel(float level) {
+    opnaGui->setLevel(level);
+    opnGui->setLevel(level);
+    oplGui->setLevel(level);
+    opl3Gui->setLevel(level);
+    opmGui->setLevel(level);
+    opzx7Gui->setLevel(level);
+    ssgGui->setLevel(level);
+    wtGui->setLevel(level);
+    wt2Gui->setLevel(level);
+    rhythmGui->setLevel(level);
+    adpcmGui->setLevel(level);
+    beepGui->setLevel(level);
+}

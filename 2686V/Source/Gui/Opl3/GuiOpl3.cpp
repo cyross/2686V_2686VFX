@@ -150,6 +150,56 @@ void GuiOpl3::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::visibleUtil, .invisibleTitle = Opl3GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    initLfoToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Fm::initLfoToOpl });
+    initLfoToOplBtn.setWantsKeyboardFocus(true);
+    initLfoToOplBtn.setExplicitFocusOrder(++tabOrder);
+    initLfoToOplBtn.onClick = [this] {
+        for (int i = 0; i < Opl3PrValue::ops; i++)
+        {
+            ams[i].setValue(3.7, juce::sendNotification);
+            amd[i].setValue(4.8, juce::sendNotification);
+
+            pms[i].setValue(6.4, juce::sendNotification);
+            pmd[i].setValue(14.0, juce::sendNotification);
+        }
+        };
+    initLfoToOpllBtn.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Fm::initLfoToOpll });
+    initLfoToOpllBtn.setWantsKeyboardFocus(true);
+    initLfoToOpllBtn.setExplicitFocusOrder(++tabOrder);
+    initLfoToOpllBtn.onClick = [this] {
+        for (int i = 0; i < Opl3PrValue::ops; i++)
+        {
+            ams[i].setValue(6.06, juce::sendNotification);
+            amd[i].setValue(1.2, juce::sendNotification);
+
+            pms[i].setValue(6.06, juce::sendNotification);
+            pmd[i].setValue(13.7, juce::sendNotification);
+        }
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3" });
+    copyOpParamToOplBtn.setWantsKeyboardFocus(true);
+    copyOpParamToOplBtn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamToOplBtn.onClick = [this] {
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < Opl3PrValue::algorithms; ++i)
@@ -356,6 +406,8 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
 
@@ -665,6 +717,38 @@ void GuiOpl3::initParams()
     this->ctx.audioProcessor.initParams("OPL3_");
 }
 
+void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    initLfoToOplBtn.setVisible(visible);
+    initLfoToOpllBtn.setVisible(visible);
+    uSep002.setVisible(false);
+    copyOpParamToOplBtn.setVisible(false);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
+        layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
+        layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
+
+        /*
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyOpParamToOplBtn });
+        */
+    }
+}
+
 void GuiOpl3::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
     layoutRowCategory({ .rowRect = rect, .component = &catMask[opIndex] });
 
@@ -967,4 +1051,8 @@ void GuiOpl3::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
+}
+
+void GuiOpl3::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

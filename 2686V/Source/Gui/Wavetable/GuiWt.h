@@ -126,7 +126,9 @@ class GuiWt : public GuiBase
 	// Custom Waveform Smoothing
     GuiTextButton customWaveSmoothBtn;
 
-    GuiCategoryLabel waveFileCat;
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -172,7 +174,9 @@ public:
         lfo(context),
         bitSelector(context),
         rateSelector(context),
-		waveFileCat(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
         customWaveSmoothBtn(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
@@ -206,7 +210,8 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
-    void layoutWavefileCat(juce::Rectangle<int>& rect);
+    void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

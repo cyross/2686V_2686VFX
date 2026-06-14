@@ -127,6 +127,9 @@ class GuiRhythm : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
 public:
@@ -138,6 +141,8 @@ public:
         presetNameLabel(context),
         presetNameSeparator(context),
         midiComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -145,10 +150,12 @@ public:
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void buttonClicked(juce::Button* button, juce::AudioFormatManager &formatManager, std::unique_ptr<juce::FileChooser>& fileChooser);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void setLevel(float level);
 };

@@ -325,6 +325,62 @@ void GuiOpna::setup()
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::visibleUtil, .invisibleTitle = OpnaGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPN" });
+    copyParamsToOpnBtn.setWantsKeyboardFocus(true);
+    copyParamsToOpnBtn.setExplicitFocusOrder(++tabOrder);
+    copyParamsToOpnBtn.onClick = [this] {
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyHwLfoParamsBtn.setup({ .parent = mainGroup.contentCanvas, .title = "HW LFO Params -> OPs" });
+    copyHwLfoParamsBtn.setWantsKeyboardFocus(true);
+    copyHwLfoParamsBtn.setExplicitFocusOrder(++tabOrder);
+    copyHwLfoParamsBtn.onClick = [this] {
+        int fromOpIndex = (int)copyHwLfoFromSlider.getValue() - 1;
+
+        int freqsVal = freqs[fromOpIndex].getSelectedId();
+        int syncDelayVal = (int)syncDelay[fromOpIndex].getValue();
+        bool pmValue = pm[fromOpIndex].getToggleState();
+        int pmsVal = pms[fromOpIndex].getSelectedId();
+        bool amValue = am[fromOpIndex].getToggleState();
+        int amsVal = ams[fromOpIndex].getSelectedId();
+
+        for (int i = 0; i < OpnaPrValue::ops; i++) {
+            if (i == fromOpIndex) {
+                continue;
+            }
+
+            freqs[i].setSelectedId(freqsVal);
+            syncDelay[i].setValue(syncDelayVal);
+            pm[i].setToggleState(pmValue, juce::NotificationType::sendNotification);
+            pms[i].setSelectedId(pmsVal);
+            am[i].setToggleState(amValue, juce::NotificationType::sendNotification);
+            ams[i].setSelectedId(amsVal);
+        }
+    };
+
+    copyHwLfoFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
+    copyHwLfoFromSlider.setRange(1.0, 4.0, 1.0);
+    copyHwLfoFromSlider.setNumDecimalPlacesToDisplay(0);
+    copyHwLfoFromSlider.setWantsKeyboardFocus(true);
+    copyHwLfoFromSlider.setExplicitFocusOrder(++tabOrder);
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < OpnaPrValue::algorithms; ++i)
@@ -534,6 +590,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
 
     int usedHeight = 2000 - mRect.getHeight();
 
@@ -836,6 +894,36 @@ void GuiOpna::pasteFmParamsFromObject()
 void GuiOpna::initParams()
 {
     this->ctx.audioProcessor.initParams("OPNA_");
+}
+
+void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    copyParamsToOpnBtn.setVisible(false);
+    uSep002.setVisible(false);
+    copyHwLfoParamsBtn.setVisible(visible);
+    copyHwLfoFromSlider.setVisibleWithLabel(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
+        //layoutMain({ .mainRect = rect, .component = &copyParamsToOpnBtn });
+
+        //auto uSep002Area = rect.removeFromTop(4);
+        //uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyHwLfoParamsBtn });
+        layoutMain({ .mainRect = rect, .label = &copyHwLfoFromSlider.label, .component = &copyHwLfoFromSlider });
+    }
 }
 
 void GuiOpna::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
@@ -1235,4 +1323,8 @@ void GuiOpna::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
         layoutRow({ .rowRect = rect, .component = &bypass[opIndex] });
     }
+}
+
+void GuiOpna::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

@@ -22,7 +22,7 @@ class AudioPlugin2686VEditor;
 class GuiBeep : public GuiBase {
     GuiScrollGroup mainGroup;
 
-    GuiSlider volSlider;
+    GuiSlider levelSlider;
 
 	GuiComponentFix fixComponent;
 
@@ -45,6 +45,9 @@ class GuiBeep : public GuiBase {
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+
     // プリセット名ラベル
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -66,7 +69,7 @@ class GuiBeep : public GuiBase {
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
-        volSlider(context),
+        levelSlider(context),
 		fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
@@ -75,6 +78,8 @@ public:
 		mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -90,5 +95,7 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void setupGraph();
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

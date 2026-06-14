@@ -127,7 +127,9 @@ class GuiWt2 : public GuiBase
     GuiTextButton customWaveResetToMaxBtn;
     GuiTextButton customWaveResetTo0Btn;
 
-    GuiCategoryLabel waveFileCat;
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -173,7 +175,9 @@ public:
         lfo(context),
         bitSelector(context),
         rateSelector(context),
-		waveFileCat(context),
+		utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
         sizeSelector(context),
@@ -206,7 +210,8 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
-    void layoutWavefileCat(juce::Rectangle<int>& rect);
+    void layoutUtilityCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };
