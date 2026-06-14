@@ -32,7 +32,14 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     parent.addAndMakeVisible(resetSeparator);
     resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    monoButton.setup(GuiTextButton::Config{ .parent = parent, .title = "-> Monophonic", .isReset = false });
+    monoButton.setup(GuiTextButton::Config{
+        .parent = parent,
+        .title = "-> Monophonic",
+        .textColor = juce::Colours::black,
+        .bgColor = juce::Colours::yellow.darker(0.5f),
+        .borderColor = juce::Colours::yellow,
+        .isReset = false
+        });
     monoButton.setWantsKeyboardFocus(true);
     monoButton.setExplicitFocusOrder(++tabOrder);
     monoButton.onClick = [this] {
@@ -42,7 +49,14 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
         pitchResetOnLegato.setToggleState(true, juce::NotificationType::sendNotification);
         };
 
-    polyButton.setup(GuiTextButton::Config{ .parent = parent, .title = "-> Polyphonic", .isReset = false });
+    polyButton.setup(GuiTextButton::Config{
+        .parent = parent,
+        .title = "-> Polyphonic",
+        .textColor = juce::Colours::black,
+        .bgColor = juce::Colours::orange.darker(0.5f),
+        .borderColor = juce::Colours::orange,
+        .isReset = false
+        });
     polyButton.setWantsKeyboardFocus(true);
     polyButton.setExplicitFocusOrder(++tabOrder);
     polyButton.onClick = [this] {
