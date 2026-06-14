@@ -7,100 +7,101 @@
 
 void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = OpmPrKey::prefix;
+    const juce::String prefix = OpmPrKey::prefix;
+    const juce::String prefixName = OpmPrName::prefix;
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpmPrKey::level, code + OpmPrName::level, OpmPrValue::Level::min, OpmPrValue::Level::max, OpmPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpmPrKey::level, prefixName + OpmPrName::level, OpmPrValue::Level::min, OpmPrValue::Level::max, OpmPrValue::Level::initial));
 
     // ==========================================
     // OPM (YM2151) Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::alg, code + OpmPrName::alg, OpmPrValue::Alg::min, OpmPrValue::Alg::max, OpmPrValue::Alg::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::fb, code + OpmPrName::fb, OpmPrValue::Fb::min, OpmPrValue::Fb::max, OpmPrValue::Fb::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::bit, code + OpmPrName::bit, OpmPrValue::Bit::min, OpmPrValue::Bit::max, OpmPrValue::Bit::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::rate, code + OpmPrName::rate, OpmPrValue::Rate::min, OpmPrValue::Rate::max, OpmPrValue::Rate::initial)); // Default 6 (16kHz)
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::freq, code + OpmPrName::Lfo::freq, OpmPrValue::Lfo::Freq::min, OpmPrValue::Lfo::Freq::max, OpmPrValue::Lfo::Freq::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpmPrKey::Lfo::amSmoothRatio, code + OpmPrName::Lfo::amSmoothRatio, OpmPrValue::Lfo::AmSmRt::min, OpmPrValue::Lfo::AmSmRt::max, OpmPrValue::Lfo::AmSmRt::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::pgShape, code + OpmPrName::Lfo::pgShape, OpmPrValue::Lfo::PgShape::min, OpmPrValue::Lfo::PgShape::max, OpmPrValue::Lfo::PgShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::egShape, code + OpmPrName::Lfo::egShape, OpmPrValue::Lfo::EgShape::min, OpmPrValue::Lfo::EgShape::max, OpmPrValue::Lfo::EgShape::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + OpmPrKey::Lfo::am, code + OpmPrName::Lfo::am, OpmPrValue::Lfo::Am::initial)); // AM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + OpmPrKey::Lfo::pm, code + OpmPrName::Lfo::pm, OpmPrValue::Lfo::Pm::initial)); // PM Enable (Switch)
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::pms, code + OpmPrName::Lfo::pms, OpmPrValue::Lfo::Pms::min, OpmPrValue::Lfo::Pms::max, OpmPrValue::Lfo::Pms::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::ams, code + OpmPrName::Lfo::ams, OpmPrValue::Lfo::Ams::min, OpmPrValue::Lfo::Ams::max, OpmPrValue::Lfo::Ams::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::pmd, code + OpmPrName::Lfo::pmd, OpmPrValue::Lfo::Pmd::min, OpmPrValue::Lfo::Pmd::max, OpmPrValue::Lfo::Pmd::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::amd, code + OpmPrName::Lfo::amd, OpmPrValue::Lfo::Amd::min, OpmPrValue::Lfo::Amd::max, OpmPrValue::Lfo::Amd::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Lfo::syncDelay, code + OpmPrName::Lfo::syncDelay, OpmPrValue::Lfo::SyncDelayOpm::min, OpmPrValue::Lfo::SyncDelayOpm::max, OpmPrValue::Lfo::SyncDelayOpm::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::pan, code + OpmPrName::pan, OpmPrValue::Pan::min, OpmPrValue::Pan::max, OpmPrValue::Pan::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::alg, prefixName + OpmPrName::alg, OpmPrValue::Alg::min, OpmPrValue::Alg::max, OpmPrValue::Alg::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::fb, prefixName + OpmPrName::fb, OpmPrValue::Fb::min, OpmPrValue::Fb::max, OpmPrValue::Fb::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::bit, prefixName + OpmPrName::bit, OpmPrValue::Bit::min, OpmPrValue::Bit::max, OpmPrValue::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rate, prefixName + OpmPrName::rate, OpmPrValue::Rate::min, OpmPrValue::Rate::max, OpmPrValue::Rate::initial)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::freq, prefixName + OpmPrName::Lfo::freq, OpmPrValue::Lfo::Freq::min, OpmPrValue::Lfo::Freq::max, OpmPrValue::Lfo::Freq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpmPrKey::Lfo::amSmoothRatio, prefixName + OpmPrName::Lfo::amSmoothRatio, OpmPrValue::Lfo::AmSmRt::min, OpmPrValue::Lfo::AmSmRt::max, OpmPrValue::Lfo::AmSmRt::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::pgShape, prefixName + OpmPrName::Lfo::pgShape, OpmPrValue::Lfo::PgShape::min, OpmPrValue::Lfo::PgShape::max, OpmPrValue::Lfo::PgShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::egShape, prefixName + OpmPrName::Lfo::egShape, OpmPrValue::Lfo::EgShape::min, OpmPrValue::Lfo::EgShape::max, OpmPrValue::Lfo::EgShape::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::Lfo::am, prefixName + OpmPrName::Lfo::am, OpmPrValue::Lfo::Am::initial)); // AM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::Lfo::pm, prefixName + OpmPrName::Lfo::pm, OpmPrValue::Lfo::Pm::initial)); // PM Enable (Switch)
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::pms, prefixName + OpmPrName::Lfo::pms, OpmPrValue::Lfo::Pms::min, OpmPrValue::Lfo::Pms::max, OpmPrValue::Lfo::Pms::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::ams, prefixName + OpmPrName::Lfo::ams, OpmPrValue::Lfo::Ams::min, OpmPrValue::Lfo::Ams::max, OpmPrValue::Lfo::Ams::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::pmd, prefixName + OpmPrName::Lfo::pmd, OpmPrValue::Lfo::Pmd::min, OpmPrValue::Lfo::Pmd::max, OpmPrValue::Lfo::Pmd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::amd, prefixName + OpmPrName::Lfo::amd, OpmPrValue::Lfo::Amd::min, OpmPrValue::Lfo::Amd::max, OpmPrValue::Lfo::Amd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Lfo::syncDelay, prefixName + OpmPrName::Lfo::syncDelay, OpmPrValue::Lfo::SyncDelayOpm::min, OpmPrValue::Lfo::SyncDelayOpm::max, OpmPrValue::Lfo::SyncDelayOpm::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::pan, prefixName + OpmPrName::pan, OpmPrValue::Pan::min, OpmPrValue::Pan::max, OpmPrValue::Pan::initial));
 
     // ユニゾン・ハーモニー用
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Unison::voices, code + OpmPrName::Unison::voices, OpmPrValue::Unison::Voices::min, OpmPrValue::Unison::Voices::max, OpmPrValue::Unison::Voices::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + OpmPrKey::Unison::detune, code + OpmPrName::Unison::detune, OpmPrValue::Unison::Detune::min, OpmPrValue::Unison::Detune::max, OpmPrValue::Unison::Detune::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpmPrKey::Unison::spread, code + OpmPrName::Unison::spread, OpmPrValue::Unison::Spread::min, OpmPrValue::Unison::Spread::max, OpmPrValue::Unison::Spread::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Unison::voices, prefixName + OpmPrName::Unison::voices, OpmPrValue::Unison::Voices::min, OpmPrValue::Unison::Voices::max, OpmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::Unison::detune, prefixName + OpmPrName::Unison::detune, OpmPrValue::Unison::Detune::min, OpmPrValue::Unison::Detune::max, OpmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpmPrKey::Unison::spread, prefixName + OpmPrName::Unison::spread, OpmPrValue::Unison::Spread::min, OpmPrValue::Unison::Spread::max, OpmPrValue::Unison::Spread::initial));
 
     for (int op = 0; op < OpmPrValue::ops; ++op)
     {
-        juce::String prefix = code + OpmPrKey::op + juce::String(op);
-        juce::String namePrefix = code + OpmPrName::op + juce::String(op + 1);
+        juce::String opPrefix = prefix + OpmPrKey::op + juce::String(op);
+        juce::String opPrefixName = prefixName + OpmPrName::op + juce::String(op + 1);
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::mul, namePrefix + OpmPrName::mul, OpmPrValue::Op::Mul::min, OpmPrValue::Op::Mul::max, OpmPrValue::Op::Mul::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::dt, namePrefix + OpmPrName::dt1, OpmPrValue::Op::Dt1::min, OpmPrValue::Op::Dt1::max, OpmPrValue::Op::Dt1::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::dt2, namePrefix + OpmPrName::dt2, OpmPrValue::Op::Dt2::min, OpmPrValue::Op::Dt2::max, OpmPrValue::Op::Dt2::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpmPrKey::seFreq, namePrefix + OpmPrName::seFreq, OpmPrValue::Op::SeFreq::min, OpmPrValue::Op::SeFreq::max, OpmPrValue::Op::SeFreq::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::ks, namePrefix + OpmPrName::ks, OpmPrValue::Op::Ks::min, OpmPrValue::Op::Ks::max, OpmPrValue::Op::Ks::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::amsEn, namePrefix + OpmPrName::amsEn, OpmPrValue::Op::Lfo::AmsEn::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::fix, namePrefix + OpmPrName::fix, OpmPrValue::Op::Fix::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + OpmPrKey::fixFreq, namePrefix + OpmPrName::fixFreq, OpmPrValue::Op::FixFreq::min, OpmPrValue::Op::FixFreq::max, OpmPrValue::Op::FixFreq::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::mask, namePrefix + OpmPrName::mask, OpmPrValue::Op::Mask::initial)); // OP Mask (Switch)
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::mul, opPrefixName + OpmPrName::mul, OpmPrValue::Op::Mul::min, OpmPrValue::Op::Mul::max, OpmPrValue::Op::Mul::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::dt, opPrefixName + OpmPrName::dt1, OpmPrValue::Op::Dt1::min, OpmPrValue::Op::Dt1::max, OpmPrValue::Op::Dt1::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::dt2, opPrefixName + OpmPrName::dt2, OpmPrValue::Op::Dt2::min, OpmPrValue::Op::Dt2::max, OpmPrValue::Op::Dt2::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + OpmPrKey::seFreq, opPrefixName + OpmPrName::seFreq, OpmPrValue::Op::SeFreq::min, OpmPrValue::Op::SeFreq::max, OpmPrValue::Op::SeFreq::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::ks, opPrefixName + OpmPrName::ks, OpmPrValue::Op::Ks::min, OpmPrValue::Op::Ks::max, OpmPrValue::Op::Ks::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::amsEn, opPrefixName + OpmPrName::amsEn, OpmPrValue::Op::Lfo::AmsEn::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::fix, opPrefixName + OpmPrName::fix, OpmPrValue::Op::Fix::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + OpmPrKey::fixFreq, opPrefixName + OpmPrName::fixFreq, OpmPrValue::Op::FixFreq::min, OpmPrValue::Op::FixFreq::max, OpmPrValue::Op::FixFreq::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::mask, opPrefixName + OpmPrName::mask, OpmPrValue::Op::Mask::initial)); // OP Mask (Switch)
 
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::PitchAdsr::enable, namePrefix + OpmPrName::PitchAdsr::enable, OpmPrValue::Op::PitchAdsr::Enable::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::SsgSwEnv::enable, namePrefix + OpmPrName::SsgSwEnv::enable, OpmPrValue::Op::SsgSwEnv::Enable::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::PitchAdsr::enable, opPrefixName + OpmPrName::PitchAdsr::enable, OpmPrValue::Op::PitchAdsr::Enable::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::SsgSwEnv::enable, opPrefixName + OpmPrName::SsgSwEnv::enable, OpmPrValue::Op::SsgSwEnv::Enable::initial));
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgAr, namePrefix + OpmPrName::rgAr, OpmPrValue::Op::RgAdsr::Ar::min, OpmPrValue::Op::RgAdsr::Ar::max, OpmPrValue::Op::RgAdsr::Ar::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgD1r, namePrefix + OpmPrName::rgD1r, OpmPrValue::Op::RgAdsr::D1r::min, OpmPrValue::Op::RgAdsr::D1r::max, OpmPrValue::Op::RgAdsr::D1r::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgD1l, namePrefix + OpmPrName::rgD1l, OpmPrValue::Op::RgAdsr::D1l::min, OpmPrValue::Op::RgAdsr::D1l::max, OpmPrValue::Op::RgAdsr::D1l::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgD2r, namePrefix + OpmPrName::rgD2r, OpmPrValue::Op::RgAdsr::D2r::min, OpmPrValue::Op::RgAdsr::D2r::max, OpmPrValue::Op::RgAdsr::D2r::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgRr, namePrefix + OpmPrName::rgRr, OpmPrValue::Op::RgAdsr::Rr::min, OpmPrValue::Op::RgAdsr::Rr::max, OpmPrValue::Op::RgAdsr::Rr::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + OpmPrKey::rgTl, namePrefix + OpmPrName::rgTl, OpmPrValue::Op::RgAdsr::Tl::min, OpmPrValue::Op::RgAdsr::Tl::max, OpmPrValue::Op::RgAdsr::Tl::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgAr, opPrefixName + OpmPrName::rgAr, OpmPrValue::Op::RgAdsr::Ar::min, OpmPrValue::Op::RgAdsr::Ar::max, OpmPrValue::Op::RgAdsr::Ar::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgD1r, opPrefixName + OpmPrName::rgD1r, OpmPrValue::Op::RgAdsr::D1r::min, OpmPrValue::Op::RgAdsr::D1r::max, OpmPrValue::Op::RgAdsr::D1r::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgD1l, opPrefixName + OpmPrName::rgD1l, OpmPrValue::Op::RgAdsr::D1l::min, OpmPrValue::Op::RgAdsr::D1l::max, OpmPrValue::Op::RgAdsr::D1l::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgD2r, opPrefixName + OpmPrName::rgD2r, OpmPrValue::Op::RgAdsr::D2r::min, OpmPrValue::Op::RgAdsr::D2r::max, OpmPrValue::Op::RgAdsr::D2r::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgRr, opPrefixName + OpmPrName::rgRr, OpmPrValue::Op::RgAdsr::Rr::min, OpmPrValue::Op::RgAdsr::Rr::max, OpmPrValue::Op::RgAdsr::Rr::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::rgTl, opPrefixName + OpmPrName::rgTl, OpmPrValue::Op::RgAdsr::Tl::min, OpmPrValue::Op::RgAdsr::Tl::max, OpmPrValue::Op::RgAdsr::Tl::initial));
 
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::xof, namePrefix + OpmPrName::xof, OpmPrValue::Op::Xof::initial)); // Xof (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::kor, namePrefix + OpmPrName::kor, OpmPrValue::Op::Kor::initial)); // Kor (Switch)
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + OpmPrKey::ampBypass, namePrefix + OpmPrName::ampBypass, OpmPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::xof, opPrefixName + OpmPrName::xof, OpmPrValue::Op::Xof::initial)); // Xof (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::kor, opPrefixName + OpmPrName::kor, OpmPrValue::Op::Kor::initial)); // Kor (Switch)
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::ampBypass, opPrefixName + OpmPrName::ampBypass, OpmPrValue::Op::AmpBypass::initial)); // Bypass (Switch)
 
-        addOpPitchEnvParameters(layout, prefix, namePrefix);
-        addOpSsgSwEnvParameters(layout, prefix, namePrefix);
+        addOpPitchEnvParameters(layout, opPrefix, opPrefixName);
+        addOpSsgSwEnvParameters(layout, opPrefix, opPrefixName);
     }
 }
 
 void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = OpmPrKey::prefix;
+    const juce::String prefix = OpmPrKey::prefix;
 
-    pLevel = apvts.getRawParameterValue(code + OpmPrKey::level);
+    pLevel = apvts.getRawParameterValue(prefix + OpmPrKey::level);
 
-    pAlg = apvts.getRawParameterValue(code + OpmPrKey::alg);
-    pFb = apvts.getRawParameterValue(code + OpmPrKey::fb);
-    pDepth = apvts.getRawParameterValue(code + OpmPrKey::bit);
-    pRate = apvts.getRawParameterValue(code + OpmPrKey::rate);
+    pAlg = apvts.getRawParameterValue(prefix + OpmPrKey::alg);
+    pFb = apvts.getRawParameterValue(prefix + OpmPrKey::fb);
+    pDepth = apvts.getRawParameterValue(prefix + OpmPrKey::bit);
+    pRate = apvts.getRawParameterValue(prefix + OpmPrKey::rate);
 
-    pLfoFreq = apvts.getRawParameterValue(code + OpmPrKey::Lfo::freq);
-    pLfoSyncDelay = apvts.getRawParameterValue(code + OpmPrKey::Lfo::syncDelay);
-    pLfoPmWave = apvts.getRawParameterValue(code + OpmPrKey::Lfo::pgShape);
-    pLfoAmWave = apvts.getRawParameterValue(code + OpmPrKey::Lfo::egShape);
-    pLfoAmSmRt = apvts.getRawParameterValue(code + OpmPrKey::Lfo::amSmoothRatio);
-    pLfoAmEnable = apvts.getRawParameterValue(code + OpmPrKey::Lfo::am);
-    pLfoPms = apvts.getRawParameterValue(code + OpmPrKey::Lfo::pms);
-    pLfoPmd = apvts.getRawParameterValue(code + OpmPrKey::Lfo::pmd);
-    pLfoPmEnable = apvts.getRawParameterValue(code + OpmPrKey::Lfo::pm);
-    pLfoAms = apvts.getRawParameterValue(code + OpmPrKey::Lfo::ams);
-    pLfoAmd = apvts.getRawParameterValue(code + OpmPrKey::Lfo::amd);
+    pLfoFreq = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::freq);
+    pLfoSyncDelay = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::syncDelay);
+    pLfoPmWave = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::pgShape);
+    pLfoAmWave = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::egShape);
+    pLfoAmSmRt = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::amSmoothRatio);
+    pLfoAmEnable = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::am);
+    pLfoPms = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::pms);
+    pLfoPmd = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::pmd);
+    pLfoPmEnable = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::pm);
+    pLfoAms = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::ams);
+    pLfoAmd = apvts.getRawParameterValue(prefix + OpmPrKey::Lfo::amd);
 
-    pPan = apvts.getRawParameterValue(code + OpmPrKey::pan);
+    pPan = apvts.getRawParameterValue(prefix + OpmPrKey::pan);
 
-    pUnisonVoices = apvts.getRawParameterValue(code + OpmPrKey::Unison::voices);
-    pUnisonDetuneCents = apvts.getRawParameterValue(code + OpmPrKey::Unison::detune);
-    pUnisonSpread = apvts.getRawParameterValue(code + OpmPrKey::Unison::spread);
+    pUnisonVoices = apvts.getRawParameterValue(prefix + OpmPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(prefix + OpmPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(prefix + OpmPrKey::Unison::spread);
 
     for (int op = 0; op < OpmPrValue::ops; ++op)
     {
-        juce::String p = code + OpmPrKey::op + juce::String(op);
+        juce::String p = prefix + OpmPrKey::op + juce::String(op);
 
         pOpMultiple[op] = apvts.getRawParameterValue(p + OpmPrKey::mul);
         pOpDetune[op] = apvts.getRawParameterValue(p + OpmPrKey::dt);

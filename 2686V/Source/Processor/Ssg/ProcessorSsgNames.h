@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace SsgPrName
 {
+	static inline const juce::String prefix = "SSG";
+
 	static inline const juce::String level = " Level";
 
 	static inline const juce::String tone = " Tone";

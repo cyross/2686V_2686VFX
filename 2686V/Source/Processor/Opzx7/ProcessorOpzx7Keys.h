@@ -12,9 +12,6 @@ namespace Opzx7PrKey
 
 	static inline const juce::String level = "_LEVEL";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
-
 	static inline const juce::String op = CorePrKey::op;
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;
 	static inline const juce::String ssgSwEnv = CorePrKey::ssgSwEnv;

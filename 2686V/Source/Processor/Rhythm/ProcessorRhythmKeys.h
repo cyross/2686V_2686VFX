@@ -10,8 +10,6 @@ namespace RhythmPrKey
 {
 	static inline const juce::String prefix = "RHYTHM";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
 	static inline const juce::String adsr = CorePrKey::adsr;
 	static inline const juce::String bypass = CorePrKey::bypass;
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;

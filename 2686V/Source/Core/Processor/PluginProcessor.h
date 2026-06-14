@@ -472,7 +472,7 @@ private:
     std::map<OscMode, PrBase*> prMap;
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-    void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
+    void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName);
 
     RetroSynthesiser m_synth;
 

@@ -10,9 +10,6 @@ namespace FxPrKey
 {
 	static inline const juce::String prefix = "FX";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
-
 	static inline const juce::String bypass = CorePrKey::bypass;
 
 	static inline const juce::String vib = "_VIB";

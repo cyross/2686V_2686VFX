@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace Wt2PrName
 {
+	static inline const juce::String prefix = "WT2";
+
 	static inline const juce::String custom32 = " Custom32 ";
 	static inline const juce::String custom64 = " Custom64 ";
 	static inline const juce::String custom128 = " Custom128 ";

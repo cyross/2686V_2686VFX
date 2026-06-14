@@ -10,9 +10,6 @@ namespace Wt2PrKey
 {
 	static inline const juce::String prefix = "WT2";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
-
 	static inline const juce::String level = "_LEVEL";
 	static inline const juce::String bit = "_BIT";
 	static inline const juce::String rate = "_RATE";

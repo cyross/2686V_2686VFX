@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace OpnPrName
 {
+	static inline const juce::String prefix = "OPN";
+
 	static inline const juce::String level = " Level";
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String rate = " Rate";

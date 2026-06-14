@@ -6,87 +6,88 @@
 
 void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = RhythmPrKey::prefix;
+    const juce::String prefix = RhythmPrKey::prefix;
+    const juce::String prefixName = RhythmPrName::prefix;
 
     // ==========================================
     // Rhythm Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + RhythmPrKey::level, code + RhythmPrName::vol, RhythmPrValue::Level::min, RhythmPrValue::Level::max, RhythmPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::level, prefixName + RhythmPrName::vol, RhythmPrValue::Level::min, RhythmPrValue::Level::max, RhythmPrValue::Level::initial));
 
     // ユニゾン・ハーモニー用
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + RhythmPrKey::Unison::voices, code + RhythmPrName::Unison::voices, RhythmPrValue::Unison::Voices::min, RhythmPrValue::Unison::Voices::max, RhythmPrValue::Unison::Voices::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + RhythmPrKey::Unison::detune, code + RhythmPrName::Unison::detune, RhythmPrValue::Unison::Detune::min, RhythmPrValue::Unison::Detune::max, RhythmPrValue::Unison::Detune::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + RhythmPrKey::Unison::spread, code + RhythmPrName::Unison::spread, RhythmPrValue::Unison::Spread::min, RhythmPrValue::Unison::Spread::max, RhythmPrValue::Unison::Spread::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + RhythmPrKey::Unison::voices, prefixName + RhythmPrName::Unison::voices, RhythmPrValue::Unison::Voices::min, RhythmPrValue::Unison::Voices::max, RhythmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + RhythmPrKey::Unison::detune, prefixName + RhythmPrName::Unison::detune, RhythmPrValue::Unison::Detune::min, RhythmPrValue::Unison::Detune::max, RhythmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Unison::spread, prefixName + RhythmPrName::Unison::spread, RhythmPrValue::Unison::Spread::min, RhythmPrValue::Unison::Spread::max, RhythmPrValue::Unison::Spread::initial));
 
     // Create parameters for each of the 8 pads
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
-        juce::String prefix = code + RhythmPrKey::pad + juce::String(i);
-        juce::String namePrefix = code + RhythmPrName::pad + juce::String(i + 1);
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::volume, namePrefix + RhythmPrName::Pad::vol, RhythmPrValue::Level::min, RhythmPrValue::Level::max, RhythmPrValue::Level::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pan, namePrefix + RhythmPrName::Pad::pan, RhythmPrValue::Pad::Pan::min, RhythmPrValue::Pad::Pan::max, RhythmPrValue::Pad::Pan::initial));
+        juce::String padPrefix = prefix + RhythmPrKey::pad + juce::String(i);
+        juce::String padPrefixName = prefixName + RhythmPrName::pad + juce::String(i + 1);
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::volume, padPrefixName + RhythmPrName::Pad::vol, RhythmPrValue::Level::min, RhythmPrValue::Level::max, RhythmPrValue::Level::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pan, padPrefixName + RhythmPrName::Pad::pan, RhythmPrValue::Pad::Pan::min, RhythmPrValue::Pad::Pan::max, RhythmPrValue::Pad::Pan::initial));
 
         // Note number
         int defNote = RhythmPrValue::Pad::Note::initial + i;
 
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + RhythmPrKey::Pad::note, namePrefix + RhythmPrName::Pad::note, RhythmPrValue::Pad::Note::min, RhythmPrValue::Pad::Note::max, defNote));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::note, padPrefixName + RhythmPrName::Pad::note, RhythmPrValue::Pad::Note::min, RhythmPrValue::Pad::Note::max, defNote));
 
         // 1: Raw 32bit 2: PCM 24bit 3: PCM 16bit 4: PCM 8bit 5: PCM 5bit 6: PCM 4bit 7: ADPCM 4bit
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + RhythmPrKey::Pad::mode, namePrefix + RhythmPrName::Pad::bit, RhythmPrValue::Pad::Bit::min, RhythmPrValue::Pad::Bit::max, RhythmPrValue::Pad::Bit::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::mode, padPrefixName + RhythmPrName::Pad::bit, RhythmPrValue::Pad::Bit::min, RhythmPrValue::Pad::Bit::max, RhythmPrValue::Pad::Bit::initial));
 
         // 1: 96kHz 2: 55.5kHz 3: 48kHz 4: 44.1kHz 5: 22.5kHz 6: 16k 7: 8k
-        layout.add(std::make_unique<juce::AudioParameterInt>(prefix + RhythmPrKey::Pad::rate, namePrefix + RhythmPrName::Pad::rate, RhythmPrValue::Pad::Rate::min, RhythmPrValue::Pad::Rate::max, RhythmPrValue::Pad::Rate::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::rate, padPrefixName + RhythmPrName::Pad::rate, RhythmPrValue::Pad::Rate::min, RhythmPrValue::Pad::Rate::max, RhythmPrValue::Pad::Rate::initial));
 
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::Pad::oneShot, namePrefix + RhythmPrName::Pad::oneShot, RhythmPrValue::Pad::OneShot::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::Pad::oneShot, padPrefixName + RhythmPrName::Pad::oneShot, RhythmPrValue::Pad::OneShot::initial));
 
         // ADSR Bypass Switch
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass, namePrefix + RhythmPrName::Adsr::bypass, RhythmPrValue::Pad::Adsr::Bypass::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::adsr + RhythmPrKey::bypass, padPrefixName + RhythmPrName::Adsr::bypass, RhythmPrValue::Pad::Adsr::Bypass::initial));
 
         // PitchEnv Bypass Switch
-        layout.add(std::make_unique<juce::AudioParameterBool>(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, namePrefix + RhythmPrName::PitchAdsr::bypass, RhythmPrValue::Pad::PitchAdsr::Bypass::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, padPrefixName + RhythmPrName::PitchAdsr::bypass, RhythmPrValue::Pad::PitchAdsr::Bypass::initial));
 
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmOffset, namePrefix + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + RhythmPrKey::Pad::pcmRatio, namePrefix + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmOffset, padPrefixName + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmRatio, padPrefixName + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
 
-
-        addOpEnvParameters(layout, prefix, namePrefix);
-        addOpPitchEnvParameters(layout, prefix, namePrefix);
+        addOpEnvParameters(layout, padPrefix, padPrefixName);
+        addOpPitchEnvParameters(layout, padPrefix, padPrefixName);
     }
 }
 
 void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = RhythmPrKey::prefix;
+    const juce::String prefix = RhythmPrKey::prefix;
 
-    pMLevel = apvts.getRawParameterValue(code + RhythmPrKey::level);
-    pUnisonVoices = apvts.getRawParameterValue(code + RhythmPrKey::Unison::voices);
-    pUnisonDetuneCents = apvts.getRawParameterValue(code + RhythmPrKey::Unison::detune);
-    pUnisonSpread = apvts.getRawParameterValue(code + RhythmPrKey::Unison::spread);
+    pMLevel = apvts.getRawParameterValue(prefix + RhythmPrKey::level);
+    pUnisonVoices = apvts.getRawParameterValue(prefix + RhythmPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(prefix + RhythmPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(prefix + RhythmPrKey::Unison::spread);
     
     for (int i = 0; i < RhythmPrValue::pads; i++) {
-        juce::String prefix = code + RhythmPrKey::pad + juce::String(i);
+        juce::String padPrefix = prefix + RhythmPrKey::pad + juce::String(i);
 
-        pLevel[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::volume);
-        pPan[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pan);
-        pNoteNumber[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::note);
-        pQualityMode[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::mode);
-        pRateIndex[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::rate);
-        pIsOneShot[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::oneShot);
-        pPcmOffset[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmOffset);
-        pPcmRatio[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::pcmRatio);
-        pAdsrBypass[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::adsr + RhythmPrKey::bypass);
-        pAdsrStl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::stl);
-        pAdsrAr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::ar);
-        pAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::dr);
-        pAdsrSl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::sl);
-        pAdsrRr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::rr);
-        pAdsrKor[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::Adsr::kor);
-        pPitchAdsrBypass[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass);
-        pPitchAdsrAr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ar);
-        pPitchAdsrDr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::dr);
-        pPitchAdsrRr[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rr);
-        pPitchAdsrStl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::stl);
-        pPitchAdsrAtl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::atl);
-        pPitchAdsrSsl[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::ssl);
-        pPitchAdsrRll[i] = apvts.getRawParameterValue(prefix + RhythmPrKey::Pad::PitchAdsr::rll);
+        pLevel[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::volume);
+        pPan[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pan);
+        pNoteNumber[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::note);
+        pQualityMode[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::mode);
+        pRateIndex[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::rate);
+        pIsOneShot[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::oneShot);
+        pPcmOffset[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmOffset);
+        pPcmRatio[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmRatio);
+        pAdsrBypass[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::adsr + RhythmPrKey::bypass);
+        pAdsrStl[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::stl);
+        pAdsrAr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::ar);
+        pAdsrDr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::dr);
+        pAdsrSl[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::sl);
+        pAdsrRr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::rr);
+        pAdsrKor[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::Adsr::kor);
+        pPitchAdsrBypass[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::pitchAdsr + RhythmPrKey::bypass);
+        pPitchAdsrAr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::ar);
+        pPitchAdsrDr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::dr);
+        pPitchAdsrRr[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::rr);
+        pPitchAdsrStl[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::stl);
+        pPitchAdsrAtl[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::atl);
+        pPitchAdsrSsl[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::ssl);
+        pPitchAdsrRll[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::PitchAdsr::rll);
     }
 }
 
