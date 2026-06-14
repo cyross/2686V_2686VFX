@@ -47,7 +47,7 @@ class Opzx7Adddr
 	KeyScaleMode m_ksMode = KeyScaleMode::MA7;
 	bool m_ksrMA7 = false;
 	int m_kslMA7 = 0;
-	bool m_ksrOPZ = false;
+	int m_ksrOPZ = 0;
 	int m_kslOPZ = 0;
 	int m_ksBp = 60;
 	int m_ksLc = 0;

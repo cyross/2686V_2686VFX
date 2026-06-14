@@ -41,7 +41,7 @@ struct Opzx7AdddrParams
 	int kslMA7 = 0;
 
 	// OPZ
-	bool ksrOPZ = false;
+	int ksrOPZ = 0;
 	int kslOPZ = 0;
 
 	// OPS

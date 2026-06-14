@@ -184,7 +184,11 @@ int Opzx7Adddr::calcRateScaling() const
 
         int noteOffset = m_noteNumber % 12;
         int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        return this->m_ksrOPZ ? keyRate : (keyRate >> 2);
+
+        // OPZのKSR(0〜3)に基づくシフト計算:
+        // 0 なら >> 3,  1 なら >> 2,  2 なら >> 1,  3 なら >> 0
+        int shift = 3 - std::clamp(this->m_ksrOPZ, 0, 3);
+        return keyRate >> shift;
     }
 }
 
@@ -247,7 +251,14 @@ float Opzx7Adddr::calcLevelScalingDb() const
         float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
         if (octaveDiff < 0.0f) octaveDiff = 0.0f;
 
-        return m_dbPerOctsOPZ[std::clamp(this->m_kslOPZ, 0, 7)] * octaveDiff;
+        // 0〜99 の値を 0.0〜1.0 の深度(Depth)に変換
+        float depth = std::clamp(this->m_kslOPZ, 0, 99) / 99.0f;
+
+        // KSL=99の時の1オクターブあたりの最大減衰量
+        // TX81Zは最大でかなり急激に減衰するため 24.0dB / oct 程度で設定
+        float maxDbPerOct = 24.0f;
+
+        return maxDbPerOct * octaveDiff * depth;
     }
 }
 

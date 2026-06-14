@@ -157,16 +157,18 @@ namespace Opzx7PrValue
 			inline constexpr int initial = 0; // 最大値
 		}
 
-		namespace KsOPZ
+		namespace KsrOPZ
 		{
-			inline constexpr bool initial = false;
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
 		}
 
 		namespace KslOPZ
 		{
-			inline constexpr int min = 0; // 最小値
-			inline constexpr int max = 7; // 最大値
-			inline constexpr int initial = 0; // 最大値
+			inline constexpr int min = 0;
+			inline constexpr int max = 99;
+			inline constexpr int initial = 0;
 		}
 
 		namespace KsBp

@@ -231,17 +231,6 @@ static std::vector<SelectItem> kslMA7Items = {
     {.name = "KSL: 3 (6.0db/oct)", .value = 4}
 };
 
-static std::vector<SelectItem> kslOPZItems = {
-    {.name = "KSL: 0 OFF",         .value = 1},
-    {.name = "KSL: 1 (1.5dB/oct)", .value = 2},
-    {.name = "KSL: 2 (3.0dB/oct)", .value = 3},
-    {.name = "KSL: 3 (4.5db/oct)", .value = 4},
-    {.name = "KSL: 4 (6.0db/oct)", .value = 5},
-    {.name = "KSL: 5 (7.5dB/oct)", .value = 6},
-    {.name = "KSL: 6 (9.0dB/oct)", .value = 7},
-    {.name = "KSL: 7 (12.0db/oct)", .value = 8}
-};
-
 static std::vector<SelectItem> ksCurveItems = {
     {.name = "0: -LIN", .value = 1 },
     {.name = "1: -EXP", .value = 2 },
@@ -484,11 +473,11 @@ void GuiOpzx7::setup()
         kslMA7[i].setWantsKeyboardFocus(true);
         kslMA7[i].setExplicitFocusOrder(++tabOrder);
 
-        ksrOPZ[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksrOPZ, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
+        ksrOPZ[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksrOPZ, .title = Opzx7GuiText::Fm::Op::Ksr, .isReset = true });
         ksrOPZ[i].setWantsKeyboardFocus(true);
         ksrOPZ[i].setExplicitFocusOrder(++tabOrder);
 
-        kslOPZ[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::kslOPZ, .title = Opzx7GuiText::Fm::Op::Ksl, .items = kslOPZItems, .isReset = true });
+        kslOPZ[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::kslOPZ, .title = Opzx7GuiText::Fm::Op::Ksl, .isReset = true });
         kslOPZ[i].setWantsKeyboardFocus(true);
         kslOPZ[i].setExplicitFocusOrder(++tabOrder);
 
@@ -1376,7 +1365,7 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
             layoutRow({ .rowRect = rect, .label = &kslMA7[opIndex].label, .component = &kslMA7[opIndex] });
             break;
         case KeyScaleMode::OPZ:
-            layoutRow({ .rowRect = rect, .component = &ksrOPZ[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &ksrOPZ[opIndex].label, .component = &ksrOPZ[opIndex] });
             layoutRow({ .rowRect = rect, .label = &kslOPZ[opIndex].label, .component = &kslOPZ[opIndex] });
             break;
         case KeyScaleMode::OPS:

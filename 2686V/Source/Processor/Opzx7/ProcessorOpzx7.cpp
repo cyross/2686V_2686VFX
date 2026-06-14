@@ -52,7 +52,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::ksMode, opPrefixName + Opzx7PrName::ksMode, Opzx7PrValue::Op::KsMode::min, Opzx7PrValue::Op::KsMode::max, Opzx7PrValue::Op::KsMode::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + Opzx7PrKey::ksrMA7, opPrefixName + Opzx7PrName::ksrMA7, Opzx7PrValue::Op::KsMA7::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::kslMA7, opPrefixName + Opzx7PrName::kslMA7, Opzx7PrValue::Op::KslMA7::min, Opzx7PrValue::Op::KslMA7::max, Opzx7PrValue::Op::KslMA7::initial));
-        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + Opzx7PrKey::ksrOPZ, opPrefixName + Opzx7PrName::ksrOPZ, Opzx7PrValue::Op::KsOPZ::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::ksrOPZ, opPrefixName + Opzx7PrName::ksrOPZ, Opzx7PrValue::Op::KsrOPZ::min, Opzx7PrValue::Op::KsrOPZ::max, Opzx7PrValue::Op::KsrOPZ::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::kslOPZ, opPrefixName + Opzx7PrName::kslOPZ, Opzx7PrValue::Op::KslOPZ::min, Opzx7PrValue::Op::KslOPZ::max, Opzx7PrValue::Op::KslOPZ::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::ksBp, opPrefixName + Opzx7PrName::ksBp, Opzx7PrValue::Op::KsBp::min, Opzx7PrValue::Op::KsBp::max, Opzx7PrValue::Op::KsBp::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::ksLc, opPrefixName + Opzx7PrName::ksLc, Opzx7PrValue::Op::KsLc::min, Opzx7PrValue::Op::KsLc::max, Opzx7PrValue::Op::KsLc::initial));
@@ -275,11 +275,12 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.rg.d2r = (int)pOpAdsrRgD2r[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.rg.rr = (int)pOpAdsrRgRr[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.rg.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
+
         params.opzx7.op[op].m_adsrParams.ksEn = (pOpAdsrKsEn[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.ksMode = (KeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksrMA7 = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.kslMA7 = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksrOPZ = (pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.ksrOPZ = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.kslOPZ = (int)pOpAdsrKslOPZ[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksBp = (int)pOpAdsrKsBp[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksLc = (int)pOpAdsrKsLc[op]->load(std::memory_order_relaxed);
@@ -287,6 +288,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.ksLd = pOpAdsrKsLd[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksRd = pOpAdsrKsRd[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksRs = (int)pOpAdsrKsRs[op]->load(std::memory_order_relaxed);
+
         params.opzx7.op[op].m_adsrParams.sus = (pOpAdsrSus[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread;

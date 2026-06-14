@@ -177,8 +177,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComboBox, Opzx7PrValue::ops> ksMode;
     std::array<GuiToggleButton, Opzx7PrValue::ops> ksrMA7;
     std::array<GuiComboBox, Opzx7PrValue::ops> kslMA7;
-    std::array<GuiToggleButton, Opzx7PrValue::ops> ksrOPZ;
-    std::array<GuiComboBox, Opzx7PrValue::ops> kslOPZ;
+    std::array<GuiSlider, Opzx7PrValue::ops> ksrOPZ;
+    std::array<GuiSlider, Opzx7PrValue::ops> kslOPZ;
     std::array<GuiSlider, Opzx7PrValue::ops> ksBp;
     std::array<GuiComboBox, Opzx7PrValue::ops> ksLc;
     std::array<GuiComboBox, Opzx7PrValue::ops> ksRc;
@@ -286,8 +286,8 @@ public:
         ksMode{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksrMA7{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         kslMA7{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksrOPZ{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        kslOPZ{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksrOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        kslOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ksBp{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ksLc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksRc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
