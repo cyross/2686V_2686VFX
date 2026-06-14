@@ -18,6 +18,7 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -38,7 +39,7 @@ class GuiOpzx7 : public GuiBase
      * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
      * -- : 未使用
      */
-    static inline const std::array<std::array<juce::String, 4>, 36> algOpPrefix = { {
+    static inline const std::array<std::array<juce::String, Opzx7PrValue::ops>, Opzx7PrValue::algorithms> algOpPrefix = { {
         {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}},     // 00: <OPX-00>
         {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])"}},    // 01: <OPX-01>
         {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}},     // 02: <OPX-02>
@@ -78,7 +79,7 @@ class GuiOpzx7 : public GuiBase
     }};
 
     // アルゴリズムごとに利用可能なオペレーターを制限
-    static inline const std::array<std::array<bool, 4>, 36> opEnableOnAlg = { {
+    static inline const std::array<std::array<bool, Opzx7PrValue::ops>, Opzx7PrValue::algorithms> opEnableOnAlg = { {
     {{true, true, true, true}},   // 00: <OPX-00>
     {{true, true, true, true}},   // 01: <OPX-01>
     {{true, true, true, true}},   // 02: <OPX-02>
@@ -118,7 +119,7 @@ class GuiOpzx7 : public GuiBase
 } };
 
     GuiScrollGroup mainGroup;
-    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
+    std::array<GuiScrollGroup, Opzx7PrValue::ops> opGroups;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -149,77 +150,80 @@ class GuiOpzx7 : public GuiBase
     GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
-    std::array<juce::Image, 36> algImages;
+    std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiComboBox, Global::Fm::Op4> mul;
-    std::array<GuiSlider, Global::Fm::Op4> mulRatio;
-    std::array<GuiSlider, Global::Fm::Op4> dt1;
-    std::array<GuiSlider, Global::Fm::Op4> dt2;
-    std::array<GuiSlider, Global::Fm::Op4> dt3;
-    std::array<GuiComponentPitchButtons, Global::Fm::Op4> dt3Btns;
-    std::array<GuiSlider, Global::Fm::Op4> tl;
-    std::array<GuiSlider, Global::Fm::Op4> ar;
-    std::array<GuiSlider, Global::Fm::Op4> d1r;
-    std::array<GuiSlider, Global::Fm::Op4> d1l;
-    std::array<GuiSlider, Global::Fm::Op4> d2r;
-    std::array<GuiSlider, Global::Fm::Op4> rr;
-    std::array<GuiToggleButton, Global::Fm::Op4> ksEn;
-    std::array<GuiToggleButton, Global::Fm::Op4> ksr;
-    std::array<GuiComboBox, Global::Fm::Op4> ksl;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
-    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
-    std::array<GuiComponentFix, Global::Fm::Op4> fix;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catWaveShape;
-    std::array<GuiComboBox, Global::Fm::Op4> ws;
-    std::array<GuiTextButton, Global::Fm::Op4> loadPcmBtn;
-    std::array<GuiTextButton, Global::Fm::Op4> clearPcmBtn;
-    std::array<GuiLabel, Global::Fm::Op4> pcmFileNameLabel;
-    std::array<GuiSlider, Global::Fm::Op4> pcmOffset;
-    std::array<GuiSlider, Global::Fm::Op4> pcmRatio;
-    std::array<GuiTextButton, Global::Fm::Op4> loadWtBtn;
-    std::array<GuiTextButton, Global::Fm::Op4> clearWtBtn;
-    std::array<GuiLabel, Global::Fm::Op4> wtFileNameLabel;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catSsgEnv;
-    std::array<GuiComboBox, Global::Fm::Op4> se;
-    std::array<GuiSlider, Global::Fm::Op4> seFreq;
+    std::array<GuiComboBox, Opzx7PrValue::ops> mul;
+    std::array<GuiSlider, Opzx7PrValue::ops> mulRatio;
+    std::array<GuiSlider, Opzx7PrValue::ops> dt1;
+    std::array<GuiSlider, Opzx7PrValue::ops> dt2;
+    std::array<GuiSlider, Opzx7PrValue::ops> dt3;
+    std::array<GuiComponentPitchButtons, Opzx7PrValue::ops> dt3Btns;
+    std::array<GuiSlider, Opzx7PrValue::ops> tl;
+    std::array<GuiSlider, Opzx7PrValue::ops> ar;
+    std::array<GuiSlider, Opzx7PrValue::ops> d1r;
+    std::array<GuiSlider, Opzx7PrValue::ops> d1l;
+    std::array<GuiSlider, Opzx7PrValue::ops> d2r;
+    std::array<GuiSlider, Opzx7PrValue::ops> rr;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> ksEn;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> ksr;
+    std::array<GuiComboBox, Opzx7PrValue::ops> ksl;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catOptional;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> bypass;
+    std::array<GuiComponentFix, Opzx7PrValue::ops> fix;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catWaveShape;
+    std::array<GuiComboBox, Opzx7PrValue::ops> ws;
+    std::array<GuiTextButton, Opzx7PrValue::ops> loadPcmBtn;
+    std::array<GuiTextButton, Opzx7PrValue::ops> clearPcmBtn;
+    std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
+    std::array<GuiSlider, Opzx7PrValue::ops> pcmOffset;
+    std::array<GuiSlider, Opzx7PrValue::ops> pcmRatio;
+    std::array<GuiTextButton, Opzx7PrValue::ops> loadWtBtn;
+    std::array<GuiTextButton, Opzx7PrValue::ops> clearWtBtn;
+    std::array<GuiLabel, Opzx7PrValue::ops> wtFileNameLabel;
+    std::array<GuiTextButton, Opzx7PrValue::ops> loadWt2Btn;
+    std::array<GuiTextButton, Opzx7PrValue::ops> clearWt2Btn;
+    std::array<GuiLabel, Opzx7PrValue::ops> wt2FileNameLabel;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catSsgEnv;
+    std::array<GuiComboBox, Opzx7PrValue::ops> se;
+    std::array<GuiSlider, Opzx7PrValue::ops> seFreq;
 
     // LFO
-    std::array<GuiComponentLfoOpzx7, Global::Fm::Op4> lfo;
+    std::array<GuiComponentLfoOpzx7, Opzx7PrValue::ops> lfo;
 
     // Pitch ADSR
-    std::array<GuiComponentPitchEnv, Global::Fm::Op4> pitchEnv;
+    std::array<GuiComponentPitchEnv, Opzx7PrValue::ops> pitchEnv;
     // SSG SW Env
-    std::array<GuiComponentSsgSwEnv, Global::Fm::Op4> ssgSwEnv;
+    std::array<GuiComponentSsgSwEnv, Opzx7PrValue::ops> ssgSwEnv;
 
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
-    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
-    std::array<GuiMmlButton, Global::Fm::Op4> mml;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
+    std::array<GuiSeparator, Opzx7PrValue::ops> mmlSeparator;
+    std::array<GuiMmlButton, Opzx7PrValue::ops> mml;
 
-    std::array<GuiToggleButton, Global::Fm::Op4> rgEn;
-    std::array<GuiSlider, Global::Fm::Op4> rgAr;
-    std::array<GuiSlider, Global::Fm::Op4> rgD1r;
-    std::array<GuiSlider, Global::Fm::Op4> rgD2r;
-    std::array<GuiSlider, Global::Fm::Op4> rgD1l;
-    std::array<GuiSlider, Global::Fm::Op4> rgRr;
-    std::array<GuiSlider, Global::Fm::Op4> rgTl;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> rgEn;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgAr;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgD1r;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgD2r;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgD1l;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgRr;
+    std::array<GuiSlider, Opzx7PrValue::ops> rgTl;
 
-    std::array<GuiToggleButton, Global::Fm::Op4> sus; // Sus
-    std::array<GuiToggleButton, Global::Fm::Op4> xof; // Xof
-    std::array<GuiToggleButton, Global::Fm::Op4> kor;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> sus; // Sus
+    std::array<GuiToggleButton, Opzx7PrValue::ops> xof; // Xof
+    std::array<GuiToggleButton, Opzx7PrValue::ops> kor;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
-    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
-    std::array<GuiSeparator, Global::Fm::Op4> graphSeparator;
+    std::array<GuiEnvelopeGraph, Opzx7PrValue::ops> opGraphs;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnAmp;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnPitch;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnSsg;
+    std::array<GuiSeparator, Opzx7PrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
-    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+    std::array<GraphMode, Opzx7PrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
@@ -273,6 +277,9 @@ public:
         loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+        loadWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        clearWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+        wt2FileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
         catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -313,16 +320,25 @@ public:
     void updateWtFileName(int opIndex, const juce::String& fileName) {
 		wtFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
+    void updateWt2FileName(int opIndex, const juce::String& fileName) {
+        wt2FileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+    }
     void updateAllPcmFileName(const juce::String& fileName) {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < Opzx7PrValue::ops; i++)
         {
             pcmFileNameLabel[i].setText(fileName, juce::dontSendNotification);
         }
     }
     void updateAllWtFileName(const juce::String& fileName) {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < Opzx7PrValue::ops; i++)
         {
             wtFileNameLabel[i].setText(fileName, juce::dontSendNotification);
+        }
+    }
+    void updateAllWt2FileName(const juce::String& fileName) {
+        for (int i = 0; i < Opzx7PrValue::ops; i++)
+        {
+            wt2FileNameLabel[i].setText(fileName, juce::dontSendNotification);
         }
     }
     void updateOpEnable(int idx, bool enable);

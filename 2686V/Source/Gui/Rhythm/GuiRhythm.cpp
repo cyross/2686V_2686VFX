@@ -347,7 +347,7 @@ void GuiRhythm::setup()
     int tabOrder = 1;
 
     // パッド名定義
-    const std::array<juce::String, 8> padNames = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
+    const std::array<juce::String, RhythmPrValue::pads> padNames = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
@@ -365,8 +365,8 @@ void GuiRhythm::setup()
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    // Setup 8 Pads
-    for (int i = 0; i < 8; ++i)
+    // Setup Pads
+    for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
         pads[i].setup(*this, i, padNames[i], tabOrder);
     }
@@ -430,7 +430,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
 void GuiRhythm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 {
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
         pads[i].removeLoadButtonListener(editor);
     }
@@ -438,7 +438,7 @@ void GuiRhythm::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 
 void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& formatManager, std::unique_ptr<juce::FileChooser>& fileChooser)
 {
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
         auto& pad = pads[i];
 
@@ -487,7 +487,7 @@ void GuiRhythm::updatePresetName(const juce::String& presetName)
 void GuiRhythm::initParams()
 {
     this->ctx.audioProcessor.initParams("RHYTHM_");
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < RhythmPrValue::pads; i++)
     {
         this->ctx.audioProcessor.unloadRhythmFile(i);
         updatePadFileName(i, Io::empty);

@@ -30,6 +30,10 @@
 
 #include "../Editor/PluginEditor.h"
 
+#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Processor/Wt2/ProcessorWt2Values.h"
+
 class RetroSynthesiser : public juce::Synthesiser
 {
 private:
@@ -530,7 +534,7 @@ public:
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
-    std::array<juce::String, 8> rhythmFilePaths;
+    std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
@@ -540,18 +544,25 @@ public:
     void initParams(const juce::String& code);
 
     // --- OPZX7 PCM File ---
-    std::array<std::vector<float>, 4> opzx7PcmBuffers;
-    std::array<juce::String, 4> opzx7PcmFilePaths;
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7PcmBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7PcmFilePaths;
 
     void loadOpzx7PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx7PcmFile(int opIndex);
 
     // --- OPZX7 Wavetable ---
-    std::array<std::vector<float>, 4> opzx7WtBuffers;
-    std::array<juce::String, 4> opzx7WtFilePaths;
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7WtBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7WtFilePaths;
 
     void loadOpzx7WtFile(int opIndex, const juce::File& file);
     void unloadOpzx7WtFile(int opIndex);
+
+    // --- OPZX7 WT2 ---
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7Wt2Buffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7Wt2FilePaths;
+
+    void loadOpzx7Wt2File(int opIndex, const juce::File& file);
+    void unloadOpzx7Wt2File(int opIndex);
 
     // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>* destBuffer);

@@ -399,7 +399,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     // =================================================================
     // PCM波形の特別処理 (メンバ変数へのアクセスが必要なため分離)
     // =================================================================
-    if (wave == 31)
+    if (wave == Opzx7PrValue::pcmIndex)
     {
         if (m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
         {
@@ -457,6 +457,33 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             // 線形補間で滑らかに読み取る
             return (*m_wtBuffer)[index1] * (1.0f - frac) + (*m_wtBuffer)[index2] * frac;
+        }
+
+        return s; // データが無い場合はサイン波を返す
+    }
+
+    // =================================================================
+    // 波形メモリの特別処理 (メンバ変数へのアクセスが必要なため分離)
+    // =================================================================
+    if (m_params.waveSelect == Opzx7PrValue::wt2Index)
+    {
+        if (m_wt2Buffer != nullptr && !m_wt2Buffer->empty())
+        {
+            size_t totalSize = m_wt2Buffer->size();
+
+            // normPhase (0.0 ~ 1.0) を totalSize にマッピング
+            float floatIndex = normPhase * (float)totalSize;
+            int index1 = (int)floatIndex;
+
+            if (index1 >= totalSize) index1 = totalSize - 1;
+
+            int index2 = index1 + 1;
+            if (index2 >= totalSize) index2 = 0; // ループ
+
+            float frac = floatIndex - (float)index1;
+
+            // 浮動小数点になっているのでそのまま補間して返す
+            return (*m_wt2Buffer)[index1] * (1.0f - frac) + (*m_wt2Buffer)[index2] * frac;
         }
 
         return s; // データが無い場合はサイン波を返す
@@ -583,7 +610,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     case 14:
         return normPhase < 0.5f ? 1.0f : 0.0f;
     case 15:
-        return 0.0f;
+        return 0.0f; // WT
     case 16:
         return triangle(normPhase);
     case 17:
@@ -599,7 +626,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     case 22:
         return isOddQuad(normPhase) ? 1.0f : 0.0f;
     case 23:
-        return 0.0f;
+        return 0.0f; // WT2
     case 24:
         return diagram(normPhase);
     case 25:
@@ -615,7 +642,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     case 30:
         return normPhase < 0.25f ? 1.0f : 0.0f;
     case 31:
-        return 0.0f;
+        return 0.0f; // PCM
     case 32:
         return normPhase < 0.5f ? std::abs(std::sin(p * 2.0f)) : 0.0f;
     case 33:

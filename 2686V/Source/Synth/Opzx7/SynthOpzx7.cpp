@@ -1,8 +1,9 @@
 ﻿#include "./SynthOpzx7.h"
 
 #include "../../Core/Synth/SynthHelpers.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
-const std::array<Opzx7Core::AlgRouting, 36> Opzx7Core::routings = { {
+const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::routings = { {
     // in2_1, fb2_1, in3_1, in3_2, in4_1, in4_2, in4_3, out_1, out_2, out_3, out_4
     { 1.0f, false, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 00
     { 1.0f, true,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 01
@@ -52,6 +53,8 @@ void Opzx7Core::prepare(double sampleRate) {
     m_operators[1].prepare(2, target);
     m_operators[2].prepare(3, target);
     m_operators[3].prepare(4, target);
+//    m_operators[4].prepare(5, target);
+//    m_operators[5].prepare(6, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
@@ -67,6 +70,8 @@ void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
     m_operators[1].setCurveCore(p_curveCore);
     m_operators[2].setCurveCore(p_curveCore);
     m_operators[3].setCurveCore(p_curveCore);
+//    m_operators[4].setCurveCore(p_curveCore);
+//    m_operators[5].setCurveCore(p_curveCore);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -121,6 +126,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_operators[1].setSampleRate(target);
         m_operators[2].setSampleRate(target);
         m_operators[3].setSampleRate(target);
+//        m_operators[4].setSampleRate(target);
+//        m_operators[5].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
     }
@@ -144,6 +151,14 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opzx7.op[3].mask;
+//    m_operators[4].setParameters(params.opzx7.op[4], 0.0f);
+//    m_operators[4].setMonoMode(m_isMonoMode);
+//    m_operators[4].m_pitchResetOnLegato = params.pitchResetOnLegato;
+//    m_opMask[4] = params.opzx7.op[4].mask;
+//    m_operators[5].setParameters(params.opzx7.op[5], 0.0f);
+//    m_operators[5].setMonoMode(m_isMonoMode);
+//    m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
+//    m_opMask[5] = params.opzx7.op[5].mask;
 
     // OPX特有の外部フィードバックアルゴリズムの場合、OP0の自己FBをオフにする
     bool useExtFb = false;
@@ -188,11 +203,15 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[1].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[2].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
+//    m_operators[4].setUnisonPhaseOffset(phaseOffsetNorm);
+//    m_operators[5].setUnisonPhaseOffset(phaseOffsetNorm);
 
     m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[2].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
+//    m_operators[4].noteOn(finalFreq, gain, noteNum, isLegato);
+//    m_operators[5].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_lfoPhase = 0.0; // LFO位相をリセット
     m_rateAccumulator = 0.0; // レートの余りもリセット
@@ -206,6 +225,8 @@ void Opzx7Core::noteOff()
     m_operators[1].noteOff();
     m_operators[2].noteOff();
     m_operators[3].noteOff();
+//    m_operators[4].noteOff();
+//    m_operators[5].noteOff();
 }
 
 bool Opzx7Core::isPlaying() const
@@ -214,6 +235,8 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+//    if (m_operators[4].isPlaying()) return true;
+//    if (m_operators[5].isPlaying()) return true;
 
     return false;
 }
@@ -228,6 +251,8 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
     m_operators[1].setPitchBendRatio(ratio);
     m_operators[2].setPitchBendRatio(ratio);
     m_operators[3].setPitchBendRatio(ratio);
+//    m_operators[4].setPitchBendRatio(ratio);
+//    m_operators[5].setPitchBendRatio(ratio);
 }
 
 void Opzx7Core::setModulationWheel(int wheelValue)
@@ -251,9 +276,10 @@ float Opzx7Core::getSample() {
 
         // Outputs
         float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
+//        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f, out5 = 0.0f, out6 = 0.0f;
         float finalOut = 0.0f;
 
-        int algIndex = std::clamp(m_algorithm, 0, 35);
+        int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
         const auto& r = routings[algIndex];
 
         // =================================================================
@@ -288,10 +314,27 @@ float Opzx7Core::getSample() {
         m_operators[3].getSample(out4, in4, m_lfo, m_modWheel);
         if (m_opMask[3]) out4 = 0.0f;
 
+        /*
+        // =================================================================
+        // 4. OP5 (入力: OP1, OP2, OP3, OP4)
+        // =================================================================
+        float in5 = (out1 * r.in5_1) + (out2 * r.in5_2) + (out3 * r.in5_3) + (out4 * r.in5_4);
+        m_operators[4].getSample(out5, in5, m_lfo, m_modWheel);
+        if (m_opMask[4]) out5 = 0.0f;
+
+        // =================================================================
+        // 4. OP4 (入力: OP1, OP2, OP3, OP4, OP5)
+        // =================================================================
+        float in6 = (out1 * r.in6_1) + (out2 * r.in6_2) + (out3 * r.in6_3) + (out4 * r.in6_4) + (out5 * r.in6_5);
+        m_operators[5].getSample(out6, in6, m_lfo, m_modWheel);
+        if (m_opMask[5]) out6 = 0.0f;
+        */
+
         // =================================================================
         // 5. Final Output (各OPからマスターアウトへの加算)
         // =================================================================
         finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
+//        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) + (out5 * r.out_5)) + (out6 * r.out_6)) * 2.0f;
 
         // =======================================================
         // 無音(0.0)が完全に0.0になる量子化 (UI・WtCoreと完全同期)
@@ -334,15 +377,22 @@ float Opzx7Core::getSample() {
 
 void Opzx7Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
 {
-    if (opIndex >= 0 && opIndex < 4) {
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].setPcmBuffer(pcmData);
     }
 }
 
 void Opzx7Core::setWtBuffer(int opIndex, const std::vector<float>* wtData)
 {
-    if (opIndex >= 0 && opIndex < 4) {
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].setWtBuffer(wtData);
+    }
+}
+
+void Opzx7Core::setWt2Buffer(int opIndex, const std::vector<float>* wtData)
+{
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
+        m_operators[opIndex].setWt2Buffer(wtData);
     }
 }
 

@@ -148,6 +148,11 @@ void SynthVoice::setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData)
     m_opzx7Core.setWtBuffer(opIndex, wtData);
 }
 
+void SynthVoice::setOpzx7Wt2Buffer(int opIndex, const std::vector<float>* wtData)
+{
+    m_opzx7Core.setWt2Buffer(opIndex, wtData);
+}
+
 void SynthVoice::setCurveCore(CurveCore* p_curveCore)
 {
     m_opnaCore.setCurveCore(p_curveCore);

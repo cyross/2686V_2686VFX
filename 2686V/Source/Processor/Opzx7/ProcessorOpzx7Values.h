@@ -9,8 +9,11 @@ namespace Opzx7PrValue
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
 	inline constexpr int ops = 4;
+	inline constexpr int algorithms = 36;
+	inline constexpr int waveShapes = 4;
 	inline constexpr int pcmIndex = 31;
 	inline constexpr int wtIndex = 15;
+	inline constexpr int wt2Index = 23;
 
 	namespace Bit
 	{

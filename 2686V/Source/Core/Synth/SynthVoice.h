@@ -61,6 +61,8 @@ public:
 
     void setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData);
 
+    void setOpzx7Wt2Buffer(int opIndex, const std::vector<float>* wtData);
+
     void setCurveCore(CurveCore* p_curveCore);
 
     std::map<OscMode, SynthCore *> coreMap;

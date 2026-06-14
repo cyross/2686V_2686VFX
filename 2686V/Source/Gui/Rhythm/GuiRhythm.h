@@ -13,6 +13,7 @@
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -127,7 +128,7 @@ class GuiRhythm : public GuiBase
     GuiComponentMidi midiComponent;
 
     // 8 Pads
-    std::array<RhythmPadGui, 8> pads;
+    std::array<RhythmPadGui, RhythmPrValue::pads> pads;
 public:
 	GuiRhythm(const GuiContext& context) :
         GuiBase(context),

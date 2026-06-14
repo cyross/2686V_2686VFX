@@ -172,7 +172,7 @@ static std::vector<SelectItem> opzx7WsItems = {
     {.name = "20 Alt Triangle",                     .value = 21},
     {.name = "21 Alt Abs Triangle",                 .value = 22},
     {.name = "22 Quad Half Square",                 .value = 23},
-    {.name = "23 ---",                              .value = 24},
+    {.name = u8"23 ★★ Wt2 File",                  .value = 24},
     {.name = "24 Diagram",                          .value = 25},
     {.name = "25 Half Diagram",                     .value = 26},
     {.name = "26 Abs Half Saw Up",                  .value = 27},
@@ -320,7 +320,7 @@ void GuiOpzx7::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 36; ++i)
+    for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
     {
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPZX7_%02d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
@@ -336,7 +336,7 @@ void GuiOpzx7::setup()
     // Operators
     const juce::String opCode = code + Opzx7PrKey::op;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
         opGroups[i].setup(*this, Opzx7GuiText::Group::opPrefix + juce::String(i + 1));
 
@@ -499,7 +499,7 @@ void GuiOpzx7::setup()
         pcmRatio[i].setWantsKeyboardFocus(true);
         pcmRatio[i].setExplicitFocusOrder(++tabOrder);
 
-        loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WS", .isReset = false, .isResized = false });
+        loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = false });
         loadWtBtn[i].setWantsKeyboardFocus(true);
         loadWtBtn[i].setExplicitFocusOrder(++tabOrder);
         loadWtBtn[i].onClick = [this, i] {
@@ -529,6 +529,38 @@ void GuiOpzx7::setup()
         wtFileNameLabel[i].setup({ .parent = opGroups[i].contentCanvas, .title = Io::empty });
         if (ctx.audioProcessor.opzx7WtFilePaths[i].isNotEmpty()) {
             updateWtFileName(i, juce::File(ctx.audioProcessor.opzx7WtFilePaths[i]).getFileName());
+        }
+
+        loadWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT2", .isReset = false, .isResized = false });
+        loadWt2Btn[i].setWantsKeyboardFocus(true);
+        loadWt2Btn[i].setExplicitFocusOrder(++tabOrder);
+        loadWt2Btn[i].onClick = [this, i] {
+            ctx.editor.openFileChooser(
+                "Load WT2for OP" + juce::String(i + 1),
+                ctx.audioProcessor.defaultWavetableDir,
+                "*.wt2",
+                [this, i](const juce::FileChooser& fc) {
+                    auto file = fc.getResult();
+                    if (file.existsAsFile()) {
+                        ctx.audioProcessor.loadOpzx7Wt2File(i, file);
+                        updateWt2FileName(i, file.getFileName());
+                        ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                    }
+                }
+            );
+            };
+
+        clearWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearWt2Btn[i].setWantsKeyboardFocus(true);
+        clearWt2Btn[i].setExplicitFocusOrder(++tabOrder);
+        clearWt2Btn[i].onClick = [this, i] {
+            ctx.audioProcessor.unloadOpzx7Wt2File(i);
+            updateWt2FileName(i, Io::empty);
+            };
+
+        wt2FileNameLabel[i].setup({ .parent = opGroups[i].contentCanvas, .title = Io::empty });
+        if (ctx.audioProcessor.opzx7WtFilePaths[i].isNotEmpty()) {
+            updateWt2FileName(i, juce::File(ctx.audioProcessor.opzx7Wt2FilePaths[i]).getFileName());
         }
 
         catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleOptional, .invisibleTitle = Opzx7GuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
@@ -631,7 +663,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mainGroup.setContentHeight(usedHeight + 20);
 
     // --- B. Operators Section (Bottom) ---
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
         auto opArea = pageArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
 
@@ -694,15 +726,21 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 		layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
 
         layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        if (selectedWs == 32)
+        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
         {
             layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
             layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
             layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
         }
-        if (selectedWs == 16)
+
+        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
         {
             layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+        }
+
+        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+        {
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWt2Btn[i], .pcmFileNameLabel = &wt2FileNameLabel[i], .clearPcmBtn = &clearWt2Btn[i] });
         }
 
         layoutOpOptionalCat(i, innerRect);
@@ -843,6 +881,12 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     pcmFileNameLabel[idx].setEnabled(enable);
     pcmOffset[idx].setEnabledWithLabel(enable);
     pcmRatio[idx].setEnabledWithLabel(enable);
+    loadWtBtn[idx].setEnabled(enable);
+    clearWtBtn[idx].setEnabled(enable);
+    wtFileNameLabel[idx].setEnabled(enable);
+    loadWt2Btn[idx].setEnabled(enable);
+    clearWt2Btn[idx].setEnabled(enable);
+    wt2FileNameLabel[idx].setEnabled(enable);
     catMask[idx].setEnabled(enable);
     mask[idx].setEnabled(enable);
     mmlSeparator[idx].setEnabled(enable);
@@ -876,8 +920,9 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
 void GuiOpzx7::updateOnWsChange(int idx)
 {
     int selectedWs = ws[idx].getSelectedId();
-    if (selectedWs == 16)
+    if (selectedWs == (Opzx7PrValue::wtIndex + 1))
     {
+        // WT関連だけ表示
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
@@ -886,9 +931,13 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadWtBtn[idx].setVisible(true);
         clearWtBtn[idx].setVisible(true);
         wtFileNameLabel[idx].setVisible(true);
+        loadWt2Btn[idx].setVisible(false);
+        clearWt2Btn[idx].setVisible(false);
+        wt2FileNameLabel[idx].setVisible(false);
     }
-    else if (selectedWs == 32)
+    else if (selectedWs == (Opzx7PrValue::wt2Index + 1))
     {
+        // WT2関連だけ表示
         loadPcmBtn[idx].setVisible(true);
         clearPcmBtn[idx].setVisible(true);
         pcmFileNameLabel[idx].setVisible(true);
@@ -897,8 +946,27 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
+        loadWt2Btn[idx].setVisible(true);
+        clearWt2Btn[idx].setVisible(true);
+        wt2FileNameLabel[idx].setVisible(true);
+    }
+    else if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+    {
+        // PCM関連だけ表示
+        loadPcmBtn[idx].setVisible(true);
+        clearPcmBtn[idx].setVisible(true);
+        pcmFileNameLabel[idx].setVisible(true);
+        pcmOffset[idx].setVisibleWithLabel(true);
+        pcmRatio[idx].setVisibleWithLabel(true);
+        loadWtBtn[idx].setVisible(false);
+        clearWtBtn[idx].setVisible(false);
+        wtFileNameLabel[idx].setVisible(false);
+        loadWt2Btn[idx].setVisible(false);
+        clearWt2Btn[idx].setVisible(false);
+        wt2FileNameLabel[idx].setVisible(false);
     }
     else {
+        // 全関連非表示
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
@@ -907,6 +975,9 @@ void GuiOpzx7::updateOnWsChange(int idx)
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
+        loadWt2Btn[idx].setVisible(false);
+        clearWt2Btn[idx].setVisible(false);
+        wt2FileNameLabel[idx].setVisible(false);
     }
 }
 
@@ -914,9 +985,10 @@ void GuiOpzx7::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 35) return;
+    if (algIndex < 0 || algIndex > (Opzx7PrValue::algorithms - 1))
+        return;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
         juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 
@@ -979,6 +1051,8 @@ bool GuiOpzx7::keyPressed(const juce::KeyPress& key)
     else if (code == '2' || code == juce::KeyPress::numberPad2) opIndex = 1;
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
+//    else if (code == '5' || code == juce::KeyPress::numberPad3) opIndex = 4;
+//    else if (code == '6' || code == juce::KeyPress::numberPad4) opIndex = 5;
 
     // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)
@@ -1040,13 +1114,17 @@ void GuiOpzx7::pasteFmParamsFromObject()
 void GuiOpzx7::initParams()
 {
     this->ctx.audioProcessor.initParams("OPZX7_");
-    for (int i = 0; i < 4; i++)
+
+    for (int i = 0; i < Opzx7PrValue::ops; i++)
     {
         this->ctx.audioProcessor.unloadOpzx7PcmFile(i);
         updatePcmFileName(i, Io::empty);
 
         this->ctx.audioProcessor.unloadOpzx7WtFile(i);
         updateWtFileName(i, Io::empty);
+
+        this->ctx.audioProcessor.unloadOpzx7Wt2File(i);
+        updateWt2FileName(i, Io::empty);
     }
 }
 

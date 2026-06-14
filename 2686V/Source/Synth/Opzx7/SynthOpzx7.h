@@ -12,6 +12,8 @@
 
 #include "./Operator/SynthOpzx7Op.h"
 
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+
 // ==========================================================
 // OPZX7 Core
 // Base: OPZ (YM2414)
@@ -41,6 +43,7 @@ public:
     float getSample() override;
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
     void setWtBuffer(int opIndex, const std::vector<float>* wtData);
+    void setWt2Buffer(int opIndex, const std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
 
@@ -56,8 +59,8 @@ public:
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
 private:
-    std::array<Opzx7Operator, 4> m_operators;
-    std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
+    std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
     Opzx7LfoCore m_lfo;
 
     double m_hostSampleRate = 44100.0;
@@ -105,7 +108,7 @@ private:
         float out_1, out_2, out_3, out_4; // 最終出力へのミックス割合
     };
 
-    static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
+    static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings; // 36個のアルゴリズム定義
 
     int m_panpot = 0;
     bool m_panpot_enable = false;
