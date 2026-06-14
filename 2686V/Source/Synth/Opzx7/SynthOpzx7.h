@@ -64,6 +64,8 @@ private:
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
+    int m_algorithmCodeBase = 0;
+    int m_algorithmCodeShift = 4; // x16
 
     float m_level = 1.0f;
 

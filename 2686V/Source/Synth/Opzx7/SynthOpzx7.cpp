@@ -84,6 +84,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_level = params.opzx7.level;
 
     m_algorithm = params.opzx7.algorithm; // Range: 0-27
+    m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
@@ -164,9 +165,19 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
     // OPX特有の外部フィードバックアルゴリズムの場合、OP0の自己FBをオフにする
     bool useExtFb = false;
-    if (m_algorithm == 1 || m_algorithm == 5 || m_algorithm == 7 || m_algorithm == 11) useExtFb = true; // 4OP: OP1->OP0 FB
-    if (m_algorithm == 17 || m_algorithm == 21) useExtFb = true; // 3OP: OP2->OP0 FB
-    if (m_algorithm == 25) useExtFb = true; // 2OP: OP1->OP0 FB
+
+    switch (m_algorithmCodeBase) {
+    case 0x10:  //  1
+    case 0x50:  //  5
+    case 0x70:  //  7
+    case 0xb0:  // 11
+    case 0x110: // 17
+    case 0x150: // 21
+    case 0x190: // 25
+        useExtFb = true;
+
+        break;
+    }
 
     m_operators[0].setExternalFeedbackMode(useExtFb);
 }
