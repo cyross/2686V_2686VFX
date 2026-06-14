@@ -9,10 +9,9 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 #include "./Operator/SynthOpzx7Op.h"
-
-#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 // ==========================================================
 // OPZX7 Core

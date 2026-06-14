@@ -4,6 +4,7 @@
 
 #include "./SynthOpnaParams.h"
 #include "./Operator/SynthOpnaOpParams.h"
+#include "../../Processor/Opna/ProcessorOpnaValues.h"
 
 struct OpnaParams
 {
@@ -67,7 +68,7 @@ struct OpnaParams
     int pan = 0;
 
     // Parameters for Operator
-    std::array<OpnaOpParams, 4> op;
+    std::array<OpnaOpParams, OpnaPrValue::ops> op;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8

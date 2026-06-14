@@ -991,7 +991,7 @@ void GuiOpzx7::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > (Opzx7PrValue::algorithms - 1))
+    if (algIndex < 0 || algIndex > Opzx7PrValue::Alg::max)
         return;
 
     for (int i = 0; i < Opzx7PrValue::ops; ++i)

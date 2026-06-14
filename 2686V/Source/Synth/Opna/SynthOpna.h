@@ -4,6 +4,7 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opna/ProcessorOpnaValues.h"
 
 #include "./Operator/SynthOpnaOp.h"
 
@@ -40,8 +41,8 @@ public:
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
 private:
-    std::array<OpnaOperator, 4> m_operators;
-    std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<OpnaOperator, OpnaPrValue::ops> m_operators;
+    std::array<bool, OpnaPrValue::ops> m_opMask{ false, false };
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
 

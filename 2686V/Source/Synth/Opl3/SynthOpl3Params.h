@@ -3,6 +3,7 @@
 #include <array>
 
 #include "./Operator/SynthOpl3OpParams.h"
+#include "../../Processor/Opl3/ProcessorOpl3Values.h"
 
 struct Opl3Params
 {
@@ -27,7 +28,7 @@ struct Opl3Params
     int fmRateIndex = 3;
 
     // Parameters for Operator
-    std::array<Opl3OpParams, 4> op;
+    std::array<Opl3OpParams, Opl3PrValue::ops> op;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8

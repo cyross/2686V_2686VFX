@@ -3,6 +3,7 @@
 #include <array>
 
 #include "./Operator/SynthOpzx7OpParams.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 struct Opzx7Params
 {

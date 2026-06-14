@@ -141,7 +141,7 @@ void GuiOpl::setup()
     initLfoToOplBtn.setWantsKeyboardFocus(true);
     initLfoToOplBtn.setExplicitFocusOrder(++tabOrder);
     initLfoToOplBtn.onClick = [this] {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < OplPrValue::ops; i++)
         {
             ams[i].setValue(3.7, juce::sendNotification);
             amd[i].setValue(4.8, juce::sendNotification);
@@ -154,7 +154,7 @@ void GuiOpl::setup()
     initLfoToOpllBtn.setWantsKeyboardFocus(true);
     initLfoToOpllBtn.setExplicitFocusOrder(++tabOrder);
     initLfoToOpllBtn.onClick = [this] {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < OplPrValue::ops; i++)
         {
             ams[i].setValue(6.06, juce::sendNotification);
             amd[i].setValue(1.2, juce::sendNotification);
@@ -170,7 +170,7 @@ void GuiOpl::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < OplPrValue::algorithms; ++i)
     {
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL_%02d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
@@ -185,7 +185,7 @@ void GuiOpl::setup()
 
     const juce::String opCode = code + OplPrKey::op;
 
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < OplPrValue::ops; ++i)
     {
         opGroups[i].setup(*this, OplGuiText::Group::opPrefix + juce::String(i + 1));
 
@@ -402,7 +402,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
     // --- B. Operators Section ---
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < OplPrValue::ops; ++i)
     {
         auto opArea = pageArea.removeFromLeft(OplGuiValue::Fm::Op::width);
         opGroups[i].setBounds(opArea);
@@ -550,9 +550,9 @@ void GuiOpl::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 1) return;
+    if (algIndex < 0 || algIndex > OplPrValue::Alg::max) return;
 
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < OplPrValue::ops; ++i)
     {
         juce::String newTitle = OplGuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 

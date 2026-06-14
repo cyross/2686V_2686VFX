@@ -275,7 +275,7 @@ void GuiOpm::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < OpmPrValue::algorithms; ++i)
     {
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPNA_OPN_OPM_%02d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
@@ -291,7 +291,7 @@ void GuiOpm::setup()
     // Operators
     const juce::String opCode = code + OpmPrKey::op;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpmPrValue::ops; ++i)
     {
         opGroups[i].setup(*this, OpmGuiText::Group::opPrefix + juce::String(i + 1));
 
@@ -439,7 +439,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     mainGroup.setContentHeight(usedHeight + 20);
 
     // --- B. Operators Section (Bottom) ---
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpmPrValue::ops; ++i)
     {
         auto opArea = pageArea.removeFromLeft(OpmGuiValue::Fm::Op::width);
 
@@ -570,9 +570,9 @@ void GuiOpm::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 7) return;
+    if (algIndex < 0 || algIndex > OpmPrValue::Alg::max) return;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpmPrValue::ops; ++i)
     {
         juce::String newTitle = OpmGuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 

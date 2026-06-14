@@ -9,6 +9,7 @@ namespace OpnaPrValue
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
 	inline constexpr int ops = 4;
+	inline constexpr int algorithms = 8;
 
 	namespace Level
 	{

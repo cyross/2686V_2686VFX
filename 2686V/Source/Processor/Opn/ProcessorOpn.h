@@ -4,6 +4,7 @@
 
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Core/Processor/ProcessorBase.h"
+#include "../../Processor/Opn/ProcessorOpnValues.h"
 
 class OpnProcessor : public PrBase
 {
@@ -25,48 +26,48 @@ class OpnProcessor : public PrBase
     std::atomic<float>* pUnisonDetuneCents = nullptr;
     std::atomic<float>* pUnisonSpread = nullptr;
 
-    std::array<std::atomic<float>*, 4> pOpMultiple = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpDetune = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrBypass = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgAr = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgD1r = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgD1l = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgD2r = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgRr = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrRgTl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrKs = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrXof = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpAdsrKor = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpFixEnable = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpFixFreq = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpN88LfoAms = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvEnable = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvAr = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvDr = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvRr = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvStl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvAtl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvSsl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpPitchEnvRll = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvEnable = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvSteps = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvLoop = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvLoopTo = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvLoopCount = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvStl = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR1 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL1 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR2 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL2 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR3 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL3 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR4 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL4 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR5 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL5 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvR6 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpSsgSwEnvL6 = { nullptr, nullptr, nullptr, nullptr };
-    std::array<std::atomic<float>*, 4> pOpMask = { nullptr, nullptr, nullptr, nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpMultiple = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpDetune = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrBypass = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgAr = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgD1r = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgD1l = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgD2r = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgRr = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrRgTl = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrKs = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrXof = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpAdsrKor = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpFixEnable = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpFixFreq = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpN88LfoAms = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvEnable = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvAr = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvDr = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvRr = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvStl = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvAtl = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvSsl = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpPitchEnvRll = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvEnable = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvSteps = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvLoop = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvLoopTo = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvLoopCount = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvStl = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR1 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL1 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR2 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL2 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR3 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL3 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR4 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL4 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR5 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL5 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvR6 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpSsgSwEnvL6 = { nullptr };
+    std::array<std::atomic<float>*, OpnPrValue::ops> pOpMask = { nullptr };
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;
     void processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts) override;

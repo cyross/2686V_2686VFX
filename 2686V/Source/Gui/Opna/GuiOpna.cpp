@@ -327,7 +327,7 @@ void GuiOpna::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < OpnaPrValue::algorithms; ++i)
     {
         // "%02d" で i が 0〜7 のときに "00" 〜 "07" という文字列を作ります
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPNA_OPN_OPM_%02d.png", i);
@@ -343,7 +343,7 @@ void GuiOpna::setup()
 
     const juce::String opCode = code + OpnaPrKey::op;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpnaPrValue::ops; ++i)
     {
         opGroups[i].setup(*this, OpnaGuiText::Group::opPrefix + juce::String(i + 1));
 
@@ -539,7 +539,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     mainGroup.setContentHeight(usedHeight + 20);
 
     // --- B. Operators Section (Bottom) ---
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpnaPrValue::ops; ++i)
     {
         auto opArea = pageArea.removeFromLeft(OpnaGuiValue::Fm::Op::width);
 
@@ -689,10 +689,10 @@ void GuiOpna::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 7) return;
+    if (algIndex < 0 || algIndex > OpnaPrValue::Alg::max) return;
 
     // 1. 文字列の更新（既存）
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < OpnaPrValue::ops; ++i)
     {
         juce::String newTitle = OpnaGuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
         opGroups[i].setText(newTitle);

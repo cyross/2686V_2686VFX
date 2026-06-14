@@ -16,6 +16,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Processor/Opm/ProcessorOpmValues.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -35,7 +36,7 @@ class GuiOpm : public GuiBase
      * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
      * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
      */
-    static inline const std::array<std::array<juce::String, 4>, 8> algOpPrefix = { {
+    static inline const std::array<std::array<juce::String, OpmPrValue::ops>, OpmPrValue::algorithms> algOpPrefix = { {
         {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}}, // 00
         {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}}, // 01
         {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}}, // 02
@@ -92,51 +93,51 @@ class GuiOpm : public GuiBase
     GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
-    std::array<juce::Image, 8> algImages;
+    std::array<juce::Image, OpmPrValue::algorithms> algImages;
 
-    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
+    std::array<GuiScrollGroup, OpmPrValue::ops> opGroups;
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiComboBox, Global::Fm::Op4> mul;
-    std::array<GuiSlider, Global::Fm::Op4> dt1;
-    std::array<GuiSlider, Global::Fm::Op4> dt2;
-    std::array<GuiComboBox, Global::Fm::Op4> ks;
+    std::array<GuiComboBox, OpmPrValue::ops> mul;
+    std::array<GuiSlider, OpmPrValue::ops> dt1;
+    std::array<GuiSlider, OpmPrValue::ops> dt2;
+    std::array<GuiComboBox, OpmPrValue::ops> ks;
 
     // Pitch ADSR
-    std::array<GuiComponentPitchEnv, Global::Fm::Op4> pitchEnv;
+    std::array<GuiComponentPitchEnv, OpmPrValue::ops> pitchEnv;
     // SSG SW Env
-    std::array<GuiComponentSsgSwEnv, Global::Fm::Op4> ssgSwEnv;
+    std::array<GuiComponentSsgSwEnv, OpmPrValue::ops> ssgSwEnv;
 
-    std::array<GuiCategoryLabel, Global::Fm::Op4> cafLfo;
-    std::array<GuiToggleButton, Global::Fm::Op4> amsEnable;
-    std::array<GuiComponentFix, Global::Fm::Op4> fix;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
-    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
-    std::array<GuiMmlButton, Global::Fm::Op4> mml;
+    std::array<GuiCategoryLabel, OpmPrValue::ops> cafLfo;
+    std::array<GuiToggleButton, OpmPrValue::ops> amsEnable;
+    std::array<GuiComponentFix, OpmPrValue::ops> fix;
+    std::array<GuiCategoryLabel, OpmPrValue::ops> catMask;
+    std::array<GuiToggleButton, OpmPrValue::ops> mask; // Mask
+    std::array<GuiSeparator, OpmPrValue::ops> mmlSeparator;
+    std::array<GuiMmlButton, OpmPrValue::ops> mml;
 
-    std::array<GuiSlider, Global::Fm::Op4> rgAr;
-    std::array<GuiSlider, Global::Fm::Op4> rgD1r;
-    std::array<GuiSlider, Global::Fm::Op4> rgD2r;
-    std::array<GuiSlider, Global::Fm::Op4> rgD1l;
-    std::array<GuiSlider, Global::Fm::Op4> rgRr;
-    std::array<GuiSlider, Global::Fm::Op4> rgTl;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
-    std::array<GuiToggleButton, Global::Fm::Op4> xof;
-    std::array<GuiToggleButton, Global::Fm::Op4> kor;
-    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
+    std::array<GuiSlider, OpmPrValue::ops> rgAr;
+    std::array<GuiSlider, OpmPrValue::ops> rgD1r;
+    std::array<GuiSlider, OpmPrValue::ops> rgD2r;
+    std::array<GuiSlider, OpmPrValue::ops> rgD1l;
+    std::array<GuiSlider, OpmPrValue::ops> rgRr;
+    std::array<GuiSlider, OpmPrValue::ops> rgTl;
+    std::array<GuiCategoryLabel, OpmPrValue::ops> catOptional;
+    std::array<GuiToggleButton, OpmPrValue::ops> xof;
+    std::array<GuiToggleButton, OpmPrValue::ops> kor;
+    std::array<GuiToggleButton, OpmPrValue::ops> bypass;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
-    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
-    std::array<GuiSeparator, Global::Fm::Op4> graphSeparator;
+    std::array<GuiEnvelopeGraph, OpmPrValue::ops> opGraphs;
+    std::array<GuiToggleButton, OpmPrValue::ops> graphBtnAmp;
+    std::array<GuiToggleButton, OpmPrValue::ops> graphBtnPitch;
+    std::array<GuiToggleButton, OpmPrValue::ops> graphBtnSsg;
+    std::array<GuiSeparator, OpmPrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
-    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+    std::array<GraphMode, OpmPrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;

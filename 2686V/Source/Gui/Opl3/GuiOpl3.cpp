@@ -152,7 +152,7 @@ void GuiOpl3::setup()
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < Opl3PrValue::algorithms; ++i)
     {
         juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL3_%02d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
@@ -167,7 +167,7 @@ void GuiOpl3::setup()
 
     const juce::String opCode = code + Opl3PrKey::op;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
         opGroups[i].setup(*this, Opl3GuiText::Group::opPrefix + juce::String(i + 1));
 
@@ -360,7 +360,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
     // --- Operators Section ---
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
         auto opArea = pageArea.removeFromLeft(Opl3GuiValue::Fm::Op::width);
         opGroups[i].setBounds(opArea);
@@ -505,9 +505,9 @@ void GuiOpl3::updateAlgorithmDisplay()
 {
     int algIndex = algSelector.getSelectedItemIndex();
 
-    if (algIndex < 0 || algIndex > 6) return;
+    if (algIndex < 0 || algIndex > Opl3PrValue::Alg::max) return;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
         juce::String newTitle = Opl3GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
 

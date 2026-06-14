@@ -504,7 +504,7 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 15;
 		}
 
 		namespace Sr
@@ -539,7 +539,7 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 15;
 		}
 
 		namespace D2r
@@ -575,7 +575,7 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 15;
 		}
 
 		namespace Rr

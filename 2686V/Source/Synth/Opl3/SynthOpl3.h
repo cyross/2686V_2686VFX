@@ -2,6 +2,7 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opl3/ProcessorOpl3Values.h"
 
 #include "./Operator/SynthOpl3Op.h"
 
@@ -14,7 +15,7 @@ class Opl3Core : public FmCore
 public:
     Opl3Core() : FmCore() {}
 
-    std::array<Opl3Operator, 4> m_operators;
+    std::array<Opl3Operator, Opl3PrValue::ops> m_operators;
 
     struct AlgRouting {
         float in2_1; // OP2への入力 (OP1から)
@@ -50,7 +51,7 @@ public:
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
 private:
-    std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<bool, Opl3PrValue::ops> m_opMask{ false };
 
     float m_level = 1.0f;
 
