@@ -8,6 +8,8 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 {
     const juce::String code = SsgPrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + SsgPrKey::level, code + SsgPrName::level, SsgPrValue::Level::min, SsgPrValue::Level::max, SsgPrValue::Level::initial));
+
     // ==========================================
     // SSG Parameters
     // ==========================================
@@ -77,6 +79,8 @@ void SsgProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = SsgPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + SsgPrKey::level);
 
     pTone = apvts.getRawParameterValue(code + SsgPrKey::tone);
     pNoise = apvts.getRawParameterValue(code + SsgPrKey::noise);
@@ -168,8 +172,10 @@ void SsgProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void SsgProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.ssg.level = pLevel->load(std::memory_order_relaxed);
+
     // --- SSG Parameters ---
-    params.ssg.level = pTone->load(std::memory_order_relaxed);
+    params.ssg.tone = pTone->load(std::memory_order_relaxed);
     params.ssg.noiseLevel = pNoise->load(std::memory_order_relaxed);
     params.ssg.noiseFreq = pNoiseFreq->load(std::memory_order_relaxed);
     params.ssg.noiseOnNote = (pNoiseOnNote->load(std::memory_order_relaxed) > SsgPrValue::boolThread);

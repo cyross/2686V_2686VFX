@@ -66,6 +66,8 @@ private:
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
 
+    float m_level = 1.0f;
+
     // Rate & Quality
     int m_rateIndex = 1;
     double m_rateAccumulator = 0.0;

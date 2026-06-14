@@ -43,6 +43,7 @@ namespace Opl3GuiText
 
 	namespace Fm
 	{
+		static inline const juce::String level = u8"Level";
 		static inline const juce::String alg = u8"Alg";
 		static inline const juce::String fb = u8"Fb";
 		static inline const juce::String lfoFreq = u8"Freq";

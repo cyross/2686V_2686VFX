@@ -8,6 +8,8 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 {
     const juce::String code = OplPrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OplPrKey::level, code + OplPrName::level, OplPrValue::Level::min, OplPrValue::Level::max, OplPrValue::Level::initial));
+
     // ==========================================
     // OPL (YM3526) Parameters
     // ==========================================
@@ -60,6 +62,8 @@ void OplProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = OplPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + OplPrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + OplPrKey::alg);
     pFb = apvts.getRawParameterValue(code + OplPrKey::fb);
@@ -131,6 +135,8 @@ void OplProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opl.level = pLevel->load(std::memory_order_relaxed);
+
     params.opl.algorithm = (int)pAlg->load(std::memory_order_relaxed);
     params.opl.feedback = pFb->load(std::memory_order_relaxed);
     params.opl.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);

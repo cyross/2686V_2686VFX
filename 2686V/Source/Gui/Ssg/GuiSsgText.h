@@ -72,6 +72,8 @@ namespace SsgGuiText
 
 	namespace Ssg
 	{
+		static inline const juce::String level = u8"Level";
+
 		namespace Voice
 		{
 			static inline const juce::String form = u8"Form";

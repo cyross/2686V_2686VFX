@@ -50,6 +50,8 @@ private:
     double m_sampleRate = 44100.0;
 
     float m_level = 1.0f;
+
+    float m_tone = 1.0f;
     float m_noiseLevel = 0.0f;
     float m_mix = 0.5;
     int m_waveform = 0; // 0:Pulse, 1:Triangle

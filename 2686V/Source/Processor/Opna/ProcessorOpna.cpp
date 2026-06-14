@@ -7,7 +7,9 @@
 void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
     const juce::String code = OpnaPrKey::prefix;
-    
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpnaPrKey::level, code + OpnaPrName::level, OpnaPrValue::Level::min, OpnaPrValue::Level::max, OpnaPrValue::Level::initial));
+
     // ==========================================
     // OPNA (YM2608) Parameters
     // ==========================================
@@ -73,6 +75,8 @@ void OpnaProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 
 void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = OpnaPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + OpnaPrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + OpnaPrKey::alg);
     pFb = apvts.getRawParameterValue(code + OpnaPrKey::fb);
@@ -161,6 +165,8 @@ void OpnaProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opna.level = pLevel->load(std::memory_order_relaxed);
+
     params.opna.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
     params.opna.feedback = pFb->load(std::memory_order_relaxed);

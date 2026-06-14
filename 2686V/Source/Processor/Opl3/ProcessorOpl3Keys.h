@@ -10,6 +10,8 @@ namespace Opl3PrKey
 {
 	static inline const juce::String prefix = "OPL3";
 
+	static inline const juce::String level = "_LEVEL";
+
 	static inline const juce::String masterVol = CorePrKey::masterVol;
 	static inline const juce::String monoMode = CorePrKey::monoMode;
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;

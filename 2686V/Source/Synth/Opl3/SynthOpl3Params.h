@@ -6,6 +6,8 @@
 
 struct Opl3Params
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---

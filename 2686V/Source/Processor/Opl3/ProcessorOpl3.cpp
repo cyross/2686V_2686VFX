@@ -8,6 +8,8 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 {
     const juce::String code = Opl3PrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opl3PrKey::level, code + Opl3PrName::level, Opl3PrValue::Level::min, Opl3PrValue::Level::max, Opl3PrValue::Level::initial));
+
     // ==============================================================================
     // OPL3 Parameters (4 Ops, 8 Waveforms)
     // ==============================================================================
@@ -59,6 +61,8 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
 
 void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = Opl3PrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + Opl3PrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + Opl3PrKey::alg);
     pFb = apvts.getRawParameterValue(code + Opl3PrKey::fb);
@@ -129,6 +133,8 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opl3.level = pLevel->load(std::memory_order_relaxed);
+
     params.opl3.algorithm = (int)pAlg->load(std::memory_order_relaxed);
     params.opl3.feedback = pFb->load(std::memory_order_relaxed);
     params.opl3.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);

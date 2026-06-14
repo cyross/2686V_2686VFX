@@ -42,6 +42,8 @@ void OpnaCore::setSampleRate(double sampleRate) {
 }
 
 void OpnaCore::setParameters(const SynthParams& params) {
+    m_level = params.opna.level;
+
     m_algorithm = params.opna.algorithm;
 
     // ユニゾン・ハーモニー用
@@ -273,7 +275,7 @@ float OpnaCore::getSample() {
     float fraction = (float)(m_rateAccumulator / stepSize);
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
 
 void OpnaCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

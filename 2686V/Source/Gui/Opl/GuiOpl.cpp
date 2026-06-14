@@ -112,6 +112,10 @@ void GuiOpl::setup()
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
+    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OplPrKey::level, .title = OplGuiText::Fm::level, .isReset = true });
+    levelSlider.setWantsKeyboardFocus(true);
+    levelSlider.setExplicitFocusOrder(++tabOrder);
+
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Category::visibleQuality, .invisibleTitle = OplGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OplPrKey::bit, .title = OplGuiText::bit, .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
@@ -370,6 +374,8 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });

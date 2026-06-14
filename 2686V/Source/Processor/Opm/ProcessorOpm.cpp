@@ -9,6 +9,8 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 {
     const juce::String code = OpmPrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpmPrKey::level, code + OpmPrName::level, OpmPrValue::Level::min, OpmPrValue::Level::max, OpmPrValue::Level::initial));
+
     // ==========================================
     // OPM (YM2151) Parameters
     // ==========================================
@@ -70,6 +72,8 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = OpmPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + OpmPrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + OpmPrKey::alg);
     pFb = apvts.getRawParameterValue(code + OpmPrKey::fb);
@@ -152,6 +156,8 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opm.level = pLevel->load(std::memory_order_relaxed);
+
     params.opm.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
     params.opm.feedback = pFb->load(std::memory_order_relaxed);

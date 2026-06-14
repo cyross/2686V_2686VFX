@@ -6,6 +6,8 @@
 
 struct Opzx7Params
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---

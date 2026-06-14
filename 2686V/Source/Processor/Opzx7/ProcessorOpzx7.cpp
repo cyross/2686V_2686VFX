@@ -8,6 +8,8 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 {
     const juce::String code = Opzx7PrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + Opzx7PrKey::level, code + Opzx7PrName::level, Opzx7PrValue::Level::min, Opzx7PrValue::Level::max, Opzx7PrValue::Level::initial));
+
     // ==========================================
     // OPZ + OPX + MA-3(SD-1) Parameters
     // ==========================================
@@ -82,6 +84,8 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 
 void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = Opzx7PrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + Opzx7PrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + Opzx7PrKey::alg);
     pFb = apvts.getRawParameterValue(code + Opzx7PrKey::fb);
@@ -198,6 +202,8 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opzx7.level = pLevel->load(std::memory_order_relaxed);
+
     params.opzx7.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
     params.opzx7.feedback = pFb->load(std::memory_order_relaxed);

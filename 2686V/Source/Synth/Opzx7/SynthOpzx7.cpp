@@ -81,6 +81,8 @@ void Opzx7Core::setSampleRate(double sampleRate) {
 }
 
 void Opzx7Core::setParameters(const SynthParams& params) {
+    m_level = params.opzx7.level;
+
     m_algorithm = params.opzx7.algorithm; // Range: 0-27
 
     // ユニゾン・ハーモニー用
@@ -372,7 +374,7 @@ float Opzx7Core::getSample() {
 
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    return m_prevSample + (m_lastSample - m_prevSample) * m_level * fraction;
 }
 
 void Opzx7Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)

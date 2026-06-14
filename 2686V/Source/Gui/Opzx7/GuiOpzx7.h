@@ -119,7 +119,8 @@ class GuiOpzx7 : public GuiBase
 } };
 
     GuiScrollGroup mainGroup;
-    std::array<GuiScrollGroup, Opzx7PrValue::ops> opGroups;
+
+    GuiSlider levelSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -152,6 +153,7 @@ class GuiOpzx7 : public GuiBase
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
 
+    std::array<GuiScrollGroup, Opzx7PrValue::ops> opGroups;
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiComboBox, Opzx7PrValue::ops> mul;
@@ -234,9 +236,9 @@ public:
 	GuiOpzx7(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         qualityCat(context),
         algFbCat(context),
+        levelSlider(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
@@ -249,6 +251,7 @@ public:
         panToRBtn(context),
         glLfo(context),
 		unisonComponent(context),
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },

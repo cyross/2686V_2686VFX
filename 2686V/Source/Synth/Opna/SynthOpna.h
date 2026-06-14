@@ -45,6 +45,8 @@ private:
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
 
+    float m_level = 1.0f;
+
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
 

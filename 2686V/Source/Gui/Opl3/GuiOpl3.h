@@ -45,10 +45,11 @@ class GuiOpl3 : public GuiBase
     } };
 
     GuiScrollGroup mainGroup;
-    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
+
+    GuiSlider levelSlider;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
@@ -67,6 +68,7 @@ class GuiOpl3 : public GuiBase
     juce::ImageComponent algImageComp;
     std::array<juce::Image, 7> algImages;
 
+    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
     std::array<GuiCategoryLabel, Global::Fm::Op4> catLfo;
     std::array<GuiComboBox, Global::Fm::Op4> mul;
     std::array<GuiToggleButton, Global::Fm::Op4> am;
@@ -127,14 +129,15 @@ public:
     GuiOpl3(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         qualityCat(context),
         algFbCat(context),
+        levelSlider(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
         rateSelector(context),
         unisonComponent(context),
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },

@@ -8,6 +8,8 @@
 
 struct SsgParams
 {
+    float level = 1.0f;
+
     // [[ SSG Parameters ]]
 
     // --- Bit Depth ---
@@ -19,7 +21,7 @@ struct SsgParams
     int rateIndex = 3; // Default 49.7kHz
 
     // --- Tone Level ---
-    float level = 1.0f;
+    float tone = 1.0f;
 
     // --- Noise Level ---
     float noiseLevel = 0.0f; // Noise

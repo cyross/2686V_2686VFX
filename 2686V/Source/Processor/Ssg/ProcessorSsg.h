@@ -7,6 +7,7 @@
 
 class SsgProcessor : public PrBase
 {
+    std::atomic<float>* pLevel = nullptr;
     std::atomic<float>* pTone = nullptr;
     std::atomic<float>* pNoise = nullptr;
     std::atomic<float>* pNoiseFreq = nullptr;

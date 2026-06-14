@@ -98,6 +98,10 @@ void GuiSsg::setup()
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
+    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::level, .title = SsgGuiText::Ssg::level, .isReset = true });
+    levelSlider.setWantsKeyboardFocus(true);
+    levelSlider.setExplicitFocusOrder(++tabOrder);
+
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
@@ -150,9 +154,9 @@ void GuiSsg::setup()
 
     toneCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgTone });
 
-    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
-    levelSlider.setWantsKeyboardFocus(true);
-    levelSlider.setExplicitFocusOrder(++tabOrder);
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    toneSlider.setWantsKeyboardFocus(true);
+    toneSlider.setExplicitFocusOrder(++tabOrder);
 
     noiseCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgNoise });
 
@@ -282,10 +286,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+
     layoutMainCategory({ .mainRect = mRect, .label = &shapeCat });
     layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector, });
     layoutMainCategory({ .mainRect = mRect, .label = &toneCat });
-    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
+    layoutMain({ .mainRect = mRect, .label = &toneSlider.label, .component = &toneSlider, });
     layoutMainCategory({ .mainRect = mRect, .label = &noiseCat });
     layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
     layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });

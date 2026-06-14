@@ -46,7 +46,8 @@ class GuiOpn : public GuiBase
     } };
 
     GuiScrollGroup mainGroup;
-    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
+
+    GuiSlider levelSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -86,6 +87,7 @@ class GuiOpn : public GuiBase
     std::array<GuiComboBox, Global::Fm::Op4> dt;
     std::array<GuiComboBox, Global::Fm::Op4> ks; // Key Scale (0-3)
 
+    std::array<GuiScrollGroup, Global::Fm::Op4> opGroups;
     // Pitch ADSR
     std::array<GuiComponentPitchEnv, Global::Fm::Op4> pitchEnv;
     // SSG SW Env
@@ -133,9 +135,9 @@ public:
 	GuiOpn(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         qualityCat(context),
         algFbCat(context),
+        levelSlider(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
@@ -153,6 +155,7 @@ public:
         lfoPmdSlider(context),
         lfoPmsSlider(context),
         lfoAmdSlider(context),
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },

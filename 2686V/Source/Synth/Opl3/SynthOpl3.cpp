@@ -45,6 +45,8 @@ void Opl3Core::setSampleRate(double sampleRate) {
 // --- Opl3Core.cpp : setParameters() 内 ---
 
 void Opl3Core::setParameters(const SynthParams& params) {
+    m_level = params.opl3.level;
+
     m_algorithm = params.opl3.algorithm;
 
     // ユニゾン・ハーモニー用
@@ -250,7 +252,7 @@ float Opl3Core::getSample() {
     float fraction = (float)(m_rateAccumulator / stepSize);
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
 
 void Opl3Core::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

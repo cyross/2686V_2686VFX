@@ -8,6 +8,8 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 {
     const juce::String code = OpnPrKey::prefix;
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(code + OpnPrKey::level, code + OpnPrName::level, OpnPrValue::Level::min, OpnPrValue::Level::max, OpnPrValue::Level::initial));
+
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::alg, code + OpnPrName::alg, OpnPrValue::Alg::min, OpnPrValue::Alg::max, OpnPrValue::Alg::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::fb, code + OpnPrName::fb, OpnPrValue::Fb::min, OpnPrValue::Fb::max, OpnPrValue::Fb::initial));
     layout.add(std::make_unique<juce::AudioParameterInt>(code + OpnPrKey::bit, code + OpnPrName::bit, OpnPrValue::Bit::min, OpnPrValue::Bit::max, OpnPrValue::Bit::initial));
@@ -61,6 +63,8 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
 
 void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String code = OpnPrKey::prefix;
+
+    pLevel = apvts.getRawParameterValue(code + OpnPrKey::level);
 
     pAlg = apvts.getRawParameterValue(code + OpnPrKey::alg);
     pFb = apvts.getRawParameterValue(code + OpnPrKey::fb);
@@ -138,6 +142,8 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
+    params.opn.level = pLevel->load(std::memory_order_relaxed);
+
     params.opn.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
     params.opn.feedback = pFb->load(std::memory_order_relaxed);

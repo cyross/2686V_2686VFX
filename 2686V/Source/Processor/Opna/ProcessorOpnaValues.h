@@ -10,6 +10,13 @@ namespace OpnaPrValue
 
 	inline constexpr int ops = 4;
 
+	namespace Level
+	{
+		inline constexpr float min = CorePrValue::Level::min;
+		inline constexpr float max = CorePrValue::Level::max;
+		inline constexpr float initial = CorePrValue::Level::initial;
+	}
+
 	namespace Bit
 	{
 		// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)

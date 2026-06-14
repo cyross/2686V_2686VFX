@@ -10,6 +10,8 @@ namespace Opzx7PrKey
 {
 	static inline const juce::String prefix = "OPZX7";
 
+	static inline const juce::String level = "_LEVEL";
+
 	static inline const juce::String masterVol = CorePrKey::masterVol;
 	static inline const juce::String monoMode = CorePrKey::monoMode;
 

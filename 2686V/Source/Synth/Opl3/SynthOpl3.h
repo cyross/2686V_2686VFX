@@ -52,6 +52,8 @@ public:
 private:
     std::array<bool, 4> m_opMask{ false, false, false, false };
 
+    float m_level = 1.0f;
+
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;
     int m_rateIndex = 1;

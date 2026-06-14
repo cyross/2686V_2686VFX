@@ -6,6 +6,8 @@
 
 struct OpnParams
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---

@@ -46,6 +46,8 @@ void SsgCore::setSampleRate(double sampleRate) {
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
+
+    m_tone = params.ssg.tone;
     m_mix = params.ssg.mix;
 
     // ユニゾン・ハーモニー用
@@ -441,7 +443,7 @@ float SsgCore::getSample()
         // ==========================================
         float toneGain = 1.0f - m_mix;
         float noiseGain = m_mix;
-        float rawMixed = (toneSample * m_level * toneGain) + m_noiseGen.generateSample(noiseGain);
+        float rawMixed = (toneSample * m_tone * toneGain) + m_noiseGen.generateSample(noiseGain);
 
         // AM（トレモロ効果）をここで掛け合わせる
         rawMixed *= hwEnvGain * amMultiplier;
@@ -472,7 +474,7 @@ float SsgCore::getSample()
 
     float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
 
-    return interpolatedSample * finalEnv * m_baseLevel * 8.0f; 
+    return interpolatedSample * finalEnv * m_baseLevel * m_level * 8.0f;
 }
 
 void SsgCore::updatePhaseDelta() {

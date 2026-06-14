@@ -8,6 +8,7 @@
 
 class Opzx7Processor : public PrBase
 {
+    std::atomic<float>* pLevel = nullptr;
     std::atomic<float>* pAlg = nullptr;
     std::atomic<float>* pFb = nullptr;
     std::atomic<float>* pDepth = nullptr;

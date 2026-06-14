@@ -39,6 +39,8 @@ class GuiSsg : public GuiBase
 
     GuiSlider levelSlider;
 
+    GuiSlider toneSlider;
+
     GuiSlider noiseSlider;
 
     GuiSlider noiseFreqSlider;
@@ -135,6 +137,7 @@ public:
         triPeakCat(context),
         hwEnvCat(context),
         levelSlider(context),
+        toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
         noiseOnNoteButton(context),
