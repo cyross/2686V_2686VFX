@@ -2,15 +2,49 @@
 
 #include "../../Core/Synth/SynthHelpers.h"
 
-const std::array<Opl3Core::AlgRouting, 7> Opl3Core::routings = { {
-    // in2_1, in3_2, in4_3, out_1, out_2, out_3, out_4
-    { 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f }, // 0: 1(FB) -> 2 -> 3 -> 4
-    { 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // 1: 1(FB) + (2 -> 3 -> 4)
-    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 2: (1(FB) -> 2) + (3 -> 4)
-    { 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 1.0f, 1.0f }, // 3: 1(FB) + (2 -> 3) + 4
-    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }, // 4: 1(FB) + 2 + 3 + 4
-    { 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // 5: (1(FB) -> 2) + (3(FB) -> 4)
-    { 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f }  // 6: 1(FB) + 2 + 3(FB) + 4
+// ============================================================================
+// マトリクスを簡単に構築するためのヘルパー関数 (6オペ完全対応・拡張フィードバック)
+// ============================================================================
+Opl3Core::AlgRouting makeAlg(
+    std::initializer_list<int> carriers,
+    std::initializer_list<std::pair<int, int>> mods,
+    std::initializer_list<std::pair<int, int>> fbMods) // NEW: フィードバックの接続リスト
+{
+    Opl3Core::AlgRouting r;
+
+    // 出力マトリクスを初期化
+    r.out.fill(0.0f);
+    for (int c : carriers) r.out[c] = 1.0f;
+
+    // 通常の変調マトリクスを初期化
+    for (auto& row : r.mod) row.fill(0.0f);
+    for (auto& m : mods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.mod[m.second][m.first] = 1.0f;
+    }
+
+    // フィードバック変調マトリクスを初期化
+    for (auto& row : r.fbMod) row.fill(0.0f);
+    for (auto& m : fbMods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.fbMod[m.second][m.first] = 1.0f;
+    }
+
+    return r;
+}
+
+// ============================================================================
+// アルゴリズムの定義 (例: 32種類と仮定)
+// ============================================================================
+const std::array<Opl3Core::AlgRouting, Opl3PrValue::algorithms> Opl3Core::routings = { {
+    makeAlg({3}, {{0, 1}, {1, 2}, {2, 3}}, {{0, 0}}),    // 00
+    makeAlg({1, 3}, {{0, 1}, {2, 3}}, {{0, 0}}),         // 01
+    makeAlg({0, 3}, {{1, 2}, {2, 3}}, {{0, 0}}),         // 02
+    makeAlg({0, 2, 3}, {{1, 2}}, {{0, 0}}),              // 03
+    makeAlg({1, 2, 3}, {{0, 2}}, {{0, 0}}),              // 04
+    makeAlg({0, 1, 2, 3}, {}, {{0, 0}}),                 // 05
+    makeAlg({1, 3}, {{0, 1}, {2, 3}}, {{0, 0}, {2, 2}}), // 06
+    makeAlg({0, 1, 2, 3}, {}, {{0, 0}, {2, 2}}),         // 07
 } };
 
 void Opl3Core::prepare(double sampleRate) {
@@ -71,15 +105,15 @@ void Opl3Core::setParameters(const SynthParams& params) {
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opl3.op[0].mask;
-    m_operators[1].setParameters(params.opl3.op[1], 0.0f);
+    m_operators[1].setParameters(params.opl3.op[1], params.opl3.feedback);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opl3.op[1].mask;
-    m_operators[2].setParameters(params.opl3.op[2], (m_algorithm == 5 || m_algorithm == 6) ? params.opl3.feedback : 0.0f);
+    m_operators[2].setParameters(params.opl3.op[2], params.opl3.feedback);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opl3.op[2].mask;
-    m_operators[3].setParameters(params.opl3.op[3], 0.0f);
+    m_operators[3].setParameters(params.opl3.op[3], params.opl3.feedback);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opl3.op[3].mask;
@@ -193,58 +227,60 @@ float Opl3Core::getSample() {
         m_operators[2].processLfo();
         m_operators[3].processLfo();
 
-        // -------------------------------
-
-        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
+        std::array<float, Opl3PrValue::ops> currentOut = { 0.0f };
         float finalOut = 0.0f;
 
-        // 安全のため 0〜6 の範囲に丸める
-        int algIndex = std::clamp(m_algorithm, 0, 6);
+        int algIndex = std::clamp(m_algorithm, 0, Opl3PrValue::algorithms - 1);
         const auto& r = routings[algIndex];
 
         // =================================================================
-        // OP1 (入力なし)
+        // オペレータの評価 (OP1 -> OP6 の正順で計算)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f);
-        if (m_opMask[0]) out1 = 0.0f;
+        for (int i = 0; i < Opl3PrValue::ops; ++i) { // 0 から 5 へ
+            float modulator = 0.0f;
+            float fbModulator = 0.0f;
 
-        // =================================================================
-        // OP2 (入力: OP1)
-        // =================================================================
-        float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2);
-        if (m_opMask[1]) out2 = 0.0f;
+            // 1. 通常の変調入力 (mod)
+            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+                if (r.mod[i][src] > 0.0f) {
+                    // src が i より「小さい」なら既に計算済み(currentOut)、
+                    // 大きいなら未計算なので1サンプル前の history1 を使う
+                    float srcVal = (src < i) ? currentOut[src] : m_history1[src];
 
-        // =================================================================
-        // OP3 (入力: OP2)
-        // =================================================================
-        float in3 = out2 * r.in3_2;
-        m_operators[2].getSample(out3, in3);
-        if (m_opMask[2]) out3 = 0.0f;
+                    modulator += srcVal * r.mod[i][src];
+                }
+            }
 
-        // =================================================================
-        // OP4 (入力: OP3)
-        // =================================================================
-        float in4 = out3 * r.in4_3;
-        m_operators[3].getSample(out4, in4);
-        if (m_opMask[3]) out4 = 0.0f;
+            // 2. フィードバック変調入力 (fbMod)
+            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+                if (r.fbMod[i][src] > 0.0f) {
+                    // フィードバックは常に「過去2サンプルの平均」
+                    float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
 
-        // =================================================================
-        // Final Output
-        // =================================================================
-        // velocity を 0.25倍した補正として、finalOut を 2 倍しています。
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
+                    fbModulator += averageFb * r.fbMod[i][src];
+                }
+            }
 
-        // =======================================================
-        // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
-        // =======================================================
-        if (m_quantizeSteps > 0.0f) {
-            // 単純に掛け算して丸め、割り算で戻すだけでゼロクロスが保証されます
-            finalOut = std::round(finalOut * m_quantizeSteps) / m_quantizeSteps;
+            // 3. オペレータを計算
+            m_operators[i].getSample(currentOut[i], modulator, fbModulator);
 
-            // 安全のためのクリップ
-            finalOut = std::clamp(finalOut, -1.0f, 1.0f);
+            if (m_opMask[i]) currentOut[i] = 0.0f;
         }
+
+        // =================================================================
+        // 履歴 (History) のシフト
+        // =================================================================
+        m_history2 = m_history1;
+        m_history1 = currentOut;
+
+        // =================================================================
+        // Final Output (各OPからマスターアウトへの加算)
+        // =================================================================
+        for (int i = 0; i < Opl3PrValue::ops; ++i) {
+            finalOut += currentOut[i] * r.out[i];
+        }
+
+        finalOut *= 2.0f; // ゲイン補正
 
         m_lastSample = finalOut;
     }

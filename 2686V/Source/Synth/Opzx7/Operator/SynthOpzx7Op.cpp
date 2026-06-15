@@ -79,8 +79,6 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
             }
 
             m_currentLevel = 0.0f;
-            m_fb1 = 0.0f;
-            m_fb2 = 0.0f;
         }
 
         m_lfo.noteOn();
@@ -322,7 +320,7 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     float feedbackPhaseOffset = 0.0f;
     if (m_feedback > 0.0f && feedbackModulator != 0.0f) {
         // コアから渡された「過去2サンプルの平均値 (feedbackModulator)」にスケールを掛けるだけ
-        float fbScale = std::pow(2.0f, m_feedback - 8.0f);
+        float fbScale = std::pow(2.0f, m_feedback - 5.0f);
         feedbackPhaseOffset = feedbackModulator * fbScale * juce::MathConstants<float>::pi * 2.0f;
     }
 

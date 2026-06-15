@@ -18,14 +18,10 @@ public:
     std::array<Opl3Operator, Opl3PrValue::ops> m_operators;
 
     struct AlgRouting {
-        float in2_1; // OP2への入力 (OP1から)
-        float in3_2; // OP3への入力 (OP2から)
-        float in4_3; // OP4への入力 (OP3から)
-        float out_1, out_2, out_3, out_4; // 最終出力へのミックス割合
+        std::array<float, Opl3PrValue::ops> out;                // 最終出力へのミックス割合
+        std::array<std::array<float, Opl3PrValue::ops>, Opl3PrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
+        std::array<std::array<float, Opl3PrValue::ops>, Opl3PrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
     };
-
-    // アルゴリズム0〜3 ＋ デフォルト(4: 全並列) の5パターン
-    static const std::array<AlgRouting, 7> routings;
 
     void prepare(double sampleRate) override;
     void setSampleRate(double sampleRate) override;
@@ -52,6 +48,11 @@ public:
     }
 private:
     std::array<bool, Opl3PrValue::ops> m_opMask{ false };
+
+    static const std::array<AlgRouting, Opl3PrValue::algorithms> routings;
+
+    std::array<float, Opl3PrValue::ops> m_history1 = { 0.0f };
+    std::array<float, Opl3PrValue::ops> m_history2 = { 0.0f };
 
     float m_level = 1.0f;
 

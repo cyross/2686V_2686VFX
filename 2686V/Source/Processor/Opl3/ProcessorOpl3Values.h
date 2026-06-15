@@ -9,7 +9,7 @@ namespace Opl3PrValue
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
 	inline constexpr int ops = 4;
-	inline constexpr int algorithms = 7;
+	inline constexpr int algorithms = 8;
 
 	namespace Level
 	{
@@ -37,8 +37,8 @@ namespace Opl3PrValue
 	namespace Alg
 	{
 		inline constexpr int min = 0;
-		inline constexpr int max = 6;
-		inline constexpr int initial = 4;
+		inline constexpr int max = 7;
+		inline constexpr int initial = 5;
 	}
 
 	namespace Fb
