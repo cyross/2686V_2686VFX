@@ -154,7 +154,7 @@ int Opzx7Adddr::calcRateScaling() const
 {
     if (!this->m_ksEn && !this->m_rgEnable) return 0; // KSRが無効な場合
 
-    if (m_ksMode == KeyScaleMode::OPS)
+    if (m_ksMode == Opzx7AdddrKeyScaleMode::OPS)
     {
         // --- OPS (DX7) モード ---
         // Rate Scaling は 0〜7 の値を持つ。高音になるほどレートに加算される
@@ -164,7 +164,7 @@ int Opzx7Adddr::calcRateScaling() const
         // OPSのKSRの近似計算
         return (octave * m_ksRs) >> 2;
     }
-    else if(m_ksMode == KeyScaleMode::MA7)
+    else if(m_ksMode == Opzx7AdddrKeyScaleMode::MA7)
     {
         // --- MA-7 モード ---
         int octave = (m_noteNumber / 12) - 1;
@@ -199,7 +199,7 @@ float Opzx7Adddr::calcLevelScalingDb() const
 {
     if (!this->m_ksEn && !this->m_rgEnable) return 0.0f; // KSLが無効な場合
 
-    if (m_ksMode == KeyScaleMode::OPS)
+    if (m_ksMode == Opzx7AdddrKeyScaleMode::OPS)
     {
         // --- OPS (DX7) モード ---
         if (m_noteNumber == m_ksBp) return 0.0f;
@@ -231,7 +231,7 @@ float Opzx7Adddr::calcLevelScalingDb() const
         }
         return db;
     }
-    else if(m_ksMode == KeyScaleMode::MA7)
+    else if(m_ksMode == Opzx7AdddrKeyScaleMode::MA7)
     {
         // --- MA-7 モード ---
         if (this->m_kslMA7 <= 0) return 0.0f;

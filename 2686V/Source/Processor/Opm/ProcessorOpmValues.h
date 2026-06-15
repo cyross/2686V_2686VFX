@@ -129,8 +129,15 @@ namespace OpmPrValue
 		namespace Mul
 		{
 			inline constexpr int min = 0; // 最小値（倍率）
-			inline constexpr int max = 15; // 最大値（倍率）
+			inline constexpr int max = 16; // 最大値（倍率）
 			inline constexpr int initial = 1; // 初期値（倍率）
+		}
+
+		namespace MulRatio
+		{
+			inline constexpr float min = CorePrValue::Opzx7Detune::MulRatio::min;
+			inline constexpr float max = CorePrValue::Opzx7Detune::MulRatio::max;
+			inline constexpr float initial = CorePrValue::Opzx7Detune::MulRatio::initial;
 		}
 
 		namespace Dt
@@ -166,11 +173,32 @@ namespace OpmPrValue
 			inline constexpr bool initial = true; // 初期値
 		}
 
+		namespace KsMode
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 1;
+			inline constexpr int initial = 0;
+		}
+
 		namespace Ks
 		{
 			inline constexpr int min = 0; // 最小値
 			inline constexpr int max = 3; // 最大値
 			inline constexpr int initial = 0; // 最大値
+		}
+
+		namespace KsrOPP
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 3;
+			inline constexpr int initial = 0;
+		}
+
+		namespace KslOPP
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 99;
+			inline constexpr int initial = 0;
 		}
 
 		namespace SeFreq

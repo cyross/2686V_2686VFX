@@ -103,11 +103,15 @@ class GuiOpm : public GuiBase
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
     std::array<GuiComboBox, OpmPrValue::ops> mul;
+    std::array<GuiSlider, OpmPrValue::ops> mulRatio;
     std::array<GuiSlider, OpmPrValue::ops> dt1;
     std::array<GuiSlider, OpmPrValue::ops> dt2;
 
     std::array<GuiCategoryLabel, OpmPrValue::ops> ksCat;
+    std::array<GuiComboBox, OpmPrValue::ops> ksMode;
     std::array<GuiComboBox, OpmPrValue::ops> ks;
+    std::array<GuiSlider, OpmPrValue::ops> ksrOPP;
+    std::array<GuiSlider, OpmPrValue::ops> kslOPP;
 
     // Pitch ADSR
     std::array<GuiComponentPitchEnv, OpmPrValue::ops> pitchEnv;
@@ -184,10 +188,14 @@ public:
         broadcastLevelButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        ksMode{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksrOPP{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        kslOPP{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
         cafLfo{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

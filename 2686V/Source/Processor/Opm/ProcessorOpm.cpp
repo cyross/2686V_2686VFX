@@ -43,10 +43,14 @@ void OpmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
         juce::String opPrefixName = prefixName + OpmPrName::op + juce::String(op + 1);
 
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::mul, opPrefixName + OpmPrName::mul, OpmPrValue::Op::Mul::min, OpmPrValue::Op::Mul::max, OpmPrValue::Op::Mul::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + OpmPrKey::mulRatio, opPrefixName + OpmPrName::mulRatio, OpmPrValue::Op::MulRatio::min, OpmPrValue::Op::MulRatio::max, OpmPrValue::Op::MulRatio::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::dt, opPrefixName + OpmPrName::dt1, OpmPrValue::Op::Dt1::min, OpmPrValue::Op::Dt1::max, OpmPrValue::Op::Dt1::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::dt2, opPrefixName + OpmPrName::dt2, OpmPrValue::Op::Dt2::min, OpmPrValue::Op::Dt2::max, OpmPrValue::Op::Dt2::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + OpmPrKey::seFreq, opPrefixName + OpmPrName::seFreq, OpmPrValue::Op::SeFreq::min, OpmPrValue::Op::SeFreq::max, OpmPrValue::Op::SeFreq::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::ksMode, opPrefixName + OpmPrName::ksMode, OpmPrValue::Op::KsMode::min, OpmPrValue::Op::KsMode::max, OpmPrValue::Op::KsMode::initial));
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::ks, opPrefixName + OpmPrName::ks, OpmPrValue::Op::Ks::min, OpmPrValue::Op::Ks::max, OpmPrValue::Op::Ks::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::ksrOPP, opPrefixName + OpmPrName::ksrOPP, OpmPrValue::Op::KsrOPP::min, OpmPrValue::Op::KsrOPP::max, OpmPrValue::Op::KsrOPP::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + OpmPrKey::kslOPP, opPrefixName + OpmPrName::kslOPP, OpmPrValue::Op::KslOPP::min, OpmPrValue::Op::KslOPP::max, OpmPrValue::Op::KslOPP::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::amsEn, opPrefixName + OpmPrName::amsEn, OpmPrValue::Op::Lfo::AmsEn::initial));
         layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + OpmPrKey::fix, opPrefixName + OpmPrName::fix, OpmPrValue::Op::Fix::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + OpmPrKey::fixFreq, opPrefixName + OpmPrName::fixFreq, OpmPrValue::Op::FixFreq::min, OpmPrValue::Op::FixFreq::max, OpmPrValue::Op::FixFreq::initial));
@@ -104,6 +108,7 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         juce::String p = prefix + OpmPrKey::op + juce::String(op);
 
         pOpMultiple[op] = apvts.getRawParameterValue(p + OpmPrKey::mul);
+        pOpMultipleRatio[op] = apvts.getRawParameterValue(p + OpmPrKey::mulRatio);
         pOpDetune[op] = apvts.getRawParameterValue(p + OpmPrKey::dt);
         pOpDetune2[op] = apvts.getRawParameterValue(p + OpmPrKey::dt2);
 
@@ -114,7 +119,12 @@ void OpmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pOpAdsrRgD2r[op] = apvts.getRawParameterValue(p + OpmPrKey::rgD2r);
         pOpAdsrRgRr[op] = apvts.getRawParameterValue(p + OpmPrKey::rgRr);
         pOpAdsrRgTl[op] = apvts.getRawParameterValue(p + OpmPrKey::rgTl);
+
+        pOpAdsrKsMode[op] = apvts.getRawParameterValue(p + OpmPrKey::ksMode);
         pOpAdsrKs[op] = apvts.getRawParameterValue(p + OpmPrKey::ks);
+        pOpAdsrKsrOPP[op] = apvts.getRawParameterValue(p + OpmPrKey::ksrOPP);
+        pOpAdsrKslOPP[op] = apvts.getRawParameterValue(p + OpmPrKey::kslOPP);
+
         pOpAdsrXof[op] = apvts.getRawParameterValue(p + OpmPrKey::xof);
         pOpAdsrKor[op] = apvts.getRawParameterValue(p + OpmPrKey::kor);
 
@@ -189,6 +199,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     for (int op = 0; op < OpmPrValue::ops; ++op)
     {
         params.opm.op[op].multiple = (int)pOpMultiple[op]->load(std::memory_order_relaxed);
+        params.opm.op[op].multipleRatio = pOpMultipleRatio[op]->load(std::memory_order_relaxed);
         params.opm.op[op].detune = (int)pOpDetune[op]->load(std::memory_order_relaxed);
         params.opm.op[op].detune2 = (int)pOpDetune2[op]->load(std::memory_order_relaxed);
         params.opm.op[op].ssgEg = 0;
@@ -199,7 +210,12 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opm.op[op].m_adsrParams.d2r = (int)pOpAdsrRgD2r[op]->load(std::memory_order_relaxed);
         params.opm.op[op].m_adsrParams.rr = (int)pOpAdsrRgRr[op]->load(std::memory_order_relaxed);
         params.opm.op[op].m_adsrParams.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
+
+        params.opm.op[op].m_adsrParams.ksMode = (FmRgAdddrKeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
         params.opm.op[op].m_adsrParams.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
+        params.opm.op[op].m_adsrParams.ksrOPP = (int)pOpAdsrKsrOPP[op]->load(std::memory_order_relaxed);
+        params.opm.op[op].m_adsrParams.kslOPP = (int)pOpAdsrKslOPP[op]->load(std::memory_order_relaxed);
+
         params.opm.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread);
         params.opm.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread;
         params.opm.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > OpmPrValue::boolThread;

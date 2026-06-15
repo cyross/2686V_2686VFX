@@ -29,6 +29,7 @@ class OpmProcessor : public PrBase
     std::atomic<float>* pUnisonDetuneCents = nullptr;
     std::atomic<float>* pUnisonSpread = nullptr;
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpMultiple = { nullptr };
+    std::array<std::atomic<float>*, OpmPrValue::ops> pOpMultipleRatio = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpDetune = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpDetune2 = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrBypass = { nullptr };
@@ -38,7 +39,10 @@ class OpmProcessor : public PrBase
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrRgD2r = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrRgRr = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrRgTl = { nullptr };
+    std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrKsMode = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrKs = { nullptr };
+    std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrKsrOPP = { nullptr };
+    std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrKslOPP = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrXof = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpAdsrKor = { nullptr };
     std::array<std::atomic<float>*, OpmPrValue::ops> pOpFixEnable = { nullptr };

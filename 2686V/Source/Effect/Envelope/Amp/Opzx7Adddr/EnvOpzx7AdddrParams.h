@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-enum class KeyScaleMode {
+enum class Opzx7AdddrKeyScaleMode {
 	MA7 = 0,
 	OPZ = 1,
 	OPS = 2
@@ -34,7 +34,7 @@ struct Opzx7AdddrParams
 
 	bool ksEn = false;
 
-	KeyScaleMode ksMode = KeyScaleMode::MA7;
+	Opzx7AdddrKeyScaleMode ksMode = Opzx7AdddrKeyScaleMode::MA7;
 
 	// MA7
 	bool ksrMA7 = false;

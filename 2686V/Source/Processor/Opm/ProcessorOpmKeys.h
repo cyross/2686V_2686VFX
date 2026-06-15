@@ -25,9 +25,13 @@ namespace OpmPrKey
 	static inline const juce::String op = CorePrKey::op;
 
 	static inline const juce::String mul = CorePrKey::Post::Fm::Op::mul;
+	static inline const juce::String mulRatio = "_MUL_RATIO";
 	static inline const juce::String dt = CorePrKey::Post::Fm::Op::dt;
 	static inline const juce::String dt2 = CorePrKey::Post::Fm::Op::dt2;
+	static inline const juce::String ksMode = "_KS_MODE";
 	static inline const juce::String ks = CorePrKey::Post::Fm::Op::ks;
+	static inline const juce::String ksrOPP = "_KSR_OPP";
+	static inline const juce::String kslOPP = "_KSL_OPP";
 	static inline const juce::String rgAr = CorePrKey::Post::Fm::Op::rgAr;
 	static inline const juce::String rgRr = CorePrKey::Post::Fm::Op::rgRr;
 	static inline const juce::String rgTl = CorePrKey::Post::Fm::Op::rgTl;

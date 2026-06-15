@@ -1493,21 +1493,21 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
     layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
 
     bool visible = ksCat[opIndex].isDetailVisible();
-    KeyScaleMode mode = (KeyScaleMode)(ksMode[opIndex].getSelectedItemIndex());
+    Opzx7AdddrKeyScaleMode mode = (Opzx7AdddrKeyScaleMode)(ksMode[opIndex].getSelectedItemIndex());
 
     ksEn[opIndex].setVisible(visible && !rgMode);
     ksMode[opIndex].setVisibleWithLabel(visible);
-    ksrMA7[opIndex].setVisible(visible && mode == KeyScaleMode::MA7);
-    kslMA7[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::MA7);
-    ksrOPZ[opIndex].setVisible(visible && mode == KeyScaleMode::OPZ);
-    kslOPZ[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPZ);
-    ksBp[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksBp[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksLc[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksRc[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksLd[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksRd[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
-    ksRs[opIndex].setVisibleWithLabel(visible && mode == KeyScaleMode::OPS);
+    ksrMA7[opIndex].setVisible(visible && mode == Opzx7AdddrKeyScaleMode::MA7);
+    kslMA7[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::MA7);
+    ksrOPZ[opIndex].setVisible(visible && mode == Opzx7AdddrKeyScaleMode::OPZ);
+    kslOPZ[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPZ);
+    ksBp[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksBp[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksLc[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksRc[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksLd[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksRd[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
+    ksRs[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
 
     if (visible) {
         if (!rgMode) {
@@ -1517,15 +1517,15 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
         layoutRow({ .rowRect = rect, .label = &ksMode[opIndex].label, .component = &ksMode[opIndex] });
 
         switch (mode) {
-        case KeyScaleMode::MA7:
+        case Opzx7AdddrKeyScaleMode::MA7:
             layoutRow({ .rowRect = rect, .component = &ksrMA7[opIndex] });
             layoutRow({ .rowRect = rect, .label = &kslMA7[opIndex].label, .component = &kslMA7[opIndex] });
             break;
-        case KeyScaleMode::OPZ:
+        case Opzx7AdddrKeyScaleMode::OPZ:
             layoutRow({ .rowRect = rect, .label = &ksrOPZ[opIndex].label, .component = &ksrOPZ[opIndex] });
             layoutRow({ .rowRect = rect, .label = &kslOPZ[opIndex].label, .component = &kslOPZ[opIndex] });
             break;
-        case KeyScaleMode::OPS:
+        case Opzx7AdddrKeyScaleMode::OPS:
             layoutRow({ .rowRect = rect, .label = &ksBp[opIndex].label, .component = &ksBp[opIndex] });
             layoutRow({ .rowRect = rect, .label = &ksLc[opIndex].label, .component = &ksLc[opIndex] });
             layoutRow({ .rowRect = rect, .label = &ksRc[opIndex].label, .component = &ksRc[opIndex] });

@@ -19,10 +19,14 @@ namespace OpmPrName
 	static inline const juce::String op = CorePrName::Fm::Op::key;
 
 	static inline const juce::String mul = CorePrName::Fm::Op::mul;
+	static inline const juce::String mulRatio = " MUL Ratio";
 	static inline const juce::String dt1 = CorePrName::Fm::Op::dt1;
 	static inline const juce::String dt2 = CorePrName::Fm::Op::dt2;
 	static inline const juce::String seFreq = CorePrName::Fm::Op::seFreq;
+	static inline const juce::String ksMode = "KS Mode";
 	static inline const juce::String ks = CorePrName::Fm::Op::ks;
+	static inline const juce::String ksrOPP = " KSR(OPP)";
+	static inline const juce::String kslOPP = " KSL(OPP)";
 	static inline const juce::String fix = CorePrName::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrName::Fm::Op::fixFreq;
 	static inline const juce::String amsEn = CorePrName::Fm::Op::amsEn;

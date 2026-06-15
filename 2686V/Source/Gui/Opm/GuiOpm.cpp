@@ -7,6 +7,7 @@
 
 #include "../../Processor/Opm/ProcessorOpmKeys.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
+#include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
 
@@ -65,22 +66,23 @@ static std::vector<SelectItem> opmAlgItems = {
 };
 
 static std::vector<SelectItem> multems = {
-    {.name = " 0:   0.5x", .value = 1 },
-    {.name = " 1:   1x", .value = 2 },
-    {.name = " 2:   2x", .value = 3 },
-    {.name = " 3:   3x", .value = 4 },
-    {.name = " 4:   4x", .value = 5 },
-    {.name = " 5:   5x", .value = 6 },
-    {.name = " 6:   6x", .value = 7 },
-    {.name = " 7:   7x", .value = 8 },
-    {.name = " 8:   8x", .value = 9 },
-    {.name = " 9:   9x", .value = 10 },
-    {.name = "10:  10x", .value = 11 },
-    {.name = "11:  11x", .value = 12 },
-    {.name = "12:  12x", .value = 13 },
-    {.name = "13:  13x", .value = 14 },
-    {.name = "14:  14x", .value = 15 },
-    {.name = "15:  15x", .value = 16 }
+    {.name = " 0: x  0.5", .value = 1 },
+    {.name = " 1: x  1", .value = 2 },
+    {.name = " 2: x  2", .value = 3 },
+    {.name = " 3: x  3", .value = 4 },
+    {.name = " 4: x  4", .value = 5 },
+    {.name = " 5: x  5", .value = 6 },
+    {.name = " 6: x  6", .value = 7 },
+    {.name = " 7: x  7", .value = 8 },
+    {.name = " 8: x  8", .value = 9 },
+    {.name = " 9: x  9", .value = 10 },
+    {.name = "10: x 10", .value = 11 },
+    {.name = "11: x 11", .value = 12 },
+    {.name = "12: x 12", .value = 13 },
+    {.name = "13: x 13", .value = 14 },
+    {.name = "14: x 14", .value = 15 },
+    {.name = "15: x 15", .value = 16 },
+    {.name = "16: Use Ratio", .value = 17 }
 };
 
 static std::vector<SelectItem> ksItems = {
@@ -130,6 +132,11 @@ static std::vector<SelectItem> amsItems = {
     {.name = "4: 95.6dB", .value = 4 },
 };
 
+static std::vector<SelectItem> ksModeItems = {
+    {.name = "0: OPM", .value = 1 },
+    {.name = "1: OPP", .value = 2 }
+};
+
 void GuiOpm::setup()
 {
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
@@ -138,6 +145,14 @@ void GuiOpm::setup()
             btn.setButtonText(text);
             btn.setWantsKeyboardFocus(true);
             btn.setExplicitFocusOrder(++tabOrder);
+        };
+
+    auto updateMulRatioEnable = [this](int idx) {
+        int mulIndex = mul[idx].getSelectedId() - 1;
+        bool enableMulRatio = mulIndex == 16; // mul = Ratio
+
+        mulRatio[idx].setEnabled(enableMulRatio);
+        mulRatio[idx].label.setEnabled(enableMulRatio);
         };
 
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
@@ -311,6 +326,13 @@ void GuiOpm::setup()
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
+        mul[i].onChange = [this, i, updateMulRatioEnable] {
+            updateMulRatioEnable(i);
+            };
+
+        mulRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mulRatio, .title = OpmGuiText::Fm::Op::MulRatio, .isReset = true });
+        mulRatio[i].setWantsKeyboardFocus(true);
+        mulRatio[i].setExplicitFocusOrder(++tabOrder);
 
         dt1[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::dt, .title = OpmGuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
         dt1[i].setWantsKeyboardFocus(true);
@@ -346,9 +368,24 @@ void GuiOpm::setup()
 
         ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleKs, .invisibleTitle = OpmGuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
 
+        ksMode[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ksMode, .title = "Mode", .items = ksModeItems, .isReset = true });
+        ksMode[i].setWantsKeyboardFocus(true);
+        ksMode[i].setExplicitFocusOrder(++tabOrder);
+        ksMode[i].onChange = [this]() {
+            ctx.editor.resized();
+            };
+
         ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ks, .title = OpmGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
+
+        ksrOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ksrOPP, .title = OpmGuiText::Fm::Op::Ksr, .isReset = true });
+        ksrOPP[i].setWantsKeyboardFocus(true);
+        ksrOPP[i].setExplicitFocusOrder(++tabOrder);
+
+        kslOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::kslOPP, .title = OpmGuiText::Fm::Op::Ksl, .isReset = true });
+        kslOPP[i].setWantsKeyboardFocus(true);
+        kslOPP[i].setExplicitFocusOrder(++tabOrder);
 
         catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleOptional, .invisibleTitle = OpmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
@@ -393,6 +430,8 @@ void GuiOpm::setup()
             .hintMessage = juce::String("") + "MML風にパラメータを入力してください。 例: AR:31 AR31 DT-1 等",
             .onMmlApplied = [this, i](juce::String mml) { this->applyMmlString(mml, i); }
             });
+
+        updateMulRatioEnable(i);
 
         setupGraph(i);
         updateOpGraph(i);
@@ -477,6 +516,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
 
         layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
         layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
         updateRgDisplayAsOp(i, true);
@@ -866,11 +906,25 @@ void GuiOpm::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
     layoutRowCategory({ .rowRect = rect, .component = &ksCat[opIndex] });
 
     bool visible = ksCat[opIndex].isDetailVisible();
+    FmRgAdddrKeyScaleMode mode = (FmRgAdddrKeyScaleMode)(ksMode[opIndex].getSelectedItemIndex());
 
-    ks[opIndex].setVisibleWithLabel(visible);
+    ksMode[opIndex].setVisibleWithLabel(visible);
+    ks[opIndex].setVisibleWithLabel(visible && mode == FmRgAdddrKeyScaleMode::OPM);
+    ksrOPP[opIndex].setVisible(visible && mode == FmRgAdddrKeyScaleMode::OPP);
+    kslOPP[opIndex].setVisibleWithLabel(visible && mode == FmRgAdddrKeyScaleMode::OPP);
 
     if (visible) {
-        layoutRow({ .rowRect = rect, .label = &ks[opIndex].label, .component = &ks[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &ksMode[opIndex].label, .component = &ksMode[opIndex] });
+
+        switch (mode) {
+        case FmRgAdddrKeyScaleMode::OPM:
+            layoutRow({ .rowRect = rect, .label = &ks[opIndex].label, .component = &ks[opIndex] });
+            break;
+        case FmRgAdddrKeyScaleMode::OPP:
+            layoutRow({ .rowRect = rect, .label = &ksrOPP[opIndex].label, .component = &ksrOPP[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &kslOPP[opIndex].label, .component = &kslOPP[opIndex] });
+            break;
+        }
     }
 }
 

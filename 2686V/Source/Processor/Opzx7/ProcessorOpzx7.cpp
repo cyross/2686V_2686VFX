@@ -277,7 +277,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].m_adsrParams.rg.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
 
         params.opzx7.op[op].m_adsrParams.ksEn = (pOpAdsrKsEn[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].m_adsrParams.ksMode = (KeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksMode = (Opzx7AdddrKeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksrMA7 = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.kslMA7 = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].m_adsrParams.ksrOPZ = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);

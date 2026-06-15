@@ -44,7 +44,7 @@ class Opzx7Adddr
 	std::array<float, 64> attcckTimeInSecondsLut;
 
 	bool m_ksEn = false;
-	KeyScaleMode m_ksMode = KeyScaleMode::MA7;
+	Opzx7AdddrKeyScaleMode m_ksMode = Opzx7AdddrKeyScaleMode::MA7;
 	bool m_ksrMA7 = false;
 	int m_kslMA7 = 0;
 	int m_ksrOPZ = 0;

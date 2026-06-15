@@ -603,7 +603,7 @@ namespace CorePrValue
 
 		namespace MulRatio
 		{
-			inline constexpr float min = 0.5f;
+			inline constexpr float min = 0.01f;
 			inline constexpr float max = 27.57f;
 			inline constexpr float initial = 1.0f;
 		}
