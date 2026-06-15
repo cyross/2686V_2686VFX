@@ -937,9 +937,14 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                 auto file = fc.getResult();
                 if (file.existsAsFile())
                 {
-                    audioProcessor.loadAdpcmFile(file);
-                    adpcmGui->updateFileName(file.getFileName());
-                    audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    adpcmGui->updateFileName("Loading...");
+
+                    juce::Timer::callAfterDelay(50, [this, file]()
+                        {
+                            audioProcessor.loadAdpcmFile(file);
+                            adpcmGui->updateFileName(file.getFileName());
+                            audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                        });
                 }
             }
         );

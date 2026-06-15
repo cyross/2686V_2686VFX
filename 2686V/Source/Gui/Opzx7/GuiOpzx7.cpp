@@ -572,9 +572,14 @@ void GuiOpzx7::setup()
                 [this, i](const juce::FileChooser& fc) {
                     auto file = fc.getResult();
                     if (file.existsAsFile()) {
-                        ctx.audioProcessor.loadOpzx7PcmFile(i, file);
-                        updatePcmFileName(i, file.getFileName());
-                        ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                        updatePcmFileName(i, "Loading...");
+
+                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                            {
+                                ctx.audioProcessor.loadOpzx7PcmFile(i, file);
+                                updatePcmFileName(i, file.getFileName());
+                                ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                            });
                     }
                 }
             );
@@ -612,9 +617,14 @@ void GuiOpzx7::setup()
                 [this, i](const juce::FileChooser& fc) {
                     auto file = fc.getResult();
                     if (file.existsAsFile()) {
-                        ctx.audioProcessor.loadOpzx7WtFile(i, file);
-                        updateWtFileName(i, file.getFileName());
-                        ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                        updateWtFileName(i, "Loading...");
+
+                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                            {
+                                ctx.audioProcessor.loadOpzx7WtFile(i, file);
+                                updateWtFileName(i, file.getFileName());
+                                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                            });
                     }
                 }
             );
@@ -644,9 +654,14 @@ void GuiOpzx7::setup()
                 [this, i](const juce::FileChooser& fc) {
                     auto file = fc.getResult();
                     if (file.existsAsFile()) {
-                        ctx.audioProcessor.loadOpzx7Wt2File(i, file);
-                        updateWt2FileName(i, file.getFileName());
-                        ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                        updateWt2FileName(i, "Loading...");
+
+                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                            {
+                                ctx.audioProcessor.loadOpzx7Wt2File(i, file);
+                                updateWt2FileName(i, file.getFileName());
+                                ctx.audioProcessor.defaultWavetableDir = file.getParentDirectory().getFullPathName();
+                            });
                     }
                 }
             );

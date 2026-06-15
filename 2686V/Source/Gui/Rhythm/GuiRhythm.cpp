@@ -53,7 +53,6 @@ static std::vector<SelectItem> rateItems = {
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
-    juce::Logger::getCurrentLogger()->writeToLog(fileName);
     fileNameLabel.setText(fileName, juce::dontSendNotification);
 }
 
@@ -480,13 +479,18 @@ void GuiRhythm::buttonClicked(juce::Button* button, juce::AudioFormatManager& fo
                     auto file = fc.getResult();
                     if (file.existsAsFile())
                     {
-                        // Load to specific pad index
-                        ctx.audioProcessor.loadRhythmFile(file, i);
+                        pads[i].updatePadFileName("Loading...");
 
-                        // Update label
-                        pads[i].updatePadFileName(file.getFileName());
+                        juce::Timer::callAfterDelay(50, [this, i, file]()
+                            {
+                                // Load to specific pad index
+                                ctx.audioProcessor.loadRhythmFile(file, i);
 
-                        ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                                // Update label
+                                pads[i].updatePadFileName(file.getFileName());
+
+                                ctx.audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                            });
                     }
                 });
 
