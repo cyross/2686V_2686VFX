@@ -19,7 +19,10 @@ class FmRgAdddr
 	int d1l = 15;
 	int rr = 0;
 	int tl = 0;
-	int ks = 0;
+	FmRgAdddrKeyScaleMode m_ksMode = FmRgAdddrKeyScaleMode::OPM;
+	int m_ks = 0;
+	int m_ksrOPP = 0;
+	int m_kslOPP = 0;
 
 	int arMax = 0;
 	int d1rMax = 0;
@@ -55,6 +58,9 @@ class FmRgAdddr
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
+
+	int calcRateScaling() const;
+	float calcLevelScalingDb() const;
 public:
 	FmRgAdddr();
 	void prepare(int posIndex, double sampleRate);

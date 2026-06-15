@@ -33,7 +33,7 @@ void OpmOperator::setParameters(const OpmOpParams& params, float feedback)
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_detune.setParameters(params.detune, params.detune2, params.multiple);
+    m_detune.setParameters(params.detune, params.detune2, params.multiple, params.multipleRatio);
 	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
 }
 

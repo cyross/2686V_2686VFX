@@ -20,6 +20,9 @@ class GuiComponentMidi : public GuiBase {
     GuiToggleButton useVelocity;
     GuiSlider fixedVelocity;
     GuiToggleButton pitchResetOnLegato;
+    GuiSeparator resetSeparator;
+    GuiTextButton monoButton;
+    GuiTextButton polyButton;
 public:
     GuiComponentMidi(const GuiContext& context) :
         GuiBase(context),
@@ -27,7 +30,10 @@ public:
 		monoMode(context),
         useVelocity(context),
         fixedVelocity(context),
-        pitchResetOnLegato(context)
+        pitchResetOnLegato(context),
+        resetSeparator(context),
+        monoButton(context),
+        polyButton(context)
     {
     }
 

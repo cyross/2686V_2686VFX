@@ -18,6 +18,7 @@
 #include "../../Gui/Opzx7/GuiOpzx7.h"
 #include "../../Gui/Ssg/GuiSsg.h"
 #include "../../Gui/Wavetable/GuiWt.h"
+#include "../../Gui/Wt2/GuiWt2.h"
 #include "../../Gui/Rhythm/GuiRhythm.h"
 #include "../../Gui/Adpcm/GuiAdpcm.h"
 #include "../../Gui/Beep/GuiBeep.h"
@@ -138,6 +139,8 @@ public:
     bool keyPressed(const juce::KeyPress& key) override;
     GuiCurve* getCurveGui();
     void updateUiScale(float newScale);
+    void resetMidiSettings();
+    void breadcastLevel(float level);
 private:
     AudioPlugin2686V& audioProcessor;
 
@@ -178,6 +181,7 @@ private:
     std::unique_ptr<GuiOpzx7> opzx7Gui; // OPZX7
     std::unique_ptr<GuiSsg> ssgGui; // SSG
     std::unique_ptr<GuiWt> wtGui; // Wavetable
+    std::unique_ptr<GuiWt2> wt2Gui; // Wt2
     std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiBeep> beepGui;

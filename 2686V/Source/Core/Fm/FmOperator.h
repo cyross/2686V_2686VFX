@@ -36,6 +36,7 @@ public:
     void virtual setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
     // OPZX7 の波形データ用
     void virtual setWtBuffer(const std::vector<float>* wtData) { m_wtBuffer = wtData; }
+    void virtual setWt2Buffer(const std::vector<float>* wtData) { m_wt2Buffer = wtData; }
     float virtual calcWaveform(double phase, int wave);
     void virtual updateIncrementsWithKeyScale();
 protected:
@@ -68,6 +69,7 @@ protected:
     const std::vector<float>* m_pcmBuffer = nullptr;
     // OPZX7 の波形データ用
     const std::vector<float>* m_wtBuffer = nullptr;
+    const std::vector<float>* m_wt2Buffer = nullptr;
 
     void virtual updateEnvelopeState();
 };

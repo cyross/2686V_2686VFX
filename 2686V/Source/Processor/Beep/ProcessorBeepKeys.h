@@ -10,9 +10,6 @@ namespace BeepPrKey
 {
 	static inline const juce::String prefix = "BEEP";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
-
 	static inline const juce::String bypass = CorePrKey::bypass;
 	static inline const juce::String adsr = CorePrKey::adsr;
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;

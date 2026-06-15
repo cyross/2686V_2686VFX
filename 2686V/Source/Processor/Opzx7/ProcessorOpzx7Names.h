@@ -7,6 +7,9 @@
 // UI上に表示するタイトル等を管理
 namespace Opzx7PrName
 {
+	static inline const juce::String prefix = "OPZX7S";
+
+	static inline const juce::String level = " Level";
 	static inline const juce::String bit = " Bit";
 	static inline const juce::String rate = " Rate";
 	static inline const juce::String alg = " Algorithm";
@@ -18,9 +21,9 @@ namespace Opzx7PrName
 
 	static inline const juce::String ar = CorePrName::Fm::Op::ar;
 	static inline const juce::String rr = CorePrName::Fm::Op::rr;
-	static inline const juce::String d1r = CorePrName::Fm::Op::d1r;
-	static inline const juce::String d1l = CorePrName::Fm::Op::d1l;
-	static inline const juce::String d2r = CorePrName::Fm::Op::d2r;
+	static inline const juce::String d1r = CorePrName::Fm::Op::dr;
+	static inline const juce::String d1l = CorePrName::Fm::Op::sl;
+	static inline const juce::String d2r = CorePrName::Fm::Op::sr;
 	static inline const juce::String mul = CorePrName::Fm::Op::mul;
 	static inline const juce::String mulRatio = " MUL Ratio";
 	static inline const juce::String tl = CorePrName::Fm::Op::tl;
@@ -30,9 +33,19 @@ namespace Opzx7PrName
 	static inline const juce::String dt3 = CorePrName::Fm::Op::dt3;
 	static inline const juce::String se = CorePrName::Fm::Op::se;
 	static inline const juce::String seFreq = CorePrName::Fm::Op::seFreq;
+	static inline const juce::String ksEn = " KS Enable";
+	static inline const juce::String ksMode = "KS Mode";
 	static inline const juce::String ks = CorePrName::Fm::Op::ks;
-	static inline const juce::String ksr = CorePrName::Fm::Op::ksr;
-	static inline const juce::String ksl = CorePrName::Fm::Op::ksl;
+	static inline const juce::String ksrMA7 = " KSR(MA7)";
+	static inline const juce::String kslMA7 = "KSL(MA7)";
+	static inline const juce::String ksrOPZ = " KSR(OPZ)";
+	static inline const juce::String kslOPZ = " KSL(OPZ)";
+	static inline const juce::String ksBp = " KS BreakPoint";
+	static inline const juce::String ksLc = " KS Left Curve";
+	static inline const juce::String ksRc = " KS Right Curve";
+	static inline const juce::String ksLd = " KS Left Depth";
+	static inline const juce::String ksRd = " KS Right Depth";
+	static inline const juce::String ksRs = " KS Rate Scaling";
 	static inline const juce::String fix = CorePrName::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrName::Fm::Op::fixFreq;
 	static inline const juce::String ws = CorePrName::Fm::Op::ws;

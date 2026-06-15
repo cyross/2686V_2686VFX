@@ -15,6 +15,7 @@
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
+#include "../../Processor/Opn/ProcessorOpnValues.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -34,7 +35,7 @@ class GuiOpn : public GuiBase
      * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
      * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
      */
-    static inline const std::array<std::array<juce::String, 4>, 8> algOpPrefix = { {
+    static inline const std::array<std::array<juce::String, OpnPrValue::ops>, OpnPrValue::algorithms> algOpPrefix = { {
         {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])"}}, // 00
         {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])"}}, // 01
         {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])"}}, // 02
@@ -45,9 +46,9 @@ class GuiOpn : public GuiBase
         {{"([C:FB])", "([C])", "([C])", "([C])"}}           // 07
     } };
 
-    GuiGroup mainGroup;
-    std::array<GuiGroup, Global::Fm::Op4> opGroups;
-    std::array<GuiGroup, Global::Fm::Op4> freqBtnGroup;
+    GuiScrollGroup mainGroup;
+
+    GuiSlider levelSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -80,50 +81,58 @@ class GuiOpn : public GuiBase
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton copyParamsToOpnaBtn;
+
     juce::ImageComponent algImageComp;
-    std::array<juce::Image, 8> algImages;
+    std::array<juce::Image, OpnPrValue::algorithms> algImages;
 
-    std::array<GuiComboBox, Global::Fm::Op4> mul;
-    std::array<GuiComboBox, Global::Fm::Op4> dt;
-    std::array<GuiComboBox, Global::Fm::Op4> ks; // Key Scale (0-3)
+    std::array<GuiComboBox, OpnPrValue::ops> mul;
+    std::array<GuiComboBox, OpnPrValue::ops> dt;
 
+    std::array<GuiCategoryLabel, OpnPrValue::ops> ksCat;
+    std::array<GuiComboBox, OpnPrValue::ops> ks; // Key Scale (0-3)
+
+    std::array<GuiScrollGroup, OpnPrValue::ops> opGroups;
     // Pitch ADSR
-    std::array<GuiComponentPitchEnv, Global::Fm::Op4> pitchEnv;
+    std::array<GuiComponentPitchEnv, OpnPrValue::ops> pitchEnv;
     // SSG SW Env
-    std::array<GuiComponentSsgSwEnv, Global::Fm::Op4> ssgSwEnv;
+    std::array<GuiComponentSsgSwEnv, OpnPrValue::ops> ssgSwEnv;
 
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catShape;
-    std::array<GuiComboBox, Global::Fm::Op4> se; // SSG-EG Shape Selector
-    std::array<GuiSlider, Global::Fm::Op4> seFreq;
-    std::array<GuiComponentFix, Global::Fm::Op4> fix;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catN88Lfo;
-    std::array<GuiSlider, Global::Fm::Op4> n88Ams;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catMask;
-    std::array<GuiToggleButton, Global::Fm::Op4> mask; // Mask
-    std::array<GuiSeparator, Global::Fm::Op4> mmlSeparator;
-    std::array<GuiMmlButton, Global::Fm::Op4> mml;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catShape;
+    std::array<GuiComboBox, OpnPrValue::ops> se; // SSG-EG Shape Selector
+    std::array<GuiSlider, OpnPrValue::ops> seFreq;
+    std::array<GuiComponentFix, OpnPrValue::ops> fix;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catN88Lfo;
+    std::array<GuiSlider, OpnPrValue::ops> n88Ams;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catMask;
+    std::array<GuiToggleButton, OpnPrValue::ops> mask; // Mask
+    std::array<GuiSeparator, OpnPrValue::ops> mmlSeparator;
+    std::array<GuiMmlButton, OpnPrValue::ops> mml;
 
-    std::array<GuiSlider, Global::Fm::Op4> rgAr;
-    std::array<GuiSlider, Global::Fm::Op4> rgDr;
-    std::array<GuiSlider, Global::Fm::Op4> rgSr;
-    std::array<GuiSlider, Global::Fm::Op4> rgSl;
-    std::array<GuiSlider, Global::Fm::Op4> rgRr;
-    std::array<GuiSlider, Global::Fm::Op4> rgTl;
-    std::array<GuiCategoryLabel, Global::Fm::Op4> catOptional;
-    std::array<GuiToggleButton, Global::Fm::Op4> xof;
-    std::array<GuiToggleButton, Global::Fm::Op4> kor;
-    std::array<GuiToggleButton, Global::Fm::Op4> bypass;
+    std::array<GuiSlider, OpnPrValue::ops> rgAr;
+    std::array<GuiSlider, OpnPrValue::ops> rgDr;
+    std::array<GuiSlider, OpnPrValue::ops> rgSr;
+    std::array<GuiSlider, OpnPrValue::ops> rgSl;
+    std::array<GuiSlider, OpnPrValue::ops> rgRr;
+    std::array<GuiSlider, OpnPrValue::ops> rgTl;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catOptional;
+    std::array<GuiToggleButton, OpnPrValue::ops> xof;
+    std::array<GuiToggleButton, OpnPrValue::ops> kor;
+    std::array<GuiToggleButton, OpnPrValue::ops> bypass;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
-    std::array<GuiEnvelopeGraph, Global::Fm::Op4> opGraphs;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnAmp;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnPitch;
-    std::array<GuiToggleButton, Global::Fm::Op4> graphBtnSsg;
-    std::array<GuiSeparator, Global::Fm::Op4> graphSeparator;
+    std::array<GuiEnvelopeGraph, OpnPrValue::ops> opGraphs;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnAmp;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnPitch;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg;
+    std::array<GuiSeparator, OpnPrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
-    std::array<GraphMode, Global::Fm::Op4> currentGraphMode;
+    std::array<GraphMode, OpnPrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
@@ -134,10 +143,9 @@ public:
 	GuiOpn(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
-        opGroups{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
-        freqBtnGroup{ GuiGroup(context), GuiGroup(context), GuiGroup(context), GuiGroup(context) },
         qualityCat(context),
         algFbCat(context),
+        levelSlider(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),
@@ -155,8 +163,14 @@ public:
         lfoPmdSlider(context),
         lfoPmsSlider(context),
         lfoAmdSlider(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
+        uSep001(context),
+        copyParamsToOpnaBtn(context),
+        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
@@ -203,11 +217,14 @@ public:
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
+    void layoutUtilityCat(Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutN88LfoCat(juce::Rectangle<int>& rect);
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

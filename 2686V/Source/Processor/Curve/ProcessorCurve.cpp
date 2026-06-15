@@ -6,30 +6,31 @@
 
 void CurveProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = CurvePrKey::prefix;
+    const juce::String prefix = CurvePrKey::prefix;
+    const juce::String prefixName = CurvePrName::prefix;
 
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + CurvePrKey::enable, code + CurvePrName::enable, CurvePrValue::Enable::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + CurvePrKey::enable, prefix + CurvePrName::enable, CurvePrValue::Enable::initial));
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
-        const juce::String pCode = code + CurvePrKey::position[p];
-        const juce::String pName = code + CurvePrName::position[p];
+        const juce::String pPrefix = prefix + CurvePrKey::position[p];
+        const juce::String pName = prefixName + CurvePrName::position[p];
 
         for (int t = 0; t < CurvePrValue::targets; t++) {
-            const juce::String tCode = pCode + CurvePrKey::target[t];
+            const juce::String tPrefix = pPrefix + CurvePrKey::target[t];
             const juce::String tName = pName + CurvePrName::target[t];
 
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
-                const juce::String vpCode = tCode + CurvePrKey::paramList[vp];
+                const juce::String vpPrefix = tPrefix + CurvePrKey::paramList[vp];
                 const juce::String vpName = tName + CurvePrName::paramList[vp];
 
-                layout.add(std::make_unique<juce::AudioParameterInt>(vpCode + CurvePrKey::logic, vpName + CurvePrName::logic, CurvePrValue::Logic::min, CurvePrValue::Logic::max, CurvePrValue::Logic::initial));
-                layout.add(std::make_unique<juce::AudioParameterFloat>(vpCode + CurvePrKey::k, vpName + CurvePrName::k, CurvePrValue::K::min, CurvePrValue::K::max, CurvePrValue::K::initial));
+                layout.add(std::make_unique<juce::AudioParameterInt>(vpPrefix + CurvePrKey::logic, vpName + CurvePrName::logic, CurvePrValue::Logic::min, CurvePrValue::Logic::max, CurvePrValue::Logic::initial));
+                layout.add(std::make_unique<juce::AudioParameterFloat>(vpPrefix + CurvePrKey::k, vpName + CurvePrName::k, CurvePrValue::K::min, CurvePrValue::K::max, CurvePrValue::K::initial));
 
                 for (int vv = 0; vv < CurvePrValue::values; vv++) {
-                    const juce::String vvCode = vpCode + CurvePrKey::valueList[vv];
+                    const juce::String vvPrefix = vpPrefix + CurvePrKey::valueList[vv];
                     const juce::String vvName = vpName + CurvePrName::valueList[vv];
 
-                    layout.add(std::make_unique<juce::AudioParameterFloat>(vvCode, vvName, CurvePrValue::Value::min, CurvePrValue::Value::max, CurvePrValue::Value::initial));
+                    layout.add(std::make_unique<juce::AudioParameterFloat>(vvPrefix, vvName, CurvePrValue::Value::min, CurvePrValue::Value::max, CurvePrValue::Value::initial));
                 }
             }
         }
@@ -37,24 +38,24 @@ void CurveProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
 }
 
 void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = CurvePrKey::prefix;
+    const juce::String prefix = CurvePrKey::prefix;
 
-    pEnable = apvts.getRawParameterValue(code + CurvePrKey::enable);
+    pEnable = apvts.getRawParameterValue(prefix + CurvePrKey::enable);
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
-        const juce::String pCode = code + CurvePrKey::position[p];
+        const juce::String pPrefix = prefix + CurvePrKey::position[p];
 
         for (int t = 0; t < CurvePrValue::targets; t++) {
-            const juce::String tCode = pCode + CurvePrKey::target[t];
+            const juce::String tPrefix = pPrefix + CurvePrKey::target[t];
 
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
-                const juce::String vpCode = tCode + CurvePrKey::paramList[vp];
+                const juce::String vpPrefix = tPrefix + CurvePrKey::paramList[vp];
 
-                pLogics[p][t][vp] = apvts.getRawParameterValue(vpCode + CurvePrKey::logic);
-                pKs[p][t][vp] = apvts.getRawParameterValue(vpCode + CurvePrKey::k);
+                pLogics[p][t][vp] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::logic);
+                pKs[p][t][vp] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::k);
 
                 for (int i = 0; i < 8; i++) {
-                    pValues[p][t][vp][i] = apvts.getRawParameterValue(vpCode + CurvePrKey::valueList[i]);
+                    pValues[p][t][vp][i] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::valueList[i]);
                 }
             }
         }
@@ -191,8 +192,6 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
 void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = CurvePrKey::prefix;
-
     params.curve.enable = (pEnable->load(std::memory_order_relaxed) > CurvePrValue::boolThread);
 
     for (int p = 0; p < CurvePrValue::positions; p++) {

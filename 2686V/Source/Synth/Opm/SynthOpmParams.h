@@ -3,9 +3,12 @@
 #include <array>
 
 #include "./Operator/SynthOpmOpParams.h"
+#include "../../Processor/Opm/ProcessorOpmValues.h"
 
 struct OpmParams
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---
@@ -64,7 +67,7 @@ struct OpmParams
     int pan = 0;
 
     // Parameters for Operator
-    std::array<OpmOpParams, 4> op;
+    std::array<OpmOpParams, OpmPrValue::ops> op;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8

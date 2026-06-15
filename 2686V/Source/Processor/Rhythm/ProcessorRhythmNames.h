@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace RhythmPrName
 {
+	static inline const juce::String prefix = "RHYTHM";
+
 	static inline const juce::String vol = " Vol";
 	static inline const juce::String pad = " Pad";
 

@@ -14,6 +14,7 @@
 #include "../../Processor/Opzx7/ProcessorOpzx7.h"
 #include "../../Processor/Ssg/ProcessorSsg.h"
 #include "../../Processor/Wavetable/ProcessorWt.h"
+#include "../../Processor/Wt2/ProcessorWt2.h"
 #include "../../Processor/Rhythm/ProcessorRhythm.h"
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Beep/ProcessorBeep.h"
@@ -28,6 +29,10 @@
 #include "../../Gui/Preset/PresetValues.h"
 
 #include "../Editor/PluginEditor.h"
+
+#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Processor/Wt2/ProcessorWt2Values.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
@@ -199,7 +204,18 @@ public:
                 isLegato
             );
             break;
-		case OscMode::RHYTHM:
+        case OscMode::WT2:
+            voiceUnison(
+                currentParams->wt2.unisonVoices,
+                currentParams->wt2.unisonDetuneCents,
+                currentParams->wt2.unisonSpread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+        case OscMode::RHYTHM:
             voiceUnison(
                 currentParams->rhythm.unisonVoices,
                 currentParams->rhythm.unisonDetuneCents,
@@ -352,6 +368,17 @@ public:
                         true
                     );
                     break;
+                case OscMode::WT2:
+                    voiceUnison(
+                        currentParams->wt2.unisonVoices,
+                        currentParams->wt2.unisonDetuneCents,
+                        currentParams->wt2.unisonSpread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
                 case OscMode::RHYTHM:
                     voiceUnison(
                         currentParams->rhythm.unisonVoices,
@@ -424,6 +451,7 @@ private:
     Opzx7Processor prOpzx7;
     SsgProcessor prSsg;
     WtProcessor prWt;
+    Wt2Processor prWt2;
     RhythmProcessor prRhythm;
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
@@ -444,7 +472,6 @@ private:
     std::map<OscMode, PrBase*> prMap;
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-    void addEnvParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix);
 
     RetroSynthesiser m_synth;
 
@@ -506,7 +533,7 @@ public:
 
     // --- File Paths (To restore samples) ---
     juce::String adpcmFilePath;
-    std::array<juce::String, 8> rhythmFilePaths;
+    std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 
     // --- Preset I/O ---
     void savePreset(const juce::File& file);
@@ -516,18 +543,25 @@ public:
     void initParams(const juce::String& code);
 
     // --- OPZX7 PCM File ---
-    std::array<std::vector<float>, 4> opzx7PcmBuffers;
-    std::array<juce::String, 4> opzx7PcmFilePaths;
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7PcmBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7PcmFilePaths;
 
     void loadOpzx7PcmFile(int opIndex, const juce::File& file);
     void unloadOpzx7PcmFile(int opIndex);
 
     // --- OPZX7 Wavetable ---
-    std::array<std::vector<float>, 4> opzx7WtBuffers;
-    std::array<juce::String, 4> opzx7WtFilePaths;
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7WtBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7WtFilePaths;
 
     void loadOpzx7WtFile(int opIndex, const juce::File& file);
     void unloadOpzx7WtFile(int opIndex);
+
+    // --- OPZX7 WT2 ---
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7Wt2Buffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7Wt2FilePaths;
+
+    void loadOpzx7Wt2File(int opIndex, const juce::File& file);
+    void unloadOpzx7Wt2File(int opIndex);
 
     // --- Preview(Static) ---
     void generatePreviewWaveform(std::vector<float>* destBuffer);
@@ -569,6 +603,7 @@ public:
 
     void bakeCurves();
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
+    void resetMidiSettings();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

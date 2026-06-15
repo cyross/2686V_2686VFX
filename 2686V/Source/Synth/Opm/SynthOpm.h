@@ -6,6 +6,7 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opm/LfoOpm.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opm/ProcessorOpmValues.h"
 
 #include "./Operator/SynthOpmOp.h"
 
@@ -37,10 +38,12 @@ public:
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
 private:
-    std::array<OpmOperator, 4> m_operators;
-    std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<OpmOperator, OpmPrValue::ops> m_operators;
+    std::array<bool, OpmPrValue::ops> m_opMask{ false };
     LfsrNoiseGen m_noiseGen;
     OpmLfoCore m_lfo;
+
+    float m_level = 1.0f;
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;

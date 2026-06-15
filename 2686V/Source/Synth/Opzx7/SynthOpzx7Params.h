@@ -3,9 +3,12 @@
 #include <array>
 
 #include "./Operator/SynthOpzx7OpParams.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 struct Opzx7Params
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---
@@ -72,5 +75,5 @@ struct Opzx7Params
     float unisonSpread = 1.0f;   // 0.0 to 1.0 (Stereo width)
 
     // Parameters for Operator
-    std::array<Opzx7OpParams, 4> op;
+    std::array<Opzx7OpParams, Opzx7PrValue::ops> op;
 };

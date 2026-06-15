@@ -10,8 +10,8 @@ namespace OpnaPrKey
 {
 	static inline const juce::String prefix = "OPNA";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
+	static inline const juce::String level = "_LEVEL";
+
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;
 	static inline const juce::String ssgSwEnv = CorePrKey::ssgSwEnv;
 	static inline const juce::String bypass = CorePrKey::bypass;

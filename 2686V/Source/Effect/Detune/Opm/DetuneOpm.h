@@ -6,7 +6,7 @@ class OpmDetune
 {
 	static const std::array<float, 8> dtScales;
 	static const std::array<float, 4> dt2Scales;
-	static const std::array<float, 16> mulScales;
+	std::array<float, 17> mulScales;
 
 	int detune;
 	float realDetune;
@@ -15,6 +15,8 @@ class OpmDetune
 	int multiple;
 	float realMultiple;
 public:
-	void setParameters(int dt, int dt2, int mul);
+	OpmDetune();
+
+	void setParameters(int dt, int dt2, int mul, float mulRatio);
 	float noteOn(float baseFreq) const;
 };

@@ -19,6 +19,8 @@ namespace OplGuiText
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
+		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
+		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
 		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG HW ENV ---";
 		static inline const juce::String invisibleSsgEnv = u8"[□]--- SSG HW ENV ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
@@ -27,6 +29,8 @@ namespace OplGuiText
 		static inline const juce::String invisibleInitialize = u8"[□]--- INITIALIZE ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace Group
@@ -47,6 +51,7 @@ namespace OplGuiText
 
 	namespace Fm
 	{
+		static inline const juce::String level = u8"Level";
 		static inline const juce::String alg = u8"Alg";
 		static inline const juce::String fb = u8"Fb";
 		static inline const juce::String lfoFreq = u8"Freq";
@@ -62,8 +67,8 @@ namespace OplGuiText
 		static inline const juce::String amd = u8"Amd";
 		static inline const juce::String pmd = u8"Pmd";
 		static inline const juce::String amSmoothRatio = u8"As Ratio";
-		static inline const juce::String initLfoToOpl = u8"Init Lfo: OPL";
-		static inline const juce::String initLfoToOpll = u8"Init Lfo: OPLL";
+		static inline const juce::String initLfoToOpl = u8"Lfo for OPL";
+		static inline const juce::String initLfoToOpll = u8"Lfo for OPLL";
 
 		namespace Pan
 		{
@@ -109,5 +114,10 @@ namespace OplGuiText
 			static inline const juce::String kor = u8"Kor";
 			static inline const juce::String bypass = u8"Bypass";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

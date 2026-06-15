@@ -4,23 +4,23 @@
 #include "./ProcessorWtValues.h"
 #include "./ProcessorWtNames.h"
 
-void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int size, const juce::String& code, const juce::String& name)
+void WtProcessor::createCustomWaveLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int size, const juce::String& prefix, const juce::String& name)
 {
     for (int i = 0; i < size; ++i)
     {
-        auto paramId = code + juce::String(i);
+        auto paramId = prefix + juce::String(i);
         auto paramName = name + juce::String(i);
         layout.add(std::make_unique<juce::AudioParameterFloat>(paramId, paramName, WtPrValue::Custom::min, WtPrValue::Custom::max, WtPrValue::Custom::initial));
     }
 }
 
 template <size_t I>
-void WtProcessor::processCustomWaveBlock(std::array<float, I>& samples, juce::AudioProcessorValueTreeState& apvts, const juce::String& code)
+void WtProcessor::processCustomWaveBlock(std::array<float, I>& samples, juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix)
 {
     // Custom Wave params reading
     for (int i = 0; i < I; ++i)
     {
-        auto paramId = code + juce::String(i);
+        auto paramId = prefix + juce::String(i);
         samples[i] = *apvts.getRawParameterValue(paramId);
     }
 
@@ -28,162 +28,164 @@ void WtProcessor::processCustomWaveBlock(std::array<float, I>& samples, juce::Au
 
 void WtProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = WtPrKey::prefix;
+    const juce::String prefix = WtPrKey::prefix;
+    const juce::String prefixName = WtPrName::prefix;
+
     // ==========================================
     // WAVETABLE Parameters
     // ==========================================
     // Bit Depth: 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::bit, code + WtPrName::bit, WtPrValue::Bit::min, WtPrValue::Bit::max, WtPrValue::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::bit, prefixName + WtPrName::bit, WtPrValue::Bit::min, WtPrValue::Bit::max, WtPrValue::Bit::initial));
     // ADD: Sample Rate Index
     // 1:96k, 2:55.5k, 3:48k, 4:44.1k, 5:22.05k, 6:16k, 7:8k
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::rate, code + WtPrName::rate, WtPrValue::Rate::min, WtPrValue::Rate::max, WtPrValue::Rate::initial)); // Default 6 (16kHz)
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::rate, prefixName + WtPrName::rate, WtPrValue::Rate::min, WtPrValue::Rate::max, WtPrValue::Rate::initial)); // Default 6 (16kHz)
     // Size: 0:32, 1:64, 2:128, 3:256
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::sampleSize, code + WtPrName::sampleSize, WtPrValue::SammpleSize::min, WtPrValue::SammpleSize::max, WtPrValue::SammpleSize::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::sampleSize, prefixName + WtPrName::sampleSize, WtPrValue::SammpleSize::min, WtPrValue::SammpleSize::max, WtPrValue::SammpleSize::initial));
     // Steps : 0:Free, 1:16(+), 2:32(+), 3:64(+), 4:128(+), 5:256(+), 6:16(-), 7:32(-), 8:64(-), 9:128(-), 10:256(-)
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::steps, code + WtPrName::steps, WtPrValue::Steps::min, WtPrValue::Steps::max, WtPrValue::Steps::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::steps, prefixName + WtPrName::steps, WtPrValue::Steps::min, WtPrValue::Steps::max, WtPrValue::Steps::initial));
     // Waveform WtPreset : 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::wave, code + WtPrName::waveform, WtPrValue::WaveForm::min, WtPrValue::WaveForm::max, WtPrValue::WaveForm::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::wave, prefixName + WtPrName::waveform, WtPrValue::WaveForm::min, WtPrValue::WaveForm::max, WtPrValue::WaveForm::initial));
 
     // Fix
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::fix, code + WtPrName::fix, WtPrValue::Fix::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::fixFreq, code + WtPrName::fixFreq, WtPrValue::FixFreq::min, WtPrValue::FixFreq::max, WtPrValue::FixFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + WtPrKey::fix, prefixName + WtPrName::fix, WtPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::fixFreq, prefixName + WtPrName::fixFreq, WtPrValue::FixFreq::min, WtPrValue::FixFreq::max, WtPrValue::FixFreq::initial));
 
     // ユニゾン・ハーモニー用
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::voices, code + WtPrName::Unison::voices, WtPrValue::Unison::Voices::min, WtPrValue::Unison::Voices::max, WtPrValue::Unison::Voices::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::Unison::detune, code + WtPrName::Unison::detune, WtPrValue::Unison::Detune::min, WtPrValue::Unison::Detune::max, WtPrValue::Unison::Detune::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Unison::spread, code + WtPrName::Unison::spread, WtPrValue::Unison::Spread::min, WtPrValue::Unison::Spread::max, WtPrValue::Unison::Spread::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::Unison::voices, prefixName + WtPrName::Unison::voices, WtPrValue::Unison::Voices::min, WtPrValue::Unison::Voices::max, WtPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::Unison::detune, prefixName + WtPrName::Unison::detune, WtPrValue::Unison::Detune::min, WtPrValue::Unison::Detune::max, WtPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::Unison::spread, prefixName + WtPrName::Unison::spread, WtPrValue::Unison::Spread::min, WtPrValue::Unison::Spread::max, WtPrValue::Unison::Spread::initial));
 
-    createCustomWaveLayout(layout, WtPrValue::customSize1, code + WtPrKey::custom32, code + WtPrName::custom32);
-    createCustomWaveLayout(layout, WtPrValue::customSize2, code + WtPrKey::custom64, code + WtPrName::custom64);
-    createCustomWaveLayout(layout, WtPrValue::customSize3, code + WtPrKey::custom128, code + WtPrName::custom128);
-    createCustomWaveLayout(layout, WtPrValue::customSize4, code + WtPrKey::custom256, code + WtPrName::custom256);
+    createCustomWaveLayout(layout, WtPrValue::customSize1, prefix + WtPrKey::custom32, prefixName + WtPrName::custom32);
+    createCustomWaveLayout(layout, WtPrValue::customSize2, prefix + WtPrKey::custom64, prefixName + WtPrName::custom64);
+    createCustomWaveLayout(layout, WtPrValue::customSize3, prefix + WtPrKey::custom128, prefixName + WtPrName::custom128);
+    createCustomWaveLayout(layout, WtPrValue::customSize4, prefix + WtPrKey::custom256, prefixName + WtPrName::custom256);
 
     // Modulation
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::Mod::enable, code + WtPrName::Mod::enable, WtPrValue::Mod::Enable::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Mod::depth, code + WtPrName::Mod::depth, WtPrValue::Mod::Depth::min, WtPrValue::Mod::Depth::max, WtPrValue::Mod::Depth::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::Mod::speed, code + WtPrName::Mod::speed, WtPrValue::Mod::Speed::min, WtPrValue::Mod::Speed::max, WtPrValue::Mod::Speed::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + WtPrKey::Mod::enable, prefixName + WtPrName::Mod::enable, WtPrValue::Mod::Enable::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::Mod::depth, prefixName + WtPrName::Mod::depth, WtPrValue::Mod::Depth::min, WtPrValue::Mod::Depth::max, WtPrValue::Mod::Depth::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::Mod::speed, prefixName + WtPrName::Mod::speed, WtPrValue::Mod::Speed::min, WtPrValue::Mod::Speed::max, WtPrValue::Mod::Speed::initial));
 
     // Common
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::level, code + WtPrName::level, WtPrValue::Level::min, WtPrValue::Level::max, WtPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::level, prefixName + WtPrName::level, WtPrValue::Level::min, WtPrValue::Level::max, WtPrValue::Level::initial));
 
     // Detune
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::mul, code + WtPrName::mul, WtPrValue::Mul::min, WtPrValue::Mul::max, WtPrValue::Mul::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + WtPrKey::mulRatio, code + WtPrName::mulRatio, WtPrValue::MulRatio::min, WtPrValue::MulRatio::max, WtPrValue::MulRatio::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt, code + WtPrName::dt1, WtPrValue::Dt1::min, WtPrValue::Dt1::max, WtPrValue::Dt1::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + WtPrKey::dt2, code + WtPrName::dt2, WtPrValue::Dt2::min, WtPrValue::Dt2::max, WtPrValue::Dt2::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt> (code + WtPrKey::dt3, code + WtPrName::dt3, WtPrValue::Dt3::min, WtPrValue::Dt3::max, WtPrValue::Dt3::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::mul, prefixName + WtPrName::mul, WtPrValue::Mul::min, WtPrValue::Mul::max, WtPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + WtPrKey::mulRatio, prefixName + WtPrName::mulRatio, WtPrValue::MulRatio::min, WtPrValue::MulRatio::max, WtPrValue::MulRatio::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::dt, prefixName + WtPrName::dt1, WtPrValue::Dt1::min, WtPrValue::Dt1::max, WtPrValue::Dt1::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + WtPrKey::dt2, prefixName + WtPrName::dt2, WtPrValue::Dt2::min, WtPrValue::Dt2::max, WtPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt> (prefix + WtPrKey::dt3, prefixName + WtPrName::dt3, WtPrValue::Dt3::min, WtPrValue::Dt3::max, WtPrValue::Dt3::initial));
 
     // ADSR Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::adsr + WtPrKey::bypass, code + WtPrName::Adsr::bypass, WtPrValue::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + WtPrKey::adsr + WtPrKey::bypass, prefixName + WtPrName::Adsr::bypass, WtPrValue::Adsr::Bypass::initial));
 
     // PitchEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::pitchAdsr + WtPrKey::bypass, code + WtPrName::PitchAdsr::bypass, WtPrValue::PitchAdsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + WtPrKey::pitchAdsr + WtPrKey::bypass, prefixName + WtPrName::PitchAdsr::bypass, WtPrValue::PitchAdsr::Bypass::initial));
 
     // SSG SwEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + WtPrKey::ssgSwEnv + WtPrKey::bypass, code + WtPrName::SsgSwEnv::bypass, WtPrValue::SsgSwEnv::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + WtPrKey::ssgSwEnv + WtPrKey::bypass, prefixName + WtPrName::SsgSwEnv::bypass, WtPrValue::SsgSwEnv::Bypass::initial));
 
-    addEnvParameters(layout, code);
-	addPitchEnvParameters(layout, code);
-    addSsgSwEnvParameters(layout, code);
-    addOpzx7LfoParameters(layout, code);
+    addEnvParameters(layout, prefix, prefixName);
+	addPitchEnvParameters(layout, prefix, prefixName);
+    addSsgSwEnvParameters(layout, prefix, prefixName);
+    addOpzx7LfoParameters(layout, prefix, prefixName);
 }
 
 void WtProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = WtPrKey::prefix;
+    const juce::String prefix = WtPrKey::prefix;
 
-    pLevel = apvts.getRawParameterValue(code + WtPrKey::level);
-    pSampleSize = apvts.getRawParameterValue(code + WtPrKey::sampleSize);
-    pStep = apvts.getRawParameterValue(code + WtPrKey::steps);
-    pWave = apvts.getRawParameterValue(code + WtPrKey::wave);
-    pBit = apvts.getRawParameterValue(code + WtPrKey::bit);
-    pRate = apvts.getRawParameterValue(code + WtPrKey::rate);
+    pLevel = apvts.getRawParameterValue(prefix + WtPrKey::level);
+    pSampleSize = apvts.getRawParameterValue(prefix + WtPrKey::sampleSize);
+    pStep = apvts.getRawParameterValue(prefix + WtPrKey::steps);
+    pWave = apvts.getRawParameterValue(prefix + WtPrKey::wave);
+    pBit = apvts.getRawParameterValue(prefix + WtPrKey::bit);
+    pRate = apvts.getRawParameterValue(prefix + WtPrKey::rate);
 
     for (int i = 0; i < 32; ++i)
     {
-        pCustom32[i] = apvts.getRawParameterValue(code + WtPrKey::custom32 + juce::String(i));
+        pCustom32[i] = apvts.getRawParameterValue(prefix + WtPrKey::custom32 + juce::String(i));
     }
 
     for (int i = 0; i < 64; ++i)
     {
-        pCustom64[i] = apvts.getRawParameterValue(code + WtPrKey::custom64 + juce::String(i));
+        pCustom64[i] = apvts.getRawParameterValue(prefix + WtPrKey::custom64 + juce::String(i));
     }
 
     for (int i = 0; i < 128; ++i)
     {
-        pCustom128[i] = apvts.getRawParameterValue(code + WtPrKey::custom128 + juce::String(i));
+        pCustom128[i] = apvts.getRawParameterValue(prefix + WtPrKey::custom128 + juce::String(i));
     }
 
     for (int i = 0; i < 256; ++i)
     {
-        pCustom256[i] = apvts.getRawParameterValue(code + WtPrKey::custom256 + juce::String(i));
+        pCustom256[i] = apvts.getRawParameterValue(prefix + WtPrKey::custom256 + juce::String(i));
     }
 
-    pModEnable = apvts.getRawParameterValue(code + WtPrKey::Mod::enable);
-    pModDepth = apvts.getRawParameterValue(code + WtPrKey::Mod::depth);
-    pModSpeed = apvts.getRawParameterValue(code + WtPrKey::Mod::speed);
+    pModEnable = apvts.getRawParameterValue(prefix + WtPrKey::Mod::enable);
+    pModDepth = apvts.getRawParameterValue(prefix + WtPrKey::Mod::depth);
+    pModSpeed = apvts.getRawParameterValue(prefix + WtPrKey::Mod::speed);
 
-    pFixMode = apvts.getRawParameterValue(code + WtPrKey::fix);
-    pFixFreq = apvts.getRawParameterValue(code + WtPrKey::fixFreq);
+    pFixMode = apvts.getRawParameterValue(prefix + WtPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(prefix + WtPrKey::fixFreq);
 
-    pUnisonVoices = apvts.getRawParameterValue(code + WtPrKey::Unison::voices);
-    pUnisonDetuneCents = apvts.getRawParameterValue(code + WtPrKey::Unison::detune);
-    pUnisonSpread = apvts.getRawParameterValue(code + WtPrKey::Unison::spread);
+    pUnisonVoices = apvts.getRawParameterValue(prefix + WtPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(prefix + WtPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(prefix + WtPrKey::Unison::spread);
 
-    pAdsrBypass = apvts.getRawParameterValue(code + WtPrKey::adsr + WtPrKey::bypass);
-    pAdsrStl = apvts.getRawParameterValue(code + WtPrKey::Adsr::stl);
-    pAdsrAr = apvts.getRawParameterValue(code + WtPrKey::Adsr::ar);
-    pAdsrDr = apvts.getRawParameterValue(code + WtPrKey::Adsr::dr);
-    pAdsrSl = apvts.getRawParameterValue(code + WtPrKey::Adsr::sl);
-    pAdsrRr = apvts.getRawParameterValue(code + WtPrKey::Adsr::rr);
-    pAdsrKor = apvts.getRawParameterValue(code + WtPrKey::Adsr::kor);
+    pAdsrBypass = apvts.getRawParameterValue(prefix + WtPrKey::adsr + WtPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(prefix + WtPrKey::Adsr::kor);
 
-    pPitchAdsrBypass = apvts.getRawParameterValue(code + WtPrKey::pitchAdsr + WtPrKey::bypass);
-    pPitchAdsrAr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ar);
-    pPitchAdsrDr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::dr);
-    pPitchAdsrRr = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rr);
-    pPitchAdsrStl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::stl);
-    pPitchAdsrAtl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::atl);
-    pPitchAdsrSsl = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::ssl);
-    pPitchAdsrRll = apvts.getRawParameterValue(code + WtPrKey::PitchAdsr::rll);
+    pPitchAdsrBypass = apvts.getRawParameterValue(prefix + WtPrKey::pitchAdsr + WtPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(prefix + WtPrKey::PitchAdsr::rll);
 
-    pSsgSwEnvBypass = apvts.getRawParameterValue(code + WtPrKey::ssgSwEnv + WtPrKey::bypass);
-    pSsgSwEnvSteps = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::steps);
-    pSsgSwEnvLoop = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loop);
-    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopTo);
-    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::loopCount);
-    pSsgSwEnvR1 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r1);
-    pSsgSwEnvR2 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r2);
-    pSsgSwEnvR3 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r3);
-    pSsgSwEnvR4 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r4);
-    pSsgSwEnvR5 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r5);
-    pSsgSwEnvR6 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::r6);
-    pSsgSwEnvStl = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::stl);
-    pSsgSwEnvL1 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l1);
-    pSsgSwEnvL2 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l2);
-    pSsgSwEnvL3 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l3);
-    pSsgSwEnvL4 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l4);
-    pSsgSwEnvL5 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l5);
-    pSsgSwEnvL6 = apvts.getRawParameterValue(code + WtPrKey::SsgSwEnv::l6);
+    pSsgSwEnvBypass = apvts.getRawParameterValue(prefix + WtPrKey::ssgSwEnv + WtPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(prefix + WtPrKey::SsgSwEnv::l6);
 
-    pMultiple = apvts.getRawParameterValue(code + WtPrKey::mul);
-    pMultipleRatio = apvts.getRawParameterValue(code + WtPrKey::mulRatio);
-    pDetune = apvts.getRawParameterValue(code + WtPrKey::dt);
-    pDetune2 = apvts.getRawParameterValue(code + WtPrKey::dt2);
-    pDetune3 = apvts.getRawParameterValue(code + WtPrKey::dt3);
+    pMultiple = apvts.getRawParameterValue(prefix + WtPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(prefix + WtPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(prefix + WtPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(prefix + WtPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(prefix + WtPrKey::dt3);
 
-    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
-    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
-    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
-    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
-    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
-    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
-    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
-    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
-    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
-    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
-    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
-    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
-    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
+    pLfoPmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::ams);
 }
 
 void WtProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)

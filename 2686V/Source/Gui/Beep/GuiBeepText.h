@@ -6,6 +6,12 @@
 
 namespace BeepGuiText
 {
+	namespace Category
+	{
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
+	}
+
 	namespace Group
 	{
 		static inline const juce::String mainGroup = juce::String("") + "ビープ音チャンネル設定";
@@ -29,5 +35,10 @@ namespace BeepGuiText
 	namespace SsgSwEnv
 	{
 		static inline const juce::String bypass = u8"Bypass";
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

@@ -110,7 +110,7 @@ struct BaseCurveParams
 
 struct CurveParams
 {
-    enum class Position { Common, Op1, Op2, Op3, Op4, Size };
+    enum class Position { Common, Op1, Op2, Op3, Op4, Op5, Op6, Size };
     enum class Target { RegValue, AmpEnv, PitchEnv, SsgSwEnv, Size };
 	enum class TargetRegValue { Ar, Dr, Sl, Rr, Sr, Tl, Size };
 	enum class TargetAmpEnv { Ar, Dr, Rr, Sr, Size };

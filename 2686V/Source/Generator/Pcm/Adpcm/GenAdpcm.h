@@ -28,4 +28,4 @@ private:
 };
 
 // --- ADPCMになるモード番号 ---
-static const int adpcmMode = 7;
+static const int adpcmMode = 13;

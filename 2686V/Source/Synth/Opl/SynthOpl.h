@@ -2,6 +2,7 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opl/ProcessorOplValues.h"
 
 #include "./Operator/SynthOplOp.h"
 
@@ -38,8 +39,10 @@ public:
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
 private:
-    std::array<OplOperator, 2> m_operators;
-    std::array<bool, 2> m_opMask{ false, false };
+    std::array<OplOperator, OplPrValue::ops> m_operators;
+    std::array<bool, OplPrValue::ops> m_opMask{ false };
+
+    float m_level = 1.0f;
 
     int m_algorithm = 0;
     double m_hostSampleRate = 44100.0;

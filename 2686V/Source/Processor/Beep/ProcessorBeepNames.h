@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace BeepPrName
 {
+	static inline const juce::String prefix = "BEEP";
+
 	static inline const juce::String level = " Level";
 	static inline const juce::String fix = " Fix Enable";
 	static inline const juce::String fixFreq = " Fix Freq";

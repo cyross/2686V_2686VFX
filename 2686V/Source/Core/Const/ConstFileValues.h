@@ -11,11 +11,13 @@ namespace Io
 	namespace Extension
 	{
 		static inline const juce::String wavetable = "wt";
+		static inline const juce::String wt2 = "wt2";
 	};
 
 	namespace ExtensionGlob
 	{
 		static inline const juce::String wavetable = "*.wt";
+		static inline const juce::String wt2 = "*.wt2";
 	};
 
 	namespace Folder

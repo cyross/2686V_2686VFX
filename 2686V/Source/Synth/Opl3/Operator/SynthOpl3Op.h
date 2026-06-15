@@ -23,7 +23,7 @@ public:
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
-	void getSample(float& output, float modulator);
+	void getSample(float& output, float modulator, float feedbackModulator);
 	void processLfo();
 	float calcWaveform(double phase, int wave) override;
 	void setModWheel(float modWheel) { this->m_lfo.setModWheel(modWheel); };

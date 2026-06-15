@@ -24,7 +24,7 @@ class AudioPlugin2686VEditor;
 class GuiSsg : public GuiBase
 {
     // Pane Groups
-    GuiGroup mainGroup;
+    GuiScrollGroup mainGroup;
     GuiGroup dutyGroup;
     GuiGroup triGroup;
 
@@ -38,6 +38,8 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel hwEnvCat;
 
     GuiSlider levelSlider;
+
+    GuiSlider toneSlider;
 
     GuiSlider noiseSlider;
 
@@ -102,6 +104,9 @@ class GuiSsg : public GuiBase
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel utilityCat;
+    GuiTextButton broadcastLevelButton;
+
     // Preset Name Label
     GuiLabel presetNameLabel;
     GuiSeparator presetNameSeparator;
@@ -135,6 +140,7 @@ public:
         triPeakCat(context),
         hwEnvCat(context),
         levelSlider(context),
+        toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
         noiseOnNoteButton(context),
@@ -168,6 +174,8 @@ public:
         shapeSelector(context),
         periodSlider(context),
         midiComponent(context),
+        utilityCat(context),
+        broadcastLevelButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -185,6 +193,8 @@ public:
     void initParams();
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
+    void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void setLevel(float level);
 };

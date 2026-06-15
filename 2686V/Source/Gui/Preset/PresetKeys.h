@@ -67,4 +67,5 @@ namespace PresetKey
 	static inline const juce::String rhythmPathPrefix = "rhythmPath";
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
+	static inline const juce::String opzx7Wt2PathPrefix = "opzx7Wt2Path";
 };

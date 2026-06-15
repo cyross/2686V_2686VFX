@@ -51,7 +51,11 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     this->d1l = params.d1l;
     this->d2r = params.d2r;
     this->rr = params.rr;
-    this->ks = params.ks;
+    this->m_ksMode = params.ksMode;
+    this->m_ks = params.ks;
+    this->m_ksrOPP = params.ksrOPP;
+    this->m_kslOPP = params.kslOPP;
+
     this->xof = params.xof;
     this->kor = params.kor;
 
@@ -96,6 +100,70 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     }
 }
 
+// ============================================================================
+// レートスケーリング (KSR) の計算
+// ============================================================================
+int FmRgAdddr::calcRateScaling() const
+{
+    if (m_ksMode == FmRgAdddrKeyScaleMode::OPM)
+    {
+        // --- MA-7 モード ---
+        int octave = (m_noteNumber / 12) - 1;
+        if (octave < 0) octave = 0;
+        if (octave > 7) octave = 7;
+
+        int noteOffset = m_noteNumber % 12;
+        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+
+        return keyRate >> (3 - std::clamp(m_ks, 0, 3));
+    }
+    else
+    {
+        // --- OPP モード ---
+        int octave = (m_noteNumber / 12) - 1;
+        if (octave < 0) octave = 0;
+        if (octave > 7) octave = 7;
+
+        int noteOffset = m_noteNumber % 12;
+        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
+
+        // OPZのKSR(0〜3)に基づくシフト計算:
+        // 0 なら >> 3,  1 なら >> 2,  2 なら >> 1,  3 なら >> 0
+        int shift = 3 - std::clamp(this->m_ksrOPP, 0, 3);
+
+        return keyRate >> shift;
+    }
+}
+
+// ============================================================================
+// レベルスケーリング (KSL) の計算 (dBで返す)
+// ============================================================================
+float FmRgAdddr::calcLevelScalingDb() const
+{
+    if (m_ksMode == FmRgAdddrKeyScaleMode::OPM)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        // --- OPZ モード ---
+        if (this->m_kslOPP <= 0) return 0.0f;
+
+        // C3(48) を基準とし、それより高い音符で音量を減衰させる
+        float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
+        if (octaveDiff < 0.0f) octaveDiff = 0.0f;
+
+        // 0〜99 の値を 0.0〜1.0 の深度(Depth)に変換
+        float depth = std::clamp(this->m_kslOPP, 0, 99) / 99.0f;
+
+        // KSL=99の時の1オクターブあたりの最大減衰量
+        // TX81Zは最大でかなり急激に減衰するため 24.0dB / oct 程度で設定
+        float maxDbPerOct = 24.0f;
+
+        return maxDbPerOct * octaveDiff * depth;
+    }
+}
+
 float FmRgAdddr::noteOn(float velocity) {
     this->m_phaseProgress = 0.0f;
 
@@ -110,18 +178,28 @@ float FmRgAdddr::noteOn(float velocity) {
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
         float attenuationDb = tl * 0.75f;
         float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+        float kslDb = calcLevelScalingDb();
 
-        return velocity * tlGain;
+        // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
+        float totalDb = std::max(0.0f, attenuationDb + kslDb);
+        float finalGain = std::pow(10.0f, -totalDb / 20.0f);
+
+        return velocity * tlGain * finalGain;
     }
     else {
         // TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
         float attenuationDb = (this->totalLevel * 127.0f) * 0.75f;
         float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
+        float kslDb = calcLevelScalingDb();
 
-        return velocity * tlGain;
+        // マイナス値(+LIN, +EXP等による増幅)でも、最終ゲインが1.0を超えないようサチュレーションさせる
+        float totalDb = std::max(0.0f, attenuationDb + kslDb);
+        float finalGain = std::pow(10.0f, -totalDb / 20.0f);
 
+        return velocity * tlGain * finalGain;
     }
+
 }
 
 void FmRgAdddr::noteOff() {
@@ -149,15 +227,7 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+        int ksrValue = calcRateScaling();
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         // isAttack 引数を追加し、アタックと減衰で時間を調整する
@@ -207,15 +277,7 @@ void FmRgAdddr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+        int ksrValue = calcRateScaling();
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {

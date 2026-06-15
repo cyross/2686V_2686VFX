@@ -27,25 +27,36 @@ void GuiBeep::setup() {
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    volSlider.setup({ .parent = *this, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
-    volSlider.setWantsKeyboardFocus(true);
-    volSlider.setExplicitFocusOrder(++tabOrder);
+    levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
+    levelSlider.setWantsKeyboardFocus(true);
+    levelSlider.setExplicitFocusOrder(++tabOrder);
 
-	fixComponent.setupComponent(*this, code, tabOrder, "-> 2K", 2000);
+	fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 2K", 2000);
 
-    ampEnvComponent.setupComponent(*this, code, tabOrder);
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(*this, code, tabOrder, BeepPrKey::pitchAdsr + BeepPrKey::bypass, BeepGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, BeepPrKey::pitchAdsr + BeepPrKey::bypass, BeepGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(*this, code, tabOrder, BeepPrKey::ssgSwEnv + BeepPrKey::bypass, BeepGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, BeepPrKey::ssgSwEnv + BeepPrKey::bypass, BeepGuiText::SsgSwEnv::bypass);
 
-	mulDetuneComponent.setupComponent(*this, code, tabOrder);
+	mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    lfoComponent.setupComponent(*this, code, tabOrder);
+    lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    unisonComponent.setupComponent(*this, code, tabOrder);
+    unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    midiComponent.setupComponent(*this, tabOrder);
+    midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::visibleUtil, .invisibleTitle = BeepGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
 
     setupGraph();
     updateGraph();
@@ -57,20 +68,27 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mainArea = pageArea.removeFromLeft(BeepGuiValue::MainGroup::width);
     mainGroup.setBounds(mainArea);
 
-    auto mRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
-    mRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
+    auto mmRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
+    mmRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
+    auto presetNameSeparatorArea = mmRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     // グラフ用の区画を確保
-    layoutGraph(mRect);
+    layoutGraph(mmRect);
     updateGraph();
 
-    layoutMain({ .mainRect = mRect, .label = &volSlider.label, .component = &volSlider });
+    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+    mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
+
+    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+
+    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
     fixComponent.layoutComponent(mRect);
 
@@ -87,6 +105,27 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     unisonComponent.layoutComponent(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
+
+    int usedHeight = 2000 - mRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    mainGroup.setContentHeight(usedHeight + 20);
+}
+
+void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+    }
 }
 
 void GuiBeep::updatePresetName(const juce::String& presetName)
@@ -185,4 +224,8 @@ void GuiBeep::updateGraph()
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+}
+
+void GuiBeep::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

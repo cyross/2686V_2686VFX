@@ -10,8 +10,7 @@ namespace Opzx7PrKey
 {
 	static inline const juce::String prefix = "OPZX7";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
+	static inline const juce::String level = "_LEVEL";
 
 	static inline const juce::String op = CorePrKey::op;
 	static inline const juce::String pitchAdsr = CorePrKey::pitchAdsr;
@@ -36,7 +35,18 @@ namespace Opzx7PrKey
 	static inline const juce::String d1r = CorePrKey::Post::Fm::Op::d1r;
 	static inline const juce::String d1l = CorePrKey::Post::Fm::Op::d1l;
 	static inline const juce::String d2r = CorePrKey::Post::Fm::Op::d2r;
-	static inline const juce::String ks = CorePrKey::Post::Fm::Op::ks;
+	static inline const juce::String ksEn = "_KS_EN";
+	static inline const juce::String ksMode = "_KS_MODE";
+	static inline const juce::String ksrMA7 = CorePrKey::Post::Fm::Op::ksr;
+	static inline const juce::String kslMA7 = CorePrKey::Post::Fm::Op::ksl;
+	static inline const juce::String ksrOPZ = "_KSR_OPZ";
+	static inline const juce::String kslOPZ = "_KSL_OPZ";
+	static inline const juce::String ksBp = "_KS_BP";
+	static inline const juce::String ksLc = "_KS_LC";
+	static inline const juce::String ksRc = "_KS_RC";
+	static inline const juce::String ksLd = "_KS_LD";
+	static inline const juce::String ksRd = "_KS_RD";
+	static inline const juce::String ksRs = "_KS_RS";
 	static inline const juce::String rgEn = CorePrKey::Post::Fm::Op::rgEn;
 	static inline const juce::String rgAr = CorePrKey::Post::Fm::Op::rgAr;
 	static inline const juce::String rgRr = CorePrKey::Post::Fm::Op::rgRr;

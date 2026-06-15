@@ -23,6 +23,8 @@ namespace SsgGuiText
 		static inline const juce::String ssgNoise = u8"--- NOISE ---";
 		static inline const juce::String invert = u8"--- INVERT ---";
 		static inline const juce::String peak = u8"--- PEAK ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace File
@@ -72,6 +74,8 @@ namespace SsgGuiText
 
 	namespace Ssg
 	{
+		static inline const juce::String level = u8"Level";
+
 		namespace Voice
 		{
 			static inline const juce::String form = u8"Form";
@@ -109,5 +113,10 @@ namespace SsgGuiText
 			static inline const juce::String shape = u8"Shape";
 			static inline const juce::String speed = u8"Period";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

@@ -6,129 +6,128 @@
 
 void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = AdpcmPrKey::prefix;
+    const juce::String prefix = AdpcmPrKey::prefix;
+    const juce::String prefixName = AdpcmPrName::prefix;
 
     // ==========================================
     // ADPCM Parameters
     // ==========================================
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::level, code + AdpcmPrName::level, AdpcmPrValue::Level::min, AdpcmPrValue::Level::max, AdpcmPrValue::Level::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pan, code + AdpcmPrName::pan, AdpcmPrValue::Pan::min, AdpcmPrValue::Pan::max, AdpcmPrValue::Pan::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::loop, code + AdpcmPrName::loop, AdpcmPrValue::Loop::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::mode, code + AdpcmPrName::bit, AdpcmPrValue::Bit::min, AdpcmPrValue::Bit::max, AdpcmPrValue::Bit::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::rate, code + AdpcmPrName::rate, AdpcmPrValue::Rate::min, AdpcmPrValue::Rate::max, AdpcmPrValue::Rate::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmOffset, code + AdpcmPrName::pcmOffset, AdpcmPrValue::Offset::min, AdpcmPrValue::Offset::max, AdpcmPrValue::Offset::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::pcmRatio, code + AdpcmPrName::pcmRatio, AdpcmPrValue::Ratio::min, AdpcmPrValue::Ratio::max, AdpcmPrValue::Ratio::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::level, prefixName + AdpcmPrName::level, AdpcmPrValue::Level::min, AdpcmPrValue::Level::max, AdpcmPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pan, prefixName + AdpcmPrName::pan, AdpcmPrValue::Pan::min, AdpcmPrValue::Pan::max, AdpcmPrValue::Pan::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::loop, prefixName + AdpcmPrName::loop, AdpcmPrValue::Loop::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::mode, prefixName + AdpcmPrName::bit, AdpcmPrValue::Bit::min, AdpcmPrValue::Bit::max, AdpcmPrValue::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::rate, prefixName + AdpcmPrName::rate, AdpcmPrValue::Rate::min, AdpcmPrValue::Rate::max, AdpcmPrValue::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pcmOffset, prefixName + AdpcmPrName::pcmOffset, AdpcmPrValue::Offset::min, AdpcmPrValue::Offset::max, AdpcmPrValue::Offset::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pcmRatio, prefixName + AdpcmPrName::pcmRatio, AdpcmPrValue::Ratio::min, AdpcmPrValue::Ratio::max, AdpcmPrValue::Ratio::initial));
 
     // Fix
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::fix, code + AdpcmPrName::fix, AdpcmPrValue::Fix::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::fixFreq, code + AdpcmPrName::fixFreq, AdpcmPrValue::FixFreq::min, AdpcmPrValue::FixFreq::max, AdpcmPrValue::FixFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::fix, prefixName + AdpcmPrName::fix, AdpcmPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::fixFreq, prefixName + AdpcmPrName::fixFreq, AdpcmPrValue::FixFreq::min, AdpcmPrValue::FixFreq::max, AdpcmPrValue::FixFreq::initial));
 
     // ADSR Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass, code + AdpcmPrName::Adsr::bypass, AdpcmPrValue::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::adsr + AdpcmPrKey::bypass, prefixName + AdpcmPrName::Adsr::bypass, AdpcmPrValue::Adsr::Bypass::initial));
 
     // PitchEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, code + AdpcmPrName::PitchAdsr::bypass, AdpcmPrValue::PitchAdsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, prefixName + AdpcmPrName::PitchAdsr::bypass, AdpcmPrValue::PitchAdsr::Bypass::initial));
 
     // SSG SwEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, code + AdpcmPrName::SsgSwEnv::bypass, AdpcmPrValue::SsgSwEnv::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, prefixName + AdpcmPrName::SsgSwEnv::bypass, AdpcmPrValue::SsgSwEnv::Bypass::initial));
 
     // Detune
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::mul, code + AdpcmPrName::mul, AdpcmPrValue::Mul::min, AdpcmPrValue::Mul::max, AdpcmPrValue::Mul::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::mulRatio, code + AdpcmPrName::mulRatio, AdpcmPrValue::MulRatio::min, AdpcmPrValue::MulRatio::max, AdpcmPrValue::MulRatio::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt, code + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt2, code + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::dt3, code + AdpcmPrName::dt3, AdpcmPrValue::Dt3::min, AdpcmPrValue::Dt3::max, AdpcmPrValue::Dt3::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::mul, prefixName + AdpcmPrName::mul, AdpcmPrValue::Mul::min, AdpcmPrValue::Mul::max, AdpcmPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::mulRatio, prefixName + AdpcmPrName::mulRatio, AdpcmPrValue::MulRatio::min, AdpcmPrValue::MulRatio::max, AdpcmPrValue::MulRatio::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::dt, prefixName + AdpcmPrName::dt1, AdpcmPrValue::Dt1::min, AdpcmPrValue::Dt1::max, AdpcmPrValue::Dt1::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::dt2, prefixName + AdpcmPrName::dt2, AdpcmPrValue::Dt2::min, AdpcmPrValue::Dt2::max, AdpcmPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::dt3, prefixName + AdpcmPrName::dt3, AdpcmPrValue::Dt3::min, AdpcmPrValue::Dt3::max, AdpcmPrValue::Dt3::initial));
 
     // ユニゾン・ハーモニー用
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::Unison::voices, code + AdpcmPrName::Unison::voices, AdpcmPrValue::Unison::Voices::min, AdpcmPrValue::Unison::Voices::max, AdpcmPrValue::Unison::Voices::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + AdpcmPrKey::Unison::detune, code + AdpcmPrName::Unison::detune, AdpcmPrValue::Unison::Detune::min, AdpcmPrValue::Unison::Detune::max, AdpcmPrValue::Unison::Detune::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + AdpcmPrKey::Unison::spread, code + AdpcmPrName::Unison::spread, AdpcmPrValue::Unison::Spread::min, AdpcmPrValue::Unison::Spread::max, AdpcmPrValue::Unison::Spread::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::Unison::voices, prefixName + AdpcmPrName::Unison::voices, AdpcmPrValue::Unison::Voices::min, AdpcmPrValue::Unison::Voices::max, AdpcmPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::Unison::detune, prefixName + AdpcmPrName::Unison::detune, AdpcmPrValue::Unison::Detune::min, AdpcmPrValue::Unison::Detune::max, AdpcmPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::Unison::spread, prefixName + AdpcmPrName::Unison::spread, AdpcmPrValue::Unison::Spread::min, AdpcmPrValue::Unison::Spread::max, AdpcmPrValue::Unison::Spread::initial));
 
-    addEnvParameters(layout, code);
-    addPitchEnvParameters(layout, code);
-    addSsgSwEnvParameters(layout, code);
-    addOpzx7LfoParameters(layout, code);
+    addEnvParameters(layout, prefix, prefixName);
+    addPitchEnvParameters(layout, prefix, prefixName);
+    addSsgSwEnvParameters(layout, prefix, prefixName);
+    addOpzx7LfoParameters(layout, prefix, prefixName);
 }
 
 void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = AdpcmPrKey::prefix;
+    const juce::String prefix = AdpcmPrKey::prefix;
 
-    pLevel = apvts.getRawParameterValue(code + AdpcmPrKey::level);
-    pPan = apvts.getRawParameterValue(code + AdpcmPrKey::pan);
-    pLoop = apvts.getRawParameterValue(code + AdpcmPrKey::loop);
-    pQualityMode = apvts.getRawParameterValue(code + AdpcmPrKey::mode);
-    pRateIndex = apvts.getRawParameterValue(code + AdpcmPrKey::rate);
-    pPcmOffset = apvts.getRawParameterValue(code + AdpcmPrKey::pcmOffset);
-    pPcmRatio = apvts.getRawParameterValue(code + AdpcmPrKey::pcmRatio);
+    pLevel = apvts.getRawParameterValue(prefix + AdpcmPrKey::level);
+    pPan = apvts.getRawParameterValue(prefix + AdpcmPrKey::pan);
+    pLoop = apvts.getRawParameterValue(prefix + AdpcmPrKey::loop);
+    pQualityMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::mode);
+    pRateIndex = apvts.getRawParameterValue(prefix + AdpcmPrKey::rate);
+    pPcmOffset = apvts.getRawParameterValue(prefix + AdpcmPrKey::pcmOffset);
+    pPcmRatio = apvts.getRawParameterValue(prefix + AdpcmPrKey::pcmRatio);
 
-    pFixMode = apvts.getRawParameterValue(code + AdpcmPrKey::fix);
-    pFixFreq = apvts.getRawParameterValue(code + AdpcmPrKey::fixFreq);
+    pFixMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(prefix + AdpcmPrKey::fixFreq);
 
-    pUnisonVoices = apvts.getRawParameterValue(code + AdpcmPrKey::Unison::voices);
-    pUnisonDetuneCents = apvts.getRawParameterValue(code + AdpcmPrKey::Unison::detune);
-    pUnisonSpread = apvts.getRawParameterValue(code + AdpcmPrKey::Unison::spread);
+    pUnisonVoices = apvts.getRawParameterValue(prefix + AdpcmPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(prefix + AdpcmPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(prefix + AdpcmPrKey::Unison::spread);
 
-    pAdsrBypass = apvts.getRawParameterValue(code + AdpcmPrKey::adsr + AdpcmPrKey::bypass);
-    pAdsrStl = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::stl);
-    pAdsrAr = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::ar);
-    pAdsrDr = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::dr);
-    pAdsrSl = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::sl);
-    pAdsrRr = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::rr);
-    pAdsrKor = apvts.getRawParameterValue(code + AdpcmPrKey::Adsr::kor);
+    pAdsrBypass = apvts.getRawParameterValue(prefix + AdpcmPrKey::adsr + AdpcmPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(prefix + AdpcmPrKey::Adsr::kor);
 
-    pPitchAdsrBypass = apvts.getRawParameterValue(code + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass);
-    pPitchAdsrAr = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::ar);
-    pPitchAdsrDr = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::dr);
-    pPitchAdsrRr = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::rr);
-    pPitchAdsrStl = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::stl);
-    pPitchAdsrAtl = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::atl);
-    pPitchAdsrSsl = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::ssl);
-    pPitchAdsrRll = apvts.getRawParameterValue(code + AdpcmPrKey::PitchAdsr::rll);
+    pPitchAdsrBypass = apvts.getRawParameterValue(prefix + AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(prefix + AdpcmPrKey::PitchAdsr::rll);
 
-    pSsgSwEnvBypass = apvts.getRawParameterValue(code + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass);
-    pSsgSwEnvSteps = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::steps);
-    pSsgSwEnvLoop = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loop);
-    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loopTo);
-    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::loopCount);
-    pSsgSwEnvR1 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r1);
-    pSsgSwEnvR2 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r2);
-    pSsgSwEnvR3 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r3);
-    pSsgSwEnvR4 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r4);
-    pSsgSwEnvR5 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r5);
-    pSsgSwEnvR6 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::r6);
-    pSsgSwEnvStl = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::stl);
-    pSsgSwEnvL1 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l1);
-    pSsgSwEnvL2 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l2);
-    pSsgSwEnvL3 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l3);
-    pSsgSwEnvL4 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l4);
-    pSsgSwEnvL5 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l5);
-    pSsgSwEnvL6 = apvts.getRawParameterValue(code + AdpcmPrKey::SsgSwEnv::l6);
+    pSsgSwEnvBypass = apvts.getRawParameterValue(prefix + AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(prefix + AdpcmPrKey::SsgSwEnv::l6);
 
-    pMultiple = apvts.getRawParameterValue(code + AdpcmPrKey::mul);
-    pMultipleRatio = apvts.getRawParameterValue(code + AdpcmPrKey::mulRatio);
-    pDetune = apvts.getRawParameterValue(code + AdpcmPrKey::dt);
-    pDetune2 = apvts.getRawParameterValue(code + AdpcmPrKey::dt2);
-    pDetune3 = apvts.getRawParameterValue(code + AdpcmPrKey::dt3);
+    pMultiple = apvts.getRawParameterValue(prefix + AdpcmPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(prefix + AdpcmPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(prefix + AdpcmPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(prefix + AdpcmPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(prefix + AdpcmPrKey::dt3);
 
-    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
-    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
-    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
-    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
-    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
-    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
-    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
-    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
-    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
-    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
-    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
-    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
-    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
+    pLfoPmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::ams);
 }
 
 void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = AdpcmPrKey::prefix;
-
     // get Bool value
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
     params.adpcm.level = pLevel->load(std::memory_order_relaxed);

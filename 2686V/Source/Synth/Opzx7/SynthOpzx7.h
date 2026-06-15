@@ -9,6 +9,7 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 #include "./Operator/SynthOpzx7Op.h"
 
@@ -41,6 +42,7 @@ public:
     float getSample() override;
     void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
     void setWtBuffer(int opIndex, const std::vector<float>* wtData);
+    void setWt2Buffer(int opIndex, const std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
 
@@ -55,13 +57,26 @@ public:
         // (例: 3ボイスなら 0.0, 0.33, 0.66)
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
+
+    struct AlgRouting {
+        std::array<float, Opzx7PrValue::ops> out;                // 最終出力へのミックス割合
+        std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
+        std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
+    };
 private:
-    std::array<Opzx7Operator, 4> m_operators;
-    std::array<bool, 4> m_opMask{ false, false, false, false };
+    std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
+    std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
     Opzx7LfoCore m_lfo;
+
+    std::array<float, Opzx7PrValue::ops> m_history1 = { 0.0f };
+    std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
+    int m_algorithmCodeBase = 0;
+    int m_algorithmCodeShift = 4; // x16
+
+    float m_level = 1.0f;
 
     // Rate & Quality
     int m_rateIndex = 1;
@@ -97,15 +112,7 @@ private:
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
 
-    struct AlgRouting {
-        float in2_1;             // OP2への入力 (1からの割合)
-        bool  fb2_1;             // OP2からOP1へのフィードバック有無
-        float in3_1, in3_2;      // OP3への入力 (1, 2からの割合)
-        float in4_1, in4_2, in4_3; // OP4への入力 (1, 2, 3からの割合)
-        float out_1, out_2, out_3, out_4; // 最終出力へのミックス割合
-    };
-
-    static const std::array<AlgRouting, 36> routings; // 36個のアルゴリズム定義
+    static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings;
 
     int m_panpot = 0;
     bool m_panpot_enable = false;

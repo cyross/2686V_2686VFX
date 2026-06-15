@@ -14,7 +14,7 @@ namespace CurvePrName
 	static inline const juce::String enable = " Enable";
 
 	// Position
-	static const std::array<juce::String, 5> position{ " Common", " Op1", " Op2", " Op3", " Op4" };
+	static const std::array<juce::String, 7> position{ " Common", " Op1", " Op2", " Op3", " Op4", " Op5", " Op6" };
 
 	// Target
 	static const std::array<juce::String, 4> target{ " Register Value", " Amp Env", " Pitch Env", " SSG Sw Env" };

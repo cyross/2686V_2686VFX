@@ -12,17 +12,25 @@
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiAdpcmHelpers.h"
 
+// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 static std::vector<SelectItem> qualityItems = {
-    {.name = "1: Raw (32bit)", .value = 1 },
-    {.name = "2: 24-bit PCM",  .value = 2 },
-    {.name = "3: 16-bit PCM",  .value = 3 },
-    {.name = "4: 8-bit PCM",   .value = 4 },
-    {.name = "5: 5-bit PCM",   .value = 5 },
-    {.name = "6: 4-bit PCM",   .value = 6 },
-    {.name = "7: 4-bit ADPCM", .value = 7 },
-    {.name = "8: 1-bit DPCM",  .value = 8 },
+    {.name = " 1: Raw (32bit)", .value =  1 },
+    {.name = " 2: 24-bit PCM",  .value =  2 },
+    {.name = " 3: 20-bit PCM",  .value =  3 },
+    {.name = " 4: 16-bit PCM",  .value =  4 },
+    {.name = " 5: 12-bit PCM",  .value =  5 },
+    {.name = " 6: 10-bit PCM",  .value =  6 },
+    {.name = " 7: 9-bit PCM",   .value =  7 },
+    {.name = " 8: 8-bit PCM",   .value =  8 },
+    {.name = " 9: 7-bit PCM",   .value =  9 },
+    {.name = "10: 6-bit PCM",   .value = 10 },
+    {.name = "11: 5-bit PCM",   .value = 11 },
+    {.name = "12: 4-bit PCM",   .value = 12 },
+    {.name = "13: 4-bit ADPCM", .value = 13 },
+    {.name = "14: 1-bit DPCM",  .value = 14 },
 };
 
+// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
 static std::vector<SelectItem> rateItems = {
     {.name = " 1: 96kHz",    .value =  1 },
     {.name = " 2: 55.5kHz",  .value =  2 },
@@ -30,14 +38,15 @@ static std::vector<SelectItem> rateItems = {
     {.name = " 4: 48kHz",    .value =  4 },
     {.name = " 5: 44.1kHz",  .value =  5 },
     {.name = " 6: 33.08kHz", .value =  6 },
-    {.name = " 7: 22.05kHz", .value =  7 },
-    {.name = " 8: 16kHz",    .value =  8 },
-    {.name = " 9: 12kHz",    .value =  9 },
-    {.name = "10: 11kHz",    .value = 10 },
-    {.name = "11: 8kHz",     .value = 11 },
-    {.name = "12: 5.5kHz",   .value = 12 },
-    {.name = "13: 4kHz",     .value = 13 },
-    {.name = "14: 2kHz",     .value = 14 },
+    {.name = " 7: 32kHz",    .value =  7 },
+    {.name = " 8: 22.05kHz", .value =  8 },
+    {.name = " 9: 16kHz",    .value =  9 },
+    {.name = "10: 12kHz",    .value = 10 },
+    {.name = "11: 11kHz",    .value = 11 },
+    {.name = "12: 8kHz",     .value = 12 },
+    {.name = "12: 5.5kHz",   .value = 13 },
+    {.name = "13: 4kHz",     .value = 14 },
+    {.name = "15: 2kHz",     .value = 15 },
 };
 
 void GuiAdpcm::setup()
@@ -69,40 +78,40 @@ void GuiAdpcm::setup()
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    qualityCat.setupHwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = *this, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     // 出力レベル
-	levelSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
+	levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    optionalCat.setupSwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+    optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
-    loopButton.setup({ .parent = *this, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + AdpcmPrKey::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = *this, .id = code + AdpcmPrKey::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
-    panCat.setupHwCategory({ .parent = *this, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
+    panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = *this, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
@@ -111,33 +120,33 @@ void GuiAdpcm::setup()
     setupPanBtn(panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
     setupPanBtn(panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
 
-    ampEnvComponent.setupComponent(*this, code, tabOrder);
+    ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(*this, code, tabOrder, AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, AdpcmGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, AdpcmGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(*this, code, tabOrder, AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, AdpcmGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, AdpcmGuiText::SsgSwEnv::bypass);
 
-    mulDetuneComponent.setupComponent(*this, code, tabOrder);
+    mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    lfoComponent.setupComponent(*this, code, tabOrder);
+    lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    fixComponent.setupComponent(*this, code, tabOrder, "-> 440", 440);
+    fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
-    unisonComponent.setupComponent(*this, code, tabOrder);
+    unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 音声ファイル読み込みボタン
-    loadButton.setup({ .parent = *this, .title = AdpcmGuiText::File::load , .isReset = false });
+    loadButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::load , .isReset = false });
     loadButton.addListener(&ctx.editor);
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
     // ロードしているファイル名
-    fileNameLabel.setup({ .parent = *this, .title = Io::empty });
+    fileNameLabel.setup({ .parent = mainGroup.contentCanvas, .title = Io::empty });
     fileNameLabel.setJustificationType(juce::Justification::centredLeft);
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = *this, .title = AdpcmGuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]
@@ -149,7 +158,18 @@ void GuiAdpcm::setup()
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
-    midiComponent.setupComponent(*this, tabOrder);
+    midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
+
+    utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleUtil, .invisibleTitle = AdpcmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
+
+    broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::bcLevel });
+    broadcastLevelButton.setWantsKeyboardFocus(true);
+    broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
+    broadcastLevelButton.onClick = [this] {
+        float level = levelSlider.getValue();
+
+        ctx.editor.breadcastLevel(level);
+        };
 
     setupGraph();
     updateGraph();
@@ -161,18 +181,25 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     auto mainArea = pageArea.removeFromLeft(AdpcmGuiValue::MainGroup::width);
     mainGroup.setBounds(mainArea);
-    auto mRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
-    mRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
+    auto mmRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
+    mmRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mRect, .label = &presetNameLabel });
+    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
 
     // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mRect.removeFromTop(AdpcmGuiValue::MainGroup::Separator::height);
+    auto presetNameSeparatorArea = mmRect.removeFromTop(AdpcmGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
     // グラフ用の区画を確保
-    layoutGraph(mRect);
+    layoutGraph(mmRect);
     updateGraph();
+
+    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+    mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
+
+    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
 
@@ -199,6 +226,13 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutQualityCat(mRect);
 
     midiComponent.layoutComponent(mRect);
+
+    layoutUtilityCat(mRect);
+
+    int usedHeight = 2000 - mRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    mainGroup.setContentHeight(usedHeight + 20);
 }
 
 void GuiAdpcm::updateFileName(const juce::String& fileName)
@@ -246,6 +280,20 @@ void GuiAdpcm::initParams()
     this->ctx.audioProcessor.initParams("ADPCM_");
     this->ctx.audioProcessor.unloadAdpcmFile();
     updateFileName(Io::empty);
+}
+
+void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &utilityCat });
+
+    bool visible = utilityCat.isDetailVisible();
+
+    broadcastLevelButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+    }
 }
 
 void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -383,4 +431,8 @@ void GuiAdpcm::updateGraph()
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+}
+
+void GuiAdpcm::setLevel(float level) {
+    levelSlider.setValue(level, juce::NotificationType::sendNotification);
 }

@@ -17,6 +17,8 @@ namespace RhythmGuiText
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace File
@@ -66,5 +68,10 @@ namespace RhythmGuiText
 				static inline const juce::String bypass = u8"Bypass";
 			}
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

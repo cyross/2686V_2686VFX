@@ -14,10 +14,11 @@ enum class OscMode
     OPZX7 = 5,
     SSG = 6,
     WAVETABLE = 7,
-    RHYTHM = 8,
-    ADPCM = 9,
-    BEEP = 10,
-    Count = 11, // カウント用
+    WT2 = 8,
+    RHYTHM = 9,
+    ADPCM = 10,
+    BEEP = 11,
+    Count = 12, // カウント用
 };
 
 static juce::String getModeName(OscMode mode) {
@@ -30,6 +31,7 @@ static juce::String getModeName(OscMode mode) {
     case OscMode::OPZX7:  return "OPZX7";
     case OscMode::SSG:  return "SSG";
     case OscMode::WAVETABLE: return "WAVETABLE";
+    case OscMode::WT2: return "WT2";
     case OscMode::RHYTHM: return "RHYTHM";
     case OscMode::ADPCM:  return "ADPCM";
     case OscMode::BEEP:  return "BEEP";
@@ -46,6 +48,7 @@ static OscMode getModeFromString(const juce::String& name) {
     if (name == "OPZX7")  return OscMode::OPZX7;
     if (name == "SSG")  return OscMode::SSG;
     if (name == "WAVETABLE") return OscMode::WAVETABLE;
+    if (name == "WT2") return OscMode::WT2;
     if (name == "RHYTHM") return OscMode::RHYTHM;
     if (name == "ADPCM")  return OscMode::ADPCM;
     if (name == "BEEP")  return OscMode::BEEP;

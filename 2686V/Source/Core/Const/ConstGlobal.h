@@ -25,12 +25,6 @@ namespace Global
 		static inline const juce::String output = "Output";
 	};
 
-	namespace Fm
-	{
-		static const int Op4 = 4;
-		static const int Op2 = 2;
-	}
-
 	namespace About
 	{
 		namespace Gpl

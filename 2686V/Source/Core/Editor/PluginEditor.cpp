@@ -37,6 +37,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 	opzx7Gui = std::make_unique<GuiOpzx7>(context);
 	ssgGui = std::make_unique<GuiSsg>(context);
 	wtGui = std::make_unique<GuiWt>(context);
+    wt2Gui = std::make_unique<GuiWt2>(context);
 	rhythmGui = std::make_unique<GuiRhythm>(context);
 	adpcmGui = std::make_unique<GuiAdpcm>(context);
     beepGui = std::make_unique<GuiBeep>(context);
@@ -47,6 +48,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     curveGui = std::make_unique<GuiCurve>(context);
 
     wtGui->addComponentListener(this);
+    wt2Gui->addComponentListener(this);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -63,6 +65,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     opzx7Gui->setup();
     ssgGui->setup();
     wtGui->setup();
+    wt2Gui->setup();
     rhythmGui->setup();
     adpcmGui->setup();
     beepGui->setup();
@@ -375,6 +378,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
     tabs.getTabbedButtonBar().removeChangeListener(this);
 
     wtGui->removeComponentListener(this);
+    wt2Gui->removeComponentListener(this);
 
     adpcmGui->removeLoadButtonListener(this);
 
@@ -548,6 +552,7 @@ void AudioPlugin2686VEditor::resized()
     opzx7Gui->layout(tabContent);
     ssgGui->layout(tabContent);
     wtGui->layout(tabContent);
+    wt2Gui->layout(tabContent);
     rhythmGui->layout(tabContent);
     adpcmGui->layout(tabContent);
     beepGui->layout(tabContent);
@@ -683,6 +688,7 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
     tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
+    tabs.addTab(EditorGuiText::Tab::wt2, juce::Colours::transparentBlack, wt2Gui.get(), true);
     tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
@@ -857,6 +863,7 @@ void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     opzx7Gui->updatePresetName(pName);
     ssgGui->updatePresetName(pName);
     wtGui->updatePresetName(pName);
+    wt2Gui->updatePresetName(pName);
     rhythmGui->updatePresetName(pName);
     adpcmGui->updatePresetName(pName);
     beepGui->updatePresetName(pName);
@@ -930,9 +937,14 @@ void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
                 auto file = fc.getResult();
                 if (file.existsAsFile())
                 {
-                    audioProcessor.loadAdpcmFile(file);
-                    adpcmGui->updateFileName(file.getFileName());
-                    audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                    adpcmGui->updateFileName("Loading...");
+
+                    juce::Timer::callAfterDelay(50, [this, file]()
+                        {
+                            audioProcessor.loadAdpcmFile(file);
+                            adpcmGui->updateFileName(file.getFileName());
+                            audioProcessor.lastSampleDirectory = file.getParentDirectory();
+                        });
                 }
             }
         );
@@ -1260,6 +1272,15 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             return true; // イベントを消費
         }
     }
+    else {
+        // Q (Reset Midi Settings
+        if (key.getKeyCode() == 'Q' || key.getKeyCode() == 'q')
+        {
+            resetMidiSettings();
+
+            return true; // イベントを消費
+        }
+    }
 
     return false; // 他のキー入力は通常の処理へ
 }
@@ -1411,6 +1432,9 @@ void AudioPlugin2686VEditor::initParams()
     case OscMode::WAVETABLE:
         wtGui->initParams();
         break;
+    case OscMode::WT2:
+        wt2Gui->initParams();
+        break;
     case OscMode::RHYTHM:
         rhythmGui->initParams();
         break;
@@ -1467,3 +1491,23 @@ void AudioPlugin2686VEditor::updateUiScale(float newScale) {
 
     setSize(targetWidth, targetHeight); // DAWに新しいサイズを通知
 };
+
+void AudioPlugin2686VEditor::resetMidiSettings() {
+    audioProcessor.resetMidiSettings();
+}
+
+// 現在のチャンネルのレベルを全チャンネルに伝播
+void AudioPlugin2686VEditor::breadcastLevel(float level) {
+    opnaGui->setLevel(level);
+    opnGui->setLevel(level);
+    oplGui->setLevel(level);
+    opl3Gui->setLevel(level);
+    opmGui->setLevel(level);
+    opzx7Gui->setLevel(level);
+    ssgGui->setLevel(level);
+    wtGui->setLevel(level);
+    wt2Gui->setLevel(level);
+    rhythmGui->setLevel(level);
+    adpcmGui->setLevel(level);
+    beepGui->setLevel(level);
+}

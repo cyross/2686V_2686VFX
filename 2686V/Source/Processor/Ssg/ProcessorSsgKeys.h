@@ -10,13 +10,10 @@ namespace SsgPrKey
 {
 	static inline const juce::String prefix = "SSG";
 
-	static inline const juce::String masterVol = CorePrKey::masterVol;
-	static inline const juce::String monoMode = CorePrKey::monoMode;
-
 	static inline const juce::String level = "_LEVEL";
 	static inline const juce::String bit = "_BIT";
 	static inline const juce::String rate = "_RATE";
-	static inline const juce::String tone = "_LEVEL";
+	static inline const juce::String tone = "_TONE";
 	static inline const juce::String noise = "_NOISE";
 	static inline const juce::String noiseFreq = "_NOISE_FREQ";
 	static inline const juce::String noiseOnNote = "_NOISE_ON_NOTE";

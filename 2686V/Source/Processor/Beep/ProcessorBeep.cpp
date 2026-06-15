@@ -6,109 +6,108 @@
 
 void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
 {
-    const juce::String code = BeepPrKey::prefix;
+    const juce::String prefix = BeepPrKey::prefix;
+    const juce::String prefixName = BeepPrName::prefix;
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::level, code + BeepPrName::level, BeepPrValue::Level::min, BeepPrValue::Level::max, BeepPrValue::Level::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + BeepPrKey::fix, code + BeepPrName::fix, BeepPrValue::Fix::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::fixFreq, code + BeepPrName::fixFreq, BeepPrValue::FixFreq::min, BeepPrValue::FixFreq::max, BeepPrValue::FixFreq::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + BeepPrKey::adsr + BeepPrKey::bypass, code + BeepPrName::Adsr::bypass, BeepPrValue::Adsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + BeepPrKey::level, prefixName + BeepPrName::level, BeepPrValue::Level::min, BeepPrValue::Level::max, BeepPrValue::Level::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + BeepPrKey::fix, prefixName + BeepPrName::fix, BeepPrValue::Fix::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + BeepPrKey::fixFreq, prefixName + BeepPrName::fixFreq, BeepPrValue::FixFreq::min, BeepPrValue::FixFreq::max, BeepPrValue::FixFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + BeepPrKey::adsr + BeepPrKey::bypass, prefixName + BeepPrName::Adsr::bypass, BeepPrValue::Adsr::Bypass::initial));
 
     // PitchEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + BeepPrKey::pitchAdsr + BeepPrKey::bypass, code + BeepPrName::PitchAdsr::bypass, BeepPrValue::PitchAdsr::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + BeepPrKey::pitchAdsr + BeepPrKey::bypass, prefixName + BeepPrName::PitchAdsr::bypass, BeepPrValue::PitchAdsr::Bypass::initial));
 
     // SSG SwEnv Bypass Switch
-    layout.add(std::make_unique<juce::AudioParameterBool>(code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass, code + BeepPrName::SsgSwEnv::bypass, BeepPrValue::SsgSwEnv::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + BeepPrKey::ssgSwEnv + BeepPrKey::bypass, prefixName + BeepPrName::SsgSwEnv::bypass, BeepPrValue::SsgSwEnv::Bypass::initial));
 
     // Detune
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::mul, code + BeepPrName::mul, BeepPrValue::Mul::min, BeepPrValue::Mul::max, BeepPrValue::Mul::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::mulRatio, code + BeepPrName::mulRatio, BeepPrValue::MulRatio::min, BeepPrValue::MulRatio::max, BeepPrValue::MulRatio::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt, code + BeepPrName::dt1, BeepPrValue::Dt1::min, BeepPrValue::Dt1::max, BeepPrValue::Dt1::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt2, code + BeepPrName::dt2, BeepPrValue::Dt2::min, BeepPrValue::Dt2::max, BeepPrValue::Dt2::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::dt3, code + BeepPrName::dt3, BeepPrValue::Dt3::min, BeepPrValue::Dt3::max, BeepPrValue::Dt3::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::mul, prefixName + BeepPrName::mul, BeepPrValue::Mul::min, BeepPrValue::Mul::max, BeepPrValue::Mul::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + BeepPrKey::mulRatio, prefixName + BeepPrName::mulRatio, BeepPrValue::MulRatio::min, BeepPrValue::MulRatio::max, BeepPrValue::MulRatio::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::dt, prefixName + BeepPrName::dt1, BeepPrValue::Dt1::min, BeepPrValue::Dt1::max, BeepPrValue::Dt1::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::dt2, prefixName + BeepPrName::dt2, BeepPrValue::Dt2::min, BeepPrValue::Dt2::max, BeepPrValue::Dt2::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::dt3, prefixName + BeepPrName::dt3, BeepPrValue::Dt3::min, BeepPrValue::Dt3::max, BeepPrValue::Dt3::initial));
 
     // ユニゾン・ハーモニー用
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::Unison::voices, code + BeepPrName::Unison::voices, BeepPrValue::Unison::Voices::min, BeepPrValue::Unison::Voices::max, BeepPrValue::Unison::Voices::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(code + BeepPrKey::Unison::detune, code + BeepPrName::Unison::detune, BeepPrValue::Unison::Detune::min, BeepPrValue::Unison::Detune::max, BeepPrValue::Unison::Detune::initial));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(code + BeepPrKey::Unison::spread, code + BeepPrName::Unison::spread, BeepPrValue::Unison::Spread::min, BeepPrValue::Unison::Spread::max, BeepPrValue::Unison::Spread::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::Unison::voices, prefixName + BeepPrName::Unison::voices, BeepPrValue::Unison::Voices::min, BeepPrValue::Unison::Voices::max, BeepPrValue::Unison::Voices::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + BeepPrKey::Unison::detune, prefixName + BeepPrName::Unison::detune, BeepPrValue::Unison::Detune::min, BeepPrValue::Unison::Detune::max, BeepPrValue::Unison::Detune::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + BeepPrKey::Unison::spread, prefixName + BeepPrName::Unison::spread, BeepPrValue::Unison::Spread::min, BeepPrValue::Unison::Spread::max, BeepPrValue::Unison::Spread::initial));
 
-    addEnvParameters(layout, code);
-    addPitchEnvParameters(layout, code);
-    addSsgSwEnvParameters(layout, code);
-    addOpzx7LfoParameters(layout, code);
+    addEnvParameters(layout, prefix, prefixName);
+    addPitchEnvParameters(layout, prefix, prefixName);
+    addSsgSwEnvParameters(layout, prefix, prefixName);
+    addOpzx7LfoParameters(layout, prefix, prefixName);
 }
 
 void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
-    const juce::String code = BeepPrKey::prefix;
+    const juce::String prefix = BeepPrKey::prefix;
 
-    pLevel = apvts.getRawParameterValue(code + BeepPrKey::level);
-    pFixMode = apvts.getRawParameterValue(code + BeepPrKey::fix);
-    pFixFreq = apvts.getRawParameterValue(code + BeepPrKey::fixFreq);
+    pLevel = apvts.getRawParameterValue(prefix + BeepPrKey::level);
+    pFixMode = apvts.getRawParameterValue(prefix + BeepPrKey::fix);
+    pFixFreq = apvts.getRawParameterValue(prefix + BeepPrKey::fixFreq);
 
-    pUnisonVoices = apvts.getRawParameterValue(code + BeepPrKey::Unison::voices);
-    pUnisonDetuneCents = apvts.getRawParameterValue(code + BeepPrKey::Unison::detune);
-    pUnisonSpread = apvts.getRawParameterValue(code + BeepPrKey::Unison::spread);
+    pUnisonVoices = apvts.getRawParameterValue(prefix + BeepPrKey::Unison::voices);
+    pUnisonDetuneCents = apvts.getRawParameterValue(prefix + BeepPrKey::Unison::detune);
+    pUnisonSpread = apvts.getRawParameterValue(prefix + BeepPrKey::Unison::spread);
 
-    pAdsrBypass = apvts.getRawParameterValue(code + BeepPrKey::adsr + BeepPrKey::bypass);
-    pAdsrStl = apvts.getRawParameterValue(code + BeepPrKey::Adsr::stl);
-    pAdsrAr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::ar);
-    pAdsrDr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::dr);
-    pAdsrSl = apvts.getRawParameterValue(code + BeepPrKey::Adsr::sl);
-    pAdsrRr = apvts.getRawParameterValue(code + BeepPrKey::Adsr::rr);
-    pAdsrKor = apvts.getRawParameterValue(code + BeepPrKey::Adsr::kor);
+    pAdsrBypass = apvts.getRawParameterValue(prefix + BeepPrKey::adsr + BeepPrKey::bypass);
+    pAdsrStl = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::stl);
+    pAdsrAr = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::ar);
+    pAdsrDr = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::dr);
+    pAdsrSl = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::sl);
+    pAdsrRr = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::rr);
+    pAdsrKor = apvts.getRawParameterValue(prefix + BeepPrKey::Adsr::kor);
 
-    pPitchAdsrBypass = apvts.getRawParameterValue(code + BeepPrKey::pitchAdsr + BeepPrKey::bypass);
-    pPitchAdsrAr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ar);
-    pPitchAdsrDr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::dr);
-    pPitchAdsrRr = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rr);
-    pPitchAdsrStl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::stl);
-    pPitchAdsrAtl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::atl);
-    pPitchAdsrSsl = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::ssl);
-    pPitchAdsrRll = apvts.getRawParameterValue(code + BeepPrKey::PitchAdsr::rll);
+    pPitchAdsrBypass = apvts.getRawParameterValue(prefix + BeepPrKey::pitchAdsr + BeepPrKey::bypass);
+    pPitchAdsrAr = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::ar);
+    pPitchAdsrDr = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::dr);
+    pPitchAdsrRr = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::rr);
+    pPitchAdsrStl = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::stl);
+    pPitchAdsrAtl = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::atl);
+    pPitchAdsrSsl = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::ssl);
+    pPitchAdsrRll = apvts.getRawParameterValue(prefix + BeepPrKey::PitchAdsr::rll);
 
-    pSsgSwEnvBypass = apvts.getRawParameterValue(code + BeepPrKey::ssgSwEnv + BeepPrKey::bypass);
-    pSsgSwEnvSteps = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::steps);
-    pSsgSwEnvLoop = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loop);
-    pSsgSwEnvLoopTo = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopTo);
-    pSsgSwEnvLoopCount = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::loopCount);
-    pSsgSwEnvR1 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r1);
-    pSsgSwEnvR2 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r2);
-    pSsgSwEnvR3 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r3);
-    pSsgSwEnvR4 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r4);
-    pSsgSwEnvR5 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r5);
-    pSsgSwEnvR6 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::r6);
-    pSsgSwEnvStl = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::stl);
-    pSsgSwEnvL1 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l1);
-    pSsgSwEnvL2 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l2);
-    pSsgSwEnvL3 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l3);
-    pSsgSwEnvL4 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l4);
-    pSsgSwEnvL5 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l5);
-    pSsgSwEnvL6 = apvts.getRawParameterValue(code + BeepPrKey::SsgSwEnv::l6);
+    pSsgSwEnvBypass = apvts.getRawParameterValue(prefix + BeepPrKey::ssgSwEnv + BeepPrKey::bypass);
+    pSsgSwEnvSteps = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::steps);
+    pSsgSwEnvLoop = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::loop);
+    pSsgSwEnvLoopTo = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::loopTo);
+    pSsgSwEnvLoopCount = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::loopCount);
+    pSsgSwEnvR1 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r1);
+    pSsgSwEnvR2 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r2);
+    pSsgSwEnvR3 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r3);
+    pSsgSwEnvR4 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r4);
+    pSsgSwEnvR5 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r5);
+    pSsgSwEnvR6 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::r6);
+    pSsgSwEnvStl = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::stl);
+    pSsgSwEnvL1 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l1);
+    pSsgSwEnvL2 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l2);
+    pSsgSwEnvL3 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l3);
+    pSsgSwEnvL4 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l4);
+    pSsgSwEnvL5 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l5);
+    pSsgSwEnvL6 = apvts.getRawParameterValue(prefix + BeepPrKey::SsgSwEnv::l6);
 
-    pMultiple = apvts.getRawParameterValue(code + BeepPrKey::mul);
-    pMultipleRatio = apvts.getRawParameterValue(code + BeepPrKey::mulRatio);
-    pDetune = apvts.getRawParameterValue(code + BeepPrKey::dt);
-    pDetune2 = apvts.getRawParameterValue(code + BeepPrKey::dt2);
-    pDetune3 = apvts.getRawParameterValue(code + BeepPrKey::dt3);
+    pMultiple = apvts.getRawParameterValue(prefix + BeepPrKey::mul);
+    pMultipleRatio = apvts.getRawParameterValue(prefix + BeepPrKey::mulRatio);
+    pDetune = apvts.getRawParameterValue(prefix + BeepPrKey::dt);
+    pDetune2 = apvts.getRawParameterValue(prefix + BeepPrKey::dt2);
+    pDetune3 = apvts.getRawParameterValue(prefix + BeepPrKey::dt3);
 
-    pLfoPmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmSyncDelay);
-    pLfoAmSyncDelay = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSyncDelay);
-    pLfoAmSmoothRatio = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amSmoothRatio);
-    pLfoPmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmFreq);
-    pLfoAmFreq = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amFreq);
-    pLfoPmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pgShape);
-    pLfoAmShape = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::egShape);
-    pLfoPm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pm);
-    pLfoAm = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::am);
-    pLfoPmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pmd);
-    pLfoPms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::pms);
-    pLfoAmd = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::amd);
-    pLfoAms = apvts.getRawParameterValue(code + CorePrKey::Post::Lfo::ams);
+    pLfoPmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmSyncDelay);
+    pLfoAmSyncDelay = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSyncDelay);
+    pLfoAmSmoothRatio = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amSmoothRatio);
+    pLfoPmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmFreq);
+    pLfoAmFreq = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amFreq);
+    pLfoPmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pgShape);
+    pLfoAmShape = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::egShape);
+    pLfoPm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pm);
+    pLfoAm = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::am);
+    pLfoPmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pmd);
+    pLfoPms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::pms);
+    pLfoAmd = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::amd);
+    pLfoAms = apvts.getRawParameterValue(prefix + CorePrKey::Post::Lfo::ams);
 }
 
 void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
 {
-    const juce::String code = BeepPrKey::prefix;
-
     params.beep.level = pLevel->load(std::memory_order_relaxed);
 
     // ユニゾン・ハーモニー用

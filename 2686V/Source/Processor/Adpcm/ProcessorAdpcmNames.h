@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace AdpcmPrName
 {
+	static inline const juce::String prefix = "ADPCM";
+
 	static inline const juce::String pan = " Pan";
 	static inline const juce::String rate = " Rate";
 	static inline const juce::String level = " Level";

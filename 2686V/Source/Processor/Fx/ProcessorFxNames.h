@@ -7,6 +7,8 @@
 // UI上に表示するタイトル等を管理
 namespace FxPrName
 {
+	static inline const juce::String prefix = "FX";
+
 	static inline const juce::String masterBypass = " Master Bypass";
 
 	static inline const juce::String tremolo = " Tremolo";

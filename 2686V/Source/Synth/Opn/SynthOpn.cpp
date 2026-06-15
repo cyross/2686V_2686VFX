@@ -42,6 +42,8 @@ void OpnCore::setSampleRate(double sampleRate) {
 
 void OpnCore::setParameters(const SynthParams& params)
 {
+    m_level = params.opn.level;
+
     m_algorithm = params.opn.algorithm;
 
     // ユニゾン・ハーモニー用
@@ -259,7 +261,7 @@ float OpnCore::getSample() {
     float fraction = (float)(m_rateAccumulator / stepSize);
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * fraction;
+    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
 
 void OpnCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

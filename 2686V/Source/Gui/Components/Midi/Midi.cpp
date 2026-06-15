@@ -28,6 +28,43 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     pitchResetOnLegato.setup({ .parent = parent, .id = "PITCH_RESET_LEGATO", .title = "PitchEnv Reset On Legato", .isReset = true });
     pitchResetOnLegato.setWantsKeyboardFocus(true);
     pitchResetOnLegato.setExplicitFocusOrder(++tabOrder);
+
+    parent.addAndMakeVisible(resetSeparator);
+    resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    monoButton.setup(GuiTextButton::Config{
+        .parent = parent,
+        .title = "-> Monophonic",
+        .textColor = juce::Colours::black,
+        .bgColor = juce::Colours::yellow.darker(0.5f),
+        .borderColor = juce::Colours::yellow,
+        .isReset = false
+        });
+    monoButton.setWantsKeyboardFocus(true);
+    monoButton.setExplicitFocusOrder(++tabOrder);
+    monoButton.onClick = [this] {
+        monoMode.setToggleState(true, juce::NotificationType::sendNotification);
+        useVelocity.setToggleState(true, juce::NotificationType::sendNotification);
+        fixedVelocity.setValue(1.0f, juce::NotificationType::sendNotification);
+        pitchResetOnLegato.setToggleState(true, juce::NotificationType::sendNotification);
+        };
+
+    polyButton.setup(GuiTextButton::Config{
+        .parent = parent,
+        .title = "-> Polyphonic",
+        .textColor = juce::Colours::black,
+        .bgColor = juce::Colours::orange.darker(0.5f),
+        .borderColor = juce::Colours::orange,
+        .isReset = false
+        });
+    polyButton.setWantsKeyboardFocus(true);
+    polyButton.setExplicitFocusOrder(++tabOrder);
+    polyButton.onClick = [this] {
+        monoMode.setToggleState(false, juce::NotificationType::sendNotification);
+        useVelocity.setToggleState(false, juce::NotificationType::sendNotification);
+        fixedVelocity.setValue(0.5f, juce::NotificationType::sendNotification);
+        pitchResetOnLegato.setToggleState(false, juce::NotificationType::sendNotification);
+        };
 }
 
 void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
@@ -40,6 +77,9 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
     useVelocity.setVisible(visible);
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
+    resetSeparator.setVisible(visible);
+    monoButton.setVisible(visible);
+    polyButton.setVisible(visible);
 
     if (visible)
     {
@@ -47,6 +87,9 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &useVelocity });
         layoutMain({ .mainRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutMain({ .mainRect = rect, .component = &pitchResetOnLegato });
+        layoutMain({ .mainRect = rect, .component = &resetSeparator });
+        layoutMain({ .mainRect = rect, .component = &monoButton });
+        layoutMain({ .mainRect = rect, .component = &polyButton });
     }
 }
 
@@ -60,6 +103,9 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
     useVelocity.setVisible(visible);
     fixedVelocity.setVisibleWithLabel(visible);
     pitchResetOnLegato.setVisible(visible);
+    resetSeparator.setVisible(visible);
+    monoButton.setVisible(visible);
+    polyButton.setVisible(visible);
 
     if (visible)
     {
@@ -67,6 +113,9 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .component = &useVelocity });
         layoutRow({ .rowRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutRow({ .rowRect = rect, .component = &pitchResetOnLegato });
+        layoutRow({ .rowRect = rect, .component = &resetSeparator });
+        layoutRow({ .rowRect = rect, .component = &monoButton });
+        layoutRow({ .rowRect = rect, .component = &polyButton });
     }
 }
 
@@ -77,4 +126,6 @@ void GuiComponentMidi::setEnables(bool enabled)
     fixedVelocity.setEnabled(enabled);
     fixedVelocity.label.setEnabled(enabled);
     pitchResetOnLegato.setEnabled(enabled);
+    monoButton.setEnabled(enabled);
+    polyButton.setEnabled(enabled);
 }

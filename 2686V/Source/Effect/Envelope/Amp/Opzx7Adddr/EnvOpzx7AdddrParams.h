@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+enum class Opzx7AdddrKeyScaleMode {
+	MA7 = 0,
+	OPZ = 1,
+	OPS = 2
+};
+
 struct Opzx7RealAdssrParams
 {
 	float ar = 0.0f;
@@ -25,7 +31,27 @@ struct Opzx7AdddrParams
 	bool rgEnable = false;
 	Opzx7RealAdssrParams real;
 	Opzx7RgAdssrParams rg;
-	int ks = 0;
+
+	bool ksEn = false;
+
+	Opzx7AdddrKeyScaleMode ksMode = Opzx7AdddrKeyScaleMode::MA7;
+
+	// MA7
+	bool ksrMA7 = false;
+	int kslMA7 = 0;
+
+	// OPZ
+	int ksrOPZ = 0;
+	int kslOPZ = 0;
+
+	// OPS
+	int ksBp = 60;
+	int ksLc = 0;
+	int ksRc = 0;
+	float ksLd = 0.0f;
+	float ksRd = 0.0f;
+	int ksRs = 0;
+
 	bool sus = false;
 	bool xof = false;
 	bool kor = false;

@@ -17,7 +17,9 @@ static std::vector<SelectItem> positionItems = {
     {.name = "Op1",    .value = 2 },
     {.name = "Op2",    .value = 3 },
     {.name = "Op3",    .value = 4 },
-    {.name = "Op4",    .value = 5 }
+    {.name = "Op4",    .value = 5 },
+    {.name = "Op5",    .value = 6 },
+    {.name = "Op6",    .value = 7 }
 };
 
 static std::vector<SelectItem> targetItems = {

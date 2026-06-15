@@ -20,6 +20,8 @@ namespace WtGuiText
 		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
 		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
 		static inline const juce::String invisibleWaveFile = u8"[□]--- WAVE FILE ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace Group
@@ -84,5 +86,10 @@ namespace WtGuiText
 			static inline const juce::String toM1 = u8"-> -1.0";
 			static inline const juce::String smooth = juce::String("") + "波形を滑らかにする";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

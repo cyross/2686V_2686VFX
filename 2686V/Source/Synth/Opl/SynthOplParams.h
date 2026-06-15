@@ -3,9 +3,12 @@
 #include <array>
 
 #include "./Operator/SynthOplOpParams.h"
+#include "../../Processor/Opl/ProcessorOplValues.h"
 
 struct OplParams
 {
+    float level = 1.0f;
+
     // [[ FM Parameters ]]
 
     // --- Algorithm ---
@@ -28,7 +31,7 @@ struct OplParams
     int opllPreset = 0; // OPLL Preset Instrument Index
 
     // Parameters for Operator
-    std::array<OplOpParams, 2> op;
+    std::array<OplOpParams, OplPrValue::ops> op;
 
     // ユニゾン・ハーモニー用
     int unisonVoices = 1;        // 1 to 8

@@ -18,12 +18,16 @@ namespace OpmGuiText
 		static inline const juce::String invisibileHwLfo = u8"[□]--- HW LFO ---";
 		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
+		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
+		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
 		static inline const juce::String visibleMask = u8"[■]--- MASK ---";
 		static inline const juce::String invisibleMask = u8"[□]--- MASK ---";
 		static inline const juce::String visiblePan = u8"[■]--- PAN ---";
 		static inline const juce::String invisiblePan = u8"[□]--- PAN ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
+		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
+		static inline const juce::String invisibleUtil = u8"[□]--- UTILITY ---";
 	}
 
 	namespace Group
@@ -44,6 +48,7 @@ namespace OpmGuiText
 
 	namespace Fm
 	{
+		static inline const juce::String level = u8"Level";
 		static inline const juce::String alg = u8"Alg";
 		static inline const juce::String fb = u8"Fb";
 		static inline const juce::String lfoFreq = u8"Freq";
@@ -77,11 +82,14 @@ namespace OpmGuiText
 			static inline const juce::String D1l = u8"D1l";
 			static inline const juce::String D2r = u8"D2r";
 			static inline const juce::String Mul = u8"Mul";
+			static inline const juce::String MulRatio = u8"M.Ratio";
 			static inline const juce::String Tl = u8"Tl";
 			static inline const juce::String Dt = u8"Dt";
 			static inline const juce::String Dt1 = u8"Dt1";
 			static inline const juce::String Dt2 = u8"Dt2";
 			static inline const juce::String Ks = u8"Ks";
+			static inline const juce::String Ksr = u8"Ksr";
+			static inline const juce::String Ksl = u8"Ksl";
 			static inline const juce::String Mask = u8"Mask";
 			static inline const juce::String Fix = u8"Enable";
 			static inline const juce::String FFreq = u8"Freq";
@@ -111,5 +119,10 @@ namespace OpmGuiText
 			static inline const juce::String kor = u8"Kor";
 			static inline const juce::String bypass = u8"Bypass";
 		}
+	}
+
+	namespace Utility
+	{
+		static inline const juce::String bcLevel = u8"Level -> All Ch";
 	}
 }

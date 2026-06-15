@@ -14,6 +14,7 @@
 #include "../../Synth/Opzx7/SynthOpzx7.h"
 #include "../../Synth/Ssg/SynthSsg.h"
 #include "../../Synth/Wavetable/SynthWt.h"
+#include "../../Synth/Wt2/SynthWt2.h"
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
 #include "../../Synth/Beep/SynthBeep.h"
@@ -60,6 +61,8 @@ public:
 
     void setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData);
 
+    void setOpzx7Wt2Buffer(int opIndex, const std::vector<float>* wtData);
+
     void setCurveCore(CurveCore* p_curveCore);
 
     std::map<OscMode, SynthCore *> coreMap;
@@ -79,6 +82,7 @@ private:
     Opzx7Core m_opzx7Core;
     SsgCore m_ssgCore;
     WtCore m_wtCore;
+    Wt2Core m_wt2Core;
     RhythmCore m_rhythmCore;
     AdpcmCore m_adpcmCore;
     BeepCore m_beepCore;

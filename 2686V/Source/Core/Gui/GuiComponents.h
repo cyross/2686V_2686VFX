@@ -61,6 +61,71 @@ public:
     void setup(juce::Component& parent, const juce::String title);
 };
 
+// =======================================================
+// スクロールバー付きのグループコンポーネント
+// =======================================================
+class GuiScrollGroup : public ColoredGroupComponent, public GuiBaseComponent
+{
+    juce::Colour borderColor = GuiColor::Group::Border;
+    juce::Colour textColor = GuiColor::Group::Text;
+
+    juce::Rectangle<int> customViewportBounds;
+public:
+    // Viewport本体
+    juce::Viewport viewport;
+
+    // Viewportの中に入れてスクロールさせる、巨大なキャンバス
+    juce::Component contentCanvas;
+
+    GuiScrollGroup(const GuiContext& context) : GuiBaseComponent(context)
+    {
+        // Viewportの設定
+        viewport.setScrollBarsShown(true, false); // 縦スクロールのみON, 横はOFF
+        viewport.setOpaque(false);
+        viewport.setViewedComponent(&contentCanvas, false); // キャンバスをセット(所有権は持たせない)
+    }
+
+    void setup(juce::Component& parent, const juce::String title)
+    {
+        parent.addAndMakeVisible(*this);
+        this->setText(title);
+        this->setColour(juce::GroupComponent::textColourId, textColor);
+        this->setColour(juce::GroupComponent::outlineColourId, borderColor);
+        this->toBack();
+
+        // 自身の内側にViewportを配置
+        addAndMakeVisible(viewport);
+    }
+
+    // 外部からViewportの領域を指定できるようにする
+    void setViewportCustomBounds(juce::Rectangle<int> bounds)
+    {
+        customViewportBounds = bounds;
+        viewport.setBounds(customViewportBounds);
+    }
+
+    void resized() override
+    {
+        if (!customViewportBounds.isEmpty()) {
+            viewport.setBounds(customViewportBounds);
+        }
+        else {
+            auto bounds = getLocalBounds().reduced(4, 16);
+            bounds.removeFromTop(10);
+            viewport.setBounds(bounds);
+        }
+    }
+
+    // 中身のキャンバスの「本当の高さ」をセットする関数
+    // (これを呼ばないとスクロールバーが出ません)
+    void setContentHeight(int totalHeight)
+    {
+        // 幅はViewportと同じにする（スクロールバーの幅を考慮）
+        int contentWidth = viewport.getMaximumVisibleWidth();
+        contentCanvas.setSize(contentWidth, totalHeight);
+    }
+};
+
 class GuiLabel : public juce::Label, public GuiBaseComponent
 {
 public:
