@@ -165,9 +165,7 @@ void Opzx7Operator::noteOff()
 	}
 }
 
-//void Opzx7Operator::getSample(float& output, float modulator,
-//    float amLfoVal, float pmLfoVal, bool globalPm, bool globalAm, float globalPms, float globalAms, float globalPmd, float globalAmd, float modWheel)
-void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLfo, float modWheel)
+void Opzx7Operator::getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore& glLfo, float modWheel)
 {
     if (!isPlaying() && !m_ampAdsr.isBypass()) {
         if (m_params.pitchEnvEnable) {
@@ -179,9 +177,6 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
         }
 
         output = 0.0f;
-        // 念のためフィードバックバッファもクリアしておく
-        m_fb1 = 0.0f;
-        m_fb2 = 0.0f;
 
         return;
     }
@@ -324,17 +319,11 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     // ========================================================
     // 3. 位相と波形の生成
     // ========================================================
-    float feedbackMod = 0.0f;
-    if (m_feedback > 0.0f) {
-        // YAMAHAの一般的なフィードバックシフト計算 (Feedback値 0〜7 を想定)
-        // FB=0 は 0、FB=1〜7 のとき、シフト量は 9 - FB となる仕様が多いです。
-        // （FBが上がるほど右シフト量が減り、値が大きくなる）
-        // ここでは一般的な 2^((FB - 8) または類似のスケール) を使います。
-        // OPL3の仕様に合わせて調整してください。以下は一般的な近似です。
-        float fbScale = std::pow(2.0f, m_feedback - 8.0f); // または 9.0f
-
-        // 過去2サンプルの「生の波形値」の平均を使用する
-        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi * 2.0f;
+    float feedbackPhaseOffset = 0.0f;
+    if (m_feedback > 0.0f && feedbackModulator != 0.0f) {
+        // コアから渡された「過去2サンプルの平均値 (feedbackModulator)」にスケールを掛けるだけ
+        float fbScale = std::pow(2.0f, m_feedback - 8.0f);
+        feedbackPhaseOffset = feedbackModulator * fbScale * juce::MathConstants<float>::pi * 2.0f;
     }
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
@@ -364,16 +353,10 @@ void Opzx7Operator::getSample(float& output, float modulator, Opzx7LfoCore& glLf
     }
 
     // 位相の変調
-    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
+    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
 
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
-
-    // フィードバックバッファには「エンベロープ適用前」の純粋な値を保存する！
-    if (!m_isExternalFeedback) {
-        m_fb2 = m_fb1;
-        m_fb1 = rawWave; // outputではなくrawWaveを保存！
-    }
 
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;

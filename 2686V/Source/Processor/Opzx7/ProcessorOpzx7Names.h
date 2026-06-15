@@ -7,7 +7,7 @@
 // UI上に表示するタイトル等を管理
 namespace Opzx7PrName
 {
-	static inline const juce::String prefix = "OPZX7";
+	static inline const juce::String prefix = "OPZX7S";
 
 	static inline const juce::String level = " Level";
 	static inline const juce::String bit = " Bit";

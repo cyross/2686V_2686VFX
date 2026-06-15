@@ -92,6 +92,38 @@ static std::vector<SelectItem> opzx7AlgItems = {
     {.name = "33: <MA7-05>", .value = 34 },
     {.name = "34: <MA7-06>", .value = 35 },
     {.name = "35: <MA7-07>", .value = 36 },
+    {.name = "65: <OPS-00>", .value = 37 },
+    {.name = "65: <OPS-01>", .value = 38 },
+    {.name = "65: <OPS-02>", .value = 39 },
+    {.name = "65: <OPS-03>", .value = 40 },
+    {.name = "65: <OPS-04>", .value = 41 },
+    {.name = "65: <OPS-05>", .value = 42 },
+    {.name = "65: <OPS-06>", .value = 43 },
+    {.name = "65: <OPS-07>", .value = 44 },
+    {.name = "65: <OPS-08>", .value = 45 },
+    {.name = "65: <OPS-09>", .value = 46 },
+    {.name = "65: <OPS-10>", .value = 47 },
+    {.name = "65: <OPS-11>", .value = 48 },
+    {.name = "65: <OPS-12>", .value = 49 },
+    {.name = "65: <OPS-13>", .value = 50 },
+    {.name = "65: <OPS-14>", .value = 51 },
+    {.name = "65: <OPS-15>", .value = 52 },
+    {.name = "65: <OPS-16>", .value = 53 },
+    {.name = "65: <OPS-17>", .value = 54 },
+    {.name = "65: <OPS-18>", .value = 55 },
+    {.name = "65: <OPS-19>", .value = 56 },
+    {.name = "65: <OPS-20>", .value = 57 },
+    {.name = "65: <OPS-21>", .value = 58 },
+    {.name = "65: <OPS-22>", .value = 59 },
+    {.name = "65: <OPS-23>", .value = 60 },
+    {.name = "65: <OPS-24>", .value = 61 },
+    {.name = "65: <OPS-25>", .value = 62 },
+    {.name = "65: <OPS-26>", .value = 63 },
+    {.name = "65: <OPS-27>", .value = 64 },
+    {.name = "65: <OPS-28>", .value = 65 },
+    {.name = "65: <OPS-29>", .value = 66 },
+    {.name = "66: <OPS-30>", .value = 67 },
+    {.name = "67: <OPS-31>", .value = 68 },
 };
 
 static std::vector<SelectItem> multems = {
@@ -736,10 +768,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    // --- B. Operators Section (Bottom) ---
-    for (int i = 0; i < Opzx7PrValue::ops; ++i)
+    auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
+
+    for (int i = 0; i < 4; ++i)
     {
-        auto opArea = pageArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+        auto opArea = upperOpArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
 
         // 枠線
         opGroups[i].setBounds(opArea);
@@ -796,6 +829,115 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = innerRect, .component = &kor[i] });
 
 		layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
+
+        layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
+        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+        {
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
+            layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
+            layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
+        }
+
+        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
+        {
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+        }
+
+        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+        {
+            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWt2Btn[i], .pcmFileNameLabel = &wt2FileNameLabel[i], .clearPcmBtn = &clearWt2Btn[i] });
+        }
+
+        layoutOpKsCat(i, innerRect, rgMode);
+
+        layoutOpOptionalCat(i, innerRect);
+
+        layoutOpSsgEnvCat(i, innerRect);
+
+        pitchEnv[i].layoutComponentRow(innerRect);
+
+        ssgSwEnv[i].layoutComponentRow(innerRect);
+
+        lfo[i].layoutComponentRow(innerRect);
+
+        fix[i].layoutComponentRow(innerRect);
+
+        layoutOpMaskCat(i, innerRect);
+
+        // 区切り線エリアを確保
+        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
+        mmlSeparator[i].setBounds(mmlSeparatorArea);
+
+        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
+
+        int usedHeight = 2000 - innerRect.getHeight();
+
+        // 下部の余白を足して、キャンバスの最終的な高さをセット
+        opGroups[i].setContentHeight(usedHeight + 20);
+
+        updateOnWsChange(i);
+    }
+
+
+    for (int i = 4; i < Opzx7PrValue::ops; ++i)
+    {
+        auto opArea = pageArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+
+        // 枠線
+        opGroups[i].setBounds(opArea);
+
+        // 枠線の内側
+        auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
+        iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
+
+        // グラフ用の区画を確保
+        layoutOpGraph(i, iinnerRect);
+        updateOpGraph(i);
+
+        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
+
+        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
+
+        bool rgMode = rgEn[i].getToggleState();
+        int selectedWs = ws[i].getSelectedId();
+
+        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
+        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
+        layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
+        layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
+        layoutRow({ .rowRect = innerRect, .label = &dt3[i].label, .component = &dt3[i] });
+
+        dt3Btns[i].layoutComponentRow(innerRect);
+
+        layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
+        updateRgDisplayAsOp(i, rgMode);
+        if (rgMode)
+        {
+            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
+        }
+        else
+        {
+            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
+            layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
+            layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
+            layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
+            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
+            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        }
+
+        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
+        layoutRow({ .rowRect = innerRect, .component = &xof[i] });
+        layoutRow({ .rowRect = innerRect, .component = &kor[i] });
+
+        layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
 
         layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
         if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
@@ -1138,8 +1280,8 @@ bool GuiOpzx7::keyPressed(const juce::KeyPress& key)
     else if (code == '2' || code == juce::KeyPress::numberPad2) opIndex = 1;
     else if (code == '3' || code == juce::KeyPress::numberPad3) opIndex = 2;
     else if (code == '4' || code == juce::KeyPress::numberPad4) opIndex = 3;
-//    else if (code == '5' || code == juce::KeyPress::numberPad3) opIndex = 4;
-//    else if (code == '6' || code == juce::KeyPress::numberPad4) opIndex = 5;
+    else if (code == '5' || code == juce::KeyPress::numberPad5) opIndex = 4;
+    else if (code == '6' || code == juce::KeyPress::numberPad6) opIndex = 5;
 
     // 対応するキーが押されていたら、該当する処理を実行
     if (opIndex != -1)

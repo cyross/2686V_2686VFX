@@ -6,7 +6,7 @@ namespace CurvePrValue
 {
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
-	inline constexpr int positions = 5;
+	inline constexpr int positions = 7;
 	inline constexpr int targets = 4;
 	inline constexpr int params = 8;
 	inline constexpr int logics = 25;

@@ -13,7 +13,7 @@ namespace EditorGuiText
 		static inline const juce::String opl = u8"OPL";
 		static inline const juce::String opl3 = u8"OPL3";
 		static inline const juce::String opm = u8"OPM";
-		static inline const juce::String opzx7 = u8"OPZX7";
+		static inline const juce::String opzx7 = u8"OPZX7S";
 		static inline const juce::String ssg = u8"SSG";
 		static inline const juce::String wt = u8"WT";
 		static inline const juce::String wt2 = u8"WT2";
