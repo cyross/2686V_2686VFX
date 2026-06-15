@@ -105,7 +105,11 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlg({1, 3, 4, 5}, {{0, 1}, {2, 3}}, {{0, 0}}), // 64
         makeAlg({0, 3, 4, 5}, {{1, 2}, {2, 3}}, {{1, 1}}), // 65
         makeAlg({1, 2, 3, 4, 5}, {{0, 1}}, {{0, 0}}), // 66
-        makeAlg({0, 1, 2, 3, 4, 5}, {}, {{0, 0}}) // 67
+        makeAlg({0, 1, 2, 3, 4, 5}, {}, {{0, 0}}), // 67
+        makeAlg({0}, {}, {{0, 0}}), // 68
+        makeAlg({0, 1}, {}, {{0, 0}, {1, 1}}), // 69
+        makeAlg({1, 3}, {{0, 1}, {2, 3}}, {{1, 0}, {3, 2}}), // 70
+        makeAlg({0, 1, 2, 3}, {}, {{0, 0}, {1, 1}, {2, 2}, {3, 3}}), // 71
     } };
 
 void Opzx7Core::prepare(double sampleRate) {

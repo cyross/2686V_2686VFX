@@ -124,6 +124,10 @@ static std::vector<SelectItem> opzx7AlgItems = {
     {.name = "65: <OPS-29>", .value = 66 },
     {.name = "66: <OPS-30>", .value = 67 },
     {.name = "67: <OPS-31>", .value = 68 },
+    {.name = "68: <OPZX7S-000>", .value = 69 },
+    {.name = "69: <OPZX7S-001>", .value = 70 },
+    {.name = "70: <OPZX7S-002>", .value = 71 },
+    {.name = "71: <OPZX7S-003>", .value = 72 },
 };
 
 static std::vector<SelectItem> multems = {
