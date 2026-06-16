@@ -8,18 +8,21 @@
 #include "../../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
+#include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 
 class Opzx7Operator : public FmOperator
 {
 public:
-	Opzx7Operator() : FmOperator(), m_detune() {}
+	Opzx7Operator() : FmOperator(), m_detune() {
+		Feedback::setFeedbackVector(fVector, 5.0f);
+	}
 
 	Opzx7OpParams m_params;
 
 	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
-	void setParameters(const Opzx7OpParams& params, float feedback);
+	void setParameters(const Opzx7OpParams& params, int feedback);
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
@@ -39,6 +42,8 @@ private:
 	Opzx7LfoCore m_lfo;
 	Opzx7Adddr m_ampAdsr;
 	SsgSwEnv m_ssgSwEnv;
+
+	std::array<float, 8> fVector = { 0.0f };
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

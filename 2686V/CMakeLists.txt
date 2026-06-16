@@ -160,6 +160,11 @@ set(DETUNE_FILES
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
 )
 
+set(FEEDBACK_FILES
+    "Source/Effect/Feedback/Feedback.h"
+    "Source/Effect/Feedback/Feedback.cpp"
+)
+
 set(LFO_FILES
     "Source/Effect/Lfo/N88/LfoN88.h"
     "Source/Effect/Lfo/N88/LfoN88.cpp"
@@ -600,6 +605,7 @@ source_group("2686V\\Effect\\Envelope\\Pitch" FILES ${PITCH_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune" FILES ${DETUNE_FILES})
 source_group("2686V\\Effect\\Lfo" FILES ${LFO_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
+source_group("2686V\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
 source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})

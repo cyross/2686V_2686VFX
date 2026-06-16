@@ -37,7 +37,7 @@ void OplOperator::setSampleRate(double sampleRate)
     m_ssgSwEnv.updateTargetSampleRate(sampleRate);
 }
 
-void OplOperator::setParameters(const OplOpParams& params, float feedback)
+void OplOperator::setParameters(const OplOpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;
@@ -193,16 +193,9 @@ void OplOperator::getSample(float& output, float modulator)
     envVal *= m_lfo.value.am;
 
     float feedbackMod = 0.0f;
-    if (m_feedback > 0.0f) {
-        // YAMAHAの一般的なフィードバックシフト計算 (Feedback値 0〜7 を想定)
-        // FB=0 は 0、FB=1〜7 のとき、シフト量は 9 - FB となる仕様が多いです。
-        // （FBが上がるほど右シフト量が減り、値が大きくなる）
-        // ここでは一般的な 2^((FB - 8) または類似のスケール) を使います。
-        // OPL3の仕様に合わせて調整してください。以下は一般的な近似です。
-        float fbScale = std::pow(2.0f, m_feedback - 8.0f); // または 9.0f
-
+    if (m_feedback > 0) {
         // 過去2サンプルの「生の波形値」の平均を使用する
-        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fbScale * juce::MathConstants<float>::pi * 2.0f;
+        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
     }
 
     // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)

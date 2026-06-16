@@ -171,7 +171,7 @@ void OpmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
 
     params.opm.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
-    params.opm.feedback = pFb->load(std::memory_order_relaxed);
+    params.opm.feedback = (int)pFb->load(std::memory_order_relaxed);
 
     params.opm.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opm.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);

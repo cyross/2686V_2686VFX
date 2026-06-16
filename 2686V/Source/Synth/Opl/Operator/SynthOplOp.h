@@ -8,19 +8,22 @@
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../../Effect/Detune/Opl/DetuneOpl.h"
+#include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Core/Fm/FmOperator.h"
 
 class OplOperator : public FmOperator
 {
 public:
-	OplOperator() : FmOperator() {}
+	OplOperator() : FmOperator(), m_detune() {
+		Feedback::setFeedbackVector(fVector);
+	}
 
 	OplOpParams m_params;
 
 	static const std::array<float, 4> dbPerOcts;
 
 	void prepare(int opIndex, double sampleRate);
-	void setParameters(const OplOpParams& params, float feedback);
+	void setParameters(const OplOpParams& params, int feedback);
 	void setSampleRate(double sampleRate) override;
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
@@ -41,6 +44,8 @@ private:
 	OplDetune m_detune;
 	PitchAdsrEnv m_pitchAdsr;
 	SsgSwEnv m_ssgSwEnv;
+
+	std::array<float, 8> fVector = { 0.0f };
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

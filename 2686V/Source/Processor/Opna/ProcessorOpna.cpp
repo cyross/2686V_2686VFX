@@ -170,7 +170,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
 
     params.opna.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
-    params.opna.feedback = pFb->load(std::memory_order_relaxed);
+    params.opna.feedback = (int)pFb->load(std::memory_order_relaxed);
 
     params.opna.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opna.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);

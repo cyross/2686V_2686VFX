@@ -226,7 +226,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
     params.opzx7.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
-    params.opzx7.feedback = pFb->load(std::memory_order_relaxed);
+    params.opzx7.feedback = (int)pFb->load(std::memory_order_relaxed);
 
     params.opzx7.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opzx7.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);

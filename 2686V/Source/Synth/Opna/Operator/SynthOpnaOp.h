@@ -9,18 +9,21 @@
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../../Effect/Feedback/Feedback.h"
 #include "../SynthOpnaParams.h"
 
 class OpnaOperator : public FmOperator
 {
 public:
-	OpnaOperator() : FmOperator(), m_detune() {}
+	OpnaOperator() : FmOperator(), m_detune() {
+		Feedback::setFeedbackVector(fVector);
+	}
 
 	OpnaOpParams m_params;
 
 	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
-	void setParameters(const OpnaOpParams& params, float feedback, float amSmoothRate);
+	void setParameters(const OpnaOpParams& params, int feedback, float amSmoothRate);
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
@@ -43,6 +46,8 @@ private:
 	float m_ams = 1.0f;
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
+
+	std::array<float, 8> fVector = { 0.0f };
 
 	using SsgWaveCalculator = float(*)(double p);
 	static const std::array<SsgWaveCalculator, 16> ssgWaveStrategies;

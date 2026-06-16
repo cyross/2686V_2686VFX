@@ -24,7 +24,7 @@ public:
 
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
-    void virtual setParameters(const FmOpParams& params, float feedback);
+    void virtual setParameters(const FmOpParams& params, int feedback);
     void virtual noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) {};
     void virtual noteOff();
     bool virtual isPlaying() const { return m_state != State::Idle; }
@@ -49,7 +49,7 @@ protected:
     float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;
 
-    float m_feedback = 0.0f;
+    int m_feedback = 0;
     bool m_isExternalFeedback = false;
 
     float m_currentLevel = 0.0f;

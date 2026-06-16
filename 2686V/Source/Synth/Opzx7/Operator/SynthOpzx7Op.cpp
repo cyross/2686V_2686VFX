@@ -31,7 +31,7 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
 	m_ssgSwEnv.updateSampleRate(sampleRate);
 }
 
-void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
+void Opzx7Operator::setParameters(const Opzx7OpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;
@@ -318,10 +318,9 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // 3. 位相と波形の生成
     // ========================================================
     float feedbackPhaseOffset = 0.0f;
-    if (m_feedback > 0.0f && feedbackModulator != 0.0f) {
+    if (m_feedback > 0 && feedbackModulator != 0.0f) {
         // コアから渡された「過去2サンプルの平均値 (feedbackModulator)」にスケールを掛けるだけ
-        float fbScale = std::pow(2.0f, m_feedback - 5.0f);
-        feedbackPhaseOffset = feedbackModulator * fbScale * juce::MathConstants<float>::pi * 2.0f;
+        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
     }
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
