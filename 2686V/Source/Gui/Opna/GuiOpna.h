@@ -92,6 +92,10 @@ class GuiOpna : public GuiBase
     GuiSeparator uSep002;
     GuiSlider copyHwLfoFromSlider;
     GuiTextButton copyHwLfoParamsBtn;
+    GuiSeparator uSep003;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -197,6 +201,10 @@ public:
         uSep002(context),
         copyHwLfoFromSlider(context),
         copyHwLfoParamsBtn(context),
+        uSep003(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },

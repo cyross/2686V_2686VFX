@@ -133,6 +133,10 @@ class GuiRhythm : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton copyPadParamBtn;
+    GuiSlider copyPadFromSlider;
+    GuiSlider copyPadToSlider;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
@@ -147,6 +151,10 @@ public:
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
+        uSep001(context),
+        copyPadParamBtn(context),
+        copyPadFromSlider(context),
+        copyPadToSlider(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

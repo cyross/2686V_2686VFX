@@ -66,6 +66,10 @@ class GuiOpl : public GuiBase
     GuiTextButton initLfoToOpllBtn;
     GuiSeparator uSep002;
     GuiTextButton copyOpParamToOpl3Btn;
+    GuiSeparator uSep003;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -160,6 +164,10 @@ public:
         initLfoToOpllBtn(context),
         uSep002(context),
         copyOpParamToOpl3Btn(context),
+        uSep003(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context) },

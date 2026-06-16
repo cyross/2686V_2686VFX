@@ -239,6 +239,45 @@ void GuiOpn::setup()
         ctx.editor.copyOpnParamsToOpna();
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
+    copyOpParamBtn.setWantsKeyboardFocus(true);
+    copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamBtn.onClick = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        ctx.editor.copyOpnOpParams(from, to);
+        };
+
+    copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
+    copyOpFromSlider.setRange(1.0, 4.0, 1.0);
+    copyOpFromSlider.setNumDecimalPlacesToDisplay(0);
+    copyOpFromSlider.setValue(1, juce::sendNotification);
+    copyOpFromSlider.setWantsKeyboardFocus(true);
+    copyOpFromSlider.setExplicitFocusOrder(++tabOrder);
+    copyOpFromSlider.onValueChange = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        copyOpParamBtn.setEnabled(from != to);
+        };
+
+    copyOpToSlider.setup({ .parent = mainGroup.contentCanvas, .title = "TO", .isReset = false });
+    copyOpToSlider.setRange(1.0, 4.0, 1.0);
+    copyOpToSlider.setNumDecimalPlacesToDisplay(0);
+    copyOpToSlider.setValue(2, juce::sendNotification);
+    copyOpToSlider.setWantsKeyboardFocus(true);
+    copyOpToSlider.setExplicitFocusOrder(++tabOrder);
+    copyOpToSlider.onValueChange = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        copyOpParamBtn.setEnabled(from != to);
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < OpnPrValue::algorithms; ++i)
@@ -713,6 +752,10 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
     copyParamsToOpnaBtn.setVisible(visible);
+    uSep002.setVisible(visible);
+    copyOpParamBtn.setVisible(visible);
+    copyOpFromSlider.setVisibleWithLabel(visible);
+    copyOpToSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
@@ -722,6 +765,13 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
         uSep001.setBounds(uSep001Area);
 
         layoutMain({ .mainRect = rect, .component = &copyParamsToOpnaBtn });
+
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
+        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
     }
 }
 

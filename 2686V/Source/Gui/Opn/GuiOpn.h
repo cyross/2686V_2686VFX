@@ -87,6 +87,10 @@ class GuiOpn : public GuiBase
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
+    GuiSeparator uSep002;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpnPrValue::algorithms> algImages;
@@ -169,6 +173,10 @@ public:
         broadcastLevelButton(context),
         uSep001(context),
         copyParamsToOpnaBtn(context),
+        uSep002(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },

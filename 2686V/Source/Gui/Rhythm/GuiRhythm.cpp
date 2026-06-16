@@ -403,6 +403,45 @@ void GuiRhythm::setup()
         ctx.editor.breadcastLevel(level);
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
+    copyPadParamBtn.setWantsKeyboardFocus(true);
+    copyPadParamBtn.setExplicitFocusOrder(++tabOrder);
+    copyPadParamBtn.onClick = [this] {
+        int from = copyPadFromSlider.getValue() - 1;
+        int to = copyPadToSlider.getValue() - 1;
+
+        ctx.editor.copyRhythmPadParams(from, to);
+        };
+
+    copyPadFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
+    copyPadFromSlider.setRange(1.0, 8.0, 1.0);
+    copyPadFromSlider.setNumDecimalPlacesToDisplay(0);
+    copyPadFromSlider.setValue(1, juce::sendNotification);
+    copyPadFromSlider.setWantsKeyboardFocus(true);
+    copyPadFromSlider.setExplicitFocusOrder(++tabOrder);
+    copyPadFromSlider.onValueChange = [this] {
+        int from = copyPadFromSlider.getValue() - 1;
+        int to = copyPadToSlider.getValue() - 1;
+
+        copyPadParamBtn.setEnabled(from != to);
+        };
+
+    copyPadToSlider.setup({ .parent = mainGroup.contentCanvas, .title = "TO", .isReset = false });
+    copyPadToSlider.setRange(1.0, 8.0, 1.0);
+    copyPadToSlider.setNumDecimalPlacesToDisplay(0);
+    copyPadToSlider.setValue(2, juce::sendNotification);
+    copyPadToSlider.setWantsKeyboardFocus(true);
+    copyPadToSlider.setExplicitFocusOrder(++tabOrder);
+    copyPadToSlider.onValueChange = [this] {
+        int from = copyPadFromSlider.getValue() - 1;
+        int to = copyPadToSlider.getValue() - 1;
+
+        copyPadParamBtn.setEnabled(from != to);
+        };
+
     // Setup Pads
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
@@ -475,10 +514,21 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     bool visible = utilityCat.isDetailVisible();
 
     broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    copyPadParamBtn.setVisible(visible);
+    copyPadFromSlider.setVisibleWithLabel(visible);
+    copyPadToSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyPadParamBtn });
+        layoutMain({ .mainRect = rect, .label = &copyPadFromSlider.label, .component = &copyPadFromSlider });
+        layoutMain({ .mainRect = rect, .label = &copyPadToSlider.label, .component = &copyPadToSlider });
     }
 }
 
