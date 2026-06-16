@@ -107,3 +107,19 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
         dt3Buttons.layoutComponent(rect);
     }
 }
+
+void GuiComponentMulDetune::copyParams(CopyDetuneOpzx7& copyObj) {
+    copyObj.mul = mul.getSelectedId();
+    copyObj.mulRatio = mulRatio.getValue();
+    copyObj.dt = dt1.getSelectedId();
+    copyObj.dt2 = dt2.getValue();
+    copyObj.dt3 = dt2.getValue();
+}
+
+void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
+    mul.setSelectedId(copyObj.mul, juce::sendNotification);
+    mulRatio.setValue(copyObj.mulRatio, juce::sendNotification);
+    dt1.setSelectedId(copyObj.dt, juce::sendNotification);
+    dt2.setValue(copyObj.dt2, juce::sendNotification);
+    dt3.setValue(copyObj.dt3, juce::sendNotification);
+}

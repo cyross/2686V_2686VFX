@@ -14,6 +14,8 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentUnison : public GuiBase {
     // UNISON/HARMONY
     GuiCategoryLabel cat;
@@ -35,4 +37,6 @@ public:
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder);
     void layoutComponent(juce::Rectangle<int>& rect);
+    void copyParams(CopyUnison& copyObj);
+    void pasteParams(CopyUnison& copyObj);
 };

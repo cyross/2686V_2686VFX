@@ -129,3 +129,23 @@ void GuiComponentAmpEnv::setEnabled(bool enabled) {
 	startLevel.setEnabled(enabled);
 	kor.setEnabled(enabled);
 }
+
+void GuiComponentAmpEnv::copyParams(CopyEnvAmpAdsr& copyObj) {
+	copyObj.bypass = bypass.getToggleState();
+	copyObj.ar = attack.getValue();
+	copyObj.dr = decay.getValue();
+	copyObj.sl = sustain.getValue();
+	copyObj.rr = release.getValue();
+	copyObj.stl = startLevel.getValue();
+	copyObj.kor = kor.getToggleState();
+}
+
+void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
+	bypass.setToggleState(copyObj.bypass, juce::sendNotification);
+	attack.setValue(copyObj.ar, juce::sendNotification);
+	decay.setValue(copyObj.dr, juce::sendNotification);
+	sustain.setValue(copyObj.sl, juce::sendNotification);
+	release.setValue(copyObj.rr, juce::sendNotification);
+	startLevel.setValue(copyObj.stl, juce::sendNotification);
+	kor.setToggleState(copyObj.kor, juce::sendNotification);
+}

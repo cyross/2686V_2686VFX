@@ -240,3 +240,35 @@ void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
     ams.setEnabled(enabled);
     amd.setEnabled(enabled);
 }
+
+void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {
+    copyObj.pmEnable = pmEnable.getToggleState();
+    copyObj.pmFreq = pmFreq.getValue();
+    copyObj.pmSyncDelay = pmSyncDelay.getValue();
+    copyObj.pmIndex = pgShape.getSelectedId();
+    copyObj.pms = pms.getValue();
+    copyObj.pmd = pmd.getValue();
+    copyObj.amEnable = amEnable.getToggleState();
+    copyObj.amFreq = amFreq.getValue();
+    copyObj.amSyncDelay = amSyncDelay.getValue();
+    copyObj.amIndex = egShape.getSelectedId();
+    copyObj.amSmoothRate = amSmRt.getValue();
+    copyObj.ams = ams.getValue();
+    copyObj.amd = amd.getValue();
+}
+
+void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
+    pmEnable.setToggleState(copyObj.pmEnable, juce::sendNotification);
+    pmFreq.setValue(copyObj.pmFreq, juce::sendNotification);
+    pmSyncDelay.setValue(copyObj.pmSyncDelay, juce::sendNotification);
+    pgShape.setSelectedId(copyObj.pmIndex, juce::sendNotification);
+    pms.setValue(copyObj.pms, juce::sendNotification);
+    pmd.setValue(copyObj.pmd, juce::sendNotification);
+    amEnable.setToggleState(copyObj.amEnable, juce::sendNotification);
+    amFreq.setValue(copyObj.amFreq, juce::sendNotification);
+    amSyncDelay.setValue(copyObj.amSyncDelay, juce::sendNotification);
+    egShape.setSelectedId(copyObj.amIndex, juce::sendNotification);
+    amSmRt.setValue(copyObj.amSmoothRate, juce::sendNotification);
+    ams.setValue(copyObj.ams, juce::sendNotification);
+    amd.setValue(copyObj.amd, juce::sendNotification);
+}

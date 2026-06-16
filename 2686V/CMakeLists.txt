@@ -99,6 +99,7 @@ set(GUI_FILES
     "Source/Core/Gui/GuiValues.h"
     "Source/Core/Gui/GuiEnvelopeGraph.h"
     "Source/Core/Gui/GuiEnvelopeGraph.cpp"
+    "Source/Core/Gui/GuiCopyObj.h"
 )
 
 set(PROCESSOR_FILES

@@ -15,6 +15,8 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentPitchEnv : public GuiBase {
     bool isEnable = false;
     juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
@@ -59,4 +61,6 @@ public:
     void setupGraph(std::function<void()> repaintGraph);
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
+    void copyParams(CopyEnvPitchAdsr& copyObj);
+    void pasteParams(CopyEnvPitchAdsr& copyObj);
 };

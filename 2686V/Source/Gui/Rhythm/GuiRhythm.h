@@ -15,6 +15,8 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 
+#include "../../Core/Gui/GuiCopyObj.h"
+
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
@@ -109,6 +111,8 @@ public:
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void copyParams(CopyRhythmPad& copyObj);
+    void pasteParams(CopyRhythmPad& copyObj);
 };
 
 class GuiRhythm : public GuiBase
@@ -158,4 +162,6 @@ public:
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void setLevel(float level);
+    void copyPadParams(int p, CopyRhythmPad& copyObj);
+    void pastePadParams(int p, CopyRhythmPad& copyObj);
 };

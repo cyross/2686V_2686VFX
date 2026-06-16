@@ -343,6 +343,7 @@ void GuiOpna::setup()
     copyParamsToOpnBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnBtn.onClick = [this] {
+        ctx.editor.copyOpnaParamsToOpn();
         };
 
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
@@ -904,8 +905,8 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
-    copyParamsToOpnBtn.setVisible(false);
-    uSep002.setVisible(false);
+    copyParamsToOpnBtn.setVisible(visible);
+    uSep002.setVisible(visible);
     copyHwLfoParamsBtn.setVisible(visible);
     copyHwLfoFromSlider.setVisibleWithLabel(visible);
 
@@ -916,10 +917,10 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
 
-        //layoutMain({ .mainRect = rect, .component = &copyParamsToOpnBtn });
+        layoutMain({ .mainRect = rect, .component = &copyParamsToOpnBtn });
 
-        //auto uSep002Area = rect.removeFromTop(4);
-        //uSep002.setBounds(uSep002Area);
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
 
         layoutMain({ .mainRect = rect, .component = &copyHwLfoParamsBtn });
         layoutMain({ .mainRect = rect, .label = &copyHwLfoFromSlider.label, .component = &copyHwLfoFromSlider });
@@ -1327,4 +1328,110 @@ void GuiOpna::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
 
 void GuiOpna::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiOpna::copyParams(CopyOpna& copyObj) {
+    copyObj.quality.depth = bitSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.fmBase.level = levelSlider.getValue();
+    copyObj.fmBase.algorithm = algSelector.getSelectedId();
+    copyObj.fmBase.feedback = feedbackSlider.getValue();
+    copyObj.pan.pan = panSlider.getValue();
+
+    copyObj.n88Lfo.freq = lfoFreqSlider.getValue();
+    copyObj.n88Lfo.wave = lfoShapeSelector.getSelectedId();
+    copyObj.n88Lfo.amSmRt =lfoAmSmRtSlider.getValue();
+    copyObj.n88Lfo.syncDelay = lfoSyncDelaySlider.getValue();
+    copyObj.n88Lfo.pmEnable = lfoPmToggle.getToggleState();
+    copyObj.n88Lfo.amEnable = lfoAmToggle.getToggleState();
+    copyObj.n88Lfo.pmd = lfoPmdSlider.getValue();
+    copyObj.n88Lfo.pms = lfoPmsSlider.getValue();
+    copyObj.n88Lfo.amd = lfoAmdSlider.getValue();
+
+    unisonComponent.copyParams(copyObj.unison);
+}
+
+void GuiOpna::copyOpParams(int p, CopyOpnaOp& copyObj) {
+    copyObj.detune.mul = mul[p].getSelectedId();
+    copyObj.detune.dt = dt[p].getSelectedId();
+    copyObj.aAdsr.ar = rgAr[p].getValue();
+    copyObj.aAdsr.dr = rgDr[p].getValue();
+    copyObj.aAdsr.sl = rgSl[p].getValue();
+    copyObj.aAdsr.sr = rgSr[p].getValue();
+    copyObj.aAdsr.rr = rgRr[p].getValue();
+    copyObj.aAdsr.tl = rgTl[p].getValue();
+    copyObj.ssgEg.ssgEg = se[p].getSelectedId();
+    copyObj.ssgEg.fmSsgEgFreq = seFreq[p].getValue();
+    copyObj.aAdsr.bypass = bypass[p].getToggleState();
+    copyObj.aAdsr.kor = kor[p].getToggleState();
+    copyObj.aAdsr.xof = xof[p].getToggleState();
+    copyObj.aAdsr.ks = ks[p].getSelectedId();
+
+    copyObj.opnaLfo.freqsIndex = freqs[p].getSelectedId();
+    copyObj.opnaLfo.syncDelay = syncDelay[p].getValue();
+    copyObj.opnaLfo.pm = pm[p].getToggleState();
+    copyObj.opnaLfo.pms = pms[p].getSelectedId();
+    copyObj.opnaLfo.am = am[p].getToggleState();
+    copyObj.opnaLfo.ams = ams[p].getSelectedId();
+
+    copyObj.n88Lfo.ams = n88Ams[p].getValue();
+
+    copyObj.mask.mask = mask[p].getToggleState();
+        
+    fix[p].copyParams(copyObj.fix);
+    pitchEnv[p].copyParams(copyObj.pAdsr);
+    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+}
+
+void GuiOpna::pasteParams(CopyOpna& copyObj) {
+    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
+    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    levelSlider.setValue(copyObj.fmBase.level, juce::sendNotification);
+    algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
+    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+    panSlider.setValue(copyObj.pan.pan, juce::sendNotification);
+
+    lfoFreqSlider.setValue(copyObj.n88Lfo.freq, juce::sendNotification);
+    lfoShapeSelector.setSelectedId(copyObj.n88Lfo.wave, juce::sendNotification);
+    lfoAmSmRtSlider.setValue(copyObj.n88Lfo.amSmRt, juce::sendNotification);
+    lfoSyncDelaySlider.setValue(copyObj.n88Lfo.syncDelay, juce::sendNotification);
+    lfoPmToggle.setToggleState(copyObj.n88Lfo.pmEnable, juce::sendNotification);
+    lfoAmToggle.setToggleState(copyObj.n88Lfo.amEnable, juce::sendNotification);
+    lfoPmdSlider.setValue(copyObj.n88Lfo.pmd, juce::sendNotification);
+    lfoPmsSlider.setValue(copyObj.n88Lfo.pms, juce::sendNotification);
+    lfoAmdSlider.setValue(copyObj.n88Lfo.amd, juce::sendNotification);
+
+    unisonComponent.pasteParams(copyObj.unison);
+}
+
+void GuiOpna::pasteOpParams(int p, CopyOpnaOp& copyObj) {
+    mul[p].setSelectedId(copyObj.detune.mul, juce::sendNotification);
+    dt[p].setSelectedId(copyObj.detune.dt, juce::sendNotification);
+    rgAr[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    rgDr[p].setValue(copyObj.aAdsr.dr, juce::sendNotification);
+    rgSl[p].setValue(copyObj.aAdsr.sl, juce::sendNotification);
+    rgSr[p].setValue(copyObj.aAdsr.sr, juce::sendNotification);
+    rgRr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    rgTl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+    ks[p].setSelectedId(copyObj.aAdsr.ks, juce::sendNotification);
+    se[p].setSelectedId(copyObj.ssgEg.ssgEg, juce::sendNotification);
+    seFreq[p].setValue(copyObj.ssgEg.fmSsgEgFreq, juce::sendNotification);
+
+    freqs[p].setSelectedId(copyObj.opnaLfo.freqsIndex, juce::sendNotification);
+    syncDelay[p].setValue(copyObj.opnaLfo.syncDelay, juce::sendNotification);
+    pm[p].setToggleState(copyObj.opnaLfo.pm, juce::sendNotification);
+    pms[p].setSelectedId(copyObj.opnaLfo.pms, juce::sendNotification);
+    am[p].setToggleState(copyObj.opnaLfo.am, juce::sendNotification);
+    ams[p].setSelectedId(copyObj.opnaLfo.ams, juce::sendNotification);
+
+    n88Ams[p].setValue(copyObj.n88Lfo.ams, juce::sendNotification);
+
+    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+
+    fix[p].pasteParams(copyObj.fix);
+    pitchEnv[p].pasteParams(copyObj.pAdsr);
+    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
 }

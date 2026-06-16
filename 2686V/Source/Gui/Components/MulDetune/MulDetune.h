@@ -14,6 +14,8 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentMulDetune : public GuiBase {
     // MULTIPLE/DETUNE
     GuiCategoryLabel cat;
@@ -39,4 +41,6 @@ public:
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, bool isHw = false);
     void layoutComponent(juce::Rectangle<int>& rect);
+    void copyParams(CopyDetuneOpzx7& copyObj);
+    void pasteParams(CopyDetuneOpzx7& copyObj);
 };

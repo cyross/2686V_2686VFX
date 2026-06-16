@@ -1511,3 +1511,207 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     adpcmGui->setLevel(level);
     beepGui->setLevel(level);
 }
+
+void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
+    CopyRhythmPad padParams;
+
+    rhythmGui->copyPadParams(from, padParams);
+
+    rhythmGui->pastePadParams(to, padParams);
+}
+
+void AudioPlugin2686VEditor::copyOplOpParams(int from, int to) {
+    CopyOplOp opParams;
+
+    oplGui->copyOpParams(from, opParams);
+
+    oplGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpl3OpParams(int from, int to) {
+    CopyOpl3Op opParams;
+
+    opl3Gui->copyOpParams(from, opParams);
+
+    opl3Gui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
+    CopyOpmOp opParams;
+
+    opmGui->copyOpParams(from, opParams);
+
+    opmGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
+    CopyOpnOp opParams;
+
+    opnGui->copyOpParams(from, opParams);
+
+    opnGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
+    CopyOpnaOp opParams;
+
+    opnaGui->copyOpParams(from, opParams);
+
+    opnaGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
+    CopyOpzx7Op opParams;
+
+    opzx7Gui->copyOpParams(from, opParams);
+
+    opzx7Gui->pasteOpParams(to, opParams);
+}
+
+void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
+    CopyOpl oplParams;
+    CopyOpl3 opl3Params;
+
+    oplGui->copyParams(oplParams);
+
+    // アルゴリズムは母数が違うのでコピーしない
+    opl3Params.fmBase.level = oplParams.fmBase.level;
+    opl3Params.fmBase.feedback = oplParams.fmBase.feedback;
+    opl3Params.quality = oplParams.quality;
+    opl3Params.unison = oplParams.unison;
+
+    opl3Gui->pasteParams(opl3Params);
+
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
+        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
+    }
+}
+
+
+void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
+    CopyOpl3 opl3Params;
+    CopyOpl oplParams;
+
+    opl3Gui->copyParams(opl3Params);
+
+    // アルゴリズムは母数が違うのでコピーしない
+    oplParams.fmBase.level = opl3Params.fmBase.level;
+    oplParams.fmBase.feedback = opl3Params.fmBase.feedback;
+    oplParams.quality = opl3Params.quality;
+    oplParams.unison = opl3Params.unison;
+
+    oplGui->pasteParams(oplParams);
+
+    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+
+void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
+    CopyOpn opnParams;
+    CopyOpna opnaParams;
+
+    opnGui->copyParams(opnParams);
+
+    opnaParams.fmBase = opnParams.fmBase;
+    // OPNAへの pan は必ずC
+    opnaParams.pan.pan = 0;
+    opnaParams.n88Lfo = opnParams.n88Lfo;
+    opnaParams.quality = opnParams.quality;
+    opnaParams.unison = opnParams.unison;
+
+    opnaGui->pasteParams(opnaParams);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnOp opnOpParams;
+        CopyOpnaOp opnaOpParams;
+
+        opnGui->copyOpParams(i, opnOpParams);
+
+        opnaOpParams.detune = opnOpParams.detune;
+        opnaOpParams.aAdsr = opnOpParams.aAdsr;
+        opnaOpParams.fix = opnOpParams.fix;
+        opnaOpParams.n88Lfo = opnOpParams.n88Lfo;
+        opnaOpParams.pAdsr = opnOpParams.pAdsr;
+        opnaOpParams.aSsgSw = opnOpParams.aSsgSw;
+        opnaOpParams.mask = opnOpParams.mask;
+        opnaOpParams.waveSelect = 0;
+        opnaOpParams.ssgEg.ssgEg = 0;
+        opnaOpParams.ssgEg.fmSsgEgFreq = 0.0f;
+        opnaOpParams.opnaLfo.freqsIndex = 0;
+        opnaOpParams.opnaLfo.syncDelay = 0;
+        opnaOpParams.opnaLfo.am = false;
+        opnaOpParams.opnaLfo.amSmoothRate = 0.0f;
+        opnaOpParams.opnaLfo.ams = 0.0f;
+        opnaOpParams.opnaLfo.pm = false;
+        opnaOpParams.opnaLfo.pms = 0.0f;
+
+        opnaGui->pasteOpParams(i, opnaOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+
+void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
+    CopyOpna opnaParams;
+    CopyOpn opnParams;
+
+    opnaGui->copyParams(opnaParams);
+
+    opnParams.fmBase = opnaParams.fmBase;
+    opnParams.n88Lfo = opnaParams.n88Lfo;
+    opnParams.quality = opnaParams.quality;
+    opnParams.unison = opnaParams.unison;
+
+    opnGui->pasteParams(opnParams);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOp opnaOpParams;
+        CopyOpnOp opnOpParams;
+
+        opnaGui->copyOpParams(i, opnaOpParams);
+
+        opnOpParams.detune = opnaOpParams.detune;
+        opnOpParams.aAdsr = opnaOpParams.aAdsr;
+        opnOpParams.fix = opnaOpParams.fix;
+        opnOpParams.n88Lfo = opnaOpParams.n88Lfo;
+        opnOpParams.pAdsr = opnaOpParams.pAdsr;
+        opnOpParams.aSsgSw = opnaOpParams.aSsgSw;
+        opnOpParams.mask = opnaOpParams.mask;
+
+        opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}

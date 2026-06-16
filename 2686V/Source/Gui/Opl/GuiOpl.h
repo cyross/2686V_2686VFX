@@ -17,6 +17,8 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
 
+#include "../../Core/Gui/GuiCopyObj.h"
+
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
@@ -233,4 +235,8 @@ public:
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpl& copyObj);
+    void copyOpParams(int p, CopyOplOp& copyObj);
+    void pasteParams(CopyOpl& copyObj);
+    void pasteOpParams(int p, CopyOplOp& copyObj);
 };

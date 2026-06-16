@@ -14,6 +14,8 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentAmpEnv : public GuiBase {
     // AMP ENV
     GuiCategoryLabel cat;
@@ -45,4 +47,6 @@ public:
     void setupGraph(std::function<void()> repaintGraph);
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
+    void copyParams(CopyEnvAmpAdsr& copyObj);
+    void pasteParams(CopyEnvAmpAdsr& copyObj);
 };

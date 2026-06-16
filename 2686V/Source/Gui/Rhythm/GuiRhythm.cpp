@@ -340,6 +340,34 @@ void RhythmPadGui::updateGraph()
     }
 }
 
+void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
+    copyObj.base.level = volSlider.getValue();
+    copyObj.pan.pan = panSlider.getValue();
+    copyObj.isOneShot = oneShotButton.getToggleState();
+    copyObj.noteNumber = noteSlider.getValue();
+    copyObj.pcm.pcmOffset = pcmOffsetSlider.getValue();
+    copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
+    copyObj.quality.mode = modeSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+
+    ampEnvComponent.copyParams(copyObj.aAdsr);
+    pitchEnvComponent.copyParams(copyObj.pAdsr);
+}
+
+void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
+    volSlider.setValue(copyObj.base.level, juce::sendNotification);
+    panSlider.setValue(copyObj.pan.pan, juce::sendNotification);
+    oneShotButton.setToggleState(copyObj.isOneShot, juce::sendNotification);
+    noteSlider.setValue(copyObj.noteNumber, juce::sendNotification);
+    pcmOffsetSlider.setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
+    pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
+    modeSelector.setSelectedId(copyObj.quality.mode);
+    rateSelector.setSelectedId(copyObj.quality.rate);
+
+    ampEnvComponent.pasteParams(copyObj.aAdsr);
+    pitchEnvComponent.pasteParams(copyObj.pAdsr);
+}
+
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -527,4 +555,12 @@ void GuiRhythm::initParams()
 
 void GuiRhythm::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiRhythm::copyPadParams(int p, CopyRhythmPad& copyObj) {
+    pads[p].copyParams(copyObj);
+}
+
+void GuiRhythm::pastePadParams(int p, CopyRhythmPad& copyObj) {
+    pads[p].pasteParams(copyObj);
 }

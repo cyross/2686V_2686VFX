@@ -481,3 +481,13 @@ void GuiComponentFix::setEnables(bool enabled)
     note.setEnabled(enabled);
     applyNote.setEnabled(enabled);
 }
+
+void GuiComponentFix::copyParams(CopyFix& copyObj) {
+    copyObj.fixedMode = enable.getToggleState();
+    copyObj.fixedFreq = freq.getValue();
+}
+
+void GuiComponentFix::pasteParams(CopyFix& copyObj) {
+    enable.setToggleState(copyObj.fixedMode, juce::sendNotification);
+    freq.setValue(copyObj.fixedFreq, juce::sendNotification);
+}

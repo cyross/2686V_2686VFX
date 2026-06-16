@@ -28,6 +28,8 @@
 #include "../../Gui/About/GuiAbout.h"
 #include "../../Gui/Curve/GuiCurve.h"
 
+#include "../../Core/Gui/GuiCopyObj.h"
+
 class SystemButtonLF : public juce::LookAndFeel_V4
 {
 public:
@@ -141,6 +143,17 @@ public:
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
+    void copyRhythmPadParams(int from, int to);
+    void copyOplOpParams(int from, int to);
+    void copyOpl3OpParams(int from, int to);
+    void copyOpmOpParams(int from, int to);
+    void copyOpnOpParams(int from, int to);
+    void copyOpnaOpParams(int from, int to);
+    void copyOpzx7OpParams(int from, int to);
+    void copyOplParamsToOpl3();
+    void copyOpl3ParamsToOpl();
+    void copyOpnParamsToOpna();
+    void copyOpnaParamsToOpn();
 private:
     AudioPlugin2686V& audioProcessor;
 

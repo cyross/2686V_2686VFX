@@ -20,6 +20,8 @@
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
+#include "../../Core/Gui/GuiCopyObj.h"
+
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
@@ -463,4 +465,8 @@ public:
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpzx7& copyObj);
+    void copyOpParams(int p, CopyOpzx7Op& copyObj);
+    void pasteParams(CopyOpzx7& copyObj);
+    void pasteOpParams(int p, CopyOpzx7Op& copyObj);
 };

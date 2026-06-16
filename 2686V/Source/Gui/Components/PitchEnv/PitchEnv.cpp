@@ -167,3 +167,25 @@ void GuiComponentPitchEnv::setEnabled(bool enabled) {
 	sustainLevel.setEnabled(enabled);
 	releaseLevel.setEnabled(enabled);
 }
+
+void GuiComponentPitchEnv::copyParams(CopyEnvPitchAdsr& copyObj) {
+	copyObj.flag = flag.getToggleState();
+	copyObj.ar = attack.getValue();
+	copyObj.dr = decay.getValue();
+	copyObj.rr = release.getValue();
+	copyObj.stl = startLevel.getValue();
+	copyObj.atl = attackLevel.getValue();
+	copyObj.ssl = sustainLevel.getValue();
+	copyObj.rll = releaseLevel.getValue();
+}
+
+void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
+	flag.setToggleState(copyObj.flag, juce::sendNotification);
+	attack.setValue(copyObj.ar, juce::sendNotification);
+	decay.setValue(copyObj.dr, juce::sendNotification);
+	release.setValue(copyObj.rr, juce::sendNotification);
+	startLevel.setValue(copyObj.stl, juce::sendNotification);
+	attackLevel.setValue(copyObj.atl, juce::sendNotification);
+	sustainLevel.setValue(copyObj.ssl, juce::sendNotification);
+	releaseLevel.setValue(copyObj.rll, juce::sendNotification);
+}

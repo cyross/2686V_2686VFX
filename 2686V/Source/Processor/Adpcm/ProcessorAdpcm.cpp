@@ -152,6 +152,7 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
     params.adpcm.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
     params.adpcm.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
+    params.adpcm.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread;
 
     params.adpcm.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
     params.adpcm.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);
@@ -161,7 +162,6 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.pitchAdsr.atl = (int)pPitchAdsrAtl->load(std::memory_order_relaxed);
     params.adpcm.pitchAdsr.ssl = (int)pPitchAdsrSsl->load(std::memory_order_relaxed);
     params.adpcm.pitchAdsr.rll = (int)pPitchAdsrRll->load(std::memory_order_relaxed);
-    params.adpcm.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread;
 
     params.adpcm.ssgSwEnv.bypass = (pSsgSwEnvBypass->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
     params.adpcm.ssgSwEnv.steps = (int)pSsgSwEnvSteps->load(std::memory_order_relaxed);

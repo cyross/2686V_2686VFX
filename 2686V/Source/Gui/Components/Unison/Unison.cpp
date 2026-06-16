@@ -47,3 +47,14 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &spread.label, .component = &spread });
     }
 }
+void GuiComponentUnison::copyParams(CopyUnison& copyObj) {
+    copyObj.voices = voices.getValue();
+    copyObj.detune = detune.getValue();
+    copyObj.spread = spread.getValue();
+}
+
+void GuiComponentUnison::pasteParams(CopyUnison& copyObj) {
+    voices.setValue(copyObj.voices, juce::sendNotification);
+    detune.setValue(copyObj.detune, juce::sendNotification);
+    spread.setValue(copyObj.spread, juce::sendNotification);
+}

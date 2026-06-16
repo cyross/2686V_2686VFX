@@ -199,6 +199,7 @@ void GuiOpl3::setup()
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
     copyOpParamToOplBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOplBtn.onClick = [this] {
+        ctx.editor.copyOpl3ParamsToOpl();
         };
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
@@ -728,8 +729,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     uSep001.setVisible(visible);
     initLfoToOplBtn.setVisible(visible);
     initLfoToOpllBtn.setVisible(visible);
-    uSep002.setVisible(false);
-    copyOpParamToOplBtn.setVisible(false);
+    uSep002.setVisible(visible);
+    copyOpParamToOplBtn.setVisible(visible);
 
     if (visible)
     {
@@ -741,12 +742,10 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
         layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
 
-        /*
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
 
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOplBtn });
-        */
     }
 }
 
@@ -1056,4 +1055,79 @@ void GuiOpl3::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
 
 void GuiOpl3::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiOpl3::copyParams(CopyOpl3& copyObj) {
+    copyObj.quality.depth = bitSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.fmBase.level = levelSlider.getValue();
+    copyObj.fmBase.algorithm = algSelector.getSelectedId();
+    copyObj.fmBase.feedback = feedbackSlider.getValue();
+
+    unisonComponent.copyParams(copyObj.unison);
+}
+
+void GuiOpl3::copyOpParams(int p, CopyOpl3Op& copyObj) {
+    copyObj.detune.mul = mul[p].getSelectedId();
+    copyObj.aAdsr.ar = rgAr[p].getValue();
+    copyObj.aAdsr.dr = rgDr[p].getValue();
+    copyObj.aAdsr.sl = rgSl[p].getValue();
+    copyObj.aAdsr.rr = rgRr[p].getValue();
+    copyObj.aAdsr.tl = rgTl[p].getValue();
+    copyObj.aAdsr.ksr = ksr[p].getToggleState();
+    copyObj.aAdsr.ksl = ksl[p].getSelectedId();
+    copyObj.aAdsr.egType = egType[p].getToggleState();
+    copyObj.aAdsr.bypass = bypass[p].getToggleState();
+    copyObj.aAdsr.kor = kor[p].getToggleState();
+    copyObj.aAdsr.xof = xof[p].getToggleState();
+    copyObj.waveSelect = eg[p].getSelectedId();
+
+    copyObj.lfo.am = am[p].getToggleState();
+    copyObj.lfo.amd = amd[p].getValue();
+    copyObj.lfo.ams = ams[p].getValue();
+    copyObj.lfo.pm = vib[p].getToggleState();
+    copyObj.lfo.pmd = pmd[p].getValue();
+    copyObj.lfo.pms = pms[p].getValue();
+
+    copyObj.mask.mask = mask[p].getToggleState();
+
+    pitchEnv[p].copyParams(copyObj.pAdsr);
+    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+}
+
+void GuiOpl3::pasteParams(CopyOpl3& copyObj) {
+    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
+    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    levelSlider.setValue(copyObj.fmBase.level, juce::sendNotification);
+    algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
+    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+
+    unisonComponent.pasteParams(copyObj.unison);
+}
+
+void GuiOpl3::pasteOpParams(int p, CopyOpl3Op& copyObj) {
+    mul[p].setSelectedId(copyObj.detune.mul, juce::sendNotification);
+    rgAr[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    rgDr[p].setValue(copyObj.aAdsr.dr, juce::sendNotification);
+    rgSl[p].setValue(copyObj.aAdsr.sl, juce::sendNotification);
+    rgRr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    rgTl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    ksr[p].setToggleState(copyObj.aAdsr.ksr, juce::sendNotification);
+    ksl[p].setSelectedId(copyObj.aAdsr.ksl, juce::sendNotification);
+    egType[p].setToggleState(copyObj.aAdsr.egType, juce::sendNotification);
+    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+
+    am[p].setToggleState(copyObj.lfo.am, juce::sendNotification);
+    amd[p].setValue(copyObj.lfo.amd, juce::sendNotification);
+    ams[p].setValue(copyObj.lfo.ams, juce::sendNotification);
+    vib[p].setToggleState(copyObj.lfo.pm, juce::sendNotification);
+    pmd[p].setValue(copyObj.lfo.pmd, juce::sendNotification);
+    pms[p].setValue(copyObj.lfo.pms, juce::sendNotification);
+
+    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+
+    pitchEnv[p].pasteParams(copyObj.pAdsr);
+    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
 }

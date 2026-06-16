@@ -19,6 +19,7 @@ class FmRgAdssr
 	int sl = 15;
 	int rr = 0;
 	int tl = 0;
+
 	int ks = 0;
 
 	int arMax = 0;

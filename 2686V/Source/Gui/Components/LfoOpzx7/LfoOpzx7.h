@@ -14,6 +14,8 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentLfoOpzx7 : public GuiBase {
     bool isEnable = false;
     juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
@@ -75,4 +77,6 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
+    void copyParams(CopyLfoOpzx7& copyObj);
+    void pasteParams(CopyLfoOpzx7& copyObj);
 };

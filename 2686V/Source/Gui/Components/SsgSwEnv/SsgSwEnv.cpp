@@ -311,3 +311,45 @@ void GuiComponentSsgSwEnv::setEnabled(bool enabled) {
     r6.setEnabled(enabled);
     l6.setEnabled(enabled);
 }
+
+void GuiComponentSsgSwEnv::copyParams(CopyEnvSsgSw& copyObj) {
+    copyObj.flag = flag.getToggleState();
+    copyObj.steps = steps.getValue();
+    copyObj.loop = loop.getToggleState();
+    copyObj.loopTo = loopTo.getValue();
+    copyObj.loopCount = loopCount.getValue();
+    copyObj.stl = startLevel.getValue();
+    copyObj.r[0] = r1.getValue();
+    copyObj.l[0] = l1.getValue();
+    copyObj.r[1] = r2.getValue();
+    copyObj.l[1] = l2.getValue();
+    copyObj.r[2] = r3.getValue();
+    copyObj.l[2] = l3.getValue();
+    copyObj.r[3] = r4.getValue();
+    copyObj.l[3] = l4.getValue();
+    copyObj.r[4] = r5.getValue();
+    copyObj.l[4] = l5.getValue();
+    copyObj.r[5] = r6.getValue();
+    copyObj.l[5] = l6.getValue();
+}
+
+void GuiComponentSsgSwEnv::pasteParams(CopyEnvSsgSw& copyObj) {
+    flag.setToggleState(copyObj.flag, juce::sendNotification);
+    steps.setValue(copyObj.steps, juce::sendNotification);
+    loop.setToggleState(copyObj.loop, juce::sendNotification);
+    loopTo.setValue(copyObj.loopTo, juce::sendNotification);
+    loopCount.setValue(copyObj.loopCount, juce::sendNotification);
+    startLevel.setValue(copyObj.stl, juce::sendNotification);
+    r1.setValue(copyObj.r[0], juce::sendNotification);
+    l1.setValue(copyObj.l[0], juce::sendNotification);
+    r2.setValue(copyObj.r[1], juce::sendNotification);
+    l2.setValue(copyObj.l[1], juce::sendNotification);
+    r3.setValue(copyObj.r[2], juce::sendNotification);
+    l3.setValue(copyObj.l[2], juce::sendNotification);
+    r4.setValue(copyObj.r[3], juce::sendNotification);
+    l4.setValue(copyObj.l[3], juce::sendNotification);
+    r5.setValue(copyObj.r[4], juce::sendNotification);
+    l5.setValue(copyObj.l[4], juce::sendNotification);
+    r6.setValue(copyObj.r[5], juce::sendNotification);
+    l6.setValue(copyObj.l[5], juce::sendNotification);
+}
