@@ -389,6 +389,7 @@ float SsgCore::getSample()
         // 2. Waveform Generation
         // ==========================================
         float toneSample = 0.0f;
+        float fcFluc = 0.0f;
 
         if (m_waveform == 0) // Pulse
         {
@@ -402,10 +403,9 @@ float SsgCore::getSample()
                 if (currentDuty < minDuty) currentDuty = minDuty;
                 if (currentDuty > 1.0f - minDuty) currentDuty = 1.0f - minDuty;
 
-                toneSample = (m_phase < currentDuty)
-                    ? (1.0f - m_dutyFcFluc * (m_phase / currentDuty))
-                    : (-1.0f + m_dutyFcFluc * ((m_phase - currentDuty) / (1.0f - currentDuty)));
-             }
+                toneSample = (m_phase < currentDuty) ? 1.0f : -1.0f;
+                fcFluc = (m_phase < currentDuty) ? -m_dutyFcFluc * (m_phase / currentDuty) : m_dutyFcFluc * ((m_phase - currentDuty) / (1.0f - currentDuty));
+            }
             else {
                 float currentDuty = m_dutyMode == 0 ? dutyPresets[m_dutyPreset] : m_dutyVar;
 
@@ -465,7 +465,7 @@ float SsgCore::getSample()
             finalOut = rawMixed;
         }
 
-        m_lastSample = finalOut;
+        m_lastSample = finalOut + fcFluc;
     }
 
     // 線形補間を適用して波形を滑らかに出力する
