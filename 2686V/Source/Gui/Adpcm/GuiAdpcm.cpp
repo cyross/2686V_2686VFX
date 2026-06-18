@@ -49,6 +49,12 @@ static std::vector<SelectItem> rateItems = {
     {.name = "15: 2kHz",     .value = 15 },
 };
 
+static std::vector<SelectItem> interpItems = {
+    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
+    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
+    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 }
+};
+
 void GuiAdpcm::setup()
 {
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
@@ -92,6 +98,42 @@ void GuiAdpcm::setup()
 	levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
+
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    toneSlider.setWantsKeyboardFocus(true);
+    toneSlider.setExplicitFocusOrder(++tabOrder);
+
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setWantsKeyboardFocus(true);
+    noiseSlider.setExplicitFocusOrder(++tabOrder);
+
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noiseFreq, .title = AdpcmGuiText::Adpcm::noiseFreq, .isReset = true });
+    noiseFreqSlider.setWantsKeyboardFocus(true);
+    noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 初期状態反映
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mix , .title = AdpcmGuiText::Adpcm::mix, .isReset = true });
+    mixSlider.setWantsKeyboardFocus(true);
+    mixSlider.setExplicitFocusOrder(++tabOrder);
+
+    mixSetTone.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Adpcm::tone, .isReset = false, .isResized = false });
+    mixSetTone.setWantsKeyboardFocus(true);
+    mixSetTone.setExplicitFocusOrder(++tabOrder);
+    mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
+
+    mixSetMix.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Adpcm::mix, .isReset = false, .isResized = false });
+    mixSetMix.setWantsKeyboardFocus(true);
+    mixSetMix.setExplicitFocusOrder(++tabOrder);
+    mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
+
+    mixSetNoise.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Adpcm::noise, .isReset = false, .isResized = false });
+    mixSetNoise.setWantsKeyboardFocus(true);
+    mixSetNoise.setExplicitFocusOrder(++tabOrder);
+    mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
+
+    interpSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::interp, .title = AdpcmGuiText::Adpcm::interp, .items = interpItems, .isReset = true });
+    interpSelector.setWantsKeyboardFocus(true);
+    interpSelector.setExplicitFocusOrder(++tabOrder);
 
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
@@ -204,6 +246,11 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutMain({ .mainRect = mRect, .label = &toneSlider.label, .component = &toneSlider, });
+    layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
+    layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutMain({ .mainRect = mRect, .label = &mixSlider.label, .component = &mixSlider });
+    layoutMainThreeComps({ .rect = mRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     layoutOptionalCat(mRect);
 
@@ -303,11 +350,13 @@ void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
 
     modeSelector.setVisibleWithLabel(visibleQuality);
     rateSelector.setVisibleWithLabel(visibleQuality);
+    interpSelector.setVisibleWithLabel(visibleQuality);
 
     if (visibleQuality)
     {
         layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+        layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
     }
 }
 

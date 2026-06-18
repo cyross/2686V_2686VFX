@@ -38,6 +38,8 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         // 1: 96kHz 2: 55.5kHz 3: 48kHz 4: 44.1kHz 5: 22.5kHz 6: 16k 7: 8k
         layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::rate, padPrefixName + RhythmPrName::Pad::rate, RhythmPrValue::Pad::Rate::min, RhythmPrValue::Pad::Rate::max, RhythmPrValue::Pad::Rate::initial));
 
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::interp, padPrefixName + RhythmPrName::Pad::interp, RhythmPrValue::Pad::Interp::min, RhythmPrValue::Pad::Interp::max, RhythmPrValue::Pad::Interp::initial));
+
         layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::Pad::oneShot, padPrefixName + RhythmPrName::Pad::oneShot, RhythmPrValue::Pad::OneShot::initial));
 
         // ADSR Bypass Switch
@@ -70,6 +72,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pNoteNumber[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::note);
         pQualityMode[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::mode);
         pRateIndex[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::rate);
+        pInterpolationMode[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::interp);
         pIsOneShot[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::oneShot);
         pPcmOffset[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmOffset);
         pPcmRatio[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmRatio);
@@ -108,6 +111,7 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.noteNumber = (int)pNoteNumber[i]->load(std::memory_order_relaxed);
         pad.qualityMode = (int)pQualityMode[i]->load(std::memory_order_relaxed);
         pad.rateIndex = (int)pRateIndex[i]->load(std::memory_order_relaxed);
+        pad.interpolationMode = (int)pInterpolationMode[i]->load(std::memory_order_relaxed);
         pad.isOneShot = (bool)pIsOneShot[i]->load(std::memory_order_relaxed);
         pad.pcmOffset = pPcmOffset[i]->load(std::memory_order_relaxed);
         pad.pcmRatio = pPcmRatio[i]->load(std::memory_order_relaxed);

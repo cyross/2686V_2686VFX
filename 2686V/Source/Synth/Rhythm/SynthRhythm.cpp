@@ -66,6 +66,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
         needRefresh = true;
     }
 
+    m_interpolationMode = params.interpolationMode;
+
     if (needRefresh) refreshPcmBuffer();
 }
 
@@ -177,42 +179,89 @@ float RhythmPad::getSample(double hostSampleRate, float pitchRatio)
 
     float output = 0.0f;
 
-    // ループと終端の判定を endPosition に基づいて行う
-    if (isEncodedMode)
-    {
-        if (m_position >= endPosition) {
-            if (m_isOneShot) {
-                return 0.0f;
-            }
-            else {
-                // ループ時はオフセット位置に戻る
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
-            }
-        }
 
-        int idx = (int)m_position;
-        if (idx >= totalSize) idx = offsetSamples; // 安全ガード
-        output = m_pcmBuffer[idx] / 32768.0f;
+    // ループ・終了判定
+    if (m_position >= endPosition) {
+        if (m_isOneShot) {
+            return 0.0f;
+        }
+        else {
+            m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+        }
     }
-    else // Raw / PCM Playback
+
+    // =========================================================
+    // 補間用の4点インデックス (過去1、現在、未来2) を計算
+    // =========================================================
+    int idx_0 = (int)m_position;
+    int idx_1 = idx_0 + 1;
+    int idx_2 = idx_0 + 2;
+    int idx_m1 = idx_0 - 1;
+
+    // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
+    if (m_isOneShot) {
+        if (idx_m1 < 0) idx_m1 = 0;
+        if (idx_1 >= (int)totalSize) idx_1 = idx_0;
+        if (idx_2 >= (int)totalSize) idx_2 = idx_1;
+    }
+    else {
+        if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
+        if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
+        if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
+    }
+
+    // 最終的な安全策 (バッファ外アクセス防止)
+    idx_m1 = std::clamp(idx_m1, 0, (int)totalSize - 1);
+    idx_0 = std::clamp(idx_0, 0, (int)totalSize - 1);
+    idx_1 = std::clamp(idx_1, 0, (int)totalSize - 1);
+    idx_2 = std::clamp(idx_2, 0, (int)totalSize - 1);
+
+    // =========================================================
+    // バッファから4点の値を取得 (-1.0f 〜 1.0f)
+    // =========================================================
+    float s_m1, s_0, s_1, s_2;
+
+    if (isEncodedMode) {
+        // エンコードバッファ (int16_t) から読み込み、正規化
+        s_m1 = m_pcmBuffer[idx_m1] / 32768.0f;
+        s_0 = m_pcmBuffer[idx_0] / 32768.0f;
+        s_1 = m_pcmBuffer[idx_1] / 32768.0f;
+        s_2 = m_pcmBuffer[idx_2] / 32768.0f;
+    }
+    else {
+        // Rawバッファから読み込み
+        s_m1 = m_rawBuffer[idx_m1];
+        s_0 = m_rawBuffer[idx_0];
+        s_1 = m_rawBuffer[idx_1];
+        s_2 = m_rawBuffer[idx_2];
+    }
+
+    // =========================================================
+    // 補間処理 (Interpolation)
+    // =========================================================
+    float frac = (float)(m_position - idx_0);
+
+    switch (m_interpolationMode) {
+    case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
+        output = (frac < 0.5f) ? s_0 : s_1;
+        break;
+    case 1: // 1: Linear (線形補間・現在の標準)
+        output = s_0 * (1.0f - frac) + s_1 * frac;
+        break;
+    case 2: // 2: Gaussian/Cubic (SFC風の丸みのある補間)
     {
-        if (m_position >= endPosition) {
-            if (m_isOneShot) {
-                return 0.0f;
-            }
-            else {
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
-            }
-        }
+        // 3次エルミートスプライン近似による滑らかなカーブ生成
+        float c0 = s_0;
+        float c1 = 0.5f * (s_1 - s_m1);
+        float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
+        float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
+        output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+        break;
+    }
+    }
 
-        int idx0 = (int)m_position;
-        int idx1 = idx0 + 1;
-        // ループ端の処理
-        if (idx1 >= endPosition || idx1 >= totalSize) idx1 = offsetSamples;
-
-        float frac = (float)(m_position - idx0);
-        output = m_rawBuffer[idx0] * (1.0f - frac) + m_rawBuffer[idx1] * frac;
-
+    // Raw/BitCrusher モード時のビットリダクション
+    if (!isEncodedMode) {
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 

@@ -79,6 +79,13 @@ namespace RhythmPrValue
 			inline constexpr int initial = CorePrValue::Pcm::Rate::initial;
 		}
 
+		namespace Interp
+		{
+			inline constexpr int min = 0; // Nearest
+			inline constexpr int max = 2; // Gaussian
+			inline constexpr int initial = 1; // Linear
+		}
+
 		namespace Offset
 		{
 			inline constexpr float min = CorePrValue::Pcm::Offset::min;

@@ -17,6 +17,7 @@ class RhythmProcessor : public PrBase
     std::array<std::atomic<float>*, RhythmPrValue::pads> pNoteNumber = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pQualityMode = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pRateIndex = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pInterpolationMode = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pIsOneShot = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPcmOffset = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPcmRatio = { nullptr };

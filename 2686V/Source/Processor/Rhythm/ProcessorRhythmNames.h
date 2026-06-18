@@ -26,6 +26,7 @@ namespace RhythmPrName
 		static inline const juce::String note = " Note";
 		static inline const juce::String rate = " Rate";
 		static inline const juce::String bit = " Bit";
+		static inline const juce::String interp = " Interpolation Mode";
 		static inline const juce::String oneShot = " One Shot";
 		static inline const juce::String pan = " Pan";
 		static inline const juce::String rr = " RR";

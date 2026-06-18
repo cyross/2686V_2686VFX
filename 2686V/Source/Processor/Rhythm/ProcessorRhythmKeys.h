@@ -32,6 +32,7 @@ namespace RhythmPrKey
 		static inline const juce::String volume = "_VOL";
 		static inline const juce::String mode = "_MODE";
 		static inline const juce::String rate = "_RATE";
+		static inline const juce::String interp = "_INTERP";
 		static inline const juce::String pan = "_PAN";
 		static inline const juce::String note = "_NOTE";
 		static inline const juce::String oneShot = "_ONESHOT";

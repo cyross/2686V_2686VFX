@@ -24,6 +24,37 @@ namespace AdpcmPrValue
 		inline constexpr int initial = CorePrValue::Pcm::Rate::initial;
 	}
 
+	namespace Interp
+	{
+		inline constexpr int min = 0; // Nearest
+		inline constexpr int max = 2; // Gaussian
+		inline constexpr int initial = 1; // Linear
+	}
+
+	namespace Tone {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
+	namespace Noise {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
+	namespace NoiseFreq {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 30000.0f;
+		inline constexpr float initial = 12000.0f;
+	}
+
+	namespace Mix {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 0.0f;
+	}
+
 	namespace Fix
 	{
 		inline constexpr bool initial = CorePrValue::FixMode::Enable::initial;

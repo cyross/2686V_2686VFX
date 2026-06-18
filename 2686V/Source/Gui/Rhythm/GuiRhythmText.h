@@ -45,6 +45,7 @@ namespace RhythmGuiText
 			static inline const juce::String note = u8"Note";
 			static inline const juce::String quality = u8"Bit";
 			static inline const juce::String rate = u8"Rate";
+			static inline const juce::String interp = u8"Interp";
 			static inline const juce::String oneShot = u8"One Shot";
 			static inline const juce::String pan = u8"Pan";
 			static inline const juce::String rr = u8"Rr";

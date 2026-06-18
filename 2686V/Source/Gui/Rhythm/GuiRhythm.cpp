@@ -51,6 +51,12 @@ static std::vector<SelectItem> rateItems = {
     {.name = "15: 2kHz",     .value = 15 },
 };
 
+static std::vector<SelectItem> interpItems = {
+    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
+    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
+    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 }
+};
+
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
     fileNameLabel.setText(fileName, juce::dontSendNotification);
@@ -87,6 +93,10 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::rate, .title = RhythmGuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
+
+    interpSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::interp, .title = RhythmGuiText::Rhythm::Pad::interp, .items = interpItems, .isReset = true });
+    interpSelector.setWantsKeyboardFocus(true);
+    interpSelector.setExplicitFocusOrder(++tabOrder);
 
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
@@ -219,11 +229,13 @@ void RhythmPadGui::layoutQualityCat(juce::Rectangle<int>& rect) {
 
     modeSelector.setVisibleWithLabel(visibleQuality);
     rateSelector.setVisibleWithLabel(visibleQuality);
+    interpSelector.setVisibleWithLabel(visibleQuality);
 
     if (visibleQuality)
     {
         layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
+        layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
     }
 }
 

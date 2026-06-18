@@ -31,6 +31,7 @@ public:
     float m_panR = 1.0f;
     int m_qualityMode = 6; // ADPCM
     int m_rateIndex = 5;   // 16kHz
+    int m_interpolationMode = 1;
     bool m_isOneShot = true;
 
     float m_pcmOffset = 0.0f;

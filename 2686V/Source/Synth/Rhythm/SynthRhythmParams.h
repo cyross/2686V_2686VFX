@@ -13,6 +13,7 @@ struct RhythmPadParams
     int qualityMode = 6;  // Default: ADPCM
     // 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 22.05k, 7: 16k, 8: 12k, 9: 11k 10: 8k 11: 5.5k 12: 4k 13: 2k
     int rateIndex = 7;    // Default: 16kHz
+    int interpolationMode = 1;
 
     // Whether to play as a "One Shot" or stop the sound on Note Off
     bool isOneShot = true;

@@ -35,6 +35,7 @@ class RhythmPadGui: public GuiBase
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
+    GuiComboBox interpSelector;
 
     GuiSlider noteSlider;
 
@@ -82,6 +83,7 @@ public:
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         qualityCat(context),
+        interpSelector(context),
         panCat(context),
         noteSlider(context),
         modeSelector(context),

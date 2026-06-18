@@ -56,6 +56,7 @@ private:
     std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
     int m_qualityMode = 6;
     int m_rateIndex = 3;
+    int m_interpolationMode = 1;
     double m_targetRate = 44100.0;
     float m_currentFrequency = 440.0f;
 

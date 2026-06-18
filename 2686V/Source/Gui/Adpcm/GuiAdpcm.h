@@ -38,6 +38,14 @@ class GuiAdpcm : public GuiBase
     GuiSlider pcmRatioSlider;
 
     GuiSlider levelSlider;
+    GuiSlider toneSlider;
+    GuiSlider noiseSlider;
+    GuiSlider noiseFreqSlider;
+    GuiSlider mixSlider;
+    GuiTextButton mixSetTone;  // 0.0
+    GuiTextButton mixSetMix;   // 0.5
+    GuiTextButton mixSetNoise; // 1.0
+    GuiComboBox interpSelector;
     GuiSlider panSlider;
 
     GuiTextButton panToLBtn;
@@ -106,6 +114,14 @@ public:
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         levelSlider(context),
+        toneSlider(context),
+        noiseSlider(context),
+        noiseFreqSlider(context),
+        mixSlider(context),
+        mixSetTone(context),
+        mixSetMix(context),
+        mixSetNoise(context),
+        interpSelector(context),
         panSlider(context),
         panToLBtn(context),
         panToCBtn(context),
