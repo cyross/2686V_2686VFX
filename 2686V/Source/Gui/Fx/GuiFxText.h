@@ -16,6 +16,7 @@ namespace FxGuiText
 		static inline const juce::String fxReverb = juce::String("") + "リバーブ";
 		static inline const juce::String fxFilter = juce::String("") + "フィルター";
 		static inline const juce::String fxEq3B = juce::String("") + "3バンドイコライザー";
+		static inline const juce::String sfcEcho = juce::String("") + "SFCエコー";
 	}
 
 	namespace Fx
@@ -24,7 +25,9 @@ namespace FxGuiText
 		static inline const juce::String bypass = juce::String("") + "バイパス";
 		static inline const juce::String reset = juce::String("") + "パラメータリセット";
 		static inline const juce::String mix = u8"Mix";
-		
+		static inline const juce::String fileImport = u8"Import (.fxo)";
+		static inline const juce::String fileExport = u8"Export (.fxo)";
+
 		namespace Mix
 		{
 			static inline const juce::String dry = u8"Dry";
@@ -75,6 +78,20 @@ namespace FxGuiText
 			static inline const juce::String midFreq = u8"M-Fq";
 			static inline const juce::String midGainDb = u8"M-Gn";
 			static inline const juce::String highGainDb = u8"H-Gn";
+		}
+
+		namespace SfcEcho
+		{
+			static inline const juce::String time = u8"Time";
+			static inline const juce::String fb = u8"Fb";
+			static inline const juce::String firCoef0 = u8"Fc0";
+			static inline const juce::String firCoef1 = u8"Fc1";
+			static inline const juce::String firCoef2 = u8"Fc2";
+			static inline const juce::String firCoef3 = u8"Fc3";
+			static inline const juce::String firCoef4 = u8"Fc4";
+			static inline const juce::String firCoef5 = u8"Fc5";
+			static inline const juce::String firCoef6 = u8"Fc6";
+			static inline const juce::String firCoef7 = u8"Fc7";
 		}
 	}
 }

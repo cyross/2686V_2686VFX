@@ -75,6 +75,22 @@ void FxProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayo
     layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::midGainDb, eq3bLPrefix + FxPrName::Eq3b::midGainDb, FxPrValue::Eq3b::MidGainDb::min, FxPrValue::Eq3b::MidGainDb::max, FxPrValue::Eq3b::MidGainDb::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::Eq3b::highGainDb, eq3bLPrefix + FxPrName::Eq3b::highGainDb, FxPrValue::Eq3b::HighGainDb::min, FxPrValue::Eq3b::HighGainDb::max, FxPrValue::Eq3b::HighGainDb::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(eq3bPrefix + FxPrKey::mix, eq3bLPrefix + FxPrName::Eq3b::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
+
+    // --- SFC Echo ---
+    const juce::String sfcePrefix = prefix + FxPrKey::sfcEcho;
+    const juce::String sfceLPrefix = prefixName + FxPrName::sfcEcho;
+    layout.add(std::make_unique<juce::AudioParameterBool>(sfcePrefix + FxPrKey::bypass, sfceLPrefix + FxPrName::Eq3b::bypass, FxPrValue::Bypass::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::time, sfceLPrefix + FxPrName::SfcEcho::time, FxPrValue::SfcEcho::Time::min, FxPrValue::SfcEcho::Time::max, FxPrValue::SfcEcho::Time::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::fb, sfceLPrefix + FxPrName::SfcEcho::fb, FxPrValue::SfcEcho::Fb::min, FxPrValue::SfcEcho::Fb::max, FxPrValue::SfcEcho::Fb::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef0, sfceLPrefix + FxPrName::SfcEcho::firCoef0, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef1, sfceLPrefix + FxPrName::SfcEcho::firCoef1, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef2, sfceLPrefix + FxPrName::SfcEcho::firCoef2, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef3, sfceLPrefix + FxPrName::SfcEcho::firCoef3, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef4, sfceLPrefix + FxPrName::SfcEcho::firCoef4, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef5, sfceLPrefix + FxPrName::SfcEcho::firCoef5, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef6, sfceLPrefix + FxPrName::SfcEcho::firCoef6, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::SfcEcho::firCoef7, sfceLPrefix + FxPrName::SfcEcho::firCoef7, FxPrValue::SfcEcho::FirCoef::min, FxPrValue::SfcEcho::FirCoef::max, FxPrValue::SfcEcho::FirCoef::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(sfcePrefix + FxPrKey::mix, sfceLPrefix + FxPrName::SfcEcho::mix, FxPrValue::Mix::min, FxPrValue::Mix::max, FxPrValue::Mix::initial));
 }
 
 void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
@@ -133,6 +149,21 @@ void FxProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pRSize = apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::size);
     pRDamp = apvts.getRawParameterValue(rvbPrefix + FxPrKey::Reverb::damp);
     pRMix = apvts.getRawParameterValue(rvbPrefix + FxPrKey::mix);
+
+    // SfcEcho
+    const juce::String sfcePrefix = prefix + FxPrKey::sfcEcho;
+    pSfcBypass = apvts.getRawParameterValue(sfcePrefix + FxPrKey::bypass);
+    pSfcTime = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::time);
+    pSfcFb = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::fb);
+    pSfcFirCoef0 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef0);
+    pSfcFirCoef1 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef1);
+    pSfcFirCoef2 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef2);
+    pSfcFirCoef3 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef3);
+    pSfcFirCoef4 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef4);
+    pSfcFirCoef5 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef5);
+    pSfcFirCoef6 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef6);
+    pSfcFirCoef7 = apvts.getRawParameterValue(sfcePrefix + FxPrKey::SfcEcho::firCoef7);
+    pSfcMix = apvts.getRawParameterValue(sfcePrefix + FxPrKey::mix);
 }
 
 void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
@@ -194,8 +225,27 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
     float rMix = pRMix->load(std::memory_order_relaxed);
     effects.setReverbParams(rSize, rDamp, 1.0f, rMix); // Width=1.0固定
 
+    // SfcEcho
+    bool scfeB = pSfcBypass->load(std::memory_order_relaxed) > FxPrValue::boolThread;
+    float scfeTime = pSfcTime->load(std::memory_order_relaxed);
+    float scfeFb = pSfcFb->load(std::memory_order_relaxed);
+
+    std::array<float, 8> sfcEFirCoefs{ 0.0f };
+    sfcEFirCoefs[0] = pSfcFirCoef0->load(std::memory_order_relaxed);
+    sfcEFirCoefs[1] = pSfcFirCoef1->load(std::memory_order_relaxed);
+    sfcEFirCoefs[2] = pSfcFirCoef2->load(std::memory_order_relaxed);
+    sfcEFirCoefs[3] = pSfcFirCoef3->load(std::memory_order_relaxed);
+    sfcEFirCoefs[4] = pSfcFirCoef4->load(std::memory_order_relaxed);
+    sfcEFirCoefs[5] = pSfcFirCoef5->load(std::memory_order_relaxed);
+    sfcEFirCoefs[6] = pSfcFirCoef6->load(std::memory_order_relaxed);
+    sfcEFirCoefs[7] = pSfcFirCoef7->load(std::memory_order_relaxed);
+
+    float scfeMix = pSfcMix->load(std::memory_order_relaxed);
+
+    effects.setSfcEchoParams(scfeTime, scfeFb, scfeMix, sfcEFirCoefs);
+
     // バイパス設定
-    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB);
+    effects.setBypasses(flB, eq3bB, tB, vB, mcB, dB, rB, scfeB);
 
     // エフェクト処理実行
     effects.process(buffer);
@@ -204,4 +254,18 @@ void FxProcessor::processBlock(juce::AudioBuffer<float>& buffer, SynthParams& pa
 void FxProcessor::clear()
 {
     effects.clear();
+}
+
+// 順番更新
+void FxProcessor::updateOrder(const std::vector<int>& newOrders)
+{
+    effects.updateOrder(newOrders);
+}
+
+std::vector<int> FxProcessor::getOrder() {
+    return effects.getOrder();
+}
+
+int FxProcessor::getEffectsNumber() {
+    return effects.getEffectsNumber();
 }

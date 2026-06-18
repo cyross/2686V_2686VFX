@@ -1715,3 +1715,7 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
         opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2
     }
 }
+
+void AudioPlugin2686VEditor::updateFxOrder(){
+    fxGui->updateFxOrder();
+}

@@ -11,6 +11,7 @@
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 
 // --- Core Class ---
 
@@ -55,6 +56,8 @@ private:
     std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
     int m_qualityMode = 6;
     int m_rateIndex = 3;
+    double m_targetRate = 44100.0;
+    float m_currentFrequency = 440.0f;
 
     double m_position = 0.0;
     float m_pitchRatio = 1.0f;
@@ -75,6 +78,12 @@ private:
     Opzx7Detune m_detune;
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
+    SsgNoiseGen m_noiseGen;
+
+    float m_tone = 1.0f;
+    float m_noiseLevel = 0.0f; // Noise
+    float m_noiseFreq = 12000.0f; // Noise Frequency (Hz)
+    float m_mix = 0.0f;
 
     float m_currentLevel = 0.0f;
     float m_baseLevel = 0.0f;

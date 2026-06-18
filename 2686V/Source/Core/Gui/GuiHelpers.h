@@ -305,3 +305,19 @@ struct MainConfigSixComps {
 };
 
 void layoutMainSixComps(const MainConfigSixComps& c);
+
+struct MainConfigFxOrder {
+    juce::Rectangle<int>& rect;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int labelWidth = 200;
+    int buttonWidth = 30;
+    int compPaddingRight = CoreGuiValue::MainGroup::Comps::Three::paddingRight;
+};
+
+void layoutMainFxOrder(const MainConfigFxOrder& c);

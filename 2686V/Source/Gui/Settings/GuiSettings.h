@@ -46,6 +46,10 @@ class GuiSettings : public GuiBase
     GuiLabel wavetableDirPathLabel;
     GuiTextButton wavetableDirBrowseBtn;
 
+    GuiLabel fxOrderDirLabel;
+    GuiLabel fxOrderDirPathLabel;
+    GuiTextButton fxOrderDirBrowseBtn;
+
     GuiSeparator separator3;
 
     // Tooltip Visible Switch
@@ -94,6 +98,9 @@ public:
         wavetableDirLabel(context),
         wavetableDirPathLabel(context),
         wavetableDirBrowseBtn(context),
+        fxOrderDirLabel(context),
+        fxOrderDirPathLabel(context),
+        fxOrderDirBrowseBtn(context),
         separator3(context),
         tooltipToggle(context),
         separator4(context),

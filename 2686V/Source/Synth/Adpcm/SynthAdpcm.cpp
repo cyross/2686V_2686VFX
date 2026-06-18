@@ -18,6 +18,11 @@ void AdpcmCore::prepare(double sampleRate)
     m_pitchAdsr.prepare(0, m_sampleRate);
     m_ssgSwEnv.prepare(0, m_sampleRate);
 
+    double target = getTargetRate(m_rateIndex);
+
+    m_noiseGen.prepare(target);
+    m_lfo.prepare(target);
+
     m_lfoPhase = 0.0;
 }
 
@@ -40,6 +45,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
 {
     m_level = params.adpcm.level;
     m_pan = params.adpcm.pan;
+    m_tone = params.adpcm.tone;
+    m_mix = params.adpcm.mix;
 
 	if (m_pan == 0.5f) {
 		m_panL = 1.0f;
@@ -85,6 +92,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
         params.adpcm.lfoAmd,
         params.adpcm.lfoAmSmRt
     );
+    m_noiseGen.setParameters(params.adpcm.noiseLevel, params.adpcm.noiseFreq, false);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -97,8 +105,15 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     if (m_rateIndex != params.adpcm.rateIndex) {
         m_rateIndex = params.adpcm.rateIndex;
+
+        m_targetRate = getTargetRate(m_rateIndex);
+
+        m_noiseGen.updateTargetRate(m_targetRate);
         needRefresh = true;
     }
+
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 
     if (needRefresh) {
         refreshPcmBuffer();
@@ -198,8 +213,11 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // ホストDAWのレートとの比率を加味した再生速度レシオの更新
     double rateRatio = currentBufferRate / m_sampleRate;
+
     finalFreq = m_fixMode.noteOn(finalFreq);
-    m_pitchRatio = (m_detune.noteOn(finalFreq) / rootFreq) * rateRatio;
+    m_currentFrequency = m_detune.noteOn(finalFreq);
+
+    m_pitchRatio = (m_currentFrequency / rootFreq) * rateRatio;
 
     // =====================================================================
     // 3. 発音の初期化 (非レガート・新規発音時のみ実行)
@@ -222,6 +240,9 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         }
         m_lfo.noteOn();
     }
+
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
@@ -408,6 +429,18 @@ float AdpcmCore::getSample()
     }
 
     // ==========================================
+    // 3. Noise Generator
+    // ==========================================
+    m_noiseGen.generate();
+
+    // ==========================================
+    // 4. Mixing
+    // ==========================================
+    float toneGain = 1.0f - m_mix;
+    float noiseGain = m_mix;
+    float rawMixed = (output * m_tone * toneGain) + m_noiseGen.generateSample(noiseGain);
+
+    // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
     // ==========================================
     m_lfo.getSample();
@@ -441,7 +474,7 @@ float AdpcmCore::getSample()
     // Advance position
     m_position += currentIncrement * freqMult;
 
-    return output * m_level * finalEnv * m_baseLevel * amMultiplier * 4.0f;
+    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * 4.0f;
 }
 
 void AdpcmCore::refreshPcmBuffer()
@@ -458,6 +491,7 @@ void AdpcmCore::refreshPcmBuffer()
     m_adsr.prepare(m_bufferSampleRate);
     m_pitchAdsr.prepare(0, m_bufferSampleRate);
     m_ssgSwEnv.prepare(0, m_bufferSampleRate);
+    m_noiseGen.prepare(m_bufferSampleRate);
 
     // Resample & Encode
     double step = m_sourceRate / targetRate;

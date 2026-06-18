@@ -389,6 +389,13 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         xml->setAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i), makeWtPathRelative(juce::File(opzx7WtFilePaths[i])));
         xml->setAttribute(PresetKey::opzx7Wt2PathPrefix + juce::String(i), makeWtPathRelative(juce::File(opzx7Wt2FilePaths[i])));
     }
+
+    // FXルーティング
+    juce::StringArray sa;
+    for (int fxId : prFx.getOrder())
+        sa.add(juce::String(fxId));
+
+    xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
@@ -442,6 +449,32 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
                 loadOpzx7Wt2File(i, wt2File);
             }
         }
+
+        // FXルーティング
+        juce::String fxOrderStr = xmlState->getStringAttribute(SettingsKey::fxOrder);
+
+        // 2. スペースで分割して StringArray に展開
+        juce::StringArray sa;
+        sa.addTokens(fxOrderStr, " ", "");
+
+        // 3. int 配列に復元
+        std::vector<int> loadedFxOrder;
+        for (const auto& token : sa)
+        {
+            loadedFxOrder.push_back(token.getIntValue());
+        }
+
+        int loadedSize = loadedFxOrder.size();
+        int effectSize = prFx.getEffectsNumber();
+
+        // プリセットのエフェクト数とプラグイン内のエフェクト数にズレがあるときは、残りを埋める
+        if (loadedSize < effectSize) {
+            for (int i = loadedSize; i < effectSize; i++) {
+                loadedFxOrder.push_back(i);
+            }
+        }
+
+        prFx.updateOrder(loadedFxOrder);
     }
 };
 
@@ -540,6 +573,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
     xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
+    xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -562,6 +596,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
         defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
 		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
+        defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -647,6 +682,17 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultWavetableDir = newWavetableDir.getFullPathName();
     }
 
+    if (defaultFxOrderDir.isEmpty() || !juce::File(defaultFxOrderDir).isDirectory())
+    {
+        auto newFxOrderDir = pluginDir.getChildFile(Io::Folder::fxOrder);
+
+        // 存在していなければ作成
+        if (!newFxOrderDir.exists()) {
+            newFxOrderDir.createDirectory();
+        }
+
+        defaultFxOrderDir = newFxOrderDir.getFullPathName();
+    }
 }
 
 juce::String AudioPlugin2686V::getDefaultPresetDir()
@@ -755,10 +801,47 @@ juce::File AudioPlugin2686V::resolveWtPath(const juce::String& pathStr)
         return juce::File(pathStr);
     }
 
-    // 相対パスの場合は defaultSampleDir と結合する
+    // 相対パスの場合は defaultWavetableDir と結合する
     if (defaultWavetableDir.isNotEmpty())
     {
         juce::File baseDir(defaultWavetableDir);
+
+        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
+        return baseDir.getChildFile(pathStr);
+    }
+
+    // ベースディレクトリがない場合は一応そのまま返す
+    return juce::File(pathStr);
+}
+
+// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
+juce::String AudioPlugin2686V::makeFxOrderPathRelative(const juce::File& targetFile)
+{
+    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
+    if (targetFile == juce::File() || defaultFxOrderDir.isEmpty())
+        return targetFile.getFullPathName();
+
+    juce::File baseDir(defaultFxOrderDir);
+
+    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
+    return targetFile.getRelativePathFrom(baseDir);
+}
+
+// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
+juce::File AudioPlugin2686V::resolveFxOrderPath(const juce::String& pathStr)
+{
+    if (pathStr.isEmpty()) return juce::File();
+
+    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
+    if (juce::File::isAbsolutePath(pathStr))
+    {
+        return juce::File(pathStr);
+    }
+
+    // 相対パスの場合は defaultFxOrderDir と結合する
+    if (defaultFxOrderDir.isNotEmpty())
+    {
+        juce::File baseDir(defaultFxOrderDir);
 
         // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
         return baseDir.getChildFile(pathStr);
@@ -1139,4 +1222,13 @@ void AudioPlugin2686V::resetMidiSettings() {
     m_synth.useVelocity = false;
     m_synth.fixedVelocity = 0.5f;
     m_synth.pitchResetOnLegato = false;
+}
+
+std::vector<int> AudioPlugin2686V::getFxOrder() {
+    return prFx.getOrder();
+}
+
+void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
+{
+    prFx.updateOrder(newOrder);
 }

@@ -580,6 +580,7 @@ public:
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
 	juce::String defaultWavetableDir; // For Wavetables
+    juce::String defaultFxOrderDir; // For FX Order
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
@@ -594,6 +595,8 @@ public:
     juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
     juce::String makeWtPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
     juce::File resolveWtPath(const juce::String& pathStr); // 相対ディレクトリからの展開
+    juce::String makeFxOrderPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolveFxOrderPath(const juce::String& pathStr); // 相対ディレクトリからの展開
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
@@ -604,6 +607,8 @@ public:
     void bakeCurves();
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
     void resetMidiSettings();
+    std::vector<int> getFxOrder();
+    void updateFxOrder(std::vector<int> newOrder);
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

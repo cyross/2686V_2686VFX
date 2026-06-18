@@ -1,4 +1,5 @@
 ﻿#include <vector>
+#include <algorithm>
 
 #include "./Fx.h"
 
@@ -472,6 +473,94 @@ void FxEq3b::clear()
     highShelfL.reset(); highShelfR.reset();
 }
 
+// ======================================================
+// 8. SFC Echo (SFC(SPC-700 Like)-style Delay with 8-tap FIR filter)
+// ======================================================
+void FxSfcEcho::prepare(double sampleRate)
+{
+    fs = sampleRate;
+    int maxSamples = (int)(fs * maxDelayMs / 1000.0);
+    delayBuffer.setSize(2, maxSamples);
+    delayBuffer.clear();
+    writePos = 0;
+}
+
+void FxSfcEcho::setParameters(float timeMs, float feedback, float mix)
+{
+    // FIR係数なしで呼ばれた場合のデフォルト的挙動 (タップ0のみ出力)
+    setParameters(timeMs, feedback, mix, { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f });
+}
+
+void FxSfcEcho::setParameters(float timeMs, float feedback, float mix, const std::array<float, 8>& firCoefs)
+{
+    delayTimeSamples = (int)(fs * timeMs / 1000.0);
+    fb = juce::jlimit(-0.95f, 0.95f, feedback); // SFCエコーは位相反転のフィードバックも可能
+    wetLevel = juce::jlimit(0.0f, 1.0f, mix);
+    firCoefficients = firCoefs;
+}
+
+void FxSfcEcho::process(juce::AudioBuffer<float>& buffer)
+{
+    if (wetLevel < 0.01f) return;
+
+    const int numSamples = buffer.getNumSamples();
+    const int delayBufLen = delayBuffer.getNumSamples();
+    const int numChannels = std::min(buffer.getNumChannels(), delayBuffer.getNumChannels());
+    const int startWritePos = writePos;
+
+    for (int ch = 0; ch < numChannels; ++ch)
+    {
+        auto* channelData = buffer.getWritePointer(ch);
+        auto* delayData = delayBuffer.getWritePointer(ch);
+
+        int currentWritePos = startWritePos;
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            float dry = channelData[i];
+
+            // 1. FIRフィルタによる過去データの畳み込み計算
+            float filteredWet = 0.0f;
+
+            // SFCのエコーFIRは、最新のディレイ音から順に過去8つのサンプルを使用する
+            // 忠実さを増すならタップ間隔を fs/32000 などのオフセットにする手もありますが、
+            // 近似としては1サンプルごとの畳み込みでも「こもった共鳴音」を十分に再現できます。
+            for (int tap = 0; tap < 8; ++tap) {
+                int rPos = currentWritePos - delayTimeSamples - tap;
+                while (rPos < 0) rPos += delayBufLen;
+                while (rPos >= delayBufLen) rPos -= delayBufLen;
+
+                filteredWet += delayData[rPos] * firCoefficients[tap];
+            }
+
+            // 2. ディレイバッファへの書き込み (Feedbackあり)
+            float nextVal = dry + (filteredWet * fb);
+
+            // 簡易リミッター（過激なフィードバック時の発振をある程度防ぐ）
+            if (nextVal > 2.0f) nextVal = 2.0f;
+            if (nextVal < -2.0f) nextVal = -2.0f;
+
+            delayData[currentWritePos] = nextVal;
+
+            // 3. ミックスして出力
+            channelData[i] = (dry * (1.0f - wetLevel)) + (filteredWet * wetLevel);
+
+            currentWritePos++;
+            if (currentWritePos >= delayBufLen) currentWritePos = 0;
+        }
+    }
+
+    writePos += numSamples;
+    while (writePos >= delayBufLen) writePos -= delayBufLen;
+}
+
+void FxSfcEcho::clear()
+{
+    delayBuffer.clear();
+    writePos = 0;
+}
+
+
 // --- EffectChain への組み込み ---
 EffectChain::EffectChain()
 {
@@ -482,6 +571,7 @@ EffectChain::EffectChain()
     fxMap[static_cast<int>(FxType::ModernBitCrusher)] = &modernBitCrusher;
     fxMap[static_cast<int>(FxType::Delay)] = &delay;
     fxMap[static_cast<int>(FxType::Reverb)] = &reverb;
+    fxMap[static_cast<int>(FxType::SfcEcho)] = &sfcEcho;
 
     // 処理順序配列の初期化 (デフォルトは定義順)
     processChain = fxMap;
@@ -502,6 +592,7 @@ void EffectChain::setDelayParams(float time, float fb, float mix) { delay.setPar
 void EffectChain::setReverbParams(float size, float damp, float width, float mix) { reverb.setParameters(size, damp, width, mix); }
 void EffectChain::setFilterParams(int type, float freq, float q, float mix) { filter.setParameters((float)type, freq, q, mix); }
 void EffectChain::setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix) { eq3b.setParameters(lowGainDb, midFreq, midGainDb, highGainDb, mix); }
+void EffectChain::setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs) { sfcEcho.setParameters(time, fb, mix, firCoefs); }
 
 void EffectChain::process(juce::AudioBuffer<float>& buffer)
 {
@@ -515,7 +606,7 @@ void EffectChain::process(juce::AudioBuffer<float>& buffer)
 }
 
 // バイパス状態のセット
-void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r)
+void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc)
 {
     filter.setBypass(fl);
     eq3b.setBypass(e3);
@@ -524,18 +615,34 @@ void EffectChain::setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d,
     modernBitCrusher.setBypass(mc);
     delay.setBypass(d);
     reverb.setBypass(r);
+    sfcEcho.setBypass(sfc);
 }
 
 // 順番更新
-void EffectChain::updateOrder(const std::array<int, NumEffects>& newOrders)
+void EffectChain::updateOrder(const std::vector<int>& newOrders)
 {
     for (int i = 0; i < NumEffects; ++i)
     {
         if (newOrders[i] >= 0 && newOrders[i] < NumEffects)
         {
+            orderIndex[i] = newOrders[i];
             processChain[i] = fxMap[newOrders[i]];
         }
     }
+}
+
+std::vector<int> EffectChain::getOrder() {
+    std::vector<int> order;
+
+    for (auto o : orderIndex) {
+        order.push_back(o);
+    }
+
+    return order;
+}
+
+int EffectChain::getEffectsNumber() {
+    return NumEffects;
 }
 
 // バッファクリア

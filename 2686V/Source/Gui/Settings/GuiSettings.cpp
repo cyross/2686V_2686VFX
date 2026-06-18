@@ -196,6 +196,27 @@ void GuiSettings::setup()
         );
     };
 
+    // --- Fx Order Dir ---
+    setupRow(fxOrderDirLabel, juce::String("") + "エフェクトオーダーファイルディレクトリ:", fxOrderDirPathLabel, fxOrderDirBrowseBtn);
+    fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
+    fxOrderDirPathLabel.setWantsKeyboardFocus(false);
+
+    fxOrderDirBrowseBtn.setWantsKeyboardFocus(true);
+    fxOrderDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    fxOrderDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "エフェクトオーダーファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultFxOrderDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxOrderDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultFxOrderDir = file.getFullPathName();
+                    fxOrderDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
     addAndMakeVisible(separator3);
     separator3.setup({ .lineThick = separatorThick, .lineColour = juce::Colours::grey });
 
@@ -429,23 +450,29 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     wavetableDirPathLabel.setBounds(rowWavetableDir);
 
+    // 7. FX Order Dir
+    auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    fxOrderDirBrowseBtn.setBounds(rowFxOrderDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    fxOrderDirPathLabel.setBounds(rowFxOrderDir);
+
     auto sp3Rect = sRect.removeFromTop(separatorHeight);
     separator3.setBounds(sp3Rect);
 
-    // 7. Tooltip Visible Row
+    // 8. Tooltip Visible Row
     auto rowTooltip = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     tooltipToggle.setBounds(rowTooltip.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     auto sp4Rect = sRect.removeFromTop(separatorHeight);
     separator4.setBounds(sp4Rect);
 
-    // 8. Headroom Row
+    // 9. Headroom Row
     auto rowHeadroom = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     useHeadroomToggle.setBounds(rowHeadroom.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 9. Headroom Gain Row
+    // 10. Headroom Gain Row
     auto rowHeadroomGain = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     headroomGainSlider.label.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     headroomGainSlider.setBounds(rowHeadroomGain.removeFromLeft(SettingsGuiValue::Settings::HeadroomGainSliderWidth));
@@ -453,14 +480,14 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sp5Rect = sRect.removeFromTop(separatorHeight);
     separator5.setBounds(sp5Rect);
 
-    // 10. Virtual Keyboard Row
+    // 11. Virtual Keyboard Row
     auto rowVirtualMidiKeyboard = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     virtualMidiKeyboardToggle.setBounds(rowVirtualMidiKeyboard.removeFromLeft(SettingsGuiValue::Settings::ToggleWidth));
 
     auto sp6Rect = sRect.removeFromTop(separatorHeight);
     separator6.setBounds(sp6Rect);
 
-    // 11. Config IO Buttons (Fixed Layout)
+    // 12. Config IO Buttons (Fixed Layout)
     auto rowIoBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
 
     layoutRowSettingsIo({ .rect = rowIoBtns, .loadSettingsBtn = &loadSettingsBtn, .saveSettingsBtn = &saveSettingsBtn, .saveStartupSettingsBtn = &saveStartupSettingsBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight });
@@ -468,7 +495,7 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     auto sp7Rect = sRect.removeFromTop(separatorHeight);
     separator7.setBounds(sp7Rect);
 
-    // 12. Clear Undo/Redo History Button
+    // 13. Clear Undo/Redo History Button
     auto rowClearHistoryBtns = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     layoutRow({ .rowRect = rowClearHistoryBtns, .component = &clearUndoHistoryBtn, .rowHeight = SettingsGuiValue::Settings::RowHeight});
 }

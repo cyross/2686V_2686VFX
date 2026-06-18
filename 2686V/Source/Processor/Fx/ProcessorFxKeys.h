@@ -20,6 +20,7 @@ namespace FxPrKey
 	static inline const juce::String fil = "_FIL";
 	static inline const juce::String scl = "_SCL";
 	static inline const juce::String eq3b = "_EQ3B";
+	static inline const juce::String sfcEcho = "_SFCECHO";
 
 	static inline const juce::String mix = "_MIX";
 
@@ -66,6 +67,20 @@ namespace FxPrKey
 		static inline const juce::String midFreq = "_MFREQ";
 		static inline const juce::String midGainDb = "_MGDB";
 		static inline const juce::String highGainDb = "_HGDB";
+	}
+
+	namespace SfcEcho
+	{
+		static inline const juce::String time = "_TIME";
+		static inline const juce::String fb = "_FB";
+		static inline const juce::String firCoef0 = "_FIR_COEF0";
+		static inline const juce::String firCoef1 = "_FIR_COEF1";
+		static inline const juce::String firCoef2 = "_FIR_COEF2";
+		static inline const juce::String firCoef3 = "_FIR_COEF3";
+		static inline const juce::String firCoef4 = "_FIR_COEF4";
+		static inline const juce::String firCoef5 = "_FIR_COEF5";
+		static inline const juce::String firCoef6 = "_FIR_COEF6";
+		static inline const juce::String firCoef7 = "_FIR_COEF7";
 	}
 };
 

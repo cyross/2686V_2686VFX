@@ -154,6 +154,7 @@ public:
     void copyOpl3ParamsToOpl();
     void copyOpnParamsToOpna();
     void copyOpnaParamsToOpn();
+    void updateFxOrder();
 private:
     AudioPlugin2686V& audioProcessor;
 

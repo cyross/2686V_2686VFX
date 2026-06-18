@@ -19,6 +19,7 @@ enum class FxType
     ModernBitCrusher,
     Delay,
     Reverb,
+    SfcEcho,
     Count // Total Count
 };
 
@@ -173,6 +174,35 @@ private:
     IIRFilter highShelfL, highShelfR;
 };
 
+// ======================================================
+// 8. SFC Echo (SFC(SPC-700 Like)-style Delay with 8-tap FIR filter)
+// ======================================================
+class FxSfcEcho : public FxCore
+{
+public:
+    void prepare(double sampleRate) override;
+
+    // timeMs: 0 - 240ms 程度
+    // feedback: -1.0 to 1.0 (SFCは位相反転の負のフィードバックも可能)
+    // mix: 0.0 to 1.0 (wet level)
+    // firCoefs: 8つのFIR係数 (通常 -1.0 〜 1.0)
+    void setParameters(float timeMs, float feedback, float mix, const std::array<float, 8>& firCoefs);
+    void setParameters(float timeMs, float feedback, float mix) override; // 互換用 (係数デフォルト)
+
+    void process(juce::AudioBuffer<float>& buffer) override;
+    void clear() override;
+private:
+    juce::AudioBuffer<float> delayBuffer;
+    double fs = 44100.0;
+    int writePos = 0;
+    int delayTimeSamples = 0;
+    float fb = 0.0f;
+    int maxDelayMs = 500; // SFCは240msが上限ですが、少し余裕を持たせます
+
+    // デフォルトは単なるディレイ（タップ0のみ出力）
+    std::array<float, 8> firCoefficients = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+};
+
 // --- Effect Manager ---
 class EffectChain
 {
@@ -185,11 +215,14 @@ public:
     void setReverbParams(float size, float damp, float width, float mix);
     void setFilterParams(int type, float freq, float q, float mix);
     void setEq3bParams(float lowGainDb, float midFreq, float midGainDb, float highGainDb, float mix);
+    void setSfcEchoParams(float time, float fb, float mix, const std::array<float, 8>& firCoefs);
 
     void prepare(double sampleRate);
     void process(juce::AudioBuffer<float>& buffer);
-    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r);
-    void updateOrder(const std::array<int, NumEffects>& newOrders);
+    void setBypasses(bool fl, bool e3, bool t, bool v, bool mc, bool d, bool r, bool sfc);
+    void updateOrder(const std::vector<int>& newOrders);
+    std::vector<int> getOrder();
+    int getEffectsNumber();
     void clear();
 private:
     // 各エフェクトオブジェクト
@@ -200,11 +233,11 @@ private:
     FxMBC modernBitCrusher;
     FxDelay delay;
     FxReverb reverb;
+    FxSfcEcho sfcEcho;
 
     // エフェクトの適応順
-    int fxSize = 7;
-    std::array<int, 7> orderIndex{ { 0, 1, 2, 3, 4, 5, 6 } };
-    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb };
+    std::array<int, NumEffects> orderIndex{ { 0, 1, 2, 3, 4, 5, 6, 7 } };
+    std::vector<FxCore*> fxs{ &filter, &eq3b, &tremolo, &vibrato, &modernBitCrusher, &delay, &reverb, &sfcEcho };
 
     std::array<FxCore*, NumEffects> fxMap;
     std::array<FxCore*, NumEffects> processChain;

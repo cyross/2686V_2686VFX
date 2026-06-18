@@ -40,6 +40,18 @@ class FxProcessor : public PrBase
     std::atomic<float>* pRSize = nullptr;
     std::atomic<float>* pRDamp = nullptr;
     std::atomic<float>* pRMix = nullptr;
+    std::atomic<float>* pSfcBypass = nullptr;
+    std::atomic<float>* pSfcTime = nullptr;
+    std::atomic<float>* pSfcFb = nullptr;
+    std::atomic<float>* pSfcFirCoef0 = nullptr;
+    std::atomic<float>* pSfcFirCoef1 = nullptr;
+    std::atomic<float>* pSfcFirCoef2 = nullptr;
+    std::atomic<float>* pSfcFirCoef3 = nullptr;
+    std::atomic<float>* pSfcFirCoef4 = nullptr;
+    std::atomic<float>* pSfcFirCoef5 = nullptr;
+    std::atomic<float>* pSfcFirCoef6 = nullptr;
+    std::atomic<float>* pSfcFirCoef7 = nullptr;
+    std::atomic<float>* pSfcMix = nullptr;
 
     EffectChain effects;
 public:
@@ -48,4 +60,7 @@ public:
     void prepare(double sampleRate);
     void clear();
     void init(juce::AudioProcessorValueTreeState& apvts);
+    void updateOrder(const std::vector<int>& newOrders);
+    std::vector<int> getOrder();
+    int getEffectsNumber();
 };
