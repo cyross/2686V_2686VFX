@@ -139,7 +139,7 @@ void GuiSsg::setup()
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
     lfo.setupComponent(
-        *this,
+        mainGroup.contentCanvas,
         code,
         tabOrder
     );
