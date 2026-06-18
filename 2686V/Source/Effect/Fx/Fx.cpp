@@ -236,7 +236,7 @@ void FxDelay::prepare(double sampleRate)
 void FxDelay::setParameters(float timeMs, float feedback, float mix)
 {
     // Smooth parameter changes could be added here
-    delayTimeSamples = (int)(fs * timeMs / 1000.0);
+    delayTimeSamples = std::max(1, (int)(fs * timeMs / 1000.0));
     fb = juce::jlimit(0.0f, 0.95f, feedback);
     wetLevel = juce::jlimit(0.0f, 1.0f, mix);
 }
@@ -277,7 +277,8 @@ void FxDelay::process(juce::AudioBuffer<float>& buffer)
 
             // 簡易リミッター (過大入力時のバリバリ音防止)
             if (nextVal > 2.0f) nextVal = 2.0f;
-            if (nextVal < -2.0f) nextVal = -2.0f;
+            else if (nextVal < -2.0f) nextVal = -2.0f;
+            else if (std::abs(nextVal) < 1e-5f) nextVal = 0.0f;
 
             delayData[currentWritePos] = nextVal;
 
@@ -493,10 +494,25 @@ void FxSfcEcho::setParameters(float timeMs, float feedback, float mix)
 
 void FxSfcEcho::setParameters(float timeMs, float feedback, float mix, const std::array<float, 8>& firCoefs)
 {
-    delayTimeSamples = (int)(fs * timeMs / 1000.0);
+    // Timeが0の時に過去の最大バッファを読まないよう、最低1サンプルの遅延を保証する
+    delayTimeSamples = std::max(1, (int)(fs * timeMs / 1000.0));
+
     fb = juce::jlimit(-0.95f, 0.95f, feedback); // SFCエコーは位相反転のフィードバックも可能
     wetLevel = juce::jlimit(0.0f, 1.0f, mix);
-    firCoefficients = firCoefs;
+
+    // FIR係数の合計絶対値を計算し、安全なレベルに正規化する
+    float sum = 0.0f;
+    for (float v : firCoefs) sum += std::abs(v);
+
+    if (sum > 1.0f) {
+        // 合計が1.0を超えるとフィードバックが発振するため、比率を保ったまま縮小する
+        for (int i = 0; i < 8; ++i) {
+            firCoefficients[i] = firCoefs[i] / sum;
+        }
+    }
+    else {
+        firCoefficients = firCoefs;
+    }
 }
 
 void FxSfcEcho::process(juce::AudioBuffer<float>& buffer)
@@ -538,7 +554,8 @@ void FxSfcEcho::process(juce::AudioBuffer<float>& buffer)
 
             // 簡易リミッター（過激なフィードバック時の発振をある程度防ぐ）
             if (nextVal > 2.0f) nextVal = 2.0f;
-            if (nextVal < -2.0f) nextVal = -2.0f;
+            else if (nextVal < -2.0f) nextVal = -2.0f;
+            else if (std::abs(nextVal) < 1e-5f) nextVal = 0.0f; // 音量が十分に小さくなったら完全に0にする
 
             delayData[currentWritePos] = nextVal;
 
