@@ -3,6 +3,8 @@
 #include <functional>
 
 #include "./EnvFmRgAdddrParams.h"
+#include "../../../KeyScale/Opn/KSOpn.h"
+#include "../../../KeyScale/Opp/KSOpp.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class FmRgAdddr
@@ -20,9 +22,8 @@ class FmRgAdddr
 	int rr = 0;
 	int tl = 0;
 	FmRgAdddrKeyScaleMode m_ksMode = FmRgAdddrKeyScaleMode::OPM;
-	int m_ks = 0;
-	int m_ksrOPP = 0;
-	int m_kslOPP = 0;
+	KSOpn m_ksOPM;
+	KSOpp m_ksOPP;
 
 	int arMax = 0;
 	int d1rMax = 0;

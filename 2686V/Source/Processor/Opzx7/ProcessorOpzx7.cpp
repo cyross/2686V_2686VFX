@@ -278,16 +278,16 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
         params.opzx7.op[op].m_adsrParams.ksEn = (pOpAdsrKsEn[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.ksMode = (Opzx7AdddrKeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksrMA7 = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].m_adsrParams.kslMA7 = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksrOPZ = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.kslOPZ = (int)pOpAdsrKslOPZ[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksBp = (int)pOpAdsrKsBp[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksLc = (int)pOpAdsrKsLc[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRc = (int)pOpAdsrKsRc[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksLd = pOpAdsrKsLd[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRd = pOpAdsrKsRd[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRs = (int)pOpAdsrKsRs[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksMA7.ksr = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.ksMA7.ksl = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPZ.ksr = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPZ.ksl = (int)pOpAdsrKslOPZ[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksBp = (int)pOpAdsrKsBp[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksLc = (int)pOpAdsrKsLc[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRc = (int)pOpAdsrKsRc[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksLd = pOpAdsrKsLd[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRd = pOpAdsrKsRd[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRs = (int)pOpAdsrKsRs[op]->load(std::memory_order_relaxed);
 
         params.opzx7.op[op].m_adsrParams.sus = (pOpAdsrSus[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);

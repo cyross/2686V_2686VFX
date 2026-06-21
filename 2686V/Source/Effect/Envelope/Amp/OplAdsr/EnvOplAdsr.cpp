@@ -3,8 +3,6 @@
 
 #include "./EnvOplAdsr.h"
 
-const std::array<float, 4> OplAdsr::dbPerOcts = { 0.0f, 1.5f, 3.0f, 6.0f };
-
 OplAdsr::OplAdsr()
 {
     auto calcTimeInSecond = [&](int effectiveRate, bool isAttack) -> float {
@@ -52,8 +50,9 @@ void OplAdsr::setParameters(const OplAdsrParams& params) {
     this->dr = params.dr;
     this->sl = params.sl;
     this->rr = params.rr;
-    this->ksr = params.ksr;
-    this->ksl = params.ksl;
+
+    this->m_ksOPL.setParameters(params.ksOPL);
+
     this->sus = params.sus;
     this->egType = params.egType;
     this->xof = params.xof;
@@ -120,13 +119,7 @@ float OplAdsr::noteOn(float velocity, int noteNumber) {
 
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
 
-    float kslAttenuation = 1.0f;
-    if (this->ksl > 0) {
-        float octaveDiff = (float)(noteNumber - 48) / 12.0f;
-        if (octaveDiff < 0) octaveDiff = 0;
-        float totalDb = dbPerOcts[std::clamp(this->ksl, 0, 3)] * octaveDiff;
-        kslAttenuation = std::pow(10.0f, -totalDb / 20.0f);
-    }
+    float kslAttenuation = m_ksOPL.calcLevelScalingDb(noteNumber);
 
     // 最終到達レベルを内部に保存する
     this->m_targetLevel = velocity * tlGain * kslAttenuation;
@@ -160,15 +153,7 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = this->ksr ? keyRate : (keyRate >> 2);
+        int ksrValue = m_ksOPL.calcKeyScaleRate(noteNumber);
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         // isAttack 引数を追加し、アタックと減衰で時間を調整する
@@ -218,15 +203,7 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = this->ksr ? keyRate : (keyRate >> 2);
+        int ksrValue = m_ksOPL.calcKeyScaleRate(noteNumber);
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {

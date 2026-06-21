@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../../KeyScale/Opn/KSOpnParams.h"
+
 struct FmRgAdssrParams
 {
 	int ar = 0;
@@ -8,7 +10,9 @@ struct FmRgAdssrParams
 	int sl = 15;
 	int rr = 0;
 	int tl = 0;
-	int ks = 0;
+
+	KSOpnParams ksOPN;
+
 	bool xof = false;
 	bool kor = false;
 	bool bypass = false;

@@ -66,8 +66,8 @@ set(PCM_GENERATOR_FILES
     "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
     "Source/Generator/Pcm/Dpcm/GenDpcm.h"
     "Source/Generator/Pcm/Dpcm/GenDpcm.cpp"
-    "Source/Generator/Pcm/Helper/GenDpcm.h"
-    "Source/Generator/Pcm/Helper/GenDpcm.cpp"
+    "Source/Generator/Pcm/Helper/GenPcmHelper.h"
+    "Source/Generator/Pcm/Helper/GenPcmHelper.cpp"
 )
 
 set(FM_FILES
@@ -148,6 +148,27 @@ set(PITCH_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
+)
+
+set(KEY_SCALE_FILES
+    "Source/Effect/KeyScale/Opl/KSOplParams.h"
+    "Source/Effect/KeyScale/Opl/KSOpl.h"
+    "Source/Effect/KeyScale/Opl/KSOpl.cpp"
+    "Source/Effect/KeyScale/Opn/KSOpnParams.h"
+    "Source/Effect/KeyScale/Opn/KSOpn.h"
+    "Source/Effect/KeyScale/Opn/KSOpn.cpp"
+    "Source/Effect/KeyScale/Opp/KSOppParams.h"
+    "Source/Effect/KeyScale/Opp/KSOpp.h"
+    "Source/Effect/KeyScale/Opp/KSOpp.cpp"
+    "Source/Effect/KeyScale/Ops/KSOpsParams.h"
+    "Source/Effect/KeyScale/Ops/KSOps.h"
+    "Source/Effect/KeyScale/Ops/KSOps.cpp"
+    "Source/Effect/KeyScale/Opz/KSOpzParams.h"
+    "Source/Effect/KeyScale/Opz/KSOpz.h"
+    "Source/Effect/KeyScale/Opz/KSOpz.cpp"
+    "Source/Effect/KeyScale/Ma7/KSMa7Params.h"
+    "Source/Effect/KeyScale/Ma7/KSMa7.h"
+    "Source/Effect/KeyScale/Ma7/KSMa7.cpp"
 )
 
 set(DETUNE_FILES
@@ -607,6 +628,7 @@ source_group("2686V\\Effect\\Detune" FILES ${DETUNE_FILES})
 source_group("2686V\\Effect\\Lfo" FILES ${LFO_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("2686V\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
+source_group("2686V\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})

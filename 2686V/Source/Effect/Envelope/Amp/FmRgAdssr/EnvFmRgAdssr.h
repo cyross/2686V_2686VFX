@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "./EnvFmRgAdssrParams.h"
+#include "../../../KeyScale/Opn/KSOpn.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class FmRgAdssr
@@ -20,7 +21,7 @@ class FmRgAdssr
 	int rr = 0;
 	int tl = 0;
 
-	int ks = 0;
+	KSOpn m_ksOPN;
 
 	int arMax = 0;
 	int drMax = 0;

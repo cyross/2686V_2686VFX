@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#include "../../../KeyScale/Ma7/KSMa7Params.h"
+#include "../../../KeyScale/Opz/KSOpzParams.h"
+#include "../../../KeyScale/Ops/KSOpsParams.h"
+
 enum class Opzx7AdddrKeyScaleMode {
 	MA7 = 0,
 	OPZ = 1,
@@ -35,22 +39,9 @@ struct Opzx7AdddrParams
 	bool ksEn = false;
 
 	Opzx7AdddrKeyScaleMode ksMode = Opzx7AdddrKeyScaleMode::MA7;
-
-	// MA7
-	bool ksrMA7 = false;
-	int kslMA7 = 0;
-
-	// OPZ
-	int ksrOPZ = 0;
-	int kslOPZ = 0;
-
-	// OPS
-	int ksBp = 60;
-	int ksLc = 0;
-	int ksRc = 0;
-	float ksLd = 0.0f;
-	float ksRd = 0.0f;
-	int ksRs = 0;
+	KSMa7Params ksMA7;
+	KSOpzParams ksOPZ;
+	KSOpsParams ksOPS;
 
 	bool sus = false;
 	bool xof = false;

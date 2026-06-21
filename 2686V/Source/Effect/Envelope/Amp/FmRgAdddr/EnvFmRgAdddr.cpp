@@ -52,9 +52,8 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
     this->d2r = params.d2r;
     this->rr = params.rr;
     this->m_ksMode = params.ksMode;
-    this->m_ks = params.ks;
-    this->m_ksrOPP = params.ksrOPP;
-    this->m_kslOPP = params.kslOPP;
+    this->m_ksOPM.setParameters(params.ksOPM);
+    this->m_ksOPP.setParameters(params.ksOPP);
 
     this->xof = params.xof;
     this->kor = params.kor;
@@ -105,34 +104,14 @@ void FmRgAdddr::setParameters(const FmRgAdddrParams& params) {
 // ============================================================================
 int FmRgAdddr::calcRateScaling() const
 {
-    if (m_ksMode == FmRgAdddrKeyScaleMode::OPM)
-    {
-        // --- MA-7 モード ---
-        int octave = (m_noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-
-        return keyRate >> (3 - std::clamp(m_ks, 0, 3));
+    switch (m_ksMode) {
+    case FmRgAdddrKeyScaleMode::OPM:
+        return m_ksOPM.calcKeyScaleRate(m_noteNumber);
+    case FmRgAdddrKeyScaleMode::OPP:
+        return m_ksOPP.calcKeyScaleRate(m_noteNumber);
     }
-    else
-    {
-        // --- OPP モード ---
-        int octave = (m_noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
 
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-
-        // OPZのKSR(0〜3)に基づくシフト計算:
-        // 0 なら >> 3,  1 なら >> 2,  2 なら >> 1,  3 なら >> 0
-        int shift = 3 - std::clamp(this->m_ksrOPP, 0, 3);
-
-        return keyRate >> shift;
-    }
+    return 0;
 }
 
 // ============================================================================
@@ -140,28 +119,14 @@ int FmRgAdddr::calcRateScaling() const
 // ============================================================================
 float FmRgAdddr::calcLevelScalingDb() const
 {
-    if (m_ksMode == FmRgAdddrKeyScaleMode::OPM)
-    {
+    switch (m_ksMode) {
+    case FmRgAdddrKeyScaleMode::OPM:
         return 0.0f;
+    case FmRgAdddrKeyScaleMode::OPP:
+        return m_ksOPP.calcLevelScalingDb(m_noteNumber);
     }
-    else
-    {
-        // --- OPZ モード ---
-        if (this->m_kslOPP <= 0) return 0.0f;
 
-        // C3(48) を基準とし、それより高い音符で音量を減衰させる
-        float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
-        if (octaveDiff < 0.0f) octaveDiff = 0.0f;
-
-        // 0〜99 の値を 0.0〜1.0 の深度(Depth)に変換
-        float depth = std::clamp(this->m_kslOPP, 0, 99) / 99.0f;
-
-        // KSL=99の時の1オクターブあたりの最大減衰量
-        // TX81Zは最大でかなり急激に減衰するため 24.0dB / oct 程度で設定
-        float maxDbPerOct = 24.0f;
-
-        return maxDbPerOct * octaveDiff * depth;
-    }
+    return 0.0f;
 }
 
 float FmRgAdddr::noteOn(float velocity) {

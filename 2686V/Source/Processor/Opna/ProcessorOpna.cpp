@@ -227,7 +227,7 @@ void OpnaProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
         params.opna.op[op].m_adsrParams.sr = (int)pOpAdsrRgD2r[op]->load(std::memory_order_relaxed);
         params.opna.op[op].m_adsrParams.rr = (int)pOpAdsrRgRr[op]->load(std::memory_order_relaxed);
         params.opna.op[op].m_adsrParams.tl = (int)pOpAdsrRgTl[op]->load(std::memory_order_relaxed);
-        params.opna.op[op].m_adsrParams.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
+        params.opna.op[op].m_adsrParams.ksOPN.ks = (int)pOpAdsrKs[op]->load(std::memory_order_relaxed);
         params.opna.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > OpnaPrValue::boolThread);
         params.opna.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > OpnaPrValue::boolThread;
         params.opna.op[op].m_adsrParams.bypass = pOpAdsrBypass[op]->load(std::memory_order_relaxed) > OpnaPrValue::boolThread;

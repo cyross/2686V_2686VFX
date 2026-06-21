@@ -51,7 +51,9 @@ void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
     this->sl = params.sl;
     this->rr = params.rr;
     this->tl = params.tl;
-    this->ks = params.ks;
+
+    this->m_ksOPN.setParameters(params.ksOPN);
+
     this->xof = params.xof;
     this->kor = params.kor;
 
@@ -153,15 +155,7 @@ void FmRgAdssr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+        int ksrValue = m_ksOPN.calcKeyScaleRate(m_noteNumber);
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         // isAttack 引数を追加し、アタックと減衰で時間を調整する
@@ -211,15 +205,7 @@ void FmRgAdssr::updateIncrementsWithKeyScale(int noteNumber)
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
         // 1. キースケールレート (KSR) の算出
-        int ksrValue = 0;
-
-        int octave = (noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        ksrValue = keyRate >> (3 - std::clamp(ks, 0, 3));
+        int ksrValue = m_ksOPN.calcKeyScaleRate(m_noteNumber);
 
         // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
         auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {

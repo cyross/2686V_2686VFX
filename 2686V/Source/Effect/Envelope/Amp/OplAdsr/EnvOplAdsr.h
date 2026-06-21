@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "./EnvOplAdsrParams.h"
+#include "../../../KeyScale/Opl/KSOpl.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class OplAdsr
@@ -15,15 +16,14 @@ class OplAdsr
 	std::array<float, 64> timeInSecondsLut;
 	std::array<float, 64> attcckTimeInSecondsLut;
 
-	static const std::array<float, 4> dbPerOcts;
-
 	int ar = 0;
 	int dr = 0;
 	int sl = 15;
 	int rr = 0;
 	int tl = 0;
-	int ksr = 0;
-	int ksl = 0;
+
+	KSOpl m_ksOPL;
+
 	bool sus = false;
 	bool egType = false;
 	bool xof = false;

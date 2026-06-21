@@ -4,6 +4,9 @@
 #include <array>
 
 #include "./EnvOpzx7AdddrParams.h"
+#include "../../../KeyScale/Ma7/KSMa7.h"
+#include "../../../KeyScale/Opz/KSOpz.h"
+#include "../../../KeyScale/Ops/KSOps.h"
 #include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 struct Opzx7RealAdssr
@@ -37,24 +40,14 @@ class Opzx7Adddr
 	Opzx7RgAdssrParams m_rg;
 	Opzx7RgAdssrParams m_rgMax;
 
-	static const std::array<float, 4> m_dbPerOctsMA7; // KSLの減衰カーブ定義
-	static const std::array<float, 8> m_dbPerOctsOPZ;
-
 	std::array<float, 64> timeInSecondsLut;
 	std::array<float, 64> attcckTimeInSecondsLut;
 
 	bool m_ksEn = false;
 	Opzx7AdddrKeyScaleMode m_ksMode = Opzx7AdddrKeyScaleMode::MA7;
-	bool m_ksrMA7 = false;
-	int m_kslMA7 = 0;
-	int m_ksrOPZ = 0;
-	int m_kslOPZ = 0;
-	int m_ksBp = 60;
-	int m_ksLc = 0;
-	int m_ksRc = 0;
-	float m_ksLd = 0.0f;
-	float m_ksRd = 0.0f;
-	int m_ksRs = 0;
+	KSMa7 m_ksMA7;
+	KSOpz m_ksOPZ;
+	KSOps m_ksOPS;
 
 	bool m_sus = false;
 	bool m_xof = false;
