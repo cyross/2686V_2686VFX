@@ -46,9 +46,12 @@ namespace RhythmGuiText
 			static inline const juce::String quality = u8"Bit";
 			static inline const juce::String rate = u8"Rate";
 			static inline const juce::String interp = u8"Interp";
+			static inline const juce::String tone = u8"Tone";
+			static inline const juce::String noise = u8"Noise";
+			static inline const juce::String noiseFreq = u8"Freq";
+			static inline const juce::String mix = u8"Mix";
 			static inline const juce::String oneShot = u8"One Shot";
 			static inline const juce::String pan = u8"Pan";
-			static inline const juce::String rr = u8"Rr";
 			static inline const juce::String pcmOffset = u8"Offset";
 			static inline const juce::String pcmRatio = u8"Ratio";
 
@@ -65,6 +68,11 @@ namespace RhythmGuiText
 			}
 
 			namespace PitchAdsr
+			{
+				static inline const juce::String bypass = u8"Bypass";
+			}
+
+			namespace SsgSwEnv
 			{
 				static inline const juce::String bypass = u8"Bypass";
 			}

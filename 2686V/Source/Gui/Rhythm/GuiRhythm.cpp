@@ -138,6 +138,38 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::tone, .title = RhythmGuiText::Rhythm::Pad::tone, .isReset = true });
+    toneSlider.setWantsKeyboardFocus(true);
+    toneSlider.setExplicitFocusOrder(++tabOrder);
+
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::noise, .title = RhythmGuiText::Rhythm::Pad::noise, .isReset = true });
+    noiseSlider.setWantsKeyboardFocus(true);
+    noiseSlider.setExplicitFocusOrder(++tabOrder);
+
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::noiseFreq, .title = RhythmGuiText::Rhythm::Pad::noiseFreq, .isReset = true });
+    noiseFreqSlider.setWantsKeyboardFocus(true);
+    noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
+
+    // 初期状態反映
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::mix , .title = RhythmGuiText::Rhythm::Pad::mix, .isReset = true });
+    mixSlider.setWantsKeyboardFocus(true);
+    mixSlider.setExplicitFocusOrder(++tabOrder);
+
+    mixSetTone.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Rhythm::Pad::tone, .isReset = false, .isResized = false });
+    mixSetTone.setWantsKeyboardFocus(true);
+    mixSetTone.setExplicitFocusOrder(++tabOrder);
+    mixSetTone.onClick = [this] { mixSlider.setValue(0.0, juce::sendNotification); };
+
+    mixSetMix.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Rhythm::Pad::mix, .isReset = false, .isResized = false });
+    mixSetMix.setWantsKeyboardFocus(true);
+    mixSetMix.setExplicitFocusOrder(++tabOrder);
+    mixSetMix.onClick = [this] { mixSlider.setValue(0.5, juce::sendNotification); };
+
+    mixSetNoise.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Rhythm::Pad::noise, .isReset = false, .isResized = false });
+    mixSetNoise.setWantsKeyboardFocus(true);
+    mixSetNoise.setExplicitFocusOrder(++tabOrder);
+    mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
+
     // ワンショット機能トグル
     oneShotButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::oneShot, .title = RhythmGuiText::Rhythm::Pad::oneShot, .isReset = true });
     oneShotButton.setWantsKeyboardFocus(true);
@@ -165,9 +197,15 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     setupPanBtn(panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
     setupPanBtn(panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
 
+    fixComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
+
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     pitchEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass);
+
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass);
+
+    lfoComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
     updateGraph();
@@ -195,14 +233,25 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
 
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
+    layoutMain({ .mainRect = padRect, .label = &toneSlider.label, .component = &toneSlider, });
+    layoutMain({ .mainRect = padRect, .label = &noiseSlider.label, .component = &noiseSlider });
+    layoutMain({ .mainRect = padRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+    layoutMain({ .mainRect = padRect, .label = &mixSlider.label, .component = &mixSlider });
+    layoutMainThreeComps({ .rect = padRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
 
     layoutOptionalCat(padRect);
 
     layoutPanCat(padRect);
 
+    fixComponent.layoutComponent(padRect);
+
     ampEnvComponent.layoutComponent(padRect);
 
     pitchEnvComponent.layoutComponent(padRect);
+
+    ssgSwEnvComponent.layoutComponent(padRect);
+
+    lfoComponent.layoutComponent(padRect);
 
     layoutQualityCat(padRect);
 

@@ -57,11 +57,17 @@ public:
     // コントローラー (CC)
     void controllerMoved(int controllerNumber, int newControllerValue) override;
 
-    void setOpzx7PcmBuffer(int opIndex, const std::vector<float>* pcmData); 
+    void setOpzx7PcmBuffer(int opIndex, std::vector<float>* pcmData); 
 
-    void setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData);
+    void setOpzx7WtBuffer(int opIndex, std::vector<float>* wtData);
 
-    void setOpzx7Wt2Buffer(int opIndex, const std::vector<float>* wtData);
+    void setOpzx7Wt2Buffer(int opIndex, std::vector<float>* wtData);
+
+    void clearOpzx7PcmBuffer(int opIndex);
+
+    void clearOpzx7WtBuffer(int opIndex);
+
+    void clearOpzx7Wt2Buffer(int opIndex);
 
     void setCurveCore(CurveCore* p_curveCore);
 

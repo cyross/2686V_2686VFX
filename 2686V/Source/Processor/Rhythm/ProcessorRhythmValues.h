@@ -86,6 +86,42 @@ namespace RhythmPrValue
 			inline constexpr int initial = 1; // Linear
 		}
 
+		namespace Tone {
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
+		}
+
+		namespace Noise {
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
+		}
+
+		namespace NoiseFreq {
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 30000.0f;
+			inline constexpr float initial = 12000.0f;
+		}
+
+		namespace Mix {
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Fix
+		{
+			inline constexpr bool initial = CorePrValue::FixMode::Enable::initial;
+		}
+
+		namespace FixFreq
+		{
+			inline constexpr float min = CorePrValue::FixMode::Freq::min;
+			inline constexpr float max = CorePrValue::FixMode::Freq::max;
+			inline constexpr float initial = CorePrValue::FixMode::Freq::initial;
+		}
+
 		namespace Offset
 		{
 			inline constexpr float min = CorePrValue::Pcm::Offset::min;
@@ -195,6 +231,131 @@ namespace RhythmPrValue
 				inline constexpr int min = CorePrValue::pitchLevelMin;
 				inline constexpr int max = CorePrValue::pitchLevelMax;
 				inline constexpr int initial = CorePrValue::pitchLevelIni;
+			}
+		}
+
+		namespace SsgSwEnv
+		{
+			namespace Bypass
+			{
+				inline constexpr float initial = CorePrValue::SsgSwEnv::Bypass::initial;
+			}
+
+			namespace Steps
+			{
+				inline constexpr int min = CorePrValue::SsgSwEnv::Steps::min;
+				inline constexpr int max = CorePrValue::SsgSwEnv::Steps::max;
+				inline constexpr int initial = CorePrValue::SsgSwEnv::Steps::initial;
+			}
+
+			namespace Loop
+			{
+				inline constexpr float initial = CorePrValue::SsgSwEnv::Loop::initial;
+			}
+
+			namespace LoopTo
+			{
+				inline constexpr int min = CorePrValue::SsgSwEnv::LoopTo::min;
+				inline constexpr int max = CorePrValue::SsgSwEnv::LoopTo::max;
+				inline constexpr int initial = CorePrValue::SsgSwEnv::LoopTo::initial;
+			}
+
+			namespace LoopCount
+			{
+				inline constexpr int min = CorePrValue::SsgSwEnv::LoopCount::min;
+				inline constexpr int max = CorePrValue::SsgSwEnv::LoopCount::max;
+				inline constexpr int initial = CorePrValue::SsgSwEnv::LoopCount::initial;
+			}
+
+			namespace R1
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R1::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R1::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R1::initial;
+			}
+
+			namespace R2
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R2::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R2::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R2::initial;
+			}
+
+			namespace R3
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R3::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R3::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R3::initial;
+			}
+
+			namespace R4
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R4::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R4::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R4::initial;
+			}
+
+			namespace R5
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R5::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R5::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R5::initial;
+			}
+
+			namespace R6
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::R6::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::R6::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::R6::initial;
+			}
+
+			namespace Stl
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::Stl::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::Stl::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::Stl::initial;
+			}
+
+			namespace L1
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L1::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L1::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L1::initial;
+			}
+
+			namespace L2
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L2::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L2::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L2::initial;
+			}
+
+			namespace L3
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L3::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L3::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L3::initial;
+			}
+
+			namespace L4
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L4::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L4::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L4::initial;
+			}
+
+			namespace L5
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L5::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L5::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L5::initial;
+			}
+
+			namespace L6
+			{
+				inline constexpr float min = CorePrValue::SsgSwEnv::L6::min;
+				inline constexpr float max = CorePrValue::SsgSwEnv::L6::max;
+				inline constexpr float initial = CorePrValue::SsgSwEnv::L6::initial;
 			}
 		}
 	}

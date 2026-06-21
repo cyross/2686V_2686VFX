@@ -18,12 +18,9 @@ void SsgCore::prepare(double sampleRate) {
 
     m_targetRate = getTargetRate(m_rateIndex);
 
-	double target = getTargetRate(m_rateIndex);
-
-    m_lfo.prepare(target);
-    m_noiseGen.prepare(target);
-
-    updatePhaseDelta();
+    m_lfo.prepare(m_targetRate);
+    m_noiseGen.prepare(m_targetRate);
+    m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
 void SsgCore::setCurveCore(CurveCore* p_curveCore)
@@ -39,8 +36,6 @@ void SsgCore::setSampleRate(double sampleRate) {
     m_adsr.updateSampleRate(m_sampleRate);
     m_pitchAdsr.updateSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
-
-    updatePhaseDelta();
 }
 
 void SsgCore::setParameters(const SynthParams& params)
@@ -101,6 +96,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
         m_noiseGen.updateTargetRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
+        m_phaseDelta = m_currentFrequency / m_targetRate;
     }
 
     m_noiseGen.updateFrequency(m_currentFrequency);
@@ -109,8 +105,6 @@ void SsgCore::setParameters(const SynthParams& params)
     m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
-
-    updatePhaseDelta();
 }
 
 void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -153,6 +147,9 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     // Save for recalculation
     finalFreq = m_fixMode.noteOn(finalFreq);
     m_currentFrequency = m_detune.noteOn(finalFreq);
+    m_phaseDelta = m_currentFrequency / m_targetRate;
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
 
     if (!isLegato) {
         if (!m_isMonoMode) {
@@ -169,10 +166,6 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_hwEnvPhase = 0.0f;
         m_lastSample = 0.0f;
     }
-
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
-    updatePhaseDelta();
 
     if (!isLegato) {
         m_currentLevel = m_adsr.noteOn();
@@ -198,6 +191,7 @@ void SsgCore::noteOff()
     if (!m_pitchAdsr.isBypass()) {
         m_pitchAdsr.noteOff();
     }
+
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
@@ -474,11 +468,7 @@ float SsgCore::getSample()
 
     float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
 
-    return interpolatedSample * finalEnv * m_baseLevel * m_level * 8.0f;
-}
-
-void SsgCore::updatePhaseDelta() {
-    m_phaseDelta = m_currentFrequency / m_targetRate;
+    return interpolatedSample * finalEnv * m_baseLevel * m_level * 4.0f;
 }
 
 void SsgCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)

@@ -714,7 +714,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
             // レートはなんでも良いので適当な値(44100)を渡す
-            voice->getAdpcmCore()->setSampleData(emptyData, 44100.0);
+            voice->getAdpcmCore()->clearBuffer();
         }
     }
 }
@@ -735,7 +735,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     {
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
-            voice->getRhythmCore()->setSampleData(padIndex, emptyData, 44100.0);
+            voice->getRhythmCore()->clearBuffer(padIndex);
         }
     }
 }
@@ -986,7 +986,7 @@ void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7PcmBuffer(opIndex, &opzx7PcmBuffers[opIndex]);
+            voice-> clearOpzx7PcmBuffer(opIndex);
         }
     }
 }
@@ -1143,7 +1143,7 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7WtBuffer(opIndex, nullptr);
+            voice->clearOpzx7WtBuffer(opIndex);
         }
     }
 }
@@ -1197,7 +1197,7 @@ void AudioPlugin2686V::unloadOpzx7Wt2File(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7Wt2Buffer(opIndex, nullptr);
+            voice->clearOpzx7Wt2Buffer(opIndex);
         }
     }
 }

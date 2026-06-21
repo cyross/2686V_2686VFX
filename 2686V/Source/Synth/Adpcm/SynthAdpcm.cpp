@@ -14,16 +14,16 @@ void AdpcmCore::prepare(double sampleRate)
 {
     m_sampleRate = sampleRate;
 
+    m_phase = 0.0;
+
     m_adsr.prepare(m_sampleRate);
     m_pitchAdsr.prepare(0, m_sampleRate);
     m_ssgSwEnv.prepare(0, m_sampleRate);
+    m_noiseGen.prepare(m_sampleRate);
+    m_lfo.prepare(m_sampleRate);
+    m_phaseDelta = m_currentFrequency / m_sampleRate;
 
-    double target = getTargetRate(m_rateIndex);
-
-    m_noiseGen.prepare(target);
-    m_lfo.prepare(target);
-
-    m_lfoPhase = 0.0;
+    m_targetRate = getTargetRate(m_rateIndex);
 }
 
 void AdpcmCore::setCurveCore(CurveCore* p_curveCore)
@@ -39,6 +39,9 @@ void AdpcmCore::setSampleRate(double sampleRate)
 	m_adsr.updateSampleRate(m_sampleRate);
 	m_pitchAdsr.updateSampleRate(m_sampleRate);
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_noiseGen.updateTargetRate(m_sampleRate);
+    m_lfo.updateTargetSampleRate(m_sampleRate);
+    m_phaseDelta = m_currentFrequency / m_sampleRate;
 }
 
 void AdpcmCore::setParameters(const SynthParams& params)
@@ -100,22 +103,18 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     if (m_qualityMode != params.adpcm.qualityMode) {
         m_qualityMode = params.adpcm.qualityMode;
+
         needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
     }
 
     if (m_rateIndex != params.adpcm.rateIndex) {
         m_rateIndex = params.adpcm.rateIndex;
-
         m_targetRate = getTargetRate(m_rateIndex);
 
-        m_noiseGen.updateTargetRate(m_targetRate);
         needRefresh = true;
     }
 
     m_interpolationMode = params.adpcm.interpolationMode;
-
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
 
     if (needRefresh) {
         refreshPcmBuffer();
@@ -217,8 +216,11 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     double rateRatio = currentBufferRate / m_sampleRate;
 
     finalFreq = m_fixMode.noteOn(finalFreq);
-    m_currentFrequency = m_detune.noteOn(finalFreq);
 
+    m_currentFrequency = m_detune.noteOn(finalFreq);
+    m_noiseGen.updateFrequency(m_currentFrequency);
+    m_noiseGen.updateDelta();
+    m_phaseDelta = m_currentFrequency / m_sampleRate;
     m_pitchRatio = (m_currentFrequency / rootFreq) * rateRatio;
 
     // =====================================================================
@@ -228,7 +230,12 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         // 再生位置を先頭(オフセット位置)に戻す
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_hasFinished = false;
-        m_lfoPhase = 0.0;
+        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+
+        // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
+        while (m_phase >= juce::MathConstants<float>::twoPi) {
+            m_phase -= juce::MathConstants<float>::twoPi;
+        }
 
         // エンベロープの再トリガー
         m_currentLevel = m_adsr.noteOn();
@@ -243,9 +250,6 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_lfo.noteOn();
     }
 
-    m_noiseGen.updateFrequency(m_currentFrequency);
-    m_noiseGen.updateDelta();
-
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
     }
@@ -254,8 +258,14 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 void AdpcmCore::noteOff()
 {
     m_adsr.noteOff();
-    m_pitchAdsr.noteOff();
-	m_ssgSwEnv.noteOff();
+
+    if (!m_pitchAdsr.isBypass()) {
+        m_pitchAdsr.noteOff();
+    }
+
+    if (!m_ssgSwEnv.isBypass()) {
+        m_ssgSwEnv.noteOff();
+    }
 }
 
 bool AdpcmCore::isPlaying() const
@@ -298,6 +308,18 @@ void AdpcmCore::setPitchBendRatio(float ratio)
 
 float AdpcmCore::getSample()
 {
+    if (!isPlaying() && m_adsr.isBypass()) {
+        if (m_pitchAdsr.isBypass()) {
+            m_pitchAdsr.bypassedReleasedProcess();
+        }
+
+        if (m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        return 0.0f;
+    }
+
     if (!isPlaying()) {
         // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
         // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
@@ -305,16 +327,6 @@ float AdpcmCore::getSample()
 
         return 0.0f;
     }
-
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
-
-    // Safety check for empty buffers
-    if ((isEncodedMode && m_pcmBuffer.empty()) ||
-        (!isEncodedMode && m_rawBuffer.empty())) {
-        return 0.0f;
-    }
-
-    if (m_hasFinished) return 0.0f;
 
     float finalEnv = 1.0f;
 
@@ -348,134 +360,198 @@ float AdpcmCore::getSample()
         }
     }
 
-    // --- Pitch Modulation (Vibrato) ---
-    // Simple 5Hz LFO
-    double lfoInc = 5.0 / m_sampleRate;
-    m_lfoPhase += lfoInc;
-    if (m_lfoPhase >= 1.0) m_lfoPhase -= 1.0;
-
-    float lfoVal = std::sin(m_lfoPhase * 2.0 * juce::MathConstants<double>::pi);
-
-    // Mod Wheel Depth (Max +/- 10% speed change -> approx +/- 2 semitones)
-    float modDepth = m_modWheel * 0.1f;
-    float lfoPitchMod = 1.0f + (lfoVal * modDepth);
-
-    // Calculate Total Playback Speed Increment
-    // Base Speed * Pitch Bend * Vibrato
-    double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * lfoPitchMod);
-
     float output = 0.0f;
+    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    double currentBufferRate = m_sampleRate;
 
-    double currentBufferRate = (m_qualityMode == adpcmMode) ? m_bufferSampleRate : m_sourceRate;
-    size_t totalSize = (m_qualityMode == adpcmMode) ? m_pcmBuffer.size() : m_rawBuffer.size();
+    // ノイズを出すために、バッファが空でも最後まで通す
+    if (isEncodedMode && !m_pcmBuffer.empty()) {
+        if (m_hasFinished) return 0.0f;
 
-    // 終端位置の計算
-    double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
-    if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+        size_t totalSize = m_pcmBuffer.size();
 
-    double remainingSize = totalSize - offsetSamples;
-    double playSize = remainingSize * m_pcmRatio;
-    if (playSize < 1.0) playSize = 1.0;
+        currentBufferRate = m_bufferSampleRate;
 
-    double endPosition = offsetSamples + playSize;
+        // 終端位置の計算
+        double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
 
-    // ループ・終了判定
-    if (m_position >= endPosition) {
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+        double remainingSize = totalSize - offsetSamples;
+        double playSize = remainingSize * m_pcmRatio;
+
+        if (playSize < 1.0) playSize = 1.0;
+
+        double endPosition = offsetSamples + playSize;
+
+        // ループ・終了判定
+        if (m_position >= endPosition) {
+            if (m_isLooping) {
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+            }
+            else {
+                m_hasFinished = true;
+
+                return 0.0f;
+            }
+        }
+
+        // =========================================================
+        // 補間用の4点インデックス (過去1、現在、未来2) を計算
+        // =========================================================
+        int idx_0 = (int)m_position;
+        int idx_1 = idx_0 + 1;
+        int idx_2 = idx_0 + 2;
+        int idx_m1 = idx_0 - 1;
+
+        // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
         if (m_isLooping) {
-            m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
+            if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
+            if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
         }
         else {
-            m_hasFinished = true;
-            return 0.0f;
+            if (idx_m1 < 0) idx_m1 = 0;
+            if (idx_1 >= (int)totalSize) idx_1 = idx_0;
+            if (idx_2 >= (int)totalSize) idx_2 = idx_1;
         }
-    }
 
-    // =========================================================
-    // 補間用の4点インデックス (過去1、現在、未来2) を計算
-    // =========================================================
-    int idx_0 = (int)m_position;
-    int idx_1 = idx_0 + 1;
-    int idx_2 = idx_0 + 2;
-    int idx_m1 = idx_0 - 1;
+        // 最終的な安全策 (バッファ外アクセス防止)
+        idx_m1 = std::clamp(idx_m1, 0, (int)totalSize - 1);
+        idx_0 = std::clamp(idx_0, 0, (int)totalSize - 1);
+        idx_1 = std::clamp(idx_1, 0, (int)totalSize - 1);
+        idx_2 = std::clamp(idx_2, 0, (int)totalSize - 1);
 
-    // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-    if (m_isLooping) {
-        if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
-        if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
-        if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
-    }
-    else {
-        if (idx_m1 < 0) idx_m1 = 0;
-        if (idx_1 >= (int)totalSize) idx_1 = idx_0;
-        if (idx_2 >= (int)totalSize) idx_2 = idx_1;
-    }
+        // =========================================================
+        // バッファから4点の値を取得 (-1.0f 〜 1.0f)
+        // =========================================================
+        float s_m1, s_0, s_1, s_2;
 
-    // 最終的な安全策 (バッファ外アクセス防止)
-    idx_m1 = std::clamp(idx_m1, 0, (int)totalSize - 1);
-    idx_0 = std::clamp(idx_0, 0, (int)totalSize - 1);
-    idx_1 = std::clamp(idx_1, 0, (int)totalSize - 1);
-    idx_2 = std::clamp(idx_2, 0, (int)totalSize - 1);
-
-    // =========================================================
-    // バッファから4点の値を取得 (-1.0f 〜 1.0f)
-    // =========================================================
-    float s_m1, s_0, s_1, s_2;
-
-    if (isEncodedMode) {
         // エンコードバッファ (int16_t) から読み込み、正規化
         s_m1 = m_pcmBuffer[idx_m1] / 32768.0f;
         s_0 = m_pcmBuffer[idx_0] / 32768.0f;
         s_1 = m_pcmBuffer[idx_1] / 32768.0f;
         s_2 = m_pcmBuffer[idx_2] / 32768.0f;
+
+        // =========================================================
+        // 補間処理 (Interpolation)
+        // =========================================================
+        float frac = (float)(m_position - idx_0);
+
+        switch (m_interpolationMode) {
+        case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
+            output = (frac < 0.5f) ? s_0 : s_1;
+            break;
+        case 1: // 1: Linear (線形補間・現在の標準)
+            output = s_0 * (1.0f - frac) + s_1 * frac;
+            break;
+        case 2: // 2: Gaussian/Cubic (SFC風の丸みのある補間)
+        {
+            // 3次エルミートスプライン近似による滑らかなカーブ生成
+            float c0 = s_0;
+            float c1 = 0.5f * (s_1 - s_m1);
+            float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
+            float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
+            output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+            break;
+        }
+        }
     }
-    else {
+    else if (!isEncodedMode && !m_rawBuffer.empty()) {
+        if (m_hasFinished) return 0.0f;
+
+        size_t totalSize = m_rawBuffer.size();
+
+        currentBufferRate = m_sourceRate;
+
+        // 終端位置の計算
+        double offsetSamples = (m_pcmOffset / 1000.0) * currentBufferRate;
+
+        if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
+
+        double remainingSize = totalSize - offsetSamples;
+        double playSize = remainingSize * m_pcmRatio;
+
+        if (playSize < 1.0) playSize = 1.0;
+
+        double endPosition = offsetSamples + playSize;
+
+        // ループ・終了判定
+        if (m_position >= endPosition) {
+            if (m_isLooping) {
+                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+            }
+            else {
+                m_hasFinished = true;
+
+                return 0.0f;
+            }
+        }
+
+        // =========================================================
+        // 補間用の4点インデックス (過去1、現在、未来2) を計算
+        // =========================================================
+        int idx_0 = (int)m_position;
+        int idx_1 = idx_0 + 1;
+        int idx_2 = idx_0 + 2;
+        int idx_m1 = idx_0 - 1;
+
+        // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
+        if (m_isLooping) {
+            if (idx_m1 < (int)offsetSamples) idx_m1 += (int)playSize;
+            if (idx_1 >= (int)endPosition) idx_1 -= (int)playSize;
+            if (idx_2 >= (int)endPosition) idx_2 -= (int)playSize;
+        }
+        else {
+            if (idx_m1 < 0) idx_m1 = 0;
+            if (idx_1 >= (int)totalSize) idx_1 = idx_0;
+            if (idx_2 >= (int)totalSize) idx_2 = idx_1;
+        }
+
+        // 最終的な安全策 (バッファ外アクセス防止)
+        idx_m1 = std::clamp(idx_m1, 0, (int)totalSize - 1);
+        idx_0 = std::clamp(idx_0, 0, (int)totalSize - 1);
+        idx_1 = std::clamp(idx_1, 0, (int)totalSize - 1);
+        idx_2 = std::clamp(idx_2, 0, (int)totalSize - 1);
+
+        // =========================================================
+        // バッファから4点の値を取得 (-1.0f 〜 1.0f)
+        // =========================================================
+        float s_m1, s_0, s_1, s_2;
+
         // Rawバッファから読み込み
         s_m1 = m_rawBuffer[idx_m1];
         s_0 = m_rawBuffer[idx_0];
         s_1 = m_rawBuffer[idx_1];
         s_2 = m_rawBuffer[idx_2];
-    }
 
-    // =========================================================
-    // 補間処理 (Interpolation)
-    // =========================================================
-    float frac = (float)(m_position - idx_0);
+        // =========================================================
+        // 補間処理 (Interpolation)
+        // =========================================================
+        float frac = (float)(m_position - idx_0);
 
-    switch (m_interpolationMode) {
-    case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
-        output = (frac < 0.5f) ? s_0 : s_1;
-        break;
-    case 1: // 1: Linear (線形補間・現在の標準)
-        output = s_0 * (1.0f - frac) + s_1 * frac;
-        break;
-    case 2: // 2: Gaussian/Cubic (SFC風の丸みのある補間)
-    {
-        // 3次エルミートスプライン近似による滑らかなカーブ生成
-        float c0 = s_0;
-        float c1 = 0.5f * (s_1 - s_m1);
-        float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
-        float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
-        output = ((c3 * frac + c2) * frac + c1) * frac + c0;
-        break;
-    }
-    }
+        switch (m_interpolationMode) {
+        case 0: // 0: Nearest (補間なし・エイリアスノイズが出るオールドスクール)
+            output = (frac < 0.5f) ? s_0 : s_1;
+            break;
+        case 1: // 1: Linear (線形補間・現在の標準)
+            output = s_0 * (1.0f - frac) + s_1 * frac;
+            break;
+        case 2: // 2: Gaussian/Cubic (SFC風の丸みのある補間)
+        {
+            // 3次エルミートスプライン近似による滑らかなカーブ生成
+            float c0 = s_0;
+            float c1 = 0.5f * (s_1 - s_m1);
+            float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
+            float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
+            output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+            break;
+        }
+        }
 
-    // Raw/BitCrusher モード時のビットリダクション
-    if (!isEncodedMode) {
+        // Raw/BitCrusher モード時のビットリダクション
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
-
-    // ==========================================
-    // 3. Noise Generator
-    // ==========================================
-    m_noiseGen.generate();
-
-    // ==========================================
-    // 4. Mixing
-    // ==========================================
-    float toneGain = 1.0f - m_mix;
-    float noiseGain = m_mix;
-    float rawMixed = (output * m_tone * toneGain) + m_noiseGen.generateSample(noiseGain);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
@@ -501,6 +577,8 @@ float AdpcmCore::getSample()
 
     // セントを周波数倍率(レシオ)に変換
     float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
+    float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
+    double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
 
     // ==========================================
     // 周波数倍率の決定
@@ -511,7 +589,19 @@ float AdpcmCore::getSample()
     // Advance position
     m_position += currentIncrement * freqMult;
 
-    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * 4.0f;
+    // ==========================================
+    // 3. Noise Generator
+    // ==========================================
+    m_noiseGen.generate();
+
+    // ==========================================
+    // 4. Mixing
+    // ==========================================
+    float toneGain = 1.0f - m_mix;
+    float noiseGain = m_mix;
+    float rawMixed = (output * m_tone * toneGain * 4.0f) + m_noiseGen.generateSample(noiseGain) * 0.4f;
+
+    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier;
 }
 
 void AdpcmCore::refreshPcmBuffer()
@@ -606,4 +696,9 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     outR[startSample + sampleIdx] += sample * basePanR;
 
     isActive = isPlaying();
+}
+
+void AdpcmCore::clearBuffer() {
+    m_pcmBuffer.clear();
+    m_rawBuffer.clear();
 }

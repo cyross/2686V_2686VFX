@@ -407,21 +407,21 @@ float Opzx7Core::getSample() {
     return m_prevSample + (m_lastSample - m_prevSample) * m_level * fraction;
 }
 
-void Opzx7Core::setPcmBuffer(int opIndex, const std::vector<float>* pcmData)
+void Opzx7Core::setPcmBuffer(int opIndex, std::vector<float>* pcmData)
 {
     if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].setPcmBuffer(pcmData);
     }
 }
 
-void Opzx7Core::setWtBuffer(int opIndex, const std::vector<float>* wtData)
+void Opzx7Core::setWtBuffer(int opIndex, std::vector<float>* wtData)
 {
     if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].setWtBuffer(wtData);
     }
 }
 
-void Opzx7Core::setWt2Buffer(int opIndex, const std::vector<float>* wtData)
+void Opzx7Core::setWt2Buffer(int opIndex, std::vector<float>* wtData)
 {
     if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].setWt2Buffer(wtData);
@@ -455,4 +455,22 @@ void Opzx7Core::renderNextBlock(float* outR, float* outL, int startSample, int s
     outR[startSample + sampleIdx] += sample * basePanR;
 
     isActive = isPlaying();
+}
+
+void Opzx7Core::clearPcmBuffer(int opIndex) {
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
+        m_operators[opIndex].clearPcmBuffer();
+    }
+}
+
+void Opzx7Core::clearWtBuffer(int opIndex) {
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
+        m_operators[opIndex].clearWtBuffer();
+    }
+}
+
+void Opzx7Core::clearWt2Buffer(int opIndex) {
+    if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
+        m_operators[opIndex].clearWt2Buffer();
+    }
 }

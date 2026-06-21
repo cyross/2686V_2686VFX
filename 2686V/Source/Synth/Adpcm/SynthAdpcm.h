@@ -8,9 +8,9 @@
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
-#include "../../Generator/Fm/Fix/FmFix.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 
 // --- Core Class ---
@@ -34,6 +34,7 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
+    void clearBuffer();
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {
@@ -92,11 +93,10 @@ private:
     bool m_isLooping = false;
     bool m_hasFinished = false;
 
+    float m_phase = 0.0f;
+    float m_phaseDelta = 0.0f;
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
-
-    // LFO
-    double m_lfoPhase = 0.0;
 
     void refreshPcmBuffer();
 

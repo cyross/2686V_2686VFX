@@ -99,11 +99,11 @@ void GuiAdpcm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -256,6 +256,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutPanCat(mRect);
 
+    fixComponent.layoutComponent(mRect);
+
     ampEnvComponent.layoutComponent(mRect);
 
     pitchEnvComponent.layoutComponent(mRect);
@@ -265,8 +267,6 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     mulDetuneComponent.layoutComponent(mRect);
     
     lfoComponent.layoutComponent(mRect);
-
-    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

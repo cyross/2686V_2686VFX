@@ -9,9 +9,12 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/GuiCurve.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
+#include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 
@@ -50,14 +53,28 @@ class RhythmPadGui: public GuiBase
     GuiTextButton panToRBtn;
 
     GuiSlider volSlider;
+    GuiSlider toneSlider;
+    GuiSlider noiseSlider;
+    GuiSlider noiseFreqSlider;
+    GuiSlider mixSlider;
+    GuiTextButton mixSetTone;  // 0.0
+    GuiTextButton mixSetMix;   // 0.5
+    GuiTextButton mixSetNoise; // 1.0
 
     GuiToggleButton oneShotButton;
+
+    GuiComponentFix fixComponent;
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
+
+    // SSG SW Env
+    GuiComponentSsgSwEnv ssgSwEnvComponent;
+
+    GuiComponentLfoOpzx7 lfoComponent;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -93,9 +110,19 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         volSlider(context),
+        toneSlider(context),
+        noiseSlider(context),
+        noiseFreqSlider(context),
+        mixSlider(context),
+        mixSetTone(context),
+        mixSetMix(context),
+        mixSetNoise(context),
         oneShotButton(context),
+        fixComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
+        ssgSwEnvComponent(context),
+        lfoComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphSeparator(context)

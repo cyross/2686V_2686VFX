@@ -138,19 +138,34 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
     }
 }
 
-void SynthVoice::setOpzx7PcmBuffer(int opIndex, const std::vector<float>* pcmData)
+void SynthVoice::setOpzx7PcmBuffer(int opIndex, std::vector<float>* pcmData)
 {
     m_opzx7Core.setPcmBuffer(opIndex, pcmData);
 }
 
-void SynthVoice::setOpzx7WtBuffer(int opIndex, const std::vector<float>* wtData)
+void SynthVoice::setOpzx7WtBuffer(int opIndex, std::vector<float>* wtData)
 {
     m_opzx7Core.setWtBuffer(opIndex, wtData);
 }
 
-void SynthVoice::setOpzx7Wt2Buffer(int opIndex, const std::vector<float>* wtData)
+void SynthVoice::setOpzx7Wt2Buffer(int opIndex, std::vector<float>* wtData)
 {
     m_opzx7Core.setWt2Buffer(opIndex, wtData);
+}
+
+void SynthVoice::clearOpzx7PcmBuffer(int opIndex)
+{
+    m_opzx7Core.clearPcmBuffer(opIndex);
+}
+
+void SynthVoice::clearOpzx7WtBuffer(int opIndex)
+{
+    m_opzx7Core.clearWtBuffer(opIndex);
+}
+
+void SynthVoice::clearOpzx7Wt2Buffer(int opIndex)
+{
+    m_opzx7Core.clearWt2Buffer(opIndex);
 }
 
 void SynthVoice::setCurveCore(CurveCore* p_curveCore)

@@ -29,6 +29,14 @@ public:
 	void getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore &glLfo, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
 	void setCurveCore(CurveCore* p_curveCore);
+	// PCMデータ用
+	void setPcmBuffer(std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
+	void clearPcmBuffer() { m_pcmBuffer = nullptr; }
+	// 波形メモリ用
+	void setWtBuffer(std::vector<float>* wtData) { m_wtBuffer = wtData; }
+	void setWt2Buffer(std::vector<float>* wtData) { m_wt2Buffer = wtData; }
+	void clearWtBuffer() { m_wtBuffer = nullptr; }
+	void clearWt2Buffer() { m_wt2Buffer = nullptr; }
 
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数
@@ -44,6 +52,12 @@ private:
 	SsgSwEnv m_ssgSwEnv;
 
 	std::array<float, 8> fVector = { 0.0f };
+
+	// OPZX7 の外部 PCM データ用
+	std::vector<float>* m_pcmBuffer = nullptr;
+	// OPZX7 の波形データ用
+	std::vector<float>* m_wtBuffer = nullptr;
+	std::vector<float>* m_wt2Buffer = nullptr;
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)

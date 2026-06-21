@@ -2,6 +2,7 @@
 
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
+#include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 
 struct RhythmPadParams
 {
@@ -18,16 +19,59 @@ struct RhythmPadParams
     // Whether to play as a "One Shot" or stop the sound on Note Off
     bool isOneShot = true;
 
-    float release = 0.1f;
-
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
+
+    float tone = 1.0f;
+    float noiseLevel = 0.0f; // Noise
+    float noiseFreq = 12000.0f; // Noise Frequency (Hz)
+    float mix = 0.0f;
+
+    // --- Fix Freq ---
+    bool fixedMode = false;
+    float fixedFreq = 2000.0f;
 
     // Params
     AmpAdsrParams adsr;
 
     // --- Pitch Envelope ---
     PitchAdsrParams pitchAdsr;
+
+    // --- SSG Software Envelope ---
+    SsgSwEnvParams ssgSwEnv;
+
+    // LFO Speed Freq (approx 3Hz - 30Hz)
+    float lfoAmFreq = 5.0f;
+    float lfoPmFreq = 5.0f;
+
+    // LFO Enable Flag
+    bool lfoAmEnable = false;
+    bool lfoPmEnable = false;
+
+    // LFO Sensitivity
+
+    // Pitch Modulation Sensitivity (0-7/0.0-1.0)
+    float lfoPms = 0.0f;
+
+    // Amplitude Modulation Sensitivity (0-3/0.0-1.0)
+    float lfoAms = 0.0f;
+
+    // Pitch Modulation Depth (0-127/0.0-1.0)
+    float lfoPmd = 0.0f;
+
+    // Amplitude Modulation Depth (0-127/0.0-1.0)
+    float lfoAmd = 0.0f;
+
+    // LFO Waveform
+    int lfoPmWave = 0;
+    int lfoAmWave = 0;
+
+    // LFO AM Smooth Ratio (0.005 - 0.5)
+    float lfoAmSmRt = 0.005f;
+
+    // LFO Sync Delay
+    int lfoPmSyncDelay = 0;
+    int lfoAmSyncDelay = 0;
 };
 
 struct RhythmParams

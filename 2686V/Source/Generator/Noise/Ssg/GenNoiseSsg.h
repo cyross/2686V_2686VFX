@@ -16,7 +16,10 @@ class SsgNoiseGen
 public:
     void prepare(double newTargetRate);
     void setParameters(float newLevel, float newBaseFreq, bool noiseOnNote);
-	void updateTargetRate(double newTargetRate) { this->targetSampleRate = newTargetRate; }
+	void updateTargetRate(double newTargetRate) {
+        this->targetSampleRate = newTargetRate;
+        updateDelta();
+    }
     void generate();
     void updateDelta();
 	void updateFrequency(float currentFreq);
