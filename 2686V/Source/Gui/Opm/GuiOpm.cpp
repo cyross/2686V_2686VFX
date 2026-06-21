@@ -302,6 +302,23 @@ void GuiOpm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
+    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA" });
+    copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
+    copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
+    copyParamsToOpnaBtn.onClick = [this] {
+        ctx.editor.copyOpmParamsToOpna();
+        };
+
+    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPN" });
+    copyParamsToOpnBtn.setWantsKeyboardFocus(true);
+    copyParamsToOpnBtn.setExplicitFocusOrder(++tabOrder);
+    copyParamsToOpnBtn.onClick = [this] {
+        ctx.editor.copyOpmParamsToOpn();
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
     copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
@@ -838,6 +855,9 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
+    copyParamsToOpnaBtn.setVisible(visible);
+    copyParamsToOpnBtn.setVisible(visible);
+    uSep002.setVisible(visible);
     copyOpParamBtn.setVisible(visible);
     copyOpFromSlider.setVisibleWithLabel(visible);
     copyOpToSlider.setVisibleWithLabel(visible);
@@ -848,6 +868,12 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
+
+        layoutMain({ .mainRect = rect, .component = &copyParamsToOpnaBtn });
+        layoutMain({ .mainRect = rect, .component = &copyParamsToOpnBtn });
+
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
 
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
@@ -1325,6 +1351,130 @@ void GuiOpm::pasteOpParams(int p, CopyOpmOp& copyObj) {
     ksrOPP[p].setValue(copyObj.aAdsr.ksrOPP, juce::sendNotification);
     kslOPP[p].setValue(copyObj.aAdsr.kslOPP, juce::sendNotification);
     amsEnable[p].setToggleState(copyObj.lfo.amsEn, juce::sendNotification);
+
+    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+
+    fix[p].pasteParams(copyObj.fix);
+    pitchEnv[p].pasteParams(copyObj.pAdsr);
+    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+}
+
+void GuiOpm::copyParamsOpn(CopyOpnOpm& copyObj) {
+    copyObj.quality.depth = bitSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.fmBase.level = levelSlider.getValue();
+    copyObj.fmBase.algorithm = algSelector.getSelectedId();
+    copyObj.fmBase.feedback = feedbackSlider.getValue();
+
+    unisonComponent.copyParams(copyObj.unison);
+}
+
+void GuiOpm::copyOpParamsOpn(int p, CopyOpnOpmOp& copyObj) {
+    copyObj.detune.mul = mul[p].getSelectedId();
+    copyObj.detune.dt = dt1[p].getValue();
+    copyObj.aAdsr.ar = rgAr[p].getValue();
+    copyObj.aAdsr.dr = rgD1r[p].getValue();
+    copyObj.aAdsr.sl = rgD1l[p].getValue();
+    copyObj.aAdsr.sr = rgD2r[p].getValue();
+    copyObj.aAdsr.rr = rgRr[p].getValue();
+    copyObj.aAdsr.tl = rgTl[p].getValue();
+    copyObj.aAdsr.bypass = bypass[p].getToggleState();
+    copyObj.aAdsr.kor = kor[p].getToggleState();
+    copyObj.aAdsr.xof = xof[p].getToggleState();
+    copyObj.aAdsr.ks = ks[p].getSelectedId();
+
+    copyObj.mask.mask = mask[p].getToggleState();
+
+    fix[p].copyParams(copyObj.fix);
+    pitchEnv[p].copyParams(copyObj.pAdsr);
+    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+}
+
+void GuiOpm::pasteParamsOpn(CopyOpnOpm& copyObj) {
+    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
+    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    levelSlider.setValue(copyObj.fmBase.level, juce::sendNotification);
+    algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
+    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+
+    unisonComponent.pasteParams(copyObj.unison);
+}
+
+void GuiOpm::pasteOpParamsOpn(int p, CopyOpnOpmOp& copyObj) {
+    mul[p].setSelectedId(copyObj.detune.mul, juce::sendNotification);
+    dt1[p].setValue(copyObj.detune.dt, juce::sendNotification);
+    rgAr[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    rgD1r[p].setValue(copyObj.aAdsr.dr, juce::sendNotification);
+    rgD1l[p].setValue(copyObj.aAdsr.sl, juce::sendNotification);
+    rgD2r[p].setValue(copyObj.aAdsr.sr, juce::sendNotification);
+    rgRr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    rgTl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+    ks[p].setSelectedId(copyObj.aAdsr.ks, juce::sendNotification);
+
+    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+
+    fix[p].pasteParams(copyObj.fix);
+    pitchEnv[p].pasteParams(copyObj.pAdsr);
+    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+}
+
+void GuiOpm::copyParamsOpnaOpn(CopyOpnaOpnOpm& copyObj) {
+    copyObj.quality.depth = bitSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.fmBase.level = levelSlider.getValue();
+    copyObj.fmBase.algorithm = algSelector.getSelectedId();
+    copyObj.fmBase.feedback = feedbackSlider.getValue();
+
+    unisonComponent.copyParams(copyObj.unison);
+}
+
+void GuiOpm::copyOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj) {
+    copyObj.detune.mul = mul[p].getSelectedItemIndex();
+    copyObj.detune.dt = dt1[p].getValue();
+    copyObj.aAdsr.ar = rgAr[p].getValue();
+    copyObj.aAdsr.dr = rgD1r[p].getValue();
+    copyObj.aAdsr.sl = rgD1l[p].getValue();
+    copyObj.aAdsr.sr = rgD2r[p].getValue();
+    copyObj.aAdsr.rr = rgRr[p].getValue();
+    copyObj.aAdsr.tl = rgTl[p].getValue();
+    copyObj.aAdsr.bypass = bypass[p].getToggleState();
+    copyObj.aAdsr.kor = kor[p].getToggleState();
+    copyObj.aAdsr.xof = xof[p].getToggleState();
+    copyObj.aAdsr.ks = ks[p].getSelectedId();
+
+    copyObj.mask.mask = mask[p].getToggleState();
+
+    fix[p].copyParams(copyObj.fix);
+    pitchEnv[p].copyParams(copyObj.pAdsr);
+    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+}
+
+void GuiOpm::pasteParamsOpnaOpn(CopyOpnaOpnOpm& copyObj) {
+    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
+    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    levelSlider.setValue(copyObj.fmBase.level, juce::sendNotification);
+    algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
+    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+
+    unisonComponent.pasteParams(copyObj.unison);
+}
+
+void GuiOpm::pasteOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj) {
+    mul[p].setSelectedItemIndex(copyObj.detune.mul, juce::sendNotification);
+    dt1[p].setValue(copyObj.detune.dt, juce::sendNotification);
+    rgAr[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    rgD1r[p].setValue(copyObj.aAdsr.dr, juce::sendNotification);
+    rgD1l[p].setValue(copyObj.aAdsr.sl, juce::sendNotification);
+    rgD2r[p].setValue(copyObj.aAdsr.sr, juce::sendNotification);
+    rgRr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    rgTl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+    ks[p].setSelectedId(copyObj.aAdsr.ks, juce::sendNotification);
 
     mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
 

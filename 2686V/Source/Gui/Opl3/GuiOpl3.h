@@ -71,6 +71,8 @@ class GuiOpl3 : public GuiBase
     GuiTextButton initLfoToOpllBtn;
     GuiSeparator uSep002;
     GuiTextButton copyOpParamToOplBtn;
+    GuiTextButton copyOpParamToOpl12Btn;
+    GuiTextButton copyOpParamToOpl34Btn;
     GuiSeparator uSep003;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
@@ -161,6 +163,8 @@ public:
         initLfoToOpllBtn(context),
         uSep002(context),
         copyOpParamToOplBtn(context),
+        copyOpParamToOpl12Btn(context),
+        copyOpParamToOpl34Btn(context),
         uSep003(context),
         copyOpParamBtn(context),
         copyOpFromSlider(context),

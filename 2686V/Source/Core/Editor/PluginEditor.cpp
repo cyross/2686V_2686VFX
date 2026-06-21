@@ -1606,6 +1606,43 @@ void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
     }
 }
 
+void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
+    }
+}
 
 void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
     CopyOpl3 opl3Params;
@@ -1630,6 +1667,7 @@ void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
 
         oplOpParams.detune = opl3OpParams.detune;
         oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
         // waveSelectは、母数が違うためコピーしない
         oplOpParams.lfo = opl3OpParams.lfo;
         oplOpParams.pAdsr = opl3OpParams.pAdsr;
@@ -1640,6 +1678,47 @@ void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
     }
 }
 
+void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
+    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
+    // OPL3 の OP3, OP4 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i + 2, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP3 -> OP1 / OP4 -> OP2
+    }
+}
 
 void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
     CopyOpn opnParams;
@@ -1684,7 +1763,6 @@ void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
     }
 }
 
-
 void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
     CopyOpna opnaParams;
     CopyOpn opnParams;
@@ -1713,6 +1791,70 @@ void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
         opnOpParams.mask = opnaOpParams.mask;
 
         opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnaParamsToOpm() {
+    CopyOpnaOpnOpm params;
+
+    opnaGui->copyParamsOpnOpm(params);
+
+    opmGui->pasteParamsOpnaOpn(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opnaGui->copyOpParamsOpnOpm(i, opParams);
+
+        opmGui->pasteOpParamsOpnaOpn(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpmParamsToOpna() {
+    CopyOpnaOpnOpm params;
+
+    opmGui->copyParamsOpnaOpn(params);
+
+    opnaGui->pasteParamsOpnOpm(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opmGui->copyOpParamsOpnaOpn(i, opParams);
+
+        opnaGui->pasteOpParamsOpnOpm(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnParamsToOpm() {
+    CopyOpnaOpnOpm params;
+
+    opnGui->copyParamsOpnaOpm(params);
+
+    opmGui->pasteParamsOpnaOpn(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opnGui->copyOpParamsOpnaOpm(i, opParams);
+
+        opmGui->pasteOpParamsOpnaOpn(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpmParamsToOpn() {
+    CopyOpnaOpnOpm params;
+
+    opmGui->copyParamsOpnaOpn(params);
+
+    opnGui->pasteParamsOpnaOpm(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opmGui->copyOpParamsOpnaOpn(i, opParams);
+
+        opnGui->pasteOpParamsOpnaOpm(i, opParams);
     }
 }
 

@@ -4,8 +4,6 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../Fm/FmClipboard.h"
-
 #include "../../Processor/Opna/ProcessorOpna.h"
 #include "../../Processor/Opn/ProcessorOpn.h"
 #include "../../Processor/Opl/ProcessorOpl.h"
@@ -601,8 +599,6 @@ public:
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
     CurveCore* getCurveCore();
-
-    FmClipboard fmClipboard;
 
     void bakeCurves();
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);

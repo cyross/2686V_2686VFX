@@ -151,9 +151,17 @@ public:
     void copyOpnaOpParams(int from, int to);
     void copyOpzx7OpParams(int from, int to);
     void copyOplParamsToOpl3();
+    void copyOplParamsToOpl312();
+    void copyOplParamsToOpl334();
     void copyOpl3ParamsToOpl();
+    void copyOpl312ParamsToOpl();
+    void copyOpl334ParamsToOpl();
     void copyOpnParamsToOpna();
     void copyOpnaParamsToOpn();
+    void copyOpnaParamsToOpm();
+    void copyOpmParamsToOpna();
+    void copyOpnParamsToOpm();
+    void copyOpmParamsToOpn();
     void updateFxOrder();
 private:
     AudioPlugin2686V& audioProcessor;

@@ -16,6 +16,29 @@ struct CopyFmBase {
 	int feedback;
 };
 
+struct CopyKSOpn {
+	int ks;
+};
+
+struct CopyKSOpl {
+	bool ksr;
+	int ksl;
+};
+
+struct CopyKSOpp {
+	int ksr;
+	int ksl;
+};
+
+struct CopyKSOps {
+	int ksBp;
+	int ksLc;
+	int ksRc;
+	float ksLd;
+	float ksRd;
+	int ksRs;
+};
+
 struct CopyEnvAmpAdsr {
 	float stl;
 	float ar;
@@ -347,6 +370,12 @@ struct CopyOpn {
 	CopyUnison unison;
 };
 
+struct CopyOpnOpm {
+	CopyFmBase fmBase;
+	CopyQuality quality;
+	CopyUnison unison;
+};
+
 struct CopyOpnOp {
 	CopyDetuneOpn detune;
 	CopyEnvRgAdssr aAdsr;
@@ -355,8 +384,15 @@ struct CopyOpnOp {
 	CopyEnvPitchAdsr pAdsr;
 	CopyEnvSsgSw aSsgSw;
 	CopyMask mask;
+};
 
-	int waveSelect;
+struct CopyOpnOpmOp {
+	CopyDetuneOpn detune;
+	CopyEnvRgAdssr aAdsr;
+	CopyFix fix;
+	CopyEnvPitchAdsr pAdsr;
+	CopyEnvSsgSw aSsgSw;
+	CopyMask mask;
 };
 
 struct CopyOpna {
@@ -368,6 +404,26 @@ struct CopyOpna {
 };
 
 struct CopyOpnaOp {
+	CopyDetuneOpn detune;
+	CopyEnvRgAdssr aAdsr;
+	CopySsgEg ssgEg;
+	CopyFix fix;
+	CopyLfoOpna opnaLfo;
+	CopyLfoN88Op n88Lfo;
+	CopyEnvPitchAdsr pAdsr;
+	CopyEnvSsgSw aSsgSw;
+	CopyMask mask;
+
+	int waveSelect;
+};
+
+struct CopyOpnaOpnOpm {
+	CopyFmBase fmBase;
+	CopyQuality quality;
+	CopyUnison unison;
+};
+
+struct CopyOpnaOpnOpmOp {
 	CopyDetuneOpn detune;
 	CopyEnvRgAdssr aAdsr;
 	CopySsgEg ssgEg;

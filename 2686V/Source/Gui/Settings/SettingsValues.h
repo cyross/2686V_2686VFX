@@ -2,8 +2,6 @@
 
 #include <JuceHeader.h>
 
-#include "../../Core/Fm/FmClipboard.h"
-
 namespace SettingsValue
 {
 	namespace Initial

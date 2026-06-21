@@ -93,6 +93,9 @@ class GuiOpm : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
+    GuiTextButton copyParamsToOpnaBtn;
+    GuiTextButton copyParamsToOpnBtn;
+    GuiSeparator uSep002;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
@@ -193,6 +196,9 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
+        copyParamsToOpnaBtn(context),
+        copyParamsToOpnBtn(context),
+        uSep002(context),
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
@@ -263,4 +269,12 @@ public:
     void copyOpParams(int p, CopyOpmOp& copyObj);
     void pasteParams(CopyOpm& copyObj);
     void pasteOpParams(int p, CopyOpmOp& copyObj);
+    void copyParamsOpn(CopyOpnOpm& copyObj);
+    void copyParamsOpnaOpn(CopyOpnaOpnOpm& copyObj);
+    void copyOpParamsOpn(int p, CopyOpnOpmOp& copyObj);
+    void copyOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj);
+    void pasteParamsOpn(CopyOpnOpm& copyObj);
+    void pasteParamsOpnaOpn(CopyOpnaOpnOpm& copyObj);
+    void pasteOpParamsOpn(int p, CopyOpnOpmOp& copyObj);
+    void pasteOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj);
 };

@@ -195,11 +195,25 @@ void GuiOpl3::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPL3" });
+    copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params (OP 1/2) -> OPL" });
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
     copyOpParamToOplBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOplBtn.onClick = [this] {
         ctx.editor.copyOpl3ParamsToOpl();
+        };
+
+    copyOpParamToOpl12Btn.setup({ .parent = mainGroup.contentCanvas, .title = "1/2 OP Params -> OPL" });
+    copyOpParamToOpl12Btn.setWantsKeyboardFocus(true);
+    copyOpParamToOpl12Btn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamToOpl12Btn.onClick = [this] {
+        ctx.editor.copyOpl312ParamsToOpl();
+        };
+
+    copyOpParamToOpl34Btn.setup({ .parent = mainGroup.contentCanvas, .title = "3/4 OP Params -> OPL" });
+    copyOpParamToOpl34Btn.setWantsKeyboardFocus(true);
+    copyOpParamToOpl34Btn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamToOpl34Btn.onClick = [this] {
+        ctx.editor.copyOpl334ParamsToOpl();
         };
 
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
@@ -770,6 +784,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     initLfoToOpllBtn.setVisible(visible);
     uSep002.setVisible(visible);
     copyOpParamToOplBtn.setVisible(visible);
+    copyOpParamToOpl12Btn.setVisible(visible);
+    copyOpParamToOpl34Btn.setVisible(visible);
     uSep003.setVisible(visible);
     copyOpParamBtn.setVisible(visible);
     copyOpFromSlider.setVisibleWithLabel(visible);
@@ -789,6 +805,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
         uSep002.setBounds(uSep002Area);
 
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOplBtn });
+        layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl12Btn });
+        layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl34Btn });
 
         auto uSep003Area = rect.removeFromTop(4);
         uSep003.setBounds(uSep003Area);
