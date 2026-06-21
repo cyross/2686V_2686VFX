@@ -132,6 +132,19 @@ class GuiWt2 : public GuiBase
     GuiSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
+    GuiSeparator uSep002;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importAmpEnvParamButton;
+    GuiTextButton exportAmpEnvParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiTextButton importDetuneParamButton;
+    GuiTextButton exportDetuneParamButton;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
@@ -180,6 +193,19 @@ public:
         uSep001(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
+        uSep002(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importAmpEnvParamButton(context),
+        exportAmpEnvParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        importDetuneParamButton(context),
+        exportDetuneParamButton(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         sizeSelector(context),
         resoSelector(context),
         waveSelector(context),
@@ -214,4 +240,16 @@ public:
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };

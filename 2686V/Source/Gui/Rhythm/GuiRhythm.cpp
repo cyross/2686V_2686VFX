@@ -429,6 +429,38 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pitchEnvComponent.pasteParams(copyObj.pAdsr);
 }
 
+void RhythmPadGui::importLfoParam() {
+    lfoComponent.importParams();
+}
+
+void RhythmPadGui::exportLfoParam() {
+    lfoComponent.exportParams();
+}
+
+void RhythmPadGui::importAmpEnvParam() {
+    ampEnvComponent.importParams();
+}
+
+void RhythmPadGui::exportAmpEnvParam() {
+    ampEnvComponent.exportParams();
+}
+
+void RhythmPadGui::importPitchEnvParam() {
+    pitchEnvComponent.importParams();
+}
+
+void RhythmPadGui::exportPitchEnvParam() {
+    pitchEnvComponent.exportParams();
+}
+
+void RhythmPadGui::importSsgSwEnvParam() {
+    ssgSwEnvComponent.importParams();
+}
+
+void RhythmPadGui::exportSsgSwEnvParam() {
+    ssgSwEnvComponent.exportParams();
+}
+
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -467,7 +499,7 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
+    copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
     copyPadParamBtn.setWantsKeyboardFocus(true);
     copyPadParamBtn.setExplicitFocusOrder(++tabOrder);
     copyPadParamBtn.onClick = [this] {
@@ -501,6 +533,105 @@ void GuiRhythm::setup()
         int to = copyPadToSlider.getValue() - 1;
 
         copyPadParamBtn.setEnabled(from != to);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importLfoParamButton.setWantsKeyboardFocus(true);
+    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    importLfoParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importLfoParam(padIndex);
+        };
+
+    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportLfoParamButton.setWantsKeyboardFocus(true);
+    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    exportLfoParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportLfoParam(padIndex);
+        };
+
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setWantsKeyboardFocus(true);
+    importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importAmpEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importAmpEnvParam(padIndex);
+        };
+
+    exportAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportAmpEnvParamButton.setWantsKeyboardFocus(true);
+    exportAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportAmpEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportAmpEnvParam(padIndex);
+        };
+
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setWantsKeyboardFocus(true);
+    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importPitchEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importPitchEnvParam(padIndex);
+        };
+
+    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
+    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPitchEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportPitchEnvParam(padIndex);
+        };
+
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importSsgSwEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importSsgSwEnvParam(padIndex);
+        };
+
+    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportSsgSwEnvParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportSsgSwEnvParam(padIndex);
+        };
+
+    targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
+    targerPadSlider.setRange(1.0, 8.0, 1.0);
+    targerPadSlider.setNumDecimalPlacesToDisplay(0);
+    targerPadSlider.setValue(1, juce::sendNotification);
+    targerPadSlider.setWantsKeyboardFocus(true);
+    targerPadSlider.setExplicitFocusOrder(++tabOrder);
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
+    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setWantsKeyboardFocus(true);
+    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    importUnisonParamButton.onClick = [this] {
+        importUnisonParam();
+        };
+
+    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportUnisonParamButton.setWantsKeyboardFocus(true);
+    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    exportUnisonParamButton.onClick = [this] {
+        exportUnisonParam();
         };
 
     // Setup Pads
@@ -579,6 +710,19 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyPadParamBtn.setVisible(visible);
     copyPadFromSlider.setVisibleWithLabel(visible);
     copyPadToSlider.setVisibleWithLabel(visible);
+    uSep002.setVisible(visible);
+    importLfoParamButton.setVisible(visible);
+    exportLfoParamButton.setVisible(visible);
+    importAmpEnvParamButton.setVisible(visible);
+    exportAmpEnvParamButton.setVisible(visible);
+    importPitchEnvParamButton.setVisible(visible);
+    exportPitchEnvParamButton.setVisible(visible);
+    importSsgSwEnvParamButton.setVisible(visible);
+    exportSsgSwEnvParamButton.setVisible(visible);
+    targerPadSlider.setVisibleWithLabel(visible);
+    uSep003.setVisible(visible);
+    importUnisonParamButton.setVisible(visible);
+    exportUnisonParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -590,6 +734,37 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &copyPadParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyPadFromSlider.label, .component = &copyPadFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyPadToSlider.label, .component = &copyPadToSlider });
+
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importAmpEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportAmpEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .label = &targerPadSlider.label, .component = &targerPadSlider });
+
+        auto uSep003Area = rect.removeFromTop(4);
+        uSep003.setBounds(uSep003Area);
+
+        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
     }
 }
 
@@ -674,4 +849,44 @@ void GuiRhythm::copyPadParams(int p, CopyRhythmPad& copyObj) {
 
 void GuiRhythm::pastePadParams(int p, CopyRhythmPad& copyObj) {
     pads[p].pasteParams(copyObj);
+}
+
+void GuiRhythm::importLfoParam(int p) {
+    pads[p].importLfoParam();
+}
+
+void GuiRhythm::exportLfoParam(int p) {
+    pads[p].exportLfoParam();
+}
+
+void GuiRhythm::importAmpEnvParam(int p) {
+    pads[p].importAmpEnvParam();
+}
+
+void GuiRhythm::exportAmpEnvParam(int p) {
+    pads[p].exportAmpEnvParam();
+}
+
+void GuiRhythm::importPitchEnvParam(int p) {
+    pads[p].importPitchEnvParam();
+}
+
+void GuiRhythm::exportPitchEnvParam(int p) {
+    pads[p].exportPitchEnvParam();
+}
+
+void GuiRhythm::importSsgSwEnvParam(int p) {
+    pads[p].importSsgSwEnvParam();
+}
+
+void GuiRhythm::exportSsgSwEnvParam(int p) {
+    pads[p].exportSsgSwEnvParam();
+}
+
+void GuiRhythm::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiRhythm::exportUnisonParam() {
+    unisonComponent.exportParams();
 }

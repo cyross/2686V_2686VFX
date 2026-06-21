@@ -353,3 +353,48 @@ void GuiComponentSsgSwEnv::pasteParams(CopyEnvSsgSw& copyObj) {
     r6.setValue(copyObj.r[5], juce::sendNotification);
     l6.setValue(copyObj.l[5], juce::sendNotification);
 }
+
+void GuiComponentSsgSwEnv::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importSsgSwEnvParamFile, defaultDir, Io::ExtensionGlob::SsgSwEnvParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+}
+
+void GuiComponentSsgSwEnv::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultSsgSwEnvParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportSsgSwEnvParamFile, defaultDir.getChildFile("default.ssgSwEnv"), Io::ExtensionGlob::SsgSwEnvParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}

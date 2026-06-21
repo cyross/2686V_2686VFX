@@ -213,6 +213,93 @@ void GuiAdpcm::setup()
         ctx.editor.breadcastLevel(level);
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importLfoParamButton.setWantsKeyboardFocus(true);
+    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    importLfoParamButton.onClick = [this] {
+        importLfoParam();
+        };
+
+    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportLfoParamButton.setWantsKeyboardFocus(true);
+    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    exportLfoParamButton.onClick = [this] {
+        exportLfoParam();
+        };
+
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setWantsKeyboardFocus(true);
+    importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importAmpEnvParamButton.onClick = [this] {
+        importAmpEnvParam();
+        };
+
+    exportAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ampEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportAmpEnvParamButton.setWantsKeyboardFocus(true);
+    exportAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportAmpEnvParamButton.onClick = [this] {
+        exportAmpEnvParam();
+        };
+
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setWantsKeyboardFocus(true);
+    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importPitchEnvParamButton.onClick = [this] {
+        importPitchEnvParam();
+        };
+
+    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
+    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPitchEnvParamButton.onClick = [this] {
+        exportPitchEnvParam();
+        };
+
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importSsgSwEnvParamButton.onClick = [this] {
+        importSsgSwEnvParam();
+        };
+
+    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportSsgSwEnvParamButton.onClick = [this] {
+        exportSsgSwEnvParam();
+        };
+
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importDetuneParamButton.setWantsKeyboardFocus(true);
+    importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
+    importDetuneParamButton.onClick = [this] {
+        importDetuneParam();
+        };
+
+    exportDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::detuneFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportDetuneParamButton.setWantsKeyboardFocus(true);
+    exportDetuneParamButton.setExplicitFocusOrder(++tabOrder);
+    exportDetuneParamButton.onClick = [this] {
+        exportDetuneParam();
+        };
+
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setWantsKeyboardFocus(true);
+    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    importUnisonParamButton.onClick = [this] {
+        importUnisonParam();
+        };
+
+    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportUnisonParamButton.setWantsKeyboardFocus(true);
+    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    exportUnisonParamButton.onClick = [this] {
+        exportUnisonParam();
+        };
+
     setupGraph();
     updateGraph();
 }
@@ -336,10 +423,54 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     bool visible = utilityCat.isDetailVisible();
 
     broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    importLfoParamButton.setVisible(visible);
+    exportLfoParamButton.setVisible(visible);
+    importAmpEnvParamButton.setVisible(visible);
+    exportAmpEnvParamButton.setVisible(visible);
+    importPitchEnvParamButton.setVisible(visible);
+    exportPitchEnvParamButton.setVisible(visible);
+    importSsgSwEnvParamButton.setVisible(visible);
+    exportSsgSwEnvParamButton.setVisible(visible);
+    importDetuneParamButton.setVisible(visible);
+    exportDetuneParamButton.setVisible(visible);
+    importUnisonParamButton.setVisible(visible);
+    exportUnisonParamButton.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+
+        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importAmpEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportAmpEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
     }
 }
 
@@ -484,4 +615,52 @@ void GuiAdpcm::updateGraph()
 
 void GuiAdpcm::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiAdpcm::importLfoParam() {
+    lfoComponent.importParams();
+}
+
+void GuiAdpcm::exportLfoParam() {
+    lfoComponent.exportParams();
+}
+
+void GuiAdpcm::importAmpEnvParam() {
+    ampEnvComponent.importParams();
+}
+
+void GuiAdpcm::exportAmpEnvParam() {
+    ampEnvComponent.exportParams();
+}
+
+void GuiAdpcm::importPitchEnvParam() {
+    pitchEnvComponent.importParams();
+}
+
+void GuiAdpcm::exportPitchEnvParam() {
+    pitchEnvComponent.exportParams();
+}
+
+void GuiAdpcm::importSsgSwEnvParam() {
+    ssgSwEnvComponent.importParams();
+}
+
+void GuiAdpcm::exportSsgSwEnvParam() {
+    ssgSwEnvComponent.exportParams();
+}
+
+void GuiAdpcm::importDetuneParam() {
+    mulDetuneComponent.importParams();
+}
+
+void GuiAdpcm::exportDetuneParam() {
+    mulDetuneComponent.exportParams();
+}
+
+void GuiAdpcm::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiAdpcm::exportUnisonParam() {
+    unisonComponent.exportParams();
 }

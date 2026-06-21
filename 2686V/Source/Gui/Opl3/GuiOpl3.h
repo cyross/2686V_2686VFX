@@ -77,6 +77,18 @@ class GuiOpl3 : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
+    GuiSeparator uSep004;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep005;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -169,6 +181,17 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
+        uSep004(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerOpSlider(context),
+        uSep005(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -241,4 +264,12 @@ public:
     void copyOpParams(int p, CopyOpl3Op& copyObj);
     void pasteParams(CopyOpl3& copyObj);
     void pasteOpParams(int p, CopyOpl3Op& copyObj);
+    void importLfoParam(int opIndex);
+    void exportLfoParam(int opIndex);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importUnisonParam();
+    void exportUnisonParam();
 };

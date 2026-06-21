@@ -25,6 +25,7 @@ class GuiComponentMulDetune : public GuiBase {
     GuiSlider dt2;
     GuiSlider dt3;
     GuiComponentPitchButtons dt3Buttons;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentMulDetune(const GuiContext& context) :
@@ -43,4 +44,6 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void copyParams(CopyDetuneOpzx7& copyObj);
     void pasteParams(CopyDetuneOpzx7& copyObj);
+    void importParams();
+    void exportParams();
 };

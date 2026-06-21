@@ -574,6 +574,13 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
     xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
+    xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+    xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
+    xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
+    xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -597,6 +604,12 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
 		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
         defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
+        defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
+        defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
+        defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
+        defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
+        defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
+        defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -692,6 +705,90 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultFxOrderDir = newFxOrderDir.getFullPathName();
+    }
+
+    if (defaultFxParamDir.isEmpty() || !juce::File(defaultFxParamDir).isDirectory())
+    {
+        auto newFxParamDir = pluginDir.getChildFile(Io::Folder::fxParam);
+
+        // 存在していなければ作成
+        if (!newFxParamDir.exists()) {
+            newFxParamDir.createDirectory();
+        }
+
+        defaultFxParamDir = newFxParamDir.getFullPathName();
+    }
+
+    if (defaultLfoParamDir.isEmpty() || !juce::File(defaultLfoParamDir).isDirectory())
+    {
+        auto newLfoParamDir = pluginDir.getChildFile(Io::Folder::lfoParam);
+
+        // 存在していなければ作成
+        if (!newLfoParamDir.exists()) {
+            newLfoParamDir.createDirectory();
+        }
+
+        defaultLfoParamDir = newLfoParamDir.getFullPathName();
+    }
+
+    if (defaultAmpEnvParamDir.isEmpty() || !juce::File(defaultAmpEnvParamDir).isDirectory())
+    {
+        auto newAmpEnvParamDir = pluginDir.getChildFile(Io::Folder::ampEnvParam);
+
+        // 存在していなければ作成
+        if (!newAmpEnvParamDir.exists()) {
+            newAmpEnvParamDir.createDirectory();
+        }
+
+        defaultAmpEnvParamDir = newAmpEnvParamDir.getFullPathName();
+    }
+
+    if (defaultPitchEnvParamDir.isEmpty() || !juce::File(defaultPitchEnvParamDir).isDirectory())
+    {
+        auto newPitchEnvParamDir = pluginDir.getChildFile(Io::Folder::pitchEnvParam);
+
+        // 存在していなければ作成
+        if (!newPitchEnvParamDir.exists()) {
+            newPitchEnvParamDir.createDirectory();
+        }
+
+        defaultPitchEnvParamDir = newPitchEnvParamDir.getFullPathName();
+    }
+
+    if (defaultSsgSwEnvParamDir.isEmpty() || !juce::File(defaultSsgSwEnvParamDir).isDirectory())
+    {
+        auto newSsgSwEnvParamDir = pluginDir.getChildFile(Io::Folder::ssgSwEnvParam);
+
+        // 存在していなければ作成
+        if (!newSsgSwEnvParamDir.exists()) {
+            newSsgSwEnvParamDir.createDirectory();
+        }
+
+        defaultSsgSwEnvParamDir = newSsgSwEnvParamDir.getFullPathName();
+    }
+
+    if (defaultDetuneParamDir.isEmpty() || !juce::File(defaultDetuneParamDir).isDirectory())
+    {
+        auto newDetuneParamDir = pluginDir.getChildFile(Io::Folder::detuneParam);
+
+        // 存在していなければ作成
+        if (!newDetuneParamDir.exists()) {
+            newDetuneParamDir.createDirectory();
+        }
+
+        defaultDetuneParamDir = newDetuneParamDir.getFullPathName();
+    }
+
+    if (defaultUnisonParamDir.isEmpty() || !juce::File(defaultUnisonParamDir).isDirectory())
+    {
+        auto newUnisonParamDir = pluginDir.getChildFile(Io::Folder::unisonParam);
+
+        // 存在していなければ作成
+        if (!newUnisonParamDir.exists()) {
+            newUnisonParamDir.createDirectory();
+        }
+
+        defaultUnisonParamDir = newUnisonParamDir.getFullPathName();
     }
 }
 

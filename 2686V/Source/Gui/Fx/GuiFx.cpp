@@ -38,6 +38,8 @@ GuiFx::GuiFx(const GuiContext& context) :
     fileSeparator(context),
     importFxOrderBtn(context),
     exportFxOrderBtn(context),
+    importFxParamBtn(context),
+    exportFxParamBtn(context),
     tBypassBtn(context),
     tSeparator(context),
     tRateSlider(context),
@@ -143,13 +145,13 @@ void GuiFx::setup()
     addAndMakeVisible(routeSeparator);
     routeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    showRouteBtn.setup({ .parent = *this, .title = isShowRoute ? juce::String("") + "→FXルーティング非表示"  : juce::String("") + "→FXルーティング表示", .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = isShowRoute ? juce::String("") + "FX設定非表示"  : juce::String("") + "FX設定表示", .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
         isShowRoute = !isShowRoute;
 
-        showRouteBtn.setTitle(isShowRoute ? juce::String("") + "→FXルーティング非表示" : juce::String("") + "→FXルーティング表示");
+        showRouteBtn.setTitle(isShowRoute ? juce::String("") + "FX設定非表示" : juce::String("") + "FX設定表示");
 
         ctx.editor.resized();
         };
@@ -201,15 +203,25 @@ void GuiFx::setup()
     addAndMakeVisible(fileSeparator);
     fileSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     importFxOrderBtn.setWantsKeyboardFocus(true);
     importFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     importFxOrderBtn.onClick = [this] { importFxOrder(); };
 
-    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     exportFxOrderBtn.setWantsKeyboardFocus(true);
     exportFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     exportFxOrderBtn.onClick = [this] { exportFxOrder(); };
+
+    importFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importFxParamBtn.setWantsKeyboardFocus(true);
+    importFxParamBtn.setExplicitFocusOrder(++tabOrder);
+    importFxParamBtn.onClick = [this] { importFxParam(); };
+
+    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportFxParamBtn.setWantsKeyboardFocus(true);
+    exportFxParamBtn.setExplicitFocusOrder(++tabOrder);
+    exportFxParamBtn.onClick = [this] { exportFxParam(); };
 
     // Filter Group
     filterGroup.setup(*this, FxGuiText::Group::fxFilter);
@@ -840,6 +852,8 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
     fileSeparator.setVisible(isShowRoute);
     importFxOrderBtn.setVisible(isShowRoute);
     exportFxOrderBtn.setVisible(isShowRoute);
+    importFxParamBtn.setVisible(isShowRoute);
+    exportFxParamBtn.setVisible(isShowRoute);
 
     if (!isShowRoute) {
         return;
@@ -854,6 +868,11 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
 
     layoutMain({ .mainRect = rect, .component = &importFxOrderBtn });
     layoutMain({ .mainRect = rect, .component = &exportFxOrderBtn });
+
+    rect.removeFromTop(4);
+
+    layoutMain({ .mainRect = rect, .component = &importFxParamBtn });
+    layoutMain({ .mainRect = rect, .component = &exportFxParamBtn });
 }
 
 void GuiFx::updateFxOrder() {
@@ -1037,6 +1056,53 @@ void GuiFx::exportFxOrder()
                 for (int v : order) {
                     content += juce::String(v) + "\n";
                 }
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiFx::importFxParam()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importFxParamFile, defaultDir, Io::ExtensionGlob::fxParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+}
+
+void GuiFx::exportFxParam()
+{
+    juce::File defaultDir(ctx.audioProcessor.defaultFxParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportFxParamFile, defaultDir.getChildFile("default.2fx"), Io::ExtensionGlob::fxParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
 
                 file.replaceWithText(content);
             }

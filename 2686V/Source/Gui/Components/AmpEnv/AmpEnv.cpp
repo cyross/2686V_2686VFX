@@ -149,3 +149,48 @@ void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
 	startLevel.setValue(copyObj.stl, juce::sendNotification);
 	kor.setToggleState(copyObj.kor, juce::sendNotification);
 }
+
+void GuiComponentAmpEnv::importParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importAmpEnvParamFile, defaultDir, Io::ExtensionGlob::AmpEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file.existsAsFile()) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::StringArray lines;
+				file.readLines(lines);
+
+				if (lines.size() == 0) return;
+			}
+		});
+}
+
+void GuiComponentAmpEnv::exportParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv"), Io::ExtensionGlob::AmpEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file != juce::File{}) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::String content = "\n";
+
+				file.replaceWithText(content);
+			}
+		});
+}

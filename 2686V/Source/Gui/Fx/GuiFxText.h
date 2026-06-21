@@ -25,8 +25,10 @@ namespace FxGuiText
 		static inline const juce::String bypass = juce::String("") + "バイパス";
 		static inline const juce::String reset = juce::String("") + "パラメータリセット";
 		static inline const juce::String mix = u8"Mix";
-		static inline const juce::String fileImport = u8"Import (.fxo)";
-		static inline const juce::String fileExport = u8"Export (.fxo)";
+		static inline const juce::String orderFileImport = u8"Import Order (.fxo)";
+		static inline const juce::String orderFileExport = u8"Export Order (.fxo)";
+		static inline const juce::String paramFileImport = u8"Import Param (.2fx)";
+		static inline const juce::String paramFileExport = u8"Export Param (.2fx)";
 
 		namespace Mix
 		{

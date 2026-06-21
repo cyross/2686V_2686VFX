@@ -46,6 +46,8 @@ class GuiFx : public GuiBase
     GuiSeparator fileSeparator;
     GuiTextButton importFxOrderBtn;
     GuiTextButton exportFxOrderBtn;
+    GuiTextButton importFxParamBtn;
+    GuiTextButton exportFxParamBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // 以降、エフェクトごとの設定
@@ -125,6 +127,8 @@ class GuiFx : public GuiBase
     void updateSfcEchoEnabled();
     void importFxOrder();
     void exportFxOrder();
+    void importFxParam();
+    void exportFxParam();
 public:
     GuiFx(const GuiContext& context);
 

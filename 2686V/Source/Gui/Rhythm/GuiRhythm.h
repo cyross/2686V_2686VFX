@@ -142,6 +142,14 @@ public:
     void layoutGraph(juce::Rectangle<int>& rect);
     void copyParams(CopyRhythmPad& copyObj);
     void pasteParams(CopyRhythmPad& copyObj);
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
 };
 
 class GuiRhythm : public GuiBase
@@ -166,6 +174,19 @@ class GuiRhythm : public GuiBase
     GuiTextButton copyPadParamBtn;
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
+    GuiSeparator uSep002;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importAmpEnvParamButton;
+    GuiTextButton exportAmpEnvParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerPadSlider;
+    GuiSeparator uSep003;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
@@ -184,6 +205,19 @@ public:
         copyPadParamBtn(context),
         copyPadFromSlider(context),
         copyPadToSlider(context),
+        uSep002(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importAmpEnvParamButton(context),
+        exportAmpEnvParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerPadSlider(context),
+        uSep003(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -201,4 +235,14 @@ public:
     void setLevel(float level);
     void copyPadParams(int p, CopyRhythmPad& copyObj);
     void pastePadParams(int p, CopyRhythmPad& copyObj);
+    void importLfoParam(int p);
+    void exportLfoParam(int p);
+    void importAmpEnvParam(int p);
+    void exportAmpEnvParam(int p);
+    void importPitchEnvParam(int p);
+    void exportPitchEnvParam(int p);
+    void importSsgSwEnvParam(int p);
+    void exportSsgSwEnvParam(int p);
+    void importUnisonParam();
+    void exportUnisonParam();
 };

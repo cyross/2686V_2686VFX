@@ -35,6 +35,7 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiComponentPitchButtons sustainLevelButtons;
     GuiSlider releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentPitchEnv(const GuiContext& context) :
@@ -63,4 +64,6 @@ public:
     void setEnabled(bool enabled);
     void copyParams(CopyEnvPitchAdsr& copyObj);
     void pasteParams(CopyEnvPitchAdsr& copyObj);
+    void importParams();
+    void exportParams();
 };

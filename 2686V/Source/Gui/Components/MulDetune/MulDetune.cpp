@@ -123,3 +123,48 @@ void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
     dt2.setValue(copyObj.dt2, juce::sendNotification);
     dt3.setValue(copyObj.dt3, juce::sendNotification);
 }
+
+void GuiComponentMulDetune::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+}
+
+void GuiComponentMulDetune::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default.detune"), Io::ExtensionGlob::DetuneParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}

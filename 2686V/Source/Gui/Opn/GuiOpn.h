@@ -92,6 +92,18 @@ class GuiOpn : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
+    GuiSeparator uSep003;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep004;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpnPrValue::algorithms> algImages;
@@ -179,6 +191,17 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
+        uSep003(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerOpSlider(context),
+        uSep004(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -251,4 +274,12 @@ public:
     void pasteParamsOpnaOpm(CopyOpnaOpnOpm& copyObj);
     void pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
     void pasteOpParamsOpnaOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };

@@ -189,3 +189,48 @@ void GuiComponentPitchEnv::pasteParams(CopyEnvPitchAdsr& copyObj) {
 	sustainLevel.setValue(copyObj.ssl, juce::sendNotification);
 	releaseLevel.setValue(copyObj.rll, juce::sendNotification);
 }
+
+void GuiComponentPitchEnv::importParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPitchEnvParamFile, defaultDir, Io::ExtensionGlob::PitchEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file.existsAsFile()) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::StringArray lines;
+				file.readLines(lines);
+
+				if (lines.size() == 0) return;
+			}
+		});
+}
+
+void GuiComponentPitchEnv::exportParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultPitchEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPitchEnvParamFile, defaultDir.getChildFile("default.pitchEnv"), Io::ExtensionGlob::PitchEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file != juce::File{}) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::String content = "\n";
+
+				file.replaceWithText(content);
+			}
+		});
+}

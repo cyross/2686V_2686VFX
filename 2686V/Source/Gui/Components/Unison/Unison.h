@@ -23,6 +23,7 @@ class GuiComponentUnison : public GuiBase {
     GuiSlider detune;
     GuiComponentPitchButtons detuneButtons;
     GuiSlider spread;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentUnison(const GuiContext& context) :
@@ -39,4 +40,6 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void copyParams(CopyUnison& copyObj);
     void pasteParams(CopyUnison& copyObj);
+    void importParams();
+    void exportParams();
 };

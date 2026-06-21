@@ -579,6 +579,13 @@ public:
     juce::String defaultPresetDir; // For Presets
 	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
+    juce::String defaultFxParamDir;
+    juce::String defaultLfoParamDir;
+    juce::String defaultAmpEnvParamDir;
+    juce::String defaultPitchEnvParamDir;
+    juce::String defaultSsgSwEnvParamDir;
+    juce::String defaultDetuneParamDir;
+    juce::String defaultUnisonParamDir;
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値

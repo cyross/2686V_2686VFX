@@ -58,3 +58,49 @@ void GuiComponentUnison::pasteParams(CopyUnison& copyObj) {
     detune.setValue(copyObj.detune, juce::sendNotification);
     spread.setValue(copyObj.spread, juce::sendNotification);
 }
+
+void GuiComponentUnison::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importUnisonParamFile, defaultDir, Io::ExtensionGlob::UnisonParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+
+}
+
+void GuiComponentUnison::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultUnisonParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportUnisonParamFile, defaultDir.getChildFile("default.unison"), Io::ExtensionGlob::UnisonParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}

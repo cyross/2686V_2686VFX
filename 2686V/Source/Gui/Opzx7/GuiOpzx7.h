@@ -230,6 +230,20 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
+    GuiSeparator uSep002;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importDetuneParamButton;
+    GuiTextButton exportDetuneParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep003;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
@@ -350,6 +364,19 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
+        uSep002(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importDetuneParamButton(context),
+        exportDetuneParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerOpSlider(context),
+        uSep003(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -477,4 +504,14 @@ public:
     void copyOpParams(int p, CopyOpzx7Op& copyObj);
     void pasteParams(CopyOpzx7& copyObj);
     void pasteOpParams(int p, CopyOpzx7Op& copyObj);
+    void importLfoParam(int opIndex);
+    void exportLfoParam(int opIndex);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importDetuneParam(int opIndex);
+    void exportDetuneParam(int opIndex);
+    void importUnisonParam();
+    void exportUnisonParam();
 };

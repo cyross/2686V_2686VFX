@@ -272,3 +272,48 @@ void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
     ams.setValue(copyObj.ams, juce::sendNotification);
     amd.setValue(copyObj.amd, juce::sendNotification);
 }
+
+void GuiComponentLfoOpzx7::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+}
+
+void GuiComponentLfoOpzx7::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpzx7"), Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}

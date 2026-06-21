@@ -302,14 +302,14 @@ void GuiOpm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA" });
+    copyParamsToOpnaBtn.setup({ .parent = mainGroup.contentCanvas, .title = "OP Params -> OPNA", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyParamsToOpnaBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnaBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnaBtn.onClick = [this] {
         ctx.editor.copyOpmParamsToOpna();
         };
 
-    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPN" });
+    copyParamsToOpnBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params -> OPN", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyParamsToOpnBtn.setWantsKeyboardFocus(true);
     copyParamsToOpnBtn.setExplicitFocusOrder(++tabOrder);
     copyParamsToOpnBtn.onClick = [this] {
@@ -319,7 +319,7 @@ void GuiOpm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -353,6 +353,83 @@ void GuiOpm::setup()
         int to = copyOpToSlider.getValue() - 1;
 
         copyOpParamBtn.setEnabled(from != to);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
+    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setWantsKeyboardFocus(true);
+    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importPitchEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importPitchEnvParam(opIndex);
+        };
+
+    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
+    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPitchEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportPitchEnvParam(opIndex);
+        };
+
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importSsgSwEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importSsgSwEnvParam(opIndex);
+        };
+
+    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportSsgSwEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportSsgSwEnvParam(opIndex);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep004);
+    uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
+    targerOpSlider.setRange(1.0, 4.0, 1.0);
+    targerOpSlider.setNumDecimalPlacesToDisplay(0);
+    targerOpSlider.setValue(1, juce::sendNotification);
+    targerOpSlider.setWantsKeyboardFocus(true);
+    targerOpSlider.setExplicitFocusOrder(++tabOrder);
+
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importLfoParamButton.setWantsKeyboardFocus(true);
+    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    importLfoParamButton.onClick = [this] {
+        importLfoParam();
+        };
+
+    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportLfoParamButton.setWantsKeyboardFocus(true);
+    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    exportLfoParamButton.onClick = [this] {
+        exportLfoParam();
+        };
+
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setWantsKeyboardFocus(true);
+    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    importUnisonParamButton.onClick = [this] {
+        importUnisonParam();
+        };
+
+    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportUnisonParamButton.setWantsKeyboardFocus(true);
+    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    exportUnisonParamButton.onClick = [this] {
+        exportUnisonParam();
         };
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
@@ -861,6 +938,17 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyOpParamBtn.setVisible(visible);
     copyOpFromSlider.setVisibleWithLabel(visible);
     copyOpToSlider.setVisibleWithLabel(visible);
+    uSep003.setVisible(visible);
+    importLfoParamButton.setVisible(visible);
+    exportLfoParamButton.setVisible(visible);
+    importPitchEnvParamButton.setVisible(visible);
+    exportPitchEnvParamButton.setVisible(visible);
+    importSsgSwEnvParamButton.setVisible(visible);
+    exportSsgSwEnvParamButton.setVisible(visible);
+    targerOpSlider.setVisibleWithLabel(visible);
+    uSep004.setVisible(visible);
+    importUnisonParamButton.setVisible(visible);
+    exportUnisonParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -878,6 +966,32 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+
+        auto uSep003Area = rect.removeFromTop(4);
+        uSep003.setBounds(uSep003Area);
+
+        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
+
+        auto uSep004Area = rect.removeFromTop(4);
+        uSep004.setBounds(uSep004Area);
+
+        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
     }
 }
 
@@ -1481,4 +1595,73 @@ void GuiOpm::pasteOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj) {
     fix[p].pasteParams(copyObj.fix);
     pitchEnv[p].pasteParams(copyObj.pAdsr);
     ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+}
+
+void GuiOpm::importPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].importParams();
+}
+
+void GuiOpm::exportPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].exportParams();
+}
+
+void GuiOpm::importSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].importParams();
+}
+
+void GuiOpm::exportSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].exportParams();
+}
+
+void GuiOpm::importLfoParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OpmLfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+}
+
+void GuiOpm::exportLfoParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpm"), Io::ExtensionGlob::OpmLfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiOpm::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiOpm::exportUnisonParam() {
+    unisonComponent.exportParams();
 }

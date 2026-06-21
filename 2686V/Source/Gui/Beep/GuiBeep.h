@@ -47,6 +47,19 @@ class GuiBeep : public GuiBase {
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importAmpEnvParamButton;
+    GuiTextButton exportAmpEnvParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiTextButton importDetuneParamButton;
+    GuiTextButton exportDetuneParamButton;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -80,6 +93,19 @@ public:
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
+        uSep001(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importAmpEnvParamButton(context),
+        exportAmpEnvParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        importDetuneParamButton(context),
+        exportDetuneParamButton(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -98,4 +124,16 @@ public:
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };

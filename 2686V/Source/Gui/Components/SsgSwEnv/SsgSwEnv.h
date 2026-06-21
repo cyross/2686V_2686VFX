@@ -40,6 +40,7 @@ class GuiComponentSsgSwEnv : public GuiBase {
     GuiSlider l5;
     GuiSlider r6;
     GuiSlider l6;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     void applyLoopValues(bool enabled);
 public:
@@ -75,4 +76,6 @@ public:
     void setEnabled(bool enabled);
     void copyParams(CopyEnvSsgSw& copyObj);
     void pasteParams(CopyEnvSsgSw& copyObj);
+    void importParams();
+    void exportParams();
 };

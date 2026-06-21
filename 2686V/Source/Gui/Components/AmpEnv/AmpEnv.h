@@ -26,6 +26,7 @@ class GuiComponentAmpEnv : public GuiBase {
     GuiSlider sustain;
     GuiSlider release;
     GuiToggleButton kor;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentAmpEnv(const GuiContext& context) :
@@ -49,4 +50,6 @@ public:
     void setEnabled(bool enabled);
     void copyParams(CopyEnvAmpAdsr& copyObj);
     void pasteParams(CopyEnvAmpAdsr& copyObj);
+    void importParams();
+    void exportParams();
 };

@@ -739,7 +739,15 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
                     audioProcessor.defaultSampleDir,
                     audioProcessor.defaultPresetDir,
-                    audioProcessor.defaultWavetableDir
+                    audioProcessor.defaultWavetableDir,
+                    audioProcessor.defaultFxOrderDir,
+                    audioProcessor.defaultFxParamDir,
+                    audioProcessor.defaultLfoParamDir,
+                    audioProcessor.defaultAmpEnvParamDir,
+                    audioProcessor.defaultPitchEnvParamDir,
+                    audioProcessor.defaultSsgSwEnvParamDir,
+                    audioProcessor.defaultDetuneParamDir,
+                    audioProcessor.defaultUnisonParamDir
                 );
 
                 // 壁紙再描画

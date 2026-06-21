@@ -97,6 +97,20 @@ class GuiOpna : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
+    GuiSeparator uSep004;
+    GuiTextButton importHwLfoParamButton;
+    GuiTextButton exportHwLfoParamButton;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep005;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -207,6 +221,19 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
+        uSep004(context),
+        importHwLfoParamButton(context),
+        exportHwLfoParamButton(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerOpSlider(context),
+        uSep005(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
@@ -291,4 +318,14 @@ public:
     void pasteParamsOpnOpm(CopyOpnaOpnOpm& copyObj);
     void pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
     void pasteOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void importHwLfoParam(int opIndex);
+    void exportHwLfoParam(int opIndex);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };

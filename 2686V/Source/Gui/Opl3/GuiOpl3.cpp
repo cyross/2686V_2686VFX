@@ -195,21 +195,21 @@ void GuiOpl3::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params (OP 1/2) -> OPL" });
+    copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params (OP 1/2) -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
     copyOpParamToOplBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOplBtn.onClick = [this] {
         ctx.editor.copyOpl3ParamsToOpl();
         };
 
-    copyOpParamToOpl12Btn.setup({ .parent = mainGroup.contentCanvas, .title = "1/2 OP Params -> OPL" });
+    copyOpParamToOpl12Btn.setup({ .parent = mainGroup.contentCanvas, .title = "1/2 OP Params -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOpl12Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl12Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl12Btn.onClick = [this] {
         ctx.editor.copyOpl312ParamsToOpl();
         };
 
-    copyOpParamToOpl34Btn.setup({ .parent = mainGroup.contentCanvas, .title = "3/4 OP Params -> OPL" });
+    copyOpParamToOpl34Btn.setup({ .parent = mainGroup.contentCanvas, .title = "3/4 OP Params -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOpl34Btn.setWantsKeyboardFocus(true);
     copyOpParamToOpl34Btn.setExplicitFocusOrder(++tabOrder);
     copyOpParamToOpl34Btn.onClick = [this] {
@@ -219,7 +219,7 @@ void GuiOpl3::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
     uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params" });
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamBtn.setWantsKeyboardFocus(true);
     copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
     copyOpParamBtn.onClick = [this] {
@@ -253,6 +253,87 @@ void GuiOpl3::setup()
         int to = copyOpToSlider.getValue() - 1;
 
         copyOpParamBtn.setEnabled(from != to);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep004);
+    uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importLfoParamButton.setWantsKeyboardFocus(true);
+    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    importLfoParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importLfoParam(opIndex);
+        };
+
+    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportLfoParamButton.setWantsKeyboardFocus(true);
+    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
+    exportLfoParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportLfoParam(opIndex);
+        };
+
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setWantsKeyboardFocus(true);
+    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importPitchEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importPitchEnvParam(opIndex);
+        };
+
+    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
+    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPitchEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportPitchEnvParam(opIndex);
+        };
+
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    importSsgSwEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importSsgSwEnvParam(opIndex);
+        };
+
+    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
+    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
+    exportSsgSwEnvParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportSsgSwEnvParam(opIndex);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep005);
+    uSep005.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
+    targerOpSlider.setRange(1.0, 4.0, 1.0);
+    targerOpSlider.setNumDecimalPlacesToDisplay(0);
+    targerOpSlider.setValue(1, juce::sendNotification);
+    targerOpSlider.setWantsKeyboardFocus(true);
+    targerOpSlider.setExplicitFocusOrder(++tabOrder);
+
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setWantsKeyboardFocus(true);
+    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    importUnisonParamButton.onClick = [this] {
+        importUnisonParam();
+        };
+
+    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportUnisonParamButton.setWantsKeyboardFocus(true);
+    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
+    exportUnisonParamButton.onClick = [this] {
+        exportUnisonParam();
         };
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
@@ -790,6 +871,17 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyOpParamBtn.setVisible(visible);
     copyOpFromSlider.setVisibleWithLabel(visible);
     copyOpToSlider.setVisibleWithLabel(visible);
+    uSep004.setVisible(visible);
+    importLfoParamButton.setVisible(visible);
+    exportLfoParamButton.setVisible(visible);
+    importPitchEnvParamButton.setVisible(visible);
+    exportPitchEnvParamButton.setVisible(visible);
+    importSsgSwEnvParamButton.setVisible(visible);
+    exportSsgSwEnvParamButton.setVisible(visible);
+    targerOpSlider.setVisibleWithLabel(visible);
+    uSep005.setVisible(visible);
+    importUnisonParamButton.setVisible(visible);
+    exportUnisonParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -814,6 +906,32 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+
+        auto uSep004Area = rect.removeFromTop(4);
+        uSep004.setBounds(uSep004Area);
+
+        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
+
+        auto uSep005Area = rect.removeFromTop(4);
+        uSep005.setBounds(uSep005Area);
+
+        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
     }
 }
 
@@ -1198,4 +1316,74 @@ void GuiOpl3::pasteOpParams(int p, CopyOpl3Op& copyObj) {
 
     pitchEnv[p].pasteParams(copyObj.pAdsr);
     ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+}
+
+void GuiOpl3::importLfoParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OplLfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                if (lines.size() == 0) return;
+            }
+        });
+
+}
+
+void GuiOpl3::exportLfoParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpl"), Io::ExtensionGlob::OplLfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiOpl3::importPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].importParams();
+}
+
+void GuiOpl3::exportPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].exportParams();
+}
+
+void GuiOpl3::importSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].importParams();
+}
+
+void GuiOpl3::exportSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].exportParams();
+}
+
+void GuiOpl3::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiOpl3::exportUnisonParam() {
+    unisonComponent.exportParams();
 }

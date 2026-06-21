@@ -99,6 +99,18 @@ class GuiOpm : public GuiBase
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
+    GuiSeparator uSep003;
+    GuiTextButton importPitchEnvParamButton;
+    GuiTextButton exportPitchEnvParamButton;
+    GuiTextButton importSsgSwEnvParamButton;
+    GuiTextButton exportSsgSwEnvParamButton;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep004;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
+    GuiTextButton importUnisonParamButton;
+    GuiTextButton exportUnisonParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -202,6 +214,17 @@ public:
         copyOpParamBtn(context),
         copyOpFromSlider(context),
         copyOpToSlider(context),
+        uSep003(context),
+        importPitchEnvParamButton(context),
+        exportPitchEnvParamButton(context),
+        importSsgSwEnvParamButton(context),
+        exportSsgSwEnvParamButton(context),
+        targerOpSlider(context),
+        uSep004(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
+        importUnisonParamButton(context),
+        exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -277,4 +300,12 @@ public:
     void pasteParamsOpnaOpn(CopyOpnaOpnOpm& copyObj);
     void pasteOpParamsOpn(int p, CopyOpnOpmOp& copyObj);
     void pasteOpParamsOpnaOpn(int p, CopyOpnaOpnOpmOp& copyObj);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };
