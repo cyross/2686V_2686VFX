@@ -13,7 +13,6 @@ void RhythmPad::prepare(double hostSampleRate)
     m_ssgSwEnv.prepare(0, m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
-    m_phaseDelta = m_currentFrequency / m_sampleRate;
 }
 
 void RhythmPad::setCurveCore(CurveCore* p_curveCore)
@@ -30,7 +29,6 @@ void RhythmPad::setSampleRate(double sampleRate)
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
-    m_phaseDelta = m_currentFrequency / m_sampleRate;
 }
 
 // Set data (Same logic as AdpcmCore)
@@ -137,7 +135,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     m_currentFrequency = m_fixMode.noteOn(finalFreq);
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
-    m_phaseDelta = m_currentFrequency / m_sampleRate;
+    m_pitchRatio = currentBufferRate / m_sampleRate;
 
     // =====================================================================
     // モノフォニック・レガート時の音量ジャンプ防止処理
@@ -442,7 +440,7 @@ float RhythmPad::getSample()
     // セントを周波数倍率(レシオ)に変換
     float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
     float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
-    double currentIncrement = m_pitchAdsr.process((currentBufferRate / m_sampleRate) * m_pitchBendRatio * mwPitchMod);
+    double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
 
     // ==========================================
     // 周波数倍率の決定

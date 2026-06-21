@@ -80,8 +80,8 @@ private:
     SsgNoiseGen m_noiseGen;
 
     float m_phase = 0.0f;
-    float m_phaseDelta = 0.0f;
     float m_currentFrequency = 440.0f;
+    float m_pitchRatio = 1.0f;
 
     void refreshPcmBuffer();
 
