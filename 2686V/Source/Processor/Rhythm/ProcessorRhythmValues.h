@@ -234,6 +234,41 @@ namespace RhythmPrValue
 			}
 		}
 
+		namespace Mul
+		{
+			inline constexpr int min = CorePrValue::Opzx7Detune::Mul::min;
+			inline constexpr int max = CorePrValue::Opzx7Detune::Mul::max;
+			inline constexpr int initial = CorePrValue::Opzx7Detune::Mul::initial;
+		}
+
+		namespace MulRatio
+		{
+			inline constexpr float min = CorePrValue::Opzx7Detune::MulRatio::min;
+			inline constexpr float max = CorePrValue::Opzx7Detune::MulRatio::max;
+			inline constexpr float initial = CorePrValue::Opzx7Detune::MulRatio::initial;
+		}
+
+		namespace Dt1
+		{
+			inline constexpr int min = CorePrValue::Opzx7Detune::Dt1::min;
+			inline constexpr int max = CorePrValue::Opzx7Detune::Dt1::max;
+			inline constexpr int initial = CorePrValue::Opzx7Detune::Dt1::initial;
+		}
+
+		namespace Dt2
+		{
+			inline constexpr int min = CorePrValue::Opzx7Detune::Dt2::min;
+			inline constexpr int max = CorePrValue::Opzx7Detune::Dt2::max;
+			inline constexpr int initial = CorePrValue::Opzx7Detune::Dt2::initial;
+		}
+
+		namespace Dt3
+		{
+			inline constexpr int min = CorePrValue::Opzx7Detune::Dt3::min;
+			inline constexpr int max = CorePrValue::Opzx7Detune::Dt3::max;
+			inline constexpr int initial = CorePrValue::Opzx7Detune::Dt3::initial;
+		}
+
 		namespace SsgSwEnv
 		{
 			namespace Bypass

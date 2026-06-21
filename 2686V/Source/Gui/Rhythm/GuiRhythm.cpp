@@ -205,6 +205,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass);
 
+    mulDetuneComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
+
     lfoComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     setupGraph();
@@ -250,6 +252,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     pitchEnvComponent.layoutComponent(padRect);
 
     ssgSwEnvComponent.layoutComponent(padRect);
+
+    mulDetuneComponent.layoutComponent(padRect);
 
     lfoComponent.layoutComponent(padRect);
 
@@ -461,6 +465,14 @@ void RhythmPadGui::exportSsgSwEnvParam() {
     ssgSwEnvComponent.exportParams();
 }
 
+void RhythmPadGui::importDetuneParam() {
+    mulDetuneComponent.importParams();
+}
+
+void RhythmPadGui::exportDetuneParam() {
+    mulDetuneComponent.exportParams();
+}
+
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -610,6 +622,24 @@ void GuiRhythm::setup()
         exportSsgSwEnvParam(padIndex);
         };
 
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importDetuneParamButton.setWantsKeyboardFocus(true);
+    importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
+    importDetuneParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importDetuneParam(padIndex);
+        };
+
+    exportDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportDetuneParamButton.setWantsKeyboardFocus(true);
+    exportDetuneParamButton.setExplicitFocusOrder(++tabOrder);
+    exportDetuneParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportDetuneParam(padIndex);
+        };
+
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
     targerPadSlider.setRange(1.0, 8.0, 1.0);
     targerPadSlider.setNumDecimalPlacesToDisplay(0);
@@ -719,6 +749,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportPitchEnvParamButton.setVisible(visible);
     importSsgSwEnvParamButton.setVisible(visible);
     exportSsgSwEnvParamButton.setVisible(visible);
+    importDetuneParamButton.setVisible(visible);
+    exportDetuneParamButton.setVisible(visible);
     targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
@@ -755,6 +787,11 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
         layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
 
         rect.removeFromTop(4);
 
@@ -881,6 +918,14 @@ void GuiRhythm::importSsgSwEnvParam(int p) {
 
 void GuiRhythm::exportSsgSwEnvParam(int p) {
     pads[p].exportSsgSwEnvParam();
+}
+
+void GuiRhythm::importDetuneParam(int p) {
+    pads[p].importDetuneParam();
+}
+
+void GuiRhythm::exportDetuneParam(int p) {
+    pads[p].exportDetuneParam();
 }
 
 void GuiRhythm::importUnisonParam() {

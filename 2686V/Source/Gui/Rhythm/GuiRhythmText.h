@@ -90,6 +90,8 @@ namespace RhythmGuiText
 		static inline const juce::String pitchEnvFileExport = u8"Export Pitch Env Param (.pitchEnv)";
 		static inline const juce::String ssgSwEnvFileImport = u8"Import SSG SW Env Param (.ssgSwEnv)";
 		static inline const juce::String ssgSwEnvFileExport = u8"Export SSG SW Env Param (.ssgSwEnv)";
+		static inline const juce::String detuneFileImport = u8"Import Detune Param (.detune)";
+		static inline const juce::String detuneFileExport = u8"Export Detune Param (.detune)";
 		static inline const juce::String unisonFileImport = u8"Import Unison Param (.unison)";
 		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
 	}

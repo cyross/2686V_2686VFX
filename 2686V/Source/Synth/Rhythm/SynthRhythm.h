@@ -9,6 +9,7 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
@@ -75,6 +76,7 @@ private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
     SsgSwEnv m_ssgSwEnv;
+    Opzx7Detune m_detune;
     Opzx7LfoCore m_lfo;
     FixMode m_fixMode;
     SsgNoiseGen m_noiseGen;

@@ -45,6 +45,12 @@ class RhythmProcessor : public PrBase
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPitchAdsrSsl = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPitchAdsrRll = { nullptr };
 
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pMultiple = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pMultipleRatio = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pDetune = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pDetune2 = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pDetune3 = { nullptr };
+
     std::array<std::atomic<float>*, RhythmPrValue::pads> pSsgSwEnvBypass = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pSsgSwEnvSteps = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pSsgSwEnvLoop = { nullptr };

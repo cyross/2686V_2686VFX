@@ -68,6 +68,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
+    m_detune.setParameters(params.detune, params.detune2, params.detune3, params.multiple, params.multipleRatio);
     m_lfo.setParameters(
         params.lfoPmSyncDelay,
         params.lfoAmSyncDelay,
@@ -132,7 +133,9 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     float finalFreq = freq;
     float oldBaseLevel = m_baseLevel;
 
-    m_currentFrequency = m_fixMode.noteOn(finalFreq);
+    finalFreq = m_fixMode.noteOn(finalFreq);
+
+    m_currentFrequency = m_detune.noteOn(finalFreq);
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
     m_pitchRatio = currentBufferRate / m_sampleRate;

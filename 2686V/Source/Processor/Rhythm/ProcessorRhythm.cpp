@@ -59,6 +59,13 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         // SSG SwEnv Bypass Switch
         layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, padPrefixName + RhythmPrName::SsgSwEnv::bypass, RhythmPrValue::Pad::SsgSwEnv::Bypass::initial));
 
+        // Detune
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::mul, prefixName + RhythmPrName::mul, RhythmPrValue::Pad::Mul::min, RhythmPrValue::Pad::Mul::max, RhythmPrValue::Pad::Mul::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::mulRatio, prefixName + RhythmPrName::mulRatio, RhythmPrValue::Pad::MulRatio::min, RhythmPrValue::Pad::MulRatio::max, RhythmPrValue::Pad::MulRatio::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt, prefixName + RhythmPrName::dt1, RhythmPrValue::Pad::Dt1::min, RhythmPrValue::Pad::Dt1::max, RhythmPrValue::Pad::Dt1::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt2, prefixName + RhythmPrName::dt2, RhythmPrValue::Pad::Dt2::min, RhythmPrValue::Pad::Dt2::max, RhythmPrValue::Pad::Dt2::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt3, prefixName + RhythmPrName::dt3, RhythmPrValue::Pad::Dt3::min, RhythmPrValue::Pad::Dt3::max, RhythmPrValue::Pad::Dt3::initial));
+
         layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmOffset, padPrefixName + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmRatio, padPrefixName + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
 
@@ -132,6 +139,12 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pSsgSwEnvL4[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::SsgSwEnv::l4);
         pSsgSwEnvL5[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::SsgSwEnv::l5);
         pSsgSwEnvL6[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::SsgSwEnv::l6);
+
+        pMultiple[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::mul);
+        pMultipleRatio[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::mulRatio);
+        pDetune[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::dt);
+        pDetune2[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::dt2);
+        pDetune3[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::dt3);
 
         pLfoPmSyncDelay[i] = apvts.getRawParameterValue(padPrefix + CorePrKey::Post::Lfo::pmSyncDelay);
         pLfoAmSyncDelay[i] = apvts.getRawParameterValue(padPrefix + CorePrKey::Post::Lfo::amSyncDelay);
@@ -212,6 +225,12 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.ssgSwEnv.l5 = pSsgSwEnvL5[i]->load(std::memory_order_relaxed);
         pad.ssgSwEnv.r6 = pSsgSwEnvR6[i]->load(std::memory_order_relaxed);
         pad.ssgSwEnv.l6 = pSsgSwEnvL6[i]->load(std::memory_order_relaxed);
+
+        pad.multiple = (int)pMultiple[i]->load(std::memory_order_relaxed);
+        pad.multipleRatio = pMultipleRatio[i]->load(std::memory_order_relaxed);
+        pad.detune = (int)pDetune[i]->load(std::memory_order_relaxed);
+        pad.detune2 = (int)pDetune2[i]->load(std::memory_order_relaxed);
+        pad.detune3 = (int)pDetune3[i]->load(std::memory_order_relaxed);
 
         pad.lfoPmFreq = pLfoPmFreq[i]->load(std::memory_order_relaxed);
         pad.lfoAmFreq = pLfoAmFreq[i]->load(std::memory_order_relaxed);

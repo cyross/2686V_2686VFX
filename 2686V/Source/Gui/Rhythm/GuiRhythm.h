@@ -10,6 +10,7 @@
 #include "../../Gui/Curve/GuiCurve.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Gui/Components/Fix/Fix.h"
+#include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
@@ -74,6 +75,9 @@ class RhythmPadGui: public GuiBase
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnvComponent;
 
+    // Detune
+    GuiComponentMulDetune mulDetuneComponent;
+
     GuiComponentLfoOpzx7 lfoComponent;
 
     GuiEnvelopeGraph graph;
@@ -122,6 +126,7 @@ public:
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
+        mulDetuneComponent(context),
         lfoComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
@@ -150,6 +155,8 @@ public:
     void exportPitchEnvParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
 };
 
 class GuiRhythm : public GuiBase
@@ -183,6 +190,8 @@ class GuiRhythm : public GuiBase
     GuiTextButton exportPitchEnvParamButton;
     GuiTextButton importSsgSwEnvParamButton;
     GuiTextButton exportSsgSwEnvParamButton;
+    GuiTextButton importDetuneParamButton;
+    GuiTextButton exportDetuneParamButton;
     GuiSlider targerPadSlider;
     GuiSeparator uSep003;
     GuiTextButton importUnisonParamButton;
@@ -214,6 +223,8 @@ public:
         exportPitchEnvParamButton(context),
         importSsgSwEnvParamButton(context),
         exportSsgSwEnvParamButton(context),
+        importDetuneParamButton(context),
+        exportDetuneParamButton(context),
         targerPadSlider(context),
         uSep003(context),
         importUnisonParamButton(context),
@@ -243,6 +254,8 @@ public:
     void exportPitchEnvParam(int p);
     void importSsgSwEnvParam(int p);
     void exportSsgSwEnvParam(int p);
+    void importDetuneParam(int p);
+    void exportDetuneParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
 };
