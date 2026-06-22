@@ -108,6 +108,8 @@ class GuiOpn : public GuiBase
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpnPrValue::algorithms> algImages;
 
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catAmp;
     std::array<GuiComboBox, OpnPrValue::ops> mul;
     std::array<GuiComboBox, OpnPrValue::ops> dt;
 
@@ -203,6 +205,8 @@ public:
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -259,6 +263,8 @@ public:
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);

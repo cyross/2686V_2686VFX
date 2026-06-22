@@ -14,11 +14,15 @@ namespace OplGuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
+		static inline const juce::String visibleDetune = u8"[■]--- DETUNE ---";
+		static inline const juce::String invisibleDetune = u8"[□]--- DETUNE ---";
+		static inline const juce::String visibleAmpEnv = u8"[■]--- AMP ENV ---";
+		static inline const juce::String invisibleAmpEnv = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
-		static inline const juce::String visibleAdsr = u8"[■]--- AMP ENV ---";
-		static inline const juce::String invisibleAdsr = u8"[□]--- AMP ENV ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
+		static inline const juce::String visibleEg = u8"[■]--- EG SHAPE ---";
+		static inline const juce::String invisibleEg = u8"[□]--- EG SHAPE ---";
 		static inline const juce::String visibleKs = u8"[■]--- KEY SCALE ---";
 		static inline const juce::String invisibleKs = u8"[□]--- KEY SCALE ---";
 		static inline const juce::String visibleSsgEnv = u8"[■]--- SSG HW ENV ---";
@@ -51,14 +55,14 @@ namespace OplGuiText
 
 	namespace Fm
 	{
-		static inline const juce::String level = u8"Level";
+		static inline const juce::String level = u8"LV";
 		static inline const juce::String alg = u8"Alg";
 		static inline const juce::String fb = u8"Fb";
-		static inline const juce::String lfoFreq = u8"Freq";
-		static inline const juce::String lfoSpeed = u8"Speed";
-		static inline const juce::String lfoShape = u8"Shape";
-		static inline const juce::String lfoPgShape = u8"P.Shape";
-		static inline const juce::String lfoEgShape = u8"A.Shape";
+		static inline const juce::String lfoFreq = u8"FQ";
+		static inline const juce::String lfoSpeed = u8"SP";
+		static inline const juce::String lfoShape = u8"SH";
+		static inline const juce::String lfoPgShape = u8"P.SH";
+		static inline const juce::String lfoEgShape = u8"A.SH";
 		static inline const juce::String lfoSyncDelay = u8"Delay";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
@@ -66,7 +70,7 @@ namespace OplGuiText
 		static inline const juce::String pms = u8"Pms";
 		static inline const juce::String amd = u8"Amd";
 		static inline const juce::String pmd = u8"Pmd";
-		static inline const juce::String amSmoothRatio = u8"As Ratio";
+		static inline const juce::String amSmoothRatio = u8"AM SR";
 		static inline const juce::String initLfoToOpl = u8"Lfo for OPL";
 		static inline const juce::String initLfoToOpll = u8"Lfo for OPLL";
 
@@ -92,15 +96,15 @@ namespace OplGuiText
 			static inline const juce::String Ksr = u8"Ksr";
 			static inline const juce::String Ksl = u8"Ksl";
 			static inline const juce::String Mask = u8"Mask";
-			static inline const juce::String Freqs = u8"Freq";
+			static inline const juce::String Freqs = u8"FQ";
 			static inline const juce::String SyncDelay = u8"Delay";
 			static inline const juce::String Am = u8"Am";
 			static inline const juce::String Pm = u8"Pm";
 			static inline const juce::String AmEn = u8"AM Enable";
 			static inline const juce::String PmEn = u8"PM Enable";
 			static inline const juce::String AmsEn = u8"AMS Enable";
-			static inline const juce::String PgShape = u8"P.Shape";
-			static inline const juce::String EgShape = u8"A.Shape";
+			static inline const juce::String PgShape = u8"P.SH";
+			static inline const juce::String EgShape = u8"A.SH";
 			static inline const juce::String Vib = u8"Vib";
 			static inline const juce::String Ams = u8"Ams";
 			static inline const juce::String Pms = u8"Pms";

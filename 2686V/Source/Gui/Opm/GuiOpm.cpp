@@ -457,6 +457,9 @@ void GuiOpm::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
+        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleDetune, .invisibleTitle = OpmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleAmpEnv, .invisibleTitle = OpmGuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
+
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
@@ -649,17 +652,11 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
         juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
 
-        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
+        layoutOpDetCat(i, innerRect);
+
         updateRgDisplayAsOp(i, true);
-        layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
+
+        layoutOpAmpCat(i, innerRect);
 
         layoutOpKsCat(i, innerRect);
 
@@ -1116,6 +1113,46 @@ void GuiOpm::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
             layoutRow({ .rowRect = rect, .label = &kslOPP[opIndex].label, .component = &kslOPP[opIndex] });
             break;
         }
+    }
+}
+
+void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catDet[opIndex] });
+
+    bool visible = catDet[opIndex].isDetailVisible();
+
+    mul[opIndex].setVisibleWithLabel(visible);
+    mulRatio[opIndex].setVisibleWithLabel(visible);
+    dt1[opIndex].setVisibleWithLabel(visible);
+    dt2[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &mulRatio[opIndex].label, .component = &mulRatio[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &dt1[opIndex].label, .component = &dt1[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &dt2[opIndex].label, .component = &dt2[opIndex] });
+    }
+}
+
+void GuiOpm::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catAmp[opIndex] });
+
+    bool visible = catAmp[opIndex].isDetailVisible();
+
+    rgAr[opIndex].setVisibleWithLabel(visible);
+    rgD1r[opIndex].setVisibleWithLabel(visible);
+    rgD2r[opIndex].setVisibleWithLabel(visible);
+    rgD1l[opIndex].setVisibleWithLabel(visible);
+    rgRr[opIndex].setVisibleWithLabel(visible);
+    rgTl[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &rgAr[opIndex].label, .component = &rgAr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgD1r[opIndex].label, .component = &rgD1r[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgD1l[opIndex].label, .component = &rgD1l[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgD2r[opIndex].label, .component = &rgD2r[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgRr[opIndex].label, .component = &rgRr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
     }
 }
 

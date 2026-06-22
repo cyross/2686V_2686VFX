@@ -84,6 +84,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     // メイングループ
     mainGroup.setup(*this, padTitle);
 
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleForm, .invisibleTitle = RhythmGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleQuality, .invisibleTitle = RhythmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::mode, .title = RhythmGuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
@@ -232,14 +233,9 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> padRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
-    layoutRowRhythmPadPcmFile({ .rect = padRect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
-
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
-    layoutMain({ .mainRect = padRect, .label = &toneSlider.label, .component = &toneSlider, });
-    layoutMain({ .mainRect = padRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutMain({ .mainRect = padRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutMain({ .mainRect = padRect, .label = &mixSlider.label, .component = &mixSlider });
-    layoutMainThreeComps({ .rect = padRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+
+    layoutFormCat(padRect);
 
     layoutOptionalCat(padRect);
 
@@ -273,6 +269,33 @@ void RhythmPadGui::removeLoadButtonListener(AudioPlugin2686VEditor* editor)
 bool RhythmPadGui::isThis(juce::Button* button)
 {
     return button == &loadButton;
+}
+
+void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+
+    loadButton.setVisible(visible);
+    fileNameLabel.setVisible(visible);
+    clearButton.setVisible(visible);
+    toneSlider.setVisibleWithLabel(visible);
+    noiseSlider.setVisibleWithLabel(visible);
+    noiseFreqSlider.setVisibleWithLabel(visible);
+    mixSlider.setVisibleWithLabel(visible);
+    mixSetTone.setVisible(visible);
+    mixSetMix.setVisible(visible);
+    mixSetNoise.setVisible(visible);
+
+    if (visible)
+    {
+        layoutRowRhythmPadPcmFile({ .rect = rect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
+        layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
+        layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
+        layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+    }
 }
 
 void RhythmPadGui::layoutQualityCat(juce::Rectangle<int>& rect) {

@@ -32,6 +32,7 @@ class RhythmPadGui: public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
 
+    GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
 
     GuiSlider pcmOffsetSlider;
@@ -100,6 +101,7 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        formCat(context),
         optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
@@ -140,6 +142,7 @@ public:
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);

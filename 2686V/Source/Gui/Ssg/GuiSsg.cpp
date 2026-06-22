@@ -102,6 +102,7 @@ void GuiSsg::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleForm, .invisibleTitle = SsgGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
@@ -244,19 +245,13 @@ void GuiSsg::setup()
         exportUnisonParam();
         };
 
-    shapeCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::shape });
-
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgTone });
-
     toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
-
-    noiseCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgNoise });
 
     noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
@@ -269,8 +264,6 @@ void GuiSsg::setup()
     noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
-
-    mixCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::mix });
 
     // 初期状態反映
     mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
@@ -386,17 +379,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &shapeCat });
-    layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector, });
-    layoutMainCategory({ .mainRect = mRect, .label = &toneCat });
-    layoutMain({ .mainRect = mRect, .label = &toneSlider.label, .component = &toneSlider, });
-    layoutMainCategory({ .mainRect = mRect, .label = &noiseCat });
-    layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutMain({ .mainRect = mRect, .component = &noiseOnNoteButton, });
-    layoutMainCategory({ .mainRect = mRect, .label = &mixCat });
-    layoutMain({ .mainRect = mRect, .label = &mixSlider.label, .component = &mixSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+    layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
 
@@ -530,6 +513,33 @@ void GuiSsg::updatePresetName(const juce::String& presetName)
 void GuiSsg::initParams()
 {
     this->ctx.audioProcessor.initParams("SSG_");
+}
+
+void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+
+    waveSelector.setVisibleWithLabel(visible);
+    toneSlider.setVisibleWithLabel(visible);
+    noiseSlider.setVisibleWithLabel(visible);
+    noiseFreqSlider.setVisibleWithLabel(visible);
+    noiseOnNoteButton.setVisible(visible);
+    mixSlider.setVisibleWithLabel(visible);
+    mixSetTone.setVisible(visible);
+    mixSetMix.setVisible(visible);
+    mixSetNoise.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector, });
+        layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
+        layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
+        layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        layoutMain({ .mainRect = rect, .component = &noiseOnNoteButton, });
+        layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+    }
 }
 
 void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {

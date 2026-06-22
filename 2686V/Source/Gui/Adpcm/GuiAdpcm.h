@@ -26,6 +26,8 @@ class GuiAdpcm : public GuiBase
     // --- ADPCM Page ---
     GuiScrollGroup mainGroup;
 
+    GuiCategoryLabel formCat;
+
     GuiComboBox modeSelector;
 
     GuiTextButton loadButton;
@@ -119,6 +121,7 @@ public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        formCat(context),
         modeSelector(context),
         loadButton(context),
         clearButton(context),
@@ -188,6 +191,7 @@ public:
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);

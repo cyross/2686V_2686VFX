@@ -87,6 +87,7 @@ class GuiWt2 : public GuiBase
 
     GuiSlider levelSlider;
 
+    GuiCategoryLabel formCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel modCat;
 
@@ -177,6 +178,7 @@ public:
         customSliders128(context),
         customSliders256(context),
         levelSlider(context),
+        formCat(context),
         qualityCat(context),
         modCat(context),
         fixComponent(context),
@@ -230,10 +232,10 @@ public:
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
-    void updateCustomWaveCatOnChange();
     void importWavetable();
     void exportWavetable();
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(juce::Rectangle<int>& rect);

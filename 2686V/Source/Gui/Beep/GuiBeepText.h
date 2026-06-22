@@ -19,7 +19,7 @@ namespace BeepGuiText
 
 	namespace Beep
 	{
-		static inline const juce::String Level = u8"Level";
+		static inline const juce::String Level = u8"LV";
 
 		namespace Adsr
 		{

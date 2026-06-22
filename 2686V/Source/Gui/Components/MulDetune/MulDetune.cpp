@@ -109,6 +109,30 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
     }
 }
 
+void GuiComponentMulDetune::layoutComponentRow(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    bool visible = cat.isDetailVisible();
+
+    mul.setVisibleWithLabel(visible);
+    mulRatio.setVisibleWithLabel(visible);
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+    dt3.setVisibleWithLabel(visible);
+    dt3Buttons.setVisibles(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .label = &mul.label, .component = &mul });
+        layoutRow({ .rowRect = rect, .label = &mulRatio.label, .component = &mulRatio });
+        layoutRow({ .rowRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutRow({ .rowRect = rect, .label = &dt2.label, .component = &dt2 });
+        layoutRow({ .rowRect = rect, .label = &dt3.label, .component = &dt3 });
+        dt3Buttons.layoutComponentRow(rect);
+    }
+}
+
 void GuiComponentMulDetune::copyParams(CopyDetuneOpzx7& copyObj) {
     copyObj.mul = mul.getSelectedId();
     copyObj.mulRatio = mulRatio.getValue();
@@ -168,4 +192,67 @@ void GuiComponentMulDetune::exportParams() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiComponentMulDetune::setMul(int m) {
+    mul.setSelectedItemIndex(m, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setMulRatio(float r) {
+    mulRatio.setValue(r, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt1(int d1) {
+    dt1.setSelectedItemIndex(d1, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt2(int d2) {
+    dt2.setValue(d2, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt3(int d3) {
+    dt3.setValue(d3, juce::sendNotification);
+}
+
+int GuiComponentMulDetune::getMul() {
+    return mul.getSelectedItemIndex();
+}
+
+float GuiComponentMulDetune::getMulRatio() {
+    return mulRatio.getValue();
+}
+
+int GuiComponentMulDetune::getDt1() {
+    return dt1.getSelectedItemIndex();
+}
+
+int GuiComponentMulDetune::getDt2() {
+    return (int)dt2.getValue();
+}
+
+int GuiComponentMulDetune::getDt3() {
+    return (int)dt3.getValue();
+}
+
+void GuiComponentMulDetune::setVisibles(bool visible){
+    mul.setVisible(visible);
+    mulRatio.setVisibleWithLabel(visible);
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+    dt3.setVisibleWithLabel(visible);
+    dt3Buttons.setVisibles(visible);
+}
+
+void GuiComponentMulDetune::setEnables(bool enable) {
+    mul.setEnabledWithLabel(enable);
+
+    int mulIndex = mul.getSelectedId() - 1;
+    bool enableMulRatio = mulIndex == 21; // mul = Ratio
+
+    mulRatio.setEnabledWithLabel(enable && enableMulRatio);
+
+    dt1.setEnabledWithLabel(enable);
+    dt2.setEnabledWithLabel(enable);
+    dt3.setEnabledWithLabel(enable);
+    dt3Buttons.setEnables(enable);
 }

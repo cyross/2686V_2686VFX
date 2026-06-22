@@ -41,7 +41,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "Freq", .isReset = true});
+    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "FQ", .isReset = true});
     freq.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setWantsKeyboardFocus(true);
     freq.setExplicitFocusOrder(++tabOrder);

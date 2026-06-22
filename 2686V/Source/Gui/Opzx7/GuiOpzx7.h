@@ -18,6 +18,7 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
@@ -231,8 +232,8 @@ class GuiOpzx7 : public GuiBase
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
     GuiSeparator uSep002;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
+    GuiTextButton importOpLfoParamButton;
+    GuiTextButton exportOpLfoParamButton;
     GuiTextButton importDetuneParamButton;
     GuiTextButton exportDetuneParamButton;
     GuiTextButton importPitchEnvParamButton;
@@ -241,6 +242,8 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton exportSsgSwEnvParamButton;
     GuiSlider targerOpSlider;
     GuiSeparator uSep003;
+    GuiTextButton importLfoParamButton;
+    GuiTextButton exportLfoParamButton;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -251,12 +254,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiScrollGroup, Opzx7PrValue::ops> opGroups;
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiComboBox, Opzx7PrValue::ops> mul;
-    std::array<GuiSlider, Opzx7PrValue::ops> mulRatio;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt1;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt2;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt3;
-    std::array<GuiComponentPitchButtons, Opzx7PrValue::ops> dt3Btns;
+    std::array<GuiComponentMulDetune, Opzx7PrValue::ops> mulDetune;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catAmp;
     std::array<GuiSlider, Opzx7PrValue::ops> tl;
     std::array<GuiSlider, Opzx7PrValue::ops> ar;
     std::array<GuiSlider, Opzx7PrValue::ops> d1r;
@@ -365,8 +364,8 @@ public:
         copyOpFromSlider(context),
         copyOpToSlider(context),
         uSep002(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
+        importOpLfoParamButton(context),
+        exportOpLfoParamButton(context),
         importDetuneParamButton(context),
         exportDetuneParamButton(context),
         importPitchEnvParamButton(context),
@@ -375,15 +374,13 @@ public:
         exportSsgSwEnvParamButton(context),
         targerOpSlider(context),
         uSep003(context),
+        importLfoParamButton(context),
+        exportLfoParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
-        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt3{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt3Btns{ GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context) },
+        mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -497,6 +494,8 @@ public:
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
+    void layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int selectedWs);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
@@ -504,8 +503,10 @@ public:
     void copyOpParams(int p, CopyOpzx7Op& copyObj);
     void pasteParams(CopyOpzx7& copyObj);
     void pasteOpParams(int p, CopyOpzx7Op& copyObj);
-    void importLfoParam(int opIndex);
-    void exportLfoParam(int opIndex);
+    void importOpLfoParam(int opIndex);
+    void exportOpLfoParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);

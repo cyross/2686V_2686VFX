@@ -598,6 +598,7 @@ void GuiWt::setup()
     mainGroup.contentCanvas.addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleForm, .invisibleTitle = WtGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleQuality, .invisibleTitle = WtGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::bit, .title = WtGuiText::bit, .items = bdItems, .isReset = true });
@@ -621,8 +622,6 @@ void GuiWt::setup()
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
-        updateCustomWaveCatOnChange();
-
         ctx.editor.resized();
         };
 
@@ -916,16 +915,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
 
-    layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
-
-    int index = waveSelector.getSelectedId();
-    bool visible = index == 9; // custom
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, });
-        layoutMain({ .mainRect = mRect, .label = &stepsSelector.label, .component = &stepsSelector, });
-    }
+    layoutFormCat(mRect);
 
     layoutModulationCat(mRect);
 
@@ -1070,22 +1060,11 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto smoothRect = cwRect.removeFromTop(WtGuiValue::Custom::ResetBtn::height);
 
     customWaveSmoothBtn.setBounds(smoothRect.reduced(2, 0));
-
-    updateCustomWaveCatOnChange();
 }
 
 void GuiWt::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
-}
-
-void GuiWt::updateCustomWaveCatOnChange()
-{
-    int index = waveSelector.getSelectedId();
-    bool visible = index == 9; // custom
-
-    sizeSelector.setVisibleWithLabel(visible);
-    stepsSelector.setVisibleWithLabel(visible);
 }
 
 // ==============================================================================
@@ -1197,6 +1176,30 @@ void GuiWt::exportWavetable()
 void GuiWt::initParams()
 {
     this->ctx.audioProcessor.initParams("WT_");
+}
+
+void GuiWt::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+
+    int index = waveSelector.getSelectedId();
+    bool visibleCustom = index == 9; // custom
+
+    waveSelector.setVisibleWithLabel(visible);
+    sizeSelector.setVisibleWithLabel(visible && visibleCustom);
+    stepsSelector.setVisibleWithLabel(visible && visibleCustom);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector });
+
+        if (visibleCustom)
+        {
+            layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
+            layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
+        }
+    }
 }
 
 void GuiWt::layoutQualityCat(juce::Rectangle<int>& rect) {

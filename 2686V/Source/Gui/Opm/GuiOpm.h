@@ -123,6 +123,8 @@ class GuiOpm : public GuiBase
 
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
+    std::array<GuiCategoryLabel, OpmPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OpmPrValue::ops> catAmp;
     std::array<GuiComboBox, OpmPrValue::ops> mul;
     std::array<GuiSlider, OpmPrValue::ops> mulRatio;
     std::array<GuiSlider, OpmPrValue::ops> dt1;
@@ -226,6 +228,8 @@ public:
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -285,6 +289,8 @@ public:
     void layoutOpHwLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);

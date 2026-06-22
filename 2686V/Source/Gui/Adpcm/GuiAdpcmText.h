@@ -8,6 +8,8 @@ namespace AdpcmGuiText
 {
 	namespace Category
 	{
+		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
+		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
 		static inline const juce::String visibleOptional = u8"[■]--- OPTIONAL ---";
 		static inline const juce::String invisibleOptional = u8"[□]--- OPTIONAL ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
@@ -47,13 +49,13 @@ namespace AdpcmGuiText
 
 	namespace Adpcm
 	{
-		static inline const juce::String level = u8"Level";
+		static inline const juce::String level = u8"LV";
 		static inline const juce::String pan = u8"Pan";
 		static inline const juce::String quality = u8"Bit";
 		static inline const juce::String interp = u8"Interp";
-		static inline const juce::String tone = u8"Tone";
-		static inline const juce::String noise = u8"Noise";
-		static inline const juce::String noiseFreq = u8"Freq";
+		static inline const juce::String tone = u8"T.LV";
+		static inline const juce::String noise = u8"N.LV";
+		static inline const juce::String noiseFreq = u8"N.FQ";
 		static inline const juce::String mix = u8"Mix";
 		static inline const juce::String rate = u8"Rate";
 		static inline const juce::String loop = u8"Loop";

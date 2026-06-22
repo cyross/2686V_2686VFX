@@ -94,6 +94,8 @@ class GuiOpl : public GuiBase
 
     std::array<GuiScrollGroup, OplPrValue::ops> opGroups;
 
+    std::array<GuiCategoryLabel, OplPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OplPrValue::ops> catAmp;
     std::array<GuiCategoryLabel, OplPrValue::ops> catLfo;
     std::array<GuiComboBox, OplPrValue::ops> mul;
     std::array<GuiToggleButton, OplPrValue::ops> am;
@@ -135,13 +137,11 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, OplPrValue::ops> rgSl;
     std::array<GuiSlider, OplPrValue::ops> rgRr;
     std::array<GuiSlider, OplPrValue::ops> rgTl;
+    std::array<GuiToggleButton, OplPrValue::ops> sus;
     std::array<GuiCategoryLabel, OplPrValue::ops> catOptional;
     std::array<GuiToggleButton, OplPrValue::ops> xof;
     std::array<GuiToggleButton, OplPrValue::ops> kor;
     std::array<GuiToggleButton, OplPrValue::ops> bypass;
-
-    std::array<GuiCategoryLabel, OplPrValue::ops> adsrCat;
-    std::array<GuiToggleButton, OplPrValue::ops> sus;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
@@ -197,6 +197,8 @@ public:
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context) },
@@ -234,7 +236,6 @@ public:
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context) },
-        adsrCat{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context) },
         kor{ GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
@@ -263,10 +264,12 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
-    void layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);

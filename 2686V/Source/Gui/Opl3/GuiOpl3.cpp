@@ -360,6 +360,9 @@ void GuiOpl3::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
+        catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleDetune, .invisibleTitle = Opl3GuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleAmpEnv, .invisibleTitle = Opl3GuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
+
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::mul, .title = Opl3GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
@@ -416,7 +419,7 @@ void GuiOpl3::setup()
 
         ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, Opl3PrKey::SsgSwEnv::enable, Opl3GuiText::SsgSwEnv::enable, true);
 
-        catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::shape });
+        catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleEg, .invisibleTitle = Opl3GuiText::Category::invisibleEg, .enableChangeDetailVisible = true });
 
         eg[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::eg, .title = Opl3GuiText::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
         eg[i].setWantsKeyboardFocus(true);
@@ -570,17 +573,13 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
         juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
 
-        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        updateRgDisplayAsOp(i, true);
-        layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgDr[i].label, .component = &rgDr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgSl[i].label, .component = &rgSl[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
-        layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
-        layoutRow({ .rowRect = innerRect, .component = &egType[i] });
+        layoutOpDetCat(i, innerRect);
 
-        layoutRowCategory({ .rowRect = innerRect, .component = &catShape[i] });
-        layoutRow({ .rowRect = innerRect, .label = &eg[i].label, .component = &eg[i] });
+        updateRgDisplayAsOp(i, true);
+
+        layoutOpAmpCat(i, innerRect);
+
+        layoutOpEgCat(i, innerRect);
 
         layoutOpKsCat(i, innerRect);
 
@@ -1009,6 +1008,52 @@ void GuiOpl3::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
     if (visible) {
         layoutRow({ .rowRect = rect, .component = &ksr[opIndex] });
         layoutRow({ .rowRect = rect, .label = &ksl[opIndex].label, .component = &ksl[opIndex] });
+    }
+}
+
+void GuiOpl3::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catDet[opIndex] });
+
+    bool visible = catDet[opIndex].isDetailVisible();
+
+    mul[opIndex].setVisible(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
+    }
+}
+
+void GuiOpl3::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catAmp[opIndex] });
+
+    bool visible = catAmp[opIndex].isDetailVisible();
+
+    rgAr[opIndex].setVisibleWithLabel(visible);
+    rgDr[opIndex].setVisibleWithLabel(visible);
+    rgSl[opIndex].setVisibleWithLabel(visible);
+    rgRr[opIndex].setVisibleWithLabel(visible);
+    rgTl[opIndex].setVisibleWithLabel(visible);
+    egType[opIndex].setVisible(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &rgAr[opIndex].label, .component = &rgAr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgDr[opIndex].label, .component = &rgDr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgSl[opIndex].label, .component = &rgSl[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgRr[opIndex].label, .component = &rgRr[opIndex] });
+        layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &egType[opIndex] });
+    }
+}
+
+void GuiOpl3::layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect) {
+    layoutRowCategory({ .rowRect = rect, .component = &catShape[opIndex] });
+
+    bool visible = catShape[opIndex].isDetailVisible();
+
+    eg[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &eg[opIndex].label, .component = &eg[opIndex] });
     }
 }
 

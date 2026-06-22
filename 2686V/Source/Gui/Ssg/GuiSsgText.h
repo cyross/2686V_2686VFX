@@ -11,6 +11,8 @@ namespace SsgGuiText
 
 	namespace Category
 	{
+		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
+		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
@@ -58,10 +60,10 @@ namespace SsgGuiText
 
 	namespace Lfo
 	{
-		static inline const juce::String pmSpeed = u8"P.Speed";
-		static inline const juce::String amSpeed = u8"A.Speed";
-		static inline const juce::String pmShape = u8"P.Shape";
-		static inline const juce::String amShape = u8"A.Shape";
+		static inline const juce::String pmSpeed = u8"P.SP";
+		static inline const juce::String amSpeed = u8"A.SP";
+		static inline const juce::String pmShape = u8"P.SH";
+		static inline const juce::String amShape = u8"A.SH";
 		static inline const juce::String syncDelay = u8"Delay";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
@@ -69,19 +71,19 @@ namespace SsgGuiText
 		static inline const juce::String pms = u8"Pms";
 		static inline const juce::String amd = u8"Amd";
 		static inline const juce::String pmd = u8"Pmd";
-		static inline const juce::String amSmoothRatio = u8"As Ratio";
+		static inline const juce::String amSmoothRatio = u8"AM SR";
 	}
 
 	namespace Ssg
 	{
-		static inline const juce::String level = u8"Level";
+		static inline const juce::String level = u8"LV";
 
 		namespace Voice
 		{
 			static inline const juce::String form = u8"Form";
-			static inline const juce::String tone = u8"Tone";
-			static inline const juce::String noise = u8"Noise";
-			static inline const juce::String noiseFreq = u8"Freq";
+			static inline const juce::String tone = u8"T.LV";
+			static inline const juce::String noise = u8"N.LV";
+			static inline const juce::String noiseFreq = u8"N.FQ";
 			static inline const juce::String noiseOnNote = u8"Noise On Note";
 			static inline const juce::String mix = u8"Mix";
 		}
@@ -100,7 +102,7 @@ namespace SsgGuiText
 		{
 			static inline const juce::String keyTrack = u8"Key Track (Pitch)";
 			static inline const juce::String peak = u8"Peak";
-			static inline const juce::String manualFreq = u8"Freq";
+			static inline const juce::String manualFreq = u8"FQ";
 			static inline const juce::String peakTo00 = u8"0.0 (Down)";
 			static inline const juce::String peakTo05 = u8"0.5 (Tri)";
 			static inline const juce::String peakTo10 = u8"1.0 (Up)";

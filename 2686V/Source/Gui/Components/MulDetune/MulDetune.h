@@ -42,8 +42,21 @@ public:
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, bool isHw = false);
     void layoutComponent(juce::Rectangle<int>& rect);
+    void layoutComponentRow(juce::Rectangle<int>& rect);
     void copyParams(CopyDetuneOpzx7& copyObj);
     void pasteParams(CopyDetuneOpzx7& copyObj);
     void importParams();
     void exportParams();
+    void setMul(int m);
+    void setMulRatio(float r);
+    void setDt1(int d1);
+    void setDt2(int d2);
+    void setDt3(int d3);
+    int getMul();
+    float getMulRatio();
+    int getDt1();
+    int getDt2();
+    int getDt3();
+    void setVisibles(bool visible);
+    void setEnables(bool enable);
 };

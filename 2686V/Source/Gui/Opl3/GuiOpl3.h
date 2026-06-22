@@ -98,6 +98,8 @@ class GuiOpl3 : public GuiBase
     std::array<juce::Image, Opl3PrValue::algorithms> algImages;
 
     std::array<GuiScrollGroup, Opl3PrValue::ops> opGroups;
+    std::array<GuiCategoryLabel, Opl3PrValue::ops> catDet;
+    std::array<GuiCategoryLabel, Opl3PrValue::ops> catAmp;
     std::array<GuiCategoryLabel, Opl3PrValue::ops> catLfo;
     std::array<GuiComboBox, Opl3PrValue::ops> mul;
     std::array<GuiToggleButton, Opl3PrValue::ops> am;
@@ -194,6 +196,8 @@ public:
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
@@ -257,6 +261,9 @@ public:
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);

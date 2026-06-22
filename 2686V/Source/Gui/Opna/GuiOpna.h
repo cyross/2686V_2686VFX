@@ -137,6 +137,8 @@ class GuiOpna : public GuiBase
     std::array<GuiComponentSsgSwEnv, OpnaPrValue::ops> ssgSwEnv;
 
     std::array<GuiComponentFix, OpnaPrValue::ops> fix;
+    std::array<GuiCategoryLabel, OpnaPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OpnaPrValue::ops> catAmp;
     std::array<GuiCategoryLabel, OpnaPrValue::ops> catLfo;
     std::array<GuiComboBox, OpnaPrValue::ops> freqs;
     std::array<GuiSlider, OpnaPrValue::ops> syncDelay;
@@ -235,6 +237,8 @@ public:
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -303,6 +307,8 @@ public:
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);

@@ -146,13 +146,11 @@ void GuiFx::setup()
     addAndMakeVisible(routeSeparator);
     routeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    showRouteBtn.setup({ .parent = *this, .title = isShowRoute ? juce::String("") + "FX設定非表示"  : juce::String("") + "FX設定表示", .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
         isShowRoute = !isShowRoute;
-
-        showRouteBtn.setTitle(isShowRoute ? juce::String("") + "FX設定非表示" : juce::String("") + "FX設定表示");
 
         ctx.editor.resized();
         };

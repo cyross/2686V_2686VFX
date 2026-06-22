@@ -84,6 +84,7 @@ void GuiAdpcm::setup()
     addAndMakeVisible(presetNameSeparator);
     presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleForm, .invisibleTitle = AdpcmGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
@@ -330,14 +331,9 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
-    layoutMainPcm({ .rect = mRect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
-
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMain({ .mainRect = mRect, .label = &toneSlider.label, .component = &toneSlider, });
-    layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutMain({ .mainRect = mRect, .label = &mixSlider.label, .component = &mixSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+
+    layoutFormCat(mRect);
 
     layoutOptionalCat(mRect);
 
@@ -471,6 +467,33 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
         layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+    }
+}
+
+void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+
+    loadButton.setVisible(visible);
+    fileNameLabel.setVisible(visible);
+    clearButton.setVisible(visible);
+    toneSlider.setVisibleWithLabel(visible);
+    noiseSlider.setVisibleWithLabel(visible);
+    noiseFreqSlider.setVisibleWithLabel(visible);
+    mixSlider.setVisibleWithLabel(visible);
+    mixSetTone.setVisible(visible);
+    mixSetMix.setVisible(visible);
+    mixSetNoise.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMainPcm({ .rect = rect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+        layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
+        layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
+        layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
     }
 }
 

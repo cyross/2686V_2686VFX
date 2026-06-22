@@ -64,7 +64,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "Loop To", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "L.To", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -73,7 +73,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "Loop Cnt", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "L.Cnt", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 

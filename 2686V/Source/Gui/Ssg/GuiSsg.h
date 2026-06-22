@@ -29,10 +29,7 @@ class GuiSsg : public GuiBase
     GuiGroup triGroup;
 
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel shapeCat;
-    GuiCategoryLabel toneCat;
-    GuiCategoryLabel noiseCat;
-    GuiCategoryLabel mixCat;
+    GuiCategoryLabel formCat;
     GuiCategoryLabel pulseInvCat;
     GuiCategoryLabel triPeakCat;
     GuiCategoryLabel hwEnvCat;
@@ -145,10 +142,7 @@ public:
         dutyGroup(context),
         triGroup(context),
         qualityCat(context),
-        shapeCat(context),
-        toneCat(context),
-        noiseCat(context),
-        mixCat(context),
+        formCat(context),
         pulseInvCat(context),
         triPeakCat(context),
         hwEnvCat(context),
@@ -217,6 +211,7 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& presetName);
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);

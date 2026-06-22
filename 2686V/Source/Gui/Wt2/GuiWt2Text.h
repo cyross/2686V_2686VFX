@@ -11,6 +11,8 @@ namespace Wt2GuiText
 
 	namespace Category
 	{
+		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
+		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
@@ -47,10 +49,10 @@ namespace Wt2GuiText
 
 	namespace Lfo
 	{
-		static inline const juce::String pmSpeed = u8"P.Speed";
-		static inline const juce::String amSpeed = u8"A.Speed";
-		static inline const juce::String pmShape = u8"P.Shape";
-		static inline const juce::String amShape = u8"A.Shape";
+		static inline const juce::String pmSpeed = u8"P.SP";
+		static inline const juce::String amSpeed = u8"A.SP";
+		static inline const juce::String pmShape = u8"P.SP";
+		static inline const juce::String amShape = u8"A.SP";
 		static inline const juce::String syncDelay = u8"Delay";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
@@ -58,17 +60,17 @@ namespace Wt2GuiText
 		static inline const juce::String pms = u8"Pms";
 		static inline const juce::String amd = u8"Amd";
 		static inline const juce::String pmd = u8"Pmd";
-		static inline const juce::String amSmoothRatio = u8"As Ratio";
+		static inline const juce::String amSmoothRatio = u8"AM SR";
 	}
 
 	namespace Wt
 	{
-		static inline const juce::String level = u8"Level";
+		static inline const juce::String level = u8"LV";
 		static inline const juce::String form = u8"Form";
 		static inline const juce::String size = u8"Size";
-		static inline const juce::String sampleSize = u8"Sample Size";
+		static inline const juce::String sampleSize = u8"Smp Sz";
 		static inline const juce::String resolution = u8"Reso";
-		static inline const juce::String waveform = u8"Waveform";
+		static inline const juce::String waveform = u8"W.Form";
 		static inline const juce::String fileImport = u8"Import (.wt2)";
 		static inline const juce::String fileExport = u8"Export (.wt2)";
 
