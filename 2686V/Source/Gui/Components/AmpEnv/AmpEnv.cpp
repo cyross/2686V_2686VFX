@@ -169,7 +169,17 @@ void GuiComponentAmpEnv::importParams() {
 				juce::StringArray lines;
 				file.readLines(lines);
 
-				if (lines.size() == 0) return;
+				int size = lines.size();
+
+				if (size < 7) return;
+
+				bypass.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+				startLevel.setValue(lines[1].getFloatValue(), juce::sendNotification);
+				attack.setValue(lines[2].getFloatValue(), juce::sendNotification);
+				decay.setValue(lines[3].getFloatValue(), juce::sendNotification);
+				sustain.setValue(lines[4].getFloatValue(), juce::sendNotification);
+				release.setValue(lines[5].getFloatValue(), juce::sendNotification);
+				kor.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
 			}
 		});
 }
@@ -189,7 +199,15 @@ void GuiComponentAmpEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "\n";
+				juce::String content = "";
+
+				content += juce::String(bypass.getToggleState() ? 1 : 0) + "\n";
+				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(sustain.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
 
 				file.replaceWithText(content);
 			}

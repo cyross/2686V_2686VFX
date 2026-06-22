@@ -437,6 +437,10 @@ void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
     copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
     copyObj.quality.mode = modeSelector.getSelectedId();
     copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.toneLevel = toneSlider.getValue();
+    copyObj.noiseLevel = noiseSlider.getValue();
+    copyObj.noiseFreq = noiseFreqSlider.getValue();
+    copyObj.mix = mixSlider.getValue();
 
     ampEnvComponent.copyParams(copyObj.aAdsr);
     pitchEnvComponent.copyParams(copyObj.pAdsr);
@@ -451,6 +455,10 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
     modeSelector.setSelectedId(copyObj.quality.mode);
     rateSelector.setSelectedId(copyObj.quality.rate);
+    toneSlider.setValue(copyObj.toneLevel);
+    noiseSlider.setValue(copyObj.noiseLevel);
+    noiseFreqSlider.setValue(copyObj.noiseFreq);
+    mixSlider.setValue(copyObj.mix);
 
     ampEnvComponent.pasteParams(copyObj.aAdsr);
     pitchEnvComponent.pasteParams(copyObj.pAdsr);
@@ -494,6 +502,61 @@ void RhythmPadGui::importDetuneParam() {
 
 void RhythmPadGui::exportDetuneParam() {
     mulDetuneComponent.exportParams();
+}
+
+void RhythmPadGui::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 3) return;
+
+                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void RhythmPadGui::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }
 
 void GuiRhythm::setup()
@@ -663,6 +726,24 @@ void GuiRhythm::setup()
         exportDetuneParam(padIndex);
         };
 
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importQualityParamButton.setWantsKeyboardFocus(true);
+    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    importQualityParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importQualityParam(padIndex);
+        };
+
+    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportQualityParamButton.setWantsKeyboardFocus(true);
+    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    exportQualityParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportQualityParam(padIndex);
+        };
+
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
     targerPadSlider.setRange(1.0, 8.0, 1.0);
     targerPadSlider.setNumDecimalPlacesToDisplay(0);
@@ -774,6 +855,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportSsgSwEnvParamButton.setVisible(visible);
     importDetuneParamButton.setVisible(visible);
     exportDetuneParamButton.setVisible(visible);
+    importQualityParamButton.setVisible(visible);
+    exportQualityParamButton.setVisible(visible);
     targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
@@ -815,6 +898,11 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
         layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
 
         rect.removeFromTop(4);
 
@@ -949,6 +1037,14 @@ void GuiRhythm::importDetuneParam(int p) {
 
 void GuiRhythm::exportDetuneParam(int p) {
     pads[p].exportDetuneParam();
+}
+
+void GuiRhythm::importQualityParam(int p) {
+    pads[p].importQualityParam();
+}
+
+void GuiRhythm::exportQualityParam(int p) {
+    pads[p].exportQualityParam();
 }
 
 void GuiRhythm::importUnisonParam() {

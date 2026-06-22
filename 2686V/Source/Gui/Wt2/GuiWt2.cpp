@@ -624,6 +624,20 @@ void GuiWt2::setup()
         exportUnisonParam();
         };
 
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setWantsKeyboardFocus(true);
+    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    importQualityParamButton.onClick = [this] {
+        importQualityParam();
+        };
+
+    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportQualityParamButton.setWantsKeyboardFocus(true);
+    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    exportQualityParamButton.onClick = [this] {
+        exportQualityParam();
+        };
+
     // Custom Wave Group
     customWaveGroup.setup(*this, Wt2GuiText::Group::wtCustom);
 
@@ -1041,6 +1055,8 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportDetuneParamButton.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
     exportUnisonParamButton.setVisible(visible);
+    importQualityParamButton.setVisible(visible);
+    exportQualityParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -1082,6 +1098,11 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
         layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
     }
 }
 
@@ -1223,4 +1244,57 @@ void GuiWt2::importUnisonParam() {
 
 void GuiWt2::exportUnisonParam() {
     unisonComponent.exportParams();
+}
+
+void GuiWt2::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiWt2::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

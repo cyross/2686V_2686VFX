@@ -160,5 +160,7 @@ namespace Opzx7GuiText
 		static inline const juce::String detuneFileExport = u8"Export Detune Param (.detune)";
 		static inline const juce::String unisonFileImport = u8"Import Unison Param (.unison)";
 		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
+		static inline const juce::String qualityFileImport = u8"Import Quality Param (.quality)";
+		static inline const juce::String qualityFileExport = u8"Export Quality Param (.quality)";
 	}
 }

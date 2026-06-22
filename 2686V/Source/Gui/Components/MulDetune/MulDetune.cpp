@@ -167,7 +167,15 @@ void GuiComponentMulDetune::importParams() {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 5) return;
+
+                mul.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                mulRatio.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                dt1.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+                dt2.setValue(lines[3].getIntValue(), juce::sendNotification);
+                dt3.setValue(lines[4].getIntValue(), juce::sendNotification);
             }
         });
 }
@@ -187,7 +195,13 @@ void GuiComponentMulDetune::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                juce::String content = "";
+
+                content += juce::String(mul.getSelectedItemIndex()) + "\n";
+                content += juce::String(mulRatio.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dt1.getSelectedItemIndex()) + "\n";
+                content += juce::String(dt2.getValue()) + "\n";
+                content += juce::String(dt3.getValue()) + "\n";
 
                 file.replaceWithText(content);
             }

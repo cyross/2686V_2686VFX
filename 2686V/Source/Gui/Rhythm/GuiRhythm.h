@@ -80,6 +80,7 @@ class RhythmPadGui: public GuiBase
     GuiComponentMulDetune mulDetuneComponent;
 
     GuiComponentLfoOpzx7 lfoComponent;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -160,6 +161,8 @@ public:
     void exportSsgSwEnvParam();
     void importDetuneParam();
     void exportDetuneParam();
+    void importQualityParam();
+    void exportQualityParam();
 };
 
 class GuiRhythm : public GuiBase
@@ -195,6 +198,8 @@ class GuiRhythm : public GuiBase
     GuiTextButton exportSsgSwEnvParamButton;
     GuiTextButton importDetuneParamButton;
     GuiTextButton exportDetuneParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
     GuiSlider targerPadSlider;
     GuiSeparator uSep003;
     GuiTextButton importUnisonParamButton;
@@ -228,6 +233,8 @@ public:
         exportSsgSwEnvParamButton(context),
         importDetuneParamButton(context),
         exportDetuneParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         targerPadSlider(context),
         uSep003(context),
         importUnisonParamButton(context),
@@ -259,6 +266,8 @@ public:
     void exportSsgSwEnvParam(int p);
     void importDetuneParam(int p);
     void exportDetuneParam(int p);
+    void importQualityParam(int p);
+    void exportQualityParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
 };

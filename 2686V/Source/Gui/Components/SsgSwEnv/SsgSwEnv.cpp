@@ -373,7 +373,28 @@ void GuiComponentSsgSwEnv::importParams() {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 18) return;
+
+                flag.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+                steps.setValue(lines[1].getIntValue(), juce::sendNotification);
+                loop.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
+                loopTo.setValue(lines[3].getIntValue(), juce::sendNotification);
+                loopCount.setValue(lines[4].getIntValue(), juce::sendNotification);
+                startLevel.setValue(lines[5].getFloatValue(), juce::sendNotification);
+                r1.setValue(lines[6].getFloatValue(), juce::sendNotification);
+                l1.setValue(lines[7].getFloatValue(), juce::sendNotification);
+                r2.setValue(lines[8].getFloatValue(), juce::sendNotification);
+                l2.setValue(lines[9].getFloatValue(), juce::sendNotification);
+                r3.setValue(lines[10].getFloatValue(), juce::sendNotification);
+                l3.setValue(lines[11].getFloatValue(), juce::sendNotification);
+                r4.setValue(lines[12].getFloatValue(), juce::sendNotification);
+                l4.setValue(lines[13].getFloatValue(), juce::sendNotification);
+                r5.setValue(lines[14].getFloatValue(), juce::sendNotification);
+                l5.setValue(lines[15].getFloatValue(), juce::sendNotification);
+                r6.setValue(lines[16].getFloatValue(), juce::sendNotification);
+                l6.setValue(lines[17].getFloatValue(), juce::sendNotification);
             }
         });
 }
@@ -393,7 +414,26 @@ void GuiComponentSsgSwEnv::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultSsgSwEnvParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                juce::String content = "";
+
+                content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(steps.getValue()) + "\n";
+                content += juce::String(loop.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(loopTo.getValue()) + "\n";
+                content += juce::String(loopCount.getValue()) + "\n";
+                content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r1.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l1.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r2.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l2.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r3.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l3.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r4.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l4.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r5.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l5.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(r6.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(l6.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 file.replaceWithText(content);
             }

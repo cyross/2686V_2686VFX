@@ -246,6 +246,8 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton exportLfoParamButton;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -378,6 +380,8 @@ public:
         exportLfoParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -515,4 +519,6 @@ public:
     void exportDetuneParam(int opIndex);
     void importUnisonParam();
     void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

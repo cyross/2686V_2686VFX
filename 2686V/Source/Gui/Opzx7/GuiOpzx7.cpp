@@ -533,6 +533,20 @@ void GuiOpzx7::setup()
         exportUnisonParam();
         };
 
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setWantsKeyboardFocus(true);
+    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    importQualityParamButton.onClick = [this] {
+        importQualityParam();
+        };
+
+    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportQualityParamButton.setWantsKeyboardFocus(true);
+    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    exportQualityParamButton.onClick = [this] {
+        exportQualityParam();
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
@@ -1424,6 +1438,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportLfoParamButton.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
     exportUnisonParamButton.setVisible(visible);
+    importQualityParamButton.setVisible(visible);
+    exportQualityParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -1467,8 +1483,15 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
         layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
 
+        rect.removeFromTop(4);
+
         layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
         layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
     }
 }
 
@@ -2088,48 +2111,11 @@ void GuiOpzx7::exportOpLfoParam(int opIndex) {
 }
 
 void GuiOpzx7::importDetuneParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file.existsAsFile()) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
-
-                juce::StringArray lines;
-                file.readLines(lines);
-
-                if (lines.size() == 0) return;
-            }
-        });
+    mulDetune[opIndex].importParams();
 }
 
 void GuiOpzx7::exportDetuneParam(int opIndex) {
-    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
-    if (!defaultDir.isDirectory()) {
-        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-    }
-
-    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default.detune"), Io::ExtensionGlob::DetuneParam);
-    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
-
-                // 次回のダイアログ用にディレクトリを保存
-                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
-
-                juce::String content = "\n";
-
-                file.replaceWithText(content);
-            }
-        });
+    mulDetune[opIndex].exportParams();
 }
 
 void GuiOpzx7::importPitchEnvParam(int opIndex) {
@@ -2162,4 +2148,57 @@ void GuiOpzx7::importUnisonParam() {
 
 void GuiOpzx7::exportUnisonParam() {
     unisonComponent.exportParams();
+}
+
+void GuiOpzx7::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiOpzx7::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

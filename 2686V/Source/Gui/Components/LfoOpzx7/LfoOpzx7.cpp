@@ -292,7 +292,23 @@ void GuiComponentLfoOpzx7::importParams() {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 13) return;
+
+                pmEnable.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+                pmFreq.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                pmSyncDelay.setValue(lines[2].getIntValue(), juce::sendNotification);
+                pgShape.setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
+                pms.setValue(lines[4].getFloatValue(), juce::sendNotification);
+                pmd.setValue(lines[5].getFloatValue(), juce::sendNotification);
+                amEnable.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+                amFreq.setValue(lines[7].getFloatValue(), juce::sendNotification);
+                egShape.setSelectedItemIndex(lines[8].getIntValue(), juce::sendNotification);
+                amSyncDelay.setValue(lines[9].getIntValue(), juce::sendNotification);
+                amSmRt.setValue(lines[10].getIntValue(), juce::sendNotification);
+                ams.setValue(lines[11].getFloatValue(), juce::sendNotification);
+                amd.setValue(lines[12].getFloatValue(), juce::sendNotification);
             }
         });
 }
@@ -312,7 +328,21 @@ void GuiComponentLfoOpzx7::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                juce::String content = "";
+
+                content += juce::String(pmEnable.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(pmFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pmSyncDelay.getValue()) + "\n";
+                content += juce::String(pgShape.getSelectedItemIndex()) + "\n";
+                content += juce::String(pms.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pmd.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(amEnable.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(amFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(egShape.getSelectedItemIndex()) + "\n";
+                content += juce::String(amSyncDelay.getValue()) + "\n";
+                content += juce::String(amSmRt.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(ams.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 file.replaceWithText(content);
             }

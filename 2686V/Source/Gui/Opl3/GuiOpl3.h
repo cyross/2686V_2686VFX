@@ -88,6 +88,8 @@ class GuiOpl3 : public GuiBase
     GuiSeparator uSep005;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
@@ -194,6 +196,8 @@ public:
         uSep005(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -279,4 +283,6 @@ public:
     void exportSsgSwEnvParam(int opIndex);
     void importUnisonParam();
     void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

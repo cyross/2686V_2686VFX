@@ -19,6 +19,7 @@ namespace SettingsKey
 	static inline const juce::String defaultSsgSwEnvParamDir = "defaultSsgSwEnvParamDir";
 	static inline const juce::String defaultDetuneParamDir = "defaultDetuneParamDir";
 	static inline const juce::String defaultUnisonParamDir = "defaultUnisonParamDir";
+	static inline const juce::String defaultQualityParamDir = "defaultQualityParamDir";
 	static inline const juce::String showTooltips = "showTooltips";
 	static inline const juce::String useHeadroom = "useHeadRoom";
 	static inline const juce::String headroomGain = "headRoomGain";

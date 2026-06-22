@@ -471,4 +471,8 @@ struct CopyRhythmPad {
 
 	int noteNumber;
 	bool isOneShot;
+	float toneLevel;
+	float noiseLevel;
+	float noiseFreq;
+	float mix;
 };

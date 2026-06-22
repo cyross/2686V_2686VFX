@@ -301,6 +301,20 @@ void GuiAdpcm::setup()
         exportUnisonParam();
         };
 
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setWantsKeyboardFocus(true);
+    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    importQualityParamButton.onClick = [this] {
+        importQualityParam();
+        };
+
+    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportQualityParamButton.setWantsKeyboardFocus(true);
+    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    exportQualityParamButton.onClick = [this] {
+        exportQualityParam();
+        };
+
     setupGraph();
     updateGraph();
 }
@@ -432,6 +446,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportDetuneParamButton.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
     exportUnisonParamButton.setVisible(visible);
+    importQualityParamButton.setVisible(visible);
+    exportQualityParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -467,6 +483,11 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
         layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
     }
 }
 
@@ -686,4 +707,59 @@ void GuiAdpcm::importUnisonParam() {
 
 void GuiAdpcm::exportUnisonParam() {
     unisonComponent.exportParams();
+}
+
+void GuiAdpcm::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 3) return;
+
+                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiAdpcm::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

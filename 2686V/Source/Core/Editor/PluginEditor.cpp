@@ -747,8 +747,9 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.defaultPitchEnvParamDir,
                     audioProcessor.defaultSsgSwEnvParamDir,
                     audioProcessor.defaultDetuneParamDir,
-                    audioProcessor.defaultUnisonParamDir
-                );
+                    audioProcessor.defaultUnisonParamDir,
+                    audioProcessor.defaultQualityParamDir
+                    );
 
                 // 壁紙再描画
                 loadWallpaperImage();

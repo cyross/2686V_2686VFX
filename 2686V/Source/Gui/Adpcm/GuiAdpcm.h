@@ -98,6 +98,9 @@ class GuiAdpcm : public GuiBase
     GuiTextButton exportDetuneParamButton;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
     GuiLabel presetNameLabel;
@@ -169,6 +172,8 @@ public:
         exportDetuneParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -211,4 +216,6 @@ public:
     void exportDetuneParam();
     void importUnisonParam();
     void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

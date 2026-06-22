@@ -581,6 +581,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
     xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
     xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
+    xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -610,6 +611,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
         defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
         defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
+        defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -789,6 +791,18 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultUnisonParamDir = newUnisonParamDir.getFullPathName();
+    }
+
+    if (defaultQualityParamDir.isEmpty() || !juce::File(defaultQualityParamDir).isDirectory())
+    {
+        auto newQualityParamDir = pluginDir.getChildFile(Io::Folder::qualityParam);
+
+        // 存在していなければ作成
+        if (!newQualityParamDir.exists()) {
+            newQualityParamDir.createDirectory();
+        }
+
+        defaultQualityParamDir = newQualityParamDir.getFullPathName();
     }
 }
 

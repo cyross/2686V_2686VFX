@@ -110,6 +110,8 @@ class GuiOpna : public GuiBase
     GuiTextButton exportLfoParamButton;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
@@ -236,6 +238,8 @@ public:
         exportLfoParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -334,4 +338,6 @@ public:
     void exportLfoParam();
     void importUnisonParam();
     void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

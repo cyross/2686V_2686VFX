@@ -205,7 +205,7 @@ void GuiSettings::setup()
     };
 
     // --- Fx Order Dir ---
-    setupFolderRow(fxOrderDirLabel, juce::String("") + "エフェクトオーダーファイルディレクトリ:", fxOrderDirPathLabel, fxOrderDirBrowseBtn);
+    setupFolderRow(fxOrderDirLabel, juce::String("") + "FX順番ファイルディレクトリ:", fxOrderDirPathLabel, fxOrderDirBrowseBtn);
     fxOrderDirPathLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
     fxOrderDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -226,7 +226,7 @@ void GuiSettings::setup()
         };
 
     // --- Fx Param Dir ---
-    setupFolderRow(fxParamDirLabel, juce::String("") + "エフェクトパラメーターファイルディレクトリ:", fxParamDirPathLabel, fxParamDirBrowseBtn);
+    setupFolderRow(fxParamDirLabel, juce::String("") + "FXファイルディレクトリ:", fxParamDirPathLabel, fxParamDirBrowseBtn);
     fxParamDirPathLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
     fxParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -234,7 +234,7 @@ void GuiSettings::setup()
     fxParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     fxParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "エフェクトパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "FXファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultFxParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultFxParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -247,7 +247,7 @@ void GuiSettings::setup()
         };
 
     // --- LFO Param Dir ---
-    setupFolderRow(lfoParamDirLabel, juce::String("") + "LFOパラメーターファイルディレクトリ:", lfoParamDirPathLabel, lfoParamDirBrowseBtn);
+    setupFolderRow(lfoParamDirLabel, juce::String("") + "LFOファイルディレクトリ:", lfoParamDirPathLabel, lfoParamDirBrowseBtn);
     lfoParamDirPathLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
     lfoParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -255,7 +255,7 @@ void GuiSettings::setup()
     lfoParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     lfoParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "LFOパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "LFOファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultLfoParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultLfoParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -268,7 +268,7 @@ void GuiSettings::setup()
         };
 
     // --- Amp Env Param Dir ---
-    setupFolderRow(ampEnvParamDirLabel, juce::String("") + "アンプエンベロープパラメーターファイルディレクトリ:", ampEnvParamDirPathLabel, ampEnvParamDirBrowseBtn);
+    setupFolderRow(ampEnvParamDirLabel, juce::String("") + "AMP ENVファイルディレクトリ:", ampEnvParamDirPathLabel, ampEnvParamDirBrowseBtn);
     ampEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
     ampEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -276,7 +276,7 @@ void GuiSettings::setup()
     ampEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ampEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "アンプエンベロープパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "AMP ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultAmpEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultAmpEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -289,7 +289,7 @@ void GuiSettings::setup()
         };
 
     // --- Pitch Env Param Dir ---
-    setupFolderRow(pitchEnvParamDirLabel, juce::String("") + "ピッチエンベロープパラメーターファイルディレクトリ:", pitchEnvParamDirPathLabel, pitchEnvParamDirBrowseBtn);
+    setupFolderRow(pitchEnvParamDirLabel, juce::String("") + "PITCH ENVファイルディレクトリ:", pitchEnvParamDirPathLabel, pitchEnvParamDirBrowseBtn);
     pitchEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
     pitchEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -297,7 +297,7 @@ void GuiSettings::setup()
     pitchEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     pitchEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "ピッチエンベロープパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "PITCH ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultPitchEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPitchEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -310,7 +310,7 @@ void GuiSettings::setup()
         };
 
     // --- SSG SW Env Param Dir ---
-    setupFolderRow(ssgSwEnvParamDirLabel, juce::String("") + "SSGソフトエンベロープパラメーターファイルディレクトリ:", ssgSwEnvParamDirPathLabel, ssgSwEnvParamDirBrowseBtn);
+    setupFolderRow(ssgSwEnvParamDirLabel, juce::String("") + "SSG SW ENVファイルディレクトリ:", ssgSwEnvParamDirPathLabel, ssgSwEnvParamDirBrowseBtn);
     ssgSwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
     ssgSwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -318,7 +318,7 @@ void GuiSettings::setup()
     ssgSwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     ssgSwEnvParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "SSGソフトエンベロープパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "SSG SW ENVファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultSsgSwEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultSsgSwEnvParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -331,7 +331,7 @@ void GuiSettings::setup()
         };
 
     // --- Detune Param Dir ---
-    setupFolderRow(detuneParamDirLabel, juce::String("") + "デチューンパラメーターファイルディレクトリ:", detuneParamDirPathLabel, detuneParamDirBrowseBtn);
+    setupFolderRow(detuneParamDirLabel, juce::String("") + "DETUNE ファイルディレクトリ:", detuneParamDirPathLabel, detuneParamDirBrowseBtn);
     detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
     detuneParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -339,7 +339,7 @@ void GuiSettings::setup()
     detuneParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     detuneParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "デチューンパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "DETUNE ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultDetuneParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultDetuneParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
@@ -352,7 +352,7 @@ void GuiSettings::setup()
         };
 
     // --- Unison Param Dir ---
-    setupFolderRow(unisonParamDirLabel, juce::String("") + "デチューンパラメーターファイルディレクトリ:", unisonParamDirPathLabel, unisonParamDirBrowseBtn);
+    setupFolderRow(unisonParamDirLabel, juce::String("") + "UNISON ファイルディレクトリ:", unisonParamDirPathLabel, unisonParamDirBrowseBtn);
     unisonParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
     unisonParamDirPathLabel.setWantsKeyboardFocus(false);
 
@@ -360,13 +360,34 @@ void GuiSettings::setup()
     unisonParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
     unisonParamDirBrowseBtn.onClick = [this] {
         ctx.editor.openFileChooser(
-            juce::String("") + "デチューンパラメーターファイルディレクトリを選択してください",
+            juce::String("") + "UNISON ファイルディレクトリを選択してください",
             ctx.audioProcessor.defaultUnisonParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultUnisonParamDir),
             [this](const juce::FileChooser& fc) {
                 auto file = fc.getResult();
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultUnisonParamDir = file.getFullPathName();
                     unisonParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Quyality Param Dir ---
+    setupFolderRow(qualityParamDirLabel, juce::String("") + "音質ファイルディレクトリ:", qualityParamDirPathLabel, qualityParamDirBrowseBtn);
+    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    qualityParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    qualityParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    qualityParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "音質ファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultQualityParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultQualityParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultQualityParamDir = file.getFullPathName();
+                    qualityParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -671,6 +692,12 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     unisonParamDirBrowseBtn.setBounds(rowUnisonParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     unisonParamDirPathLabel.setBounds(rowUnisonParamDir);
 
+    // 7. Quality Param Dir
+    auto rowQualityParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    qualityParamDirLabel.setBounds(rowQualityParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    qualityParamDirPathLabel.setBounds(rowQualityParamDir);
+
     auto sp3Rect = sRect.removeFromTop(separatorHeight);
     separator3.setBounds(sp3Rect);
 
@@ -728,7 +755,8 @@ void GuiSettings::setSettings(
     const juce::String& pitchEnvParamDirPath,
     const juce::String& ssgSwEnvParamDirPath,
     const juce::String& detuneParamDirPath,
-    const juce::String& unisonParamDirPath
+    const juce::String& unisonParamDirPath,
+    const juce::String& qualityParamDirPath
 )
 {
     uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
@@ -744,6 +772,7 @@ void GuiSettings::setSettings(
     ssgSwEnvParamDirLabel.setText(ssgSwEnvParamDirPath, juce::dontSendNotification);
     detuneParamDirLabel.setText(detuneParamDirPath, juce::dontSendNotification);
     unisonParamDirLabel.setText(unisonParamDirPath, juce::dontSendNotification);
+    qualityParamDirLabel.setText(qualityParamDirPath, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

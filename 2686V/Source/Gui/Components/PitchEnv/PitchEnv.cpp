@@ -209,7 +209,18 @@ void GuiComponentPitchEnv::importParams() {
 				juce::StringArray lines;
 				file.readLines(lines);
 
-				if (lines.size() == 0) return;
+				int size = lines.size();
+
+				if (size < 8) return;
+
+				flag.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+				attack.setValue(lines[1].getFloatValue(), juce::sendNotification);
+				decay.setValue(lines[2].getFloatValue(), juce::sendNotification);
+				release.setValue(lines[3].getFloatValue(), juce::sendNotification);
+				startLevel.setValue(lines[4].getFloatValue(), juce::sendNotification);
+				attackLevel.setValue(lines[5].getFloatValue(), juce::sendNotification);
+				sustainLevel.setValue(lines[6].getFloatValue(), juce::sendNotification);
+				releaseLevel.setValue(lines[7].getFloatValue(), juce::sendNotification);
 			}
 		});
 }
@@ -229,7 +240,16 @@ void GuiComponentPitchEnv::exportParams() {
 				// 次回のダイアログ用にディレクトリを保存
 				ctx.audioProcessor.defaultPitchEnvParamDir = file.getParentDirectory().getFullPathName();
 
-				juce::String content = "\n";
+				juce::String content = "";
+
+				content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
+				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(attackLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(sustainLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
 
 				file.replaceWithText(content);
 			}

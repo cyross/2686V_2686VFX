@@ -146,6 +146,8 @@ class GuiWt2 : public GuiBase
     GuiTextButton exportDetuneParamButton;
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
+    GuiTextButton importQualityParamButton;
+    GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
@@ -208,6 +210,8 @@ public:
         exportDetuneParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        importQualityParamButton(context),
+        exportQualityParamButton(context),
         sizeSelector(context),
         resoSelector(context),
         waveSelector(context),
@@ -254,4 +258,6 @@ public:
     void exportDetuneParam();
     void importUnisonParam();
     void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

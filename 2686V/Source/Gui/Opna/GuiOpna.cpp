@@ -525,6 +525,20 @@ void GuiOpna::setup()
         exportUnisonParam();
         };
 
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setWantsKeyboardFocus(true);
+    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    importQualityParamButton.onClick = [this] {
+        importQualityParam();
+        };
+
+    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportQualityParamButton.setWantsKeyboardFocus(true);
+    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
+    exportQualityParamButton.onClick = [this] {
+        exportQualityParam();
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < OpnaPrValue::algorithms; ++i)
@@ -1069,6 +1083,8 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportLfoParamButton.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
     exportUnisonParamButton.setVisible(visible);
+    importQualityParamButton.setVisible(visible);
+    exportQualityParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -1123,6 +1139,11 @@ void GuiOpna::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
         layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
     }
 }
 
@@ -1803,7 +1824,7 @@ void GuiOpna::importHwLfoParam(int opIndex) {
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::OpnaLfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-        [this](const juce::FileChooser& fc) {
+        [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
             if (file.existsAsFile()) {
 
@@ -1813,7 +1834,16 @@ void GuiOpna::importHwLfoParam(int opIndex) {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 6) return;
+
+                freqs[opIndex].setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                syncDelay[opIndex].setValue(lines[1].getIntValue(), juce::sendNotification);
+                pm[opIndex].setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
+                pms[opIndex].setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
+                am[opIndex].setToggleState(lines[4].getIntValue() == 1, juce::sendNotification);
+                ams[opIndex].setSelectedItemIndex(lines[5].getIntValue(), juce::sendNotification);
             }
         });
 }
@@ -1826,7 +1856,7 @@ void GuiOpna::exportHwLfoParam(int opIndex) {
 
     fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpna"), Io::ExtensionGlob::OpnaLfoParam);
     fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
-        [this](const juce::FileChooser& fc) {
+        [this, opIndex](const juce::FileChooser& fc) {
             auto file = fc.getResult();
             if (file != juce::File{}) {
 
@@ -1834,6 +1864,13 @@ void GuiOpna::exportHwLfoParam(int opIndex) {
                 ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
 
                 juce::String content = "\n";
+
+                content += juce::String(freqs[opIndex].getSelectedItemIndex()) + "\n";
+                content += juce::String(syncDelay[opIndex].getValue()) + "\n";
+                content += juce::String(pm[opIndex].getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(pms[opIndex].getSelectedItemIndex()) + "\n";
+                content += juce::String(am[opIndex].getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(ams[opIndex].getSelectedItemIndex()) + "\n";
 
                 file.replaceWithText(content);
             }
@@ -1874,7 +1911,23 @@ void GuiOpna::importLfoParam() {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 13) return;
+
+                lfoFreqSlider.setValue(lines[0].getIntValue(), juce::sendNotification);
+                lfoShapeSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                lfoSyncDelaySlider.setValue(lines[2].getIntValue(), juce::sendNotification);
+                lfoPmToggle.setToggleState(lines[3].getIntValue() == 1, juce::sendNotification);
+                lfoPmsSlider.setValue(lines[4].getIntValue(), juce::sendNotification);
+                lfoPmdSlider.setValue(lines[5].getIntValue(), juce::sendNotification);
+                lfoAmToggle.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+                lfoAmSmRtSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
+                lfoAmdSlider.setValue(lines[8].getIntValue(), juce::sendNotification);
+
+                for (int i = 0; i < OpmPrValue::ops; i++) {
+                    n88Ams[i].setValue(lines[9 + i].getIntValue(), juce::sendNotification);
+                }
             }
         });
 }
@@ -1896,6 +1949,20 @@ void GuiOpna::exportLfoParam() {
 
                 juce::String content = "\n";
 
+                content += juce::String(lfoFreqSlider.getValue()) + "\n";
+                content += juce::String(lfoShapeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(lfoSyncDelaySlider.getValue()) + "\n";
+                content += juce::String(lfoPmToggle.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(lfoPmsSlider.getValue()) + "\n";
+                content += juce::String(lfoPmdSlider.getValue()) + "\n";
+                content += juce::String(lfoAmToggle.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(lfoAmSmRtSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(lfoAmdSlider.getValue()) + "\n";
+
+                for (int i = 0; i < OpmPrValue::ops; i++) {
+                    content += juce::String(n88Ams[i].getValue()) + "\n";
+                }
+
                 file.replaceWithText(content);
             }
         });
@@ -1907,4 +1974,57 @@ void GuiOpna::importUnisonParam() {
 
 void GuiOpna::exportUnisonParam() {
     unisonComponent.exportParams();
+}
+
+void GuiOpna::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiOpna::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

@@ -78,7 +78,13 @@ void GuiComponentUnison::importParams() {
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 3) return;
+
+                voices.setValue(lines[0].getIntValue(), juce::sendNotification);
+                detune.setValue(lines[1].getIntValue(), juce::sendNotification);
+                spread.setValue(lines[2].getFloatValue(), juce::sendNotification);
             }
         });
 
@@ -99,7 +105,11 @@ void GuiComponentUnison::exportParams() {
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultUnisonParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                juce::String content = "";
+
+                content += juce::String(voices.getValue()) + "\n";
+                content += juce::String(detune.getValue()) + "\n";
+                content += juce::String(spread.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 file.replaceWithText(content);
             }
