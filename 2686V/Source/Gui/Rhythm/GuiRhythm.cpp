@@ -54,7 +54,11 @@ static std::vector<SelectItem> rateItems = {
 static std::vector<SelectItem> interpItems = {
     {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
     {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
-    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 }
+    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 },
+    {.name = juce::String("") + "4: ZOH (Zero-Order Hold)", .value = 4 },
+    {.name = juce::String("") + "5: コサイン補間 (Cosine)", .value = 5 },
+    {.name = juce::String("") + "6: B-スプライン補間 (B-Spline)", .value = 6 },
+    {.name = juce::String("") + "7: ラグランジュ補間 (Lagrange)", .value = 7 }
 };
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)

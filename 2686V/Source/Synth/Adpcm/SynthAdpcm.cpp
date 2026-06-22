@@ -455,6 +455,33 @@ float AdpcmCore::getSample()
             output = ((c3 * frac + c2) * frac + c1) * frac + c0;
             break;
         }
+        case 3: // 3: Zero-Order Hold (最も粗いLo-Fiサンプラー風)
+            output = s_0;
+            break;
+        case 4: // 4: Cosine (LinearとCubicの中間的な滑らかさ)
+        {
+            float mu2 = (1.0f - std::cos(frac * juce::MathConstants<float>::pi)) / 2.0f;
+            output = s_0 * (1.0f - mu2) + s_1 * mu2;
+            break;
+        }
+        case 5: // 5: B-Spline (強烈なローパス効果・SFCのこもり感を強調)
+        {
+            float c0 = (s_m1 + 4.0f * s_0 + s_1) / 6.0f;
+            float c1 = (s_1 - s_m1) / 2.0f;
+            float c2 = (s_m1 - 2.0f * s_0 + s_1) / 2.0f;
+            float c3 = (s_2 - 3.0f * s_1 + 3.0f * s_0 - s_m1) / 6.0f;
+            output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+            break;
+        }
+        case 6: // 6: Lagrange (4点補間、Cubicとは異なる倍音特性)
+        {
+            float l_m1 = -frac * (frac - 1.0f) * (frac - 2.0f) / 6.0f;
+            float l_0 = (frac + 1.0f) * (frac - 1.0f) * (frac - 2.0f) / 2.0f;
+            float l_1 = -(frac + 1.0f) * frac * (frac - 2.0f) / 2.0f;
+            float l_2 = (frac + 1.0f) * frac * (frac - 1.0f) / 6.0f;
+            output = s_m1 * l_m1 + s_0 * l_0 + s_1 * l_1 + s_2 * l_2;
+            break;
+        }
         }
     }
     else if (!isEncodedMode && !m_rawBuffer.empty()) {
@@ -545,6 +572,33 @@ float AdpcmCore::getSample()
             float c2 = s_m1 - 2.5f * s_0 + 2.0f * s_1 - 0.5f * s_2;
             float c3 = 0.5f * (s_2 - s_m1) + 1.5f * (s_0 - s_1);
             output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+            break;
+        }
+        case 3: // 3: Zero-Order Hold (最も粗いLo-Fiサンプラー風)
+            output = s_0;
+            break;
+        case 4: // 4: Cosine (LinearとCubicの中間的な滑らかさ)
+        {
+            float mu2 = (1.0f - std::cos(frac * juce::MathConstants<float>::pi)) / 2.0f;
+            output = s_0 * (1.0f - mu2) + s_1 * mu2;
+            break;
+        }
+        case 5: // 5: B-Spline (強烈なローパス効果・SFCのこもり感を強調)
+        {
+            float c0 = (s_m1 + 4.0f * s_0 + s_1) / 6.0f;
+            float c1 = (s_1 - s_m1) / 2.0f;
+            float c2 = (s_m1 - 2.0f * s_0 + s_1) / 2.0f;
+            float c3 = (s_2 - 3.0f * s_1 + 3.0f * s_0 - s_m1) / 6.0f;
+            output = ((c3 * frac + c2) * frac + c1) * frac + c0;
+            break;
+        }
+        case 6: // 6: Lagrange (4点補間、Cubicとは異なる倍音特性)
+        {
+            float l_m1 = -frac * (frac - 1.0f) * (frac - 2.0f) / 6.0f;
+            float l_0 = (frac + 1.0f) * (frac - 1.0f) * (frac - 2.0f) / 2.0f;
+            float l_1 = -(frac + 1.0f) * frac * (frac - 2.0f) / 2.0f;
+            float l_2 = (frac + 1.0f) * frac * (frac - 1.0f) / 6.0f;
+            output = s_m1 * l_m1 + s_0 * l_0 + s_1 * l_1 + s_2 * l_2;
             break;
         }
         }

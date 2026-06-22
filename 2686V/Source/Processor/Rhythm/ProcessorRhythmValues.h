@@ -81,9 +81,10 @@ namespace RhythmPrValue
 
 		namespace Interp
 		{
-			inline constexpr int min = 0; // Nearest
-			inline constexpr int max = 2; // Gaussian
-			inline constexpr int initial = 1; // Linear
+			// 0:Nearest 1:Linear 2:Gaussian 3:Zero-Order Hold 4:Cosine 5:B-Spline 6:Lagrange
+			inline constexpr int min = 0;
+			inline constexpr int max = 6;
+			inline constexpr int initial = 1;
 		}
 
 		namespace Tone {
