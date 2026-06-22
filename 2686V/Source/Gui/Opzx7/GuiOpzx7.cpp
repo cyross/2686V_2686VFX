@@ -10,6 +10,7 @@
 #include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
+#include "../../Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"

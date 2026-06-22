@@ -3,6 +3,7 @@
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> multems = {
     {.name = " 0: x  0.5",    .value = 1 },

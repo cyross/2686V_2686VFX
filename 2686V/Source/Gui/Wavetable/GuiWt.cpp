@@ -8,6 +8,7 @@
 #include "../../Processor/Wavetable/ProcessorWtKeys.h"
 #include "../../Processor/Wavetable/ProcessorWtValues.h"
 #include "../../Core/Const/ConstFileValues.h"
+#include "../../Core/Const/ConstGlobal.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiWtValues.h"
@@ -1185,7 +1186,7 @@ void GuiWt::exportWavetable()
 
                 // 2行目以降に値を書き込む
                 for (float v : values) {
-                    content += juce::String(v, 6) + "\n"; // 小数点以下6桁まで保存
+                    content += juce::String(v, Global::floatDecimalPlaces) + "\n"; // 小数点以下6桁まで保存
                 }
 
                 file.replaceWithText(content);

@@ -9,6 +9,7 @@
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
+#include "../../Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"

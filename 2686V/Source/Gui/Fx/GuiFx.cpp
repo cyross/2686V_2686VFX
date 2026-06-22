@@ -5,6 +5,7 @@
 #include "../../Processor/Fx/ProcessorFxKeys.h"
 #include "../../Processor/Fx/ProcessorFxValues.h"
 #include "../../Core/Const/ConstFileValues.h"
+#include "../../Core/Const/ConstGlobal.h"
 
 #include "../../Core/Gui/GuiHelpers.h"
 #include "./GuiFxValues.h"
@@ -1081,7 +1082,90 @@ void GuiFx::importFxParam()
                 juce::StringArray lines;
                 file.readLines(lines);
 
-                if (lines.size() == 0) return;
+                int size = lines.size();
+
+                if (size < 1) return;
+
+                int num = lines[0].getIntValue();
+
+                if (size < 2) return;
+
+                bypassToggle.setToggleState(lines[1].getIntValue() == 1, juce::sendNotification);
+
+                if (num == 0 || size < 6) return;
+
+                // Tremollo
+                tBypassBtn.setToggleState(lines[2].getIntValue() == 1, juce::sendNotification);
+                tRateSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+                tDepthSlider.setValue(lines[4].getFloatValue(), juce::sendNotification);
+                tMixSlider.setValue(lines[5].getFloatValue(), juce::sendNotification);
+
+                if (num == 1 || size < 10) return;
+
+                // Vibrato
+                vBypassBtn.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+                vRateSlider.setValue(lines[7].getFloatValue(), juce::sendNotification);
+                vDepthSlider.setValue(lines[8].getFloatValue(), juce::sendNotification);
+                vMixSlider.setValue(lines[9].getFloatValue(), juce::sendNotification);
+
+                if (num == 2 || size < 14) return;
+
+                // Modern Bit Crusher
+                mbcBypassBtn.setToggleState(lines[10].getIntValue() == 1, juce::sendNotification);
+                mbcRateSlider.setValue(lines[11].getFloatValue(), juce::sendNotification);
+                mbcBitsSlider.setValue(lines[12].getFloatValue(), juce::sendNotification);
+                mbcMixSlider.setValue(lines[13].getFloatValue(), juce::sendNotification);
+
+                if (num == 3 || size < 18) return;
+
+                // Delay
+                dBypassBtn.setToggleState(lines[14].getIntValue() == 1, juce::sendNotification);
+                dTimeSlider.setValue(lines[15].getFloatValue(), juce::sendNotification);
+                dFbSlider.setValue(lines[16].getFloatValue(), juce::sendNotification);
+                dMixSlider.setValue(lines[17].getFloatValue(), juce::sendNotification);
+
+                if (num == 4 || size < 22) return;
+
+                // Reverb
+                rBypassBtn.setToggleState(lines[18].getIntValue() == 1, juce::sendNotification);
+                rSizeSlider.setValue(lines[19].getFloatValue(), juce::sendNotification);
+                rDampSlider.setValue(lines[20].getFloatValue(), juce::sendNotification);
+                rMixSlider.setValue(lines[21].getFloatValue(), juce::sendNotification);
+
+                if (num == 5 || size < 27) return;
+
+                // Filter
+                flBypassBtn.setToggleState(lines[22].getIntValue() == 1, juce::sendNotification);
+                flTypeSelector.setSelectedItemIndex(lines[23].getIntValue(), juce::sendNotification);
+                flFreqSlider.setValue(lines[24].getFloatValue(), juce::sendNotification);
+                flQSlider.setValue(lines[25].getFloatValue(), juce::sendNotification);
+                flMixSlider.setValue(lines[26].getFloatValue(), juce::sendNotification);
+
+                if (num == 6 || size < 33) return;
+
+                // 3Band EQ
+                eq3bBypassBtn.setToggleState(lines[27].getIntValue() == 1, juce::sendNotification);
+                eq3bLowGainDbSlider.setValue(lines[28].getFloatValue(), juce::sendNotification);
+                eq3bMidFreqSlider.setValue(lines[29].getFloatValue(), juce::sendNotification);
+                eq3bMidGainDbSlider.setValue(lines[30].getFloatValue(), juce::sendNotification);
+                eq3bHighGainDbSlider.setValue(lines[31].getFloatValue(), juce::sendNotification);
+                eq3bMixSlider.setValue(lines[32].getFloatValue(), juce::sendNotification);
+
+                if (num == 7 || size < 45) return;
+
+                // SFC Echo
+                sfceBypassBtn.setToggleState(lines[33].getIntValue() == 1, juce::sendNotification);
+                sfceTimeSlider.setValue(lines[34].getFloatValue(), juce::sendNotification);
+                sfceFbSlider.setValue(lines[35].getFloatValue(), juce::sendNotification);
+                sfceFirCoef0Slider.setValue(lines[36].getFloatValue(), juce::sendNotification);
+                sfceFirCoef1Slider.setValue(lines[37].getFloatValue(), juce::sendNotification);
+                sfceFirCoef2Slider.setValue(lines[38].getFloatValue(), juce::sendNotification);
+                sfceFirCoef3Slider.setValue(lines[39].getFloatValue(), juce::sendNotification);
+                sfceFirCoef4Slider.setValue(lines[40].getFloatValue(), juce::sendNotification);
+                sfceFirCoef5Slider.setValue(lines[41].getFloatValue(), juce::sendNotification);
+                sfceFirCoef6Slider.setValue(lines[42].getFloatValue(), juce::sendNotification);
+                sfceFirCoef7Slider.setValue(lines[43].getFloatValue(), juce::sendNotification);
+                sfceMixSlider.setValue(lines[44].getFloatValue(), juce::sendNotification);
             }
         });
 }
@@ -1102,7 +1186,69 @@ void GuiFx::exportFxParam()
                 // 次回のダイアログ用にディレクトリを保存
                 ctx.audioProcessor.defaultFxParamDir = file.getParentDirectory().getFullPathName();
 
-                juce::String content = "\n";
+                juce::String content = juce::String(NumEffects) + "\n";
+
+                // Master Bypass
+                content += juce::String(bypassToggle.getToggleState() ? 1 : 0) + "\n";
+
+                // Tremollo
+                content += juce::String(tBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(tRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(tDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(tMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Vibrato
+                content += juce::String(vBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(vRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(vDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(vMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Modern Bit Crusher
+                content += juce::String(mbcBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(mbcRateSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mbcBitsSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mbcMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Delay
+                content += juce::String(dBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(dTimeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dFbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Reverb
+                content += juce::String(rBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(rSizeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(rDampSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(rMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Filter
+                content += juce::String(flBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(flTypeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(flFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(flQSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(flMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // 3Band EQ
+                content += juce::String(eq3bBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(eq3bLowGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(eq3bMidFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(eq3bMidGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(eq3bHighGainDbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(eq3bMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // SFC Echo
+                content += juce::String(sfceBypassBtn.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(sfceTimeSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFbSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef0Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef1Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef2Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef3Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef4Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef5Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef6Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceFirCoef7Slider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(sfceMixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 file.replaceWithText(content);
             }

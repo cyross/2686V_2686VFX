@@ -3,6 +3,7 @@
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
 {
