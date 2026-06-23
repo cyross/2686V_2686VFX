@@ -532,7 +532,7 @@ void GuiWt2::setup()
     customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveImportBtn.onClick = [this] { importWavetable(); };
 
-    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey.darker(0.8f), .isReset = false, .isResized = false});
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
@@ -540,7 +540,7 @@ void GuiWt2::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -554,7 +554,7 @@ void GuiWt2::setup()
         exportLfoParam();
         };
 
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importAmpEnvParamButton.setWantsKeyboardFocus(true);
     importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importAmpEnvParamButton.onClick = [this] {
@@ -568,7 +568,7 @@ void GuiWt2::setup()
         exportAmpEnvParam();
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -582,7 +582,7 @@ void GuiWt2::setup()
         exportPitchEnvParam();
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -596,7 +596,7 @@ void GuiWt2::setup()
         exportSsgSwEnvParam();
         };
 
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importDetuneParamButton.setWantsKeyboardFocus(true);
     importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
     importDetuneParamButton.onClick = [this] {
@@ -610,7 +610,7 @@ void GuiWt2::setup()
         exportDetuneParam();
         };
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importUnisonParamButton.setWantsKeyboardFocus(true);
     importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
     importUnisonParamButton.onClick = [this] {
@@ -624,7 +624,7 @@ void GuiWt2::setup()
         exportUnisonParam();
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importQualityParamButton.setWantsKeyboardFocus(true);
     importQualityParamButton.setExplicitFocusOrder(++tabOrder);
     importQualityParamButton.onClick = [this] {
@@ -1065,44 +1065,36 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
 
-        layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
-        layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
 
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
 
-        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importAmpEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportAmpEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importAmpEnvParamButton, .comp2 = &exportAmpEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
     }
 }
 

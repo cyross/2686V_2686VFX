@@ -121,7 +121,7 @@ namespace CoreGuiValue
 
 		namespace Label
 		{
-			static inline constexpr int width = 60;
+			static inline constexpr int width = 50;
 		}
 
 		namespace LabelOnly
@@ -306,7 +306,7 @@ namespace CoreGuiValue
 
 		namespace Label
 		{
-			static inline constexpr int width = 50;
+			static inline constexpr int width = 40;
 		}
 
 		namespace LabelOnly

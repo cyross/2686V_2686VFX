@@ -71,9 +71,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     p_curveCore = ctx.audioProcessor.getCurveCore();
     p_guiCurve = ctx.editor.getCurveGui();
 
-    auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
+    auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
-            addAndMakeVisible(btn);
+            parent.addAndMakeVisible(btn);
             btn.setButtonText(text);
             btn.addListener(&ctx.editor);
             btn.setWantsKeyboardFocus(true);
@@ -210,9 +210,9 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
 
-    setupPanBtn(panToLBtn, RhythmGuiText::Rhythm::Pad::Pan::l, tabOrder);
-    setupPanBtn(panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
-    setupPanBtn(panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToLBtn, RhythmGuiText::Rhythm::Pad::Pan::l, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToCBtn, RhythmGuiText::Rhythm::Pad::Pan::c, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToRBtn, RhythmGuiText::Rhythm::Pad::Pan::r, tabOrder);
 
     fixComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, "-> 440", 440);
 
@@ -389,11 +389,16 @@ void RhythmPadGui::setupGraph()
     graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
     auto repaintGraph = [this]() { updateGraph(); };
 
     ampEnvComponent.setupGraph(repaintGraph);
 
     pitchEnvComponent.setupGraph(repaintGraph);
+
+    ssgSwEnvComponent.setupGraph(repaintGraph);
 
     addAndMakeVisible(graphSeparator);
     graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
@@ -422,10 +427,11 @@ void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 2;
+    int btnWidth = btnArea.getWidth() / 3;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -445,6 +451,15 @@ void RhythmPadGui::updateGraph()
     if (mode == GraphMode::Pitch) {
         pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
+    // =============================================================
+    // SSG SW Env
+    // =============================================================
+    else if (mode == GraphMode::SsgSw) {
+        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // Amp Env
+    // =============================================================
     else {
         ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
@@ -723,7 +738,7 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importToneNoiseParamButton.setWantsKeyboardFocus(true);
     importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
     importToneNoiseParamButton.onClick = [this] {
@@ -741,7 +756,7 @@ void GuiRhythm::setup()
         exportToneNoiseParam(padIndex);
         };
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -759,7 +774,7 @@ void GuiRhythm::setup()
         exportLfoParam(padIndex);
         };
 
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importAmpEnvParamButton.setWantsKeyboardFocus(true);
     importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importAmpEnvParamButton.onClick = [this] {
@@ -777,7 +792,7 @@ void GuiRhythm::setup()
         exportAmpEnvParam(padIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -795,7 +810,7 @@ void GuiRhythm::setup()
         exportPitchEnvParam(padIndex);
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -813,7 +828,7 @@ void GuiRhythm::setup()
         exportSsgSwEnvParam(padIndex);
         };
 
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importDetuneParamButton.setWantsKeyboardFocus(true);
     importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
     importDetuneParamButton.onClick = [this] {
@@ -831,7 +846,7 @@ void GuiRhythm::setup()
         exportDetuneParam(padIndex);
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importQualityParamButton.setWantsKeyboardFocus(true);
     importQualityParamButton.setExplicitFocusOrder(++tabOrder);
     importQualityParamButton.onClick = [this] {
@@ -849,7 +864,7 @@ void GuiRhythm::setup()
         exportQualityParam(padIndex);
         };
 
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importPcmPlayParamButton.setWantsKeyboardFocus(true);
     importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
     importPcmPlayParamButton.onClick = [this] {
@@ -877,7 +892,7 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
     uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importUnisonParamButton.setWantsKeyboardFocus(true);
     importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
     importUnisonParamButton.onClick = [this] {
@@ -1003,43 +1018,35 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
 
-        layoutMain({ .mainRect = rect, .component = &importToneNoiseParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportToneNoiseParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importToneNoiseParamButton, .comp2 = &exportToneNoiseParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importAmpEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportAmpEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importAmpEnvParamButton, .comp2 = &exportAmpEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPcmPlayParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPcmPlayParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPcmPlayParamButton, .comp2 = &exportPcmPlayParamButton });
 
         rect.removeFromTop(4);
 
@@ -1048,8 +1055,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep003Area = rect.removeFromTop(4);
         uSep003.setBounds(uSep003Area);
 
-        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
     }
 }
 

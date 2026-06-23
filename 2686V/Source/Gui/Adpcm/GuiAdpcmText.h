@@ -78,23 +78,23 @@ namespace AdpcmGuiText
 	namespace Utility
 	{
 		static inline const juce::String bcLevel = u8"Level -> All Ch";
-		static inline const juce::String lfoFileImport = u8"Import LFO Param (.lfoOpzx7)";
-		static inline const juce::String lfoFileExport = u8"Export LFO Param (.lfoOpzx7)";
-		static inline const juce::String ampEnvFileImport = u8"Import Amp Env Param (.ampEnv)";
-		static inline const juce::String ampEnvFileExport = u8"Export Amp Env Param (.ampEnv)";
-		static inline const juce::String pitchEnvFileImport = u8"Import Pitch Env Param (.pitchEnv)";
-		static inline const juce::String pitchEnvFileExport = u8"Export Pitch Env Param (.pitchEnv)";
-		static inline const juce::String ssgSwEnvFileImport = u8"Import SSG SW Env Param (.ssgSwEnv)";
-		static inline const juce::String ssgSwEnvFileExport = u8"Export SSG SW Env Param (.ssgSwEnv)";
-		static inline const juce::String detuneFileImport = u8"Import Detune Param (.detune)";
-		static inline const juce::String detuneFileExport = u8"Export Detune Param (.detune)";
-		static inline const juce::String unisonFileImport = u8"Import Unison Param (.unison)";
-		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
-		static inline const juce::String qualityFileImport = u8"Import Quality Param (.pcmQuality)";
-		static inline const juce::String qualityFileExport = u8"Export Quality Param (.pcmQuality)";
-		static inline const juce::String pcmPlayFileImport = u8"Import PCM Play Param (.pcmPlay)";
-		static inline const juce::String pcmPlayFileExport = u8"Export PCM Play Param (.pcmPlay)";
-		static inline const juce::String toneNoiseFileImport = u8"Import Tone/Noise Param (.toneNoise)";
-		static inline const juce::String toneNoiseFileExport = u8"Export Tone/Noise Param (.toneNoise)";
+		static inline const juce::String lfoFileImport = u8"[IM]LFO";
+		static inline const juce::String lfoFileExport = u8"[EX]LFO";
+		static inline const juce::String ampEnvFileImport = u8"[IM]Amp Env";
+		static inline const juce::String ampEnvFileExport = u8"[EX]Amp Env";
+		static inline const juce::String pitchEnvFileImport = u8"[IM]Pitch Env";
+		static inline const juce::String pitchEnvFileExport = u8"[EX]Pitch Env";
+		static inline const juce::String ssgSwEnvFileImport = u8"[IM]SSG SW Env";
+		static inline const juce::String ssgSwEnvFileExport = u8"[EX]SSG SW Env";
+		static inline const juce::String detuneFileImport = u8"[IM]Detune";
+		static inline const juce::String detuneFileExport = u8"[EX]Detune";
+		static inline const juce::String unisonFileImport = u8"[IM]Unison";
+		static inline const juce::String unisonFileExport = u8"[EX]Unison";
+		static inline const juce::String qualityFileImport = u8"[IM]Quality";
+		static inline const juce::String qualityFileExport = u8"[EX]Quality";
+		static inline const juce::String pcmPlayFileImport = u8"[IM]PCM Play";
+		static inline const juce::String pcmPlayFileExport = u8"[EX]PCM Play";
+		static inline const juce::String toneNoiseFileImport = u8"[IM]Tone/Noise";
+		static inline const juce::String toneNoiseFileExport = u8"[EX]Tone/Noise";
 	}
 }

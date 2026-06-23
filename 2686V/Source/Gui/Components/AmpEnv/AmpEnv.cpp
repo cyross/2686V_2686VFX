@@ -18,27 +18,27 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 
-	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "Stl", .isReset = true });
+	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "STL", .isReset = true });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
 
-	attack.setup({ .parent = parent, .id = code + "_AR", .title = "Ar", .isReset = true });
+	attack.setup({ .parent = parent, .id = code + "_AR", .title = "AR", .isReset = true });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
 
-	decay.setup({ .parent = parent, .id = code + "_DR", .title = "Dr", .isReset = true });
+	decay.setup({ .parent = parent, .id = code + "_DR", .title = "DR", .isReset = true });
 	decay.setWantsKeyboardFocus(true);
 	decay.setExplicitFocusOrder(++tabOrder);
 
-	sustain.setup({ .parent = parent, .id = code + "_SL", .title = "Sl", .isReset = true });
+	sustain.setup({ .parent = parent, .id = code + "_SL", .title = "SL", .isReset = true });
 	sustain.setWantsKeyboardFocus(true);
 	sustain.setExplicitFocusOrder(++tabOrder);
 
-	release.setup({ .parent = parent, .id = code + "_RR", .title = "Rr", .isReset = true });
+	release.setup({ .parent = parent, .id = code + "_RR", .title = "RR", .isReset = true });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
-	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "Kor", .isReset = true });
+	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
 	kor.setExplicitFocusOrder(++tabOrder);
 }

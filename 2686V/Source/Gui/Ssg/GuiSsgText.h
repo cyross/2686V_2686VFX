@@ -64,14 +64,14 @@ namespace SsgGuiText
 		static inline const juce::String amSpeed = u8"A.SP";
 		static inline const juce::String pmShape = u8"P.SH";
 		static inline const juce::String amShape = u8"A.SH";
-		static inline const juce::String syncDelay = u8"Delay";
+		static inline const juce::String syncDelay = u8"SDLY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
-		static inline const juce::String ams = u8"Ams";
-		static inline const juce::String pms = u8"Pms";
-		static inline const juce::String amd = u8"Amd";
-		static inline const juce::String pmd = u8"Pmd";
-		static inline const juce::String amSmoothRatio = u8"AM SR";
+		static inline const juce::String ams = u8"AMS";
+		static inline const juce::String pms = u8"PMS";
+		static inline const juce::String amd = u8"AMD";
+		static inline const juce::String pmd = u8"PMD";
+		static inline const juce::String amSmoothRatio = u8"AMSR";
 	}
 
 	namespace Ssg
@@ -80,28 +80,28 @@ namespace SsgGuiText
 
 		namespace Voice
 		{
-			static inline const juce::String form = u8"Form";
+			static inline const juce::String form = u8"FORM";
 			static inline const juce::String tone = u8"T.LV";
 			static inline const juce::String noise = u8"N.LV";
 			static inline const juce::String noiseFreq = u8"N.FQ";
 			static inline const juce::String noiseOnNote = u8"Noise On Note";
-			static inline const juce::String mix = u8"Mix";
+			static inline const juce::String mix = u8"MIX";
 		}
 
 		namespace Duty
 		{
-			static inline const juce::String mode = u8"Mode";
-			static inline const juce::String preset = u8"Preset";
-			static inline const juce::String var = u8"Ratio";
+			static inline const juce::String mode = u8"MODE";
+			static inline const juce::String preset = u8"PRST";
+			static inline const juce::String var = u8"RAT";
 			static inline const juce::String invert = u8"Invert Phrase";
 			static inline const juce::String fc = u8"FC Mode";
-			static inline const juce::String fcFluc = u8"FC Fluc";
+			static inline const juce::String fcFluc = u8"FCFL";
 		}
 
 		namespace Tri
 		{
 			static inline const juce::String keyTrack = u8"Key Track (Pitch)";
-			static inline const juce::String peak = u8"Peak";
+			static inline const juce::String peak = u8"PEAK";
 			static inline const juce::String manualFreq = u8"FQ";
 			static inline const juce::String peakTo00 = u8"0.0 (Down)";
 			static inline const juce::String peakTo05 = u8"0.5 (Tri)";
@@ -112,29 +112,31 @@ namespace SsgGuiText
 		namespace HwEnv
 		{
 			static inline const juce::String enable = u8"Enable";
-			static inline const juce::String shape = u8"Shape";
-			static inline const juce::String speed = u8"Period";
+			static inline const juce::String shape = u8"SHPE";
+			static inline const juce::String speed = u8"PROD";
 		}
 	}
 
 	namespace Utility
 	{
 		static inline const juce::String bcLevel = u8"Level -> All Ch";
-		static inline const juce::String lfoFileImport = u8"Import LFO Param (.lfoOpzx7)";
-		static inline const juce::String lfoFileExport = u8"Export LFO Param (.lfoOpzx7)";
-		static inline const juce::String ampEnvFileImport = u8"Import Amp Env Param (.ampEnv)";
-		static inline const juce::String ampEnvFileExport = u8"Export Amp Env Param (.ampEnv)";
-		static inline const juce::String pitchEnvFileImport = u8"Import Pitch Env Param (.pitchEnv)";
-		static inline const juce::String pitchEnvFileExport = u8"Export Pitch Env Param (.pitchEnv)";
-		static inline const juce::String ssgSwEnvFileImport = u8"Import SSG SW Env Param (.ssgSwEnv)";
-		static inline const juce::String ssgSwEnvFileExport = u8"Export SSG SW Env Param (.ssgSwEnv)";
-		static inline const juce::String detuneFileImport = u8"Import Detune Param (.detune)";
-		static inline const juce::String detuneFileExport = u8"Export Detune Param (.detune)";
-		static inline const juce::String unisonFileImport = u8"Import Unison Param (.unison)";
-		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
-		static inline const juce::String qualityFileImport = u8"Import Quality Param (.quality)";
-		static inline const juce::String qualityFileExport = u8"Export Quality Param (.quality)";
-		static inline const juce::String toneNoiseFileImport = u8"Import Tone/Noise Param (.toneNoise)";
-		static inline const juce::String toneNoiseFileExport = u8"Export Tone/Noise Param (.toneNoise)";
+		static inline const juce::String lfoFileImport = u8"[IM]LFO";
+		static inline const juce::String lfoFileExport = u8"[EX]LFO";
+		static inline const juce::String ampEnvFileImport = u8"[IM]Amp Env";
+		static inline const juce::String ampEnvFileExport = u8"[EX]Amp Env";
+		static inline const juce::String pitchEnvFileImport = u8"[IM]Pitch Env";
+		static inline const juce::String pitchEnvFileExport = u8"[EX]Pitch Env";
+		static inline const juce::String ssgSwEnvFileImport = u8"[IM]SSG SW Env";
+		static inline const juce::String ssgSwEnvFileExport = u8"[EX]SSG SW Env";
+		static inline const juce::String detuneFileImport = u8"[IM]Detune";
+		static inline const juce::String detuneFileExport = u8"[EX]Detune";
+		static inline const juce::String unisonFileImport = u8"[IM]Unison";
+		static inline const juce::String unisonFileExport = u8"[EX]Unison";
+		static inline const juce::String qualityFileImport = u8"[IM]Quality";
+		static inline const juce::String qualityFileExport = u8"[EX]Quality";
+		static inline const juce::String pcmPlayFileImport = u8"[IM]PCM Play";
+		static inline const juce::String pcmPlayFileExport = u8"[EX]PCM Play";
+		static inline const juce::String toneNoiseFileImport = u8"[IM]Tone/Noise";
+		static inline const juce::String toneNoiseFileExport = u8"[EX]Tone/Noise";
 	}
 }

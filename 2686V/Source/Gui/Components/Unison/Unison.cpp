@@ -14,17 +14,17 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
         .enableChangeDetailVisible = true
         });
 
-    voices.setup({ .parent = parent, .id = code + "_UNI_VOICES", .title = "Voices", .isReset = true });
+    voices.setup({ .parent = parent, .id = code + "_UNI_VOICES", .title = "VICE", .isReset = true });
     voices.setWantsKeyboardFocus(true);
     voices.setExplicitFocusOrder(++tabOrder);
 
-    detune.setup({ .parent = parent, .id = code + "_UNI_DETUNE", .title = "Detune", .isReset = true });
+    detune.setup({ .parent = parent, .id = code + "_UNI_DETUNE", .title = "DT", .isReset = true });
     detune.setWantsKeyboardFocus(true);
     detune.setExplicitFocusOrder(++tabOrder);
 
     detuneButtons.setupComponent(parent, detune, tabOrder);
 
-    spread.setup({ .parent = parent, .id = code + "_UNI_SPREAD", .title = "Spread", .isReset = true });
+    spread.setup({ .parent = parent, .id = code + "_UNI_SPREAD", .title = "SPR", .isReset = true });
     spread.setWantsKeyboardFocus(true);
     spread.setExplicitFocusOrder(++tabOrder);
 }

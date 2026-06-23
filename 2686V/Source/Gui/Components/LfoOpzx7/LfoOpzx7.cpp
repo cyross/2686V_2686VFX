@@ -40,7 +40,7 @@ void GuiComponentLfoOpzx7::setupComponent(
     pmFreq.setWantsKeyboardFocus(true);
     pmFreq.setExplicitFocusOrder(++tabOrder);
 
-    pmSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmSyncDelay, .title = "SD", .isReset = true });
+    pmSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
     pmSyncDelay.setWantsKeyboardFocus(true);
     pmSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -83,7 +83,7 @@ void GuiComponentLfoOpzx7::setupComponent(
     amFreq.setWantsKeyboardFocus(true);
     amFreq.setExplicitFocusOrder(++tabOrder);
 
-    amSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSyncDelay, .title = "SD", .isReset = true });
+    amSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
     amSyncDelay.setWantsKeyboardFocus(true);
     amSyncDelay.setExplicitFocusOrder(++tabOrder);
 

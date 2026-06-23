@@ -41,7 +41,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
 
-    steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "Steps", .isReset = true, .labelFont = labelFont });
+    steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "STEP", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
     steps.setExplicitFocusOrder(++tabOrder);
     steps.onValueChange = [this] {
@@ -50,7 +50,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loop.setup({ .parent = parent, .id = code + "_SSGSW_LOOP", .title = "Loop", .isReset = true });
+    loop.setup({ .parent = parent, .id = code + "_SSGSW_LOOP", .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
     loop.onClick = [this] {
@@ -64,7 +64,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "L.To", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "L.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -73,7 +73,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "L.Cnt", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "L.CN", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -84,7 +84,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     loopCount.setEnabled(ssgEnvLoopEnable);
     loopCount.label.setEnabled(ssgEnvLoopEnable);
 
-    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "Stl", .isReset = true, .labelFont = labelFont });
+    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
     startLevel.setWantsKeyboardFocus(true);
     startLevel.setExplicitFocusOrder(++tabOrder);
 
@@ -165,23 +165,23 @@ void GuiComponentSsgSwEnv::layoutComponent(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &flag });
-        layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 10 });
-        layoutMain({ .mainRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 10 });
+        layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 13 });
     }
 }
 
@@ -213,23 +213,23 @@ void GuiComponentSsgSwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &flag });
-        layoutRow({ .rowRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .component = &loop, .rowHeight = 10 });
-        layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 8 });
-        layoutRow({ .rowRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 8 });
+        layoutRow({ .rowRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .component = &loop, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 12 });
     }
 }
 

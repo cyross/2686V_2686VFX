@@ -62,23 +62,23 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
             });
     }
 
-    mul.setup({ .parent = parent, .id = code + "_MUL", .title = "Mul", .items = multems, .isReset = true });
+    mul.setup({ .parent = parent, .id = code + "_MUL", .title = "MUL", .items = multems, .isReset = true });
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setup({ .parent = parent, .id = code + "_MUL_RATIO", .title = "M.Ratio", .isReset = true });
+    mulRatio.setup({ .parent = parent, .id = code + "_MUL_RATIO", .title = "MURT", .isReset = true });
     mulRatio.setWantsKeyboardFocus(true);
     mulRatio.setExplicitFocusOrder(++tabOrder);
 
-    dt1.setup({ .parent = parent, .id = code + "_DT", .title = "Dt1", .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = parent, .id = code + "_DT", .title = "DT1", .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "Dt2", .isReset = true });
+    dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "DT2", .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "Dt3", .isReset = true });
+    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "DT3", .isReset = true });
     dt3.setWantsKeyboardFocus(true);
     dt3.setExplicitFocusOrder(++tabOrder);
 

@@ -61,9 +61,9 @@ static std::vector<SelectItem> interpItems = {
 
 void GuiAdpcm::setup()
 {
-    auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
+    auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
-            addAndMakeVisible(btn);
+            parent.addAndMakeVisible(btn);
             btn.setButtonText(text);
             btn.addListener(&ctx.editor);
             btn.setWantsKeyboardFocus(true);
@@ -175,9 +175,9 @@ void GuiAdpcm::setup()
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
-    setupPanBtn(panToLBtn, AdpcmGuiText::Adpcm::Pan::l, tabOrder);
-    setupPanBtn(panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
-    setupPanBtn(panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToLBtn, AdpcmGuiText::Adpcm::Pan::l, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToCBtn, AdpcmGuiText::Adpcm::Pan::c, tabOrder);
+    setupPanBtn(mainGroup.contentCanvas, panToRBtn, AdpcmGuiText::Adpcm::Pan::r, tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -233,7 +233,7 @@ void GuiAdpcm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false});
     importToneNoiseParamButton.setWantsKeyboardFocus(true);
     importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
     importToneNoiseParamButton.onClick = [this] {
@@ -247,7 +247,7 @@ void GuiAdpcm::setup()
         exportToneNoiseParam();
         };
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -261,7 +261,7 @@ void GuiAdpcm::setup()
         exportLfoParam();
         };
 
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importAmpEnvParamButton.setWantsKeyboardFocus(true);
     importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importAmpEnvParamButton.onClick = [this] {
@@ -275,7 +275,7 @@ void GuiAdpcm::setup()
         exportAmpEnvParam();
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -289,7 +289,7 @@ void GuiAdpcm::setup()
         exportPitchEnvParam();
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -303,7 +303,7 @@ void GuiAdpcm::setup()
         exportSsgSwEnvParam();
         };
 
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importDetuneParamButton.setWantsKeyboardFocus(true);
     importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
     importDetuneParamButton.onClick = [this] {
@@ -317,7 +317,7 @@ void GuiAdpcm::setup()
         exportDetuneParam();
         };
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importUnisonParamButton.setWantsKeyboardFocus(true);
     importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
     importUnisonParamButton.onClick = [this] {
@@ -331,7 +331,7 @@ void GuiAdpcm::setup()
         exportUnisonParam();
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importQualityParamButton.setWantsKeyboardFocus(true);
     importQualityParamButton.setExplicitFocusOrder(++tabOrder);
     importQualityParamButton.onClick = [this] {
@@ -345,7 +345,7 @@ void GuiAdpcm::setup()
         exportQualityParam();
         };
 
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importPcmPlayParamButton.setWantsKeyboardFocus(true);
     importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
     importPcmPlayParamButton.onClick = [this] {
@@ -504,48 +504,39 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
 
-        layoutMain({ .mainRect = rect, .component = &importToneNoiseParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportToneNoiseParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importToneNoiseParamButton, .comp2 = &exportToneNoiseParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importAmpEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportAmpEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importAmpEnvParamButton, .comp2 = &exportAmpEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importDetuneParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportDetuneParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPcmPlayParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPcmPlayParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPcmPlayParamButton, .comp2 = &exportPcmPlayParamButton });
     }
 }
 

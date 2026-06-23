@@ -243,7 +243,7 @@ void GuiOpl::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep004);
     uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false});
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -261,7 +261,7 @@ void GuiOpl::setup()
         exportLfoParam(opIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -279,7 +279,7 @@ void GuiOpl::setup()
         exportPitchEnvParam(opIndex);
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -307,7 +307,7 @@ void GuiOpl::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep005);
     uSep005.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importUnisonParamButton.setWantsKeyboardFocus(true);
     importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
     importUnisonParamButton.onClick = [this] {
@@ -321,7 +321,7 @@ void GuiOpl::setup()
         exportUnisonParam();
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
     importQualityParamButton.setWantsKeyboardFocus(true);
     importQualityParamButton.setExplicitFocusOrder(++tabOrder);
     importQualityParamButton.onClick = [this] {
@@ -958,18 +958,15 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         auto uSep004Area = rect.removeFromTop(4);
         uSep004.setBounds(uSep004Area);
 
-        layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importPitchEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportPitchEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
 
         rect.removeFromTop(4);
 
@@ -978,13 +975,11 @@ void GuiOpl::layoutUtilityCat(Rectangle<int>& rect)
         auto uSep005Area = rect.removeFromTop(4);
         uSep005.setBounds(uSep005Area);
 
-        layoutMain({ .mainRect = rect, .component = &importUnisonParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportUnisonParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
 
         rect.removeFromTop(4);
 
-        layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
-        layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
     }
 }
 
@@ -1045,7 +1040,7 @@ void GuiOpl::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
 
     bool visible = catDet[opIndex].isDetailVisible();
 
-    mul[opIndex].setVisible(visible);
+    mul[opIndex].setVisibleWithLabel(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
