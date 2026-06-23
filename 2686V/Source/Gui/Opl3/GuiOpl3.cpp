@@ -56,13 +56,13 @@ static std::vector<SelectItem> rateItems = {
 
 static std::vector<SelectItem> opl3AlgItems = {
     {.name = "00: <OPL3(OP4)-00>", .value = 1 },
-    {.name = "01: <OPL3(OP4)-01>", .value = 2 },
+    {.name = "01: <OPL3(OP4)-01> / OP2x2", .value = 2 },
     {.name = "02: <OPL3(OP4)-02>", .value = 3 },
     {.name = "03: <OPL3(OP4)-03>", .value = 4 },
     {.name = "04: <EX-00>", .value = 5 },
     {.name = "05: <EX-01>", .value = 6 },
-    {.name = "06: <EX-02>", .value = 7 },
-    {.name = "07: <EX-03>", .value = 8 },
+    {.name = "06: <EX-02> / OP2x2", .value = 7 },
+    {.name = "07: <EX-03> / OP2x2", .value = 8 },
 };
 
 static std::vector<SelectItem> multems = {
