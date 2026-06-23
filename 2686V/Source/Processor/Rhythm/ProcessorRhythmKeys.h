@@ -44,6 +44,9 @@ namespace RhythmPrKey
 		static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 		static inline const juce::String pcmOffset = "_PCM_OFFSET";
 		static inline const juce::String pcmRatio = "_PCM_RATIO";
+		static inline const juce::String loopPointEnable = "_LOOPPOINT_EN";
+		static inline const juce::String loopPointStart = "_LOOPPOINT_ST";
+		static inline const juce::String loopPointEnd = "_LOOPPOINT_END";
 
 		namespace Adsr
 		{

@@ -20,13 +20,16 @@ namespace AdpcmPrKey
 	static inline const juce::String mode = "_MODE";
 	static inline const juce::String rate = "_RATE";
 	static inline const juce::String interp = "_INTERP";
+	static inline const juce::String pcmOffset = "_PCM_OFFSET";
+	static inline const juce::String pcmRatio = "_PCM_RATIO";
 	static inline const juce::String loop = "_LOOP";
+	static inline const juce::String loopPointEnable = "_LOOPPOINT_EN";
+	static inline const juce::String loopPointStart = "_LOOPPOINT_ST";
+	static inline const juce::String loopPointEnd = "_LOOPPOINT_END";
 	static inline const juce::String tone = "_TONE";
 	static inline const juce::String noise = "_NOISE";
 	static inline const juce::String noiseFreq = "_NOISEFREQ";
 	static inline const juce::String mix = "_NOISEMIX";
-	static inline const juce::String pcmOffset = "_PCM_OFFSET";
-	static inline const juce::String pcmRatio = "_PCM_RATIO";
 	static inline const juce::String fix = CorePrKey::Post::Fm::Op::fix;
 	static inline const juce::String fixFreq = CorePrKey::Post::Fm::Op::fixFreq;
 

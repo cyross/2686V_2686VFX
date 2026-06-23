@@ -50,17 +50,22 @@ namespace AdpcmGuiText
 	namespace Adpcm
 	{
 		static inline const juce::String level = u8"LV";
-		static inline const juce::String pan = u8"Pan";
-		static inline const juce::String quality = u8"Bit";
-		static inline const juce::String interp = u8"Interp";
+		static inline const juce::String pan = u8"PAN";
+		static inline const juce::String quality = u8"BIT";
+		static inline const juce::String rate = u8"RATE";
+		static inline const juce::String interp = u8"INTP";
 		static inline const juce::String tone = u8"T.LV";
 		static inline const juce::String noise = u8"N.LV";
 		static inline const juce::String noiseFreq = u8"N.FQ";
-		static inline const juce::String mix = u8"Mix";
-		static inline const juce::String rate = u8"Rate";
-		static inline const juce::String loop = u8"Loop";
-		static inline const juce::String pcmOffset = u8"Offset";
-		static inline const juce::String pcmRatio = u8"Ratio";
+		static inline const juce::String toTone = u8"Tone";
+		static inline const juce::String toNoise = u8"Noise";
+		static inline const juce::String mix = u8"MIX";
+		static inline const juce::String loop = u8"LOOP";
+		static inline const juce::String loopPointEnable = u8"Loop Point Enable";
+		static inline const juce::String loopPointStart = u8"LPST";
+		static inline const juce::String loopPointEnd = u8"LPED";
+		static inline const juce::String pcmOffset = u8"P.OF";
+		static inline const juce::String pcmRatio = u8"P.RT";
 
 		namespace Pan
 		{
@@ -87,5 +92,9 @@ namespace AdpcmGuiText
 		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
 		static inline const juce::String qualityFileImport = u8"Import Quality Param (.pcmQuality)";
 		static inline const juce::String qualityFileExport = u8"Export Quality Param (.pcmQuality)";
+		static inline const juce::String pcmPlayFileImport = u8"Import PCM Play Param (.pcmPlay)";
+		static inline const juce::String pcmPlayFileExport = u8"Export PCM Play Param (.pcmPlay)";
+		static inline const juce::String toneNoiseFileImport = u8"Import Tone/Noise Param (.toneNoise)";
+		static inline const juce::String toneNoiseFileExport = u8"Export Tone/Noise Param (.toneNoise)";
 	}
 }

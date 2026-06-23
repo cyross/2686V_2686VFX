@@ -536,6 +536,24 @@ void GuiOpzx7::setup()
         exportDetuneParam(opIndex);
         };
 
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setWantsKeyboardFocus(true);
+    importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
+    importPcmPlayParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importOpPcmPlayParam(opIndex);
+        };
+
+    exportPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportPcmPlayParamButton.setWantsKeyboardFocus(true);
+    exportPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPcmPlayParamButton.onClick = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportOpPcmPlayParam(opIndex);
+        };
+
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
     uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
@@ -793,6 +811,18 @@ void GuiOpzx7::setup()
         pcmRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::pcmRatio, .title = Opzx7GuiText::Fm::Op::PcmRatio, .isReset = true });
         pcmRatio[i].setWantsKeyboardFocus(true);
         pcmRatio[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointEnable[i].setup({ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointEnable, .title = Opzx7GuiText::Fm::Op::loopPointEnable, .isReset = true });
+        loopPointEnable[i].setWantsKeyboardFocus(true);
+        loopPointEnable[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointStart[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointStart, .title = Opzx7GuiText::Fm::Op::loopPointStart, .isReset = true });
+        loopPointStart[i].setWantsKeyboardFocus(true);
+        loopPointStart[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointEnd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointEnd, .title = Opzx7GuiText::Fm::Op::loopPointEnd, .isReset = true });
+        loopPointEnd[i].setWantsKeyboardFocus(true);
+        loopPointEnd[i].setExplicitFocusOrder(++tabOrder);
 
         loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = false });
         loadWtBtn[i].setWantsKeyboardFocus(true);
@@ -1473,6 +1503,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportSsgSwEnvParamButton.setVisible(visible);
     importDetuneParamButton.setVisible(visible);
     exportDetuneParamButton.setVisible(visible);
+    importPcmPlayParamButton.setVisible(visible);
+    exportPcmPlayParamButton.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     importLfoParamButton.setVisible(visible);
@@ -1513,6 +1545,11 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importSsgSwEnvParamButton });
         layoutMain({ .mainRect = rect, .component = &exportSsgSwEnvParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importPcmPlayParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPcmPlayParamButton });
 
         rect.removeFromTop(4);
 
@@ -1750,12 +1787,21 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
     clearPcmBtn[opIndex].setVisible(visible);
     pcmOffset[opIndex].setVisibleWithLabel(visible);
     pcmRatio[opIndex].setVisibleWithLabel(visible);
+    loopPointEnable[opIndex].setVisible(visible);
+    loopPointStart[opIndex].setVisibleWithLabel(visible);
+    loopPointEnd[opIndex].setVisibleWithLabel(visible);
     loadWtBtn[opIndex].setVisible(visible);
     wtFileNameLabel[opIndex].setVisible(visible);
     clearWtBtn[opIndex].setVisible(visible);
+    wtLoopPointEnable[opIndex].setVisible(visible);
+    wtLoopPointStart[opIndex].setVisibleWithLabel(visible);
+    wtLoopPointEnd[opIndex].setVisibleWithLabel(visible);
     loadWt2Btn[opIndex].setVisible(visible);
     wt2FileNameLabel[opIndex].setVisible(visible);
     clearWt2Btn[opIndex].setVisible(visible);
+    wt2LoopPointEnable[opIndex].setVisible(visible);
+    wt2LoopPointStart[opIndex].setVisibleWithLabel(visible);
+    wt2LoopPointEnd[opIndex].setVisibleWithLabel(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &ws[opIndex].label, .component = &ws[opIndex] });
@@ -1765,16 +1811,25 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadPcmBtn[opIndex], .pcmFileNameLabel = &pcmFileNameLabel[opIndex], .clearPcmBtn = &clearPcmBtn[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmOffset[opIndex].label, .component = &pcmOffset[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmRatio[opIndex].label, .component = &pcmRatio[opIndex] });
-        }
+            layoutRow({ .rowRect = rect, .component = &loopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &loopPointStart[opIndex].label, .component = &loopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &loopPointEnd[opIndex].label, .component = &loopPointEnd[opIndex], });
+        } 
 
         if (selectedWs == (Opzx7PrValue::wtIndex + 1))
         {
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWtBtn[opIndex], .pcmFileNameLabel = &wtFileNameLabel[opIndex], .clearPcmBtn = &clearWtBtn[opIndex] });
+            layoutRow({ .rowRect = rect, .component = &wtLoopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &wtLoopPointStart[opIndex].label, .component = &wtLoopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &wtLoopPointEnd[opIndex].label, .component = &wtLoopPointEnd[opIndex], });
         }
 
         if (selectedWs == (Opzx7PrValue::wt2Index + 1))
         {
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWt2Btn[opIndex], .pcmFileNameLabel = &wt2FileNameLabel[opIndex], .clearPcmBtn = &clearWt2Btn[opIndex] });
+            layoutRow({ .rowRect = rect, .component = &wt2LoopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &wt2LoopPointStart[opIndex].label, .component = &wt2LoopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &wt2LoopPointEnd[opIndex].label, .component = &wt2LoopPointEnd[opIndex], });
         }
     }
 }
@@ -2242,4 +2297,12 @@ void GuiOpzx7::exportQualityParam() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
+
+}
+
+void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
+
 }

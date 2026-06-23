@@ -73,6 +73,9 @@ private:
 
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;
+    bool m_loopPointEnable = false;
+    float m_loopPointStart = 0.0f; // 0.0 to 1.0
+    float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
@@ -92,6 +95,7 @@ private:
 
     bool m_isLooping = false;
     bool m_hasFinished = false;
+    bool m_isReleased = false;
 
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;

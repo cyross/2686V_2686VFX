@@ -97,12 +97,17 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     }
 
     m_interpolationMode = params.interpolationMode;
+    m_loopPointEnable = params.loopPointEnable;
+    m_loopPointStart = std::clamp(params.loopPointStart, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
 
     if (needRefresh) refreshPcmBuffer();
 }
 
 void RhythmPad::triggerRelease(double hostSampleRate)
 {
+    m_isReleased = true;
+
     m_adsr.noteOff();
 
     if (!m_pitchAdsr.isBypass()) {
@@ -155,6 +160,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_baseLevel = std::max(0.01f, velocity);
         m_hasFinished = false;
+        m_isReleased = false;
 
         // エンベロープも非レガート時のみ再トリガーする
         m_currentEnv = m_adsr.noteOn();
@@ -171,6 +177,8 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
 
 void RhythmPad::stop()
 {
+    m_isReleased = true;
+
     m_adsr.noteOff();
 
     if (!m_pitchAdsr.isBypass()) {
@@ -251,16 +259,45 @@ float RhythmPad::getSample()
         if (playSize < 1.0) playSize = 1.0;
 
         double endPosition = offsetSamples + playSize;
+        double loopStartPos = offsetSamples + playSize * m_loopPointStart;
+        double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
 
+        // =========================================================
         // ループ・終了判定
-        if (m_position >= endPosition) {
-            if (m_isOneShot) {
-                m_hasFinished = true;
-
-                return 0.0f;
+        // =========================================================
+        if (m_loopPointEnable) {
+            if (!m_isReleased) {
+                // リリース前：ループポイント間をループ
+                if (m_position >= loopEndPos) {
+                    double loopLength = loopEndPos - loopStartPos;
+                    if (loopLength > 0.0) {
+                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    }
+                }
             }
             else {
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                // リリース後：最後まで再生
+                if (m_position >= endPosition) {
+                    if (!m_isOneShot) {
+                        m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                    }
+                    else {
+                        m_hasFinished = true;
+                        return 0.0f;
+                    }
+                }
+            }
+        }
+        else {
+            // 従来の処理
+            if (m_position >= endPosition) {
+                if (!m_isOneShot) {
+                    m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
         }
 
@@ -273,8 +310,20 @@ float RhythmPad::getSample()
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isOneShot) {
-            if (idx_m1 < 0) idx_m1 = 0;
+        // ループポイントが有効な場合の補間インデックスの折り返し処理を追加
+        if (m_loopPointEnable && !m_isReleased) {
+            if (idx_0 >= (int)loopStartPos) {
+                double loopLength = loopEndPos - loopStartPos;
+                if (idx_m1 < (int)loopStartPos) idx_m1 += (int)loopLength;
+                if (idx_1 >= (int)loopEndPos) idx_1 -= (int)loopLength;
+                if (idx_2 >= (int)loopEndPos) idx_2 -= (int)loopLength;
+            }
+            else {
+                if (idx_m1 < (int)offsetSamples) idx_m1 = (int)offsetSamples;
+            }
+        }
+        else if (m_isOneShot) {
+            if (idx_m1 < (int)offsetSamples) idx_m1 = (int)offsetSamples;
             if (idx_1 >= (int)totalSize) idx_1 = idx_0;
             if (idx_2 >= (int)totalSize) idx_2 = idx_1;
         }
@@ -368,16 +417,45 @@ float RhythmPad::getSample()
         if (playSize < 1.0) playSize = 1.0;
 
         double endPosition = offsetSamples + playSize;
+        double loopStartPos = offsetSamples + playSize * m_loopPointStart;
+        double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
 
+        // =========================================================
         // ループ・終了判定
-        if (m_position >= endPosition) {
-            if (m_isOneShot) {
-                m_hasFinished = true;
-
-                return 0.0f;
+        // =========================================================
+        if (m_loopPointEnable) {
+            if (!m_isReleased) {
+                // リリース前：ループポイント間をループ
+                if (m_position >= loopEndPos) {
+                    double loopLength = loopEndPos - loopStartPos;
+                    if (loopLength > 0.0) {
+                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    }
+                }
             }
             else {
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                // リリース後：最後まで再生
+                if (m_position >= endPosition) {
+                    if (!m_isOneShot) {
+                        m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                    }
+                    else {
+                        m_hasFinished = true;
+                        return 0.0f;
+                    }
+                }
+            }
+        }
+        else {
+            // 従来の処理
+            if (m_position >= endPosition) {
+                if (!m_isOneShot) {
+                    m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
         }
 
@@ -390,8 +468,20 @@ float RhythmPad::getSample()
         int idx_m1 = idx_0 - 1;
 
         // ループ端の処理 (はみ出した場合はループ先頭/末尾に戻すか、クランプする)
-        if (m_isOneShot) {
-            if (idx_m1 < 0) idx_m1 = 0;
+        // ループポイントが有効な場合の補間インデックスの折り返し処理を追加
+        if (m_loopPointEnable && !m_isReleased) {
+            if (idx_0 >= (int)loopStartPos) {
+                double loopLength = loopEndPos - loopStartPos;
+                if (idx_m1 < (int)loopStartPos) idx_m1 += (int)loopLength;
+                if (idx_1 >= (int)loopEndPos) idx_1 -= (int)loopLength;
+                if (idx_2 >= (int)loopEndPos) idx_2 -= (int)loopLength;
+            }
+            else {
+                if (idx_m1 < (int)offsetSamples) idx_m1 = (int)offsetSamples;
+            }
+        }
+        else if (m_isOneShot) {
+            if (idx_m1 < (int)offsetSamples) idx_m1 = (int)offsetSamples;
             if (idx_1 >= (int)totalSize) idx_1 = idx_0;
             if (idx_2 >= (int)totalSize) idx_2 = idx_1;
         }
@@ -644,15 +734,6 @@ void RhythmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     for (auto& pad : pads) {
         if (pad.m_noteNumber == midiNote) {
-            // ループモード(isOneShot == false)で、かつ既に再生中の場合は、
-            // 新たなNoteOnを無視してループを継続させる。
-            // (あるいは、完全に最初から鳴らし直したい場合は m_position=0 とするが、
-            //  今回は「音が重なる/途切れる」のを防ぐため無視するアプローチをとる)
-            if (!pad.m_isOneShot && pad.isPlaying() && !isLegato) {
-                // 非レガート時のみ、再トリガーを無視してループを継続（既存の仕様）
-                continue; // 何もしない
-            }
-
             // ユニゾン・ハーモニー向けに変更
             // 計算した位相のズレをオペレータに渡す
             pad.start(velocity, isLegato, finalFreq, phaseOffsetNorm, m_unisonTotal);

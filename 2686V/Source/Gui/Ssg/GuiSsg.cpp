@@ -161,6 +161,20 @@ void GuiSsg::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
+    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importToneNoiseParamButton.setWantsKeyboardFocus(true);
+    importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
+    importToneNoiseParamButton.onClick = [this] {
+        importToneNoiseParam();
+        };
+
+    exportToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::toneNoiseFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportToneNoiseParamButton.setWantsKeyboardFocus(true);
+    exportToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
+    exportToneNoiseParamButton.onClick = [this] {
+        exportToneNoiseParam();
+        };
+
     importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
@@ -597,6 +611,8 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
+    importToneNoiseParamButton.setVisible(visible);
+    exportToneNoiseParamButton.setVisible(visible);
     importLfoParamButton.setVisible(visible);
     exportLfoParamButton.setVisible(visible);
     importAmpEnvParamButton.setVisible(visible);
@@ -618,6 +634,11 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
+
+        layoutMain({ .mainRect = rect, .component = &importToneNoiseParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportToneNoiseParamButton });
+
+        rect.removeFromTop(4);
 
         layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
         layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
@@ -744,6 +765,63 @@ void GuiSsg::updateGraph()
 
 void GuiSsg::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiSsg::importToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importToneNoiseParamFile, defaultDir, Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 4) return;
+
+                toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
+                mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiSsg::exportToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise"), Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }
 
 void GuiSsg::importLfoParam() {

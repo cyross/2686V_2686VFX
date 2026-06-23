@@ -582,6 +582,8 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
     xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
     xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
+    xml.setAttribute(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
+    xml.setAttribute(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -612,6 +614,8 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
         defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
         defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
+        defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
+        defaultToneNoiseParamDir = xml->getStringAttribute(SettingsKey::defaultToneNoiseParamDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -803,6 +807,30 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultQualityParamDir = newQualityParamDir.getFullPathName();
+    }
+
+    if (defaultPcmPlayParamDir.isEmpty() || !juce::File(defaultPcmPlayParamDir).isDirectory())
+    {
+        auto newPcmPlayParamDir = pluginDir.getChildFile(Io::Folder::pcmPlayParam);
+
+        // 存在していなければ作成
+        if (!newPcmPlayParamDir.exists()) {
+            newPcmPlayParamDir.createDirectory();
+        }
+
+        defaultPcmPlayParamDir = newPcmPlayParamDir.getFullPathName();
+    }
+
+    if (defaultToneNoiseParamDir.isEmpty() || !juce::File(defaultToneNoiseParamDir).isDirectory())
+    {
+        auto newToneNoiseParamDir = pluginDir.getChildFile(Io::Folder::toneNoiseParam);
+
+        // 存在していなければ作成
+        if (!newToneNoiseParamDir.exists()) {
+            newToneNoiseParamDir.createDirectory();
+        }
+
+        defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
     }
 }
 

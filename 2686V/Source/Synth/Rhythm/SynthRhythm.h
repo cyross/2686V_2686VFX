@@ -50,6 +50,10 @@ public:
 
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;
+    bool m_loopPointEnable = false;
+    float m_loopPointStart = 0.0f; // 0.0 to 1.0
+    float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
+    bool m_isReleased = false;
 
     float m_releaseParam = 0.1f; // パラメータ設定値
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)

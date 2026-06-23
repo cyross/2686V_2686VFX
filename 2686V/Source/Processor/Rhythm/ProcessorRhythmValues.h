@@ -137,6 +137,25 @@ namespace RhythmPrValue
 			inline constexpr float initial = CorePrValue::Pcm::Ratio::initial;
 		}
 
+		namespace LoopPointEnable
+		{
+			inline constexpr float initial = false;
+		}
+
+		namespace LoopPointStart
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 0.999999f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace LoopPointEnd
+		{
+			inline constexpr float min = 0.000001f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
+		}
+
 		namespace Adsr
 		{
 			namespace Bypass

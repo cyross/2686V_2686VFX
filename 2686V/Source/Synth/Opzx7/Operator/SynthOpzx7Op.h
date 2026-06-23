@@ -61,6 +61,10 @@ private:
 
 	bool m_zeroDecay = false;
 	float m_sustain = 1.0f;  // SL (Sustain Level)
+	bool m_loopPointEnable = false;
+	float m_loopPointStart = 0.0f; // 0.0 to 1.0
+	float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
+	bool m_isReleased = false;
 
 	// ユニゾン・ハーモニー用
 	bool m_isMonoMode = false;

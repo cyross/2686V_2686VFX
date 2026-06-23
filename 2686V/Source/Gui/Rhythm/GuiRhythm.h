@@ -37,6 +37,9 @@ class RhythmPadGui: public GuiBase
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
+    GuiToggleButton loopPointEnableButton;
+    GuiSlider loopPointStartSlider;
+    GuiSlider loopPointEndSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
@@ -106,6 +109,9 @@ public:
         optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
+        loopPointEnableButton(context),
+        loopPointStartSlider(context),
+        loopPointEndSlider(context),
         qualityCat(context),
         interpSelector(context),
         panCat(context),
@@ -151,6 +157,8 @@ public:
     void layoutGraph(juce::Rectangle<int>& rect);
     void copyParams(CopyRhythmPad& copyObj);
     void pasteParams(CopyRhythmPad& copyObj);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
     void importLfoParam();
     void exportLfoParam();
     void importAmpEnvParam();
@@ -163,6 +171,8 @@ public:
     void exportDetuneParam();
     void importQualityParam();
     void exportQualityParam();
+    void importPcmPlayParam();
+    void exportPcmPlayParam();
 };
 
 class GuiRhythm : public GuiBase
@@ -188,6 +198,8 @@ class GuiRhythm : public GuiBase
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
     GuiSeparator uSep002;
+    GuiTextButton importToneNoiseParamButton;
+    GuiTextButton exportToneNoiseParamButton;
     GuiTextButton importLfoParamButton;
     GuiTextButton exportLfoParamButton;
     GuiTextButton importAmpEnvParamButton;
@@ -200,6 +212,8 @@ class GuiRhythm : public GuiBase
     GuiTextButton exportDetuneParamButton;
     GuiTextButton importQualityParamButton;
     GuiTextButton exportQualityParamButton;
+    GuiTextButton importPcmPlayParamButton;
+    GuiTextButton exportPcmPlayParamButton;
     GuiSlider targerPadSlider;
     GuiSeparator uSep003;
     GuiTextButton importUnisonParamButton;
@@ -223,6 +237,8 @@ public:
         copyPadFromSlider(context),
         copyPadToSlider(context),
         uSep002(context),
+        importToneNoiseParamButton(context),
+        exportToneNoiseParamButton(context),
         importLfoParamButton(context),
         exportLfoParamButton(context),
         importAmpEnvParamButton(context),
@@ -235,6 +251,8 @@ public:
         exportDetuneParamButton(context),
         importQualityParamButton(context),
         exportQualityParamButton(context),
+        importPcmPlayParamButton(context),
+        exportPcmPlayParamButton(context),
         targerPadSlider(context),
         uSep003(context),
         importUnisonParamButton(context),
@@ -256,6 +274,8 @@ public:
     void setLevel(float level);
     void copyPadParams(int p, CopyRhythmPad& copyObj);
     void pastePadParams(int p, CopyRhythmPad& copyObj);
+    void importToneNoiseParam(int p);
+    void exportToneNoiseParam(int p);
     void importLfoParam(int p);
     void exportLfoParam(int p);
     void importAmpEnvParam(int p);
@@ -268,6 +288,8 @@ public:
     void exportDetuneParam(int p);
     void importQualityParam(int p);
     void exportQualityParam(int p);
+    void importPcmPlayParam(int p);
+    void exportPcmPlayParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
 };

@@ -330,6 +330,8 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton exportUnisonParamButton;
     GuiTextButton importQualityParamButton;
     GuiTextButton exportQualityParamButton;
+    GuiTextButton importPcmPlayParamButton;
+    GuiTextButton exportPcmPlayParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -371,6 +373,15 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
     std::array<GuiSlider, Opzx7PrValue::ops> pcmOffset;
     std::array<GuiSlider, Opzx7PrValue::ops> pcmRatio;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> loopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> loopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> loopPointEnd;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> wtLoopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointEnd;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> wt2LoopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointEnd;
     std::array<GuiTextButton, Opzx7PrValue::ops> loadWtBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearWtBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> wtFileNameLabel;
@@ -464,6 +475,8 @@ public:
         exportUnisonParamButton(context),
         importQualityParamButton(context),
         exportQualityParamButton(context),
+        importPcmPlayParamButton(context),
+        exportPcmPlayParamButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -496,6 +509,15 @@ public:
         pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
         pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        loopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        loopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        loopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        wtLoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        wtLoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        wtLoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        wt2LoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        wt2LoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        wt2LoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
@@ -603,4 +625,6 @@ public:
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importOpPcmPlayParam(int opIndex);
+    void exportOpPcmPlayParam(int opIndex);
 };

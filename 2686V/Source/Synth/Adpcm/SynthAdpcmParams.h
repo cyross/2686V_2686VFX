@@ -27,6 +27,9 @@ struct AdpcmParams
 
     float offset = 0.0f; // ms
     float ratio = 1.0f;
+    bool loopPointEnable = false;
+    float loopPointStart = 0.0f; // 0.0 to 1.0
+    float loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     // --- Fix Freq ---
     bool fixedMode = false;

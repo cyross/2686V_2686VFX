@@ -21,6 +21,9 @@ struct RhythmPadParams
 
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
+    bool loopPointEnable = false;
+    float loopPointStart = 0.0f; // 0.0 to 1.0
+    float loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     float tone = 1.0f;
     float noiseLevel = 0.0f; // Noise

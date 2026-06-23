@@ -27,6 +27,9 @@ class RhythmProcessor : public PrBase
     std::array<std::atomic<float>*, RhythmPrValue::pads> pIsOneShot = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPcmOffset = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pPcmRatio = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pLoopPointEnable = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pLoopPointStart = { nullptr };
+    std::array<std::atomic<float>*, RhythmPrValue::pads> pLoopPointEnd = { nullptr };
 
     std::array<std::atomic<float>*, RhythmPrValue::pads> pAdsrBypass = { nullptr };
     std::array<std::atomic<float>*, RhythmPrValue::pads> pAdsrStl = { nullptr };

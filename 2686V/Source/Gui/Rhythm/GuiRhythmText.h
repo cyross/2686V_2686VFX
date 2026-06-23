@@ -52,10 +52,13 @@ namespace RhythmGuiText
 			static inline const juce::String noise = u8"N.LV";
 			static inline const juce::String noiseFreq = u8"N.FQ";
 			static inline const juce::String mix = u8"Mix";
-			static inline const juce::String oneShot = u8"One Shot";
 			static inline const juce::String pan = u8"Pan";
 			static inline const juce::String pcmOffset = u8"Offset";
 			static inline const juce::String pcmRatio = u8"Ratio";
+			static inline const juce::String oneShot = u8"One Shot";
+			static inline const juce::String loopPointEnable = u8"Loop Point Enable";
+			static inline const juce::String loopPointStart = u8"LPST";
+			static inline const juce::String loopPointEnd = u8"LPED";
 
 			namespace Pan
 			{
@@ -98,5 +101,9 @@ namespace RhythmGuiText
 		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
 		static inline const juce::String qualityFileImport = u8"Import Quality Param (.pcmQuality)";
 		static inline const juce::String qualityFileExport = u8"Export Quality Param (.pcmQuality)";
+		static inline const juce::String pcmPlayFileImport = u8"Import PCM Play Param (.pcmPlay)";
+		static inline const juce::String pcmPlayFileExport = u8"Export PCM Play Param (.pcmPlay)";
+		static inline const juce::String toneNoiseFileImport = u8"Import Tone/Noise Param (.toneNoise)";
+		static inline const juce::String toneNoiseFileExport = u8"Export Tone/Noise Param (.toneNoise)";
 	}
 }

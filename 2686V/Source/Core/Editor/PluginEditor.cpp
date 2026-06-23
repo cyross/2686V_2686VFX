@@ -748,7 +748,9 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.defaultSsgSwEnvParamDir,
                     audioProcessor.defaultDetuneParamDir,
                     audioProcessor.defaultUnisonParamDir,
-                    audioProcessor.defaultQualityParamDir
+                    audioProcessor.defaultQualityParamDir,
+                    audioProcessor.defaultPcmPlayParamDir,
+                    audioProcessor.defaultToneNoiseParamDir
                     );
 
                 // 壁紙再描画

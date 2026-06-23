@@ -73,6 +73,9 @@ class Opzx7Processor : public PrBase
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpWaveSelect = { nullptr };
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpPcmOffset = { nullptr };
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpPcmRatio = { nullptr };
+    std::array<std::atomic<float>*, Opzx7PrValue::ops> pLoopPointEnable = { nullptr };
+    std::array<std::atomic<float>*, Opzx7PrValue::ops> pLoopPointStart = { nullptr };
+    std::array<std::atomic<float>*, Opzx7PrValue::ops> pLoopPointEnd = { nullptr };
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpLfoPmFreq = { nullptr };
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpLfoAmFreq = { nullptr };
     std::array<std::atomic<float>*, Opzx7PrValue::ops> pOpLfoPmSyncDelay = { nullptr };

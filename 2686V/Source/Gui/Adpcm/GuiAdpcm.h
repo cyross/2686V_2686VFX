@@ -56,6 +56,9 @@ class GuiAdpcm : public GuiBase
 
     // Loop Button
     GuiToggleButton loopButton;
+    GuiToggleButton loopPointEnableButton;
+    GuiSlider loopPointStartSlider;
+    GuiSlider loopPointEndSlider;
 
     GuiComponentFix fixComponent;
 
@@ -86,6 +89,8 @@ class GuiAdpcm : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
+    GuiTextButton importToneNoiseParamButton;
+    GuiTextButton exportToneNoiseParamButton;
     GuiTextButton importLfoParamButton;
     GuiTextButton exportLfoParamButton;
     GuiTextButton importAmpEnvParamButton;
@@ -100,6 +105,8 @@ class GuiAdpcm : public GuiBase
     GuiTextButton exportUnisonParamButton;
     GuiTextButton importQualityParamButton;
     GuiTextButton exportQualityParamButton;
+    GuiTextButton importPcmPlayParamButton;
+    GuiTextButton exportPcmPlayParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     // プリセット名ラベル
@@ -146,6 +153,9 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
+        loopPointEnableButton(context),
+        loopPointStartSlider(context),
+        loopPointEndSlider(context),
         fixComponent(context),
         unisonComponent(context),
         qualityCat(context),
@@ -160,6 +170,8 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
+        importToneNoiseParamButton(context),
+        exportToneNoiseParamButton(context),
         importLfoParamButton(context),
         exportLfoParamButton(context),
         importAmpEnvParamButton(context),
@@ -174,6 +186,8 @@ public:
         exportUnisonParamButton(context),
         importQualityParamButton(context),
         exportQualityParamButton(context),
+        importPcmPlayParamButton(context),
+        exportPcmPlayParamButton(context),
         presetNameLabel(context),
         presetNameSeparator(context),
         graphBtnAmp(context),
@@ -204,6 +218,8 @@ public:
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
     void importLfoParam();
     void exportLfoParam();
     void importAmpEnvParam();
@@ -218,4 +234,6 @@ public:
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importPcmPlayParam();
+    void exportPcmPlayParam();
 };

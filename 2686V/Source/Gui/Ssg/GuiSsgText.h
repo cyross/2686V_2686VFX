@@ -134,5 +134,7 @@ namespace SsgGuiText
 		static inline const juce::String unisonFileExport = u8"Export Unison Param (.unison)";
 		static inline const juce::String qualityFileImport = u8"Import Quality Param (.quality)";
 		static inline const juce::String qualityFileExport = u8"Export Quality Param (.quality)";
+		static inline const juce::String toneNoiseFileImport = u8"Import Tone/Noise Param (.toneNoise)";
+		static inline const juce::String toneNoiseFileExport = u8"Export Tone/Noise Param (.toneNoise)";
 	}
 }

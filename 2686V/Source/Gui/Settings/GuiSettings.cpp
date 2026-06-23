@@ -374,7 +374,7 @@ void GuiSettings::setup()
 
     // --- Quyality Param Dir ---
     setupFolderRow(qualityParamDirLabel, juce::String("") + "音質ファイルディレクトリ:", qualityParamDirPathLabel, qualityParamDirBrowseBtn);
-    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
+    qualityParamDirPathLabel.setText(ctx.audioProcessor.defaultQualityParamDir, juce::dontSendNotification);
     qualityParamDirPathLabel.setWantsKeyboardFocus(false);
 
     qualityParamDirBrowseBtn.setWantsKeyboardFocus(true);
@@ -388,6 +388,48 @@ void GuiSettings::setup()
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultQualityParamDir = file.getFullPathName();
                     qualityParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- PCM Play Param Dir ---
+    setupFolderRow(pcmPlayParamDirLabel, juce::String("") + "PCM再生ファイルディレクトリ:", pcmPlayParamDirPathLabel, pcmPlayParamDirBrowseBtn);
+    pcmPlayParamDirPathLabel.setText(ctx.audioProcessor.defaultPcmPlayParamDir, juce::dontSendNotification);
+    pcmPlayParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    pcmPlayParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    pcmPlayParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    pcmPlayParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "PCM再生ファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultPcmPlayParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultPcmPlayParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultPcmPlayParamDir = file.getFullPathName();
+                    pcmPlayParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Tone / Noise Param Dir ---
+    setupFolderRow(toneNoiseParamDirLabel, juce::String("") + "トーン/ノイズファイルディレクトリ:", toneNoiseParamDirPathLabel, toneNoiseParamDirBrowseBtn);
+    toneNoiseParamDirPathLabel.setText(ctx.audioProcessor.defaultToneNoiseParamDir, juce::dontSendNotification);
+    toneNoiseParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    toneNoiseParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    toneNoiseParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    toneNoiseParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "トーン/ノイズファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultToneNoiseParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultToneNoiseParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultToneNoiseParamDir = file.getFullPathName();
+                    toneNoiseParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -698,6 +740,18 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     qualityParamDirBrowseBtn.setBounds(rowQualityParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     qualityParamDirPathLabel.setBounds(rowQualityParamDir);
 
+    // 7. PCM Play Param Dir
+    auto rowPcmPlayParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    pcmPlayParamDirLabel.setBounds(rowPcmPlayParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    pcmPlayParamDirBrowseBtn.setBounds(rowPcmPlayParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    pcmPlayParamDirPathLabel.setBounds(rowPcmPlayParamDir);
+
+    // 7. Tone / Noise Param Dir
+    auto rowToneNoiseParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    toneNoiseParamDirLabel.setBounds(rowToneNoiseParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    toneNoiseParamDirBrowseBtn.setBounds(rowToneNoiseParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    toneNoiseParamDirPathLabel.setBounds(rowToneNoiseParamDir);
+
     auto sp3Rect = sRect.removeFromTop(separatorHeight);
     separator3.setBounds(sp3Rect);
 
@@ -756,7 +810,9 @@ void GuiSettings::setSettings(
     const juce::String& ssgSwEnvParamDirPath,
     const juce::String& detuneParamDirPath,
     const juce::String& unisonParamDirPath,
-    const juce::String& qualityParamDirPath
+    const juce::String& qualityParamDirPath,
+    const juce::String& pcmPlayParamDirPath,
+    const juce::String& toneNoiseParamDirPath
 )
 {
     uiScaleSelector.setSelectedId(uiScaleIndex + 1, juce::dontSendNotification);
@@ -773,6 +829,8 @@ void GuiSettings::setSettings(
     detuneParamDirLabel.setText(detuneParamDirPath, juce::dontSendNotification);
     unisonParamDirLabel.setText(unisonParamDirPath, juce::dontSendNotification);
     qualityParamDirLabel.setText(qualityParamDirPath, juce::dontSendNotification);
+    pcmPlayParamDirLabel.setText(pcmPlayParamDirPath, juce::dontSendNotification);
+    toneNoiseParamDirLabel.setText(toneNoiseParamDirPath, juce::dontSendNotification);
 }
 
 void GuiSettings::setWallpaperPath(const juce::String& wallpaperPath)

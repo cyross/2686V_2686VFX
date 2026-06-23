@@ -26,6 +26,8 @@ namespace Io
 		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
 		static inline const juce::String PcmQualityParam = "pcmQuality";
+		static inline const juce::String PcmPlayParam = "pcmPlay";
+		static inline const juce::String ToneNoiseParam = "toneNoise";
 	};
 
 	namespace ExtensionGlob
@@ -46,6 +48,8 @@ namespace Io
 		static inline const juce::String UnisonParam = "*.unison";
 		static inline const juce::String QualityParam = "*.quality";
 		static inline const juce::String PcmQualityParam = "*.pcmQuality";
+		static inline const juce::String PcmPlayParam = "*.pcmPlay";
+		static inline const juce::String ToneNoiseParam = "*.toneNoise";
 	};
 
 	namespace Folder
@@ -64,6 +68,8 @@ namespace Io
 		static inline const juce::String detuneParam = "DetuneParams";
 		static inline const juce::String unisonParam = "UnisonParams";
 		static inline const juce::String qualityParam = "QualityParams";
+		static inline const juce::String pcmPlayParam = "PcmPlayParams";
+		static inline const juce::String toneNoiseParam = "ToneNoiseParams";
 	};
 
 	namespace Dialog
@@ -91,6 +97,10 @@ namespace Io
 			static inline const juce::String exportUnisonParamFile = "Export Unison Param";
 			static inline const juce::String importQualityParamFile = "Import Quality Param";
 			static inline const juce::String exportQualityParamFile = "Export Quality Param";
+			static inline const juce::String importPcmPlayParamFile = "Import Pcm Play Param";
+			static inline const juce::String exportPcmPlayParamFile = "Export Pcm Play Param";
+			static inline const juce::String importToneNoiseParamFile = "Import Tone / Noise Param";
+			static inline const juce::String exportToneNoiseParamFile = "Export Tone / Noise Param";
 		}
 	}
 };

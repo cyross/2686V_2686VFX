@@ -62,6 +62,9 @@ void AdpcmCore::setParameters(const SynthParams& params)
 
     m_pcmOffset = params.adpcm.offset;
     m_pcmRatio = params.adpcm.ratio;
+    m_loopPointEnable = params.adpcm.loopPointEnable;
+    m_loopPointStart = std::clamp(params.adpcm.loopPointStart, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.adpcm.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
 
     m_fixMode.setParameters(params.adpcm.fixedMode, params.adpcm.fixedFreq);
 
@@ -230,6 +233,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         // 再生位置を先頭(オフセット位置)に戻す
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_hasFinished = false;
+        m_isReleased = false;
         m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
 
         // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
@@ -257,6 +261,8 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
 void AdpcmCore::noteOff()
 {
+    m_isReleased = true;
+
     m_adsr.noteOff();
 
     if (!m_pitchAdsr.isBypass()) {
@@ -383,16 +389,45 @@ float AdpcmCore::getSample()
         if (playSize < 1.0) playSize = 1.0;
 
         double endPosition = offsetSamples + playSize;
+        double loopStartPos = offsetSamples + playSize * m_loopPointStart;
+        double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
 
+        // =========================================================
         // ループ・終了判定
-        if (m_position >= endPosition) {
-            if (m_isLooping) {
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+        // =========================================================
+        if (m_loopPointEnable) {
+            if (!m_isReleased) {
+                // リリース前：ループポイント間をループ
+                if (m_position >= loopEndPos) {
+                    double loopLength = loopEndPos - loopStartPos;
+                    if (loopLength > 0.0) {
+                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    }
+                }
             }
             else {
-                m_hasFinished = true;
-
-                return 0.0f;
+                // リリース後：最後まで再生
+                if (m_position >= endPosition) {
+                    if (m_isLooping) {
+                        m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                    }
+                    else {
+                        m_hasFinished = true;
+                        return 0.0f;
+                    }
+                }
+            }
+        }
+        else {
+            // 従来の処理
+            if (m_position >= endPosition) {
+                if (m_isLooping) {
+                    m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
         }
 
@@ -502,16 +537,45 @@ float AdpcmCore::getSample()
         if (playSize < 1.0) playSize = 1.0;
 
         double endPosition = offsetSamples + playSize;
+        double loopStartPos = offsetSamples + playSize * m_loopPointStart;
+        double loopEndPos = offsetSamples + playSize * m_loopPointEnd;
 
+        // =========================================================
         // ループ・終了判定
-        if (m_position >= endPosition) {
-            if (m_isLooping) {
-                m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+        // =========================================================
+        if (m_loopPointEnable) {
+            if (!m_isReleased) {
+                // リリース前：ループポイント間をループ
+                if (m_position >= loopEndPos) {
+                    double loopLength = loopEndPos - loopStartPos;
+                    if (loopLength > 0.0) {
+                        m_position = loopStartPos + std::fmod(m_position - loopEndPos, loopLength);
+                    }
+                }
             }
             else {
-                m_hasFinished = true;
-
-                return 0.0f;
+                // リリース後：最後まで再生
+                if (m_position >= endPosition) {
+                    if (m_isLooping) {
+                        m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                    }
+                    else {
+                        m_hasFinished = true;
+                        return 0.0f;
+                    }
+                }
+            }
+        }
+        else {
+            // 従来の処理
+            if (m_position >= endPosition) {
+                if (m_isLooping) {
+                    m_position = offsetSamples + std::fmod(m_position - endPosition, playSize);
+                }
+                else {
+                    m_hasFinished = true;
+                    return 0.0f;
+                }
             }
         }
 

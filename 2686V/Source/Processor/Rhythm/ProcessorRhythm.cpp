@@ -60,14 +60,17 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, padPrefixName + RhythmPrName::SsgSwEnv::bypass, RhythmPrValue::Pad::SsgSwEnv::Bypass::initial));
 
         // Detune
-        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::mul, prefixName + RhythmPrName::mul, RhythmPrValue::Pad::Mul::min, RhythmPrValue::Pad::Mul::max, RhythmPrValue::Pad::Mul::initial));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::mulRatio, prefixName + RhythmPrName::mulRatio, RhythmPrValue::Pad::MulRatio::min, RhythmPrValue::Pad::MulRatio::max, RhythmPrValue::Pad::MulRatio::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt, prefixName + RhythmPrName::dt1, RhythmPrValue::Pad::Dt1::min, RhythmPrValue::Pad::Dt1::max, RhythmPrValue::Pad::Dt1::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt2, prefixName + RhythmPrName::dt2, RhythmPrValue::Pad::Dt2::min, RhythmPrValue::Pad::Dt2::max, RhythmPrValue::Pad::Dt2::initial));
-        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt3, prefixName + RhythmPrName::dt3, RhythmPrValue::Pad::Dt3::min, RhythmPrValue::Pad::Dt3::max, RhythmPrValue::Pad::Dt3::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::mul, padPrefixName + RhythmPrName::mul, RhythmPrValue::Pad::Mul::min, RhythmPrValue::Pad::Mul::max, RhythmPrValue::Pad::Mul::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::mulRatio, padPrefixName + RhythmPrName::mulRatio, RhythmPrValue::Pad::MulRatio::min, RhythmPrValue::Pad::MulRatio::max, RhythmPrValue::Pad::MulRatio::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt, padPrefixName + RhythmPrName::dt1, RhythmPrValue::Pad::Dt1::min, RhythmPrValue::Pad::Dt1::max, RhythmPrValue::Pad::Dt1::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt2, padPrefixName + RhythmPrName::dt2, RhythmPrValue::Pad::Dt2::min, RhythmPrValue::Pad::Dt2::max, RhythmPrValue::Pad::Dt2::initial));
+        layout.add(std::make_unique<juce::AudioParameterInt>(padPrefix + RhythmPrKey::Pad::dt3, padPrefixName + RhythmPrName::dt3, RhythmPrValue::Pad::Dt3::min, RhythmPrValue::Pad::Dt3::max, RhythmPrValue::Pad::Dt3::initial));
 
         layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmOffset, padPrefixName + RhythmPrName::Pad::pcmOffset, RhythmPrValue::Pad::Offset::min, RhythmPrValue::Pad::Offset::max, RhythmPrValue::Pad::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::pcmRatio, padPrefixName + RhythmPrName::Pad::pcmRatio, RhythmPrValue::Pad::Ratio::min, RhythmPrValue::Pad::Ratio::max, RhythmPrValue::Pad::Ratio::initial));
+        layout.add(std::make_unique<juce::AudioParameterBool>(padPrefix + RhythmPrKey::Pad::loopPointEnable, padPrefixName + RhythmPrName::Pad::loopPointEnable, RhythmPrValue::Pad::LoopPointEnable::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::loopPointStart, padPrefixName + RhythmPrName::Pad::loopPointStart, RhythmPrValue::Pad::LoopPointStart::min, RhythmPrValue::Pad::LoopPointStart::max, RhythmPrValue::Pad::LoopPointStart::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(padPrefix + RhythmPrKey::Pad::loopPointEnd, padPrefixName + RhythmPrName::Pad::loopPointEnd, RhythmPrValue::Pad::LoopPointEnd::min, RhythmPrValue::Pad::LoopPointEnd::max, RhythmPrValue::Pad::LoopPointEnd::initial));
 
         addOpEnvParameters(layout, padPrefix, padPrefixName);
         addOpPitchEnvParameters(layout, padPrefix, padPrefixName);
@@ -100,6 +103,9 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         pIsOneShot[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::oneShot);
         pPcmOffset[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmOffset);
         pPcmRatio[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::pcmRatio);
+        pLoopPointEnable[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::loopPointEnable);
+        pLoopPointStart[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::loopPointStart);
+        pLoopPointEnd[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::loopPointEnd);
 
         pFixMode[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::fix);
         pFixFreq[i] = apvts.getRawParameterValue(padPrefix + RhythmPrKey::Pad::fixFreq);
@@ -187,6 +193,9 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         pad.isOneShot = (bool)pIsOneShot[i]->load(std::memory_order_relaxed);
         pad.pcmOffset = pPcmOffset[i]->load(std::memory_order_relaxed);
         pad.pcmRatio = pPcmRatio[i]->load(std::memory_order_relaxed);
+        pad.loopPointEnable = (pLoopPointEnable[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread);
+        pad.loopPointStart = pLoopPointStart[i]->load(std::memory_order_relaxed);
+        pad.loopPointEnd = pLoopPointEnd[i]->load(std::memory_order_relaxed);
 
         pad.fixedMode = (pFixMode[i]->load(std::memory_order_relaxed) > RhythmPrValue::boolThread);
         pad.fixedFreq = pFixFreq[i]->load(std::memory_order_relaxed);

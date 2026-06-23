@@ -37,6 +37,9 @@ namespace RhythmPrName
 		static inline const juce::String fixFreq = " Fix Freq";
 		static inline const juce::String pcmOffset = " PCM Offset";
 		static inline const juce::String pcmRatio = " PCM Ratio";
+		static inline const juce::String loopPointEnable = " Loop-point Enable";
+		static inline const juce::String loopPointStart = " Loop-point Start";
+		static inline const juce::String loopPointEnd = " Loop-point End";
 	}
 
 	namespace Adsr

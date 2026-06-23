@@ -104,6 +104,8 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
+    GuiTextButton importToneNoiseParamButton;
+    GuiTextButton exportToneNoiseParamButton;
     GuiTextButton importLfoParamButton;
     GuiTextButton exportLfoParamButton;
     GuiTextButton importAmpEnvParamButton;
@@ -187,6 +189,8 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
+        importToneNoiseParamButton(context),
+        exportToneNoiseParamButton(context),
         importLfoParamButton(context),
         exportLfoParamButton(context),
         importAmpEnvParamButton(context),
@@ -223,6 +227,8 @@ public:
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
     void importLfoParam();
     void exportLfoParam();
     void importAmpEnvParam();

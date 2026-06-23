@@ -138,6 +138,18 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
+    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointEnable, .title = RhythmGuiText::Rhythm::Pad::loopPointEnable, .isReset = true });
+    loopPointEnableButton.setWantsKeyboardFocus(true);
+    loopPointEnableButton.setExplicitFocusOrder(++tabOrder);
+
+    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointStart, .title = RhythmGuiText::Rhythm::Pad::loopPointStart, .isReset = true });
+    loopPointStartSlider.setWantsKeyboardFocus(true);
+    loopPointStartSlider.setExplicitFocusOrder(++tabOrder);
+
+    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointEnd, .title = RhythmGuiText::Rhythm::Pad::loopPointEnd, .isReset = true });
+    loopPointEndSlider.setWantsKeyboardFocus(true);
+    loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
+
     // Vol
     volSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::volume, .title = RhythmGuiText::Rhythm::Pad::vol, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
@@ -350,12 +362,18 @@ void RhythmPadGui::layoutOptionalCat(juce::Rectangle<int>& rect) {
     oneShotButton.setVisible(visible);
     pcmOffsetSlider.setVisibleWithLabel(visible);
     pcmRatioSlider.setVisibleWithLabel(visible);
+    loopPointEnableButton.setVisible(visible);
+    loopPointStartSlider.setVisibleWithLabel(visible);
+    loopPointEndSlider.setVisibleWithLabel(visible);
     noteSlider.setVisibleWithLabel(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &pcmOffsetSlider.label, .component = &pcmOffsetSlider });
         layoutRow({ .rowRect = rect, .label = &pcmRatioSlider.label, .component = &pcmRatioSlider, });
         layoutRow({ .rowRect = rect, .component = &oneShotButton });
+        layoutRow({ .rowRect = rect, .component = &loopPointEnableButton });
+        layoutRow({ .rowRect = rect, .label = &loopPointStartSlider.label, .component = &loopPointStartSlider, });
+        layoutRow({ .rowRect = rect, .label = &loopPointEndSlider.label, .component = &loopPointEndSlider, });
         layoutRow({ .rowRect = rect, .label = &noteSlider.label, .component = &noteSlider, });
     }
 }
@@ -468,6 +486,63 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     pitchEnvComponent.pasteParams(copyObj.pAdsr);
 }
 
+void RhythmPadGui::importToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importToneNoiseParamFile, defaultDir, Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 4) return;
+
+                toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
+                mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+            }
+        });
+}
+
+void RhythmPadGui::exportToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise"), Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
 void RhythmPadGui::importLfoParam() {
     lfoComponent.importParams();
 }
@@ -506,6 +581,14 @@ void RhythmPadGui::importDetuneParam() {
 
 void RhythmPadGui::exportDetuneParam() {
     mulDetuneComponent.exportParams();
+}
+
+void RhythmPadGui::importPcmPlayParam() {
+
+}
+
+void RhythmPadGui::exportPcmPlayParam() {
+
 }
 
 void RhythmPadGui::importQualityParam() {
@@ -640,6 +723,24 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
+    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importToneNoiseParamButton.setWantsKeyboardFocus(true);
+    importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
+    importToneNoiseParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importToneNoiseParam(padIndex);
+        };
+
+    exportToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportToneNoiseParamButton.setWantsKeyboardFocus(true);
+    exportToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
+    exportToneNoiseParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportToneNoiseParam(padIndex);
+        };
+
     importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
@@ -748,6 +849,24 @@ void GuiRhythm::setup()
         exportQualityParam(padIndex);
         };
 
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setWantsKeyboardFocus(true);
+    importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
+    importPcmPlayParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        importPcmPlayParam(padIndex);
+        };
+
+    exportPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportPcmPlayParamButton.setWantsKeyboardFocus(true);
+    exportPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
+    exportPcmPlayParamButton.onClick = [this] {
+        int padIndex = (int)targerPadSlider.getValue() - 1;
+
+        exportPcmPlayParam(padIndex);
+        };
+
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
     targerPadSlider.setRange(1.0, 8.0, 1.0);
     targerPadSlider.setNumDecimalPlacesToDisplay(0);
@@ -849,6 +968,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyPadFromSlider.setVisibleWithLabel(visible);
     copyPadToSlider.setVisibleWithLabel(visible);
     uSep002.setVisible(visible);
+    importToneNoiseParamButton.setVisible(visible);
+    exportToneNoiseParamButton.setVisible(visible);
     importLfoParamButton.setVisible(visible);
     exportLfoParamButton.setVisible(visible);
     importAmpEnvParamButton.setVisible(visible);
@@ -861,6 +982,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     exportDetuneParamButton.setVisible(visible);
     importQualityParamButton.setVisible(visible);
     exportQualityParamButton.setVisible(visible);
+    importPcmPlayParamButton.setVisible(visible);
+    exportPcmPlayParamButton.setVisible(visible);
     targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     importUnisonParamButton.setVisible(visible);
@@ -879,6 +1002,11 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
+
+        layoutMain({ .mainRect = rect, .component = &importToneNoiseParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportToneNoiseParamButton });
+
+        rect.removeFromTop(4);
 
         layoutMain({ .mainRect = rect, .component = &importLfoParamButton });
         layoutMain({ .mainRect = rect, .component = &exportLfoParamButton });
@@ -907,6 +1035,11 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         layoutMain({ .mainRect = rect, .component = &importQualityParamButton });
         layoutMain({ .mainRect = rect, .component = &exportQualityParamButton });
+
+        rect.removeFromTop(4);
+
+        layoutMain({ .mainRect = rect, .component = &importPcmPlayParamButton });
+        layoutMain({ .mainRect = rect, .component = &exportPcmPlayParamButton });
 
         rect.removeFromTop(4);
 
@@ -1003,6 +1136,14 @@ void GuiRhythm::pastePadParams(int p, CopyRhythmPad& copyObj) {
     pads[p].pasteParams(copyObj);
 }
 
+void GuiRhythm::importToneNoiseParam(int p) {
+    pads[p].importToneNoiseParam();
+}
+
+void GuiRhythm::exportToneNoiseParam(int p) {
+    pads[p].exportToneNoiseParam();
+}
+
 void GuiRhythm::importLfoParam(int p) {
     pads[p].importLfoParam();
 }
@@ -1049,6 +1190,14 @@ void GuiRhythm::importQualityParam(int p) {
 
 void GuiRhythm::exportQualityParam(int p) {
     pads[p].exportQualityParam();
+}
+
+void GuiRhythm::importPcmPlayParam(int p) {
+    pads[p].importPcmPlayParam();
+}
+
+void GuiRhythm::exportPcmPlayParam(int p) {
+    pads[p].exportPcmPlayParam();
 }
 
 void GuiRhythm::importUnisonParam() {
