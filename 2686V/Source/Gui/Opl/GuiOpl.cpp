@@ -243,7 +243,7 @@ void GuiOpl::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep004);
     uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false});
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false});
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -261,7 +261,7 @@ void GuiOpl::setup()
         exportLfoParam(opIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -279,7 +279,7 @@ void GuiOpl::setup()
         exportPitchEnvParam(opIndex);
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = OplGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {

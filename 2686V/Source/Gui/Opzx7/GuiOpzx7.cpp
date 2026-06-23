@@ -464,7 +464,7 @@ void GuiOpzx7::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importOpLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::opLfoFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importOpLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::opLfoFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importOpLfoParamButton.setWantsKeyboardFocus(true);
     importOpLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importOpLfoParamButton.onClick = [this] {
@@ -482,7 +482,7 @@ void GuiOpzx7::setup()
         exportOpLfoParam(opIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -500,7 +500,7 @@ void GuiOpzx7::setup()
         exportPitchEnvParam(opIndex);
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -518,7 +518,7 @@ void GuiOpzx7::setup()
         exportSsgSwEnvParam(opIndex);
         };
 
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::detuneFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importDetuneParamButton.setWantsKeyboardFocus(true);
     importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
     importDetuneParamButton.onClick = [this] {
@@ -536,7 +536,7 @@ void GuiOpzx7::setup()
         exportDetuneParam(opIndex);
         };
 
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importPcmPlayParamButton.setWantsKeyboardFocus(true);
     importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
     importPcmPlayParamButton.onClick = [this] {

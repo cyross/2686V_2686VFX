@@ -738,7 +738,7 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importToneNoiseParamButton.setWantsKeyboardFocus(true);
     importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
     importToneNoiseParamButton.onClick = [this] {
@@ -756,7 +756,7 @@ void GuiRhythm::setup()
         exportToneNoiseParam(padIndex);
         };
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importLfoParamButton.setWantsKeyboardFocus(true);
     importLfoParamButton.setExplicitFocusOrder(++tabOrder);
     importLfoParamButton.onClick = [this] {
@@ -774,7 +774,7 @@ void GuiRhythm::setup()
         exportLfoParam(padIndex);
         };
 
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importAmpEnvParamButton.setWantsKeyboardFocus(true);
     importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importAmpEnvParamButton.onClick = [this] {
@@ -792,7 +792,7 @@ void GuiRhythm::setup()
         exportAmpEnvParam(padIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importPitchEnvParamButton.setWantsKeyboardFocus(true);
     importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importPitchEnvParamButton.onClick = [this] {
@@ -810,7 +810,7 @@ void GuiRhythm::setup()
         exportPitchEnvParam(padIndex);
         };
 
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
     importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
     importSsgSwEnvParamButton.onClick = [this] {
@@ -828,7 +828,7 @@ void GuiRhythm::setup()
         exportSsgSwEnvParam(padIndex);
         };
 
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importDetuneParamButton.setWantsKeyboardFocus(true);
     importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
     importDetuneParamButton.onClick = [this] {
@@ -846,7 +846,7 @@ void GuiRhythm::setup()
         exportDetuneParam(padIndex);
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importQualityParamButton.setWantsKeyboardFocus(true);
     importQualityParamButton.setExplicitFocusOrder(++tabOrder);
     importQualityParamButton.onClick = [this] {
@@ -864,7 +864,7 @@ void GuiRhythm::setup()
         exportQualityParam(padIndex);
         };
 
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::darkmagenta.darker(0.5f), .isReset = false, .isResized = false });
+    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importPcmPlayParamButton.setWantsKeyboardFocus(true);
     importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
     importPcmPlayParamButton.onClick = [this] {

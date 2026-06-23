@@ -207,7 +207,7 @@ void GuiFx::setup()
     importFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     importFxOrderBtn.onClick = [this] { importFxOrder(); };
 
-    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .bgColor = juce::Colours::darkgrey.darker(0.5f), .isReset = false, .isResized = false});
     exportFxOrderBtn.setWantsKeyboardFocus(true);
     exportFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     exportFxOrderBtn.onClick = [this] { exportFxOrder(); };
@@ -217,7 +217,7 @@ void GuiFx::setup()
     importFxParamBtn.setExplicitFocusOrder(++tabOrder);
     importFxParamBtn.onClick = [this] { importFxParam(); };
 
-    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .bgColor = juce::Colours::darkgreen.darker(0.5f), .isReset = false, .isResized = false });
     exportFxParamBtn.setWantsKeyboardFocus(true);
     exportFxParamBtn.setExplicitFocusOrder(++tabOrder);
     exportFxParamBtn.onClick = [this] { exportFxParam(); };
@@ -865,13 +865,9 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
     auto spr2 = rect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
     fileSeparator.setBounds(spr2);
 
-    layoutMain({ .mainRect = rect, .component = &importFxOrderBtn });
-    layoutMain({ .mainRect = rect, .component = &exportFxOrderBtn });
-
+    layoutMainTwoComps({ .rect = rect, .comp1 = &importFxOrderBtn, .comp2 = &exportFxOrderBtn, .paddingBottom = 0 });
     rect.removeFromTop(4);
-
-    layoutMain({ .mainRect = rect, .component = &importFxParamBtn });
-    layoutMain({ .mainRect = rect, .component = &exportFxParamBtn });
+    layoutMainTwoComps({ .rect = rect, .comp1 = &importFxParamBtn, .comp2 = &exportFxParamBtn, .paddingBottom = 0 });
 }
 
 void GuiFx::updateFxOrder() {
