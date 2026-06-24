@@ -155,115 +155,67 @@ void GuiSsg::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep001);
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importToneNoiseParamButton.setWantsKeyboardFocus(true);
-    importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
-    importToneNoiseParamButton.onClick = [this] {
+    ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
+    ieToneNoise.onClickImport = [this] {
         importToneNoiseParam();
         };
-
-    exportToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::toneNoiseFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportToneNoiseParamButton.setWantsKeyboardFocus(true);
-    exportToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
-    exportToneNoiseParamButton.onClick = [this] {
+    ieToneNoise.onClickExport = [this] {
         exportToneNoiseParam();
         };
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importLfoParamButton.setWantsKeyboardFocus(true);
-    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    importLfoParamButton.onClick = [this] {
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] {
         importLfoParam();
         };
-
-    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportLfoParamButton.setWantsKeyboardFocus(true);
-    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    exportLfoParamButton.onClick = [this] {
+    ieLfo.onClickExport = [this] {
         exportLfoParam();
         };
 
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importAmpEnvParamButton.setWantsKeyboardFocus(true);
-    importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importAmpEnvParamButton.onClick = [this] {
-        importAmpEnvParam();
-        };
-
-    exportAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::ampEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportAmpEnvParamButton.setWantsKeyboardFocus(true);
-    exportAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportAmpEnvParamButton.onClick = [this] {
-        exportAmpEnvParam();
-        };
-
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importPitchEnvParamButton.setWantsKeyboardFocus(true);
-    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importPitchEnvParamButton.onClick = [this] {
-        importPitchEnvParam();
-        };
-
-    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
-    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportPitchEnvParamButton.onClick = [this] {
-        exportPitchEnvParam();
-        };
-
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importSsgSwEnvParamButton.onClick = [this] {
-        importSsgSwEnvParam();
-        };
-
-    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportSsgSwEnvParamButton.onClick = [this] {
-        exportSsgSwEnvParam();
-        };
-
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importDetuneParamButton.setWantsKeyboardFocus(true);
-    importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    importDetuneParamButton.onClick = [this] {
+    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieDetune.onClickImport = [this] {
         importDetuneParam();
         };
-
-    exportDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::detuneFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportDetuneParamButton.setWantsKeyboardFocus(true);
-    exportDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    exportDetuneParamButton.onClick = [this] {
+    ieDetune.onClickExport = [this] {
         exportDetuneParam();
         };
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importUnisonParamButton.setWantsKeyboardFocus(true);
-    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    importUnisonParamButton.onClick = [this] {
-        importUnisonParam();
+    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    ieAmpEnv.onClickImport = [this] {
+        importAmpEnvParam();
+        };
+    ieAmpEnv.onClickExport = [this] {
+        exportAmpEnvParam();
         };
 
-    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportUnisonParamButton.setWantsKeyboardFocus(true);
-    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    exportUnisonParamButton.onClick = [this] {
+    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    iePitchEnv.onClickImport = [this] {
+        importPitchEnvParam();
+        };
+    iePitchEnv.onClickExport = [this] {
+        exportPitchEnvParam();
+        };
+
+    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieSsgSwEnv.onClickImport = [this] {
+        importSsgSwEnvParam();
+        };
+    ieSsgSwEnv.onClickExport = [this] {
+        exportSsgSwEnvParam();
+        };
+
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] {
+        importUnisonParam();
+        };
+    ieUnison.onClickExport = [this] {
         exportUnisonParam();
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importQualityParamButton.setWantsKeyboardFocus(true);
-    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    importQualityParamButton.onClick = [this] {
+    ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] {
         importQualityParam();
         };
-
-    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportQualityParamButton.setWantsKeyboardFocus(true);
-    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    exportQualityParamButton.onClick = [this] {
+    ieQuality.onClickExport = [this] {
         exportQualityParam();
         };
 
@@ -595,22 +547,15 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
 
     broadcastLevelButton.setVisible(visible);
     uSep001.setVisible(visible);
-    importToneNoiseParamButton.setVisible(visible);
-    exportToneNoiseParamButton.setVisible(visible);
-    importLfoParamButton.setVisible(visible);
-    exportLfoParamButton.setVisible(visible);
-    importAmpEnvParamButton.setVisible(visible);
-    exportAmpEnvParamButton.setVisible(visible);
-    importPitchEnvParamButton.setVisible(visible);
-    exportPitchEnvParamButton.setVisible(visible);
-    importSsgSwEnvParamButton.setVisible(visible);
-    exportSsgSwEnvParamButton.setVisible(visible);
-    importDetuneParamButton.setVisible(visible);
-    exportDetuneParamButton.setVisible(visible);
-    importUnisonParamButton.setVisible(visible);
-    exportUnisonParamButton.setVisible(visible);
-    importQualityParamButton.setVisible(visible);
-    exportQualityParamButton.setVisible(visible);
+
+    ieToneNoise.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieDetune.setVisible(visible);
+    ieAmpEnv.setVisible(visible);
+    iePitchEnv.setVisible(visible);
+    ieSsgSwEnv.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
 
     if (visible)
     {
@@ -619,35 +564,35 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importToneNoiseParamButton, .comp2 = &exportToneNoiseParamButton });
+        ieToneNoise.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
+        ieLfo.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importAmpEnvParamButton, .comp2 = &exportAmpEnvParamButton });
+        ieAmpEnv.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
+        iePitchEnv.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
+        ieSsgSwEnv.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
+        ieDetune.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
+        ieUnison.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
+        ieQuality.layoutComponent(rect);
     }
 }
 

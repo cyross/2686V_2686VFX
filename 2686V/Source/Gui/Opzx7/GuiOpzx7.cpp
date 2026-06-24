@@ -458,91 +458,61 @@ void GuiOpzx7::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importOpLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::opLfoFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importOpLfoParamButton.setWantsKeyboardFocus(true);
-    importOpLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    importOpLfoParamButton.onClick = [this] {
+    ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
+    ieOpLfo.onClickImport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         importOpLfoParam(opIndex);
         };
-
-    exportOpLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::opLfoFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportOpLfoParamButton.setWantsKeyboardFocus(true);
-    exportOpLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    exportOpLfoParamButton.onClick = [this] {
+    ieOpLfo.onClickExport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         exportOpLfoParam(opIndex);
         };
 
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importPitchEnvParamButton.setWantsKeyboardFocus(true);
-    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importPitchEnvParamButton.onClick = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importPitchEnvParam(opIndex);
-        };
-
-    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
-    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportPitchEnvParamButton.onClick = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportPitchEnvParam(opIndex);
-        };
-
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importSsgSwEnvParamButton.onClick = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importSsgSwEnvParam(opIndex);
-        };
-
-    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportSsgSwEnvParamButton.onClick = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportSsgSwEnvParam(opIndex);
-        };
-
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::detuneFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importDetuneParamButton.setWantsKeyboardFocus(true);
-    importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    importDetuneParamButton.onClick = [this] {
+    ieOpDetune.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieOpDetune.onClickImport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         importDetuneParam(opIndex);
         };
-
-    exportDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::detuneFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportDetuneParamButton.setWantsKeyboardFocus(true);
-    exportDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    exportDetuneParamButton.onClick = [this] {
+    ieOpDetune.onClickExport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         exportDetuneParam(opIndex);
         };
 
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importPcmPlayParamButton.setWantsKeyboardFocus(true);
-    importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
-    importPcmPlayParamButton.onClick = [this] {
+    ieOpPitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    ieOpPitchEnv.onClickImport = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importPitchEnvParam(opIndex);
+        };
+    ieOpPitchEnv.onClickExport = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportPitchEnvParam(opIndex);
+        };
+
+    ieOpSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieOpSsgSwEnv.onClickImport = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        importSsgSwEnvParam(opIndex);
+        };
+    ieOpSsgSwEnv.onClickExport = [this] {
+        int opIndex = (int)targerOpSlider.getValue() - 1;
+
+        exportSsgSwEnvParam(opIndex);
+        };
+
+    ieOpPcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
+    ieOpPcmPlay.onClickImport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         importOpPcmPlayParam(opIndex);
         };
-
-    exportPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::pcmPlayFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportPcmPlayParamButton.setWantsKeyboardFocus(true);
-    exportPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
-    exportPcmPlayParamButton.onClick = [this] {
+    ieOpPcmPlay.onClickExport = [this] {
         int opIndex = (int)targerOpSlider.getValue() - 1;
 
         exportOpPcmPlayParam(opIndex);
@@ -558,45 +528,27 @@ void GuiOpzx7::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::lfoFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importLfoParamButton.setWantsKeyboardFocus(true);
-    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    importLfoParamButton.onClick = [this] {
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] {
         importLfoParam();
         };
-
-    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportLfoParamButton.setWantsKeyboardFocus(true);
-    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    exportLfoParamButton.onClick = [this] {
+    ieLfo.onClickExport = [this] {
         exportLfoParam();
         };
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importUnisonParamButton.setWantsKeyboardFocus(true);
-    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    importUnisonParamButton.onClick = [this] {
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] {
         importUnisonParam();
         };
-
-    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportUnisonParamButton.setWantsKeyboardFocus(true);
-    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    exportUnisonParamButton.onClick = [this] {
+    ieUnison.onClickExport = [this] {
         exportUnisonParam();
         };
 
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::qualityFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importQualityParamButton.setWantsKeyboardFocus(true);
-    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    importQualityParamButton.onClick = [this] {
+    ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] {
         importQualityParam();
         };
-
-    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportQualityParamButton.setWantsKeyboardFocus(true);
-    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    exportQualityParamButton.onClick = [this] {
+    ieQuality.onClickExport = [this] {
         exportQualityParam();
         };
 
@@ -1554,24 +1506,16 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyOpFromSlider.setVisibleWithLabel(visible);
     copyOpToSlider.setVisibleWithLabel(visible);
     uSep002.setVisible(visible);
-    importOpLfoParamButton.setVisible(visible);
-    exportOpLfoParamButton.setVisible(visible);
-    importPitchEnvParamButton.setVisible(visible);
-    exportPitchEnvParamButton.setVisible(visible);
-    importSsgSwEnvParamButton.setVisible(visible);
-    exportSsgSwEnvParamButton.setVisible(visible);
-    importDetuneParamButton.setVisible(visible);
-    exportDetuneParamButton.setVisible(visible);
-    importPcmPlayParamButton.setVisible(visible);
-    exportPcmPlayParamButton.setVisible(visible);
+    ieOpLfo.setVisible(visible);
+    ieOpDetune.setVisible(visible);
+    ieOpPitchEnv.setVisible(visible);
+    ieOpSsgSwEnv.setVisible(visible);
+    ieOpPcmPlay.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
-    importLfoParamButton.setVisible(visible);
-    exportLfoParamButton.setVisible(visible);
-    importUnisonParamButton.setVisible(visible);
-    exportUnisonParamButton.setVisible(visible);
-    importQualityParamButton.setVisible(visible);
-    exportQualityParamButton.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
 
     if (visible)
     {
@@ -1587,23 +1531,23 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importOpLfoParamButton, .comp2 = &exportOpLfoParamButton });
+        ieOpLfo.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
+        ieOpDetune.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
+        ieOpPitchEnv.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
+        ieOpSsgSwEnv.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importPcmPlayParamButton, .comp2 = &exportPcmPlayParamButton });
+        ieOpPcmPlay.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
@@ -1612,15 +1556,15 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep003Area = rect.removeFromTop(4);
         uSep003.setBounds(uSep003Area);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
+        ieLfo.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
+        ieUnison.layoutComponent(rect);
 
         rect.removeFromTop(4);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
+        ieQuality.layoutComponent(rect);
     }
 }
 

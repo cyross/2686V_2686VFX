@@ -18,6 +18,7 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -107,22 +108,15 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
-    GuiTextButton importToneNoiseParamButton;
-    GuiTextButton exportToneNoiseParamButton;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importAmpEnvParamButton;
-    GuiTextButton exportAmpEnvParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
-    GuiTextButton importDetuneParamButton;
-    GuiTextButton exportDetuneParamButton;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
+    GuiComponentImportExport ieToneNoise;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
@@ -189,22 +183,14 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
-        importToneNoiseParamButton(context),
-        exportToneNoiseParamButton(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importAmpEnvParamButton(context),
-        exportAmpEnvParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
-        importDetuneParamButton(context),
-        exportDetuneParamButton(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
+        ieToneNoise(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
+        ieQuality(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

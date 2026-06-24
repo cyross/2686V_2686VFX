@@ -17,6 +17,7 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 

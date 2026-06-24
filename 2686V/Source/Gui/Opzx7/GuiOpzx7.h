@@ -22,6 +22,7 @@
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ViewMode/ViewMode.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -317,24 +318,16 @@ class GuiOpzx7 : public GuiBase
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
     GuiSeparator uSep002;
-    GuiTextButton importOpLfoParamButton;
-    GuiTextButton exportOpLfoParamButton;
-    GuiTextButton importDetuneParamButton;
-    GuiTextButton exportDetuneParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
+    GuiComponentImportExport ieOpLfo;
+    GuiComponentImportExport ieOpDetune;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
+    GuiComponentImportExport ieOpPcmPlay;
     GuiSlider targerOpSlider;
     GuiSeparator uSep003;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
-    GuiTextButton importPcmPlayParamButton;
-    GuiTextButton exportPcmPlayParamButton;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -464,24 +457,16 @@ public:
         copyOpFromSlider(context),
         copyOpToSlider(context),
         uSep002(context),
-        importOpLfoParamButton(context),
-        exportOpLfoParamButton(context),
-        importDetuneParamButton(context),
-        exportDetuneParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
+        ieOpLfo(context),
+        ieOpDetune(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
+        ieOpPcmPlay(context),
         targerOpSlider(context),
         uSep003(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
-        importPcmPlayParamButton(context),
-        exportPcmPlayParamButton(context),
+        ieLfo(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

@@ -20,6 +20,7 @@
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ViewMode/ViewMode.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
