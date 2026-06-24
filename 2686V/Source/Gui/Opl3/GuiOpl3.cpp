@@ -117,13 +117,7 @@ void GuiOpl3::setup()
 
     mainGroup.setup(*this, Opl3GuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Opl3PrKey::level, .title = Opl3GuiText::Fm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -528,11 +522,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(Opl3GuiValue::Group::Padding::width, Opl3GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Opl3GuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(Opl3GuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -744,9 +734,9 @@ void GuiOpl3::updateRgDisplayAsOp(int idx, bool rgMode)
     rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
-void GuiOpl3::updatePresetName(const juce::String& presetName)
+void GuiOpl3::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 // ==============================================================================

@@ -212,13 +212,7 @@ void GuiOpna::setup()
 
     mainGroup.setup(*this, OpnaGuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpnaPrKey::level, .title = OpnaGuiText::Fm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -715,11 +709,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     mmRect.removeFromTop(OpnaGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(OpnaGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -898,9 +888,9 @@ void GuiOpna::updateRgDisplayAsOp(int idx, bool rgMode)
     rgTl[idx].setVisibleWithLabel(rgMode);
 }
 
-void GuiOpna::updatePresetName(const juce::String& presetName)
+void GuiOpna::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiOpna::updateAlgorithmDisplay()

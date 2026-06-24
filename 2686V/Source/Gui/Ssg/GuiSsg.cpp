@@ -90,13 +90,7 @@ void GuiSsg::setup()
 
     mainGroup.setup(*this, SsgGuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::level, .title = SsgGuiText::Ssg::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -388,11 +382,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
     mmRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(SsgGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -527,9 +517,9 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     }
 }
 
-void GuiSsg::updatePresetName(const juce::String& presetName)
+void GuiSsg::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiSsg::initParams()

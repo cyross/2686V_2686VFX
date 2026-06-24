@@ -337,13 +337,7 @@ void GuiOpzx7::setup()
 
     mainGroup.setup(*this, Opzx7GuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Opzx7PrKey::level, .title = Opzx7GuiText::Fm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -606,39 +600,9 @@ void GuiOpzx7::setup()
         exportQualityParam();
         };
 
-    addAndMakeVisible(viewModeSeparator);
-    viewModeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
-
-    viewModeLabel.setup({ .parent = *this, .title = "", .color = juce::Colours::gold.brighter(0.5f) });
-    viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
-    viewModeLabel.setWantsKeyboardFocus(false);
-
-    viewModeToTopButton.setup({ .parent = *this, .title = juce::String("") + "▲", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false});
-    viewModeToTopButton.setWantsKeyboardFocus(true);
-    viewModeToTopButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToTopButton.onClick = [this] {
-        viewMode = GuiOpzx7OpViewMode::Top;
-        viewModeLabel.setText("VIEW MODE: TOP", juce::sendNotification);
-
-        ctx.editor.resized();
-        };
-
-    viewModeToTwinButton.setup({ .parent = *this, .title = juce::String("") + "■", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    viewModeToTwinButton.setWantsKeyboardFocus(true);
-    viewModeToTwinButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToTwinButton.onClick = [this] {
-        viewMode = GuiOpzx7OpViewMode::Twin;
-        viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
-
-        ctx.editor.resized();
-        };
-
-    viewModeToBottomButton.setup({ .parent = *this, .title = juce::String("") + "▼", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    viewModeToBottomButton.setWantsKeyboardFocus(true);
-    viewModeToBottomButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToBottomButton.onClick = [this] {
-        viewMode = GuiOpzx7OpViewMode::Bottom;
-        viewModeLabel.setText("VIEW MODE: BOTTOM", juce::sendNotification);
+    viewModeComp.setupComponent(*this, tabOrder);
+    viewModeComp.onChangeViewMode = [this](GuiComponentViewModes mode) {
+        viewMode = mode;
 
         ctx.editor.resized();
         };
@@ -992,13 +956,9 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(Opzx7GuiValue::Group::Padding::width, Opzx7GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
+    presetName.layoutComponent(mmRect);
 
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
-
-    layoutViewMode(mmRect);
+    viewModeComp.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -1039,7 +999,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mainGroup.setContentHeight(usedHeight + 20);
 
     switch (viewMode) {
-    case GuiOpzx7OpViewMode::Top:
+    case GuiComponentViewModes::Top:
     {
         for (int i = 4; i < Opzx7PrValue::ops; i++) {
             updateOpVisible(i, false);
@@ -1052,7 +1012,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         }
         break;
     }
-    case GuiOpzx7OpViewMode::Bottom:
+    case GuiComponentViewModes::Bottom:
     {
         for (int i = 0; i < 4; i++) {
             updateOpVisible(i, false);
@@ -1066,7 +1026,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
         break;
     }
-    case GuiOpzx7OpViewMode::Twin:
+    case GuiComponentViewModes::Twin:
     {
         auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
 
@@ -1088,19 +1048,6 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     }
 
     updateAlgorithmDisplay();
-}
-
-void GuiOpzx7::layoutViewMode(juce::Rectangle<int>& rect) {
-    viewModeLabel.setVisible(true);
-    viewModeToTopButton.setVisible(true);
-    viewModeToTwinButton.setVisible(true);
-    viewModeToBottomButton.setVisible(true);
-    viewModeSeparator.setVisible(true);
-
-    layoutMainViewMode({ .rect = rect, .label = viewModeLabel, .comp1 = &viewModeToTopButton, .comp2 = &viewModeToTwinButton, .comp3 = &viewModeToBottomButton });
-
-    auto viewModeSeparatorArea = rect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
-    viewModeSeparator.setBounds(viewModeSeparatorArea);
 }
 
 void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
@@ -1501,9 +1448,9 @@ void GuiOpzx7::updateRgDisplayAsOp(int idx, bool rgMode)
     tl[idx].setVisibleWithLabel(!rgMode);
 }
 
-void GuiOpzx7::updatePresetName(const juce::String& presetName)
+void GuiOpzx7::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 // ==============================================================================

@@ -18,6 +18,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -74,6 +75,9 @@ class GuiWt : public GuiBase
 {
     // Groups
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+
     GuiGroup customWaveGroup;
 
     WaveformContainer<32> customSliders32;
@@ -151,10 +155,6 @@ class GuiWt : public GuiBase
 
     GuiComponentMidi midiComponent;
 
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
@@ -173,6 +173,7 @@ public:
 	GuiWt(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         customWaveGroup(context),
         customSliders32(context),
         customSliders64(context),
@@ -222,8 +223,6 @@ public:
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -235,7 +234,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void importWavetable();
     void exportWavetable();
     void initParams();

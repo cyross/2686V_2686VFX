@@ -17,6 +17,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -27,6 +28,8 @@ class GuiSsg : public GuiBase
     GuiScrollGroup mainGroup;
     GuiGroup dutyGroup;
     GuiGroup triGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel formCat;
@@ -122,10 +125,6 @@ class GuiSsg : public GuiBase
     GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
@@ -144,6 +143,7 @@ public:
 	GuiSsg(const GuiContext& context) :
         GuiBase(context), 
         mainGroup(context),
+        presetName(context),
         dutyGroup(context),
         triGroup(context),
         qualityCat(context),
@@ -205,8 +205,6 @@ public:
         exportUnisonParamButton(context),
         importQualityParamButton(context),
         exportQualityParamButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -218,7 +216,7 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);

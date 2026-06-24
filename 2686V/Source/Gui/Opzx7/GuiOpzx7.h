@@ -20,17 +20,13 @@
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ViewMode/ViewMode.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
-
-enum class GuiOpzx7OpViewMode {
-    Top = 0,
-    Twin = 1,
-    Bottom = 2
-};
 
 class GuiOpzx7 : public GuiBase
 {
@@ -281,9 +277,12 @@ class GuiOpzx7 : public GuiBase
     { {true, true, true, true, true, false} }    // 112
 } };
 
-    GuiOpzx7OpViewMode viewMode = GuiOpzx7OpViewMode::Twin;
+    GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
 
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+    GuiComponentViewMode viewModeComp;
 
     GuiSlider levelSlider;
 
@@ -311,10 +310,6 @@ class GuiOpzx7 : public GuiBase
 
     GuiComponentMidi midiComponent;
 
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
@@ -341,12 +336,6 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton importPcmPlayParamButton;
     GuiTextButton exportPcmPlayParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
-
-    GuiSeparator viewModeSeparator;
-    GuiLabel viewModeLabel;
-    GuiTextButton viewModeToTopButton;
-    GuiTextButton viewModeToTwinButton;
-    GuiTextButton viewModeToBottomButton;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
@@ -451,6 +440,8 @@ public:
 	GuiOpzx7(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
+        viewModeComp(context),
         qualityCat(context),
         algFbCat(context),
         levelSlider(context),
@@ -491,11 +482,6 @@ public:
         exportQualityParamButton(context),
         importPcmPlayParamButton(context),
         exportPcmPlayParamButton(context),
-        viewModeSeparator(context),
-        viewModeLabel(context),
-        viewModeToTopButton(context),
-        viewModeToTwinButton(context),
-        viewModeToBottomButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -564,8 +550,6 @@ public:
         xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -609,7 +593,7 @@ public:
 	void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();
@@ -620,7 +604,6 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
-    void layoutViewMode(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);

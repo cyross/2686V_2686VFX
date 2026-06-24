@@ -19,13 +19,7 @@ void GuiBeep::setup() {
 
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -158,11 +152,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mmRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
     mmRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -253,9 +243,9 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     }
 }
 
-void GuiBeep::updatePresetName(const juce::String& presetName)
+void GuiBeep::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiBeep::initParams()

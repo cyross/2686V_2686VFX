@@ -17,6 +17,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -25,6 +26,8 @@ class GuiAdpcm : public GuiBase
 {
     // --- ADPCM Page ---
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiCategoryLabel formCat;
 
@@ -109,10 +112,6 @@ class GuiAdpcm : public GuiBase
     GuiTextButton exportPcmPlayParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
@@ -131,6 +130,7 @@ public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         formCat(context),
         modeSelector(context),
         loadButton(context),
@@ -188,8 +188,6 @@ public:
         exportQualityParamButton(context),
         importPcmPlayParamButton(context),
         exportPcmPlayParamButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -208,7 +206,7 @@ public:
     bool isBtnPanR(juce::Button* button);
     void setPan(float pan);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);

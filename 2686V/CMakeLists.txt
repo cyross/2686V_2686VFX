@@ -597,6 +597,16 @@ set(GUI_COMPONENT_LFO_OPZX7_FILES
     "Source/Gui/Components/LfoOpzx7/LfoOpzx7.cpp"
 )
 
+set(GUI_COMPONENT_PRESET_NAME_FILES
+    "Source/Gui/Components/PresetName/PresetName.h"
+    "Source/Gui/Components/PresetName/PresetName.cpp"
+)
+
+set(GUI_COMPONENT_VIEW_MODE_FILES
+    "Source/Gui/Components/ViewMode/ViewMode.h"
+    "Source/Gui/Components/ViewMode/ViewMode.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -654,6 +664,8 @@ source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_F
 source_group("2686V\\Gui\\Components\\Lfo\\Opzx7" FILES ${GUI_COMPONENT_LFO_OPZX7_FILES})
 source_group("2686V\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
+source_group("2686V\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
+source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

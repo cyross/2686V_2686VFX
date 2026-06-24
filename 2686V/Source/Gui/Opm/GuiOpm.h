@@ -17,6 +17,7 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -50,6 +51,8 @@ class GuiOpm : public GuiBase
     } };
 
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
@@ -113,10 +116,6 @@ class GuiOpm : public GuiBase
     GuiTextButton importQualityParamButton;
     GuiTextButton exportQualityParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
-
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpmPrValue::algorithms> algImages;
@@ -182,6 +181,7 @@ public:
     GuiOpm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         qualityCat(context),
         algFbCat(context),
         levelSlider(context),
@@ -263,8 +263,6 @@ public:
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -279,7 +277,7 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();

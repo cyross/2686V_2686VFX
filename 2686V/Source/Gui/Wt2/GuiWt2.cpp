@@ -432,13 +432,7 @@ void GuiWt2::setup()
 
     mainGroup.setup(*this, Wt2GuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    mainGroup.contentCanvas.addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleForm, .invisibleTitle = Wt2GuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleQuality, .invisibleTitle = Wt2GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
@@ -696,11 +690,7 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(Wt2GuiValue::Group::Padding::width, Wt2GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Wt2GuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(Wt2GuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -838,9 +828,9 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     customWaveGroup.setContentHeight(availableHeight);
 }
 
-void GuiWt2::updatePresetName(const juce::String& presetName)
+void GuiWt2::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 // ==============================================================================

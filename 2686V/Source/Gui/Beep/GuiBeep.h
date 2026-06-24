@@ -15,12 +15,15 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
 class GuiBeep : public GuiBase {
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiSlider levelSlider;
 
@@ -61,10 +64,6 @@ class GuiBeep : public GuiBase {
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
 
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
@@ -82,6 +81,7 @@ class GuiBeep : public GuiBase {
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
+        presetName(context),
         levelSlider(context),
 		fixComponent(context),
         unisonComponent(context),
@@ -106,8 +106,6 @@ public:
         exportDetuneParamButton(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -118,7 +116,7 @@ public:
     }
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
     void setupGraph();
     void layoutUtilityCat(Rectangle<int>& rect);

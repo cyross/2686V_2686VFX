@@ -762,13 +762,7 @@ void GuiRhythm::setup()
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + RhythmPrKey::level, .title = RhythmGuiText::Rhythm::vol, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -997,39 +991,9 @@ void GuiRhythm::setup()
         exportUnisonParam();
         };
 
-    addAndMakeVisible(viewModeSeparator);
-    viewModeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
-
-    viewModeLabel.setup({ .parent = *this, .title = "", .color = juce::Colours::gold.brighter(0.5f) });
-    viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
-    viewModeLabel.setWantsKeyboardFocus(false);
-
-    viewModeToTopButton.setup({ .parent = *this, .title = juce::String("") + "▲", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    viewModeToTopButton.setWantsKeyboardFocus(true);
-    viewModeToTopButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToTopButton.onClick = [this] {
-        viewMode = RhythmPadViewMode::Top;
-        viewModeLabel.setText("VIEW MODE: TOP", juce::sendNotification);
-
-        ctx.editor.resized();
-        };
-
-    viewModeToTwinButton.setup({ .parent = *this, .title = juce::String("") + "■", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    viewModeToTwinButton.setWantsKeyboardFocus(true);
-    viewModeToTwinButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToTwinButton.onClick = [this] {
-        viewMode = RhythmPadViewMode::Twin;
-        viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
-
-        ctx.editor.resized();
-        };
-
-    viewModeToBottomButton.setup({ .parent = *this, .title = juce::String("") + "▼", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    viewModeToBottomButton.setWantsKeyboardFocus(true);
-    viewModeToBottomButton.setExplicitFocusOrder(++tabOrder);
-    viewModeToBottomButton.onClick = [this] {
-        viewMode = RhythmPadViewMode::Bottom;
-        viewModeLabel.setText("VIEW MODE: BOTTOM", juce::sendNotification);
+    viewModeComp.setupComponent(*this, tabOrder);
+    viewModeComp.onChangeViewMode = [this] (GuiComponentViewModes mode) {
+        viewMode = mode;
 
         ctx.editor.resized();
         };
@@ -1054,13 +1018,9 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(RhythmGuiValue::Group::Padding::width, RhythmGuiValue::Group::Padding::height);
     mmRect.removeFromTop(RhythmGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
+    presetName.layoutComponent(mmRect);
 
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
-
-    layoutViewMode(mmRect);
+    viewModeComp.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -1085,7 +1045,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     int pWidth = pageArea.getWidth() / 4;
 
     switch (viewMode) {
-    case RhythmPadViewMode::Top:
+    case GuiComponentViewModes::Top:
         {
             for (int i = 4; i < RhythmPrValue::pads; i++) {
                 updatePadVisible(i, false);
@@ -1101,7 +1061,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
             break;
         }
-    case RhythmPadViewMode::Bottom:
+    case GuiComponentViewModes::Bottom:
         {
             for (int i = 0; i < 4; i++) {
                 updatePadVisible(i, false);
@@ -1117,7 +1077,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
 
             break;
         }
-    case RhythmPadViewMode::Twin:
+    case GuiComponentViewModes::Twin:
         {
             auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
             auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
@@ -1143,18 +1103,6 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     }
 }
 
-void GuiRhythm::layoutViewMode(juce::Rectangle<int>& rect) {
-    viewModeLabel.setVisible(true);
-    viewModeToTopButton.setVisible(true);
-    viewModeToTwinButton.setVisible(true);
-    viewModeToBottomButton.setVisible(true);
-    viewModeSeparator.setVisible(true);
-
-    layoutMainViewMode({ .rect = rect, .label = viewModeLabel, .comp1 = &viewModeToTopButton, .comp2 = &viewModeToTwinButton, .comp3 = &viewModeToBottomButton });
-
-    auto viewModeSeparatorArea = rect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
-    viewModeSeparator.setBounds(viewModeSeparatorArea);
-}
 
 void GuiRhythm::layoutPad(int padIndex, juce::Rectangle<int>& rect) {
     pads[padIndex].setBounds(rect);
@@ -1305,9 +1253,9 @@ bool GuiRhythm::isThis(int index, juce::Button* button)
     return pads[index].isThis(button);
 }
 
-void GuiRhythm::updatePresetName(const juce::String& presetName)
+void GuiRhythm::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiRhythm::updatePadVisible(int idx, bool visible) {
