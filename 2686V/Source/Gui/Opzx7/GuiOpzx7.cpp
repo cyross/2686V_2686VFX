@@ -606,6 +606,43 @@ void GuiOpzx7::setup()
         exportQualityParam();
         };
 
+    addAndMakeVisible(viewModeSeparator);
+    viewModeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    viewModeLabel.setup({ .parent = *this, .title = "", .color = juce::Colours::gold.brighter(0.5f) });
+    viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
+    viewModeLabel.setWantsKeyboardFocus(false);
+
+    viewModeToTopButton.setup({ .parent = *this, .title = juce::String("") + "▲", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false});
+    viewModeToTopButton.setWantsKeyboardFocus(true);
+    viewModeToTopButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToTopButton.onClick = [this] {
+        viewMode = GuiOpzx7OpViewMode::Top;
+        viewModeLabel.setText("VIEW MODE: TOP", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
+    viewModeToTwinButton.setup({ .parent = *this, .title = juce::String("") + "■", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToTwinButton.setWantsKeyboardFocus(true);
+    viewModeToTwinButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToTwinButton.onClick = [this] {
+        viewMode = GuiOpzx7OpViewMode::Twin;
+        viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
+    viewModeToBottomButton.setup({ .parent = *this, .title = juce::String("") + "▼", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToBottomButton.setWantsKeyboardFocus(true);
+    viewModeToBottomButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToBottomButton.onClick = [this] {
+        viewMode = GuiOpzx7OpViewMode::Bottom;
+        viewModeLabel.setText("VIEW MODE: BOTTOM", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
@@ -961,6 +998,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto presetNameSeparatorArea = mmRect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
 
+    layoutViewMode(mmRect);
+
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
@@ -999,132 +1038,129 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
-
-    for (int i = 0; i < 4; ++i)
+    switch (viewMode) {
+    case GuiOpzx7OpViewMode::Top:
     {
-        auto opArea = upperOpArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+        for (int i = 4; i < Opzx7PrValue::ops; i++) {
+            updateOpVisible(i, false);
+        }
 
-        // 枠線
-        opGroups[i].setBounds(opArea);
-
-        // 枠線の内側
-        auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
-        iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
-
-        // グラフ用の区画を確保
-        layoutOpGraph(i, iinnerRect);
-        updateOpGraph(i);
-
-        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
-        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
-
-        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
-
-        bool rgMode = rgEn[i].getToggleState();
-		int selectedWs = ws[i].getSelectedId();
-
-        mulDetune[i].layoutComponentRow(innerRect);
-
-        layoutOpAmpCat(i, innerRect, rgMode);
-
-        layoutOpWsCat(i, innerRect, selectedWs);
-
-        layoutOpKsCat(i, innerRect, rgMode);
-
-        layoutOpOptionalCat(i, innerRect);
-
-        layoutOpSsgEnvCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
-
-        ssgSwEnv[i].layoutComponentRow(innerRect);
-
-        lfo[i].layoutComponentRow(innerRect);
-
-        fix[i].layoutComponentRow(innerRect);
-
-        layoutOpMaskCat(i, innerRect);
-
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
-
-        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
-
-        int usedHeight = 2000 - innerRect.getHeight();
-
-        // 下部の余白を足して、キャンバスの最終的な高さをセット
-        opGroups[i].setContentHeight(usedHeight + 20);
-
-        updateOnWsChange(i);
+        for (int i = 0; i < 4; ++i)
+        {
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
+        }
+        break;
     }
-
-
-    for (int i = 4; i < Opzx7PrValue::ops; ++i)
+    case GuiOpzx7OpViewMode::Bottom:
     {
-        auto opArea = pageArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+        for (int i = 0; i < 4; i++) {
+            updateOpVisible(i, false);
+        }
 
-        // 枠線
-        opGroups[i].setBounds(opArea);
+        for (int i = 4; i < Opzx7PrValue::ops; ++i)
+        {
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
+        }
 
-        // 枠線の内側
-        auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
-        iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
+        break;
+    }
+    case GuiOpzx7OpViewMode::Twin:
+    {
+        auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
 
-        // グラフ用の区画を確保
-        layoutOpGraph(i, iinnerRect);
-        updateOpGraph(i);
+        for (int i = 0; i < 4; ++i)
+        {
+            updateOpVisible(i, true);
+            layoutOp(i, upperOpArea);
+        }
 
-        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
-        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
+        for (int i = 4; i < Opzx7PrValue::ops; ++i)
+        {
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
+        }
 
-        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
+        break;
 
-        bool rgMode = rgEn[i].getToggleState();
-        int selectedWs = ws[i].getSelectedId();
-
-        mulDetune[i].layoutComponentRow(innerRect);
-
-        layoutOpAmpCat(i, innerRect, rgMode);
-
-        layoutOpWsCat(i, innerRect, selectedWs);
-
-        layoutOpKsCat(i, innerRect, rgMode);
-
-        layoutOpOptionalCat(i, innerRect);
-
-        layoutOpSsgEnvCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
-
-        ssgSwEnv[i].layoutComponentRow(innerRect);
-
-        lfo[i].layoutComponentRow(innerRect);
-
-        fix[i].layoutComponentRow(innerRect);
-
-        layoutOpMaskCat(i, innerRect);
-
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
-
-        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
-
-        int usedHeight = 2000 - innerRect.getHeight();
-
-        // 下部の余白を足して、キャンバスの最終的な高さをセット
-        opGroups[i].setContentHeight(usedHeight + 20);
-
-        updateOnWsChange(i);
+    }
     }
 
     updateAlgorithmDisplay();
+}
+
+void GuiOpzx7::layoutViewMode(juce::Rectangle<int>& rect) {
+    viewModeLabel.setVisible(true);
+    viewModeToTopButton.setVisible(true);
+    viewModeToTwinButton.setVisible(true);
+    viewModeToBottomButton.setVisible(true);
+    viewModeSeparator.setVisible(true);
+
+    layoutMainViewMode({ .rect = rect, .label = viewModeLabel, .comp1 = &viewModeToTopButton, .comp2 = &viewModeToTwinButton, .comp3 = &viewModeToBottomButton });
+
+    auto viewModeSeparatorArea = rect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
+    viewModeSeparator.setBounds(viewModeSeparatorArea);
+}
+
+void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
+    auto opArea = rect.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+
+    // 枠線
+    opGroups[opIndex].setBounds(opArea);
+
+    // 枠線の内側
+    auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
+    iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
+
+    // グラフ用の区画を確保
+    layoutOpGraph(opIndex, iinnerRect);
+    updateOpGraph(opIndex);
+
+    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+    opGroups[opIndex].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
+
+    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].viewport.getMaximumVisibleWidth(), 2000);
+
+    bool rgMode = rgEn[opIndex].getToggleState();
+    int selectedWs = ws[opIndex].getSelectedId();
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpAmpCat(opIndex, innerRect, rgMode);
+
+    layoutOpWsCat(opIndex, innerRect, selectedWs);
+
+    layoutOpKsCat(opIndex, innerRect, rgMode);
+
+    layoutOpOptionalCat(opIndex, innerRect);
+
+    layoutOpSsgEnvCat(opIndex, innerRect);
+
+    pitchEnv[opIndex].layoutComponentRow(innerRect);
+
+    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
+
+    lfo[opIndex].layoutComponentRow(innerRect);
+
+    fix[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpMaskCat(opIndex, innerRect);
+
+    // 区切り線エリアを確保
+    auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
+    mmlSeparator[opIndex].setBounds(mmlSeparatorArea);
+
+    layoutRow({ .rowRect = innerRect, .component = &mml[opIndex], .paddingBottom = 0 });
+
+    int usedHeight = 2000 - innerRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    opGroups[opIndex].setContentHeight(usedHeight + 20);
+
+    updateOnWsChange(opIndex);
 }
 
 // ==============================================================================
@@ -1195,6 +1231,82 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
             it->second(rUnit.value);
         }
     }
+}
+
+void GuiOpzx7::updateOpVisible(int idx, bool visible) {
+    opGroups[idx].setVisible(visible);
+
+    mulDetune[idx].setVisible(visible);
+    ar[idx].setVisibleWithLabel(visible);
+    d1r[idx].setVisibleWithLabel(visible);
+    d1l[idx].setVisibleWithLabel(visible);
+    rr[idx].setVisibleWithLabel(visible);
+    d2r[idx].setVisibleWithLabel(visible);
+    tl[idx].setVisibleWithLabel(visible);
+    ksEn[idx].setVisible(visible);
+    ksrMA7[idx].setVisible(visible);
+    kslMA7[idx].setVisibleWithLabel(visible);
+    ksrOPZ[idx].setVisible(visible);
+    kslOPZ[idx].setVisibleWithLabel(visible);
+    ksBp[idx].setVisible(visible);
+    ksBp[idx].setVisibleWithLabel(visible);
+    ksLc[idx].setVisible(visible);
+    ksLc[idx].setVisibleWithLabel(visible);
+    ksRc[idx].setVisible(visible);
+    ksRc[idx].setVisibleWithLabel(visible);
+    ksLd[idx].setVisible(visible);
+    ksLd[idx].setVisibleWithLabel(visible);
+    ksRd[idx].setVisible(visible);
+    ksRd[idx].setVisibleWithLabel(visible);
+    ksRs[idx].setVisible(visible);
+    ksRs[idx].setVisibleWithLabel(visible);
+    se[idx].setVisibleWithLabel(visible);
+    seFreq[idx].setVisibleWithLabel(visible);
+    catOptional[idx].setVisible(visible);
+    bypass[idx].setVisible(visible);
+    fix[idx].setVisible(visible);
+    lfo[idx].setVisible(visible);
+    catWaveShape[idx].setVisible(visible);
+    ws[idx].setVisibleWithLabel(visible);
+    loadPcmBtn[idx].setVisible(visible);
+    clearPcmBtn[idx].setVisible(visible);
+    pcmFileNameLabel[idx].setVisible(visible);
+    pcmOffset[idx].setVisibleWithLabel(visible);
+    pcmRatio[idx].setVisibleWithLabel(visible);
+    loadWtBtn[idx].setVisible(visible);
+    clearWtBtn[idx].setVisible(visible);
+    wtFileNameLabel[idx].setVisible(visible);
+    loadWt2Btn[idx].setVisible(visible);
+    clearWt2Btn[idx].setVisible(visible);
+    wt2FileNameLabel[idx].setVisible(visible);
+    catMask[idx].setVisible(visible);
+    mask[idx].setVisible(visible);
+    mmlSeparator[idx].setVisible(visible);
+    mml[idx].setVisible(visible);
+    rgEn[idx].setVisible(visible);
+    rgAr[idx].setVisibleWithLabel(visible);
+    rgD1r[idx].setVisibleWithLabel(visible);
+    rgD1r[idx].setVisibleWithLabel(visible);
+    rgD1l[idx].setVisibleWithLabel(visible);
+    rgD1l[idx].setVisibleWithLabel(visible);
+    rgD2r[idx].setVisibleWithLabel(visible);
+    rgD2r[idx].setVisibleWithLabel(visible);
+    rgRr[idx].setVisibleWithLabel(visible);
+    rgRr[idx].setVisible(visible);
+    rgTl[idx].setVisibleWithLabel(visible);
+    rgTl[idx].setEnabled(visible);
+    sus[idx].setVisible(visible);
+    xof[idx].setVisible(visible);
+    kor[idx].setVisible(visible);
+    pitchEnv[idx].setVisible(visible);
+    ssgSwEnv[idx].setVisible(visible);
+    catSsgEnv[idx].setVisible(visible);
+    se[idx].setVisible(visible);
+    seFreq[idx].setVisible(visible);
+    opGraphs[idx].setVisible(visible);
+    graphBtnAmp[idx].setVisible(visible);
+    graphBtnPitch[idx].setVisible(visible);
+    graphBtnSsg[idx].setVisible(visible);
 }
 
 void GuiOpzx7::updateOpEnable(int idx, bool enable)

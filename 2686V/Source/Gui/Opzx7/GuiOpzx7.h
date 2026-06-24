@@ -26,6 +26,12 @@
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
+enum class GuiOpzx7OpViewMode {
+    Top = 0,
+    Twin = 1,
+    Bottom = 2
+};
+
 class GuiOpzx7 : public GuiBase
 {
     /*
@@ -275,6 +281,8 @@ class GuiOpzx7 : public GuiBase
     { {true, true, true, true, true, false} }    // 112
 } };
 
+    GuiOpzx7OpViewMode viewMode = GuiOpzx7OpViewMode::Twin;
+
     GuiScrollGroup mainGroup;
 
     GuiSlider levelSlider;
@@ -333,6 +341,12 @@ class GuiOpzx7 : public GuiBase
     GuiTextButton importPcmPlayParamButton;
     GuiTextButton exportPcmPlayParamButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
+
+    GuiSeparator viewModeSeparator;
+    GuiLabel viewModeLabel;
+    GuiTextButton viewModeToTopButton;
+    GuiTextButton viewModeToTwinButton;
+    GuiTextButton viewModeToBottomButton;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
@@ -477,6 +491,11 @@ public:
         exportQualityParamButton(context),
         importPcmPlayParamButton(context),
         exportPcmPlayParamButton(context),
+        viewModeSeparator(context),
+        viewModeLabel(context),
+        viewModeToTopButton(context),
+        viewModeToTwinButton(context),
+        viewModeToBottomButton(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -585,6 +604,7 @@ public:
             wt2FileNameLabel[i].setText(fileName, juce::dontSendNotification);
         }
     }
+    void updateOpVisible(int idx, bool visible);
     void updateOpEnable(int idx, bool enable);
 	void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();
@@ -596,9 +616,11 @@ public:
     void pasteFmParamsFromObject();
     void initParams();
     void layoutUtilityCat(Rectangle<int>& rect);
+    void layoutOp(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
+    void layoutViewMode(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);

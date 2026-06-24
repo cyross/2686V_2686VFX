@@ -24,6 +24,12 @@
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
+enum class RhythmPadViewMode {
+    Top = 0,
+    Twin = 1,
+    Bottom = 2
+};
+
 class RhythmPadGui: public GuiBase
 {
     GuiScrollGroup mainGroup;
@@ -147,6 +153,7 @@ public:
     }
 
     void updatePadFileName(const juce::String& fileName);
+    void updatePadVisible(bool visible);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
@@ -179,6 +186,8 @@ public:
 
 class GuiRhythm : public GuiBase
 {
+    RhythmPadViewMode viewMode = RhythmPadViewMode::Twin;
+
     GuiScrollGroup mainGroup;
 
     // Master Level
@@ -221,6 +230,12 @@ class GuiRhythm : public GuiBase
     GuiTextButton importUnisonParamButton;
     GuiTextButton exportUnisonParamButton;
 
+    GuiSeparator viewModeSeparator;
+    GuiLabel viewModeLabel;
+    GuiTextButton viewModeToTopButton;
+    GuiTextButton viewModeToTwinButton;
+    GuiTextButton viewModeToBottomButton;
+
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
 public:
@@ -259,6 +274,11 @@ public:
         uSep003(context),
         importUnisonParamButton(context),
         exportUnisonParamButton(context),
+        viewModeSeparator(context),
+        viewModeLabel(context),
+        viewModeToTopButton(context),
+        viewModeToTwinButton(context),
+        viewModeToBottomButton(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -266,11 +286,14 @@ public:
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void layoutViewMode(juce::Rectangle<int>& rect);
+    void layoutPad(int padIndex, juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void buttonClicked(juce::Button* button, juce::AudioFormatManager &formatManager, std::unique_ptr<juce::FileChooser>& fileChooser);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
+    void updatePadVisible(int idx, bool visible);
     void updatePresetName(const juce::String& presetName);
     void initParams();
     void setLevel(float level);

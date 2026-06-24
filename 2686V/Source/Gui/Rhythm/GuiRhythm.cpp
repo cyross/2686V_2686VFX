@@ -287,6 +287,50 @@ bool RhythmPadGui::isThis(juce::Button* button)
     return button == &loadButton;
 }
 
+void RhythmPadGui::updatePadVisible(bool visible) {
+    mainGroup.setVisible(visible);
+    fileNameLabel.setVisible(visible);
+    loadButton.setVisible(visible);
+    clearButton.setVisible(visible);
+    formCat.setVisible(visible);
+    optionalCat.setVisible(visible);
+    pcmOffsetSlider.setVisibleWithLabel(visible);
+    pcmRatioSlider.setVisibleWithLabel(visible);
+    loopPointEnableButton.setVisible(visible);
+    loopPointStartSlider.setVisibleWithLabel(visible);
+    loopPointEndSlider.setVisibleWithLabel(visible);
+    qualityCat.setVisible(visible);
+    interpSelector.setVisibleWithLabel(visible);
+    panCat.setVisible(visible);
+    noteSlider.setVisibleWithLabel(visible);
+    modeSelector.setVisibleWithLabel(visible);
+    rateSelector.setVisibleWithLabel(visible);
+    panSlider.setVisibleWithLabel(visible);
+    panToLBtn.setVisible(visible);
+    panToCBtn.setVisible(visible);
+    panToRBtn.setVisible(visible);
+    volSlider.setVisibleWithLabel(visible);
+    toneSlider.setVisibleWithLabel(visible);
+    noiseSlider.setVisibleWithLabel(visible);
+    noiseFreqSlider.setVisibleWithLabel(visible);
+    mixSlider.setVisibleWithLabel(visible);
+    mixSetTone.setVisible(visible);
+    mixSetMix.setVisible(visible);
+    mixSetNoise.setVisible(visible);
+    oneShotButton.setVisible(visible);
+    fixComponent.setVisible(visible);
+    ampEnvComponent.setVisible(visible);
+    pitchEnvComponent.setVisible(visible);
+    ssgSwEnvComponent.setVisible(visible);
+    mulDetuneComponent.setVisible(visible);
+    lfoComponent.setVisible(visible);
+    graph.setVisible(visible);
+    graphBtnAmp.setVisible(visible);
+    graphBtnPitch.setVisible(visible);
+    graphBtnSsg.setVisible(visible);
+    graphSeparator.setVisible(visible);
+}
+
 void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
     layoutMainCategory({ .mainRect = rect, .component = &formCat });
 
@@ -599,11 +643,58 @@ void RhythmPadGui::exportDetuneParam() {
 }
 
 void RhythmPadGui::importPcmPlayParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 3) return;
+
+                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+            }
+        });
 }
 
 void RhythmPadGui::exportPcmPlayParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.pcmQuality"), Io::ExtensionGlob::PcmQualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }
 
 void RhythmPadGui::importQualityParam() {
@@ -906,6 +997,43 @@ void GuiRhythm::setup()
         exportUnisonParam();
         };
 
+    addAndMakeVisible(viewModeSeparator);
+    viewModeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+
+    viewModeLabel.setup({ .parent = *this, .title = "", .color = juce::Colours::gold.brighter(0.5f) });
+    viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
+    viewModeLabel.setWantsKeyboardFocus(false);
+
+    viewModeToTopButton.setup({ .parent = *this, .title = juce::String("") + "▲", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToTopButton.setWantsKeyboardFocus(true);
+    viewModeToTopButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToTopButton.onClick = [this] {
+        viewMode = RhythmPadViewMode::Top;
+        viewModeLabel.setText("VIEW MODE: TOP", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
+    viewModeToTwinButton.setup({ .parent = *this, .title = juce::String("") + "■", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToTwinButton.setWantsKeyboardFocus(true);
+    viewModeToTwinButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToTwinButton.onClick = [this] {
+        viewMode = RhythmPadViewMode::Twin;
+        viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
+    viewModeToBottomButton.setup({ .parent = *this, .title = juce::String("") + "▼", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToBottomButton.setWantsKeyboardFocus(true);
+    viewModeToBottomButton.setExplicitFocusOrder(++tabOrder);
+    viewModeToBottomButton.onClick = [this] {
+        viewMode = RhythmPadViewMode::Bottom;
+        viewModeLabel.setText("VIEW MODE: BOTTOM", juce::sendNotification);
+
+        ctx.editor.resized();
+        };
+
     // Setup Pads
     for (int i = 0; i < RhythmPrValue::pads; ++i)
     {
@@ -917,17 +1045,6 @@ void GuiRhythm::setup()
 
 void GuiRhythm::layout(juce::Rectangle<int> content)
 {
-    auto applyPads = [&](juce::Rectangle<int>& area, int width, int start, int length)
-    {
-        for (int i = start; i < start + length; ++i)
-        {
-            auto padArea = area.removeFromLeft(width);
-
-            pads[i].setBounds(padArea);
-            pads[i].layout(pads[i].getLocalBounds());
-        }
-    };
-
     // Top section for Master Volume
     auto pageArea = content.withZeroOrigin();
 
@@ -942,6 +1059,8 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // 区切り線エリアを確保
     auto presetNameSeparatorArea = mmRect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
     presetNameSeparator.setBounds(presetNameSeparatorArea);
+
+    layoutViewMode(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -963,12 +1082,83 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
-    auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
+    int pWidth = pageArea.getWidth() / 4;
 
-    // Remaining area for 8 pads
-    applyPads(topPadsArea, topPadsArea.getWidth() / 4, 0, 4);
-    applyPads(bottomPadsArea, bottomPadsArea.getWidth() / 4, 4, 4);
+    switch (viewMode) {
+    case RhythmPadViewMode::Top:
+        {
+            for (int i = 4; i < RhythmPrValue::pads; i++) {
+                updatePadVisible(i, false);
+            }
+
+            for (int i = 0; i < 4; i++) {
+                updatePadVisible(i, true);
+
+                auto padArea = pageArea.removeFromLeft(pWidth);
+
+                layoutPad(i, padArea);
+            }
+
+            break;
+        }
+    case RhythmPadViewMode::Bottom:
+        {
+            for (int i = 0; i < 4; i++) {
+                updatePadVisible(i, false);
+            }
+
+            for (int i = 4; i < RhythmPrValue::pads; i++) {
+                updatePadVisible(i, true);
+
+                auto padArea = pageArea.removeFromLeft(pWidth);
+
+                layoutPad(i, padArea);
+            }
+
+            break;
+        }
+    case RhythmPadViewMode::Twin:
+        {
+            auto topPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
+            auto bottomPadsArea = pageArea.removeFromTop(RhythmGuiValue::Pad::height);
+        
+            for (int i = 0; i < 4; i++) {
+                updatePadVisible(i, true);
+
+                auto padArea = topPadsArea.removeFromLeft(pWidth);
+
+                layoutPad(i, padArea);
+            }
+
+            for (int i = 4; i < RhythmPrValue::pads; i++) {
+                updatePadVisible(i, true);
+
+                auto padArea = bottomPadsArea.removeFromLeft(pWidth);
+
+                layoutPad(i, padArea);
+            }
+
+            break;
+        }
+    }
+}
+
+void GuiRhythm::layoutViewMode(juce::Rectangle<int>& rect) {
+    viewModeLabel.setVisible(true);
+    viewModeToTopButton.setVisible(true);
+    viewModeToTwinButton.setVisible(true);
+    viewModeToBottomButton.setVisible(true);
+    viewModeSeparator.setVisible(true);
+
+    layoutMainViewMode({ .rect = rect, .label = viewModeLabel, .comp1 = &viewModeToTopButton, .comp2 = &viewModeToTwinButton, .comp3 = &viewModeToBottomButton });
+
+    auto viewModeSeparatorArea = rect.removeFromTop(RhythmGuiValue::MainGroup::Separator::height);
+    viewModeSeparator.setBounds(viewModeSeparatorArea);
+}
+
+void GuiRhythm::layoutPad(int padIndex, juce::Rectangle<int>& rect) {
+    pads[padIndex].setBounds(rect);
+    pads[padIndex].layout(pads[padIndex].getLocalBounds());
 }
 
 void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -1118,6 +1308,10 @@ bool GuiRhythm::isThis(int index, juce::Button* button)
 void GuiRhythm::updatePresetName(const juce::String& presetName)
 {
     presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+}
+
+void GuiRhythm::updatePadVisible(int idx, bool visible) {
+    pads[idx].updatePadVisible(visible);
 }
 
 void GuiRhythm::initParams()

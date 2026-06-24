@@ -449,14 +449,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triGroup.setVisible(false);
 
         triKeyTrackButton.setVisible(false);
-        triPeakCat.setVisible(false);
         triPeakSlider.setVisibleWithLabel(false);
         triFreqSlider.setVisibleWithLabel(false);
         triSetSawDown.setVisible(false);
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
-        pulseInvCat.setVisible(true);
         dutyModeSelector.setVisibleWithLabel(true);
         dutyVarSlider.setVisibleWithLabel(true);
         dutyFcButton.setVisible(true);
@@ -485,7 +483,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = dRect, .component = &dutyFcButton });
         layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
 
-        layoutRowCategory({ .rowRect = dRect, .label = &pulseInvCat });
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
     else // Triangle
@@ -493,7 +490,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(false);
         triGroup.setVisible(true);
 
-        pulseInvCat.setVisible(false);
         dutyModeSelector.setVisibleWithLabel(false);
         dutyInvertButton.setVisible(false);
         dutyPresetSelector.setVisibleWithLabel(false);
@@ -503,7 +499,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisibleWithLabel(true);
-        triPeakCat.setVisible(true);
         triPeakSlider.setVisibleWithLabel(true);
         triSetSawDown.setVisible(true);
         triSetTri.setVisible(true);
@@ -527,7 +522,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             tRect.removeFromTop(SsgGuiValue::Category::paddingTop);
         }
 
-        layoutRowCategory({ .rowRect = tRect, .label = &triPeakCat });
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
     }

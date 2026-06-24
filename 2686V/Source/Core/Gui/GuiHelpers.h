@@ -321,3 +321,20 @@ struct MainConfigFxOrder {
 };
 
 void layoutMainFxOrder(const MainConfigFxOrder& c);
+
+struct MainConfigViewMode {
+    juce::Rectangle<int>& rect;
+    GuiLabel& label;
+    juce::Component* comp1;
+    juce::Component* comp2;
+    juce::Component* comp3;
+    int rowHeight = CoreGuiValue::MainGroup::Row::height;
+    int paddingLeft = 0;
+    int paddingTop = CoreGuiValue::MainGroup::Row::paddingTop;
+    int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
+    int labelWidth = 120;
+    int compWidth = 30;
+    int compPaddingRight = CoreGuiValue::MainGroup::Comps::Four::paddingRight;
+};
+
+void layoutMainViewMode(const MainConfigViewMode& c);
