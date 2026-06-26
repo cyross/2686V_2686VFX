@@ -139,20 +139,13 @@ class GuiWt2 : public GuiBase
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
     GuiSeparator uSep002;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importAmpEnvParamButton;
-    GuiTextButton exportAmpEnvParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
-    GuiTextButton importDetuneParamButton;
-    GuiTextButton exportDetuneParamButton;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
@@ -200,20 +193,13 @@ public:
         customWaveImportBtn(context),
         customWaveExportBtn(context),
         uSep002(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importAmpEnvParamButton(context),
-        exportAmpEnvParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
-        importDetuneParamButton(context),
-        exportDetuneParamButton(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
+        ieQuality(context),
         sizeSelector(context),
         resoSelector(context),
         waveSelector(context),

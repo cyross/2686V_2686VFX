@@ -156,68 +156,36 @@ void GuiSsg::setup()
     uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
-    ieToneNoise.onClickImport = [this] {
-        importToneNoiseParam();
-        };
-    ieToneNoise.onClickExport = [this] {
-        exportToneNoiseParam();
-        };
+    ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
+    ieToneNoise.onClickExport = [this] { exportToneNoiseParam(); };
 
     ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] {
-        importLfoParam();
-        };
-    ieLfo.onClickExport = [this] {
-        exportLfoParam();
-        };
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
 
     ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] {
-        importDetuneParam();
-        };
-    ieDetune.onClickExport = [this] {
-        exportDetuneParam();
-        };
+    ieDetune.onClickImport = [this] { importDetuneParam(); };
+    ieDetune.onClickExport = [this] { exportDetuneParam(); };
 
     ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] {
-        importAmpEnvParam();
-        };
-    ieAmpEnv.onClickExport = [this] {
-        exportAmpEnvParam();
-        };
+    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
+    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
 
-    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    iePitchEnv.onClickImport = [this] {
-        importPitchEnvParam();
-        };
-    iePitchEnv.onClickExport = [this] {
-        exportPitchEnvParam();
-        };
+    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
+    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
 
     ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] {
-        importSsgSwEnvParam();
-        };
-    ieSsgSwEnv.onClickExport = [this] {
-        exportSsgSwEnvParam();
-        };
+    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
+    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] {
-        importUnisonParam();
-        };
-    ieUnison.onClickExport = [this] {
-        exportUnisonParam();
-        };
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
-    ieQuality.onClickImport = [this] {
-        importQualityParam();
-        };
-    ieQuality.onClickExport = [this] {
-        exportQualityParam();
-        };
+    ieQuality.onClickImport = [this] { importQualityParam(); };
+    ieQuality.onClickExport = [this] { exportQualityParam(); };
 
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
@@ -560,38 +528,22 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
-
         ieToneNoise.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieLfo.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieAmpEnv.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         iePitchEnv.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieSsgSwEnv.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieDetune.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieUnison.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieQuality.layoutComponent(rect);
     }
 }

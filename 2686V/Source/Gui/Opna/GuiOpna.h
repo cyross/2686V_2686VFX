@@ -102,20 +102,15 @@ class GuiOpna : public GuiBase
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
     GuiSeparator uSep004;
-    GuiTextButton importHwLfoParamButton;
-    GuiTextButton exportHwLfoParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
+
+    GuiComponentImportExport ieHwLfo;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
     GuiSlider targerOpSlider;
     GuiSeparator uSep005;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -227,20 +222,14 @@ public:
         copyOpFromSlider(context),
         copyOpToSlider(context),
         uSep004(context),
-        importHwLfoParamButton(context),
-        exportHwLfoParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
+        ieHwLfo(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
         targerOpSlider(context),
         uSep005(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
+        ieLfo(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

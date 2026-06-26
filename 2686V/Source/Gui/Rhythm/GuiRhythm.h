@@ -205,26 +205,17 @@ class GuiRhythm : public GuiBase
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
     GuiSeparator uSep002;
-    GuiTextButton importToneNoiseParamButton;
-    GuiTextButton exportToneNoiseParamButton;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importAmpEnvParamButton;
-    GuiTextButton exportAmpEnvParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
-    GuiTextButton importDetuneParamButton;
-    GuiTextButton exportDetuneParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
-    GuiTextButton importPcmPlayParamButton;
-    GuiTextButton exportPcmPlayParamButton;
+    GuiComponentImportExport ieToneNoise;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieQuality;
+    GuiComponentImportExport iePcmPlay;
     GuiSlider targerPadSlider;
     GuiSeparator uSep003;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
+    GuiComponentImportExport ieUnison;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
@@ -244,26 +235,17 @@ public:
         copyPadFromSlider(context),
         copyPadToSlider(context),
         uSep002(context),
-        importToneNoiseParamButton(context),
-        exportToneNoiseParamButton(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importAmpEnvParamButton(context),
-        exportAmpEnvParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
-        importDetuneParamButton(context),
-        exportDetuneParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
-        importPcmPlayParamButton(context),
-        exportPcmPlayParamButton(context),
+        ieToneNoise(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieQuality(context),
+        iePcmPlay(context),
         targerPadSlider(context),
         uSep003(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
+        ieUnison(context),
         pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
     {
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

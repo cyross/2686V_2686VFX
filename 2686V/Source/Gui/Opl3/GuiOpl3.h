@@ -82,18 +82,13 @@ class GuiOpl3 : public GuiBase
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
     GuiSeparator uSep004;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
+    GuiComponentImportExport ieOpLfo;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
     GuiSlider targerOpSlider;
     GuiSeparator uSep005;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
-    GuiTextButton importQualityParamButton;
-    GuiTextButton exportQualityParamButton;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -187,18 +182,13 @@ public:
         copyOpFromSlider(context),
         copyOpToSlider(context),
         uSep004(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
+        ieOpLfo(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
         targerOpSlider(context),
         uSep005(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
-        importQualityParamButton(context),
-        exportQualityParamButton(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },

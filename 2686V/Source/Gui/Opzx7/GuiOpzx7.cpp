@@ -459,64 +459,24 @@ void GuiOpzx7::setup()
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
-    ieOpLfo.onClickImport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importOpLfoParam(opIndex);
-        };
-    ieOpLfo.onClickExport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportOpLfoParam(opIndex);
-        };
+    ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpLfoParam(opIndex); };
+    ieOpLfo.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpLfoParam(opIndex); };
 
     ieOpDetune.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieOpDetune.onClickImport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importDetuneParam(opIndex);
-        };
-    ieOpDetune.onClickExport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportDetuneParam(opIndex);
-        };
+    ieOpDetune.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importDetuneParam(opIndex); };
+    ieOpDetune.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportDetuneParam(opIndex); };
 
     ieOpPitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    ieOpPitchEnv.onClickImport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importPitchEnvParam(opIndex);
-        };
-    ieOpPitchEnv.onClickExport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportPitchEnvParam(opIndex);
-        };
+    ieOpPitchEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importPitchEnvParam(opIndex); };
+    ieOpPitchEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportPitchEnvParam(opIndex); };
 
     ieOpSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieOpSsgSwEnv.onClickImport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importSsgSwEnvParam(opIndex);
-        };
-    ieOpSsgSwEnv.onClickExport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportSsgSwEnvParam(opIndex);
-        };
+    ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
+    ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
     ieOpPcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
-    ieOpPcmPlay.onClickImport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        importOpPcmPlayParam(opIndex);
-        };
-    ieOpPcmPlay.onClickExport = [this] {
-        int opIndex = (int)targerOpSlider.getValue() - 1;
-
-        exportOpPcmPlayParam(opIndex);
-        };
+    ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
+    ieOpPcmPlay.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpPcmPlayParam(opIndex); };
 
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
     uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
@@ -529,35 +489,19 @@ void GuiOpzx7::setup()
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
     ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] {
-        importLfoParam();
-        };
-    ieLfo.onClickExport = [this] {
-        exportLfoParam();
-        };
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
 
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] {
-        importUnisonParam();
-        };
-    ieUnison.onClickExport = [this] {
-        exportUnisonParam();
-        };
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
-    ieQuality.onClickImport = [this] {
-        importQualityParam();
-        };
-    ieQuality.onClickExport = [this] {
-        exportQualityParam();
-        };
+    ieQuality.onClickImport = [this] { importQualityParam(); };
+    ieQuality.onClickExport = [this] { exportQualityParam(); };
 
     viewModeComp.setupComponent(*this, tabOrder);
-    viewModeComp.onChangeViewMode = [this](GuiComponentViewModes mode) {
-        viewMode = mode;
-
-        ctx.editor.resized();
-        };
+    viewModeComp.onChangeViewMode = [this](GuiComponentViewModes mode) { viewMode = mode; ctx.editor.resized(); };
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -1520,50 +1464,30 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
-
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
-
         ieOpLfo.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieOpDetune.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieOpPitchEnv.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieOpSsgSwEnv.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieOpPcmPlay.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
-
         auto uSep003Area = rect.removeFromTop(4);
         uSep003.setBounds(uSep003Area);
-
         ieLfo.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieUnison.layoutComponent(rect);
-
         rect.removeFromTop(4);
-
         ieQuality.layoutComponent(rect);
     }
 }

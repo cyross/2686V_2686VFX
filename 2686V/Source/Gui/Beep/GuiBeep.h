@@ -52,18 +52,12 @@ class GuiBeep : public GuiBase {
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
-    GuiTextButton importLfoParamButton;
-    GuiTextButton exportLfoParamButton;
-    GuiTextButton importAmpEnvParamButton;
-    GuiTextButton exportAmpEnvParamButton;
-    GuiTextButton importPitchEnvParamButton;
-    GuiTextButton exportPitchEnvParamButton;
-    GuiTextButton importSsgSwEnvParamButton;
-    GuiTextButton exportSsgSwEnvParamButton;
-    GuiTextButton importDetuneParamButton;
-    GuiTextButton exportDetuneParamButton;
-    GuiTextButton importUnisonParamButton;
-    GuiTextButton exportUnisonParamButton;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -95,18 +89,12 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
-        importLfoParamButton(context),
-        exportLfoParamButton(context),
-        importAmpEnvParamButton(context),
-        exportAmpEnvParamButton(context),
-        importPitchEnvParamButton(context),
-        exportPitchEnvParamButton(context),
-        importSsgSwEnvParamButton(context),
-        exportSsgSwEnvParamButton(context),
-        importDetuneParamButton(context),
-        exportDetuneParamButton(context),
-        importUnisonParamButton(context),
-        exportUnisonParamButton(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

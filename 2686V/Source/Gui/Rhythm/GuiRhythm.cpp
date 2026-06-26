@@ -823,149 +823,37 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep002);
     uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importToneNoiseParamButton.setWantsKeyboardFocus(true);
-    importToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
-    importToneNoiseParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
+    ieToneNoise.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
+    ieToneNoise.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importToneNoiseParam(padIndex); };
+    ieToneNoise.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportToneNoiseParam(padIndex); };
 
-        importToneNoiseParam(padIndex);
-        };
+    ieLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importLfoParam(padIndex); };
+    ieLfo.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportLfoParam(padIndex); };
 
-    exportToneNoiseParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::toneNoiseFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportToneNoiseParamButton.setWantsKeyboardFocus(true);
-    exportToneNoiseParamButton.setExplicitFocusOrder(++tabOrder);
-    exportToneNoiseParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
+    ieDetune.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieDetune.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importDetuneParam(padIndex); };
+    ieDetune.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportDetuneParam(padIndex); };
 
-        exportToneNoiseParam(padIndex);
-        };
+    ieAmpEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    ieAmpEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importAmpEnvParam(padIndex); };
+    ieAmpEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportAmpEnvParam(padIndex); };
 
-    importLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importLfoParamButton.setWantsKeyboardFocus(true);
-    importLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    importLfoParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
+    iePitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    iePitchEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPitchEnvParam(padIndex); };
+    iePitchEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPitchEnvParam(padIndex); };
 
-        importLfoParam(padIndex);
-        };
+    ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
+    ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
 
-    exportLfoParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::lfoFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportLfoParamButton.setWantsKeyboardFocus(true);
-    exportLfoParamButton.setExplicitFocusOrder(++tabOrder);
-    exportLfoParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
+    ieQuality.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importQualityParam(padIndex); };
+    ieQuality.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportQualityParam(padIndex); };
 
-        exportLfoParam(padIndex);
-        };
-
-    importAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importAmpEnvParamButton.setWantsKeyboardFocus(true);
-    importAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importAmpEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importAmpEnvParam(padIndex);
-        };
-
-    exportAmpEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ampEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportAmpEnvParamButton.setWantsKeyboardFocus(true);
-    exportAmpEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportAmpEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportAmpEnvParam(padIndex);
-        };
-
-    importPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importPitchEnvParamButton.setWantsKeyboardFocus(true);
-    importPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importPitchEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importPitchEnvParam(padIndex);
-        };
-
-    exportPitchEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pitchEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportPitchEnvParamButton.setWantsKeyboardFocus(true);
-    exportPitchEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportPitchEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportPitchEnvParam(padIndex);
-        };
-
-    importSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    importSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    importSsgSwEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importSsgSwEnvParam(padIndex);
-        };
-
-    exportSsgSwEnvParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::ssgSwEnvFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportSsgSwEnvParamButton.setWantsKeyboardFocus(true);
-    exportSsgSwEnvParamButton.setExplicitFocusOrder(++tabOrder);
-    exportSsgSwEnvParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportSsgSwEnvParam(padIndex);
-        };
-
-    importDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importDetuneParamButton.setWantsKeyboardFocus(true);
-    importDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    importDetuneParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importDetuneParam(padIndex);
-        };
-
-    exportDetuneParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::detuneFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportDetuneParamButton.setWantsKeyboardFocus(true);
-    exportDetuneParamButton.setExplicitFocusOrder(++tabOrder);
-    exportDetuneParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportDetuneParam(padIndex);
-        };
-
-    importQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importQualityParamButton.setWantsKeyboardFocus(true);
-    importQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    importQualityParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importQualityParam(padIndex);
-        };
-
-    exportQualityParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::qualityFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportQualityParamButton.setWantsKeyboardFocus(true);
-    exportQualityParamButton.setExplicitFocusOrder(++tabOrder);
-    exportQualityParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportQualityParam(padIndex);
-        };
-
-    importPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileImport, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
-    importPcmPlayParamButton.setWantsKeyboardFocus(true);
-    importPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
-    importPcmPlayParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        importPcmPlayParam(padIndex);
-        };
-
-    exportPcmPlayParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::pcmPlayFileExport, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
-    exportPcmPlayParamButton.setWantsKeyboardFocus(true);
-    exportPcmPlayParamButton.setExplicitFocusOrder(++tabOrder);
-    exportPcmPlayParamButton.onClick = [this] {
-        int padIndex = (int)targerPadSlider.getValue() - 1;
-
-        exportPcmPlayParam(padIndex);
-        };
+    iePcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
+    iePcmPlay.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPcmPlayParam(padIndex); };
+    iePcmPlay.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPcmPlayParam(padIndex); };
 
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
     targerPadSlider.setRange(1.0, 8.0, 1.0);
@@ -977,19 +865,9 @@ void GuiRhythm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(uSep003);
     uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileImport, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false });
-    importUnisonParamButton.setWantsKeyboardFocus(true);
-    importUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    importUnisonParamButton.onClick = [this] {
-        importUnisonParam();
-        };
-
-    exportUnisonParamButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Utility::unisonFileExport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
-    exportUnisonParamButton.setWantsKeyboardFocus(true);
-    exportUnisonParamButton.setExplicitFocusOrder(++tabOrder);
-    exportUnisonParamButton.onClick = [this] {
-        exportUnisonParam();
-        };
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
 
     viewModeComp.setupComponent(*this, tabOrder);
     viewModeComp.onChangeViewMode = [this] (GuiComponentViewModes mode) {
@@ -1121,26 +999,17 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     copyPadFromSlider.setVisibleWithLabel(visible);
     copyPadToSlider.setVisibleWithLabel(visible);
     uSep002.setVisible(visible);
-    importToneNoiseParamButton.setVisible(visible);
-    exportToneNoiseParamButton.setVisible(visible);
-    importLfoParamButton.setVisible(visible);
-    exportLfoParamButton.setVisible(visible);
-    importAmpEnvParamButton.setVisible(visible);
-    exportAmpEnvParamButton.setVisible(visible);
-    importPitchEnvParamButton.setVisible(visible);
-    exportPitchEnvParamButton.setVisible(visible);
-    importSsgSwEnvParamButton.setVisible(visible);
-    exportSsgSwEnvParamButton.setVisible(visible);
-    importDetuneParamButton.setVisible(visible);
-    exportDetuneParamButton.setVisible(visible);
-    importQualityParamButton.setVisible(visible);
-    exportQualityParamButton.setVisible(visible);
-    importPcmPlayParamButton.setVisible(visible);
-    exportPcmPlayParamButton.setVisible(visible);
+    ieToneNoise.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieDetune.setVisible(visible);
+    ieAmpEnv.setVisible(visible);
+    iePitchEnv.setVisible(visible);
+    ieSsgSwEnv.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
+    iePcmPlay.setVisible(visible);
     targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
-    importUnisonParamButton.setVisible(visible);
-    exportUnisonParamButton.setVisible(visible);
 
     if (visible)
     {
@@ -1156,44 +1025,26 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         auto uSep002Area = rect.removeFromTop(4);
         uSep002.setBounds(uSep002Area);
 
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importToneNoiseParamButton, .comp2 = &exportToneNoiseParamButton });
-
+        ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importLfoParamButton, .comp2 = &exportLfoParamButton });
-
+        ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importAmpEnvParamButton, .comp2 = &exportAmpEnvParamButton });
-
+        ieAmpEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importPitchEnvParamButton, .comp2 = &exportPitchEnvParamButton });
-
+        iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importSsgSwEnvParamButton, .comp2 = &exportSsgSwEnvParamButton });
-
+        ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importDetuneParamButton, .comp2 = &exportDetuneParamButton });
-
+        ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importQualityParamButton, .comp2 = &exportQualityParamButton });
-
+        ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importPcmPlayParamButton, .comp2 = &exportPcmPlayParamButton });
-
+        iePcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
-
         layoutMain({ .mainRect = rect, .label = &targerPadSlider.label, .component = &targerPadSlider });
-
         auto uSep003Area = rect.removeFromTop(4);
         uSep003.setBounds(uSep003Area);
-
-        layoutMainTwoComps({ .rect = rect, .comp1 = &importUnisonParamButton, .comp2 = &exportUnisonParamButton });
+        ieUnison.layoutComponent(rect);
     }
 }
 
