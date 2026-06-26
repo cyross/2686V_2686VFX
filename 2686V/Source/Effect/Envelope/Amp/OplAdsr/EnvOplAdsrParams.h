@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../../KeyScale/Opl/KSOplParams.h"
+
 struct OplAdsrParams
 {
 	int ar = 0;
@@ -7,8 +9,9 @@ struct OplAdsrParams
 	int sl = 15;
 	int rr = 0;
 	int tl = 0;
-	bool ksr = false;
-	int ksl = 0;
+
+	KSOplParams ksOPL;
+
 	bool egType = false;
 	bool sus = false;
 	bool xof = false;

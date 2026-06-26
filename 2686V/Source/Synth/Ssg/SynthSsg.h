@@ -102,8 +102,6 @@ private:
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
 
-    void updatePhaseDelta();
-
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
     int m_unisonIndex = 0;

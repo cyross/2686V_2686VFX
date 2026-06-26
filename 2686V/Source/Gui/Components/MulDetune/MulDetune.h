@@ -14,6 +14,8 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentMulDetune : public GuiBase {
     // MULTIPLE/DETUNE
     GuiCategoryLabel cat;
@@ -23,6 +25,7 @@ class GuiComponentMulDetune : public GuiBase {
     GuiSlider dt2;
     GuiSlider dt3;
     GuiComponentPitchButtons dt3Buttons;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentMulDetune(const GuiContext& context) :
@@ -39,4 +42,21 @@ public:
 
     void setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, bool isHw = false);
     void layoutComponent(juce::Rectangle<int>& rect);
+    void layoutComponentRow(juce::Rectangle<int>& rect);
+    void copyParams(CopyDetuneOpzx7& copyObj);
+    void pasteParams(CopyDetuneOpzx7& copyObj);
+    void importParams();
+    void exportParams();
+    void setMul(int m);
+    void setMulRatio(float r);
+    void setDt1(int d1);
+    void setDt2(int d2);
+    void setDt3(int d3);
+    int getMul();
+    float getMulRatio();
+    int getDt1();
+    int getDt2();
+    int getDt3();
+    void setVisibles(bool visible);
+    void setEnables(bool enable);
 };

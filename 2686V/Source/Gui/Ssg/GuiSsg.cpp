@@ -90,18 +90,13 @@ void GuiSsg::setup()
 
     mainGroup.setup(*this, SsgGuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::level, .title = SsgGuiText::Ssg::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleForm, .invisibleTitle = SsgGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
@@ -139,7 +134,7 @@ void GuiSsg::setup()
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
     lfo.setupComponent(
-        *this,
+        mainGroup.contentCanvas,
         code,
         tabOrder
     );
@@ -157,19 +152,48 @@ void GuiSsg::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    shapeCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::shape });
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
+    ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
+    ieToneNoise.onClickExport = [this] { exportToneNoiseParam(); };
+
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
+
+    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieDetune.onClickImport = [this] { importDetuneParam(); };
+    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+
+    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
+    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+
+    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
+    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+
+    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
+    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+
+    ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] { importQualityParam(); };
+    ieQuality.onClickExport = [this] { exportQualityParam(); };
 
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgTone });
-
     toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
-
-    noiseCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::ssgNoise });
 
     noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
@@ -182,8 +206,6 @@ void GuiSsg::setup()
     noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
-
-    mixCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::mix });
 
     // 初期状態反映
     mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
@@ -280,11 +302,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(SsgGuiValue::Group::Padding::width, SsgGuiValue::Group::Padding::height);
     mmRect.removeFromTop(SsgGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(SsgGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -299,17 +317,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
 
-    layoutMainCategory({ .mainRect = mRect, .label = &shapeCat });
-    layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector, });
-    layoutMainCategory({ .mainRect = mRect, .label = &toneCat });
-    layoutMain({ .mainRect = mRect, .label = &toneSlider.label, .component = &toneSlider, });
-    layoutMainCategory({ .mainRect = mRect, .label = &noiseCat });
-    layoutMain({ .mainRect = mRect, .label = &noiseSlider.label, .component = &noiseSlider });
-    layoutMain({ .mainRect = mRect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
-    layoutMain({ .mainRect = mRect, .component = &noiseOnNoteButton, });
-    layoutMainCategory({ .mainRect = mRect, .label = &mixCat });
-    layoutMain({ .mainRect = mRect, .label = &mixSlider.label, .component = &mixSlider });
-    layoutMainThreeComps({ .rect = mRect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+    layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
 
@@ -351,14 +359,12 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         triGroup.setVisible(false);
 
         triKeyTrackButton.setVisible(false);
-        triPeakCat.setVisible(false);
         triPeakSlider.setVisibleWithLabel(false);
         triFreqSlider.setVisibleWithLabel(false);
         triSetSawDown.setVisible(false);
         triSetTri.setVisible(false);
         triSetSawUp.setVisible(false);
 
-        pulseInvCat.setVisible(true);
         dutyModeSelector.setVisibleWithLabel(true);
         dutyVarSlider.setVisibleWithLabel(true);
         dutyFcButton.setVisible(true);
@@ -387,7 +393,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         layoutRow({ .rowRect = dRect, .component = &dutyFcButton });
         layoutRow({ .rowRect = dRect, .label = &dutyFcFlucSlider.label, .component = &dutyFcFlucSlider, });
 
-        layoutRowCategory({ .rowRect = dRect, .label = &pulseInvCat });
         layoutRow({ .rowRect = dRect, .component = &dutyInvertButton, .paddingBottom = 0 });
     }
     else // Triangle
@@ -395,7 +400,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
         dutyGroup.setVisible(false);
         triGroup.setVisible(true);
 
-        pulseInvCat.setVisible(false);
         dutyModeSelector.setVisibleWithLabel(false);
         dutyInvertButton.setVisible(false);
         dutyPresetSelector.setVisibleWithLabel(false);
@@ -405,7 +409,6 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         triKeyTrackButton.setVisible(true);
         triFreqSlider.setVisibleWithLabel(true);
-        triPeakCat.setVisible(true);
         triPeakSlider.setVisibleWithLabel(true);
         triSetSawDown.setVisible(true);
         triSetTri.setVisible(true);
@@ -429,20 +432,46 @@ void GuiSsg::layout(juce::Rectangle<int> content)
             tRect.removeFromTop(SsgGuiValue::Category::paddingTop);
         }
 
-        layoutRowCategory({ .rowRect = tRect, .label = &triPeakCat });
         layoutRow({ .rowRect = tRect, .label = &triPeakSlider.label, .component = &triPeakSlider });
         layoutRowThreeComps({ .rect = tRect, .comp1 = &triSetSawDown, .comp2 = &triSetTri, .comp3 = &triSetSawUp, .paddingBottom = 0 });
     }
 }
 
-void GuiSsg::updatePresetName(const juce::String& presetName)
+void GuiSsg::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiSsg::initParams()
 {
     this->ctx.audioProcessor.initParams("SSG_");
+}
+
+void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+
+    waveSelector.setVisibleWithLabel(visible);
+    toneSlider.setVisibleWithLabel(visible);
+    noiseSlider.setVisibleWithLabel(visible);
+    noiseFreqSlider.setVisibleWithLabel(visible);
+    noiseOnNoteButton.setVisible(visible);
+    mixSlider.setVisibleWithLabel(visible);
+    mixSetTone.setVisible(visible);
+    mixSetMix.setVisible(visible);
+    mixSetNoise.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector, });
+        layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
+        layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
+        layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
+        layoutMain({ .mainRect = rect, .component = &noiseOnNoteButton, });
+        layoutMain({ .mainRect = rect, .label = &mixSlider.label, .component = &mixSlider });
+        layoutMainThreeComps({ .rect = rect, .comp1 = &mixSetTone, .comp2 = &mixSetMix, .comp3 = &mixSetNoise, .paddingBottom = 0 });
+    }
 }
 
 void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {
@@ -485,10 +514,37 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     bool visible = utilityCat.isDetailVisible();
 
     broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+
+    ieToneNoise.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieDetune.setVisible(visible);
+    ieAmpEnv.setVisible(visible);
+    iePitchEnv.setVisible(visible);
+    ieSsgSwEnv.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+        ieToneNoise.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieLfo.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieAmpEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieDetune.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieUnison.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieQuality.layoutComponent(rect);
     }
 }
 
@@ -582,4 +638,162 @@ void GuiSsg::updateGraph()
 
 void GuiSsg::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiSsg::importToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importToneNoiseParamFile, defaultDir, Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 4) return;
+
+                toneSlider.setValue(lines[0].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[2].getFloatValue(), juce::sendNotification);
+                mixSlider.setValue(lines[3].getFloatValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiSsg::exportToneNoiseParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultToneNoiseParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportToneNoiseParamFile, defaultDir.getChildFile("default.toneNoise"), Io::ExtensionGlob::ToneNoiseParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultToneNoiseParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiSsg::importLfoParam() {
+    lfo.importParams();
+}
+
+void GuiSsg::exportLfoParam() {
+    lfo.exportParams();
+}
+
+void GuiSsg::importAmpEnvParam() {
+    ampEnvComponent.importParams();
+}
+
+void GuiSsg::exportAmpEnvParam() {
+    ampEnvComponent.exportParams();
+}
+
+void GuiSsg::importPitchEnvParam() {
+    pitchEnvComponent.importParams();
+}
+
+void GuiSsg::exportPitchEnvParam() {
+    pitchEnvComponent.exportParams();
+}
+
+void GuiSsg::importSsgSwEnvParam() {
+    ssgSwEnvComponent.importParams();
+}
+
+void GuiSsg::exportSsgSwEnvParam() {
+    ssgSwEnvComponent.exportParams();
+}
+
+void GuiSsg::importDetuneParam() {
+    mulDetuneComponent.importParams();
+}
+
+void GuiSsg::exportDetuneParam() {
+    mulDetuneComponent.exportParams();
+}
+
+void GuiSsg::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiSsg::exportUnisonParam() {
+    unisonComponent.exportParams();
+}
+
+void GuiSsg::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiSsg::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

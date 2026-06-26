@@ -17,6 +17,8 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -25,6 +27,10 @@ class GuiAdpcm : public GuiBase
 {
     // --- ADPCM Page ---
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+
+    GuiCategoryLabel formCat;
 
     GuiComboBox modeSelector;
 
@@ -38,6 +44,14 @@ class GuiAdpcm : public GuiBase
     GuiSlider pcmRatioSlider;
 
     GuiSlider levelSlider;
+    GuiSlider toneSlider;
+    GuiSlider noiseSlider;
+    GuiSlider noiseFreqSlider;
+    GuiSlider mixSlider;
+    GuiTextButton mixSetTone;  // 0.0
+    GuiTextButton mixSetMix;   // 0.5
+    GuiTextButton mixSetNoise; // 1.0
+    GuiComboBox interpSelector;
     GuiSlider panSlider;
 
     GuiTextButton panToLBtn;
@@ -46,6 +60,9 @@ class GuiAdpcm : public GuiBase
 
     // Loop Button
     GuiToggleButton loopButton;
+    GuiToggleButton loopPointEnableButton;
+    GuiSlider loopPointStartSlider;
+    GuiSlider loopPointEndSlider;
 
     GuiComponentFix fixComponent;
 
@@ -75,10 +92,17 @@ class GuiAdpcm : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    GuiSeparator uSep001;
+    GuiComponentImportExport ieToneNoise;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieQuality;
+    GuiComponentImportExport iePcmPlay;
+    GuiComponentImportExport ieUnison;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -98,6 +122,8 @@ public:
     GuiAdpcm(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
+        formCat(context),
         modeSelector(context),
         loadButton(context),
         clearButton(context),
@@ -106,11 +132,22 @@ public:
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
         levelSlider(context),
+        toneSlider(context),
+        noiseSlider(context),
+        noiseFreqSlider(context),
+        mixSlider(context),
+        mixSetTone(context),
+        mixSetMix(context),
+        mixSetNoise(context),
+        interpSelector(context),
         panSlider(context),
         panToLBtn(context),
         panToCBtn(context),
         panToRBtn(context),
         loopButton(context),
+        loopPointEnableButton(context),
+        loopPointStartSlider(context),
+        loopPointEndSlider(context),
         fixComponent(context),
         unisonComponent(context),
         qualityCat(context),
@@ -124,8 +161,16 @@ public:
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
+        uSep001(context),
+        ieToneNoise(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieQuality(context),
+        iePcmPlay(context),
+        ieUnison(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -144,8 +189,9 @@ public:
     bool isBtnPanR(juce::Button* button);
     void setPan(float pan);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
@@ -153,4 +199,22 @@ public:
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
+    void importPcmPlayParam();
+    void exportPcmPlayParam();
 };

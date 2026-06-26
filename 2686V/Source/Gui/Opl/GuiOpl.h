@@ -16,6 +16,10 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
+
+#include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -42,6 +46,8 @@ class GuiOpl : public GuiBase
 
     GuiScrollGroup mainGroup;
 
+    GuiComponentPresetName presetName;
+
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
@@ -64,16 +70,29 @@ class GuiOpl : public GuiBase
     GuiTextButton initLfoToOpllBtn;
     GuiSeparator uSep002;
     GuiTextButton copyOpParamToOpl3Btn;
-
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    GuiTextButton copyOpParamToOpl312Btn;
+    GuiTextButton copyOpParamToOpl334Btn;
+    GuiSeparator uSep003;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
+    GuiSeparator uSep004;
+    GuiComponentImportExport ieOpLfo;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep005;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OplPrValue::algorithms> algImages;
 
     std::array<GuiScrollGroup, OplPrValue::ops> opGroups;
 
+    std::array<GuiCategoryLabel, OplPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OplPrValue::ops> catAmp;
     std::array<GuiCategoryLabel, OplPrValue::ops> catLfo;
     std::array<GuiComboBox, OplPrValue::ops> mul;
     std::array<GuiToggleButton, OplPrValue::ops> am;
@@ -115,13 +134,11 @@ class GuiOpl : public GuiBase
     std::array<GuiSlider, OplPrValue::ops> rgSl;
     std::array<GuiSlider, OplPrValue::ops> rgRr;
     std::array<GuiSlider, OplPrValue::ops> rgTl;
+    std::array<GuiToggleButton, OplPrValue::ops> sus;
     std::array<GuiCategoryLabel, OplPrValue::ops> catOptional;
     std::array<GuiToggleButton, OplPrValue::ops> xof;
     std::array<GuiToggleButton, OplPrValue::ops> kor;
     std::array<GuiToggleButton, OplPrValue::ops> bypass;
-
-    std::array<GuiCategoryLabel, OplPrValue::ops> adsrCat;
-    std::array<GuiToggleButton, OplPrValue::ops> sus;
 
     void applyMmlString(const juce::String& mml, int opIndex);
 
@@ -143,6 +160,7 @@ public:
     GuiOpl(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         qualityCat(context),
         algFbCat(context),
         levelSlider(context),
@@ -158,8 +176,24 @@ public:
         initLfoToOpllBtn(context),
         uSep002(context),
         copyOpParamToOpl3Btn(context),
+        copyOpParamToOpl312Btn(context),
+        copyOpParamToOpl334Btn(context),
+        uSep003(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
+        uSep004(context),
+        ieOpLfo(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
+        targerOpSlider(context),
+        uSep005(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context) },
         am{ GuiToggleButton(context),GuiToggleButton(context) },
         vib{ GuiToggleButton(context),GuiToggleButton(context) },
@@ -197,12 +231,9 @@ public:
         catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context) },
         xof{ GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context) },
-        adsrCat{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         sus{ GuiToggleButton(context),GuiToggleButton(context) },
         kor{ GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context) },
@@ -217,7 +248,7 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();
@@ -226,11 +257,27 @@ public:
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
-    void layoutOpAdsrCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpEgCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpl& copyObj);
+    void copyOpParams(int p, CopyOplOp& copyObj);
+    void pasteParams(CopyOpl& copyObj);
+    void pasteOpParams(int p, CopyOplOp& copyObj);
+    void importLfoParam(int opIndex);
+    void exportLfoParam(int opIndex);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

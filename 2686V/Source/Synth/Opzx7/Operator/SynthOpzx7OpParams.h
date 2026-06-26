@@ -53,6 +53,9 @@ struct Opzx7OpParams
 
     float pcmOffset = 0.0f; // ms
     float pcmRatio = 1.0f;
+    bool loopPointEnable = false;
+    float loopPointStart = 0.0f; // 0.0 to 1.0
+    float loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     bool pitchEnvEnable = true;
     bool ssgEnvEnable = false;

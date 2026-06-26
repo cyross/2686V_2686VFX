@@ -31,7 +31,7 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
 	m_ssgSwEnv.updateSampleRate(sampleRate);
 }
 
-void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
+void Opzx7Operator::setParameters(const Opzx7OpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;
@@ -58,6 +58,9 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
         params.amd,
         params.lfoAmSmRt
     );
+    m_loopPointEnable = params.loopPointEnable;
+    m_loopPointStart = std::clamp(params.loopPointStart, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
 }
 
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -67,6 +70,7 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
     if (!isLegato)
     {
         m_ssgPhase = 0.0;
+        m_isReleased = false;
 
         if (!m_isMonoMode) {
             // ユニゾン・ハーモニー向け対応
@@ -150,7 +154,9 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
 
 void Opzx7Operator::noteOff()
 {
-	if (!m_ampAdsr.isBypass()) {
+    m_isReleased = true;
+
+    if (!m_ampAdsr.isBypass()) {
         m_ampAdsr.noteOff();
     }
 
@@ -318,10 +324,9 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // 3. 位相と波形の生成
     // ========================================================
     float feedbackPhaseOffset = 0.0f;
-    if (m_feedback > 0.0f && feedbackModulator != 0.0f) {
+    if (m_feedback > 0 && feedbackModulator != 0.0f) {
         // コアから渡された「過去2サンプルの平均値 (feedbackModulator)」にスケールを掛けるだけ
-        float fbScale = std::pow(2.0f, m_feedback - 5.0f);
-        feedbackPhaseOffset = feedbackModulator * fbScale * juce::MathConstants<float>::pi * 2.0f;
+        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
     }
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
@@ -362,8 +367,25 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta;
 
-    while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
-    while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+    if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_isReleased) {
+        float loopStartRad = m_loopPointStart * 2.0f * juce::MathConstants<float>::pi;
+        float loopEndRad = m_loopPointEnd * 2.0f * juce::MathConstants<float>::pi;
+        float loopLenRad = loopEndRad - loopStartRad;
+
+        if (loopLenRad > 0.0f) {
+            // ループ終端を超えたら、超えた分をStartに足してループ内に収める
+            if (m_phase >= loopEndRad) {
+                m_phase = loopStartRad + std::fmod(m_phase - loopEndRad, loopLenRad);
+            }
+        }
+
+        while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+    }
+    else {
+        // 通常のオシレータのループ、またはリリース後のPCM再生
+        while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
+        while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+    }
 }
 
 float Opzx7Operator::calcWaveform(double phase, int wave)
@@ -395,6 +417,22 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             if (playSize < 1) playSize = 1;
 
+            // --- FM変調による「ループ外への逸脱」を安全にクランプ/ラップアラウンドする ---
+            if (m_loopPointEnable && !m_isReleased) {
+                float loopStartNorm = m_loopPointStart;
+                float loopEndNorm = m_loopPointEnd;
+                float loopLenNorm = loopEndNorm - loopStartNorm;
+
+                if (loopLenNorm > 0.0f) {
+                    if (normPhase >= loopEndNorm) {
+                        normPhase = loopStartNorm + std::fmod(normPhase - loopEndNorm, loopLenNorm);
+                    }
+                    else if (normPhase < loopStartNorm) {
+                        normPhase = loopEndNorm - std::fmod(loopStartNorm - normPhase, loopLenNorm);
+                    }
+                }
+            }
+
             // normPhase (0.0 ~ 1.0) を playSize にマッピングし、offsetを足す
             float floatIndex = (float)offsetSamples + normPhase * (float)playSize;
             int index1 = (int)floatIndex;
@@ -403,9 +441,22 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
 
             int index2 = index1 + 1;
 
-            // ループの終端に達したら、offset位置（先頭）に戻す
-            if (index2 >= offsetSamples + playSize || index2 >= totalSize) {
-                index2 = offsetSamples;
+            // ループ境界を跨ぐ際の線形補間の安全処理
+            if (m_loopPointEnable && !m_isReleased) {
+                size_t loopStartSample = offsetSamples + (size_t)(playSize * m_loopPointStart);
+                size_t loopEndSample = offsetSamples + (size_t)(playSize * m_loopPointEnd);
+
+                // ループエンドを跨ぐ補間の場合は、次のサンプルをループスタートから取得する
+                if (index2 >= loopEndSample && loopEndSample > loopStartSample) {
+                    index2 = loopStartSample;
+                }
+                if (index2 >= totalSize) index2 = totalSize - 1; // 念のためのバッファ外アクセス防止
+            }
+            else {
+                // ループの終端に達したら、offset位置（先頭）に戻す
+                if (index2 >= offsetSamples + playSize || index2 >= totalSize) {
+                    index2 = offsetSamples;
+                }
             }
 
             float frac = floatIndex - (float)index1;
@@ -473,7 +524,7 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
     // =================================================================
     // ストラテジーによる高速な波形計算
     // =================================================================
-    int safeWave = std::clamp(wave, 0, 72);
+    int safeWave = std::clamp(wave, 0, Opzx7PrValue::waveShapes - 1);
 
     // =================================================================
     // 波形生成用のユーティリティ関数群

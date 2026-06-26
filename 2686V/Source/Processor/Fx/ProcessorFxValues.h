@@ -15,7 +15,7 @@ namespace FxPrValue
 
 	namespace Bypass
 	{
-		inline constexpr float initial = false; // 初期値
+		inline constexpr float initial = true; // 初期値
 	}
 
 	namespace Mix
@@ -161,6 +161,30 @@ namespace FxPrValue
 		{
 			inline constexpr float min = -15.0f;
 			inline constexpr float max = 15.0f;
+			inline constexpr float initial = 0.0f;
+		}
+	}
+
+	namespace SfcEcho
+	{
+		namespace Time // 単位: ミリ秒(整数では別スライダーで設定)
+		{
+			inline constexpr float min = 0.0f; // 0 相当(1増えるごとに16ms増える)
+			inline constexpr float max = 240.0f; // 15 相当(16 * 15 = 240)
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Fb
+		{
+			inline constexpr float min = -1.0f; // -128相当
+			inline constexpr float max = 1.0f; // 127相当
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace FirCoef
+		{
+			inline constexpr float min = -128.0f;
+			inline constexpr float max = 127.0f;
 			inline constexpr float initial = 0.0f;
 		}
 	}

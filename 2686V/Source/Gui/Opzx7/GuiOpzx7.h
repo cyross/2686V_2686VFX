@@ -18,7 +18,13 @@
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/PitchButtons/PitchButtons.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ViewMode/ViewMode.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
+
+#include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -40,78 +46,119 @@ class GuiOpzx7 : public GuiBase
      * -- : 未使用
      */
     static inline const std::array<std::array<juce::String, Opzx7PrValue::ops>, Opzx7PrValue::algorithms> algOpPrefix = { {
-        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},       // 00: <OPX-00>
-        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])", "(--)", "(--)"}},      // 01: <OPX-01>
-        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},       // 02: <OPX-02>
-        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},       // 03: <OPX-03>
-        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])", "(--)", "(--)"}},       // 04: <OPX-04>
-        {{"([M:FB->2])", "([M:FB1->4])", "([M->4])", "([C])", "(--)", "(--)"}},   // 05: <OPX-05>
-        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "(--)", "(--)"}},          // 06: <OPX-06>
-        {{"([M->2])", "([C:FB1])", "([M->4])", "([C])", "(--)", "(--)"}},         // 07: <OPX-07>
-        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 08: <OPX-08>
-        {{"([C:FB])", "([M->4])", "([M->4])", "([C])", "(--)", "(--)"}},          // 09: <OPX-09>
-        {{"([M:FB->2])", "([C])", "([C])", "([C])", "(--)", "(--)"}},             // 10: <OPX-10>
-        {{"([M->2])", "([C:FB1])", "([C])", "([C])", "(--)", "(--)"}},            // 11: <OPX-11>
-        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])", "(--)", "(--)"}},         // 12: <OPX-12>
-        {{"([C:FB])", "([M->3])", "([C])", "([C])", "(--)", "(--)"}},             // 13: <OPX-13>
-        {{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])", "(--)", "(--)"}},    // 14: <OPX-14>
-        {{"([C:FB])", "([C])", "([C])", "([C])", "(--)", "(--)"}},                // 15: <OPX-15>
-        {{"([M:FB->2])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},           // 16: <OPX-16>
-        {{"([M->2])", "([M:FB1->3])", "([C])", "(--)", "(--)", "(--)"}},          // 17: <OPX-17>
-        {{"([M:FB->3])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},           // 18: <OPX-18>
-        {{"([C:FB])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},              // 19: <OPX-19>
-        {{"([M:FB->2])", "([C])", "([C])", "(--)", "(--)", "(--)"}},              // 20: <OPX-20>
-        {{"([M->2])", "([C:FB1])", "([C])", "(--)", "(--)", "(--)"}},             // 21: <OPX-21>
-        {{"([C:FB])", "([C])", "([C])", "(--)", "(--)", "(--)"}},                 // 22: <OPX-22>
-        {{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)", "(--)", "(--)"}},        // 23: <OPX-23>
-        {{"([M:FB->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},               // 24: <OPX-24>
-        {{"([M->2])", "([C:FB1])", "(--)", "(--)", "(--)", "(--)"}},              // 25: <OPX-25>
-        {{"([C:FB])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                  // 26: <OPX-26>
-        {{"([C:FB][M->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},            // 27: <OPX-27>
-        {{"([M:FB->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},               // 28: <MA3-00>
-        {{"([C:FB])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                  // 29: <MA3-01>
-        {{"([C:FB])", "([C])", "([C:FB])", "([C])", "(--)", "(--)"}},             // 30: <MA3-02>
-        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},       // 31: <MA3-03>
-        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},       // 32: <MA3-04>
-        {{"([M:FB->2])", "([C])", "([M:FB->4])", "([C])", "(--)", "(--)"}},       // 33: <MA3-05>
-        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 34: <MA3-06>
-        {{"([C:FB])", "([M->3])", "([C])", "([C])", "(--)", "(--)"}},             // 35: <MA3-07>
-        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},  // 36: <OPS-00>
-        {{"([M->2])", "([M->3])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},  // 37: <OPS-01>
-        {{"([M:FB->2])", "([M->3])", "([C])", "([M->5])", "([M->6])", "([C])"}},  // 38: <OPS-02>
-        {{"([M->2])", "([M->3])", "([C:FB1])", "([M->5])", "([M->6])", "([C])"}}, // 39: <OPS-03>
-        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 40: <OPS-04>
-        {{"([M->2])", "([C:FB1])", "([M->4])", "([C])", "([M->6])", "([C])"}},    // 41: <OPS-05>
-        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])", "([M->6])", "([C])"}},  // 42: <OPS-06>
-        {{"([M->2])", "([M->4])", "([M:FB->4])", "([C])", "([M->6])", "([C])"}},  // 43: <OPS-07>
-        {{"([M->2])", "([M->4])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},  // 44: <OPS-08>
-        {{"([M->3])", "([M->3])", "([C])", "([M:FB->5])", "([M->6])", "([C])"}},  // 45: <OPS-09>
-        {{"([M:FB->3])", "([M->3])", "([C])", "([M->5])", "([M->6])", "([C])"}},  // 46: <OPS-10>
-        {{"([M->4])", "([M->4])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},  // 47: <OPS-11>
-        {{"([M:FB->4])", "([M->4])", "([M->4])", "([C])", "([M->6])", "([C])"}},  // 48: <OPS-12>
-        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},  // 49: <OPS-13>
-        {{"([M->3])", "([M->3])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},  // 50: <OPS-14>
-        {{"([M:FB->2])", "([C])", "([M->4])", "([M->6])", "([M->6])", "([C])"}},  // 51: <OPS-15>
-        {{"([M->2])", "([C])", "([M->4])", "([M->6])", "([M:FB->6])", "([C])"}},  // 52: <OPS-16>
-        {{"([M->2])", "([M->3])", "([C])", "([M:FB->6])", "([M->6])", "([C])"}},  // 53: <OPS-17>
-        {{"([M:FB->2/3])", "([C])", "([C])", "([M->5])", "([M->6])", "([C])"}},   // 54: <OPS-18>
-        {{"([M->2])", "([M->3])", "([C])", "([M:FB->5/6])", "([C])", "([C])"}},   // 55: <OPS-19>
-        {{"([M->2/3])", "([C])", "([C])", "([M:FB->5/6])", "([C])", "([C])"}},    // 56: <OPS-20>
-        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])", "([M->6])", "([C])"}},    // 57: <OPS-21>
-        {{"([M:FB->2/3])", "([C])", "([C])", "([M->5])", "([C])", "([C])"}},      // 58: <OPS-22>
-        {{"([M:FB->2/3/4/5/6])", "([C])", "([C])", "([C])", "([C])", "([C])"}},   // 59: <OPS-23>
-        {{"([M:FB->2/3])", "([C])", "([C])", "([C])", "([C])", "([C])"}},         // 60: <OPS-24>
-        {{"([M:FB->3])", "([M->3])", "([C])", "([M->5])", "([C])", "([C])"}},     // 61: <OPS-25>
-        {{"([M->3])", "([M->3])", "([C])", "([M:FB->5])", "([C])", "([C])"}},     // 62: <OPS-26>
-        {{"([C])", "([M:FB->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 63: <OPS-27>
-        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "([C])", "([C])"}},        // 64: <OPS-28>
-        {{"([C])", "([M:FB->3])", "([M->4])", "([C])", "([C])", "([C])"}},        // 65: <OPS-29>
-        {{"([M:FB->2])", "([C])", "([C])", "([C])", "([C])", "([C])"}},           // 66: <OPS-30>
-        {{"([C:FB])", "([C])", "([C])", "([C])", "([C])", "([C])"}},              // 67: <OPS-31>
-        {{"([C:FB])", "(--)", "(--)", "(--)", "(--)", "(--)"}},                   // 68: <OPZX7S-000>
-        {{"([C:FB])", "([C:FB])", "(--)", "(--)", "(--)", "(--)"}},               // 69: <OPZX7S-001>
-        {{"([M->2])", "([C:FB1])", "([M->4])", "([C:FB3])", "(--)", "(--)"}},     // 70: <OPZX7S-002>
-        {{"([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "(--)", "(--)"}},       // 71: <OPZX7S-003>
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 00: <OPX-00>
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])", "(--)", "(--)"}},         // 01: <OPX-01>
+        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 02: <OPX-02>
+        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 03: <OPX-03>
+        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])", "(--)", "(--)"}},          // 04: <OPX-04>
+        {{"([M:FB->2])", "([M:FB1->4])", "([M->4])", "([C])", "(--)", "(--)"}},      // 05: <OPX-05>
+        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "(--)", "(--)"}},             // 06: <OPX-06>
+        {{"([M->2])", "([C:FB1])", "([M->4])", "([C])", "(--)", "(--)"}},            // 07: <OPX-07>
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},             // 08: <OPX-08>
+        {{"([C:FB])", "([M->4])", "([M->4])", "([C])", "(--)", "(--)"}},             // 09: <OPX-09>
+        {{"([M:FB->2])", "([C])", "([C])", "([C])", "(--)", "(--)"}},                // 10: <OPX-10>
+        {{"([M->2])", "([C:FB1])", "([C])", "([C])", "(--)", "(--)"}},               // 11: <OPX-11>
+        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])", "(--)", "(--)"}},            // 12: <OPX-12>
+        {{"([C:FB])", "([M->3])", "([C])", "([C])", "(--)", "(--)"}},                // 13: <OPX-13>
+        {{"([C:FB][M:FB->2])", "([C])", "([M->4])", "([C])", "(--)", "(--)"}},       // 14: <OPX-14>
+        {{"([C:FB])", "([C])", "([C])", "([C])", "(--)", "(--)"}},                   // 15: <OPX-15>
+        {{"([M:FB->2])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},              // 16: <OPX-16>
+        {{"([M->2])", "([M:FB1->3])", "([C])", "(--)", "(--)", "(--)"}},             // 17: <OPX-17>
+        {{"([M:FB->3])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},              // 18: <OPX-18>
+        {{"([C:FB])", "([M->3])", "([C])", "(--)", "(--)", "(--)"}},                 // 19: <OPX-19>
+        {{"([M:FB->2])", "([C])", "([C])", "(--)", "(--)", "(--)"}},                 // 20: <OPX-20>
+        {{"([M->2])", "([C:FB1])", "([C])", "(--)", "(--)", "(--)"}},                // 21: <OPX-21>
+        {{"([C:FB])", "([C])", "([C])", "(--)", "(--)", "(--)"}},                    // 22: <OPX-22>
+        {{"([C:FB][M:FB->2])", "([C])", "([C])", "(--)", "(--)", "(--)"}},           // 23: <OPX-23>
+        {{"([M:FB->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                  // 24: <OPX-24>
+        {{"([M->2])", "([C:FB1])", "(--)", "(--)", "(--)", "(--)"}},                 // 25: <OPX-25>
+        {{"([C:FB])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                     // 26: <OPX-26>
+        {{"([C:FB][M->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},               // 27: <OPX-27>
+        {{"([M:FB->2])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                  // 28: <MA3-00>
+        {{"([C:FB])", "([C])", "(--)", "(--)", "(--)", "(--)"}},                     // 29: <MA3-01>
+        {{"([C:FB])", "([C])", "([C:FB])", "([C])", "(--)", "(--)"}},                // 30: <MA3-02>
+        {{"([M:FB->4])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 31: <MA3-03>
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},          // 32: <MA3-04>
+        {{"([M:FB->2])", "([C])", "([M:FB->4])", "([C])", "(--)", "(--)"}},          // 33: <MA3-05>
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "(--)", "(--)"}},             // 34: <MA3-06>
+        {{"([C:FB])", "([M->3])", "([C])", "([C])", "(--)", "(--)"}},                // 35: <MA3-07>
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 36: <OPS-00>
+        {{"([M->2])", "([M->3])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},     // 37: <OPS-01>
+        {{"([M:FB->2])", "([M->3])", "([C])", "([M->5])", "([M->6])", "([C])"}},     // 38: <OPS-02>
+        {{"([M->2])", "([M->3])", "([C:FB1])", "([M->5])", "([M->6])", "([C])"}},    // 39: <OPS-03>
+        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "([M->6])", "([C])"}},        // 40: <OPS-04>
+        {{"([M->2])", "([C:FB1])", "([M->4])", "([C])", "([M->6])", "([C])"}},       // 41: <OPS-05>
+        {{"([M:FB->2])", "([M->4])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 42: <OPS-06>
+        {{"([M->2])", "([M->4])", "([M:FB->4])", "([C])", "([M->6])", "([C])"}},     // 43: <OPS-07>
+        {{"([M->2])", "([M->4])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},     // 44: <OPS-08>
+        {{"([M->3])", "([M->3])", "([C])", "([M:FB->5])", "([M->6])", "([C])"}},     // 45: <OPS-09>
+        {{"([M:FB->3])", "([M->3])", "([C])", "([M->5])", "([M->6])", "([C])"}},     // 46: <OPS-10>
+        {{"([M->4])", "([M->4])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},     // 47: <OPS-11>
+        {{"([M:FB->4])", "([M->4])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 48: <OPS-12>
+        {{"([M:FB->3])", "([M->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},     // 49: <OPS-13>
+        {{"([M->3])", "([M->3])", "([M->4])", "([C])", "([M:FB->6])", "([C])"}},     // 50: <OPS-14>
+        {{"([M:FB->2])", "([C])", "([M->4])", "([M->6])", "([M->6])", "([C])"}},     // 51: <OPS-15>
+        {{"([M->2])", "([C])", "([M->4])", "([M->6])", "([M:FB->6])", "([C])"}},     // 52: <OPS-16>
+        {{"([M->2])", "([M->3])", "([C])", "([M:FB->6])", "([M->6])", "([C])"}},     // 53: <OPS-17>
+        {{"([M:FB->2/3])", "([C])", "([C])", "([M->5])", "([M->6])", "([C])"}},      // 54: <OPS-18>
+        {{"([M->2])", "([M->3])", "([C])", "([M:FB->5/6])", "([C])", "([C])"}},      // 55: <OPS-19>
+        {{"([M->2/3])", "([C])", "([C])", "([M:FB->5/6])", "([C])", "([C])"}},       // 56: <OPS-20>
+        {{"([M:FB->2/3/4])", "([C])", "([C])", "([C])", "([M->6])", "([C])"}},       // 57: <OPS-21>
+        {{"([M:FB->2/3])", "([C])", "([C])", "([M->5])", "([C])", "([C])"}},         // 58: <OPS-22>
+        {{"([M:FB->2/3/4/5/6])", "([C])", "([C])", "([C])", "([C])", "([C])"}},      // 59: <OPS-23>
+        {{"([M:FB->2/3])", "([C])", "([C])", "([C])", "([C])", "([C])"}},            // 60: <OPS-24>
+        {{"([M:FB->3])", "([M->3])", "([C])", "([M->5])", "([C])", "([C])"}},        // 61: <OPS-25>
+        {{"([M->3])", "([M->3])", "([C])", "([M:FB->5])", "([C])", "([C])"}},        // 62: <OPS-26>
+        {{"([C])", "([M:FB->3])", "([M->4])", "([C])", "([M->6])", "([C])"}},        // 63: <OPS-27>
+        {{"([M:FB->2])", "([C])", "([M->4])", "([C])", "([C])", "([C])"}},           // 64: <OPS-28>
+        {{"([C])", "([M:FB->3])", "([M->4])", "([C])", "([C])", "([C])"}},           // 65: <OPS-29>
+        {{"([M:FB->2])", "([C])", "([C])", "([C])", "([C])", "([C])"}},              // 66: <OPS-30>
+        {{"([C:FB])", "([C])", "([C])", "([C])", "([C])", "([C])"}},                 // 67: <OPS-31>
+        {{"([C:FB])", "(--)", "(--)", "(--)", "(--)", "(--)"}},                      // 68: <OPZX7S-000>
+        {{"([C:FB])", "([C:FB])", "(--)", "(--)", "(--)", "(--)"}},                  // 69: <OPZX7S-001>
+        {{"([M->2])", "([C:FB1])", "([M->4])", "([C:FB3])", "(--)", "(--)"}},        // 70: <OPZX7S-002>
+        {{"([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "(--)", "(--)"}},          // 71: <OPZX7S-003>
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([M->5])", "([M->6])", "([C])"}},  // 72
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([M->5])", "([M->6])", "([C])"}}, // 73
+        {{"([M->2])", "([M->3])", "([M:FB1->4])", "([M->5])", "([M->6])", "([C])"}}, // 74
+        {{"([M->2])", "([M->3])", "([M->4])", "([M:FB1->5])", "([M->6])", "([C])"}}, // 75
+        {{"([M->2])", "([M->3])", "([M->4])", "([M->5])", "([M:FB1->6])", "([C])"}}, // 76
+        {{"([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])"}},  // 77
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([M->5])", "([C])", "(--)"}},      // 78
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([M->5])", "([C])", "(--)"}},     // 79
+        {{"([M->2])", "([M->3])", "([M:FB1->4])", "([M->5])", "([C])", "(--)"}},     // 80
+        {{"([M->2])", "([M->3])", "([M->4])", "([M:FB1->5])", "([C])", "(--)"}},     // 81
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "([C])", "(--)"}},         // 82
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])", "([C])", "(--)"}},        // 83
+        {{"([M->2])", "([M->3])", "([M:FB1->4])", "([C])", "([C])", "(--)"}},        // 84
+        {{"([M->2])", "([M->3])", "([M->4])", "([C])", "([C:FB])", "(--)"}},         // 85
+        {{"([M:FB->2])", "([M->3])", "([M->4])", "([C])", "([C:FB])", "(--)"}},      // 86
+        {{"([M->2])", "([M:FB1->3])", "([M->4])", "([C])", "([C:FB])", "(--)"}},     // 87
+        {{"([M->2])", "([M->3])", "([M:FB1->4])", "([C])", "([C:FB])", "(--)"}},     // 88
+        {{"([M:FB->2])", "([M->3])", "([C])", "([M->5])", "([C])", "(--)"}},         // 89
+        {{"([M->2])", "([M:FB1->3])", "([C])", "([M->5])", "([C])", "(--)"}},        // 90
+        {{"([M->2])", "([M->3])", "([C])", "([M:FB->5])", "([C])", "(--)"}},         // 91
+        {{"([M:FB->2])", "([M->3])", "([C])", "([M:FB->5])", "([C])", "(--)"}},      // 92
+        {{"([M->2])", "([M:FB1->3])", "([C])", "([M:FB->5])", "([C])", "(--)"}},     // 93
+        {{"([M:FB->2/4])", "([M->3])", "([C])", "([M->5])", "([C])", "(--)"}},       // 94
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "([C])", "(--)"}},            // 95
+        {{"([C])", "([M:FB->3])", "([M->4])", "([C])", "([C])", "(--)"}},            // 96
+        {{"([C])", "([M->3])", "([M:FB2->4])", "([C])", "([C])", "(--)"}},           // 97
+        {{"([C:FB])", "([M:FB->3])", "([M->4])", "([C])", "([C])", "(--)"}},         // 98
+        {{"([C:FB])", "([M->3])", "([M:FB2->4])", "([C])", "([C])", "(--)"}},        // 99
+        {{"([C:FB])", "([M->3])", "([M->4])", "([C])", "([C:FB])", "(--)"} },        // 100
+        { {"([C:FB])", "([M:FB->3])", "([M->4])", "([C])", "([C:FB])", "(--)"} },    // 101
+        { {"([C])", "([M->3])", "([M:FB2->4])", "([C])", "([C])", "(--)"} },         // 102
+        { {"([C])", "([M:FB->4])", "([M->4])", "([C])", "([C])", "(--)"} },          // 103
+        { {"([C])", "([M:FB->4])", "([M-:FB>4])", "([C])", "([C])", "(--)"} },       // 104
+        { {"([M:FB->2])", "([C])", "([M->4])", "([C])", "([C])", "(--)"} },          // 105
+        { {"([M:FB->2])", "([C])", "([M:FB->4])", "([C])", "([C])", "(--)"} },       // 106
+        { {"([M:FB->2])", "([C])", "([C])", "([C])", "([C])", "(--)"} },             // 107
+        { {"([M->2])", "([C:FB1])", "([C])", "([C])", "([C])", "(--)"} },            // 108
+        { {"([M:FB->])", "([C])", "([C])", "([C])", "([C])", "(--)"} },              // 109
+        { {"([M:FB->])", "([C])", "([C])", "([C])", "([C])", "(--)"} },              // 110
+        { {"([C:FB])", "([C])", "([C])", "([C])", "([C])", "(--)"} },                // 111
+        { {"([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "([C:FB])", "(--)"} }     // 112
     }};
 
     // アルゴリズムごとに利用可能なオペレーターを制限
@@ -188,9 +235,55 @@ class GuiOpzx7 : public GuiBase
     {{true, true, false, false, false, false}},  // 69: <OPZX7S-001>
     {{true, true, true, true, false, false}},    // 70: <OPZX7S-002>
     {{true, true, true, true, false, false}},    // 71: <OPZX7S-003>
+    {{true, true, true, true, true, true}},      // 72
+    {{true, true, true, true, true, true}},      // 73
+    {{true, true, true, true, true, true}},      // 74
+    {{true, true, true, true, true, true}},      // 75
+    {{true, true, true, true, true, true}},      // 76
+    {{true, true, true, true, true, true}},      // 77
+    {{true, true, true, true, true, false}},     // 78
+    {{true, true, true, true, true, false}},     // 79
+    {{true, true, true, true, true, false}},     // 80
+    {{true, true, true, true, true, false}},     // 81
+    {{true, true, true, true, true, false}},     // 82
+    {{true, true, true, true, true, false}},     // 83
+    {{true, true, true, true, true, false}},     // 84
+    {{true, true, true, true, true, false}},     // 85
+    {{true, true, true, true, true, false}},     // 86
+    {{true, true, true, true, true, false}},     // 87
+    {{true, true, true, true, true, false}},     // 88
+    {{true, true, true, true, true, false}},     // 89
+    {{true, true, true, true, true, false}},     // 90
+    {{true, true, true, true, true, false}},     // 91
+    {{true, true, true, true, true, false}},     // 92
+    {{true, true, true, true, true, false}},     // 93
+    {{true, true, true, true, true, false}},     // 94
+    {{true, true, true, true, true, false}},     // 95
+    {{true, true, true, true, true, false}},     // 96
+    {{true, true, true, true, true, false}},     // 97
+    {{true, true, true, true, true, false}},     // 98
+    {{true, true, true, true, true, false}},     // 99
+    { {true, true, true, true, true, false} },   // 100
+    { {true, true, true, true, true, false} },   // 101
+    { {true, true, true, true, true, false} },   // 102
+    { {true, true, true, true, true, false} },   // 103
+    { {true, true, true, true, true, false} },   // 104
+    { {true, true, true, true, true, false} },   // 105
+    { {true, true, true, true, true, false} },   // 106
+    { {true, true, true, true, true, false} },   // 107
+    { {true, true, true, true, true, false} },   // 108
+    { {true, true, true, true, true, false} },   // 109
+    { {true, true, true, true, true, false} },   // 110
+    { {true, true, true, true, true, false} },   // 111
+    { {true, true, true, true, true, false} }    // 112
 } };
 
+    GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
+
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+    GuiComponentViewMode viewModeComp;
 
     GuiSlider levelSlider;
 
@@ -218,12 +311,24 @@ class GuiOpzx7 : public GuiBase
 
     GuiComponentMidi midiComponent;
 
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
+    GuiSeparator uSep002;
+    GuiComponentImportExport ieOpLfo;
+    GuiComponentImportExport ieOpDetune;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
+    GuiComponentImportExport ieOpPcmPlay;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep003;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, Opzx7PrValue::algorithms> algImages;
@@ -231,12 +336,8 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiScrollGroup, Opzx7PrValue::ops> opGroups;
     // Operator Sliders
     // dr => d1r, sl => d1l, sr => d2r
-    std::array<GuiComboBox, Opzx7PrValue::ops> mul;
-    std::array<GuiSlider, Opzx7PrValue::ops> mulRatio;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt1;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt2;
-    std::array<GuiSlider, Opzx7PrValue::ops> dt3;
-    std::array<GuiComponentPitchButtons, Opzx7PrValue::ops> dt3Btns;
+    std::array<GuiComponentMulDetune, Opzx7PrValue::ops> mulDetune;
+    std::array<GuiCategoryLabel, Opzx7PrValue::ops> catAmp;
     std::array<GuiSlider, Opzx7PrValue::ops> tl;
     std::array<GuiSlider, Opzx7PrValue::ops> ar;
     std::array<GuiSlider, Opzx7PrValue::ops> d1r;
@@ -268,6 +369,15 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
     std::array<GuiSlider, Opzx7PrValue::ops> pcmOffset;
     std::array<GuiSlider, Opzx7PrValue::ops> pcmRatio;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> loopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> loopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> loopPointEnd;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> wtLoopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointEnd;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> wt2LoopPointEnable;
+    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointStart;
+    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointEnd;
     std::array<GuiTextButton, Opzx7PrValue::ops> loadWtBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearWtBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> wtFileNameLabel;
@@ -320,99 +430,7 @@ class GuiOpzx7 : public GuiBase
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
 public:
-	GuiOpzx7(const GuiContext& context) :
-        GuiBase(context),
-        mainGroup(context),
-        qualityCat(context),
-        algFbCat(context),
-        levelSlider(context),
-        algSelector(context),
-        feedbackSlider(context),
-        bitSelector(context),
-        rateSelector(context),
-        panCat(context),
-        panpotEnableToggle(context),
-        panpotSlider(context),
-        panToLBtn(context),
-        panToCBtn(context),
-        panToRBtn(context),
-        glLfo(context),
-		unisonComponent(context),
-        utilityCat(context),
-        broadcastLevelButton(context),
-        opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
-        mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt3{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        dt3Btns{ GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context), GuiComponentPitchButtons(context) },
-        tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        ksEn{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        ksMode{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksrMA7{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        kslMA7{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksrOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        kslOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ksBp{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ksLc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksRc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        ksLd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ksRd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        ksRs{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
-        catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        loadWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        clearWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
-        wt2FileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) , GuiSlider(context), GuiSlider(context) },
-        lfo{ GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context) },
-        pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
-        ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
-        catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
-        mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
-        rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgD2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgD1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
-        graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
-    {
-        currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
-        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    }
+    GuiOpzx7(const GuiContext& context);
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
@@ -443,24 +461,48 @@ public:
             wt2FileNameLabel[i].setText(fileName, juce::dontSendNotification);
         }
     }
+    void updateOpVisible(int idx, bool visible);
     void updateOpEnable(int idx, bool enable);
 	void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();
     void pasteFmParamsFromObject();
     void initParams();
     void layoutUtilityCat(Rectangle<int>& rect);
+    void layoutOp(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
     void layoutOpSsgEnvCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode);
+    void layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int selectedWs);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpzx7& copyObj);
+    void copyOpParams(int p, CopyOpzx7Op& copyObj);
+    void pasteParams(CopyOpzx7& copyObj);
+    void pasteOpParams(int p, CopyOpzx7Op& copyObj);
+    void importOpLfoParam(int opIndex);
+    void exportOpLfoParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importDetuneParam(int opIndex);
+    void exportDetuneParam(int opIndex);
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
+    void importOpPcmPlayParam(int opIndex);
+    void exportOpPcmPlayParam(int opIndex);
 };

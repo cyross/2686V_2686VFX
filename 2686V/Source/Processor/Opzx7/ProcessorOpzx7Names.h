@@ -79,6 +79,9 @@ namespace Opzx7PrName
 	static inline const juce::String eg = CorePrName::Fm::Op::eg;
 	static inline const juce::String pcmOffset = " PCM Offset";
 	static inline const juce::String pcmRatio = " PCM Ratio";
+	static inline const juce::String loopPointEnable = " Loop-point Enable(PCM)";
+	static inline const juce::String loopPointStart = " Loop-point Start(PCM)";
+	static inline const juce::String loopPointEnd = " Loop-point End(PCM)";
 
 	static inline const juce::String mask = CorePrName::Fm::Op::mask;
 

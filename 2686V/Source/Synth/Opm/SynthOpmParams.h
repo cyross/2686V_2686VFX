@@ -15,7 +15,7 @@ struct OpmParams
     int algorithm = 7;
 
     // --- Feedback ---
-    float feedback = 0.0f;
+    int feedback = 0.0f;
 
     // --- Bit Depth ---
     // 0:4bit, 1:5bit, 2:6bit, 3:8bit, 4:Raw

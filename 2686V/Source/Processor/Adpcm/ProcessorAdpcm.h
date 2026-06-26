@@ -9,11 +9,19 @@ class AdpcmProcessor : public PrBase
 {
     std::atomic<float>* pLevel = nullptr;
     std::atomic<float>* pPan = nullptr;
-    std::atomic<float>* pLoop = nullptr;
-    std::atomic<float>* pQualityMode = nullptr;
-    std::atomic<float>* pRateIndex = nullptr;
     std::atomic<float>* pPcmOffset = nullptr;
     std::atomic<float>* pPcmRatio = nullptr;
+    std::atomic<float>* pLoop = nullptr;
+    std::atomic<float>* pLoopPointEnable = nullptr;
+    std::atomic<float>* pLoopPointStart = nullptr;
+    std::atomic<float>* pLoopPointEnd = nullptr;
+    std::atomic<float>* pQualityMode = nullptr;
+    std::atomic<float>* pRateIndex = nullptr;
+    std::atomic<float>* pInterpolationMode = nullptr;
+    std::atomic<float>* pTone = nullptr;
+    std::atomic<float>* pNoise = nullptr;
+    std::atomic<float>* pNoiseFreq = nullptr;
+    std::atomic<float>* pMix = nullptr;
     std::atomic<float>* pFixMode = nullptr;
     std::atomic<float>* pFixFreq = nullptr;
 

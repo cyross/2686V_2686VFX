@@ -66,8 +66,8 @@ set(PCM_GENERATOR_FILES
     "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
     "Source/Generator/Pcm/Dpcm/GenDpcm.h"
     "Source/Generator/Pcm/Dpcm/GenDpcm.cpp"
-    "Source/Generator/Pcm/Helper/GenDpcm.h"
-    "Source/Generator/Pcm/Helper/GenDpcm.cpp"
+    "Source/Generator/Pcm/Helper/GenPcmHelper.h"
+    "Source/Generator/Pcm/Helper/GenPcmHelper.cpp"
 )
 
 set(FM_FILES
@@ -99,6 +99,7 @@ set(GUI_FILES
     "Source/Core/Gui/GuiValues.h"
     "Source/Core/Gui/GuiEnvelopeGraph.h"
     "Source/Core/Gui/GuiEnvelopeGraph.cpp"
+    "Source/Core/Gui/GuiCopyObj.h"
 )
 
 set(PROCESSOR_FILES
@@ -109,6 +110,7 @@ set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorBase.cpp"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
+    "Source/Core/Processor/PluginProcessorStateKey.h"
 )
 
 set(EDITOR_FILES
@@ -149,6 +151,27 @@ set(PITCH_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
 )
 
+set(KEY_SCALE_FILES
+    "Source/Effect/KeyScale/Opl/KSOplParams.h"
+    "Source/Effect/KeyScale/Opl/KSOpl.h"
+    "Source/Effect/KeyScale/Opl/KSOpl.cpp"
+    "Source/Effect/KeyScale/Opn/KSOpnParams.h"
+    "Source/Effect/KeyScale/Opn/KSOpn.h"
+    "Source/Effect/KeyScale/Opn/KSOpn.cpp"
+    "Source/Effect/KeyScale/Opp/KSOppParams.h"
+    "Source/Effect/KeyScale/Opp/KSOpp.h"
+    "Source/Effect/KeyScale/Opp/KSOpp.cpp"
+    "Source/Effect/KeyScale/Ops/KSOpsParams.h"
+    "Source/Effect/KeyScale/Ops/KSOps.h"
+    "Source/Effect/KeyScale/Ops/KSOps.cpp"
+    "Source/Effect/KeyScale/Opz/KSOpzParams.h"
+    "Source/Effect/KeyScale/Opz/KSOpz.h"
+    "Source/Effect/KeyScale/Opz/KSOpz.cpp"
+    "Source/Effect/KeyScale/Ma7/KSMa7Params.h"
+    "Source/Effect/KeyScale/Ma7/KSMa7.h"
+    "Source/Effect/KeyScale/Ma7/KSMa7.cpp"
+)
+
 set(DETUNE_FILES
     "Source/Effect/Detune/Opl/DetuneOpl.h"
     "Source/Effect/Detune/Opl/DetuneOpl.cpp"
@@ -158,6 +181,11 @@ set(DETUNE_FILES
     "Source/Effect/Detune/Opm/DetuneOpm.cpp"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.h"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
+)
+
+set(FEEDBACK_FILES
+    "Source/Effect/Feedback/Feedback.h"
+    "Source/Effect/Feedback/Feedback.cpp"
 )
 
 set(LFO_FILES
@@ -570,6 +598,21 @@ set(GUI_COMPONENT_LFO_OPZX7_FILES
     "Source/Gui/Components/LfoOpzx7/LfoOpzx7.cpp"
 )
 
+set(GUI_COMPONENT_PRESET_NAME_FILES
+    "Source/Gui/Components/PresetName/PresetName.h"
+    "Source/Gui/Components/PresetName/PresetName.cpp"
+)
+
+set(GUI_COMPONENT_VIEW_MODE_FILES
+    "Source/Gui/Components/ViewMode/ViewMode.h"
+    "Source/Gui/Components/ViewMode/ViewMode.cpp"
+)
+
+set(GUI_COMPONENT_IMPORT_EXPORT_FILES
+    "Source/Gui/Components/ImportExport/ImportExport.h"
+    "Source/Gui/Components/ImportExport/ImportExport.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -600,6 +643,8 @@ source_group("2686V\\Effect\\Envelope\\Pitch" FILES ${PITCH_ENVELOPE_FILES})
 source_group("2686V\\Effect\\Detune" FILES ${DETUNE_FILES})
 source_group("2686V\\Effect\\Lfo" FILES ${LFO_FILES})
 source_group("2686V\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
+source_group("2686V\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
+source_group("2686V\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("2686V\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
@@ -625,6 +670,9 @@ source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_F
 source_group("2686V\\Gui\\Components\\Lfo\\Opzx7" FILES ${GUI_COMPONENT_LFO_OPZX7_FILES})
 source_group("2686V\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
+source_group("2686V\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
+source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
+source_group("2686V\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

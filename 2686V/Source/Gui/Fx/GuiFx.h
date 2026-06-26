@@ -2,12 +2,28 @@
 
 #include <JuceHeader.h>
 #include <array>
+#include <vector>
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
+#include "./GuiFxText.h"
+#include "../../Effect/Fx/Fx.h"
 
 class GuiFx : public GuiBase
 {
+    bool isShowRoute = false;
+    std::vector<int> order = { 0 };
+    static inline const std::array<juce::String, NumEffects> effectNames = {
+            juce::String("") + "フィルター",         // 0: FxType::Filter
+            juce::String("") + "3バンドイコライザー", // 1: FxType::Eq3b
+            juce::String("") + "トレモロ",           // 2: FxType::Tremolo
+            juce::String("") + "ビブラート",         // 3: FxType::Vibrato
+            juce::String("") + "ビットクラッシャー", // 4: FxType::ModernBitCrusher
+            juce::String("") + "ディレイ",           // 5: FxType::Delay
+            juce::String("") + "リバーブ",           // 6: FxType::Reverb
+            juce::String("") + "SFCエコー"           // 7: FxType::SpcEcho
+    };
+
     GuiGroup mainGroup;
 
     GuiGroup tremGroup;
@@ -17,10 +33,22 @@ class GuiFx : public GuiBase
     GuiGroup reverbGroup;
     GuiGroup filterGroup;
     GuiGroup eq3bGroup;
+    GuiGroup sfceGroup;
 
     GuiToggleButton bypassToggle;
     GuiSeparator mainSeparator;
     GuiTextButton resetBtn;
+    GuiSeparator routeSeparator;
+    GuiTextButton showRouteBtn;
+    std::array<GuiLabel, NumEffects> routeFx;
+    std::array<GuiTextButton, NumEffects> routeUp;
+    std::array<GuiTextButton, NumEffects> routeDown;
+    GuiSeparator fileSeparator;
+    GuiTextButton importFxOrderBtn;
+    GuiTextButton exportFxOrderBtn;
+    GuiTextButton importFxParamBtn;
+    GuiTextButton exportFxParamBtn;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // 以降、エフェクトごとの設定
 
@@ -77,83 +105,35 @@ class GuiFx : public GuiBase
     GuiSlider eq3bHighGainDbSlider;
     GuiSlider eq3bMixSlider;
     GuiTextButton eq3bDryBtn, eq3bHalfBtn, eq3bWetBtn;
+
+    // SFC Echo
+    GuiToggleButton sfceBypassBtn;
+    GuiSeparator sfceSeparator;
+    GuiSlider sfceTimeSlider, sfceFbSlider;
+    GuiSlider sfceFirCoef0Slider, sfceFirCoef1Slider;
+    GuiSlider sfceFirCoef2Slider, sfceFirCoef3Slider;
+    GuiSlider sfceFirCoef4Slider, sfceFirCoef5Slider;
+    GuiSlider sfceFirCoef6Slider, sfceFirCoef7Slider;
+    GuiSlider sfceMixSlider;
+    GuiTextButton sfceDryBtn, sfceHalfBtn, sfceWetBtn;
+
+    void updateFilterEnabled();
+    void updateTremoloEnabled();
+    void updateVibratoEnabled();
+    void updateMBCEnabled();
+    void updateDelayEnabled();
+    void updateReverbEnabled();
+    void updateEq3bEnabled();
+    void updateSfcEchoEnabled();
+    void importFxOrder();
+    void exportFxOrder();
+    void importFxParam();
+    void exportFxParam();
 public:
-	GuiFx(const GuiContext& context) :
-        GuiBase(context),
-        mainGroup(context),
-        tremGroup(context),
-        vibGroup(context),
-        mbcGroup(context),
-        delayGroup(context),
-        reverbGroup(context),
-        filterGroup(context),
-        eq3bGroup(context),
-        bypassToggle(context),
-        mainSeparator(context),
-        resetBtn(context),
-        tBypassBtn(context),
-        tSeparator(context),
-        tRateSlider(context),
-        tDepthSlider(context),
-        tMixSlider(context),
-        tDryBtn(context),
-        tHalfBtn(context),
-        tWetBtn(context),
-        vBypassBtn(context),
-        vSeparator(context),
-        vRateSlider(context),
-        vDepthSlider(context),
-        vMixSlider(context),
-        vDryBtn(context),
-        vHalfBtn(context),
-        vWetBtn(context),
-        mbcBypassBtn(context),
-        mbcSeparator(context),
-        mbcRateSlider(context),
-        mbcBitsSlider(context),
-        mbcMixSlider(context),
-        mbcDryBtn(context),
-        mbcHalfBtn(context),
-        mbcWetBtn(context),
-        dBypassBtn(context),
-        dSeparator(context),
-        dTimeSlider(context),
-        dFbSlider(context),
-        dMixSlider(context),
-        dDryBtn(context),
-        dHalfBtn(context),
-        dWetBtn(context),
-        rBypassBtn(context),
-        rSeparator(context),
-        rSizeSlider(context),
-        rDampSlider(context),
-        rMixSlider(context),
-        rDryBtn(context),
-        rHalfBtn(context),
-        rWetBtn(context),
-        flBypassBtn(context),
-        flSeparator(context),
-        flTypeSelector(context),
-        flFreqSlider(context),
-        flQSlider(context),
-        flMixSlider(context),
-        flDryBtn(context),
-        flHalfBtn(context),
-        flWetBtn(context),
-        eq3bBypassBtn(context),
-        eq3bSeparator(context),
-        eq3bLowGainDbSlider(context),
-        eq3bMidFreqSlider(context),
-        eq3bMidGainDbSlider(context),
-        eq3bHighGainDbSlider(context),
-        eq3bMixSlider(context),
-        eq3bDryBtn(context),
-        eq3bHalfBtn(context),
-        eq3bWetBtn(context)
-    {
-        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    }
+    GuiFx(const GuiContext& context);
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void layoutFxOrder(juce::Rectangle<int> rect);
+    void updateFxOrder();
 };

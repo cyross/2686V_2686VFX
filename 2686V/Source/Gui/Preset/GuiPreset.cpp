@@ -139,6 +139,9 @@ void GuiPreset::setup()
         juce::File file = getSelectedFile();
         if (file.existsAsFile()) {
             ctx.editor.loadPresetFile(file);
+
+            // FXの順番は直に実行
+            ctx.editor.updateFxOrder();
         }
     };
 
@@ -299,7 +302,12 @@ void GuiPreset::setup()
     loadButton.onClick = [this] {
         auto file = getSelectedFile();
 
-        if (file.existsAsFile()) ctx.editor.loadPresetFile(file);
+        if (file.existsAsFile()) {
+            ctx.editor.loadPresetFile(file);
+
+            // FXの順番は直に実行
+            ctx.editor.updateFxOrder();
+        }
     };
 
     // --- Save Preset Button ---

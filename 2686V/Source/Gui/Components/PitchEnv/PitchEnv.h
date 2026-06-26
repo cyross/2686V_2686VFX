@@ -15,6 +15,8 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentPitchEnv : public GuiBase {
     bool isEnable = false;
     juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
@@ -33,6 +35,7 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiComponentPitchButtons sustainLevelButtons;
     GuiSlider releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
 public:
     GuiComponentPitchEnv(const GuiContext& context) :
@@ -59,4 +62,8 @@ public:
     void setupGraph(std::function<void()> repaintGraph);
     void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
+    void copyParams(CopyEnvPitchAdsr& copyObj);
+    void pasteParams(CopyEnvPitchAdsr& copyObj);
+    void importParams();
+    void exportParams();
 };

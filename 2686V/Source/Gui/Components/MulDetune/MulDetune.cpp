@@ -3,6 +3,7 @@
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> multems = {
     {.name = " 0: x  0.5",    .value = 1 },
@@ -61,23 +62,23 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
             });
     }
 
-    mul.setup({ .parent = parent, .id = code + "_MUL", .title = "Mul", .items = multems, .isReset = true });
+    mul.setup({ .parent = parent, .id = code + "_MUL", .title = "MUL", .items = multems, .isReset = true });
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setup({ .parent = parent, .id = code + "_MUL_RATIO", .title = "M.Ratio", .isReset = true });
+    mulRatio.setup({ .parent = parent, .id = code + "_MUL_RATIO", .title = "MURT", .isReset = true });
     mulRatio.setWantsKeyboardFocus(true);
     mulRatio.setExplicitFocusOrder(++tabOrder);
 
-    dt1.setup({ .parent = parent, .id = code + "_DT", .title = "Dt1", .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = parent, .id = code + "_DT", .title = "DT1", .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "Dt2", .isReset = true });
+    dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "DT2", .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "Dt3", .isReset = true });
+    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "DT3", .isReset = true });
     dt3.setWantsKeyboardFocus(true);
     dt3.setExplicitFocusOrder(++tabOrder);
 
@@ -106,4 +107,166 @@ void GuiComponentMulDetune::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &dt3.label, .component = &dt3 });
         dt3Buttons.layoutComponent(rect);
     }
+}
+
+void GuiComponentMulDetune::layoutComponentRow(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .component = &cat });
+
+    bool visible = cat.isDetailVisible();
+
+    mul.setVisibleWithLabel(visible);
+    mulRatio.setVisibleWithLabel(visible);
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+    dt3.setVisibleWithLabel(visible);
+    dt3Buttons.setVisibles(visible);
+
+    if (visible)
+    {
+        layoutRow({ .rowRect = rect, .label = &mul.label, .component = &mul });
+        layoutRow({ .rowRect = rect, .label = &mulRatio.label, .component = &mulRatio });
+        layoutRow({ .rowRect = rect, .label = &dt1.label, .component = &dt1 });
+        layoutRow({ .rowRect = rect, .label = &dt2.label, .component = &dt2 });
+        layoutRow({ .rowRect = rect, .label = &dt3.label, .component = &dt3 });
+        dt3Buttons.layoutComponentRow(rect);
+    }
+}
+
+void GuiComponentMulDetune::copyParams(CopyDetuneOpzx7& copyObj) {
+    copyObj.mul = mul.getSelectedId();
+    copyObj.mulRatio = mulRatio.getValue();
+    copyObj.dt = dt1.getSelectedId();
+    copyObj.dt2 = dt2.getValue();
+    copyObj.dt3 = dt2.getValue();
+}
+
+void GuiComponentMulDetune::pasteParams(CopyDetuneOpzx7& copyObj) {
+    mul.setSelectedId(copyObj.mul, juce::sendNotification);
+    mulRatio.setValue(copyObj.mulRatio, juce::sendNotification);
+    dt1.setSelectedId(copyObj.dt, juce::sendNotification);
+    dt2.setValue(copyObj.dt2, juce::sendNotification);
+    dt3.setValue(copyObj.dt3, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importDetuneParamFile, defaultDir, Io::ExtensionGlob::DetuneParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 5) return;
+
+                mul.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                mulRatio.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                dt1.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+                dt2.setValue(lines[3].getIntValue(), juce::sendNotification);
+                dt3.setValue(lines[4].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiComponentMulDetune::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultDetuneParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportDetuneParamFile, defaultDir.getChildFile("default.detune"), Io::ExtensionGlob::DetuneParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultDetuneParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(mul.getSelectedItemIndex()) + "\n";
+                content += juce::String(mulRatio.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dt1.getSelectedItemIndex()) + "\n";
+                content += juce::String(dt2.getValue()) + "\n";
+                content += juce::String(dt3.getValue()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiComponentMulDetune::setMul(int m) {
+    mul.setSelectedItemIndex(m, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setMulRatio(float r) {
+    mulRatio.setValue(r, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt1(int d1) {
+    dt1.setSelectedItemIndex(d1, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt2(int d2) {
+    dt2.setValue(d2, juce::sendNotification);
+}
+
+void GuiComponentMulDetune::setDt3(int d3) {
+    dt3.setValue(d3, juce::sendNotification);
+}
+
+int GuiComponentMulDetune::getMul() {
+    return mul.getSelectedItemIndex();
+}
+
+float GuiComponentMulDetune::getMulRatio() {
+    return mulRatio.getValue();
+}
+
+int GuiComponentMulDetune::getDt1() {
+    return dt1.getSelectedItemIndex();
+}
+
+int GuiComponentMulDetune::getDt2() {
+    return (int)dt2.getValue();
+}
+
+int GuiComponentMulDetune::getDt3() {
+    return (int)dt3.getValue();
+}
+
+void GuiComponentMulDetune::setVisibles(bool visible){
+    mul.setVisible(visible);
+    mulRatio.setVisibleWithLabel(visible);
+    dt1.setVisibleWithLabel(visible);
+    dt2.setVisibleWithLabel(visible);
+    dt3.setVisibleWithLabel(visible);
+    dt3Buttons.setVisibles(visible);
+}
+
+void GuiComponentMulDetune::setEnables(bool enable) {
+    mul.setEnabledWithLabel(enable);
+
+    int mulIndex = mul.getSelectedId() - 1;
+    bool enableMulRatio = mulIndex == 21; // mul = Ratio
+
+    mulRatio.setEnabledWithLabel(enable && enableMulRatio);
+
+    dt1.setEnabledWithLabel(enable);
+    dt2.setEnabledWithLabel(enable);
+    dt3.setEnabledWithLabel(enable);
+    dt3Buttons.setEnables(enable);
 }

@@ -16,6 +16,10 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opna/ProcessorOpnaValues.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
+
+#include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -47,6 +51,8 @@ class GuiOpna : public GuiBase
     }};
 
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiSlider levelSlider;
 
@@ -86,14 +92,26 @@ class GuiOpna : public GuiBase
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
-    GuiTextButton copyParamsToOpnBtn;
-    GuiSeparator uSep002;
     GuiSlider copyHwLfoFromSlider;
     GuiTextButton copyHwLfoParamsBtn;
+    GuiSeparator uSep002;
+    GuiTextButton copyParamsToOpnBtn;
+    GuiTextButton copyParamsToOpmBtn;
+    GuiSeparator uSep003;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
+    GuiSeparator uSep004;
 
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    GuiComponentImportExport ieHwLfo;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep005;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpnaPrValue::algorithms> algImages;
@@ -116,6 +134,8 @@ class GuiOpna : public GuiBase
     std::array<GuiComponentSsgSwEnv, OpnaPrValue::ops> ssgSwEnv;
 
     std::array<GuiComponentFix, OpnaPrValue::ops> fix;
+    std::array<GuiCategoryLabel, OpnaPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OpnaPrValue::ops> catAmp;
     std::array<GuiCategoryLabel, OpnaPrValue::ops> catLfo;
     std::array<GuiComboBox, OpnaPrValue::ops> freqs;
     std::array<GuiSlider, OpnaPrValue::ops> syncDelay;
@@ -163,6 +183,7 @@ public:
 	GuiOpna(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         qualityCat(context),
         algFbCat(context),
         levelSlider(context),
@@ -191,11 +212,27 @@ public:
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
-        copyParamsToOpnBtn(context),
-        uSep002(context),
         copyHwLfoFromSlider(context),
         copyHwLfoParamsBtn(context),
+        uSep002(context),
+        copyParamsToOpnBtn(context),
+        copyParamsToOpmBtn(context),
+        uSep003(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
+        uSep004(context),
+        ieHwLfo(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
+        targerOpSlider(context),
+        uSep005(context),
+        ieLfo(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -232,8 +269,6 @@ public:
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -248,7 +283,7 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();
@@ -264,7 +299,33 @@ public:
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpna& copyObj);
+    void copyOpParams(int p, CopyOpnaOp& copyObj);
+    void pasteParams(CopyOpna& copyObj);
+    void pasteOpParams(int p, CopyOpnaOp& copyObj);
+    void copyParamsOpm(CopyOpnOpm& copyObj);
+    void copyParamsOpnOpm(CopyOpnaOpnOpm& copyObj);
+    void copyOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void copyOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void pasteParamsOpm(CopyOpnOpm& copyObj);
+    void pasteParamsOpnOpm(CopyOpnaOpnOpm& copyObj);
+    void pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void pasteOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void importHwLfoParam(int opIndex);
+    void exportHwLfoParam(int opIndex);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

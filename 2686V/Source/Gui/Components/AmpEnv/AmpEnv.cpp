@@ -3,6 +3,7 @@
 #include "../../../Core/Processor/PluginProcessor.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::String& code, int &tabOrder)
 {
@@ -17,27 +18,27 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 
-	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "Stl", .isReset = true });
+	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "STL", .isReset = true });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
 
-	attack.setup({ .parent = parent, .id = code + "_AR", .title = "Ar", .isReset = true });
+	attack.setup({ .parent = parent, .id = code + "_AR", .title = "AR", .isReset = true });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
 
-	decay.setup({ .parent = parent, .id = code + "_DR", .title = "Dr", .isReset = true });
+	decay.setup({ .parent = parent, .id = code + "_DR", .title = "DR", .isReset = true });
 	decay.setWantsKeyboardFocus(true);
 	decay.setExplicitFocusOrder(++tabOrder);
 
-	sustain.setup({ .parent = parent, .id = code + "_SL", .title = "Sl", .isReset = true });
+	sustain.setup({ .parent = parent, .id = code + "_SL", .title = "SL", .isReset = true });
 	sustain.setWantsKeyboardFocus(true);
 	sustain.setExplicitFocusOrder(++tabOrder);
 
-	release.setup({ .parent = parent, .id = code + "_RR", .title = "Rr", .isReset = true });
+	release.setup({ .parent = parent, .id = code + "_RR", .title = "RR", .isReset = true });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
-	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "Kor", .isReset = true });
+	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
 	kor.setExplicitFocusOrder(++tabOrder);
 }
@@ -128,4 +129,87 @@ void GuiComponentAmpEnv::setEnabled(bool enabled) {
 	release.setEnabled(enabled);
 	startLevel.setEnabled(enabled);
 	kor.setEnabled(enabled);
+}
+
+void GuiComponentAmpEnv::copyParams(CopyEnvAmpAdsr& copyObj) {
+	copyObj.bypass = bypass.getToggleState();
+	copyObj.ar = attack.getValue();
+	copyObj.dr = decay.getValue();
+	copyObj.sl = sustain.getValue();
+	copyObj.rr = release.getValue();
+	copyObj.stl = startLevel.getValue();
+	copyObj.kor = kor.getToggleState();
+}
+
+void GuiComponentAmpEnv::pasteParams(CopyEnvAmpAdsr& copyObj) {
+	bypass.setToggleState(copyObj.bypass, juce::sendNotification);
+	attack.setValue(copyObj.ar, juce::sendNotification);
+	decay.setValue(copyObj.dr, juce::sendNotification);
+	sustain.setValue(copyObj.sl, juce::sendNotification);
+	release.setValue(copyObj.rr, juce::sendNotification);
+	startLevel.setValue(copyObj.stl, juce::sendNotification);
+	kor.setToggleState(copyObj.kor, juce::sendNotification);
+}
+
+void GuiComponentAmpEnv::importParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importAmpEnvParamFile, defaultDir, Io::ExtensionGlob::AmpEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file.existsAsFile()) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::StringArray lines;
+				file.readLines(lines);
+
+				int size = lines.size();
+
+				if (size < 7) return;
+
+				bypass.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+				startLevel.setValue(lines[1].getFloatValue(), juce::sendNotification);
+				attack.setValue(lines[2].getFloatValue(), juce::sendNotification);
+				decay.setValue(lines[3].getFloatValue(), juce::sendNotification);
+				sustain.setValue(lines[4].getFloatValue(), juce::sendNotification);
+				release.setValue(lines[5].getFloatValue(), juce::sendNotification);
+				kor.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+			}
+		});
+}
+
+void GuiComponentAmpEnv::exportParams() {
+	juce::File defaultDir(ctx.audioProcessor.defaultAmpEnvParamDir);
+	if (!defaultDir.isDirectory()) {
+		defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+	}
+
+	fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportAmpEnvParamFile, defaultDir.getChildFile("default.ampEnv"), Io::ExtensionGlob::AmpEnvParam);
+	fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+		[this](const juce::FileChooser& fc) {
+			auto file = fc.getResult();
+			if (file != juce::File{}) {
+
+				// 次回のダイアログ用にディレクトリを保存
+				ctx.audioProcessor.defaultAmpEnvParamDir = file.getParentDirectory().getFullPathName();
+
+				juce::String content = "";
+
+				content += juce::String(bypass.getToggleState() ? 1 : 0) + "\n";
+				content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(sustain.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
+				content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
+
+				file.replaceWithText(content);
+			}
+		});
 }

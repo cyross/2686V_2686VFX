@@ -9,11 +9,20 @@
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Curve/GuiCurve.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Gui/Components/Fix/Fix.h"
+#include "../../Gui/Components/MulDetune/MulDetune.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
+#include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
+#include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ViewMode/ViewMode.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
+
+#include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -26,13 +35,18 @@ class RhythmPadGui: public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
 
+    GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
 
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
+    GuiToggleButton loopPointEnableButton;
+    GuiSlider loopPointStartSlider;
+    GuiSlider loopPointEndSlider;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
+    GuiComboBox interpSelector;
 
     GuiSlider noteSlider;
 
@@ -47,8 +61,17 @@ class RhythmPadGui: public GuiBase
     GuiTextButton panToRBtn;
 
     GuiSlider volSlider;
+    GuiSlider toneSlider;
+    GuiSlider noiseSlider;
+    GuiSlider noiseFreqSlider;
+    GuiSlider mixSlider;
+    GuiTextButton mixSetTone;  // 0.0
+    GuiTextButton mixSetMix;   // 0.5
+    GuiTextButton mixSetNoise; // 1.0
 
     GuiToggleButton oneShotButton;
+
+    GuiComponentFix fixComponent;
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
@@ -56,12 +79,22 @@ class RhythmPadGui: public GuiBase
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
 
+    // SSG SW Env
+    GuiComponentSsgSwEnv ssgSwEnvComponent;
+
+    // Detune
+    GuiComponentMulDetune mulDetuneComponent;
+
+    GuiComponentLfoOpzx7 lfoComponent;
+    std::unique_ptr<juce::FileChooser> fileChooser;
+
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
+    GuiToggleButton graphBtnSsg;
     GuiSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch };
+    enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -76,10 +109,15 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        formCat(context),
         optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
+        loopPointEnableButton(context),
+        loopPointStartSlider(context),
+        loopPointEndSlider(context),
         qualityCat(context),
+        interpSelector(context),
         panCat(context),
         noteSlider(context),
         modeSelector(context),
@@ -89,31 +127,68 @@ public:
         panToCBtn(context),
         panToRBtn(context),
         volSlider(context),
+        toneSlider(context),
+        noiseSlider(context),
+        noiseFreqSlider(context),
+        mixSlider(context),
+        mixSetTone(context),
+        mixSetMix(context),
+        mixSetNoise(context),
         oneShotButton(context),
+        fixComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
+        ssgSwEnvComponent(context),
+        mulDetuneComponent(context),
+        lfoComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
+        graphBtnSsg(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
     }
 
     void updatePadFileName(const juce::String& fileName);
+    void updatePadVisible(bool visible);
     void setup(juce::Component& parent, int index, juce::String padName, int& tabOrder);
 	void layout(juce::Rectangle<int> content);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     bool isThis(juce::Button* button);
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanCat(juce::Rectangle<int>& rect);
     void layoutOptionalCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
+    void copyParams(CopyRhythmPad& copyObj);
+    void pasteParams(CopyRhythmPad& copyObj);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importQualityParam();
+    void exportQualityParam();
+    void importPcmPlayParam();
+    void exportPcmPlayParam();
 };
 
 class GuiRhythm : public GuiBase
 {
+    GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
+
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+    GuiComponentViewMode viewModeComp;
 
     // Master Level
 	GuiSlider levelSlider;
@@ -121,41 +196,62 @@ class GuiRhythm : public GuiBase
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiTextButton copyPadParamBtn;
+    GuiSlider copyPadFromSlider;
+    GuiSlider copyPadToSlider;
+    GuiSeparator uSep002;
+    GuiComponentImportExport ieToneNoise;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieQuality;
+    GuiComponentImportExport iePcmPlay;
+    GuiSlider targerPadSlider;
+    GuiSeparator uSep003;
+    GuiComponentImportExport ieUnison;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
 public:
-	GuiRhythm(const GuiContext& context) :
-        GuiBase(context),
-        mainGroup(context),
-        levelSlider(context),
-        unisonComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
-        midiComponent(context),
-        utilityCat(context),
-        broadcastLevelButton(context),
-        pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
-    {
-        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    }
+    GuiRhythm(const GuiContext& context);
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
+    void layoutPad(int padIndex, juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void removeLoadButtonListener(AudioPlugin2686VEditor* editor);
     void buttonClicked(juce::Button* button, juce::AudioFormatManager &formatManager, std::unique_ptr<juce::FileChooser>& fileChooser);
 	void updatePadFileName(int padIndex, const juce::String& fileName);
     bool isThis(int padIndex, juce::Button* button);
-    void updatePresetName(const juce::String& presetName);
+    void updatePadVisible(int idx, bool visible);
+    void updatePresetName(const juce::String& name);
     void initParams();
     void setLevel(float level);
+    void copyPadParams(int p, CopyRhythmPad& copyObj);
+    void pastePadParams(int p, CopyRhythmPad& copyObj);
+    void importToneNoiseParam(int p);
+    void exportToneNoiseParam(int p);
+    void importLfoParam(int p);
+    void exportLfoParam(int p);
+    void importAmpEnvParam(int p);
+    void exportAmpEnvParam(int p);
+    void importPitchEnvParam(int p);
+    void exportPitchEnvParam(int p);
+    void importSsgSwEnvParam(int p);
+    void exportSsgSwEnvParam(int p);
+    void importDetuneParam(int p);
+    void exportDetuneParam(int p);
+    void importQualityParam(int p);
+    void exportQualityParam(int p);
+    void importPcmPlayParam(int p);
+    void exportPcmPlayParam(int p);
+    void importUnisonParam();
+    void exportUnisonParam();
 };

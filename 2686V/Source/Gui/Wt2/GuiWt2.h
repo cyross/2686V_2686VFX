@@ -18,6 +18,8 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -78,6 +80,9 @@ class GuiWt2 : public GuiBase
 
     // Groups
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
+
     GuiScrollGroup customWaveGroup;
 
     Waveform2Container<32> customSliders32;
@@ -87,6 +92,7 @@ class GuiWt2 : public GuiBase
 
     GuiSlider levelSlider;
 
+    GuiCategoryLabel formCat;
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel modCat;
 
@@ -132,13 +138,17 @@ class GuiWt2 : public GuiBase
     GuiSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
+    GuiSeparator uSep002;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
-
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -158,12 +168,14 @@ public:
 	GuiWt2(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         customWaveGroup(context),
         customSliders32(context),
         customSliders64(context),
         customSliders128(context),
         customSliders256(context),
         levelSlider(context),
+        formCat(context),
         qualityCat(context),
         modCat(context),
         fixComponent(context),
@@ -180,6 +192,14 @@ public:
         uSep001(context),
         customWaveImportBtn(context),
         customWaveExportBtn(context),
+        uSep002(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
+        ieQuality(context),
         sizeSelector(context),
         resoSelector(context),
         waveSelector(context),
@@ -190,8 +210,6 @@ public:
         customWaveResetToMaxBtn(context),
         customWaveResetTo0Btn(context),
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -203,15 +221,29 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
-    void updateCustomWaveCatOnChange();
+    void updatePresetName(const juce::String& name);
     void importWavetable();
     void exportWavetable();
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(juce::Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

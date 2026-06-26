@@ -40,11 +40,14 @@ public:
     void setPitchBend(int pitchWheelValue) override;
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
-    void setPcmBuffer(int opIndex, const std::vector<float>* pcmData);
-    void setWtBuffer(int opIndex, const std::vector<float>* wtData);
-    void setWt2Buffer(int opIndex, const std::vector<float>* wtData);
+    void setPcmBuffer(int opIndex, std::vector<float>* pcmData);
+    void setWtBuffer(int opIndex, std::vector<float>* wtData);
+    void setWt2Buffer(int opIndex, std::vector<float>* wtData);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
+    void clearPcmBuffer(int opIndex);
+    void clearWtBuffer(int opIndex);
+    void clearWt2Buffer(int opIndex);
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {

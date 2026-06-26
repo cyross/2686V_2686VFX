@@ -4,6 +4,7 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> lfoShapeItems = {
     {.name = "0: Sine",                .value = 1 },
@@ -35,11 +36,11 @@ void GuiComponentLfoOpzx7::setupComponent(
     pmEnable.setWantsKeyboardFocus(true);
     pmEnable.setExplicitFocusOrder(++tabOrder);
 
-    pmFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmFreq, .title = "Freq", .isReset = true });
+    pmFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmFreq, .title = "FQ", .isReset = true });
     pmFreq.setWantsKeyboardFocus(true);
     pmFreq.setExplicitFocusOrder(++tabOrder);
 
-    pmSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmSyncDelay, .title = "S.Delay", .isReset = true });
+    pmSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
     pmSyncDelay.setWantsKeyboardFocus(true);
     pmSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -57,7 +58,7 @@ void GuiComponentLfoOpzx7::setupComponent(
         pmSyncDelay.setValue(1.0f);
         };
 
-    pgShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pgShape, .title = "Shape", .items = lfoShapeItems, .isReset = true });
+    pgShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pgShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
     pgShape.setWantsKeyboardFocus(true);
     pgShape.setExplicitFocusOrder(++tabOrder);
 
@@ -78,11 +79,11 @@ void GuiComponentLfoOpzx7::setupComponent(
     amEnable.setWantsKeyboardFocus(true);
     amEnable.setExplicitFocusOrder(++tabOrder);
 
-    amFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amFreq, .title = "Freq", .isReset = true });
+    amFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amFreq, .title = "FQ", .isReset = true });
     amFreq.setWantsKeyboardFocus(true);
     amFreq.setExplicitFocusOrder(++tabOrder);
 
-    amSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSyncDelay, .title = "S.Delay", .isReset = true });
+    amSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
     amSyncDelay.setWantsKeyboardFocus(true);
     amSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -100,11 +101,11 @@ void GuiComponentLfoOpzx7::setupComponent(
         amSyncDelay.setValue(1.0f);
         };
 
-    egShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::egShape, .title = "Shape", .items = lfoShapeItems, .isReset = true });
+    egShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::egShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
     egShape.setWantsKeyboardFocus(true);
     egShape.setExplicitFocusOrder(++tabOrder);
 
-    amSmRt.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSmoothRatio, .title = "Sm.Rate", .isReset = true });
+    amSmRt.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSmoothRatio, .title = "SR", .isReset = true });
     amSmRt.setWantsKeyboardFocus(true);
     amSmRt.setExplicitFocusOrder(++tabOrder);
 
@@ -239,4 +240,111 @@ void GuiComponentLfoOpzx7::setEnabled(bool enabled) {
     amSmRt.setEnabled(enabled);
     ams.setEnabled(enabled);
     amd.setEnabled(enabled);
+}
+
+void GuiComponentLfoOpzx7::copyParams(CopyLfoOpzx7& copyObj) {
+    copyObj.pmEnable = pmEnable.getToggleState();
+    copyObj.pmFreq = pmFreq.getValue();
+    copyObj.pmSyncDelay = pmSyncDelay.getValue();
+    copyObj.pmIndex = pgShape.getSelectedId();
+    copyObj.pms = pms.getValue();
+    copyObj.pmd = pmd.getValue();
+    copyObj.amEnable = amEnable.getToggleState();
+    copyObj.amFreq = amFreq.getValue();
+    copyObj.amSyncDelay = amSyncDelay.getValue();
+    copyObj.amIndex = egShape.getSelectedId();
+    copyObj.amSmoothRate = amSmRt.getValue();
+    copyObj.ams = ams.getValue();
+    copyObj.amd = amd.getValue();
+}
+
+void GuiComponentLfoOpzx7::pasteParams(CopyLfoOpzx7& copyObj) {
+    pmEnable.setToggleState(copyObj.pmEnable, juce::sendNotification);
+    pmFreq.setValue(copyObj.pmFreq, juce::sendNotification);
+    pmSyncDelay.setValue(copyObj.pmSyncDelay, juce::sendNotification);
+    pgShape.setSelectedId(copyObj.pmIndex, juce::sendNotification);
+    pms.setValue(copyObj.pms, juce::sendNotification);
+    pmd.setValue(copyObj.pmd, juce::sendNotification);
+    amEnable.setToggleState(copyObj.amEnable, juce::sendNotification);
+    amFreq.setValue(copyObj.amFreq, juce::sendNotification);
+    amSyncDelay.setValue(copyObj.amSyncDelay, juce::sendNotification);
+    egShape.setSelectedId(copyObj.amIndex, juce::sendNotification);
+    amSmRt.setValue(copyObj.amSmoothRate, juce::sendNotification);
+    ams.setValue(copyObj.ams, juce::sendNotification);
+    amd.setValue(copyObj.amd, juce::sendNotification);
+}
+
+void GuiComponentLfoOpzx7::importParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importLfoParamFile, defaultDir, Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 13) return;
+
+                pmEnable.setToggleState(lines[0].getIntValue() == 1, juce::sendNotification);
+                pmFreq.setValue(lines[1].getFloatValue(), juce::sendNotification);
+                pmSyncDelay.setValue(lines[2].getIntValue(), juce::sendNotification);
+                pgShape.setSelectedItemIndex(lines[3].getIntValue(), juce::sendNotification);
+                pms.setValue(lines[4].getFloatValue(), juce::sendNotification);
+                pmd.setValue(lines[5].getFloatValue(), juce::sendNotification);
+                amEnable.setToggleState(lines[6].getIntValue() == 1, juce::sendNotification);
+                amFreq.setValue(lines[7].getFloatValue(), juce::sendNotification);
+                egShape.setSelectedItemIndex(lines[8].getIntValue(), juce::sendNotification);
+                amSyncDelay.setValue(lines[9].getIntValue(), juce::sendNotification);
+                amSmRt.setValue(lines[10].getIntValue(), juce::sendNotification);
+                ams.setValue(lines[11].getFloatValue(), juce::sendNotification);
+                amd.setValue(lines[12].getFloatValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiComponentLfoOpzx7::exportParams() {
+    juce::File defaultDir(ctx.audioProcessor.defaultLfoParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportLfoParamFile, defaultDir.getChildFile("default.lfoOpzx7"), Io::ExtensionGlob::Opzx7LfoParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultLfoParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(pmEnable.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(pmFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pmSyncDelay.getValue()) + "\n";
+                content += juce::String(pgShape.getSelectedItemIndex()) + "\n";
+                content += juce::String(pms.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pmd.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(amEnable.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(amFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(egShape.getSelectedItemIndex()) + "\n";
+                content += juce::String(amSyncDelay.getValue()) + "\n";
+                content += juce::String(amSmRt.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(ams.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

@@ -14,11 +14,19 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     // ==========================================
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::level, prefixName + AdpcmPrName::level, AdpcmPrValue::Level::min, AdpcmPrValue::Level::max, AdpcmPrValue::Level::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pan, prefixName + AdpcmPrName::pan, AdpcmPrValue::Pan::min, AdpcmPrValue::Pan::max, AdpcmPrValue::Pan::initial));
-    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::loop, prefixName + AdpcmPrName::loop, AdpcmPrValue::Loop::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::mode, prefixName + AdpcmPrName::bit, AdpcmPrValue::Bit::min, AdpcmPrValue::Bit::max, AdpcmPrValue::Bit::initial));
-    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::rate, prefixName + AdpcmPrName::rate, AdpcmPrValue::Rate::min, AdpcmPrValue::Rate::max, AdpcmPrValue::Rate::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pcmOffset, prefixName + AdpcmPrName::pcmOffset, AdpcmPrValue::Offset::min, AdpcmPrValue::Offset::max, AdpcmPrValue::Offset::initial));
     layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::pcmRatio, prefixName + AdpcmPrName::pcmRatio, AdpcmPrValue::Ratio::min, AdpcmPrValue::Ratio::max, AdpcmPrValue::Ratio::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::loop, prefixName + AdpcmPrName::loop, AdpcmPrValue::Loop::initial));
+    layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::loopPointEnable, prefixName + AdpcmPrName::loopPointEnable, AdpcmPrValue::LoopPointEnable::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::loopPointStart, prefixName + AdpcmPrName::loopPointStart, AdpcmPrValue::LoopPointStart::min, AdpcmPrValue::LoopPointStart::max, AdpcmPrValue::LoopPointStart::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::loopPointEnd, prefixName + AdpcmPrName::loopPointEnd, AdpcmPrValue::LoopPointEnd::min, AdpcmPrValue::LoopPointEnd::max, AdpcmPrValue::LoopPointEnd::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::mode, prefixName + AdpcmPrName::bit, AdpcmPrValue::Bit::min, AdpcmPrValue::Bit::max, AdpcmPrValue::Bit::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::rate, prefixName + AdpcmPrName::rate, AdpcmPrValue::Rate::min, AdpcmPrValue::Rate::max, AdpcmPrValue::Rate::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::tone, prefixName + AdpcmPrName::tone, AdpcmPrValue::Tone::min, AdpcmPrValue::Tone::max, AdpcmPrValue::Tone::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::noise, prefixName + AdpcmPrName::noise, AdpcmPrValue::Noise::min, AdpcmPrValue::Noise::max, AdpcmPrValue::Noise::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::noiseFreq, prefixName + AdpcmPrName::noiseFreq, AdpcmPrValue::NoiseFreq::min, AdpcmPrValue::NoiseFreq::max, AdpcmPrValue::NoiseFreq::initial));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(prefix + AdpcmPrKey::mix, prefixName + AdpcmPrName::mix, AdpcmPrValue::Mix::min, AdpcmPrValue::Mix::max, AdpcmPrValue::Mix::initial));
+    layout.add(std::make_unique<juce::AudioParameterInt>(prefix + AdpcmPrKey::interp, prefixName + AdpcmPrName::interp, AdpcmPrValue::Interp::min, AdpcmPrValue::Interp::max, AdpcmPrValue::Interp::initial));
 
     // Fix
     layout.add(std::make_unique<juce::AudioParameterBool>(prefix + AdpcmPrKey::fix, prefixName + AdpcmPrName::fix, AdpcmPrValue::Fix::initial));
@@ -56,11 +64,19 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
     pLevel = apvts.getRawParameterValue(prefix + AdpcmPrKey::level);
     pPan = apvts.getRawParameterValue(prefix + AdpcmPrKey::pan);
-    pLoop = apvts.getRawParameterValue(prefix + AdpcmPrKey::loop);
-    pQualityMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::mode);
-    pRateIndex = apvts.getRawParameterValue(prefix + AdpcmPrKey::rate);
     pPcmOffset = apvts.getRawParameterValue(prefix + AdpcmPrKey::pcmOffset);
     pPcmRatio = apvts.getRawParameterValue(prefix + AdpcmPrKey::pcmRatio);
+    pLoop = apvts.getRawParameterValue(prefix + AdpcmPrKey::loop);
+    pLoopPointEnable = apvts.getRawParameterValue(prefix + AdpcmPrKey::loopPointEnable);
+    pLoopPointStart = apvts.getRawParameterValue(prefix + AdpcmPrKey::loopPointStart);
+    pLoopPointEnd = apvts.getRawParameterValue(prefix + AdpcmPrKey::loopPointEnd);
+    pQualityMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::mode);
+    pRateIndex = apvts.getRawParameterValue(prefix + AdpcmPrKey::rate);
+    pTone = apvts.getRawParameterValue(prefix + AdpcmPrKey::tone);
+    pNoise = apvts.getRawParameterValue(prefix + AdpcmPrKey::noise);
+    pNoiseFreq = apvts.getRawParameterValue(prefix + AdpcmPrKey::noiseFreq);
+    pMix = apvts.getRawParameterValue(prefix + AdpcmPrKey::mix);
+    pInterpolationMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::interp);
 
     pFixMode = apvts.getRawParameterValue(prefix + AdpcmPrKey::fix);
     pFixFreq = apvts.getRawParameterValue(prefix + AdpcmPrKey::fixFreq);
@@ -132,11 +148,19 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     // getRawParameterValue は float* を返すので、0.5f以上かどうかで判定するのが通例
     params.adpcm.level = pLevel->load(std::memory_order_relaxed);
     params.adpcm.pan = pPan->load(std::memory_order_relaxed);
-    params.adpcm.loop = (pLoop->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
-    params.adpcm.qualityMode = (int)pQualityMode->load(std::memory_order_relaxed);
-    params.adpcm.rateIndex = (int)pRateIndex->load(std::memory_order_relaxed);
     params.adpcm.offset = pPcmOffset->load(std::memory_order_relaxed);
     params.adpcm.ratio = pPcmRatio->load(std::memory_order_relaxed);
+    params.adpcm.loop = (pLoop->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
+    params.adpcm.loopPointEnable = (pLoopPointEnable->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
+    params.adpcm.loopPointStart = pLoopPointStart->load(std::memory_order_relaxed);
+    params.adpcm.loopPointEnd = pLoopPointEnd->load(std::memory_order_relaxed);
+    params.adpcm.qualityMode = (int)pQualityMode->load(std::memory_order_relaxed);
+    params.adpcm.rateIndex = (int)pRateIndex->load(std::memory_order_relaxed);
+    params.adpcm.tone = pTone->load(std::memory_order_relaxed);
+    params.adpcm.noiseLevel = pNoise->load(std::memory_order_relaxed);
+    params.adpcm.noiseFreq = pNoiseFreq->load(std::memory_order_relaxed);
+    params.adpcm.mix = pMix->load(std::memory_order_relaxed);
+    params.adpcm.interpolationMode = (int)pInterpolationMode->load(std::memory_order_relaxed);
 
     params.adpcm.fixedMode = (pFixMode->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
     params.adpcm.fixedFreq = pFixFreq->load(std::memory_order_relaxed);
@@ -152,6 +176,7 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.adsr.dr = pAdsrDr->load(std::memory_order_relaxed);
     params.adpcm.adsr.sl = pAdsrSl->load(std::memory_order_relaxed);
     params.adpcm.adsr.rr = pAdsrRr->load(std::memory_order_relaxed);
+    params.adpcm.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread;
 
     params.adpcm.pitchAdsr.bypass = (pPitchAdsrBypass->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
     params.adpcm.pitchAdsr.ar = pPitchAdsrAr->load(std::memory_order_relaxed);
@@ -161,7 +186,6 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     params.adpcm.pitchAdsr.atl = (int)pPitchAdsrAtl->load(std::memory_order_relaxed);
     params.adpcm.pitchAdsr.ssl = (int)pPitchAdsrSsl->load(std::memory_order_relaxed);
     params.adpcm.pitchAdsr.rll = (int)pPitchAdsrRll->load(std::memory_order_relaxed);
-    params.adpcm.adsr.kor = pAdsrKor->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread;
 
     params.adpcm.ssgSwEnv.bypass = (pSsgSwEnvBypass->load(std::memory_order_relaxed) > AdpcmPrValue::boolThread);
     params.adpcm.ssgSwEnv.steps = (int)pSsgSwEnvSteps->load(std::memory_order_relaxed);

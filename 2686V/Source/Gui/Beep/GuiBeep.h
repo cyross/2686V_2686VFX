@@ -15,12 +15,16 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
 
 class GuiBeep : public GuiBase {
     GuiScrollGroup mainGroup;
+
+    GuiComponentPresetName presetName;
 
     GuiSlider levelSlider;
 
@@ -47,10 +51,13 @@ class GuiBeep : public GuiBase {
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    GuiSeparator uSep001;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -69,6 +76,7 @@ class GuiBeep : public GuiBase {
 public:
     GuiBeep(const GuiContext& context) : GuiBase(context),
         mainGroup(context),
+        presetName(context),
         levelSlider(context),
 		fixComponent(context),
         unisonComponent(context),
@@ -80,8 +88,13 @@ public:
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
+        uSep001(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -92,10 +105,22 @@ public:
     }
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
     void setupGraph();
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
 };

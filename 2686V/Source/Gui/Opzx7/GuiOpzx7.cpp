@@ -10,6 +10,7 @@
 #include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
+#include "../../Core/Const/ConstGlobal.h"
 
 #include "../../Core/Fm/FmRegisterConverter.h"
 #include "../../Core/Fm/FmMmlFormatter.h"
@@ -19,6 +20,8 @@
 #include "./GuiOpzx7Text.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiOpzx7Helpers.h"
+
+#include "../../Core/Processor/PluginProcessorStateKey.h"
 
 // 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 static std::vector<SelectItem> bdItems = {
@@ -56,78 +59,119 @@ static std::vector<SelectItem> rateItems = {
 };
 
 static std::vector<SelectItem> opzx7AlgItems = {
-    {.name = "00: <OPX-00>", .value = 1 },
-    {.name = "01: <OPX-01>", .value = 2 },
-    {.name = "02: <OPX-02>", .value = 3 },
-    {.name = "03: <OPX-03>", .value = 4 },
-    {.name = "04: <OPX-04>", .value = 5 },
-    {.name = "05: <OPX-05>", .value = 6 },
-    {.name = "06: <OPX-06>", .value = 7 },
-    {.name = "07: <OPX-07>", .value = 8 },
-    {.name = "08: <OPX-08>", .value = 9 },
-    {.name = "09: <OPX-09>", .value = 10 },
-    {.name = "10: <OPX-10>", .value = 11 },
-    {.name = "11: <OPX-11>", .value = 12 },
-    {.name = "12: <OPX-12>", .value = 13 },
-    {.name = "13: <OPX-13>", .value = 14 },
-    {.name = "14: <OPX-14>", .value = 15 },
-    {.name = "15: <OPX-15>", .value = 16 },
-    {.name = "16: <OPX-16>", .value = 17 },
-    {.name = "17: <OPX-17>", .value = 18 },
-    {.name = "18: <OPX-18>", .value = 19 },
-    {.name = "19: <OPX-19>", .value = 20 },
-    {.name = "20: <OPX-20>", .value = 21 },
-    {.name = "21: <OPX-21>", .value = 22 },
-    {.name = "22: <OPX-22>", .value = 23 },
-    {.name = "23: <OPX-23>", .value = 24 },
-    {.name = "24: <OPX-24>", .value = 25 },
-    {.name = "25: <OPX-25>", .value = 26 },
-    {.name = "26: <OPX-26>", .value = 27 },
-    {.name = "27: <OPX-27>", .value = 28 },
-    {.name = "28: <MA7-00>", .value = 29 },
-    {.name = "29: <MA7-01>", .value = 30 },
-    {.name = "30: <MA7-02>", .value = 31 },
-    {.name = "31: <MA7-03>", .value = 32 },
-    {.name = "32: <MA7-04>", .value = 33 },
-    {.name = "33: <MA7-05>", .value = 34 },
-    {.name = "34: <MA7-06>", .value = 35 },
-    {.name = "35: <MA7-07>", .value = 36 },
-    {.name = "65: <OPS-00>", .value = 37 },
-    {.name = "65: <OPS-01>", .value = 38 },
-    {.name = "65: <OPS-02>", .value = 39 },
-    {.name = "65: <OPS-03>", .value = 40 },
-    {.name = "65: <OPS-04>", .value = 41 },
-    {.name = "65: <OPS-05>", .value = 42 },
-    {.name = "65: <OPS-06>", .value = 43 },
-    {.name = "65: <OPS-07>", .value = 44 },
-    {.name = "65: <OPS-08>", .value = 45 },
-    {.name = "65: <OPS-09>", .value = 46 },
-    {.name = "65: <OPS-10>", .value = 47 },
-    {.name = "65: <OPS-11>", .value = 48 },
-    {.name = "65: <OPS-12>", .value = 49 },
-    {.name = "65: <OPS-13>", .value = 50 },
-    {.name = "65: <OPS-14>", .value = 51 },
-    {.name = "65: <OPS-15>", .value = 52 },
-    {.name = "65: <OPS-16>", .value = 53 },
-    {.name = "65: <OPS-17>", .value = 54 },
-    {.name = "65: <OPS-18>", .value = 55 },
-    {.name = "65: <OPS-19>", .value = 56 },
-    {.name = "65: <OPS-20>", .value = 57 },
-    {.name = "65: <OPS-21>", .value = 58 },
-    {.name = "65: <OPS-22>", .value = 59 },
-    {.name = "65: <OPS-23>", .value = 60 },
-    {.name = "65: <OPS-24>", .value = 61 },
-    {.name = "65: <OPS-25>", .value = 62 },
-    {.name = "65: <OPS-26>", .value = 63 },
-    {.name = "65: <OPS-27>", .value = 64 },
-    {.name = "65: <OPS-28>", .value = 65 },
-    {.name = "65: <OPS-29>", .value = 66 },
-    {.name = "66: <OPS-30>", .value = 67 },
-    {.name = "67: <OPS-31>", .value = 68 },
-    {.name = "68: <OPZX7S-000>", .value = 69 },
-    {.name = "69: <OPZX7S-001>", .value = 70 },
-    {.name = "70: <OPZX7S-002>", .value = 71 },
-    {.name = "71: <OPZX7S-003>", .value = 72 },
+    {.name = "000: <OPX-00> / 4OP", .value = 1 },
+    {.name = "001: <OPX-01> / 4OP", .value = 2 },
+    {.name = "002: <OPX-02> / 4OP", .value = 3 },
+    {.name = "003: <OPX-03> / 4OP", .value = 4 },
+    {.name = "004: <OPX-04> / 4OP", .value = 5 },
+    {.name = "005: <OPX-05> / 4OP", .value = 6 },
+    {.name = "006: <OPX-06> / 2OPx2", .value = 7 },
+    {.name = "007: <OPX-07> / 2OPx2", .value = 8 },
+    {.name = "008: <OPX-08> / 4OP", .value = 9 },
+    {.name = "009: <OPX-09> / 4OP", .value = 10 },
+    {.name = "010: <OPX-10> / 4OP", .value = 11 },
+    {.name = "011: <OPX-11> / 4OP", .value = 12 },
+    {.name = "012: <OPX-12> / 4OP", .value = 13 },
+    {.name = "013: <OPX-13> / 4OP", .value = 14 },
+    {.name = "014: <OPX-14> / 4OP", .value = 15 },
+    {.name = "015: <OPX-15> / 4OP", .value = 16 },
+    {.name = "016: <OPX-16> / 3OP", .value = 17 },
+    {.name = "017: <OPX-17> / 3OP", .value = 18 },
+    {.name = "018: <OPX-18> / 3OP", .value = 19 },
+    {.name = "019: <OPX-19> / 3OP", .value = 20 },
+    {.name = "020: <OPX-20> / 3OP", .value = 21 },
+    {.name = "021: <OPX-21> / 3OP", .value = 22 },
+    {.name = "022: <OPX-22> / 3OP", .value = 23 },
+    {.name = "023: <OPX-23> / 3OP", .value = 24 },
+    {.name = "024: <OPX-24> / 2OP", .value = 25 },
+    {.name = "025: <OPX-25> / 2OP", .value = 26 },
+    {.name = "026: <OPX-26> / 2OP", .value = 27 },
+    {.name = "027: <OPX-27> / 2OP", .value = 28 },
+    {.name = "028: <MA7-00> / 2OP", .value = 29 },
+    {.name = "029: <MA7-01> / 2OP", .value = 30 },
+    {.name = "030: <MA7-02> / 2OPx2", .value = 31 },
+    {.name = "031: <MA7-03> / 4OP", .value = 32 },
+    {.name = "032: <MA7-04> / 4OP", .value = 33 },
+    {.name = "033: <MA7-05> / 2OPx2", .value = 34 },
+    {.name = "034: <MA7-06> / 4OP", .value = 35 },
+    {.name = "035: <MA7-07> / 4OP", .value = 36 },
+    {.name = "036: <OPS-00> / 6OP", .value = 37 },
+    {.name = "037: <OPS-01> / 6OP", .value = 38 },
+    {.name = "038: <OPS-02> / 3OPx2", .value = 39 },
+    {.name = "039: <OPS-03> / 3OPx2", .value = 40 },
+    {.name = "040: <OPS-04> / 2OPx3", .value = 41 },
+    {.name = "041: <OPS-05> / 2OPx3", .value = 42 },
+    {.name = "042: <OPS-06> / 6OP", .value = 43 },
+    {.name = "043: <OPS-07> / 6OP", .value = 44 },
+    {.name = "044: <OPS-08> / 6OP", .value = 45 },
+    {.name = "045: <OPS-09> / 6OP", .value = 46 },
+    {.name = "046: <OPS-10> / 6OP", .value = 47 },
+    {.name = "047: <OPS-11> / 6OP", .value = 48 },
+    {.name = "048: <OPS-12> / 6OP", .value = 49 },
+    {.name = "049: <OPS-13> / 6OP", .value = 50 },
+    {.name = "050: <OPS-14> / 6OP", .value = 51 },
+    {.name = "051: <OPS-15> / 6OP", .value = 52 },
+    {.name = "052: <OPS-16> / 6OP", .value = 53 },
+    {.name = "053: <OPS-17> / 6OP", .value = 54 },
+    {.name = "054: <OPS-18> / 6OP", .value = 55 },
+    {.name = "055: <OPS-19> / 6OP", .value = 56 },
+    {.name = "056: <OPS-20> / 6OP", .value = 57 },
+    {.name = "057: <OPS-21> / 6OP", .value = 58 },
+    {.name = "058: <OPS-22> / 6OP", .value = 59 },
+    {.name = "059: <OPS-23> / 6OP", .value = 60 },
+    {.name = "060: <OPS-24> / 6OP", .value = 61 },
+    {.name = "061: <OPS-25> / 6OP", .value = 62 },
+    {.name = "062: <OPS-26> / 6OP", .value = 63 },
+    {.name = "063: <OPS-27> / 6OP", .value = 64 },
+    {.name = "064: <OPS-28> / 6OP", .value = 65 },
+    {.name = "065: <OPS-29> / 6OP", .value = 66 },
+    {.name = "066: <OPS-30> / 6OP", .value = 67 },
+    {.name = "067: <OPS-31> / 6OP", .value = 68 },
+    {.name = "068: <OPZX7S-000> / 1OP", .value = 69 },
+    {.name = "069: <OPZX7S-001> / 1OPx2", .value = 70 },
+    {.name = "070: <OPZX7S-002> / 2OPx2", .value = 71 },
+    {.name = "071: <OPZX7S-003> / 4OP", .value = 72 },
+    {.name = "072: <OPZX7S-004> / 6OP", .value = 73 },
+    {.name = "073: <OPZX7S-005> / 6OP", .value = 74 },
+    {.name = "074: <OPZX7S-006> / 6OP", .value = 75 },
+    {.name = "075: <OPZX7S-007> / 6OP", .value = 76 },
+    {.name = "076: <OPZX7S-008> / 6OP", .value = 77 },
+    {.name = "077: <OPZX7S-009> / 6OP", .value = 78 },
+    {.name = "078: <OPZX7S-010> / 5OP", .value = 79 },
+    {.name = "079: <OPZX7S-011> / 5OP", .value = 80 },
+    {.name = "080: <OPZX7S-012> / 5OP", .value = 81 },
+    {.name = "081: <OPZX7S-013> / 5OP", .value = 82 },
+    {.name = "082: <OPZX7S-014> / 5OP", .value = 83 },
+    {.name = "083: <OPZX7S-015> / 5OP", .value = 84 },
+    {.name = "084: <OPZX7S-016> / 5OP", .value = 85 },
+    {.name = "085: <OPZX7S-017> / 5OP", .value = 86 },
+    {.name = "086: <OPZX7S-018> / 5OP", .value = 87 },
+    {.name = "087: <OPZX7S-019> / 5OP", .value = 88 },
+    {.name = "088: <OPZX7S-020> / 5OP", .value = 89 },
+    {.name = "089: <OPZX7S-021> / 5OP", .value = 90 },
+    {.name = "090: <OPZX7S-022> / 5OP", .value = 91 },
+    {.name = "091: <OPZX7S-023> / 5OP", .value = 92 },
+    {.name = "092: <OPZX7S-024> / 5OP", .value = 93 },
+    {.name = "093: <OPZX7S-025> / 5OP", .value = 94 },
+    {.name = "094: <OPZX7S-026> / 5OP", .value = 95 },
+    {.name = "095: <OPZX7S-027> / 5OP", .value = 96 },
+    {.name = "096: <OPZX7S-028> / 5OP", .value = 97 },
+    {.name = "097: <OPZX7S-029> / 5OP", .value = 98 },
+    {.name = "098: <OPZX7S-030> / 5OP", .value = 99 },
+    {.name = "099: <OPZX7S-031> / 5OP", .value = 100 },
+    { .name = "100: <OPZX7S-032> / 5OP", .value = 101 },
+    { .name = "101: <OPZX7S-033> / 5OP", .value = 102 },
+    { .name = "102: <OPZX7S-034> / 5OP", .value = 103 },
+    { .name = "103: <OPZX7S-035> / 5OP", .value = 104 },
+    { .name = "104: <OPZX7S-036> / 5OP", .value = 105 },
+    { .name = "105: <OPZX7S-037> / 5OP", .value = 106 },
+    { .name = "106: <OPZX7S-038> / 5OP", .value = 107 },
+    { .name = "107: <OPZX7S-039> / 5OP", .value = 108 },
+    { .name = "108: <OPZX7S-040> / 5OP", .value = 109 },
+    { .name = "109: <OPZX7S-041> / 5OP", .value = 110 },
+    { .name = "110: <OPZX7S-042> / 5OP", .value = 111 },
+    { .name = "111: <OPZX7S-043> / 5OP", .value = 112 },
+    { .name = "112: <OPZX7S-044> / 5OP", .value = 113 },
 };
 
 static std::vector<SelectItem> multems = {
@@ -179,37 +223,37 @@ static std::vector<SelectItem> opnaSeItems = {
 };
 
 static std::vector<SelectItem> opzx7WsItems = {
-    {.name = "00 Sine",                             .value = 1},
-    {.name = "01 Half Sine",                        .value = 2},
-    {.name = "02 Abs Sine",                         .value = 3},
-    {.name = "03 Quadra Abs Half Sin",              .value = 4},
-    {.name = "04 Alt Sine",                         .value = 5},
-    {.name = "05 Alt Abs Sine",                     .value = 6},
-    {.name = "06 Square",                           .value = 7},
-    {.name = "07 Log Saw",                          .value = 8},
-    {.name = "08 Pudding Sine",                     .value = 9},
-    {.name = "09 Half Pudding Sine",                .value = 10},
-    {.name = "10 Abs Pudding Sine",                 .value = 11},
-    {.name = "11 Quad Abs Pudding Sine",            .value = 12},
-    {.name = "12 Mini Alt Sine",                    .value = 13},
-    {.name = "13 Mini Alt Abs Sine",                .value = 14},
-    {.name = "14 Half Square",                      .value = 15},
-    {.name = u8"15 ★★ Wavetable File",            .value = 16},
-    {.name = "16 Triangle",                         .value = 17},
-    {.name = "17 Half Triangle",                    .value = 18},
-    {.name = "18 Abs Triangle",                     .value = 19},
-    {.name = "19 Quad Abs Triangle",                .value = 20},
-    {.name = "20 Alt Triangle",                     .value = 21},
-    {.name = "21 Alt Abs Triangle",                 .value = 22},
-    {.name = "22 Quad Half Square",                 .value = 23},
-    {.name = u8"23 ★★ Wt2 File",                  .value = 24},
-    {.name = "24 Diagram",                          .value = 25},
-    {.name = "25 Half Diagram",                     .value = 26},
-    {.name = "26 Abs Half Saw Up",                  .value = 27},
-    {.name = "27 Quad Abs Half Saw Up",             .value = 28},
-    {.name = "28 Alt Diagram",                      .value = 29},
-    {.name = "29 Alt Quad Abs Half Saw Up",         .value = 30},
-    {.name = "30 Quad Square",                      .value = 31},
+    {.name = "00 [MA-7:00]Sine/OPZ(TX81Z) W1",               .value = 1},
+    {.name = "01 [MA-7:01]Half Sine",                        .value = 2},
+    {.name = "02 [MA-7:02]Abs Sine",                         .value = 3},
+    {.name = "03 [MA-7:03]Quadra Abs Half Sin",              .value = 4},
+    {.name = "04 [MA-7:04]Alt Sine",                         .value = 5},
+    {.name = "05 [MA-7:05]Alt Abs Sine",                     .value = 6},
+    {.name = "06 [MA-7:06]Square",                           .value = 7},
+    {.name = "07 [MA-7:07]Log Saw",                          .value = 8},
+    {.name = "08 [MA-7:08]Pudding Sine",                     .value = 9},
+    {.name = "09 [MA-7:09]Half Pudding Sine",                .value = 10},
+    {.name = "10 [MA-7:10]Abs Pudding Sine",                 .value = 11},
+    {.name = "11 [MA-7:11]Quad Abs Pudding Sine",            .value = 12},
+    {.name = "12 [MA-7:12]Mini Alt Sine",                    .value = 13},
+    {.name = "13 [MA-7:13]Mini Alt Abs Sine",                .value = 14},
+    {.name = "14 [MA-7:14]Half Square",                      .value = 15},
+    {.name = u8"15 ★★ WT File",                   .value = 16},
+    {.name = "16 [MA-7:16]Triangle",                         .value = 17},
+    {.name = "17 [MA-7:17]Half Triangle",                    .value = 18},
+    {.name = "18 [MA-7:18]Abs Triangle",                     .value = 19},
+    {.name = "19 [MA-7:19]Quad Abs Triangle",                .value = 20},
+    {.name = "20 [MA-7:20]Alt Triangle",                     .value = 21},
+    {.name = "21 [MA-7:21]Alt Abs Triangle",                 .value = 22},
+    {.name = "22 [MA-7:22]Quad Half Square",                 .value = 23},
+    {.name = u8"23 ★★ WT2 File",                  .value = 24},
+    {.name = "24 [MA-7:24]Diagram",                          .value = 25},
+    {.name = "25 [MA-7:25]Half Diagram",                     .value = 26},
+    {.name = "26 [MA-7:26]Abs Half Saw Up",                  .value = 27},
+    {.name = "27 [MA-7:27]Quad Abs Half Saw Up",             .value = 28},
+    {.name = "28 [MA-7:28]Alt Diagram",                      .value = 29},
+    {.name = "29 [MA-7:29]Alt Quad Abs Half Saw Up",         .value = 30},
+    {.name = "30 [MA-7:30]Quad Square",                      .value = 31},
     {.name = u8"31 ★★ PCM(Audio) File",           .value = 32},
     {.name = "32 [EX000]Alternating Abs Sine",      .value = 33},
     {.name = "33 [EX001]Derived Square",            .value = 34},
@@ -274,6 +318,123 @@ static std::vector<SelectItem> ksCurveItems = {
     {.name = "3: +LIN", .value = 4 }
 };
 
+GuiOpzx7::GuiOpzx7(const GuiContext& context) :
+    GuiBase(context),
+    mainGroup(context),
+    presetName(context),
+    viewModeComp(context),
+    qualityCat(context),
+    algFbCat(context),
+    levelSlider(context),
+    algSelector(context),
+    feedbackSlider(context),
+    bitSelector(context),
+    rateSelector(context),
+    panCat(context),
+    panpotEnableToggle(context),
+    panpotSlider(context),
+    panToLBtn(context),
+    panToCBtn(context),
+    panToRBtn(context),
+    glLfo(context),
+    unisonComponent(context),
+    utilityCat(context),
+    broadcastLevelButton(context),
+    uSep001(context),
+    copyOpParamBtn(context),
+    copyOpFromSlider(context),
+    copyOpToSlider(context),
+    uSep002(context),
+    ieOpLfo(context),
+    ieOpDetune(context),
+    ieOpPitchEnv(context),
+    ieOpSsgSwEnv(context),
+    ieOpPcmPlay(context),
+    targerOpSlider(context),
+    uSep003(context),
+    ieLfo(context),
+    ieUnison(context),
+    ieQuality(context),
+    opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+    mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
+    catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+    tl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ar{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    d1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    d1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    d2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+    ksEn{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    ksMode{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    ksrMA7{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    kslMA7{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    ksrOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    kslOPZ{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ksBp{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ksLc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    ksRc{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    ksLd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ksRd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    ksRs{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    catOptional{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+    bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
+    catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+    ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    pcmOffset{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    pcmRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    loopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    loopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    loopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    wtLoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    wtLoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    wtLoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    wt2LoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    wt2LoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    wt2LoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    loadWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    clearWt2Btn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
+    wt2FileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
+    catSsgEnv{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+    se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) , GuiSlider(context), GuiSlider(context) },
+    lfo{ GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context), GuiComponentLfoOpzx7(context) },
+    pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
+    ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
+    catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
+    mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
+    mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
+    rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rgD2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rgD1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    midiComponent(context),
+    graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
+{
+    currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
+    setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+
+    int mode = context.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmViewMode, (int)GuiComponentViewModes::Twin);
+    viewMode = (GuiComponentViewModes)mode;
+}
+
 void GuiOpzx7::setup()
 {
     p_curveCore = ctx.audioProcessor.getCurveCore();
@@ -287,14 +448,6 @@ void GuiOpzx7::setup()
             btn.setExplicitFocusOrder(++tabOrder);
         };
 
-    auto updateMulRatioEnable = [this](int idx) {
-        int mulIndex = mul[idx].getSelectedId() - 1;
-        bool enableMulRatio = mulIndex == 21; // mul = Ratio
-
-        mulRatio[idx].setEnabled(enableMulRatio);
-        mulRatio[idx].label.setEnabled(enableMulRatio);
-        };
-
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
     setWantsKeyboardFocus(true);
 
@@ -303,13 +456,7 @@ void GuiOpzx7::setup()
 
     mainGroup.setup(*this, Opzx7GuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Opzx7PrKey::level, .title = Opzx7GuiText::Fm::level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -383,11 +530,107 @@ void GuiOpzx7::setup()
         ctx.editor.breadcastLevel(level);
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
+    copyOpParamBtn.setWantsKeyboardFocus(true);
+    copyOpParamBtn.setExplicitFocusOrder(++tabOrder);
+    copyOpParamBtn.onClick = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        ctx.editor.copyOpzx7OpParams(from, to);
+
+        // コピー先でロードしていたPCMファイル・波形メモリファイルをアンロードする
+        ctx.audioProcessor.unloadOpzx7PcmFile(to);
+        ctx.audioProcessor.unloadOpzx7WtFile(to);
+        ctx.audioProcessor.unloadOpzx7Wt2File(to);
+        };
+
+    copyOpFromSlider.setup({ .parent = mainGroup.contentCanvas, .title = "FROM", .isReset = false });
+    copyOpFromSlider.setRange(1.0, 6.0, 1.0);
+    copyOpFromSlider.setNumDecimalPlacesToDisplay(0);
+    copyOpFromSlider.setValue(1, juce::sendNotification);
+    copyOpFromSlider.setWantsKeyboardFocus(true);
+    copyOpFromSlider.setExplicitFocusOrder(++tabOrder);
+    copyOpFromSlider.onValueChange = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        copyOpParamBtn.setEnabled(from != to);
+        };
+
+    copyOpToSlider.setup({ .parent = mainGroup.contentCanvas, .title = "TO", .isReset = false });
+    copyOpToSlider.setRange(1.0, 6.0, 1.0);
+    copyOpToSlider.setNumDecimalPlacesToDisplay(0);
+    copyOpToSlider.setValue(2, juce::sendNotification);
+    copyOpToSlider.setWantsKeyboardFocus(true);
+    copyOpToSlider.setExplicitFocusOrder(++tabOrder);
+    copyOpToSlider.onValueChange = [this] {
+        int from = copyOpFromSlider.getValue() - 1;
+        int to = copyOpToSlider.getValue() - 1;
+
+        copyOpParamBtn.setEnabled(from != to);
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
+    ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpLfoParam(opIndex); };
+    ieOpLfo.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpLfoParam(opIndex); };
+
+    ieOpDetune.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieOpDetune.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importDetuneParam(opIndex); };
+    ieOpDetune.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportDetuneParam(opIndex); };
+
+    ieOpPitchEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    ieOpPitchEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importPitchEnvParam(opIndex); };
+    ieOpPitchEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportPitchEnvParam(opIndex); };
+
+    ieOpSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
+    ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
+
+    ieOpPcmPlay.setupComponentOp(mainGroup.contentCanvas, tabOrder, "PCM Play");
+    ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
+    ieOpPcmPlay.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpPcmPlayParam(opIndex); };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
+    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
+    targerOpSlider.setRange(1.0, 6.0, 1.0);
+    targerOpSlider.setNumDecimalPlacesToDisplay(0);
+    targerOpSlider.setValue(1, juce::sendNotification);
+    targerOpSlider.setWantsKeyboardFocus(true);
+    targerOpSlider.setExplicitFocusOrder(++tabOrder);
+
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
+
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+
+    ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] { importQualityParam(); };
+    ieQuality.onClickExport = [this] { exportQualityParam(); };
+
+    viewModeComp.setupComponent(*this, tabOrder);
+    viewModeComp.onChangeViewMode = [this](GuiComponentViewModes mode) {
+        viewMode = mode;
+        ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opzx7ViewMode, (int)viewMode, nullptr);
+        ctx.editor.resized();
+        };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
     {
-        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPZX7_%02d.png", i);
+        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPZX7_%03d.png", i);
         auto imgFile = docDir.getChildFile(fileName);
 
         if (imgFile.existsAsFile()) {
@@ -407,30 +650,9 @@ void GuiOpzx7::setup()
 
         juce::String paramPrefix = opCode + juce::String(i);
 
-        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::mul, .title = Opzx7GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
-        mul[i].setWantsKeyboardFocus(true);
-        mul[i].setExplicitFocusOrder(++tabOrder);
-        mul[i].onChange = [this, i, updateMulRatioEnable] {
-            updateMulRatioEnable(i);
-            };
+        mulDetune[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, true);
 
-        mulRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::mulRatio, .title = Opzx7GuiText::Fm::Op::MulRatio, .isReset = true });
-        mulRatio[i].setWantsKeyboardFocus(true);
-        mulRatio[i].setExplicitFocusOrder(++tabOrder);
-
-        dt1[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::dt, .title = Opzx7GuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
-        dt1[i].setWantsKeyboardFocus(true);
-        dt1[i].setExplicitFocusOrder(++tabOrder);
-
-        dt2[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::dt2, .title = Opzx7GuiText::Fm::Op::Dt2, .isReset = true, .regType = RegisterType::FmDt2 });
-        dt2[i].setWantsKeyboardFocus(true);
-        dt2[i].setExplicitFocusOrder(++tabOrder);
-
-        dt3[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::dt3, .title = Opzx7GuiText::Fm::Op::Dt3, .isReset = true });
-        dt3[i].setWantsKeyboardFocus(true);
-        dt3[i].setExplicitFocusOrder(++tabOrder);
-
-        dt3Btns[i].setupComponent(opGroups[i].contentCanvas, dt3[i], tabOrder);
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleAmpEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
 
         rgEn[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::rgEn, .title = Opzx7GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
@@ -553,7 +775,7 @@ void GuiOpzx7::setup()
         kor[i].setWantsKeyboardFocus(true);
         kor[i].setExplicitFocusOrder(++tabOrder);
 
-        catWaveShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::waveShape });
+        catWaveShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleWaveShape, .invisibleTitle = Opzx7GuiText::Category::invisibleWaveShape, .enableChangeDetailVisible = true });
 
         ws[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ws, .title = Opzx7GuiText::Fm::Op::Ws, .items = opzx7WsItems, .isReset = true });
         ws[i].setWantsKeyboardFocus(true);
@@ -609,6 +831,18 @@ void GuiOpzx7::setup()
         pcmRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::pcmRatio, .title = Opzx7GuiText::Fm::Op::PcmRatio, .isReset = true });
         pcmRatio[i].setWantsKeyboardFocus(true);
         pcmRatio[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointEnable[i].setup({ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointEnable, .title = Opzx7GuiText::Fm::Op::loopPointEnable, .isReset = true });
+        loopPointEnable[i].setWantsKeyboardFocus(true);
+        loopPointEnable[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointStart[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointStart, .title = Opzx7GuiText::Fm::Op::loopPointStart, .isReset = true });
+        loopPointStart[i].setWantsKeyboardFocus(true);
+        loopPointStart[i].setExplicitFocusOrder(++tabOrder);
+
+        loopPointEnd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::loopPointEnd, .title = Opzx7GuiText::Fm::Op::loopPointEnd, .isReset = true });
+        loopPointEnd[i].setWantsKeyboardFocus(true);
+        loopPointEnd[i].setExplicitFocusOrder(++tabOrder);
 
         loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = false });
         loadWtBtn[i].setWantsKeyboardFocus(true);
@@ -728,8 +962,6 @@ void GuiOpzx7::setup()
 
         setupGraph(i);
         updateOpGraph(i);
-
-        updateMulRatioEnable(i);
     }
 }
 
@@ -743,11 +975,9 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(Opzx7GuiValue::Group::Padding::width, Opzx7GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
+    presetName.layoutComponent(mmRect);
 
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(Opzx7GuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    viewModeComp.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
@@ -787,226 +1017,116 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
-    auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
-
-    for (int i = 0; i < 4; ++i)
+    switch (viewMode) {
+    case GuiComponentViewModes::Top:
     {
-        auto opArea = upperOpArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
-
-        // 枠線
-        opGroups[i].setBounds(opArea);
-
-        // 枠線の内側
-        auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
-        iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
-
-        // グラフ用の区画を確保
-        layoutOpGraph(i, iinnerRect);
-        updateOpGraph(i);
-
-        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
-        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
-
-        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
-
-        bool rgMode = rgEn[i].getToggleState();
-		int selectedWs = ws[i].getSelectedId();
-
-        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt3[i].label, .component = &dt3[i] });
-
-        dt3Btns[i].layoutComponentRow(innerRect);
-
-        layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
-        updateRgDisplayAsOp(i, rgMode);
-        if (rgMode)
-        {
-            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
-        }
-        else
-        {
-            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        for (int i = 4; i < Opzx7PrValue::ops; i++) {
+            updateOpVisible(i, false);
         }
 
-        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
-        layoutRow({ .rowRect = innerRect, .component = &xof[i] });
-        layoutRow({ .rowRect = innerRect, .component = &kor[i] });
-
-		layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
-
-        layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+        for (int i = 0; i < 4; ++i)
         {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
-            layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
-            layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
         }
-
-        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
-        {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
-        }
-
-        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
-        {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWt2Btn[i], .pcmFileNameLabel = &wt2FileNameLabel[i], .clearPcmBtn = &clearWt2Btn[i] });
-        }
-
-        layoutOpKsCat(i, innerRect, rgMode);
-
-        layoutOpOptionalCat(i, innerRect);
-
-        layoutOpSsgEnvCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
-
-        ssgSwEnv[i].layoutComponentRow(innerRect);
-
-        lfo[i].layoutComponentRow(innerRect);
-
-        fix[i].layoutComponentRow(innerRect);
-
-        layoutOpMaskCat(i, innerRect);
-
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
-
-        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
-
-        int usedHeight = 2000 - innerRect.getHeight();
-
-        // 下部の余白を足して、キャンバスの最終的な高さをセット
-        opGroups[i].setContentHeight(usedHeight + 20);
-
-        updateOnWsChange(i);
+        break;
     }
-
-
-    for (int i = 4; i < Opzx7PrValue::ops; ++i)
+    case GuiComponentViewModes::Bottom:
     {
-        auto opArea = pageArea.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
-
-        // 枠線
-        opGroups[i].setBounds(opArea);
-
-        // 枠線の内側
-        auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
-        iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
-
-        // グラフ用の区画を確保
-        layoutOpGraph(i, iinnerRect);
-        updateOpGraph(i);
-
-        // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-        // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
-        opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
-
-        // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
-
-        bool rgMode = rgEn[i].getToggleState();
-        int selectedWs = ws[i].getSelectedId();
-
-        layoutRow({ .rowRect = innerRect, .label = &mul[i].label, .component = &mul[i] });
-        layoutRow({ .rowRect = innerRect, .label = &mulRatio[i].label, .component = &mulRatio[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt1[i].label, .component = &dt1[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt2[i].label, .component = &dt2[i] });
-        layoutRow({ .rowRect = innerRect, .label = &dt3[i].label, .component = &dt3[i] });
-
-        dt3Btns[i].layoutComponentRow(innerRect);
-
-        layoutRow({ .rowRect = innerRect, .component = &rgEn[i] });
-        updateRgDisplayAsOp(i, rgMode);
-        if (rgMode)
-        {
-            layoutRow({ .rowRect = innerRect, .label = &rgAr[i].label, .component = &rgAr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1r[i].label, .component = &rgD1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD1l[i].label, .component = &rgD1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgD2r[i].label, .component = &rgD2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgRr[i].label, .component = &rgRr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rgTl[i].label, .component = &rgTl[i] });
-        }
-        else
-        {
-            layoutRow({ .rowRect = innerRect, .label = &ar[i].label, .component = &ar[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1r[i].label, .component = &d1r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d1l[i].label, .component = &d1l[i] });
-            layoutRow({ .rowRect = innerRect, .label = &d2r[i].label, .component = &d2r[i] });
-            layoutRow({ .rowRect = innerRect, .label = &rr[i].label, .component = &rr[i] });
-            layoutRow({ .rowRect = innerRect, .label = &tl[i].label, .component = &tl[i] });
+        for (int i = 0; i < 4; i++) {
+            updateOpVisible(i, false);
         }
 
-        layoutRow({ .rowRect = innerRect, .component = &sus[i] });
-        layoutRow({ .rowRect = innerRect, .component = &xof[i] });
-        layoutRow({ .rowRect = innerRect, .component = &kor[i] });
-
-        layoutRowCategory({ .rowRect = innerRect, .component = &catWaveShape[i] });
-
-        layoutRow({ .rowRect = innerRect, .label = &ws[i].label, .component = &ws[i] });
-        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+        for (int i = 4; i < Opzx7PrValue::ops; ++i)
         {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadPcmBtn[i], .pcmFileNameLabel = &pcmFileNameLabel[i], .clearPcmBtn = &clearPcmBtn[i] });
-            layoutRow({ .rowRect = innerRect, .label = &pcmOffset[i].label, .component = &pcmOffset[i] });
-            layoutRow({ .rowRect = innerRect, .label = &pcmRatio[i].label, .component = &pcmRatio[i] });
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
         }
 
-        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
+        break;
+    }
+    case GuiComponentViewModes::Twin:
+    {
+        auto upperOpArea = pageArea.removeFromTop(pageArea.getHeight() / 2);
+
+        for (int i = 0; i < 4; ++i)
         {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWtBtn[i], .pcmFileNameLabel = &wtFileNameLabel[i], .clearPcmBtn = &clearWtBtn[i] });
+            updateOpVisible(i, true);
+            layoutOp(i, upperOpArea);
         }
 
-        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+        for (int i = 4; i < Opzx7PrValue::ops; ++i)
         {
-            layoutRowOpzx7File({ .rect = innerRect, .loadPcmBtn = &loadWt2Btn[i], .pcmFileNameLabel = &wt2FileNameLabel[i], .clearPcmBtn = &clearWt2Btn[i] });
+            updateOpVisible(i, true);
+            layoutOp(i, pageArea);
         }
 
-        layoutOpKsCat(i, innerRect, rgMode);
+        break;
 
-        layoutOpOptionalCat(i, innerRect);
-
-        layoutOpSsgEnvCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
-
-        ssgSwEnv[i].layoutComponentRow(innerRect);
-
-        lfo[i].layoutComponentRow(innerRect);
-
-        fix[i].layoutComponentRow(innerRect);
-
-        layoutOpMaskCat(i, innerRect);
-
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
-
-        layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
-
-        int usedHeight = 2000 - innerRect.getHeight();
-
-        // 下部の余白を足して、キャンバスの最終的な高さをセット
-        opGroups[i].setContentHeight(usedHeight + 20);
-
-        updateOnWsChange(i);
+    }
     }
 
     updateAlgorithmDisplay();
+}
+
+void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
+    auto opArea = rect.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+
+    // 枠線
+    opGroups[opIndex].setBounds(opArea);
+
+    // 枠線の内側
+    auto iinnerRect = opArea.reduced(Opzx7GuiValue::Fm::Op::Padding::width, Opzx7GuiValue::Fm::Op::Padding::height);
+    iinnerRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);
+
+    // グラフ用の区画を確保
+    layoutOpGraph(opIndex, iinnerRect);
+    updateOpGraph(opIndex);
+
+    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
+    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
+    opGroups[opIndex].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
+
+    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
+    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].viewport.getMaximumVisibleWidth(), 2000);
+
+    bool rgMode = rgEn[opIndex].getToggleState();
+    int selectedWs = ws[opIndex].getSelectedId();
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpAmpCat(opIndex, innerRect, rgMode);
+
+    layoutOpWsCat(opIndex, innerRect, selectedWs);
+
+    layoutOpKsCat(opIndex, innerRect, rgMode);
+
+    layoutOpOptionalCat(opIndex, innerRect);
+
+    layoutOpSsgEnvCat(opIndex, innerRect);
+
+    pitchEnv[opIndex].layoutComponentRow(innerRect);
+
+    ssgSwEnv[opIndex].layoutComponentRow(innerRect);
+
+    lfo[opIndex].layoutComponentRow(innerRect);
+
+    fix[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpMaskCat(opIndex, innerRect);
+
+    // 区切り線エリアを確保
+    auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
+    mmlSeparator[opIndex].setBounds(mmlSeparatorArea);
+
+    layoutRow({ .rowRect = innerRect, .component = &mml[opIndex], .paddingBottom = 0 });
+
+    int usedHeight = 2000 - innerRect.getHeight();
+
+    // 下部の余白を足して、キャンバスの最終的な高さをセット
+    opGroups[opIndex].setContentHeight(usedHeight + 20);
+
+    updateOnWsChange(opIndex);
 }
 
 // ==============================================================================
@@ -1020,13 +1140,13 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
     // 文字列キーと、実行する処理(ラムダ式)とのマップ
     std::map<juce::String, std::function<void(int)>> actionMap = {
         // --- 基本パラメータ ---
-        { mmlPrefixMul,  [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertFmMulOpzx7(v), juce::sendNotification); } },
-        { mmlPrefixMl,   [&](int v) { mul[opIndex].setSelectedItemIndex(RegisterConverter::convertFmMulOpzx7(v), juce::sendNotification); } },
-        { mmlPrefixDt,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertFmDtOpzx7(v), juce::sendNotification); } },
-        { mmlPrefixDt1,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertFmDtOpzx7(v), juce::sendNotification); } },
-        { mmlPrefixDto,   [&](int v) { dt1[opIndex].setValue(RegisterConverter::convertFmDtOpzx7(v), juce::sendNotification); } },
-        { mmlPrefixDt2,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
-        { mmlPrefixDtt,  [&](int v) { dt2[opIndex].setValue(RegisterConverter::convertMmlDt2ToReg(v), juce::sendNotification); } },
+        { mmlPrefixMul,  [&](int v) { mulDetune[opIndex].setMul(RegisterConverter::convertFmMulOpzx7(v)); } },
+        { mmlPrefixMl,   [&](int v) { mulDetune[opIndex].setMul(RegisterConverter::convertFmMulOpzx7(v)); } },
+        { mmlPrefixDt,   [&](int v) { mulDetune[opIndex].setDt1(RegisterConverter::convertFmDtOpzx7(v)); } },
+        { mmlPrefixDt1,   [&](int v) { mulDetune[opIndex].setDt1(RegisterConverter::convertFmDtOpzx7(v)); } },
+        { mmlPrefixDto,   [&](int v) { mulDetune[opIndex].setDt1(RegisterConverter::convertFmDtOpzx7(v)); } },
+        { mmlPrefixDt2,  [&](int v) { mulDetune[opIndex].setDt2(RegisterConverter::convertMmlDt2ToReg(v)); } },
+        { mmlPrefixDtt,  [&](int v) { mulDetune[opIndex].setDt2(RegisterConverter::convertMmlDt2ToReg(v)); } },
         { mmlPrefixMask, [&](int v) { mask[opIndex].setToggleState(RegisterConverter::convertFmMask(v), juce::sendNotification); } },
 
         // --- TL系 (RGモードで分岐) ---
@@ -1079,20 +1199,87 @@ void GuiOpzx7::applyMmlString(const juce::String& mml, int opIndex)
     }
 }
 
+void GuiOpzx7::updateOpVisible(int idx, bool visible) {
+    opGroups[idx].setVisible(visible);
+
+    mulDetune[idx].setVisible(visible);
+    ar[idx].setVisibleWithLabel(visible);
+    d1r[idx].setVisibleWithLabel(visible);
+    d1l[idx].setVisibleWithLabel(visible);
+    rr[idx].setVisibleWithLabel(visible);
+    d2r[idx].setVisibleWithLabel(visible);
+    tl[idx].setVisibleWithLabel(visible);
+    ksEn[idx].setVisible(visible);
+    ksrMA7[idx].setVisible(visible);
+    kslMA7[idx].setVisibleWithLabel(visible);
+    ksrOPZ[idx].setVisible(visible);
+    kslOPZ[idx].setVisibleWithLabel(visible);
+    ksBp[idx].setVisible(visible);
+    ksBp[idx].setVisibleWithLabel(visible);
+    ksLc[idx].setVisible(visible);
+    ksLc[idx].setVisibleWithLabel(visible);
+    ksRc[idx].setVisible(visible);
+    ksRc[idx].setVisibleWithLabel(visible);
+    ksLd[idx].setVisible(visible);
+    ksLd[idx].setVisibleWithLabel(visible);
+    ksRd[idx].setVisible(visible);
+    ksRd[idx].setVisibleWithLabel(visible);
+    ksRs[idx].setVisible(visible);
+    ksRs[idx].setVisibleWithLabel(visible);
+    se[idx].setVisibleWithLabel(visible);
+    seFreq[idx].setVisibleWithLabel(visible);
+    catOptional[idx].setVisible(visible);
+    bypass[idx].setVisible(visible);
+    fix[idx].setVisible(visible);
+    lfo[idx].setVisible(visible);
+    catWaveShape[idx].setVisible(visible);
+    ws[idx].setVisibleWithLabel(visible);
+    loadPcmBtn[idx].setVisible(visible);
+    clearPcmBtn[idx].setVisible(visible);
+    pcmFileNameLabel[idx].setVisible(visible);
+    pcmOffset[idx].setVisibleWithLabel(visible);
+    pcmRatio[idx].setVisibleWithLabel(visible);
+    loadWtBtn[idx].setVisible(visible);
+    clearWtBtn[idx].setVisible(visible);
+    wtFileNameLabel[idx].setVisible(visible);
+    loadWt2Btn[idx].setVisible(visible);
+    clearWt2Btn[idx].setVisible(visible);
+    wt2FileNameLabel[idx].setVisible(visible);
+    catMask[idx].setVisible(visible);
+    mask[idx].setVisible(visible);
+    mmlSeparator[idx].setVisible(visible);
+    mml[idx].setVisible(visible);
+    rgEn[idx].setVisible(visible);
+    rgAr[idx].setVisibleWithLabel(visible);
+    rgD1r[idx].setVisibleWithLabel(visible);
+    rgD1r[idx].setVisibleWithLabel(visible);
+    rgD1l[idx].setVisibleWithLabel(visible);
+    rgD1l[idx].setVisibleWithLabel(visible);
+    rgD2r[idx].setVisibleWithLabel(visible);
+    rgD2r[idx].setVisibleWithLabel(visible);
+    rgRr[idx].setVisibleWithLabel(visible);
+    rgRr[idx].setVisible(visible);
+    rgTl[idx].setVisibleWithLabel(visible);
+    rgTl[idx].setEnabled(visible);
+    sus[idx].setVisible(visible);
+    xof[idx].setVisible(visible);
+    kor[idx].setVisible(visible);
+    pitchEnv[idx].setVisible(visible);
+    ssgSwEnv[idx].setVisible(visible);
+    catSsgEnv[idx].setVisible(visible);
+    se[idx].setVisible(visible);
+    seFreq[idx].setVisible(visible);
+    opGraphs[idx].setVisible(visible);
+    graphBtnAmp[idx].setVisible(visible);
+    graphBtnPitch[idx].setVisible(visible);
+    graphBtnSsg[idx].setVisible(visible);
+}
+
 void GuiOpzx7::updateOpEnable(int idx, bool enable)
 {
     opGroups[idx].setEnabled(enable);
-    mul[idx].setEnabledWithLabel(enable);
 
-    int mulIndex = mul[idx].getSelectedId() - 1;
-    bool enableMulRatio = mulIndex == 21; // mul = Ratio
-
-    mulRatio[idx].setEnabledWithLabel(enable && enableMulRatio);
-
-    dt1[idx].setEnabledWithLabel(enable);
-    dt2[idx].setEnabledWithLabel(enable);
-    dt3[idx].setEnabledWithLabel(enable);
-    dt3Btns[idx].setEnables(enable);
+    mulDetune[idx].setEnables(enable);
     ar[idx].setEnabledWithLabel(enable);
     d1r[idx].setEnabledWithLabel(enable);
     d1l[idx].setEnabledWithLabel(enable);
@@ -1280,9 +1467,9 @@ void GuiOpzx7::updateRgDisplayAsOp(int idx, bool rgMode)
     tl[idx].setVisibleWithLabel(!rgMode);
 }
 
-void GuiOpzx7::updatePresetName(const juce::String& presetName)
+void GuiOpzx7::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 // ==============================================================================
@@ -1326,9 +1513,9 @@ void GuiOpzx7::copyFmParamsToString()
         // ' MUL AR DR SL RR TL KSR KSL
         return juce::String::formatted(
             u8"MUL%d DT1%+d DT2+%d AR%d D1R%d D1L%d D2R%d RR%d TL%d\n",
-            (int)this->mul[index].getSelectedId() - 1,
-            this->dt1[index].getValue(),
-            (int)this->dt2[index].getValue(),
+            (int)this->mulDetune[index].getMul(),
+            this->mulDetune[index].getDt1(),
+            (int)this->mulDetune[index].getDt2(),
             (int)this->rgAr[index].getValue(),
             (int)this->rgD1r[index].getValue(),
             (int)this->rgD1l[index].getValue(),
@@ -1381,10 +1568,50 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     bool visible = utilityCat.isDetailVisible();
 
     broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    copyOpParamBtn.setVisible(visible);
+    copyOpFromSlider.setVisibleWithLabel(visible);
+    copyOpToSlider.setVisibleWithLabel(visible);
+    uSep002.setVisible(visible);
+    ieOpLfo.setVisible(visible);
+    ieOpDetune.setVisible(visible);
+    ieOpPitchEnv.setVisible(visible);
+    ieOpSsgSwEnv.setVisible(visible);
+    ieOpPcmPlay.setVisible(visible);
+    targerOpSlider.setVisibleWithLabel(visible);
+    uSep003.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+        layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
+        layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
+        layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+        ieOpLfo.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpDetune.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpPitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpPcmPlay.layoutComponent(rect);
+        rect.removeFromTop(4);
+        layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
+        auto uSep003Area = rect.removeFromTop(4);
+        uSep003.setBounds(uSep003Area);
+        ieLfo.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieUnison.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieQuality.layoutComponent(rect);
     }
 }
 
@@ -1503,7 +1730,7 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
     ksMode[opIndex].setVisibleWithLabel(visible);
     ksrMA7[opIndex].setVisible(visible && mode == Opzx7AdddrKeyScaleMode::MA7);
     kslMA7[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::MA7);
-    ksrOPZ[opIndex].setVisible(visible && mode == Opzx7AdddrKeyScaleMode::OPZ);
+    ksrOPZ[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPZ);
     kslOPZ[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPZ);
     ksBp[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
     ksBp[opIndex].setVisibleWithLabel(visible && mode == Opzx7AdddrKeyScaleMode::OPS);
@@ -1537,6 +1764,114 @@ void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMod
             layoutRow({ .rowRect = rect, .label = &ksRd[opIndex].label, .component = &ksRd[opIndex] });
             layoutRow({ .rowRect = rect, .label = &ksRs[opIndex].label, .component = &ksRs[opIndex] });
             break;
+        }
+    }
+}
+
+void GuiOpzx7::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode) {
+    layoutRowCategory({ .rowRect = rect, .component = &catAmp[opIndex] });
+
+    bool visible = catAmp[opIndex].isDetailVisible();
+
+    rgEn[opIndex].setVisible(visible);
+    rgAr[opIndex].setVisibleWithLabel(visible && rgMode);
+    rgD1r[opIndex].setVisibleWithLabel(visible && rgMode);
+    rgD1l[opIndex].setVisibleWithLabel(visible && rgMode);
+    rgD2r[opIndex].setVisibleWithLabel(visible && rgMode);
+    rgRr[opIndex].setVisibleWithLabel(visible && rgMode);
+    rgTl[opIndex].setVisibleWithLabel(visible && rgMode);
+    ar[opIndex].setVisibleWithLabel(visible && !rgMode);
+    d1r[opIndex].setVisibleWithLabel(visible && !rgMode);
+    d1l[opIndex].setVisibleWithLabel(visible && !rgMode);
+    d2r[opIndex].setVisibleWithLabel(visible && !rgMode);
+    rr[opIndex].setVisibleWithLabel(visible && !rgMode);
+    tl[opIndex].setVisibleWithLabel(visible && !rgMode);
+    sus[opIndex].setVisible(visible);
+    xof[opIndex].setVisible(visible);
+    kor[opIndex].setVisible(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .component = &rgEn[opIndex] });
+        updateRgDisplayAsOp(opIndex, rgMode);
+        if (rgMode)
+        {
+            layoutRow({ .rowRect = rect, .label = &rgAr[opIndex].label, .component = &rgAr[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rgD1r[opIndex].label, .component = &rgD1r[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rgD1l[opIndex].label, .component = &rgD1l[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rgD2r[opIndex].label, .component = &rgD2r[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rgRr[opIndex].label, .component = &rgRr[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rgTl[opIndex].label, .component = &rgTl[opIndex] });
+        }
+        else
+        {
+            layoutRow({ .rowRect = rect, .label = &ar[opIndex].label, .component = &ar[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &d1r[opIndex].label, .component = &d1r[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &d1l[opIndex].label, .component = &d1l[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &d2r[opIndex].label, .component = &d2r[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &rr[opIndex].label, .component = &rr[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &tl[opIndex].label, .component = &tl[opIndex] });
+        }
+
+        layoutRow({ .rowRect = rect, .component = &sus[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
+        layoutRow({ .rowRect = rect, .component = &kor[opIndex] });
+    }
+}
+
+void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int selectedWs) {
+    layoutRowCategory({ .rowRect = rect, .component = &catWaveShape[opIndex] });
+
+    bool visible = catWaveShape[opIndex].isDetailVisible();
+
+    ws[opIndex].setVisibleWithLabel(visible);
+    loadPcmBtn[opIndex].setVisible(visible);
+    pcmFileNameLabel[opIndex].setVisible(visible);
+    clearPcmBtn[opIndex].setVisible(visible);
+    pcmOffset[opIndex].setVisibleWithLabel(visible);
+    pcmRatio[opIndex].setVisibleWithLabel(visible);
+    loopPointEnable[opIndex].setVisible(visible);
+    loopPointStart[opIndex].setVisibleWithLabel(visible);
+    loopPointEnd[opIndex].setVisibleWithLabel(visible);
+    loadWtBtn[opIndex].setVisible(visible);
+    wtFileNameLabel[opIndex].setVisible(visible);
+    clearWtBtn[opIndex].setVisible(visible);
+    wtLoopPointEnable[opIndex].setVisible(visible);
+    wtLoopPointStart[opIndex].setVisibleWithLabel(visible);
+    wtLoopPointEnd[opIndex].setVisibleWithLabel(visible);
+    loadWt2Btn[opIndex].setVisible(visible);
+    wt2FileNameLabel[opIndex].setVisible(visible);
+    clearWt2Btn[opIndex].setVisible(visible);
+    wt2LoopPointEnable[opIndex].setVisible(visible);
+    wt2LoopPointStart[opIndex].setVisibleWithLabel(visible);
+    wt2LoopPointEnd[opIndex].setVisibleWithLabel(visible);
+
+    if (visible) {
+        layoutRow({ .rowRect = rect, .label = &ws[opIndex].label, .component = &ws[opIndex] });
+
+        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+        {
+            layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadPcmBtn[opIndex], .pcmFileNameLabel = &pcmFileNameLabel[opIndex], .clearPcmBtn = &clearPcmBtn[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &pcmOffset[opIndex].label, .component = &pcmOffset[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &pcmRatio[opIndex].label, .component = &pcmRatio[opIndex] });
+            layoutRow({ .rowRect = rect, .component = &loopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &loopPointStart[opIndex].label, .component = &loopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &loopPointEnd[opIndex].label, .component = &loopPointEnd[opIndex], });
+        } 
+
+        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
+        {
+            layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWtBtn[opIndex], .pcmFileNameLabel = &wtFileNameLabel[opIndex], .clearPcmBtn = &clearWtBtn[opIndex] });
+            layoutRow({ .rowRect = rect, .component = &wtLoopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &wtLoopPointStart[opIndex].label, .component = &wtLoopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &wtLoopPointEnd[opIndex].label, .component = &wtLoopPointEnd[opIndex], });
+        }
+
+        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+        {
+            layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWt2Btn[opIndex], .pcmFileNameLabel = &wt2FileNameLabel[opIndex], .clearPcmBtn = &clearWt2Btn[opIndex] });
+            layoutRow({ .rowRect = rect, .component = &wt2LoopPointEnable[opIndex] });
+            layoutRow({ .rowRect = rect, .label = &wt2LoopPointStart[opIndex].label, .component = &wt2LoopPointStart[opIndex], });
+            layoutRow({ .rowRect = rect, .label = &wt2LoopPointEnd[opIndex].label, .component = &wt2LoopPointEnd[opIndex], });
         }
     }
 }
@@ -1784,4 +2119,232 @@ void GuiOpzx7::layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect) {
 
 void GuiOpzx7::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiOpzx7::copyParams(CopyOpzx7& copyObj) {
+    copyObj.quality.depth = bitSelector.getSelectedId();
+    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.fmBase.level = levelSlider.getValue();
+    copyObj.fmBase.algorithm = algSelector.getSelectedId();
+    copyObj.fmBase.feedback = feedbackSlider.getValue();
+    copyObj.panpot.enable = panpotEnableToggle.getToggleState();
+    copyObj.panpot.panpot = panpotSlider.getValue();
+
+    glLfo.copyParams(copyObj.lfo);
+    unisonComponent.copyParams(copyObj.unison);
+}
+
+void GuiOpzx7::copyOpParams(int p, CopyOpzx7Op& copyObj) {
+    copyObj.detune.mul = mulDetune[p].getMul();
+    copyObj.detune.mulRatio = mulDetune[p].getMulRatio();
+    copyObj.detune.dt = mulDetune[p].getDt1();
+    copyObj.detune.dt2 = mulDetune[p].getDt2();
+    copyObj.detune.dt3 = mulDetune[p].getDt3();
+    copyObj.aAdsr.rgEnable = rgEn[p].getToggleState();
+    copyObj.aAdsr.rgAr = rgAr[p].getValue();
+    copyObj.aAdsr.rgD1r = rgD1r[p].getValue();
+    copyObj.aAdsr.rgD1l = rgD1l[p].getValue();
+    copyObj.aAdsr.rgG2r = rgD2r[p].getValue();
+    copyObj.aAdsr.rgRr = rgRr[p].getValue();
+    copyObj.aAdsr.rgTl = rgTl[p].getValue();
+    copyObj.aAdsr.ar = ar[p].getValue();
+    copyObj.aAdsr.d1r = d1r[p].getValue();
+    copyObj.aAdsr.d1l = d1l[p].getValue();
+    copyObj.aAdsr.d2r = d2r[p].getValue();
+    copyObj.aAdsr.rr = rr[p].getValue();
+    copyObj.aAdsr.tl = tl[p].getValue();
+    copyObj.aAdsr.bypass = bypass[p].getToggleState();
+    copyObj.aAdsr.kor = kor[p].getToggleState();
+    copyObj.aAdsr.sus = sus[p].getToggleState();
+    copyObj.aAdsr.xof = xof[p].getToggleState();
+    copyObj.aAdsr.mode = (Opzx7AdddrKeyScaleMode)ksMode[p].getSelectedId();
+    copyObj.aAdsr.ksrMA7 = ksrMA7[p].getToggleState();
+    copyObj.aAdsr.kslMA7 = kslMA7[p].getSelectedId();
+    copyObj.aAdsr.ksrOPZ = ksrOPZ[p].getValue();
+    copyObj.aAdsr.kslOPZ = kslOPZ[p].getValue();
+    copyObj.aAdsr.ksBp = ksBp[p].getValue();
+    copyObj.aAdsr.ksLc = ksLc[p].getSelectedId();
+    copyObj.aAdsr.ksRc = ksRc[p].getSelectedId();
+    copyObj.aAdsr.ksLd = ksLd[p].getValue();
+    copyObj.aAdsr.ksRd = ksRd[p].getValue();
+    copyObj.aAdsr.ksRs = ksRs[p].getValue();
+    copyObj.waveSelect = ws[p].getSelectedId();
+    copyObj.pcm.pcmOffset = pcmOffset[p].getValue();
+    copyObj.pcm.pcmRatio = pcmRatio[p].getValue();
+    copyObj.ssgEg.ssgEg = se[p].getSelectedId();
+    copyObj.ssgEg.fmSsgEgFreq = seFreq[p].getValue();
+    copyObj.mask.mask = mask[p].getToggleState();
+
+    fix[p].copyParams(copyObj.fix);
+    lfo[p].copyParams(copyObj.lfo);
+    pitchEnv[p].copyParams(copyObj.pAdsr);
+    ssgSwEnv[p].copyParams(copyObj.aSsgSw);
+}
+
+void GuiOpzx7::pasteParams(CopyOpzx7& copyObj) {
+    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
+    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    levelSlider.setValue(copyObj.fmBase.level, juce::sendNotification);
+    algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
+    feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
+    panpotEnableToggle.setToggleState(copyObj.panpot.enable, juce::sendNotification);
+    panpotSlider.setValue(copyObj.panpot.panpot, juce::sendNotification);
+    glLfo.pasteParams(copyObj.lfo);
+    unisonComponent.pasteParams(copyObj.unison);
+}
+
+void GuiOpzx7::pasteOpParams(int p, CopyOpzx7Op& copyObj) {
+    mulDetune[p].setMul(copyObj.detune.mul);
+    mulDetune[p].setMulRatio(copyObj.detune.mulRatio);
+    mulDetune[p].setDt1(copyObj.detune.dt);
+    mulDetune[p].setDt2(copyObj.detune.dt2);
+    mulDetune[p].setDt3(copyObj.detune.dt3);
+    rgEn[p].setToggleState(copyObj.aAdsr.rgEnable, juce::sendNotification);
+    rgAr[p].setValue(copyObj.aAdsr.rgAr, juce::sendNotification);
+    rgD1r[p].setValue(copyObj.aAdsr.rgD1r, juce::sendNotification);
+    rgD1l[p].setValue(copyObj.aAdsr.rgD1l, juce::sendNotification);
+    rgD2r[p].setValue(copyObj.aAdsr.rgG2r, juce::sendNotification);
+    rgRr[p].setValue(copyObj.aAdsr.rgRr, juce::sendNotification);
+    rgTl[p].setValue(copyObj.aAdsr.rgTl, juce::sendNotification);
+    ar[p].setValue(copyObj.aAdsr.ar, juce::sendNotification);
+    d1r[p].setValue(copyObj.aAdsr.d1r, juce::sendNotification);
+    d1l[p].setValue(copyObj.aAdsr.d1l, juce::sendNotification);
+    d2r[p].setValue(copyObj.aAdsr.d2r, juce::sendNotification);
+    rr[p].setValue(copyObj.aAdsr.rr, juce::sendNotification);
+    tl[p].setValue(copyObj.aAdsr.tl, juce::sendNotification);
+    bypass[p].setToggleState(copyObj.aAdsr.bypass, juce::sendNotification);
+    kor[p].setToggleState(copyObj.aAdsr.kor, juce::sendNotification);
+    sus[p].setToggleState(copyObj.aAdsr.sus, juce::sendNotification);
+    xof[p].setToggleState(copyObj.aAdsr.xof, juce::sendNotification);
+    ksMode[p].setSelectedId((int)copyObj.aAdsr.mode, juce::sendNotification);
+    ksrMA7[p].setToggleState(copyObj.aAdsr.ksrMA7, juce::sendNotification);
+    kslMA7[p].setSelectedId(copyObj.aAdsr.kslMA7, juce::sendNotification);
+    ksrOPZ[p].setValue(copyObj.aAdsr.ksrOPZ, juce::sendNotification);
+    kslOPZ[p].setValue(copyObj.aAdsr.kslOPZ, juce::sendNotification);
+    ksBp[p].setValue(copyObj.aAdsr.ksBp, juce::sendNotification);
+    ksLc[p].setSelectedId(copyObj.aAdsr.ksLc, juce::sendNotification);
+    ksRc[p].setSelectedId(copyObj.aAdsr.ksRc, juce::sendNotification);
+    ksLd[p].setValue(copyObj.aAdsr.ksLd, juce::sendNotification);
+    ksRd[p].setValue(copyObj.aAdsr.ksRd, juce::sendNotification);
+    ksRs[p].setValue(copyObj.aAdsr.ksRs, juce::sendNotification);
+    ws[p].setSelectedId(copyObj.waveSelect, juce::sendNotification);
+    pcmOffset[p].setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
+    pcmRatio[p].setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
+    se[p].setSelectedId(copyObj.ssgEg.ssgEg, juce::sendNotification);
+    seFreq[p].setValue(copyObj.ssgEg.fmSsgEgFreq, juce::sendNotification);
+    mask[p].setToggleState(copyObj.mask.mask, juce::sendNotification);
+
+    fix[p].pasteParams(copyObj.fix);
+    lfo[p].pasteParams(copyObj.lfo);
+    pitchEnv[p].pasteParams(copyObj.pAdsr);
+    ssgSwEnv[p].pasteParams(copyObj.aSsgSw);
+}
+
+void GuiOpzx7::importOpLfoParam(int opIndex) {
+    lfo[opIndex].importParams();
+}
+
+void GuiOpzx7::exportOpLfoParam(int opIndex) {
+    lfo[opIndex].exportParams();
+}
+
+void GuiOpzx7::importDetuneParam(int opIndex) {
+    mulDetune[opIndex].importParams();
+}
+
+void GuiOpzx7::exportDetuneParam(int opIndex) {
+    mulDetune[opIndex].exportParams();
+}
+
+void GuiOpzx7::importPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].importParams();
+}
+
+void GuiOpzx7::exportPitchEnvParam(int opIndex) {
+    pitchEnv[opIndex].exportParams();
+}
+
+void GuiOpzx7::importSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].importParams();
+}
+
+void GuiOpzx7::exportSsgSwEnvParam(int opIndex) {
+    ssgSwEnv[opIndex].exportParams();
+}
+
+void GuiOpzx7::importLfoParam() {
+    glLfo.importParams();
+}
+
+void GuiOpzx7::exportLfoParam() {
+    glLfo.exportParams();
+}
+
+void GuiOpzx7::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiOpzx7::exportUnisonParam() {
+    unisonComponent.exportParams();
+}
+
+void GuiOpzx7::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiOpzx7::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
+
+}
+
+void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
+
 }

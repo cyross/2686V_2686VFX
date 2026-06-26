@@ -41,7 +41,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "Freq", .isReset = true});
+    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "FQ", .isReset = true});
     freq.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setWantsKeyboardFocus(true);
     freq.setExplicitFocusOrder(++tabOrder);
@@ -224,7 +224,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     note.setup({ .parent = parent, .title = "" });
     note.setText(noteLabelText[(int)freqNote.getValue()], juce::NotificationType::dontSendNotification);
 
-    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = juce::Colours::blue.darker(0.1f).withAlpha(0.2f), .isReset = false, .isResized = false});
+    applyNote.setup(GuiTextButton::Config{ .parent = parent, .title = "Apply", .bgColor = juce::Colours::blue.darker(0.1f).withAlpha(0.6f), .isReset = false, .isResized = false});
     applyNote.setWantsKeyboardFocus(true);
     applyNote.setExplicitFocusOrder(++tabOrder);
     applyNote.onClick = [this] {
@@ -480,4 +480,14 @@ void GuiComponentFix::setEnables(bool enabled)
     freqNote.setEnabled(enabled);
     note.setEnabled(enabled);
     applyNote.setEnabled(enabled);
+}
+
+void GuiComponentFix::copyParams(CopyFix& copyObj) {
+    copyObj.fixedMode = enable.getToggleState();
+    copyObj.fixedFreq = freq.getValue();
+}
+
+void GuiComponentFix::pasteParams(CopyFix& copyObj) {
+    enable.setToggleState(copyObj.fixedMode, juce::sendNotification);
+    freq.setValue(copyObj.fixedFreq, juce::sendNotification);
 }

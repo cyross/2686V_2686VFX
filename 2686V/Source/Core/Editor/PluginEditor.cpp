@@ -27,6 +27,9 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
+    int mode = audioProcessor.apvts.state.getProperty(ProcessorStateKey::windowMode, (int)ViewMode::Full);
+    viewMode = (ViewMode)mode;
+
     GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
 
     opnaGui = std::make_unique<GuiOpna>(context);
@@ -241,112 +244,34 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         switch (viewMode) {
         case ViewMode::Full: // -> MiniPlayer
             viewMode = ViewMode::MiniPlayer;
+            audioProcessor.apvts.state.setProperty(ProcessorStateKey::windowMode, (int)viewMode, nullptr);
 
             updatePreviewVisibilityToProcessor();
 
-            tabs.setVisible(false);
-            logoLabel.setVisible(false);
-            miniLogoLabel.setVisible(true);
-            mainIconImage.setVisible(false);
-            miniIconImage.setVisible(true);
-            miniPresetLabel.setVisible(true);
-            miniModeLabel.setVisible(true);
-            previewLabel.setVisible(true);
-            realtimePreview.setVisible(true);
-
-            // --- ミニプレイヤーモードへ移行 ---
-            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMinimum);
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMinimum);
-            miniLogoLabel.setBounds(10, 244, 200, 48);
-            miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-            miniPresetLabel.setBounds(5, 260, 150, 15);
-            miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
-            miniModeLabel.setBounds(5, 278, 150, 15);
-            realtimePreview.setBounds(10, 50, 200, 200);
-            previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-            previewLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
-            previewLabel.setBounds(10, 50, 180, 20);
-
-            setScaleFactor(uiScale);
-
-            setSize(220, 300);
-
-            startTimerHz(15);
+            showMiniPlayerView();
 
             break;
         case ViewMode::MiniPlayer: // -> Minimum
             viewMode = ViewMode::Minimum;
+            audioProcessor.apvts.state.setProperty(ProcessorStateKey::windowMode, (int)viewMode, nullptr);
 
-            tabs.setVisible(false);
-            logoLabel.setVisible(false);
-            miniLogoLabel.setVisible(true);
-            mainIconImage.setVisible(false);
-            miniIconImage.setVisible(true);
-            miniPresetLabel.setVisible(true);
-            miniModeLabel.setVisible(true);
-            previewLabel.setVisible(false);
-            realtimePreview.setVisible(false);
-
-            // --- ミニマムモードへ移行 ---
-            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToFull);
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToFull);
-            miniLogoLabel.setBounds(10, 44, 200, 48);
-            miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-            miniPresetLabel.setBounds(5, 5, 150, 15);
-            miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
-            miniModeLabel.setBounds(5, 25, 150, 15);
-
-            setScaleFactor(uiScale);
-
-            setSize(220, 100);
+            showMinimumView();
 
             break;
         case ViewMode::Minimum: // -> Full
             viewMode = ViewMode::Full;
+            audioProcessor.apvts.state.setProperty(ProcessorStateKey::windowMode, (int)viewMode, nullptr);
 
             updatePreviewVisibilityToProcessor();
 
-            tabs.setVisible(true);
-            logoLabel.setVisible(true);
-            miniLogoLabel.setVisible(false);
-            mainIconImage.setVisible(true);
-            miniIconImage.setVisible(false);
-            miniPresetLabel.setVisible(false);
-            miniModeLabel.setVisible(false);
-            previewLabel.setVisible(isPreviewVisible);
-            realtimePreview.setVisible(isPreviewVisible);
-
-            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
-            previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-            previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-
-            updateKeyboardVisibility();
-
-            updateTimerState();
+            showFullView();
 
             break;
         default: // -> Full
             viewMode = ViewMode::Full;
+            audioProcessor.apvts.state.setProperty(ProcessorStateKey::windowMode, (int)viewMode, nullptr);
 
-            tabs.setVisible(true);
-            logoLabel.setVisible(true);
-            miniLogoLabel.setVisible(false);
-            mainIconImage.setVisible(true);
-            miniIconImage.setVisible(false);
-            miniPresetLabel.setVisible(false);
-            miniModeLabel.setVisible(false);
-            previewLabel.setVisible(isPreviewVisible);
-            realtimePreview.setVisible(isPreviewVisible);
-
-            toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
-            toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
-            previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-            previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-
-            updateKeyboardVisibility();
-
-            updateTimerState();
+            showFullView();
         }
         };
 
@@ -388,6 +313,41 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 
     audioProcessor.undoManager.removeChangeListener(this);
 
+    stopTimer();
+}
+
+void AudioPlugin2686VEditor::updateWindowSize()
+{
+    // スケールを適用
+    setScaleFactor(uiScale);
+
+    // viewMode に応じたウィンドウサイズを計算して適用
+    if (viewMode == ViewMode::MiniPlayer) {
+        setSize(220, 300);
+    }
+    else if (viewMode == ViewMode::Minimum) {
+        setSize(220, 100);
+    }
+    else {
+        int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
+        int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
+        setSize(targetWidth, targetHeight);
+    }
+}
+
+void AudioPlugin2686VEditor::showFullView() {
+    updateWindowSize();
+    updateTimerState();
+}
+
+void AudioPlugin2686VEditor::showMiniPlayerView() {
+    updatePreviewVisibilityToProcessor();
+    updateWindowSize();
+    startTimerHz(15);
+}
+
+void AudioPlugin2686VEditor::showMinimumView() {
+    updateWindowSize();
     stopTimer();
 }
 
@@ -449,82 +409,130 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
 
 void AudioPlugin2686VEditor::resized()
 {
+    // =========================================================================
+    // 1. 現在の ViewMode に基づいて、全コンポーネントの表示/非表示(setVisible)と
+    //    ラベルのスタイルを設定する
+    // =========================================================================
+    bool isFull = (viewMode == ViewMode::Full);
+    bool isMini = (viewMode == ViewMode::MiniPlayer);
+    bool isMin = (viewMode == ViewMode::Minimum);
+
+    // Full View 専用のコンポーネント
+    tabs.setVisible(isFull);
+    logoLabel.setVisible(isFull);
+    mainIconImage.setVisible(isFull);
+    fxGui->setVisible(isFull);
+    undoButton.setVisible(isFull);
+    redoButton.setVisible(isFull);
+    copyParamsButton.setVisible(isFull);
+    pasteParamsButton.setVisible(isFull);
+    initParamsButton.setVisible(isFull);
+    togglePreviewBtn.setVisible(isFull);
+
+    if (midiKeyboard != nullptr) {
+        midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard && isFull);
+    }
+
+    // Mini / Minimum 共通のコンポーネント
+    miniLogoLabel.setVisible(isMini || isMin);
+    miniIconImage.setVisible(isMini || isMin);
+    miniPresetLabel.setVisible(isMini || isMin);
+    miniModeLabel.setVisible(isMini || isMin);
+
+    // プレビューの表示判定 (FullでトグルがON、またはMiniPlayerの時)
+    bool showPreview = (isFull && isPreviewVisible) || isMini;
+    previewLabel.setVisible(showPreview);
+    realtimePreview.setVisible(showPreview);
+
+    // モードに応じたラベルのテキストとスタイルの更新
+    if (isFull) {
+        toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
+        toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
+        previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+    }
+    else if (isMini) {
+        toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMinimum);
+        toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMinimum);
+        miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+        miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+        previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+        previewLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
+    }
+    else {
+        toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToFull);
+        toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToFull);
+        miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
+        miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+    }
+
+    // =========================================================================
+    // 2. 実際のレイアウト計算 (setBounds)
+    // =========================================================================
     int textWidth = 0;
     int textHeight = 0;
     int iconSize = 0;
     int iconX = 0;
     int iconY = 0;
 
-    switch (viewMode) {
-    case ViewMode::MiniPlayer:
-        // ミニモード用のレイアウト
+    if (isMini || isMin) {
         toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
         panicButton.setBounds(getWidth() - 35, 28, 30, 20);
 
-        miniPresetLabel.setBounds(10, 5, 150, 20);
-        miniModeLabel.setBounds(10, 25, 150, 20);
+        if (isMini) {
+            miniPresetLabel.setBounds(10, 5, 150, 20);
+            miniModeLabel.setBounds(10, 25, 150, 20);
+            miniLogoLabel.setBounds(10, 244, 200, 48);
 
-        miniLogoLabel.setBounds(10, 244, 200, 48);
+            textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
+            textHeight = (int)miniLogoLabel.getFont().getHeight();
+            iconSize = textHeight - 12;
+            iconX = 210 - textWidth - iconSize - 8;
+            iconY = 244 + textHeight / 2 - 6;
+            miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
 
-        textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
-        textHeight = (int)miniLogoLabel.getFont().getHeight();
-        iconSize = textHeight - 12;
-        iconX = 210 - textWidth - iconSize - 8;
-        iconY = 244 + textHeight / 2 - 6;
+            realtimePreview.setBounds(10, 50, 200, 200);
+            previewLabel.setBounds(10, 50, 180, 20);
+        }
+        else { // Minimum
+            miniPresetLabel.setBounds(10, 5, 150, 20);
+            miniModeLabel.setBounds(10, 25, 150, 20);
+            miniLogoLabel.setBounds(10, 44, 200, 48);
 
-        miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
-
-        return;
-    case ViewMode::Minimum:
-        // ミニモード用のレイアウト
-        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
-        panicButton.setBounds(getWidth() - 35, 28, 30, 20);
-
-        miniPresetLabel.setBounds(10, 5, 150, 20);
-        miniModeLabel.setBounds(10, 25, 150, 20);
-
-        miniLogoLabel.setBounds(10, 44, 200, 48);
-
-        textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
-        textHeight = (int)miniLogoLabel.getFont().getHeight();
-        iconSize = textHeight - 12;
-        iconX = 210 - textWidth - iconSize - 8;
-        iconY = 44 + textHeight / 2 - 6;
-
-        miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
-
-        return;
+            textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
+            textHeight = (int)miniLogoLabel.getFont().getHeight();
+            iconSize = textHeight - 12;
+            iconX = 210 - textWidth - iconSize - 8;
+            iconY = 44 + textHeight / 2 - 6;
+            miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
+        }
+        return; // Full Viewの計算は行わずに終了
     }
 
+    // =========================================================================
+    // 3. Full View のレイアウト計算
+    // =========================================================================
     auto area = getLocalBounds();
 
-    // 画面の一番下を鍵盤UIに割り当てる
-    if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr)
-    {
+    if (audioProcessor.showVirtualKeyboard && midiKeyboard != nullptr) {
         midiKeyboard->setBounds(area.removeFromBottom(EditorGuiValue::KeyboardHeight));
     }
 
-    if (isPreviewVisible)
-    {
+    if (isPreviewVisible) {
         auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
         previewLabel.setBounds(rightArea.getX() + 4, 300, 200, 20);
         realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
     }
 
-    int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8: 0;
+    int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8 : 0;
     togglePreviewBtn.setBounds(getWidth() - 45 - previewPaddingRight, 5, 40, 20);
     panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
     redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
     undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
-#if true
     copyParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
-    initParamsButton.setBounds(getWidth() - 280 - previewPaddingRight, 5, 60, 20);
-#else
-    pasteParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
-    copyParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
+    pasteParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
     initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
-#endif
-    toggleMiniBtn.setBounds(getWidth() - 315 - previewPaddingRight, 5, 30, 20); // 右上に配置
+    toggleMiniBtn.setBounds(getWidth() - 365 - previewPaddingRight, 5, 30, 20);
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     logoLabel.setBounds(reducedArea);
@@ -532,17 +540,15 @@ void AudioPlugin2686VEditor::resized()
     int mainTextWidth = (int)juce::GlyphArrangement::getStringWidth(logoLabel.getFont(), juce::StringRef(logoLabel.getText()));
     int mainTextHeight = (int)logoLabel.getFont().getHeight();
     int mainIconSize = mainTextHeight - 44;
-    int mainIconX = reducedArea.getRight() - mainTextWidth - mainIconSize - 15; // 余白15px
+    int mainIconX = reducedArea.getRight() - mainTextWidth - mainIconSize - 15;
     int mainIconY = reducedArea.getBottom() - ((mainTextHeight + mainIconSize) / 2);
-
     mainIconImage.setBounds(mainIconX, mainIconY, mainIconSize, mainIconSize);
 
     tabs.setBounds(area);
 
-    // タブの中身（コンテンツ領域）
     auto content = tabs.getLocalBounds();
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
-    tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height); // 全体の余白
+    tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
 
     opnaGui->layout(tabContent);
     opnGui->layout(tabContent);
@@ -560,7 +566,7 @@ void AudioPlugin2686VEditor::resized()
     settingsGui->layout(tabContent);
     aboutGui->layout(tabContent);
     curveGui->layout(tabContent);
-    
+
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
     fxGui->layout(content);
@@ -739,8 +745,19 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.wallpaperPath.isEmpty() ? Io::empty : juce::File(audioProcessor.wallpaperPath).getFileName(),
                     audioProcessor.defaultSampleDir,
                     audioProcessor.defaultPresetDir,
-                    audioProcessor.defaultWavetableDir
-                );
+                    audioProcessor.defaultWavetableDir,
+                    audioProcessor.defaultFxOrderDir,
+                    audioProcessor.defaultFxParamDir,
+                    audioProcessor.defaultLfoParamDir,
+                    audioProcessor.defaultAmpEnvParamDir,
+                    audioProcessor.defaultPitchEnvParamDir,
+                    audioProcessor.defaultSsgSwEnvParamDir,
+                    audioProcessor.defaultDetuneParamDir,
+                    audioProcessor.defaultUnisonParamDir,
+                    audioProcessor.defaultQualityParamDir,
+                    audioProcessor.defaultPcmPlayParamDir,
+                    audioProcessor.defaultToneNoiseParamDir
+                    );
 
                 // 壁紙再描画
                 loadWallpaperImage();
@@ -1154,12 +1171,11 @@ void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
 
 void AudioPlugin2686VEditor::updateKeyboardVisibility()
 {
-    // コンポーネントの表示/非表示を切り替え
+    // 仮想キーボードが有効で、かつFull Viewの時のみ表示する
     if (midiKeyboard != nullptr) {
-        midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard);
+        midiKeyboard->setVisible(audioProcessor.showVirtualKeyboard && viewMode == ViewMode::Full);
     }
-
-    updateUiScale(uiScale);
+    updateWindowSize();
 }
 
 void AudioPlugin2686VEditor::timerCallback()
@@ -1482,14 +1498,7 @@ void AudioPlugin2686VEditor::parentHierarchyChanged()
 
 void AudioPlugin2686VEditor::updateUiScale(float newScale) {
     uiScale = newScale;
-
-    setScaleFactor(uiScale);
-
-    // プレビューと鍵盤の表示状態から、現在の論理サイズを計算して適用する
-    int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
-    int targetHeight = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
-
-    setSize(targetWidth, targetHeight); // DAWに新しいサイズを通知
+    updateWindowSize();
 };
 
 void AudioPlugin2686VEditor::resetMidiSettings() {
@@ -1510,4 +1519,354 @@ void AudioPlugin2686VEditor::breadcastLevel(float level) {
     rhythmGui->setLevel(level);
     adpcmGui->setLevel(level);
     beepGui->setLevel(level);
+}
+
+void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
+    CopyRhythmPad padParams;
+
+    rhythmGui->copyPadParams(from, padParams);
+
+    rhythmGui->pastePadParams(to, padParams);
+}
+
+void AudioPlugin2686VEditor::copyOplOpParams(int from, int to) {
+    CopyOplOp opParams;
+
+    oplGui->copyOpParams(from, opParams);
+
+    oplGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpl3OpParams(int from, int to) {
+    CopyOpl3Op opParams;
+
+    opl3Gui->copyOpParams(from, opParams);
+
+    opl3Gui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
+    CopyOpmOp opParams;
+
+    opmGui->copyOpParams(from, opParams);
+
+    opmGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
+    CopyOpnOp opParams;
+
+    opnGui->copyOpParams(from, opParams);
+
+    opnGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
+    CopyOpnaOp opParams;
+
+    opnaGui->copyOpParams(from, opParams);
+
+    opnaGui->pasteOpParams(to, opParams);
+}
+
+
+void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
+    CopyOpzx7Op opParams;
+
+    opzx7Gui->copyOpParams(from, opParams);
+
+    opzx7Gui->pasteOpParams(to, opParams);
+}
+
+void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
+    CopyOpl oplParams;
+    CopyOpl3 opl3Params;
+
+    oplGui->copyParams(oplParams);
+
+    // アルゴリズムは母数が違うのでコピーしない
+    opl3Params.fmBase.level = oplParams.fmBase.level;
+    opl3Params.fmBase.feedback = oplParams.fmBase.feedback;
+    opl3Params.quality = oplParams.quality;
+    opl3Params.unison = oplParams.unison;
+
+    opl3Gui->pasteParams(opl3Params);
+
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
+        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
+    }
+}
+
+void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
+    for (int i = 0; i < 2; i++) {
+        CopyOplOp oplOpParams;
+        CopyOpl3Op opl3OpParams;
+
+        oplGui->copyOpParams(i, oplOpParams);
+
+        opl3OpParams.detune = oplOpParams.detune;
+        opl3OpParams.aAdsr = oplOpParams.aAdsr;
+        // waveSelectは、母数が違うためコピーしない
+        opl3OpParams.lfo = oplOpParams.lfo;
+        opl3OpParams.pAdsr = oplOpParams.pAdsr;
+        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
+        opl3OpParams.mask = oplOpParams.mask;
+
+        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
+    CopyOpl3 opl3Params;
+    CopyOpl oplParams;
+
+    opl3Gui->copyParams(opl3Params);
+
+    // アルゴリズムは母数が違うのでコピーしない
+    oplParams.fmBase.level = opl3Params.fmBase.level;
+    oplParams.fmBase.feedback = opl3Params.fmBase.feedback;
+    oplParams.quality = opl3Params.quality;
+    oplParams.unison = opl3Params.unison;
+
+    oplGui->pasteParams(oplParams);
+
+    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
+    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
+    // OPL3 の OP3, OP4 のパラメータを OPL にコピー
+    for (int i = 0; i < 2; i++) {
+        CopyOpl3Op opl3OpParams;
+        CopyOplOp oplOpParams;
+
+        opl3Gui->copyOpParams(i + 2, opl3OpParams);
+
+        oplOpParams.detune = opl3OpParams.detune;
+        oplOpParams.aAdsr = opl3OpParams.aAdsr;
+        oplOpParams.aAdsr.sus = false;
+        // waveSelectは、母数が違うためコピーしない
+        oplOpParams.lfo = opl3OpParams.lfo;
+        oplOpParams.pAdsr = opl3OpParams.pAdsr;
+        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
+        oplOpParams.mask = opl3OpParams.mask;
+
+        oplGui->pasteOpParams(i, oplOpParams); // OP3 -> OP1 / OP4 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
+    CopyOpn opnParams;
+    CopyOpna opnaParams;
+
+    opnGui->copyParams(opnParams);
+
+    opnaParams.fmBase = opnParams.fmBase;
+    // OPNAへの pan は必ずC
+    opnaParams.pan.pan = 0;
+    opnaParams.n88Lfo = opnParams.n88Lfo;
+    opnaParams.quality = opnParams.quality;
+    opnaParams.unison = opnParams.unison;
+
+    opnaGui->pasteParams(opnaParams);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnOp opnOpParams;
+        CopyOpnaOp opnaOpParams;
+
+        opnGui->copyOpParams(i, opnOpParams);
+
+        opnaOpParams.detune = opnOpParams.detune;
+        opnaOpParams.aAdsr = opnOpParams.aAdsr;
+        opnaOpParams.fix = opnOpParams.fix;
+        opnaOpParams.n88Lfo = opnOpParams.n88Lfo;
+        opnaOpParams.pAdsr = opnOpParams.pAdsr;
+        opnaOpParams.aSsgSw = opnOpParams.aSsgSw;
+        opnaOpParams.mask = opnOpParams.mask;
+        opnaOpParams.waveSelect = 0;
+        opnaOpParams.ssgEg.ssgEg = 0;
+        opnaOpParams.ssgEg.fmSsgEgFreq = 0.0f;
+        opnaOpParams.opnaLfo.freqsIndex = 0;
+        opnaOpParams.opnaLfo.syncDelay = 0;
+        opnaOpParams.opnaLfo.am = false;
+        opnaOpParams.opnaLfo.amSmoothRate = 0.0f;
+        opnaOpParams.opnaLfo.ams = 0.0f;
+        opnaOpParams.opnaLfo.pm = false;
+        opnaOpParams.opnaLfo.pms = 0.0f;
+
+        opnaGui->pasteOpParams(i, opnaOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
+    CopyOpna opnaParams;
+    CopyOpn opnParams;
+
+    opnaGui->copyParams(opnaParams);
+
+    opnParams.fmBase = opnaParams.fmBase;
+    opnParams.n88Lfo = opnaParams.n88Lfo;
+    opnParams.quality = opnaParams.quality;
+    opnParams.unison = opnaParams.unison;
+
+    opnGui->pasteParams(opnParams);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOp opnaOpParams;
+        CopyOpnOp opnOpParams;
+
+        opnaGui->copyOpParams(i, opnaOpParams);
+
+        opnOpParams.detune = opnaOpParams.detune;
+        opnOpParams.aAdsr = opnaOpParams.aAdsr;
+        opnOpParams.fix = opnaOpParams.fix;
+        opnOpParams.n88Lfo = opnaOpParams.n88Lfo;
+        opnOpParams.pAdsr = opnaOpParams.pAdsr;
+        opnOpParams.aSsgSw = opnaOpParams.aSsgSw;
+        opnOpParams.mask = opnaOpParams.mask;
+
+        opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnaParamsToOpm() {
+    CopyOpnaOpnOpm params;
+
+    opnaGui->copyParamsOpnOpm(params);
+
+    opmGui->pasteParamsOpnaOpn(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opnaGui->copyOpParamsOpnOpm(i, opParams);
+
+        opmGui->pasteOpParamsOpnaOpn(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpmParamsToOpna() {
+    CopyOpnaOpnOpm params;
+
+    opmGui->copyParamsOpnaOpn(params);
+
+    opnaGui->pasteParamsOpnOpm(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opmGui->copyOpParamsOpnaOpn(i, opParams);
+
+        opnaGui->pasteOpParamsOpnOpm(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpnParamsToOpm() {
+    CopyOpnaOpnOpm params;
+
+    opnGui->copyParamsOpnaOpm(params);
+
+    opmGui->pasteParamsOpnaOpn(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opnGui->copyOpParamsOpnaOpm(i, opParams);
+
+        opmGui->pasteOpParamsOpnaOpn(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::copyOpmParamsToOpn() {
+    CopyOpnaOpnOpm params;
+
+    opmGui->copyParamsOpnaOpn(params);
+
+    opnGui->pasteParamsOpnaOpm(params);
+
+    for (int i = 0; i < 4; i++) {
+        CopyOpnaOpnOpmOp opParams;
+
+        opmGui->copyOpParamsOpnaOpn(i, opParams);
+
+        opnGui->pasteOpParamsOpnaOpm(i, opParams);
+    }
+}
+
+void AudioPlugin2686VEditor::updateFxOrder(){
+    fxGui->updateFxOrder();
 }

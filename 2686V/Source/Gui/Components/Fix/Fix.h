@@ -13,6 +13,8 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentFix : public GuiBase {
     static std::array<juce::String, 128> noteLabelText;
 
@@ -109,4 +111,6 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnables(bool enabled);
+    void copyParams(CopyFix& copyObj);
+    void pasteParams(CopyFix& copyObj);
 };

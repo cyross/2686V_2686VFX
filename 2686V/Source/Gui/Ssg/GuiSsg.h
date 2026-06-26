@@ -17,6 +17,8 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -28,11 +30,10 @@ class GuiSsg : public GuiBase
     GuiGroup dutyGroup;
     GuiGroup triGroup;
 
+    GuiComponentPresetName presetName;
+
     GuiCategoryLabel qualityCat;
-    GuiCategoryLabel shapeCat;
-    GuiCategoryLabel toneCat;
-    GuiCategoryLabel noiseCat;
-    GuiCategoryLabel mixCat;
+    GuiCategoryLabel formCat;
     GuiCategoryLabel pulseInvCat;
     GuiCategoryLabel triPeakCat;
     GuiCategoryLabel hwEnvCat;
@@ -106,10 +107,17 @@ class GuiSsg : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
+    GuiSeparator uSep001;
+    GuiComponentImportExport ieToneNoise;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieAmpEnv;
+    GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieDetune;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
 
-    // Preset Name Label
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -129,13 +137,11 @@ public:
 	GuiSsg(const GuiContext& context) :
         GuiBase(context), 
         mainGroup(context),
+        presetName(context),
         dutyGroup(context),
         triGroup(context),
         qualityCat(context),
-        shapeCat(context),
-        toneCat(context),
-        noiseCat(context),
-        mixCat(context),
+        formCat(context),
         pulseInvCat(context),
         triPeakCat(context),
         hwEnvCat(context),
@@ -176,8 +182,15 @@ public:
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
+        uSep001(context),
+        ieToneNoise(context),
+        ieLfo(context),
+        ieAmpEnv(context),
+        iePitchEnv(context),
+        ieSsgSwEnv(context),
+        ieDetune(context),
+        ieUnison(context),
+        ieQuality(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -189,12 +202,29 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     void initParams();
+    void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importToneNoiseParam();
+    void exportToneNoiseParam();
+    void importLfoParam();
+    void exportLfoParam();
+    void importAmpEnvParam();
+    void exportAmpEnvParam();
+    void importPitchEnvParam();
+    void exportPitchEnvParam();
+    void importSsgSwEnvParam();
+    void exportSsgSwEnvParam();
+    void importDetuneParam();
+    void exportDetuneParam();
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

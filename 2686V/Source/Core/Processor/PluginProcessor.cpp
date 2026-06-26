@@ -389,6 +389,13 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         xml->setAttribute(PresetKey::opzx7WtPathPrefix + juce::String(i), makeWtPathRelative(juce::File(opzx7WtFilePaths[i])));
         xml->setAttribute(PresetKey::opzx7Wt2PathPrefix + juce::String(i), makeWtPathRelative(juce::File(opzx7Wt2FilePaths[i])));
     }
+
+    // FXルーティング
+    juce::StringArray sa;
+    for (int fxId : prFx.getOrder())
+        sa.add(juce::String(fxId));
+
+    xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
@@ -442,6 +449,32 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
                 loadOpzx7Wt2File(i, wt2File);
             }
         }
+
+        // FXルーティング
+        juce::String fxOrderStr = xmlState->getStringAttribute(SettingsKey::fxOrder);
+
+        // 2. スペースで分割して StringArray に展開
+        juce::StringArray sa;
+        sa.addTokens(fxOrderStr, " ", "");
+
+        // 3. int 配列に復元
+        std::vector<int> loadedFxOrder;
+        for (const auto& token : sa)
+        {
+            loadedFxOrder.push_back(token.getIntValue());
+        }
+
+        int loadedSize = loadedFxOrder.size();
+        int effectSize = prFx.getEffectsNumber();
+
+        // プリセットのエフェクト数とプラグイン内のエフェクト数にズレがあるときは、残りを埋める
+        if (loadedSize < effectSize) {
+            for (int i = loadedSize; i < effectSize; i++) {
+                loadedFxOrder.push_back(i);
+            }
+        }
+
+        prFx.updateOrder(loadedFxOrder);
     }
 };
 
@@ -540,6 +573,17 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultSampleDir, defaultSampleDir);
     xml.setAttribute(SettingsKey::defaultPresetDir, defaultPresetDir);
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
+    xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
+    xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+    xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
+    xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
+    xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
+    xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
+    xml.setAttribute(SettingsKey::defaultPcmPlayParamDir, defaultPcmPlayParamDir);
+    xml.setAttribute(SettingsKey::defaultToneNoiseParamDir, defaultToneNoiseParamDir);
     xml.setAttribute(SettingsKey::showTooltips, showTooltips);
     xml.setAttribute(SettingsKey::useHeadroom, useHeadroom);
     xml.setAttribute(SettingsKey::headroomGain, headroomGain);
@@ -562,6 +606,16 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultSampleDir = xml->getStringAttribute(SettingsKey::defaultSampleDir);
         defaultPresetDir = xml->getStringAttribute(SettingsKey::defaultPresetDir);
 		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
+        defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
+        defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
+        defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
+        defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
+        defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
+        defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
+        defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
+        defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
+        defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
+        defaultToneNoiseParamDir = xml->getStringAttribute(SettingsKey::defaultToneNoiseParamDir);
         showTooltips = xml->getBoolAttribute(SettingsKey::showTooltips, SettingsValue::Initial::showTooltip);
         useHeadroom = xml->getBoolAttribute(SettingsKey::useHeadroom, SettingsValue::Initial::useHeadroom);
         headroomGain = xml->getDoubleAttribute(SettingsKey::headroomGain, SettingsValue::Initial::headroomGain);
@@ -647,6 +701,137 @@ void AudioPlugin2686V::loadStartupSettings()
         defaultWavetableDir = newWavetableDir.getFullPathName();
     }
 
+    if (defaultFxOrderDir.isEmpty() || !juce::File(defaultFxOrderDir).isDirectory())
+    {
+        auto newFxOrderDir = pluginDir.getChildFile(Io::Folder::fxOrder);
+
+        // 存在していなければ作成
+        if (!newFxOrderDir.exists()) {
+            newFxOrderDir.createDirectory();
+        }
+
+        defaultFxOrderDir = newFxOrderDir.getFullPathName();
+    }
+
+    if (defaultFxParamDir.isEmpty() || !juce::File(defaultFxParamDir).isDirectory())
+    {
+        auto newFxParamDir = pluginDir.getChildFile(Io::Folder::fxParam);
+
+        // 存在していなければ作成
+        if (!newFxParamDir.exists()) {
+            newFxParamDir.createDirectory();
+        }
+
+        defaultFxParamDir = newFxParamDir.getFullPathName();
+    }
+
+    if (defaultLfoParamDir.isEmpty() || !juce::File(defaultLfoParamDir).isDirectory())
+    {
+        auto newLfoParamDir = pluginDir.getChildFile(Io::Folder::lfoParam);
+
+        // 存在していなければ作成
+        if (!newLfoParamDir.exists()) {
+            newLfoParamDir.createDirectory();
+        }
+
+        defaultLfoParamDir = newLfoParamDir.getFullPathName();
+    }
+
+    if (defaultAmpEnvParamDir.isEmpty() || !juce::File(defaultAmpEnvParamDir).isDirectory())
+    {
+        auto newAmpEnvParamDir = pluginDir.getChildFile(Io::Folder::ampEnvParam);
+
+        // 存在していなければ作成
+        if (!newAmpEnvParamDir.exists()) {
+            newAmpEnvParamDir.createDirectory();
+        }
+
+        defaultAmpEnvParamDir = newAmpEnvParamDir.getFullPathName();
+    }
+
+    if (defaultPitchEnvParamDir.isEmpty() || !juce::File(defaultPitchEnvParamDir).isDirectory())
+    {
+        auto newPitchEnvParamDir = pluginDir.getChildFile(Io::Folder::pitchEnvParam);
+
+        // 存在していなければ作成
+        if (!newPitchEnvParamDir.exists()) {
+            newPitchEnvParamDir.createDirectory();
+        }
+
+        defaultPitchEnvParamDir = newPitchEnvParamDir.getFullPathName();
+    }
+
+    if (defaultSsgSwEnvParamDir.isEmpty() || !juce::File(defaultSsgSwEnvParamDir).isDirectory())
+    {
+        auto newSsgSwEnvParamDir = pluginDir.getChildFile(Io::Folder::ssgSwEnvParam);
+
+        // 存在していなければ作成
+        if (!newSsgSwEnvParamDir.exists()) {
+            newSsgSwEnvParamDir.createDirectory();
+        }
+
+        defaultSsgSwEnvParamDir = newSsgSwEnvParamDir.getFullPathName();
+    }
+
+    if (defaultDetuneParamDir.isEmpty() || !juce::File(defaultDetuneParamDir).isDirectory())
+    {
+        auto newDetuneParamDir = pluginDir.getChildFile(Io::Folder::detuneParam);
+
+        // 存在していなければ作成
+        if (!newDetuneParamDir.exists()) {
+            newDetuneParamDir.createDirectory();
+        }
+
+        defaultDetuneParamDir = newDetuneParamDir.getFullPathName();
+    }
+
+    if (defaultUnisonParamDir.isEmpty() || !juce::File(defaultUnisonParamDir).isDirectory())
+    {
+        auto newUnisonParamDir = pluginDir.getChildFile(Io::Folder::unisonParam);
+
+        // 存在していなければ作成
+        if (!newUnisonParamDir.exists()) {
+            newUnisonParamDir.createDirectory();
+        }
+
+        defaultUnisonParamDir = newUnisonParamDir.getFullPathName();
+    }
+
+    if (defaultQualityParamDir.isEmpty() || !juce::File(defaultQualityParamDir).isDirectory())
+    {
+        auto newQualityParamDir = pluginDir.getChildFile(Io::Folder::qualityParam);
+
+        // 存在していなければ作成
+        if (!newQualityParamDir.exists()) {
+            newQualityParamDir.createDirectory();
+        }
+
+        defaultQualityParamDir = newQualityParamDir.getFullPathName();
+    }
+
+    if (defaultPcmPlayParamDir.isEmpty() || !juce::File(defaultPcmPlayParamDir).isDirectory())
+    {
+        auto newPcmPlayParamDir = pluginDir.getChildFile(Io::Folder::pcmPlayParam);
+
+        // 存在していなければ作成
+        if (!newPcmPlayParamDir.exists()) {
+            newPcmPlayParamDir.createDirectory();
+        }
+
+        defaultPcmPlayParamDir = newPcmPlayParamDir.getFullPathName();
+    }
+
+    if (defaultToneNoiseParamDir.isEmpty() || !juce::File(defaultToneNoiseParamDir).isDirectory())
+    {
+        auto newToneNoiseParamDir = pluginDir.getChildFile(Io::Folder::toneNoiseParam);
+
+        // 存在していなければ作成
+        if (!newToneNoiseParamDir.exists()) {
+            newToneNoiseParamDir.createDirectory();
+        }
+
+        defaultToneNoiseParamDir = newToneNoiseParamDir.getFullPathName();
+    }
 }
 
 juce::String AudioPlugin2686V::getDefaultPresetDir()
@@ -668,7 +853,7 @@ void AudioPlugin2686V::unloadAdpcmFile()
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
             // レートはなんでも良いので適当な値(44100)を渡す
-            voice->getAdpcmCore()->setSampleData(emptyData, 44100.0);
+            voice->getAdpcmCore()->clearBuffer();
         }
     }
 }
@@ -689,7 +874,7 @@ void AudioPlugin2686V::unloadRhythmFile(int padIndex)
     {
         if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
         {
-            voice->getRhythmCore()->setSampleData(padIndex, emptyData, 44100.0);
+            voice->getRhythmCore()->clearBuffer(padIndex);
         }
     }
 }
@@ -755,10 +940,47 @@ juce::File AudioPlugin2686V::resolveWtPath(const juce::String& pathStr)
         return juce::File(pathStr);
     }
 
-    // 相対パスの場合は defaultSampleDir と結合する
+    // 相対パスの場合は defaultWavetableDir と結合する
     if (defaultWavetableDir.isNotEmpty())
     {
         juce::File baseDir(defaultWavetableDir);
+
+        // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
+        return baseDir.getChildFile(pathStr);
+    }
+
+    // ベースディレクトリがない場合は一応そのまま返す
+    return juce::File(pathStr);
+}
+
+// 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
+juce::String AudioPlugin2686V::makeFxOrderPathRelative(const juce::File& targetFile)
+{
+    // ファイルが無効、またはディレクトリ未設定ならそのまま絶対パスを返す
+    if (targetFile == juce::File() || defaultFxOrderDir.isEmpty())
+        return targetFile.getFullPathName();
+
+    juce::File baseDir(defaultFxOrderDir);
+
+    // JUCEネイティブの相対パス取得メソッドを使用（文字化けしない！）
+    return targetFile.getRelativePathFrom(baseDir);
+}
+
+// パス文字列（相対 or 絶対）を、読み込み可能なFileオブジェクトに復元する
+juce::File AudioPlugin2686V::resolveFxOrderPath(const juce::String& pathStr)
+{
+    if (pathStr.isEmpty()) return juce::File();
+
+    // すでに絶対パスであれば、そのまま使う (JUCEのメソッドで判定)
+    if (juce::File::isAbsolutePath(pathStr))
+    {
+        return juce::File(pathStr);
+    }
+
+    // 相対パスの場合は defaultFxOrderDir と結合する
+    if (defaultFxOrderDir.isNotEmpty())
+    {
+        juce::File baseDir(defaultFxOrderDir);
 
         // getChildFile は相対パス文字列を渡すと安全にフルパスに結合してくれます
         return baseDir.getChildFile(pathStr);
@@ -903,7 +1125,7 @@ void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7PcmBuffer(opIndex, &opzx7PcmBuffers[opIndex]);
+            voice-> clearOpzx7PcmBuffer(opIndex);
         }
     }
 }
@@ -1060,7 +1282,7 @@ void AudioPlugin2686V::unloadOpzx7WtFile(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7WtBuffer(opIndex, nullptr);
+            voice->clearOpzx7WtBuffer(opIndex);
         }
     }
 }
@@ -1114,7 +1336,7 @@ void AudioPlugin2686V::unloadOpzx7Wt2File(int opIndex)
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            voice->setOpzx7Wt2Buffer(opIndex, nullptr);
+            voice->clearOpzx7Wt2Buffer(opIndex);
         }
     }
 }
@@ -1139,4 +1361,13 @@ void AudioPlugin2686V::resetMidiSettings() {
     m_synth.useVelocity = false;
     m_synth.fixedVelocity = 0.5f;
     m_synth.pitchResetOnLegato = false;
+}
+
+std::vector<int> AudioPlugin2686V::getFxOrder() {
+    return prFx.getOrder();
+}
+
+void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
+{
+    prFx.updateOrder(newOrder);
 }

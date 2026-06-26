@@ -8,7 +8,12 @@
 #include "../../Core/Synth/SynthCore.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
+#include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
+#include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
+#include "../../Generator/Fm/Fix/FmFix.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -18,6 +23,7 @@ public:
     std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
 
     double m_position = 0.0;
+    double m_sampleRate = 44100.0; // DAW Host Sample Rate
     double m_bufferSampleRate = 16000.0;
     double m_sourceRate = 44100.0;
 
@@ -31,10 +37,23 @@ public:
     float m_panR = 1.0f;
     int m_qualityMode = 6; // ADPCM
     int m_rateIndex = 5;   // 16kHz
+    int m_interpolationMode = 1;
     bool m_isOneShot = true;
+    bool m_hasFinished = false;
+    float m_pitchBendRatio = 1.0f;
+    float m_modWheel = 0.0f;
+
+    float m_tone = 1.0f;
+    float m_noiseLevel = 0.0f; // Noise
+    float m_noiseFreq = 12000.0f; // Noise Frequency (Hz)
+    float m_mix = 0.0f;
 
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;
+    bool m_loopPointEnable = false;
+    float m_loopPointStart = 0.0f; // 0.0 to 1.0
+    float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
+    bool m_isReleased = false;
 
     float m_releaseParam = 0.1f; // パラメータ設定値
     float m_currentEnv = 1.0f;   // 現在の音量倍率 (0.0~1.0)
@@ -46,24 +65,35 @@ public:
     void setSampleData(const std::vector<float>& sourceData, double sourceRate);
     void setParameters(const RhythmPadParams& params);
     void triggerRelease(double hostSampleRate);
-    void start(float velocity, bool isLegato);
+    void setPitchBend(float pitchBend);
+    void setModulationWheel(float modWheel);
+    void start(float velocity, bool isLegato, float freq, float uOffset, int uTotal);
     void stop();
     bool isPlaying() const;
-    float getSample(double hostSampleRate, float pitchRatio);
+    float getSample();
     void setCurveCore(CurveCore* p_curveCore);
+    void clearBuffer();
 
     // ユニゾン・ハーモニー用
-    // ユニゾン時の位相オフセットを受け取る関数
-    void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }
     void setMonoMode(bool isMono) { m_isMonoMode = isMono; }
 private:
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
+    SsgSwEnv m_ssgSwEnv;
+    Opzx7Detune m_detune;
+    Opzx7LfoCore m_lfo;
+    FixMode m_fixMode;
+    SsgNoiseGen m_noiseGen;
+
+    float m_phase = 0.0f;
+    float m_currentFrequency = 440.0f;
+    float m_pitchRatio = 1.0f;
 
     void refreshPcmBuffer();
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
+    int m_unisonTotal = 1;
     float m_unisonPhaseOffset = 0.0f;
 };
 
@@ -88,6 +118,7 @@ public:
     void getSampleStereo(float& outL, float& outR);
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
+    void clearBuffer(int padIndex);
 
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;

@@ -432,14 +432,9 @@ void GuiWt2::setup()
 
     mainGroup.setup(*this, Wt2GuiText::Group::mainGroup);
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    mainGroup.contentCanvas.addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
-
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleForm, .invisibleTitle = Wt2GuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleQuality, .invisibleTitle = Wt2GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::bit, .title = Wt2GuiText::bit, .items = bdItems, .isReset = true });
@@ -463,8 +458,6 @@ void GuiWt2::setup()
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
-        updateCustomWaveCatOnChange();
-
         ctx.editor.resized();
         };
 
@@ -533,10 +526,41 @@ void GuiWt2::setup()
     customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveImportBtn.onClick = [this] { importWavetable(); };
 
-    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey.darker(0.8f), .isReset = false, .isResized = false});
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
+
+    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
+    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
+
+    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieDetune.onClickImport = [this] { importDetuneParam(); };
+    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+
+    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
+    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+
+    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
+    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+
+    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
+    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+
+    ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
+    ieQuality.onClickImport = [this] { importQualityParam(); };
+    ieQuality.onClickExport = [this] { exportQualityParam(); };
 
     // Custom Wave Group
     customWaveGroup.setup(*this, Wt2GuiText::Group::wtCustom);
@@ -596,11 +620,7 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     auto mmRect = mainArea.reduced(Wt2GuiValue::Group::Padding::width, Wt2GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Wt2GuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(Wt2GuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -615,16 +635,7 @@ void GuiWt2::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider, });
 
-    layoutMain({ .mainRect = mRect, .label = &waveSelector.label, .component = &waveSelector });
-
-    int index = waveSelector.getSelectedId();
-    bool visible = index == 9; // custom
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = mRect, .label = &sizeSelector.label, .component = &sizeSelector, });
-        layoutMain({ .mainRect = mRect, .label = &resoSelector.label, .component = &resoSelector, });
-    }
+    layoutFormCat(mRect);
 
     layoutModulationCat(mRect);
 
@@ -745,22 +756,11 @@ void GuiWt2::layout(juce::Rectangle<int> content)
 
     // スクロールコンテナの実質的な高さを、実際の表示領域に一致させる（スクロールバーを完全に隠す）
     customWaveGroup.setContentHeight(availableHeight);
-
-    updateCustomWaveCatOnChange();
 }
 
-void GuiWt2::updatePresetName(const juce::String& presetName)
+void GuiWt2::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
-}
-
-void GuiWt2::updateCustomWaveCatOnChange()
-{
-    int index = waveSelector.getSelectedId();
-    bool visible = index == 9; // custom
-
-    sizeSelector.setVisibleWithLabel(visible);
-    resoSelector.setVisibleWithLabel(visible);
+    presetName.updatePresetName(name);
 }
 
 // ==============================================================================
@@ -896,6 +896,29 @@ void GuiWt2::initParams()
     this->ctx.audioProcessor.initParams("WT2_");
 }
 
+void GuiWt2::layoutFormCat(Rectangle<int>& rect) {
+    layoutMainCategory({ .mainRect = rect, .component = &formCat });
+
+    bool visible = formCat.isDetailVisible();
+    int index = waveSelector.getSelectedId();
+    bool visibleCustom = index == 9; // custom
+
+    waveSelector.setVisibleWithLabel(visible);
+    sizeSelector.setVisibleWithLabel(visible && visibleCustom);
+    resoSelector.setVisibleWithLabel(visible && visibleCustom);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector });
+
+        if (visibleCustom)
+        {
+            layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
+            layoutMain({ .mainRect = rect, .label = &resoSelector.label, .component = &resoSelector, });
+        }
+    }
+}
+
 void GuiWt2::layoutQualityCat(juce::Rectangle<int>& rect) {
     layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
 
@@ -939,16 +962,36 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     uSep001.setVisible(visible);
     customWaveImportBtn.setVisible(visible);
     customWaveExportBtn.setVisible(visible);
+    uSep002.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieDetune.setVisible(visible);
+    ieAmpEnv.setVisible(visible);
+    iePitchEnv.setVisible(visible);
+    ieSsgSwEnv.setVisible(visible);
+    ieUnison.setVisible(visible);
+    ieQuality.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-
         auto uSep001Area = rect.removeFromTop(4);
         uSep001.setBounds(uSep001Area);
-
-        layoutMain({ .mainRect = rect, .component = &customWaveImportBtn });
-        layoutMain({ .mainRect = rect, .component = &customWaveExportBtn });
+        layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
+        auto uSep002Area = rect.removeFromTop(4);
+        uSep002.setBounds(uSep002Area);
+        ieLfo.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieAmpEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieDetune.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieUnison.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieQuality.layoutComponent(rect);
     }
 }
 
@@ -1042,4 +1085,105 @@ void GuiWt2::updateGraph()
 
 void GuiWt2::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiWt2::importLfoParam() {
+    lfo.importParams();
+}
+
+void GuiWt2::exportLfoParam() {
+    lfo.exportParams();
+}
+
+void GuiWt2::importAmpEnvParam() {
+    ampEnvComponent.importParams();
+}
+
+void GuiWt2::exportAmpEnvParam() {
+    ampEnvComponent.exportParams();
+}
+
+void GuiWt2::importPitchEnvParam() {
+    pitchEnvComponent.importParams();
+}
+
+void GuiWt2::exportPitchEnvParam() {
+    pitchEnvComponent.exportParams();
+}
+
+void GuiWt2::importSsgSwEnvParam() {
+    ssgSwEnvComponent.importParams();
+}
+
+void GuiWt2::exportSsgSwEnvParam() {
+    ssgSwEnvComponent.exportParams();
+}
+
+void GuiWt2::importDetuneParam() {
+    mulDetuneComponent.importParams();
+}
+
+void GuiWt2::exportDetuneParam() {
+    mulDetuneComponent.exportParams();
+}
+
+void GuiWt2::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiWt2::exportUnisonParam() {
+    unisonComponent.exportParams();
+}
+
+void GuiWt2::importQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importQualityParamFile, defaultDir, Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                if (size < 2) return;
+
+                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
+                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+            }
+        });
+}
+
+void GuiWt2::exportQualityParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default.quality"), Io::ExtensionGlob::QualityParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultQualityParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+                file.replaceWithText(content);
+            }
+        });
 }

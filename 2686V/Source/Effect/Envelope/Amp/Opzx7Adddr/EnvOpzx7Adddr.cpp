@@ -4,11 +4,6 @@
 #include "./EnvOpzx7Adddr.h"
 #include "../../../../Core/Const/ConstGlobal.h"
 
-// KSLの減衰カーブ定義 (MA-7用: 4段階)
-const std::array<float, 4> Opzx7Adddr::m_dbPerOctsMA7 = { 0.0f, 1.5f, 3.0f, 6.0f };
-// KSLの減衰カーブ定義 (OPZ用: 8段階) ※値は仮の近似値です
-const std::array<float, 8> Opzx7Adddr::m_dbPerOctsOPZ = { 0.0f, 1.5f, 3.0f, 4.5f, 6.0f, 7.5f, 9.0f, 12.0f };
-
 Opzx7Adddr::Opzx7Adddr()
 {
     auto calcTimeInSecond = [&](int effectiveRate, bool isAttack) -> float {
@@ -70,16 +65,9 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
 
     this->m_ksEn = params.ksEn;
     this->m_ksMode = params.ksMode;
-    this->m_ksrMA7 = params.ksrMA7;
-    this->m_kslMA7 = params.kslMA7;
-    this->m_ksrOPZ = params.ksrOPZ;
-    this->m_kslOPZ = params.kslOPZ;
-    this->m_ksBp = params.ksBp;
-    this->m_ksLc = params.ksLc;
-    this->m_ksRc = params.ksRc;
-    this->m_ksLd = params.ksLd;
-    this->m_ksRd = params.ksRd;
-    this->m_ksRs = params.ksRs;
+    this->m_ksMA7.setParameters(params.ksMA7);
+    this->m_ksOPZ.setParameters(params.ksOPZ);
+    this->m_ksOPS.setParameters(params.ksOPS);
 
     this->m_sus = params.sus;
     this->m_xof = params.xof;
@@ -154,42 +142,16 @@ int Opzx7Adddr::calcRateScaling() const
 {
     if (!this->m_ksEn && !this->m_rgEnable) return 0; // KSRが無効な場合
 
-    if (m_ksMode == Opzx7AdddrKeyScaleMode::OPS)
-    {
-        // --- OPS (DX7) モード ---
-        // Rate Scaling は 0〜7 の値を持つ。高音になるほどレートに加算される
-        if (m_ksRs == 0) return 0;
-        int octave = (m_noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        // OPSのKSRの近似計算
-        return (octave * m_ksRs) >> 2;
+    switch (m_ksMode) {
+        case Opzx7AdddrKeyScaleMode::OPS:
+            return m_ksOPS.calcKeyScaleRate(m_noteNumber);
+        case Opzx7AdddrKeyScaleMode::MA7:
+            return m_ksMA7.calcKeyScaleRate(m_noteNumber);
+        case Opzx7AdddrKeyScaleMode::OPZ:
+            return m_ksOPZ.calcKeyScaleRate(m_noteNumber);
     }
-    else if(m_ksMode == Opzx7AdddrKeyScaleMode::MA7)
-    {
-        // --- MA-7 モード ---
-        int octave = (m_noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
 
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-        return this->m_ksrMA7 ? keyRate : (keyRate >> 2);
-    }
-    else
-    {
-        // --- OPZ モード ---
-        int octave = (m_noteNumber / 12) - 1;
-        if (octave < 0) octave = 0;
-        if (octave > 7) octave = 7;
-
-        int noteOffset = m_noteNumber % 12;
-        int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-
-        // OPZのKSR(0〜3)に基づくシフト計算:
-        // 0 なら >> 3,  1 なら >> 2,  2 なら >> 1,  3 なら >> 0
-        int shift = 3 - std::clamp(this->m_ksrOPZ, 0, 3);
-        return keyRate >> shift;
-    }
+    return 0;
 }
 
 // ============================================================================
@@ -199,67 +161,16 @@ float Opzx7Adddr::calcLevelScalingDb() const
 {
     if (!this->m_ksEn && !this->m_rgEnable) return 0.0f; // KSLが無効な場合
 
-    if (m_ksMode == Opzx7AdddrKeyScaleMode::OPS)
-    {
-        // --- OPS (DX7) モード ---
-        if (m_noteNumber == m_ksBp) return 0.0f;
-
-        float diff = (float)(m_noteNumber - m_ksBp);
-        float x = std::abs(diff) / 12.0f; // 1オクターブを1.0とする
-
-        int curve = (diff < 0.0f) ? (m_ksLc-1) : (m_ksRc-1);
-        float depth = (diff < 0.0f) ? m_ksLd : m_ksRd;
-
-        if (depth <= 0.0f) return 0.0f;
-
-        float maxDbPerOct = 48.0f; // 1オクターブあたりの最大変化量
-        float db = 0.0f;
-
-        switch (curve) {
-        case 0: // -LIN (距離に応じて直線的に減衰)
-            db = maxDbPerOct * x * depth;
-            break;
-        case 1: // -EXP (距離に応じて指数的に減衰)
-            db = maxDbPerOct * (std::pow(2.0f, x) - 1.0f) * depth;
-            break;
-        case 2: // +EXP (距離に応じて指数的に増幅)
-            db = -maxDbPerOct * (std::pow(2.0f, x) - 1.0f) * depth;
-            break;
-        case 3: // +LIN (距離に応じて直線的に増幅)
-            db = -maxDbPerOct * x * depth;
-            break;
-        }
-        return db;
+    switch (m_ksMode) {
+    case Opzx7AdddrKeyScaleMode::OPS:
+        return m_ksOPS.calcLevelScalingDb(m_noteNumber);
+    case Opzx7AdddrKeyScaleMode::MA7:
+        return m_ksMA7.calcLevelScalingDb(m_noteNumber);
+    case Opzx7AdddrKeyScaleMode::OPZ:
+        return m_ksOPZ.calcLevelScalingDb(m_noteNumber);
     }
-    else if(m_ksMode == Opzx7AdddrKeyScaleMode::MA7)
-    {
-        // --- MA-7 モード ---
-        if (this->m_kslMA7 <= 0) return 0.0f;
 
-        // C3(48) を基準とし、それより高い音符で音量を減衰させる
-        float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
-        if (octaveDiff < 0.0f) octaveDiff = 0.0f;
-
-        return m_dbPerOctsMA7[std::clamp(this->m_kslMA7, 0, 3)] * octaveDiff;
-    }
-    else
-    {
-        // --- OPZ モード ---
-        if (this->m_kslOPZ <= 0) return 0.0f;
-
-        // C3(48) を基準とし、それより高い音符で音量を減衰させる
-        float octaveDiff = (float)(m_noteNumber - 48) / 12.0f;
-        if (octaveDiff < 0.0f) octaveDiff = 0.0f;
-
-        // 0〜99 の値を 0.0〜1.0 の深度(Depth)に変換
-        float depth = std::clamp(this->m_kslOPZ, 0, 99) / 99.0f;
-
-        // KSL=99の時の1オクターブあたりの最大減衰量
-        // TX81Zは最大でかなり急激に減衰するため 24.0dB / oct 程度で設定
-        float maxDbPerOct = 24.0f;
-
-        return maxDbPerOct * octaveDiff * depth;
-    }
+    return 0.0f;
 }
 
 float Opzx7Adddr::noteOn(float velocity) {
@@ -464,22 +375,6 @@ void Opzx7Adddr::updateIncrements(int noteNumber)
             float rateScale = 1.0f;
 
             if (this->m_ksEn) {
-                // OPLライクなキースケールの計算
-                int octave = (noteNumber / 12) - 1;
-                if (octave < 0) octave = 0;
-                if (octave > 7) octave = 7;
-
-                int noteOffset = noteNumber % 12;
-                int keyRate = (octave * 2) + ((noteOffset > 7) ? 1 : 0);
-
-                // ksr(1bitフラグ)の状態に応じてスケーリングの強さを変える
-                int ksrValue = (this->m_ksrMA7 || this->m_ksrOPZ) ? keyRate : (keyRate >> 2);
-
-                // 実効レート(0-63)のような絶対的なインクリメント加算ではなく、
-                // 秒数ベースのモードに合わせて「倍率」として適用するアプローチ
-
-                // 例: ksrValue が大きい（高音）ほど、rateScaleが大きくなり時間が短くなる
-                // ※ ここの倍率(0.1fなど)は、聴感上で自然に減衰が早くなるように適宜調整してください。
                 rateScale = 1.0f + ((float)ksrValue * 0.1f);
             }
 

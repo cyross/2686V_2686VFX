@@ -18,6 +18,7 @@ namespace FxPrName
 	static inline const juce::String reverb = " Reverb";
 	static inline const juce::String filter = " Filter";
 	static inline const juce::String eq3b = " 3Band EQ";
+	static inline const juce::String sfcEcho = " SFC Echo";
 
 	namespace Tremolo
 	{
@@ -75,6 +76,21 @@ namespace FxPrName
 		static inline const juce::String midFreq = " Mid Freq";
 		static inline const juce::String midGainDb = " Mid Gain dB";
 		static inline const juce::String highGainDb = " High Gain dB";
+		static inline const juce::String mix = " Mix";
+	}
+
+	namespace SfcEcho
+	{
+		static inline const juce::String time = " Time";
+		static inline const juce::String fb = " Feedback";
+		static inline const juce::String firCoef0 = " Fir Coef[0]";
+		static inline const juce::String firCoef1 = " Fir Coef[1]";
+		static inline const juce::String firCoef2 = " Fir Coef[2]";
+		static inline const juce::String firCoef3 = " Fir Coef[3]";
+		static inline const juce::String firCoef4 = " Fir Coef[4]";
+		static inline const juce::String firCoef5 = " Fir Coef[5]";
+		static inline const juce::String firCoef6 = " Fir Coef[6]";
+		static inline const juce::String firCoef7 = " Fir Coef[7]";
 		static inline const juce::String mix = " Mix";
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "./FmOperator.h"
 
-void FmOperator::setParameters(const FmOpParams& params, float feedback)
+void FmOperator::setParameters(const FmOpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;

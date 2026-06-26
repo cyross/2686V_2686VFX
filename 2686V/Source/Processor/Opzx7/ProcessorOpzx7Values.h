@@ -9,8 +9,8 @@ namespace Opzx7PrValue
 	inline constexpr float boolThread = CorePrValue::boolThread;
 
 	inline constexpr int ops = 6;
-	inline constexpr int algorithms = 72;
-	inline constexpr int waveShapes = 4;
+	inline constexpr int algorithms = 113;
+	inline constexpr int waveShapes = 73;
 	inline constexpr int pcmIndex = 31;
 	inline constexpr int wtIndex = 15;
 	inline constexpr int wt2Index = 23;
@@ -41,7 +41,7 @@ namespace Opzx7PrValue
 	namespace Alg
 	{
 		inline constexpr int min = 0;
-		inline constexpr int max = 71;
+		inline constexpr int max = Opzx7PrValue::algorithms - 1;
 		inline constexpr int initial = 15;
 	}
 
@@ -94,7 +94,7 @@ namespace Opzx7PrValue
 		namespace Ws
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 72;
+			inline constexpr int max = Opzx7PrValue::waveShapes - 1;
 			inline constexpr int initial = 0;
 		}
 
@@ -535,6 +535,25 @@ namespace Opzx7PrValue
 			inline constexpr float min = CorePrValue::Pcm::Ratio::min;
 			inline constexpr float max = CorePrValue::Pcm::Ratio::max;
 			inline constexpr float initial = CorePrValue::Pcm::Ratio::initial;
+		}
+
+		namespace LoopPointEnable
+		{
+			inline constexpr float initial = false;
+		}
+
+		namespace LoopPointStart
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 0.999999f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace LoopPointEnd
+		{
+			inline constexpr float min = 0.000001f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace Fix

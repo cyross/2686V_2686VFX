@@ -24,7 +24,7 @@ public:
 
     void virtual setSampleRate(double sampleRate) { m_sampleRate = sampleRate; }
     void virtual setHostSampleRate(double hostRate) { m_hostSampleRate = hostRate; }
-    void virtual setParameters(const FmOpParams& params, float feedback);
+    void virtual setParameters(const FmOpParams& params, int feedback);
     void virtual noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) {};
     void virtual noteOff();
     bool virtual isPlaying() const { return m_state != State::Idle; }
@@ -32,11 +32,6 @@ public:
     void virtual setPitchBendRatio(float ratio) { m_pitchBendRatio = ratio; }
     void virtual setExternalFeedbackMode(bool isExternal) { m_isExternalFeedback = isExternal; }
     void virtual pushFeedback(float fbValue) { m_fb2 = m_fb1; m_fb1 = fbValue; }
-    // OPZX7 の外部 PCM データ用
-    void virtual setPcmBuffer(const std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
-    // OPZX7 の波形データ用
-    void virtual setWtBuffer(const std::vector<float>* wtData) { m_wtBuffer = wtData; }
-    void virtual setWt2Buffer(const std::vector<float>* wtData) { m_wt2Buffer = wtData; }
     float virtual calcWaveform(double phase, int wave);
     void virtual updateIncrementsWithKeyScale();
 protected:
@@ -49,7 +44,7 @@ protected:
     float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;
 
-    float m_feedback = 0.0f;
+    int m_feedback = 0;
     bool m_isExternalFeedback = false;
 
     float m_currentLevel = 0.0f;
@@ -64,12 +59,6 @@ protected:
 
     float m_susReleaseDec = 0.0f;
     float m_currentReleaseDec = 0.0f;
-
-    // OPZX7 の外部 PCM データ用
-    const std::vector<float>* m_pcmBuffer = nullptr;
-    // OPZX7 の波形データ用
-    const std::vector<float>* m_wtBuffer = nullptr;
-    const std::vector<float>* m_wt2Buffer = nullptr;
 
     void virtual updateEnvelopeState();
 };

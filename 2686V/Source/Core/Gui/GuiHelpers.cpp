@@ -424,3 +424,51 @@ void layoutMainSixComps(const MainConfigSixComps& c)
 
     c.rect.removeFromTop(c.paddingBottom);
 }
+
+// メイングループに3つのコンポーネントを均等に貼り付け
+void layoutMainFxOrder(const MainConfigFxOrder& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.paddingLeft);
+
+    c.comp1->setBounds(area.removeFromLeft(c.labelWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp2->setBounds(area.removeFromLeft(c.buttonWidth));
+
+    area.removeFromLeft(c.compPaddingRight);
+
+    c.comp3->setBounds(area.removeFromLeft(c.buttonWidth));
+
+    c.rect.removeFromTop(c.paddingBottom);
+}
+
+// ビューモード選択用
+void layoutMainViewMode(const MainConfigViewMode& c)
+{
+    auto area = c.rect.removeFromTop(c.rowHeight);
+
+    c.rect.removeFromTop(c.paddingTop);
+
+    area.removeFromLeft(c.paddingLeft);
+
+    c.comp3->setBounds(area.removeFromRight(c.compWidth));
+
+    area.removeFromRight(c.compPaddingRight);
+
+    c.comp2->setBounds(area.removeFromRight(c.compWidth));
+
+    area.removeFromRight(c.compPaddingRight);
+
+    c.comp1->setBounds(area.removeFromRight(c.compWidth));
+
+    area.removeFromRight(c.compPaddingRight);
+
+    c.label.setBounds(area);
+
+    c.rect.removeFromTop(c.paddingBottom);
+}

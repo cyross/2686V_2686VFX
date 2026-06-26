@@ -8,9 +8,10 @@
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
-#include "../../Generator/Fm/Fix/FmFix.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Generator/Fm/Fix/FmFix.h"
+#include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 
 // --- Core Class ---
 
@@ -33,6 +34,7 @@ public:
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
     void setCurveCore(CurveCore* p_curveCore);
+    void clearBuffer();
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {
@@ -55,6 +57,9 @@ private:
     std::vector<int16_t> m_pcmBuffer;   // Processed Data (4bit ADPCM/DPCM)
     int m_qualityMode = 6;
     int m_rateIndex = 3;
+    int m_interpolationMode = 1;
+    double m_targetRate = 44100.0;
+    float m_currentFrequency = 440.0f;
 
     double m_position = 0.0;
     float m_pitchRatio = 1.0f;
@@ -68,6 +73,9 @@ private:
 
     float m_pcmOffset = 0.0f;
     float m_pcmRatio = 1.0f;
+    bool m_loopPointEnable = false;
+    float m_loopPointStart = 0.0f; // 0.0 to 1.0
+    float m_loopPointEnd = 1.0f;   // 0.0 to 1.0
 
     AmpAdsrEnv m_adsr;
     PitchAdsrEnv m_pitchAdsr;
@@ -75,18 +83,24 @@ private:
     Opzx7Detune m_detune;
     FixMode m_fixMode;
     Opzx7LfoCore m_lfo;
+    SsgNoiseGen m_noiseGen;
+
+    float m_tone = 1.0f;
+    float m_noiseLevel = 0.0f; // Noise
+    float m_noiseFreq = 12000.0f; // Noise Frequency (Hz)
+    float m_mix = 0.0f;
 
     float m_currentLevel = 0.0f;
     float m_baseLevel = 0.0f;
 
     bool m_isLooping = false;
     bool m_hasFinished = false;
+    bool m_isReleased = false;
 
+    float m_phase = 0.0f;
+    float m_phaseDelta = 0.0f;
     float m_pitchBendRatio = 1.0f;
     float m_modWheel = 0.0f;
-
-    // LFO
-    double m_lfoPhase = 0.0;
 
     void refreshPcmBuffer();
 

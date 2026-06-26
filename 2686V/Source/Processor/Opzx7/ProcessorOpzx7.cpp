@@ -70,7 +70,9 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
         layout.add(std::make_unique<juce::AudioParameterInt>(opPrefix + Opzx7PrKey::ws, opPrefixName + Opzx7PrName::ws, Opzx7PrValue::Op::Ws::min, Opzx7PrValue::Op::Ws::max, Opzx7PrValue::Op::Ws::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + Opzx7PrKey::pcmOffset, opPrefixName + Opzx7PrName::pcmOffset, Opzx7PrValue::Op::Offset::min, Opzx7PrValue::Op::Offset::max, Opzx7PrValue::Op::Offset::initial));
         layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + Opzx7PrKey::pcmRatio, opPrefixName + Opzx7PrName::pcmRatio, Opzx7PrValue::Op::Ratio::min, Opzx7PrValue::Op::Ratio::max, Opzx7PrValue::Op::Ratio::initial));
-
+        layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + Opzx7PrKey::loopPointEnable, opPrefixName + Opzx7PrName::loopPointEnable, Opzx7PrValue::Op::LoopPointEnable::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + Opzx7PrKey::loopPointStart, opPrefixName + Opzx7PrName::loopPointStart, Opzx7PrValue::Op::LoopPointStart::min, Opzx7PrValue::Op::LoopPointStart::max, Opzx7PrValue::Op::LoopPointStart::initial));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(opPrefix + Opzx7PrKey::loopPointEnd, opPrefixName + Opzx7PrName::loopPointEnd, Opzx7PrValue::Op::LoopPointEnd::min, Opzx7PrValue::Op::LoopPointEnd::max, Opzx7PrValue::Op::LoopPointEnd::initial));
 
         layout.add(std::make_unique<juce::AudioParameterBool>(opPrefix + Opzx7PrKey::mask, opPrefixName + Opzx7PrName::mask, Opzx7PrValue::Op::Mask::initial)); // OP Mask (Switch)
 
@@ -173,6 +175,9 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 		pOpWaveSelect[op] = apvts.getRawParameterValue(p + Opzx7PrKey::ws);
 		pOpPcmOffset[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pcmOffset);
 		pOpPcmRatio[op] = apvts.getRawParameterValue(p + Opzx7PrKey::pcmRatio);
+        pLoopPointEnable[op] = apvts.getRawParameterValue(p + Opzx7PrKey::loopPointEnable);
+        pLoopPointStart[op] = apvts.getRawParameterValue(p + Opzx7PrKey::loopPointStart);
+        pLoopPointEnd[op] = apvts.getRawParameterValue(p + Opzx7PrKey::loopPointEnd);
 
         pOpLfoPmSyncDelay[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::pmSyncDelay);
         pOpLfoAmSyncDelay[op] = apvts.getRawParameterValue(p + CorePrKey::Post::Lfo::amSyncDelay);
@@ -226,7 +231,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
     params.opzx7.algorithm = (int)pAlg->load(std::memory_order_relaxed);
 
-    params.opzx7.feedback = pFb->load(std::memory_order_relaxed);
+    params.opzx7.feedback = (int)pFb->load(std::memory_order_relaxed);
 
     params.opzx7.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opzx7.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);
@@ -278,16 +283,16 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 
         params.opzx7.op[op].m_adsrParams.ksEn = (pOpAdsrKsEn[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.ksMode = (Opzx7AdddrKeyScaleMode)pOpAdsrKsMode[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksrMA7 = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
-        params.opzx7.op[op].m_adsrParams.kslMA7 = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksrOPZ = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.kslOPZ = (int)pOpAdsrKslOPZ[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksBp = (int)pOpAdsrKsBp[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksLc = (int)pOpAdsrKsLc[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRc = (int)pOpAdsrKsRc[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksLd = pOpAdsrKsLd[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRd = pOpAdsrKsRd[op]->load(std::memory_order_relaxed);
-        params.opzx7.op[op].m_adsrParams.ksRs = (int)pOpAdsrKsRs[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksMA7.ksr = (pOpAdsrKsrMA7[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].m_adsrParams.ksMA7.ksl = (int)pOpAdsrKslMA7[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPZ.ksr = (int)pOpAdsrKsrOPZ[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPZ.ksl = (int)pOpAdsrKslOPZ[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksBp = (int)pOpAdsrKsBp[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksLc = (int)pOpAdsrKsLc[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRc = (int)pOpAdsrKsRc[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksLd = pOpAdsrKsLd[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRd = pOpAdsrKsRd[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].m_adsrParams.ksOPS.ksRs = (int)pOpAdsrKsRs[op]->load(std::memory_order_relaxed);
 
         params.opzx7.op[op].m_adsrParams.sus = (pOpAdsrSus[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
         params.opzx7.op[op].m_adsrParams.xof = (pOpAdsrXof[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
@@ -303,6 +308,9 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
         params.opzx7.op[op].waveSelect = (int)pOpWaveSelect[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].pcmOffset = pOpPcmOffset[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].pcmRatio = pOpPcmRatio[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].loopPointEnable = (pLoopPointEnable[op]->load(std::memory_order_relaxed) > Opzx7PrValue::boolThread);
+        params.opzx7.op[op].loopPointStart = pLoopPointStart[op]->load(std::memory_order_relaxed);
+        params.opzx7.op[op].loopPointEnd = pLoopPointEnd[op]->load(std::memory_order_relaxed);
 
         params.opzx7.op[op].lfoPmFreq = pOpLfoPmFreq[op]->load(std::memory_order_relaxed);
         params.opzx7.op[op].lfoAmFreq = pOpLfoAmFreq[op]->load(std::memory_order_relaxed);

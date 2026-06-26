@@ -19,13 +19,7 @@ void GuiBeep::setup() {
 
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
-    presetNameLabel.setup({ .parent = *this, .title = "" });
-    presetNameLabel.setText(ctx.audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-    presetNameLabel.setFont(juce::Font(juce::FontOptions(18.0f)));
-    presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
-
-    addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::level, .title = BeepGuiText::Beep::Level, .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
@@ -58,6 +52,34 @@ void GuiBeep::setup() {
         ctx.editor.breadcastLevel(level);
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
+    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+
+    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
+    ieLfo.onClickImport = [this] { importLfoParam(); };
+    ieLfo.onClickExport = [this] { exportLfoParam(); };
+
+    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
+    ieDetune.onClickImport = [this] { importDetuneParam(); };
+    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+
+    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
+    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
+    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+
+    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
+    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
+    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+
+    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
+    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
+    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+
+    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
+    ieUnison.onClickImport = [this] { importUnisonParam(); };
+    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+
+
     setupGraph();
     updateGraph();
 }
@@ -71,11 +93,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto mmRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);
     mmRect.removeFromTop(BeepGuiValue::Group::TitlePaddingTop);
 
-    layoutMainParamName({ .mainRect = mmRect, .label = &presetNameLabel });
-
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(BeepGuiValue::MainGroup::Separator::height);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
+    presetName.layoutComponent(mmRect);
 
     // グラフ用の区画を確保
     layoutGraph(mmRect);
@@ -121,16 +139,36 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     bool visible = utilityCat.isDetailVisible();
 
     broadcastLevelButton.setVisible(visible);
+    uSep001.setVisible(visible);
+    ieLfo.setVisible(visible);
+    ieDetune.setVisible(visible);
+    ieAmpEnv.setVisible(visible);
+    iePitchEnv.setVisible(visible);
+    ieSsgSwEnv.setVisible(visible);
+    ieUnison.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
+        auto uSep001Area = rect.removeFromTop(4);
+        uSep001.setBounds(uSep001Area);
+        ieLfo.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieAmpEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieDetune.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieUnison.layoutComponent(rect);
     }
 }
 
-void GuiBeep::updatePresetName(const juce::String& presetName)
+void GuiBeep::updatePresetName(const juce::String& name)
 {
-    presetNameLabel.setText(presetName, juce::NotificationType::dontSendNotification);
+    presetName.updatePresetName(name);
 }
 
 void GuiBeep::initParams()
@@ -228,4 +266,51 @@ void GuiBeep::updateGraph()
 
 void GuiBeep::setLevel(float level) {
     levelSlider.setValue(level, juce::NotificationType::sendNotification);
+}
+
+void GuiBeep::importLfoParam() {
+    lfoComponent.importParams();
+}
+void GuiBeep::exportLfoParam() {
+    lfoComponent.exportParams();
+}
+
+void GuiBeep::importAmpEnvParam() {
+    ampEnvComponent.importParams();
+}
+
+void GuiBeep::exportAmpEnvParam() {
+    ampEnvComponent.exportParams();
+}
+
+void GuiBeep::importPitchEnvParam() {
+    pitchEnvComponent.importParams();
+}
+
+void GuiBeep::exportPitchEnvParam() {
+    pitchEnvComponent.exportParams();
+}
+
+void GuiBeep::importSsgSwEnvParam() {
+    ssgSwEnvComponent.importParams();
+}
+
+void GuiBeep::exportSsgSwEnvParam() {
+    ssgSwEnvComponent.exportParams();
+}
+
+void GuiBeep::importDetuneParam() {
+    mulDetuneComponent.importParams();
+}
+
+void GuiBeep::exportDetuneParam() {
+    mulDetuneComponent.exportParams();
+}
+
+void GuiBeep::importUnisonParam() {
+    unisonComponent.importParams();
+}
+
+void GuiBeep::exportUnisonParam() {
+    unisonComponent.exportParams();
 }

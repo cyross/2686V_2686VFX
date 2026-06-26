@@ -24,6 +24,38 @@ namespace AdpcmPrValue
 		inline constexpr int initial = CorePrValue::Pcm::Rate::initial;
 	}
 
+	namespace Interp
+	{
+		// 0:Nearest 1:Linear 2:Gaussian 3:Zero-Order Hold 4:Cosine 5:B-Spline 6:Lagrange
+		inline constexpr int min = 0;
+		inline constexpr int max = 6;
+		inline constexpr int initial = 1;
+	}
+
+	namespace Tone {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
+	namespace Noise {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
+	}
+
+	namespace NoiseFreq {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 30000.0f;
+		inline constexpr float initial = 12000.0f;
+	}
+
+	namespace Mix {
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 0.0f;
+	}
+
 	namespace Fix
 	{
 		inline constexpr bool initial = CorePrValue::FixMode::Enable::initial;
@@ -68,11 +100,6 @@ namespace AdpcmPrValue
 		inline constexpr float initial = CorePrValue::Level::initial;
 	}
 
-	namespace Loop
-	{
-		inline constexpr float initial = true;
-	}
-
 	namespace Pan
 	{
 		inline constexpr float min = 0.0f;
@@ -92,6 +119,30 @@ namespace AdpcmPrValue
 		inline constexpr float min = CorePrValue::Pcm::Ratio::min;
 		inline constexpr float max = CorePrValue::Pcm::Ratio::max;
 		inline constexpr float initial = CorePrValue::Pcm::Ratio::initial;
+	}
+
+	namespace Loop
+	{
+		inline constexpr float initial = true;
+	}
+
+	namespace LoopPointEnable
+	{
+		inline constexpr float initial = false;
+	}
+
+	namespace LoopPointStart
+	{
+		inline constexpr float min = 0.0f;
+		inline constexpr float max = 0.999999f;
+		inline constexpr float initial = 0.0f;
+	}
+
+	namespace LoopPointEnd
+	{
+		inline constexpr float min = 0.000001f;
+		inline constexpr float max = 1.0f;
+		inline constexpr float initial = 1.0f;
 	}
 
 	namespace Adsr

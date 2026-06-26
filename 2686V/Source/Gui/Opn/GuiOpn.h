@@ -16,6 +16,10 @@
 #include "../../Gui/Components/SsgSwEnv/SsgSwEnv.h"
 #include "../../Gui/Components/Midi/Midi.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
+#include "../../Gui/Components/PresetName/PresetName.h"
+#include "../../Gui/Components/ImportExport/ImportExport.h"
+
+#include "../../Core/Gui/GuiCopyObj.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -48,6 +52,8 @@ class GuiOpn : public GuiBase
 
     GuiScrollGroup mainGroup;
 
+    GuiComponentPresetName presetName;
+
     GuiSlider levelSlider;
 
     GuiCategoryLabel qualityCat;
@@ -77,18 +83,30 @@ class GuiOpn : public GuiBase
 
     GuiComponentMidi midiComponent;
 
-    // プリセット名ラベル
-    GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
-
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     GuiSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
+    GuiTextButton copyParamsToOpmBtn;
+    GuiSeparator uSep002;
+    GuiTextButton copyOpParamBtn;
+    GuiSlider copyOpFromSlider;
+    GuiSlider copyOpToSlider;
+    GuiSeparator uSep003;
+    GuiComponentImportExport ieOpPitchEnv;
+    GuiComponentImportExport ieOpSsgSwEnv;
+    GuiSlider targerOpSlider;
+    GuiSeparator uSep004;
+    GuiComponentImportExport ieLfo;
+    GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
     std::array<juce::Image, OpnPrValue::algorithms> algImages;
 
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catDet;
+    std::array<GuiCategoryLabel, OpnPrValue::ops> catAmp;
     std::array<GuiComboBox, OpnPrValue::ops> mul;
     std::array<GuiComboBox, OpnPrValue::ops> dt;
 
@@ -143,6 +161,7 @@ public:
 	GuiOpn(const GuiContext& context) :
         GuiBase(context),
         mainGroup(context),
+        presetName(context),
         qualityCat(context),
         algFbCat(context),
         levelSlider(context),
@@ -167,7 +186,22 @@ public:
         broadcastLevelButton(context),
         uSep001(context),
         copyParamsToOpnaBtn(context),
+        copyParamsToOpmBtn(context),
+        uSep002(context),
+        copyOpParamBtn(context),
+        copyOpFromSlider(context),
+        copyOpToSlider(context),
+        uSep003(context),
+        ieOpPitchEnv(context),
+        ieOpSsgSwEnv(context),
+        targerOpSlider(context),
+        uSep004(context),
+        ieLfo(context),
+        ieUnison(context),
+        ieQuality(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
+        catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
+        catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         dt{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -195,8 +229,6 @@ public:
         kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         bypass{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         midiComponent(context),
-        presetNameLabel(context),
-        presetNameSeparator(context),
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -211,7 +243,7 @@ public:
     void updateOpEnable(int idx, bool enable);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
-    void updatePresetName(const juce::String& presetName);
+    void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();
     void copyFmParamsToObject();
@@ -224,7 +256,31 @@ public:
     void layoutOpN88LfoCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpOptionalCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect);
     void setupGraph(int opIndex);
     void layoutOpGraph(int opIndex, juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void copyParams(CopyOpn& copyObj);
+    void copyOpParams(int p, CopyOpnOp& copyObj);
+    void pasteParams(CopyOpn& copyObj);
+    void pasteOpParams(int p, CopyOpnOp& copyObj);
+    void copyParamsOpm(CopyOpnOpm& copyObj);
+    void copyParamsOpnaOpm(CopyOpnaOpnOpm& copyObj);
+    void copyOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void copyOpParamsOpnaOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void pasteParamsOpm(CopyOpnOpm& copyObj);
+    void pasteParamsOpnaOpm(CopyOpnaOpnOpm& copyObj);
+    void pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj);
+    void pasteOpParamsOpnaOpm(int p, CopyOpnaOpnOpmOp& copyObj);
+    void importPitchEnvParam(int opIndex);
+    void exportPitchEnvParam(int opIndex);
+    void importSsgSwEnvParam(int opIndex);
+    void exportSsgSwEnvParam(int opIndex);
+    void importLfoParam();
+    void exportLfoParam();
+    void importUnisonParam();
+    void exportUnisonParam();
+    void importQualityParam();
+    void exportQualityParam();
 };

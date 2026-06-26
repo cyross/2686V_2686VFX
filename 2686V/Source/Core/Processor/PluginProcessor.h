@@ -4,8 +4,6 @@
 
 #include "../Synth/SynthVoice.h"
 
-#include "../Fm/FmClipboard.h"
-
 #include "../../Processor/Opna/ProcessorOpna.h"
 #include "../../Processor/Opn/ProcessorOpn.h"
 #include "../../Processor/Opl/ProcessorOpl.h"
@@ -33,6 +31,8 @@
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Processor/Wt2/ProcessorWt2Values.h"
+
+#include "./PluginProcessorStateKey.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
@@ -580,6 +580,17 @@ public:
     juce::String defaultSampleDir;  // For ADPCM & Rhythm
     juce::String defaultPresetDir; // For Presets
 	juce::String defaultWavetableDir; // For Wavetables
+    juce::String defaultFxOrderDir; // For FX Order
+    juce::String defaultFxParamDir;
+    juce::String defaultLfoParamDir;
+    juce::String defaultAmpEnvParamDir;
+    juce::String defaultPitchEnvParamDir;
+    juce::String defaultSsgSwEnvParamDir;
+    juce::String defaultDetuneParamDir;
+    juce::String defaultUnisonParamDir;
+    juce::String defaultQualityParamDir;
+    juce::String defaultPcmPlayParamDir;
+    juce::String defaultToneNoiseParamDir;
     bool showTooltips = true; // For show Parameter Range Tooltop
     bool useHeadroom = true; // ヘッドルーム適応
     float headroomGain = 0.25; // ヘッドルーム圧縮値
@@ -594,16 +605,18 @@ public:
     juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
     juce::String makeWtPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
     juce::File resolveWtPath(const juce::String& pathStr); // 相対ディレクトリからの展開
+    juce::String makeFxOrderPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolveFxOrderPath(const juce::String& pathStr); // 相対ディレクトリからの展開
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
     CurveCore* getCurveCore();
 
-    FmClipboard fmClipboard;
-
     void bakeCurves();
     void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
     void resetMidiSettings();
+    std::vector<int> getFxOrder();
+    void updateFxOrder(std::vector<int> newOrder);
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

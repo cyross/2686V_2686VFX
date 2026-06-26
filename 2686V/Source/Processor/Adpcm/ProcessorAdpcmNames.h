@@ -12,10 +12,18 @@ namespace AdpcmPrName
 	static inline const juce::String pan = " Pan";
 	static inline const juce::String rate = " Rate";
 	static inline const juce::String level = " Level";
-	static inline const juce::String loop = " Loop";
-	static inline const juce::String bit = " Bit";
 	static inline const juce::String pcmOffset = " PCM Offset";
 	static inline const juce::String pcmRatio = " PCM Ratio";
+	static inline const juce::String loop = " Loop";
+	static inline const juce::String loopPointEnable = " Loop-point Enable";
+	static inline const juce::String loopPointStart = " Loop-point Start";
+	static inline const juce::String loopPointEnd = " Loop-point End";
+	static inline const juce::String bit = " Bit";
+	static inline const juce::String interp = " Interpolation Mode";
+	static inline const juce::String tone = " Tone Level";
+	static inline const juce::String noise = " Noise Level";
+	static inline const juce::String noiseFreq = " Noise Freq";
+	static inline const juce::String mix = " Noise Mix";
 	static inline const juce::String fix = " Fix Enable";
 	static inline const juce::String fixFreq = " Fix Freq";
 

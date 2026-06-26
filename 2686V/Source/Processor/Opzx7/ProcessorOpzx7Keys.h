@@ -63,6 +63,9 @@ namespace Opzx7PrKey
 	static inline const juce::String ampBypass = "_AMP_BYPASS";
 	static inline const juce::String pcmOffset = "_PCM_OFFSET";
 	static inline const juce::String pcmRatio = "_PCM_RATIO";
+	static inline const juce::String loopPointEnable = "_LOOPPOINT_EN";
+	static inline const juce::String loopPointStart = "_LOOPPOINT_ST";
+	static inline const juce::String loopPointEnd = "_LOOPPOINT_END";
 
 	static inline const juce::String se = CorePrKey::Post::Fm::Op::se;
 	static inline const juce::String seFreq = CorePrKey::Post::Fm::Op::seFreq;

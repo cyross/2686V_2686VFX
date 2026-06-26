@@ -46,6 +46,50 @@ class GuiSettings : public GuiBase
     GuiLabel wavetableDirPathLabel;
     GuiTextButton wavetableDirBrowseBtn;
 
+    GuiLabel fxOrderDirLabel;
+    GuiLabel fxOrderDirPathLabel;
+    GuiTextButton fxOrderDirBrowseBtn;
+
+    GuiLabel fxParamDirLabel;
+    GuiLabel fxParamDirPathLabel;
+    GuiTextButton fxParamDirBrowseBtn;
+
+    GuiLabel lfoParamDirLabel;
+    GuiLabel lfoParamDirPathLabel;
+    GuiTextButton lfoParamDirBrowseBtn;
+
+    GuiLabel ampEnvParamDirLabel;
+    GuiLabel ampEnvParamDirPathLabel;
+    GuiTextButton ampEnvParamDirBrowseBtn;
+
+    GuiLabel pitchEnvParamDirLabel;
+    GuiLabel pitchEnvParamDirPathLabel;
+    GuiTextButton pitchEnvParamDirBrowseBtn;
+
+    GuiLabel ssgSwEnvParamDirLabel;
+    GuiLabel ssgSwEnvParamDirPathLabel;
+    GuiTextButton ssgSwEnvParamDirBrowseBtn;
+
+    GuiLabel detuneParamDirLabel;
+    GuiLabel detuneParamDirPathLabel;
+    GuiTextButton detuneParamDirBrowseBtn;
+
+    GuiLabel unisonParamDirLabel;
+    GuiLabel unisonParamDirPathLabel;
+    GuiTextButton unisonParamDirBrowseBtn;
+
+    GuiLabel qualityParamDirLabel;
+    GuiLabel qualityParamDirPathLabel;
+    GuiTextButton qualityParamDirBrowseBtn;
+
+    GuiLabel pcmPlayParamDirLabel;
+    GuiLabel pcmPlayParamDirPathLabel;
+    GuiTextButton pcmPlayParamDirBrowseBtn;
+
+    GuiLabel toneNoiseParamDirLabel;
+    GuiLabel toneNoiseParamDirPathLabel;
+    GuiTextButton toneNoiseParamDirBrowseBtn;
+
     GuiSeparator separator3;
 
     // Tooltip Visible Switch
@@ -94,6 +138,39 @@ public:
         wavetableDirLabel(context),
         wavetableDirPathLabel(context),
         wavetableDirBrowseBtn(context),
+        fxOrderDirLabel(context),
+        fxOrderDirPathLabel(context),
+        fxOrderDirBrowseBtn(context),
+        fxParamDirLabel(context),
+        fxParamDirPathLabel(context),
+        fxParamDirBrowseBtn(context),
+        lfoParamDirLabel(context),
+        lfoParamDirPathLabel(context),
+        lfoParamDirBrowseBtn(context),
+        ampEnvParamDirLabel(context),
+        ampEnvParamDirPathLabel(context),
+        ampEnvParamDirBrowseBtn(context),
+        pitchEnvParamDirLabel(context),
+        pitchEnvParamDirPathLabel(context),
+        pitchEnvParamDirBrowseBtn(context),
+        ssgSwEnvParamDirLabel(context),
+        ssgSwEnvParamDirPathLabel(context),
+        ssgSwEnvParamDirBrowseBtn(context),
+        detuneParamDirLabel(context),
+        detuneParamDirPathLabel(context),
+        detuneParamDirBrowseBtn(context),
+        unisonParamDirLabel(context),
+        unisonParamDirPathLabel(context),
+        unisonParamDirBrowseBtn(context),
+        qualityParamDirLabel(context),
+        qualityParamDirPathLabel(context),
+        qualityParamDirBrowseBtn(context),
+        pcmPlayParamDirLabel(context),
+        pcmPlayParamDirPathLabel(context),
+        pcmPlayParamDirBrowseBtn(context),
+        toneNoiseParamDirLabel(context),
+        toneNoiseParamDirPathLabel(context),
+        toneNoiseParamDirBrowseBtn(context),
         separator3(context),
         tooltipToggle(context),
         separator4(context),
@@ -113,7 +190,24 @@ public:
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;
-    void setSettings(int uiScaleIndex, const juce::String& wallpaperPath, const juce::String& sampleDirPath, const juce::String& presetDirPath, const juce::String& wavetableDirPath);
+    void setSettings(
+        int uiScaleIndex,
+        const juce::String& wallpaperPath,
+        const juce::String& sampleDirPath,
+        const juce::String& presetDirPath,
+        const juce::String& wavetableDirPath,
+        const juce::String& fxOrderDirPath,
+        const juce::String& fxParamDirPath,
+        const juce::String& lfoParamDirPath,
+        const juce::String& ampEnvParamDirPath,
+        const juce::String& pitchEnvParamDirPath,
+        const juce::String& ssgSwEnvParamDirPath,
+        const juce::String& detuneParamDirPath,
+        const juce::String& unisonParamDirPath,
+        const juce::String& qualityParamDirPath,
+        const juce::String& pcmPlayParamDirPath,
+        const juce::String& toneNoiseParamDirPath
+        );
 	void setWallpaperPath(const juce::String& wallpaperPath);
     float getUiScale(int index);
 };

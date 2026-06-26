@@ -6,11 +6,13 @@
 
 namespace WtGuiText
 {
-	static inline const juce::String bit = u8"Bit";
-	static inline const juce::String rate = u8"Rate";
+	static inline const juce::String bit = u8"BIT";
+	static inline const juce::String rate = u8"RATE";
 
 	namespace Category
 	{
+		static inline const juce::String visibleForm = u8"[■]--- FORM ---";
+		static inline const juce::String invisibleForm = u8"[□]--- FORM ---";
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
@@ -47,36 +49,36 @@ namespace WtGuiText
 
 	namespace Lfo
 	{
-		static inline const juce::String pmSpeed = u8"P.Speed";
-		static inline const juce::String amSpeed = u8"A.Speed";
-		static inline const juce::String pmShape = u8"P.Shape";
-		static inline const juce::String amShape = u8"A.Shape";
-		static inline const juce::String syncDelay = u8"Delay";
+		static inline const juce::String pmSpeed = u8"P.SP";
+		static inline const juce::String amSpeed = u8"A.SP";
+		static inline const juce::String pmShape = u8"P.SP";
+		static inline const juce::String amShape = u8"A.SP";
+		static inline const juce::String syncDelay = u8"SDLY";
 		static inline const juce::String amEn = u8"AM Enable";
 		static inline const juce::String pmEn = u8"PM Enable";
-		static inline const juce::String ams = u8"Ams";
-		static inline const juce::String pms = u8"Pms";
-		static inline const juce::String amd = u8"Amd";
-		static inline const juce::String pmd = u8"Pmd";
-		static inline const juce::String amSmoothRatio = u8"As Ratio";
+		static inline const juce::String ams = u8"AMS";
+		static inline const juce::String pms = u8"PMS";
+		static inline const juce::String amd = u8"AMD";
+		static inline const juce::String pmd = u8"PMD";
+		static inline const juce::String amSmoothRatio = u8"AMSR";
 	}
 
 	namespace Wt
 	{
-		static inline const juce::String level = u8"Level";
-		static inline const juce::String form = u8"Form";
-		static inline const juce::String size = u8"Size";
-		static inline const juce::String sampleSize = u8"Sample Size";
-		static inline const juce::String steps = u8"Steps";
-		static inline const juce::String waveform = u8"Waveform";
+		static inline const juce::String level = u8"LV";
+		static inline const juce::String form = u8"FORM";
+		static inline const juce::String size = u8"SIZE";
+		static inline const juce::String sampleSize = u8"SMSZ";
+		static inline const juce::String steps = u8"STEP";
+		static inline const juce::String waveform = u8"WFRM";
 		static inline const juce::String fileImport = u8"Import (.wt)";
 		static inline const juce::String fileExport = u8"Export (.wt)";
 
 		namespace Mod
 		{
 			static inline const juce::String enable = u8"Enable";
-			static inline const juce::String depth = u8"Depth";
-			static inline const juce::String speed = u8"Speed";
+			static inline const juce::String depth = u8"DPTH";
+			static inline const juce::String speed = u8"SPED";
 		}
 
 		namespace Custom
@@ -91,5 +93,23 @@ namespace WtGuiText
 	namespace Utility
 	{
 		static inline const juce::String bcLevel = u8"Level -> All Ch";
+		static inline const juce::String lfoFileImport = u8"[IM]LFO";
+		static inline const juce::String lfoFileExport = u8"[EX]LFO";
+		static inline const juce::String ampEnvFileImport = u8"[IM]Amp Env";
+		static inline const juce::String ampEnvFileExport = u8"[EX]Amp Env";
+		static inline const juce::String pitchEnvFileImport = u8"[IM]Pitch Env";
+		static inline const juce::String pitchEnvFileExport = u8"[EX]Pitch Env";
+		static inline const juce::String ssgSwEnvFileImport = u8"[IM]SSG SW Env";
+		static inline const juce::String ssgSwEnvFileExport = u8"[EX]SSG SW Env";
+		static inline const juce::String detuneFileImport = u8"[IM]Detune";
+		static inline const juce::String detuneFileExport = u8"[EX]Detune";
+		static inline const juce::String unisonFileImport = u8"[IM]Unison";
+		static inline const juce::String unisonFileExport = u8"[EX]Unison";
+		static inline const juce::String qualityFileImport = u8"[IM]Quality";
+		static inline const juce::String qualityFileExport = u8"[EX]Quality";
+		static inline const juce::String pcmPlayFileImport = u8"[IM]PCM Play";
+		static inline const juce::String pcmPlayFileExport = u8"[EX]PCM Play";
+		static inline const juce::String toneNoiseFileImport = u8"[IM]Tone/Noise";
+		static inline const juce::String toneNoiseFileExport = u8"[EX]Tone/Noise";
 	}
 }

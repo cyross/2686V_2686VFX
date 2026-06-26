@@ -14,6 +14,8 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 
+#include "../../../Core/Gui/GuiCopyObj.h"
+
 class GuiComponentLfoOpzx7 : public GuiBase {
     bool isEnable = false;
     juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
@@ -40,6 +42,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiSlider amSmRt;
     GuiSlider ams;
     GuiSlider amd;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 public:
     GuiComponentLfoOpzx7(const GuiContext& context) :
         GuiBase(context),
@@ -75,4 +78,8 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setEnabled(bool enabled);
+    void copyParams(CopyLfoOpzx7& copyObj);
+    void pasteParams(CopyLfoOpzx7& copyObj);
+    void importParams();
+    void exportParams();
 };

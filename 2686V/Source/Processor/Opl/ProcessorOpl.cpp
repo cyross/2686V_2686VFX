@@ -139,7 +139,7 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     params.opl.level = pLevel->load(std::memory_order_relaxed);
 
     params.opl.algorithm = (int)pAlg->load(std::memory_order_relaxed);
-    params.opl.feedback = pFb->load(std::memory_order_relaxed);
+    params.opl.feedback = (int)pFb->load(std::memory_order_relaxed);
     params.opl.fmBitDepth = (int)pDepth->load(std::memory_order_relaxed);
     params.opl.fmRateIndex = (int)pRate->load(std::memory_order_relaxed);
 
@@ -166,8 +166,8 @@ void OplProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
         params.opl.op[op].m_adsrParams.rr = (int)pOpAdsrRr[op]->load(std::memory_order_relaxed);
         params.opl.op[op].m_adsrParams.tl = (int)pOpAdsrTl[op]->load(std::memory_order_relaxed);
         params.opl.op[op].m_adsrParams.egType = pOpAdsrEgType[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
-        params.opl.op[op].m_adsrParams.ksr = pOpAdsrKsr[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
-        params.opl.op[op].m_adsrParams.ksl = (int)pOpAdsrKsl[op]->load(std::memory_order_relaxed);
+        params.opl.op[op].m_adsrParams.ksOPL.ksr = pOpAdsrKsr[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
+        params.opl.op[op].m_adsrParams.ksOPL.ksl = (int)pOpAdsrKsl[op]->load(std::memory_order_relaxed);
         params.opl.op[op].m_adsrParams.sus = pOpAdsrSus[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
         params.opl.op[op].m_adsrParams.xof = pOpAdsrXof[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
         params.opl.op[op].m_adsrParams.kor = pOpAdsrKor[op]->load(std::memory_order_relaxed) > OplPrValue::boolThread;
