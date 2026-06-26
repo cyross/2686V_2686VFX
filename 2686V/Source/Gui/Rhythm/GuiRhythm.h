@@ -220,36 +220,7 @@ class GuiRhythm : public GuiBase
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
 public:
-	GuiRhythm(const GuiContext& context) :
-        GuiBase(context),
-        mainGroup(context),
-        presetName(context),
-        viewModeComp(context),
-        levelSlider(context),
-        unisonComponent(context),
-        midiComponent(context),
-        utilityCat(context),
-        broadcastLevelButton(context),
-        uSep001(context),
-        copyPadParamBtn(context),
-        copyPadFromSlider(context),
-        copyPadToSlider(context),
-        uSep002(context),
-        ieToneNoise(context),
-        ieLfo(context),
-        ieAmpEnv(context),
-        iePitchEnv(context),
-        ieSsgSwEnv(context),
-        ieDetune(context),
-        ieQuality(context),
-        iePcmPlay(context),
-        targerPadSlider(context),
-        uSep003(context),
-        ieUnison(context),
-        pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
-    {
-        setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-    }
+    GuiRhythm(const GuiContext& context);
                      
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

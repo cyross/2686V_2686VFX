@@ -247,6 +247,11 @@ private:
     void pasteFmParamsFromObject();
     void initParams();
 
+    void showFullView();
+    void showMiniPlayerView();
+    void showMinimumView();
+    void updateWindowSize();
+
     inline juce::String getPreviewButtonText();
     inline juce::String getPreviewTooltipText();
     inline juce::String getUndoTooltipText();

@@ -14,6 +14,8 @@
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiRhythmHelpers.h"
 
+#include "../../Core/Processor/PluginProcessorStateKey.h"
+
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 static std::vector<SelectItem> qualityItems = {
     {.name = " 1: Raw (32bit)", .value = 1 },
@@ -752,6 +754,41 @@ void RhythmPadGui::exportQualityParam() {
         });
 }
 
+GuiRhythm::GuiRhythm(const GuiContext& context) :
+    GuiBase(context),
+    mainGroup(context),
+    presetName(context),
+    viewModeComp(context),
+    levelSlider(context),
+    unisonComponent(context),
+    midiComponent(context),
+    utilityCat(context),
+    broadcastLevelButton(context),
+    uSep001(context),
+    copyPadParamBtn(context),
+    copyPadFromSlider(context),
+    copyPadToSlider(context),
+    uSep002(context),
+    ieToneNoise(context),
+    ieLfo(context),
+    ieAmpEnv(context),
+    iePitchEnv(context),
+    ieSsgSwEnv(context),
+    ieDetune(context),
+    ieQuality(context),
+    iePcmPlay(context),
+    targerPadSlider(context),
+    uSep003(context),
+    ieUnison(context),
+    pads{ { {context}, {context}, {context}, {context}, {context}, {context}, {context}, {context} } }
+{
+    setFocusContainerType(FocusContainerType::keyboardFocusContainer);
+    
+    int mode = context.audioProcessor.apvts.state.getProperty(ProcessorStateKey::rhythmViewMode, (int)GuiComponentViewModes::Twin);
+    viewMode = (GuiComponentViewModes)mode;
+}
+
+
 void GuiRhythm::setup()
 {
     const juce::String code = RhythmPrKey::prefix;
@@ -872,7 +909,7 @@ void GuiRhythm::setup()
     viewModeComp.setupComponent(*this, tabOrder);
     viewModeComp.onChangeViewMode = [this] (GuiComponentViewModes mode) {
         viewMode = mode;
-
+        ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::rhythmViewMode, (int)viewMode, nullptr);
         ctx.editor.resized();
         };
 

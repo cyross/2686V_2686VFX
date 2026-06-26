@@ -32,6 +32,8 @@
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 #include "../../Processor/Wt2/ProcessorWt2Values.h"
 
+#include "./PluginProcessorStateKey.h"
+
 class RetroSynthesiser : public juce::Synthesiser
 {
 private:

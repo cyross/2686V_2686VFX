@@ -110,6 +110,7 @@ set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorBase.cpp"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
+    "Source/Core/Processor/PluginProcessorStateKey.h"
 )
 
 set(EDITOR_FILES
