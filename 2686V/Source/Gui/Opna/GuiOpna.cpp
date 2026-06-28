@@ -638,7 +638,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(OpnaGuiValue::MainGroup::width);
-
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(OpnaGuiValue::Group::Padding::width, OpnaGuiValue::Group::Padding::height);
 

@@ -432,7 +432,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(OpnGuiValue::MainGroup::width);
-
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(OpnGuiValue::Group::Padding::width, OpnGuiValue::Group::Padding::height);
 

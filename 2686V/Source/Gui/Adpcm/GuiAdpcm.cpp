@@ -270,6 +270,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(AdpcmGuiValue::MainGroup::width);
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(AdpcmGuiValue::Group::Padding::width, AdpcmGuiValue::Group::Padding::height);
     mmRect.removeFromTop(AdpcmGuiValue::Group::TitlePaddingTop);

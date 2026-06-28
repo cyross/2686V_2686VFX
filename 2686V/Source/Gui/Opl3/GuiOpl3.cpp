@@ -455,7 +455,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(Opl3GuiValue::MainGroup::width);
-
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(Opl3GuiValue::Group::Padding::width, Opl3GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Opl3GuiValue::Group::TitlePaddingTop);

@@ -970,7 +970,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(Opzx7GuiValue::MainGroup::width);
-
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(Opzx7GuiValue::Group::Padding::width, Opzx7GuiValue::Group::Padding::height);
     mmRect.removeFromTop(Opzx7GuiValue::Group::TitlePaddingTop);

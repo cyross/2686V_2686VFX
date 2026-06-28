@@ -31,7 +31,9 @@ namespace EditorGuiText
 	{
 		static inline const juce::String show = u8">>";
 		static inline const juce::String hide = u8"<<";
-		static inline const juce::String label = juce::String("") + "波形プレビュー(オシロスコープ)";
+		static inline const juce::String labelL = juce::String("") + "[L]波形プレビュー(オシロスコープ)";
+		static inline const juce::String labelMono = juce::String("") + "[M]波形プレビュー(オシロスコープ)";
+		static inline const juce::String labelR = juce::String("") + "[R]波形プレビュー(オシロスコープ)";
 		static inline const juce::String tooltipShow = juce::String("") + "波形プレビューを表示します。";
 		static inline const juce::String tooltipHide = juce::String("") + "波形プレビューを隠します。";
 	}

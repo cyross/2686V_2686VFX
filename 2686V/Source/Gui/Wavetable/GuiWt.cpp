@@ -829,7 +829,7 @@ void GuiWt::layout(juce::Rectangle<int> content)
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(WtGuiValue::MainGroup::width);
-
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
     auto mmRect = mainArea.reduced(WtGuiValue::Group::Padding::width, WtGuiValue::Group::Padding::height);
     mmRect.removeFromTop(WtGuiValue::Group::TitlePaddingTop);

@@ -76,6 +76,28 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
 
+// コンストラクタで色を受け取る
+GuiStateView::GuiStateView(juce::Colour tColor, juce::Colour fColor, juce::Colour bColor)
+    : trueColor(tColor), falseColor(fColor), borderColor(bColor)
+{
+}
+
+void GuiStateView::updateState(bool state)
+{
+    this->state = state;
+
+    repaint(); // データが来たら再描画
+}
+
+void GuiStateView::paint(juce::Graphics& g)
+{
+    g.fillAll(this->state ? trueColor : falseColor);
+
+
+    g.setColour(borderColor);
+    g.drawRect(getLocalBounds(), 2);
+}
+
 void ColoredGroupComponent::setBackgroundColor(juce::Colour c)
 {
     backgroundColor = c;

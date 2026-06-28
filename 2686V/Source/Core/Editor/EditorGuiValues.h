@@ -27,7 +27,7 @@ namespace EditorGuiValue
 	namespace Preview
 	{
 		static inline constexpr int extraWidth = 288;
-		static inline constexpr int drawSize = 280;
+		static inline constexpr int drawSize = 240;
 	}
 
 	namespace Group
