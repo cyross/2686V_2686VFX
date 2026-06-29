@@ -166,7 +166,7 @@ public:
 private:
     AudioPlugin2686V& audioProcessor;
 
-    static inline constexpr int previewHz = 60;
+    static inline constexpr int previewHz = 30;
     float uiScale = 1.0f;
     bool lastPlayingState = false; // 再生状態が変わったか判定するためのキャッシュ
 
@@ -220,14 +220,14 @@ private:
     juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
 
     // 緑系のリアルタイムプレビュー
+    juce::Label previewTitleLabel;
     juce::Label previewLabels[3];
     GuiWaveformPreview realtimePreviewL{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue.brighter(0.1f) };
     GuiWaveformPreview realtimePreviewMono{ juce::Colours::darkgreen.darker(0.8f).withAlpha(0.5f), juce::Colours::green.brighter(0.5f) };
     GuiWaveformPreview realtimePreviewR{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::red };
 
     // 状態コンポーネント
-    GuiStateView playingState{ juce::Colours::red, juce::Colours::red.darker(0.9f).withAlpha(0.6f) };
-    GuiStateView midiState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
+    GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
 
     bool isPreviewVisible = false;
 

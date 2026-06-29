@@ -247,35 +247,27 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         auto* finalOutL = buffer.getReadPointer(0);
         auto* finalOutR = buffer.getReadPointer(1);
         int numSamples = buffer.getNumSamples();
-        int bufferSize = previewBufferSize;
 
-        int shiftAmount = juce::jmin(numSamples, bufferSize);
-        int keepAmount = bufferSize - shiftAmount;
+        // 現在の書き込み位置を取得
+        int pos = realTimeWritePos.load(std::memory_order_relaxed);
 
-        float oldValL = 0.0f;
-        float oldValR = 0.0f;
-        float newValL = 0.0f;
-        float newValR = 0.0f;
+        for (int i = 0; i < numSamples; ++i) {
+            float l = finalOutL[i];
+            float r = finalOutR[i];
 
-        for (int i = 0; i < keepAmount; ++i) {
-            oldValL = realTimeBufferL[i + shiftAmount].load(std::memory_order_relaxed);
-            realTimeBufferL[i].store(oldValL, std::memory_order_relaxed);
+            // リングバッファに書き込み
+            realTimeBufferL[pos] = l;
+            realTimeBufferR[pos] = r;
+            realTimeBufferMono[pos] = (l + r) * 0.5f;
 
-            oldValR = realTimeBufferR[i + shiftAmount].load(std::memory_order_relaxed);
-            realTimeBufferR[i].store(oldValR, std::memory_order_relaxed);
+            // 位置を進め、バッファ終端に来たら0に戻す
+            pos++;
 
-            realTimeBufferMono[i].store((oldValL + oldValR) / 2.0, std::memory_order_relaxed);
+            if (pos >= ringBufferSize) pos = 0;
         }
 
-        for (int i = 0; i < shiftAmount; ++i) {
-            newValL = finalOutL[numSamples - shiftAmount + i];
-            realTimeBufferL[keepAmount + i].store(newValL, std::memory_order_relaxed);
-
-            newValR = finalOutR[numSamples - shiftAmount + i];
-            realTimeBufferR[keepAmount + i].store(newValR, std::memory_order_relaxed);
-
-            realTimeBufferMono[keepAmount + i].store((newValL + newValR) / 2.0, std::memory_order_relaxed);
-        }
+        // 最新の書き込み位置を保存 (GUI側がここを読み取る)
+        realTimeWritePos.store(pos, std::memory_order_release);
     }
 }
 
@@ -1394,7 +1386,7 @@ bool AudioPlugin2686V::isPlaying()
 
     for (int i = 0; i < m_synth.getNumVoices(); ++i) {
         if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
-            flag = flag || voice->isPlaying();
+            flag = flag || voice->isVoiceActive() || voice->isPlaying();
         }
     }
 

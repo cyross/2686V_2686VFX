@@ -492,7 +492,7 @@ public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
 
-    static inline constexpr int previewBufferSize = 1024;
+    static inline constexpr int previewBufferSize = 200;
 
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -580,9 +580,14 @@ public:
     bool previewVisiblity = true; // Editorとの同期用
 
     // L, Mono, R の3チャンネル分のバッファを用意
-    std::atomic<float> realTimeBufferL[previewBufferSize];
-    std::atomic<float> realTimeBufferMono[previewBufferSize];
-    std::atomic<float> realTimeBufferR[previewBufferSize];
+    // 余裕を持たせたリングバッファ (ただのfloat配列でOK)
+    static inline constexpr int ringBufferSize = 2048;
+    float realTimeBufferL[ringBufferSize] = { 0.0f };
+    float realTimeBufferMono[ringBufferSize] = { 0.0f };
+    float realTimeBufferR[ringBufferSize] = { 0.0f };
+
+    // 現在の書き込み位置だけをスレッドセーフに管理
+    std::atomic<int> realTimeWritePos{ 0 };
 
     // --- Settings Data ---
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
