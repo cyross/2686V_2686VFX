@@ -244,21 +244,21 @@ float OpmCore::getSample() {
 
         m_lfo.getSample();
 
-        std::array<float, Opl3PrValue::ops> currentOut = { 0.0f };
+        std::array<float, OpmPrValue::ops> currentOut = { 0.0f };
         float finalOut = 0.0f;
 
-        int algIndex = std::clamp(m_algorithm, 0, Opl3PrValue::algorithms - 1);
+        int algIndex = std::clamp(m_algorithm, 0, OpmPrValue::algorithms - 1);
         const auto& r = routings[algIndex];
 
         // =================================================================
         // オペレータの評価 (OP1 -> OP6 の正順で計算)
         // =================================================================
-        for (int i = 0; i < Opl3PrValue::ops; ++i) { // 0 から 5 へ
+        for (int i = 0; i < OpmPrValue::ops; ++i) { // 0 から 5 へ
             float modulator = 0.0f;
             float fbModulator = 0.0f;
 
             // 1. 通常の変調入力 (mod)
-            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+            for (int src = 0; src < OpmPrValue::ops; ++src) {
                 if (r.mod[i][src] > 0.0f) {
                     // src が i より「小さい」なら既に計算済み(currentOut)、
                     // 大きいなら未計算なので1サンプル前の history1 を使う
@@ -269,7 +269,7 @@ float OpmCore::getSample() {
             }
 
             // 2. フィードバック変調入力 (fbMod)
-            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+            for (int src = 0; src < OpmPrValue::ops; ++src) {
                 if (r.fbMod[i][src] > 0.0f) {
                     // フィードバックは常に「過去2サンプルの平均」
                     float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
@@ -293,7 +293,7 @@ float OpmCore::getSample() {
         // =================================================================
         // Final Output (各OPからマスターアウトへの加算)
         // =================================================================
-        for (int i = 0; i < Opl3PrValue::ops; ++i) {
+        for (int i = 0; i < OpmPrValue::ops; ++i) {
             finalOut += currentOut[i] * r.out[i];
         }
 

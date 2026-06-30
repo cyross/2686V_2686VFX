@@ -241,7 +241,7 @@ float OplCore::getSample() {
         // =================================================================
         // Final Output (各OPからマスターアウトへの加算)
         // =================================================================
-        for (int i = 0; i < Opl3PrValue::ops; ++i) {
+        for (int i = 0; i < OplPrValue::ops; ++i) {
             finalOut += currentOut[i] * r.out[i];
         }
 
