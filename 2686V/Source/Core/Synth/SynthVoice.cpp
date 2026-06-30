@@ -183,3 +183,8 @@ void SynthVoice::setCurveCore(CurveCore* p_curveCore)
     m_adpcmCore.setCurveCore(p_curveCore);
     m_beepCore.setCurveCore(p_curveCore);
 }
+
+bool SynthVoice::isPlaying()
+{
+    return coreMap[m_mode]->isPlaying();
+}

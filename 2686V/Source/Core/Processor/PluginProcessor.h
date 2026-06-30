@@ -47,6 +47,7 @@ public:
     bool useVelocity = false;
     bool pitchResetOnLegato = false;
     float fixedVelocity = 1.0f;
+    bool isMidiProcessing = false;
 
     SynthParams* currentParams = nullptr;
 
@@ -96,6 +97,8 @@ public:
     // 鍵盤を押した時の挙動をハックする
     void noteOn(int midiChannel, int midiNoteNumber, float velocity) override
     {
+        isMidiProcessing = true;
+
         if (currentParams == nullptr) {
             juce::Synthesiser::noteOn(midiChannel, midiNoteNumber, velocity);
             return;
@@ -255,6 +258,8 @@ public:
     // 鍵盤を離した時の挙動をハックする
     void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
     {
+        isMidiProcessing = false;
+
         float targetVelocity = useVelocity ? velocity : fixedVelocity;
 
         if (isMonoMode)
@@ -487,6 +492,8 @@ public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
 
+    static inline constexpr int previewBufferSize = 200;
+
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override;
@@ -571,7 +578,16 @@ public:
 
     // --- Preview ---
     bool previewVisiblity = true; // Editorとの同期用
-    std::atomic<float> realTimeBuffer[512];
+
+    // L, Mono, R の3チャンネル分のバッファを用意
+    // 余裕を持たせたリングバッファ (ただのfloat配列でOK)
+    static inline constexpr int ringBufferSize = 2048;
+    float realTimeBufferL[ringBufferSize] = { 0.0f };
+    float realTimeBufferMono[ringBufferSize] = { 0.0f };
+    float realTimeBufferR[ringBufferSize] = { 0.0f };
+
+    // 現在の書き込み位置だけをスレッドセーフに管理
+    std::atomic<int> realTimeWritePos{ 0 };
 
     // --- Settings Data ---
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
@@ -617,6 +633,9 @@ public:
     void resetMidiSettings();
     std::vector<int> getFxOrder();
     void updateFxOrder(std::vector<int> newOrder);
+    bool isPlaying();
+    bool isMidiProcessing();
+    OscMode getCurrentMode();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

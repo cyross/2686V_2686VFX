@@ -71,6 +71,8 @@ public:
 
     void setCurveCore(CurveCore* p_curveCore);
 
+    bool isPlaying();
+
     std::map<OscMode, SynthCore *> coreMap;
 
     // ユニゾン・ハーモニー用

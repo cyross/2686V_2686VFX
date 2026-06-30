@@ -88,6 +88,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     auto pageArea = content.withZeroOrigin();
 
     auto mainArea = pageArea.removeFromLeft(BeepGuiValue::MainGroup::width);
+    mainArea.removeFromBottom(40);
     mainGroup.setBounds(mainArea);
 
     auto mmRect = mainArea.reduced(BeepGuiValue::Group::Padding::width, BeepGuiValue::Group::Padding::height);

@@ -136,7 +136,7 @@ public:
 
     // 波形プレビュー用
     void timerCallback() override;
-    void updateTimerState();
+    void updateTimerState(bool start);
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
     GuiCurve* getCurveGui();
@@ -166,7 +166,9 @@ public:
 private:
     AudioPlugin2686V& audioProcessor;
 
+    static inline constexpr int previewHz = 30;
     float uiScale = 1.0f;
+    bool lastPlayingState = false; // 再生状態が変わったか判定するためのキャッシュ
 
     CustomTabLookAndFeel customTabLF;
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
@@ -216,9 +218,17 @@ private:
     // 波形プレビュー用
     SystemButtonLF togglePreviewButtonLF;
     juce::TextButton togglePreviewBtn{ EditorGuiText::Preview::show }; // 初期状態は閉じているので ">>"
+
     // 緑系のリアルタイムプレビュー
-    juce::Label previewLabel;
-    GuiWaveformPreview realtimePreview{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue };
+    juce::Label previewTitleLabel;
+    juce::Label previewLabels[3];
+    GuiWaveformPreview realtimePreviewL{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::blue.brighter(0.1f) };
+    GuiWaveformPreview realtimePreviewMono{ juce::Colours::darkgreen.darker(0.8f).withAlpha(0.5f), juce::Colours::green.brighter(0.5f) };
+    GuiWaveformPreview realtimePreviewR{ juce::Colours::white.darker(0.2f).withAlpha(0.5f), juce::Colours::red };
+
+    // 状態コンポーネント
+    GuiStateView playingState{ juce::Colours::yellow, juce::Colours::yellow.darker(0.9f).withAlpha(0.6f) };
+
     bool isPreviewVisible = false;
 
     enum class ViewMode { Full = 0, MiniPlayer = 1, Minimum = 2 };

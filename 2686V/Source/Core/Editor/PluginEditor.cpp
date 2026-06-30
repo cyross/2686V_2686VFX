@@ -81,6 +81,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     // Initial Wallpaper Load
     loadWallpaperImage();
 
+    isPreviewVisible = audioProcessor.apvts.state.getProperty(ProcessorStateKey::isVisiblePreview);
+
     tabs.setLookAndFeel(&customTabLF);
 
     setupTabs(tabs);
@@ -105,13 +107,32 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
         scanPresets();
     }
 
-    addChildComponent(realtimePreview);
+    addChildComponent(realtimePreviewL);
+    addChildComponent(realtimePreviewMono);
+    addChildComponent(realtimePreviewR);
 
     // 波形プレビューラベル
-    addChildComponent(previewLabel);
-    previewLabel.setText(EditorGuiText::Preview::label, juce::NotificationType::dontSendNotification);
-    previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
-    previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    addChildComponent(previewTitleLabel);
+    previewTitleLabel.setText(EditorGuiText::Preview::label, juce::NotificationType::dontSendNotification);
+    previewTitleLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+    previewTitleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+
+    addChildComponent(previewLabels[0]);
+    previewLabels[0].setText(EditorGuiText::Preview::labelL, juce::NotificationType::dontSendNotification);
+    previewLabels[0].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+    previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+
+    addChildComponent(previewLabels[1]);
+    previewLabels[1].setText(EditorGuiText::Preview::labelMono, juce::NotificationType::dontSendNotification);
+    previewLabels[1].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+    previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+
+    addChildComponent(previewLabels[2]);
+    previewLabels[2].setText(EditorGuiText::Preview::labelR, juce::NotificationType::dontSendNotification);
+    previewLabels[2].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+    previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+
+    addAndMakeVisible(playingState);
 
     // プレビュー表示切替ボタン
     addAndMakeVisible(togglePreviewBtn);
@@ -123,17 +144,25 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     togglePreviewBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
     togglePreviewBtn.onClick = [this] {
         isPreviewVisible = !isPreviewVisible;
+
+        // 再起動時にプレビュー表示を記録させる
+        audioProcessor.apvts.state.setProperty(ProcessorStateKey::isVisiblePreview, isPreviewVisible, nullptr);
+
         updatePreviewVisibilityToProcessor();
 
-        realtimePreview.setVisible(isPreviewVisible);
-        previewLabel.setVisible(isPreviewVisible);
+        realtimePreviewL.setVisible(isPreviewVisible);
+        previewLabels[0].setVisible(isPreviewVisible);
+        realtimePreviewMono.setVisible(isPreviewVisible);
+        previewLabels[1].setVisible(isPreviewVisible);
+        realtimePreviewR.setVisible(isPreviewVisible);
+        previewLabels[2].setVisible(isPreviewVisible);
         togglePreviewBtn.setButtonText(getPreviewButtonText());
         togglePreviewBtn.setTooltip(getPreviewTooltipText());
 
         updateUiScale(uiScale);
 
         // タイマーのON/OFFを切り替え
-        updateTimerState();
+        updateTimerState(true);
     };
 
     // パニックボタン
@@ -225,9 +254,13 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateParameterInitializeButtons();
 
     addAndMakeVisible(miniModeLabel);
+    miniModeLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::FontStyleFlags::bold)));
+    miniModeLabel.setColour(juce::Label::textColourId, juce::Colours::green.brighter(0.6f));
     miniModeLabel.setVisible(false);
 
     addAndMakeVisible(miniPresetLabel);
+    miniPresetLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::FontStyleFlags::bold)));
+    miniPresetLabel.setColour(juce::Label::textColourId, juce::Colours::antiquewhite);
     miniPresetLabel.setVisible(false);
 
     // ミニプレイヤー表示切替ボタン
@@ -295,6 +328,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateAdpcmFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
+
+    updateTimerState(true);
 }
 
 AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
@@ -323,10 +358,10 @@ void AudioPlugin2686VEditor::updateWindowSize()
 
     // viewMode に応じたウィンドウサイズを計算して適用
     if (viewMode == ViewMode::MiniPlayer) {
-        setSize(220, 300);
+        setSize(640, 300);
     }
     else if (viewMode == ViewMode::Minimum) {
-        setSize(220, 100);
+        setSize(640, 100);
     }
     else {
         int targetWidth = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
@@ -337,18 +372,18 @@ void AudioPlugin2686VEditor::updateWindowSize()
 
 void AudioPlugin2686VEditor::showFullView() {
     updateWindowSize();
-    updateTimerState();
+    updateTimerState(true);
 }
 
 void AudioPlugin2686VEditor::showMiniPlayerView() {
     updatePreviewVisibilityToProcessor();
     updateWindowSize();
-    startTimerHz(15);
+    updateTimerState(true);
 }
 
 void AudioPlugin2686VEditor::showMinimumView() {
     updateWindowSize();
-    stopTimer();
+    updateTimerState(true);
 }
 
 void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -358,7 +393,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         // 0:OPNA, 1:OPN, 2:OPL, ...
         int targetMode = tabs.getCurrentTabIndex();
 
-        if (targetMode >= 0 && targetMode <= (int)OscMode::BEEP) // BEEP is 11
+        if (targetMode >= 0 && targetMode < (int)OscMode::Count) // BEEP is 11
         {
             // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
             audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
@@ -376,9 +411,14 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
                     param->endChangeGesture();
                 }
             }
+
+            playingState.setVisible(true);
+        }
+        else {
+            playingState.setVisible(false);
         }
 
-        updateTimerState();
+        updateTimerState(true);
         updateParameterCopyPasteButtons();
         updateParameterInitializeButtons();
     }
@@ -398,17 +438,57 @@ void AudioPlugin2686VEditor::paint(juce::Graphics& g)
         break;
     case ViewMode::MiniPlayer:
         g.setColour(juce::Colours::black.withAlpha(0.3f));
-        g.fillRect(5, 5, 210, 290);
+        g.fillRect(5, 5, 630, 290);
+
+        g.setColour(juce::Colours::blue.withAlpha(0.15f));
+        g.fillRect(10, 5, 400, 40);
+        g.fillRect(420, 5, 150, 40);
+
         break;
     case ViewMode::Minimum:
         g.setColour(juce::Colours::black.withAlpha(0.3f));
-        g.fillRect(5, 5, 210, 90);
+        g.fillRect(5, 5, 630, 90);
+
+        g.setColour(juce::Colours::blue.withAlpha(0.15f));
+        g.fillRect(10, 5, 400, 40);
+        g.fillRect(420, 5, 150, 40);
+
         break;
     }
 }
 
 void AudioPlugin2686VEditor::resized()
 {
+    // =========================================================================
+    // 0. DAWによる不意なサイズ変更（キャッシュによる強制上書き）を防ぐガード
+    // =========================================================================
+    int expectedW = EditorGuiValue::MiniPreview::paddingLeft + EditorGuiValue::MiniPreview::drawWidth * 3 + EditorGuiValue::MiniPreview::paddingInnerX * 2 + EditorGuiValue::MiniPreview::paddingRight; // 期待する幅の初期値 (MiniPlayer)
+    int expectedH = EditorGuiValue::MiniPreview::paddingTop
+        + EditorGuiValue::MiniPreview::presetLabelHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MiniPreview::labelHeight
+        + EditorGuiValue::MiniPreview::paddingDrawSpaceY
+        + EditorGuiValue::MiniPreview::drawHeight
+        + EditorGuiValue::MiniPreview::paddingInnerY
+        + EditorGuiValue::MinimumPreview::logoHeight
+        + EditorGuiValue::MiniPreview::paddingBottom; // 期待する高さの初期値 (MiniPlayer)
+
+    if (viewMode == ViewMode::Minimum) {
+        expectedW = expectedW;
+        expectedH = 100;
+    }
+    else if (viewMode == ViewMode::Full) {
+        expectedW = isPreviewVisible ? EditorGuiValue::Window::width + EditorGuiValue::Preview::extraWidth : EditorGuiValue::Window::width;
+        expectedH = audioProcessor.showVirtualKeyboard ? EditorGuiValue::Window::height + EditorGuiValue::KeyboardHeight : EditorGuiValue::Window::height;
+    }
+
+    // DAWが勝手に期待サイズ以外のサイズに変更してきた場合、強制的に正しいサイズに戻す
+    if (getWidth() != expectedW || getHeight() != expectedH) {
+        setSize(expectedW, expectedH);
+
+        return; // setSize を呼ぶと再び resized() が走るため、ここで処理を中断して無限ループを防ぐ
+    }
+
     // =========================================================================
     // 1. 現在の ViewMode に基づいて、全コンポーネントの表示/非表示(setVisible)と
     //    ラベルのスタイルを設定する
@@ -441,29 +521,42 @@ void AudioPlugin2686VEditor::resized()
 
     // プレビューの表示判定 (FullでトグルがON、またはMiniPlayerの時)
     bool showPreview = (isFull && isPreviewVisible) || isMini;
-    previewLabel.setVisible(showPreview);
-    realtimePreview.setVisible(showPreview);
+    previewTitleLabel.setVisible(showPreview);
+    previewLabels[0].setVisible(showPreview);
+    realtimePreviewL.setVisible(showPreview);
+    previewLabels[1].setVisible(showPreview);
+    realtimePreviewMono.setVisible(showPreview);
+    previewLabels[2].setVisible(showPreview);
+    realtimePreviewR.setVisible(showPreview);
 
     // モードに応じたラベルのテキストとスタイルの更新
     if (isFull) {
         toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMini);
         toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
-        previewLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-        previewLabel.setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+        previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[0].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+        previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[1].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
+        previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[2].setFont(juce::Font(juce::FontOptions(24.0f, juce::Font::bold)));
     }
     else if (isMini) {
         toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToMinimum);
         toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMinimum);
-        miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-        miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
-        previewLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-        previewLabel.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
+        miniPresetLabel.setText(juce::String("") + (audioProcessor.presetName.length() == 0 ? "(EMPTY)" : audioProcessor.presetName), juce::NotificationType::dontSendNotification);
+        miniModeLabel.setText(juce::String("") + getModeName(audioProcessor.getCurrentMode()), juce::NotificationType::dontSendNotification);
+        previewLabels[0].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[0].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
+        previewLabels[1].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[1].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
+        previewLabels[2].setColour(juce::Label::textColourId, juce::Colours::white);
+        previewLabels[2].setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
     }
     else {
         toggleMiniBtn.setButtonText(EditorGuiText::MiniPlayer::titleToFull);
         toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToFull);
-        miniPresetLabel.setText(juce::String("") + "プリセット: " + audioProcessor.presetName, juce::NotificationType::dontSendNotification);
-        miniModeLabel.setText(juce::String("") + "チャンネル: " + getModeName(audioProcessor.lastActiveSynthMode), juce::NotificationType::dontSendNotification);
+        miniPresetLabel.setText(juce::String("") + (audioProcessor.presetName.length() == 0 ? "(EMPTY)" : audioProcessor.presetName), juce::NotificationType::dontSendNotification);
+        miniModeLabel.setText(juce::String("") + getModeName(audioProcessor.getCurrentMode()), juce::NotificationType::dontSendNotification);
     }
 
     // =========================================================================
@@ -475,37 +568,81 @@ void AudioPlugin2686VEditor::resized()
     int iconX = 0;
     int iconY = 0;
 
+    // どのモードでも共通して使う「チャンネル表示中か」の判定
+    bool isChannel = (OscMode)tabs.getCurrentTabIndex() < OscMode::Count;
+    playingState.setVisible(isChannel);
+
     if (isMini || isMin) {
-        toggleMiniBtn.setBounds(getWidth() - 35, 5, 30, 20);
-        panicButton.setBounds(getWidth() - 35, 28, 30, 20);
+        int width = getWidth();
+        int height = getHeight();
+
+        int sx = width - EditorGuiValue::MiniPreview::paddingRight - EditorGuiValue::SystemBtns::miniButtonWidth;
+        panicButton.setBounds(sx, EditorGuiValue::MiniPreview::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+        sx -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
+        toggleMiniBtn.setBounds(sx, EditorGuiValue::MiniPreview::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
         if (isMini) {
-            miniPresetLabel.setBounds(10, 5, 150, 20);
-            miniModeLabel.setBounds(10, 25, 150, 20);
-            miniLogoLabel.setBounds(10, 244, 200, 48);
+            int lbx = EditorGuiValue::MiniPreview::paddingLeft;
+            miniPresetLabel.setBounds(lbx, EditorGuiValue::MiniPreview::paddingTop, EditorGuiValue::MiniPreview::presetLabelWidth, EditorGuiValue::MiniPreview::presetLabelHeight);
+
+            lbx += EditorGuiValue::MiniPreview::presetLabelWidth + EditorGuiValue::MiniPreview::paddingInnerX;
+            miniModeLabel.setBounds(lbx, EditorGuiValue::MiniPreview::paddingTop, EditorGuiValue::MiniPreview::modeLabelWidth, EditorGuiValue::MiniPreview::modeLabelHeight);
+
+            int lgx = width - EditorGuiValue::MiniPreview::paddingRight - EditorGuiValue::MiniPreview::logoWidth;
+            int lgy = height - EditorGuiValue::MiniPreview::paddingBottom - EditorGuiValue::MiniPreview::logoHeight;
+            miniLogoLabel.setBounds(lgx, lgy, EditorGuiValue::MiniPreview::logoWidth, EditorGuiValue::MiniPreview::logoHeight);
 
             textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
             textHeight = (int)miniLogoLabel.getFont().getHeight();
             iconSize = textHeight - 12;
-            iconX = 210 - textWidth - iconSize - 8;
-            iconY = 244 + textHeight / 2 - 6;
+            iconX = width - EditorGuiValue::MiniPreview::paddingInnerX - textWidth - iconSize - 8;
+            iconY = lgy + (textHeight / 2) - 6;
             miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
 
-            realtimePreview.setBounds(10, 50, 200, 200);
-            previewLabel.setBounds(10, 50, 180, 20);
+            int x = EditorGuiValue::MiniPreview::paddingLeft;
+            int y = EditorGuiValue::MiniPreview::paddingTop + EditorGuiValue::MiniPreview::presetLabelHeight + EditorGuiValue::MiniPreview::paddingInnerY;
+            int dy = y + EditorGuiValue::MiniPreview::labelHeight + EditorGuiValue::MiniPreview::paddingDrawSpaceY;
+            previewLabels[0].setBounds(x, y, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::labelHeight);
+            realtimePreviewL.setBounds(x, dy, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::drawHeight);
+
+            x += EditorGuiValue::MiniPreview::drawWidth + EditorGuiValue::MiniPreview::paddingInnerX;
+            previewLabels[1].setBounds(x, y, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::labelHeight);
+            realtimePreviewMono.setBounds(x, dy, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::drawHeight);
+
+            x += EditorGuiValue::MiniPreview::drawWidth + EditorGuiValue::MiniPreview::paddingInnerX;
+            previewLabels[2].setBounds(x, y, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::labelHeight);
+            realtimePreviewR.setBounds(x, dy, EditorGuiValue::MiniPreview::drawWidth, EditorGuiValue::MiniPreview::drawHeight);
         }
         else { // Minimum
-            miniPresetLabel.setBounds(10, 5, 150, 20);
-            miniModeLabel.setBounds(10, 25, 150, 20);
-            miniLogoLabel.setBounds(10, 44, 200, 48);
+            int lbx = EditorGuiValue::MinimumPreview::paddingLeft;
+            miniPresetLabel.setBounds(lbx, EditorGuiValue::MinimumPreview::paddingTop, EditorGuiValue::MinimumPreview::presetLabelWidth, EditorGuiValue::MinimumPreview::presetLabelHeight);
+
+            lbx += EditorGuiValue::MinimumPreview::presetLabelWidth + EditorGuiValue::MinimumPreview::paddingInnerX;
+            miniModeLabel.setBounds(lbx, EditorGuiValue::MinimumPreview::paddingTop, EditorGuiValue::MinimumPreview::modeLabelWidth, EditorGuiValue::MinimumPreview::modeLabelHeight);
+
+            int lgx = width - EditorGuiValue::MinimumPreview::paddingRight - EditorGuiValue::MinimumPreview::logoWidth;
+            int lgy = height - EditorGuiValue::MinimumPreview::paddingBottom - EditorGuiValue::MinimumPreview::logoHeight;
+            miniLogoLabel.setBounds(lgx, lgy, EditorGuiValue::MinimumPreview::logoWidth, EditorGuiValue::MinimumPreview::logoHeight);
 
             textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
             textHeight = (int)miniLogoLabel.getFont().getHeight();
             iconSize = textHeight - 12;
-            iconX = 210 - textWidth - iconSize - 8;
-            iconY = 44 + textHeight / 2 - 6;
+            iconX = width - EditorGuiValue::MinimumPreview::paddingInnerX - textWidth - iconSize - 8;
+            iconY = lgy + (textHeight / 2) - 6;
             miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
         }
+
+        // Mini / Minimum モードでのランプの配置
+        if (isChannel) {
+            playingState.setBounds(
+                EditorGuiValue::StateBtns::paddingLeft,
+                height - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
+                EditorGuiValue::StateBtns::width,
+                EditorGuiValue::StateBtns::height
+            );
+        }
+
         return; // Full Viewの計算は行わずに終了
     }
 
@@ -520,19 +657,53 @@ void AudioPlugin2686VEditor::resized()
 
     if (isPreviewVisible) {
         auto rightArea = area.removeFromRight(EditorGuiValue::Preview::extraWidth);
-        previewLabel.setBounds(rightArea.getX() + 4, 300, 200, 20);
-        realtimePreview.setBounds(rightArea.getX() + 4, 330, EditorGuiValue::Preview::drawSize, EditorGuiValue::Preview::drawSize);
+
+        int x = rightArea.getX() + EditorGuiValue::Preview::paddingLeft;
+        int y = EditorGuiValue::Preview::paddingTop;
+        previewTitleLabel.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingInnerY;
+        previewLabels[0].setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingDrawSpaceY;
+        realtimePreviewL.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::drawHeight);
+
+        y += EditorGuiValue::Preview::drawHeight + EditorGuiValue::Preview::paddingInnerY;
+        previewLabels[1].setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingDrawSpaceY;
+        realtimePreviewMono.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::drawHeight);
+
+        y += EditorGuiValue::Preview::drawHeight + EditorGuiValue::Preview::paddingInnerY;
+        previewLabels[2].setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::labelHeight);
+
+        y += EditorGuiValue::Preview::labelHeight + EditorGuiValue::Preview::paddingDrawSpaceY;
+        realtimePreviewR.setBounds(x, y, EditorGuiValue::Preview::drawWidth, EditorGuiValue::Preview::drawHeight);
     }
 
-    int previewPaddingRight = isPreviewVisible ? EditorGuiValue::Preview::drawSize + 8 : 0;
-    togglePreviewBtn.setBounds(getWidth() - 45 - previewPaddingRight, 5, 40, 20);
-    panicButton.setBounds(getWidth() - 80 - previewPaddingRight, 5, 30, 20);
-    redoButton.setBounds(getWidth() - 125 - previewPaddingRight, 5, 40, 20);
-    undoButton.setBounds(getWidth() - 170 - previewPaddingRight, 5, 40, 20);
-    copyParamsButton.setBounds(getWidth() - 215 - previewPaddingRight, 5, 40, 20);
-    pasteParamsButton.setBounds(getWidth() - 260 - previewPaddingRight, 5, 40, 20);
-    initParamsButton.setBounds(getWidth() - 325 - previewPaddingRight, 5, 60, 20);
-    toggleMiniBtn.setBounds(getWidth() - 365 - previewPaddingRight, 5, 30, 20);
+    int x = getWidth() - ((isPreviewVisible ? EditorGuiValue::Preview::drawWidth : 0) + EditorGuiValue::SystemBtns::paddingRight + EditorGuiValue::SystemBtns::buttonWidth);
+    togglePreviewBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
+    panicButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    redoButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    undoButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    copyParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
+    pasteParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::initButtonWidth;
+    initParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::initButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
+
+    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::miniButtonWidth;
+    toggleMiniBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
     logoLabel.setBounds(reducedArea);
@@ -570,6 +741,17 @@ void AudioPlugin2686VEditor::resized()
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
     fxGui->layout(content);
+
+    playingState.setVisible(isChannel);
+
+    if (isChannel) {
+        playingState.setBounds(
+            EditorGuiValue::StateBtns::paddingLeft,
+            getHeight() - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
+            EditorGuiValue::StateBtns::width,
+            EditorGuiValue::StateBtns::height
+        );
+    }
 }
 
 void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
@@ -1182,25 +1364,54 @@ void AudioPlugin2686VEditor::timerCallback()
 {
     if (isPreviewVisible || viewMode == ViewMode::MiniPlayer)
     {
-        // 1. 静的波形（完成波形）の更新
         std::vector<float> staticData;
-
         audioProcessor.generatePreviewWaveform(&staticData);
-        // 2. リアルタイム波形の更新
-        std::vector<float> realTimeData(512);
 
-        for (int i = 0; i < 512; ++i) {
-            realTimeData[i] = audioProcessor.realTimeBuffer[i].load(std::memory_order_relaxed);
+        // メモリ再確保を防ぐため static を付ける、もしくは std::array を使う
+        static std::array<float, AudioPlugin2686V::previewBufferSize> localL;
+        static std::array<float, AudioPlugin2686V::previewBufferSize> localMono;
+        static std::array<float, AudioPlugin2686V::previewBufferSize> localR;
+
+        // オーディオスレッドの最新の書き込み位置を取得
+        int currentPos = audioProcessor.realTimeWritePos.load(std::memory_order_acquire);
+        int ringSize = AudioPlugin2686V::ringBufferSize;
+        int bufSize = AudioPlugin2686V::previewBufferSize;
+
+        // 最新の位置から bufSize 分だけ過去に遡った位置を計算
+        int readPos = currentPos - bufSize;
+        if (readPos < 0) readPos += ringSize;
+
+        // リングバッファから描画用ローカル配列にコピー
+        for (int i = 0; i < bufSize; ++i) {
+            localL[i] = audioProcessor.realTimeBufferL[readPos];
+            localMono[i] = audioProcessor.realTimeBufferMono[readPos];
+            localR[i] = audioProcessor.realTimeBufferR[readPos];
+
+            readPos++;
+            if (readPos >= ringSize) readPos = 0;
         }
-        realtimePreview.pushBuffer(realTimeData.data(), 512);
+
+        // 描画コンポーネントへ渡す
+        realtimePreviewL.pushBuffer(localL.data(), bufSize);
+        realtimePreviewMono.pushBuffer(localMono.data(), bufSize);
+        realtimePreviewR.pushBuffer(localR.data(), bufSize);
     }
+
+    playingState.state = audioProcessor.isPlaying() || audioProcessor.isMidiProcessing();
+
+    repaint(
+        EditorGuiValue::StateBtns::paddingLeft,
+        getHeight() - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
+        EditorGuiValue::StateBtns::width,
+        EditorGuiValue::StateBtns::height
+    );
 }
 
-void AudioPlugin2686VEditor::updateTimerState()
+void AudioPlugin2686VEditor::updateTimerState(bool start = false)
 {
     // プレビューが開いていている時だけタイマーを動かす
-    if (isPreviewVisible) {
-        startTimerHz(15);
+    if (start) {
+        startTimerHz(previewHz);
         timerCallback(); // タイマー開始時に即座に1回強制描画する！
     }
     else {

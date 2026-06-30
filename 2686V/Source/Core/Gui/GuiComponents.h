@@ -43,6 +43,20 @@ private:
     std::vector<float> m_displayBuffer;
 };
 
+class GuiStateView : public juce::Component
+{
+public:
+    bool state;
+    juce::Colour trueColor;
+    juce::Colour falseColor;
+    juce::Colour borderColor;
+
+    // コンストラクタで色を受け取る
+    GuiStateView(juce::Colour tColor = juce::Colours::red.withAlpha(0.85f), juce::Colour fColor = juce::Colours::black.withAlpha(0.85f), juce::Colour bColor = juce::Colours::darkgrey);
+    void updateState(bool state);
+    void paint(juce::Graphics& g) override;
+};
+
 class GuiBaseComponent
 {
 protected:

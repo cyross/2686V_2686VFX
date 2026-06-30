@@ -40,11 +40,6 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
 
     g.setColour(axisColor.darker(0.3f).withAlpha(0.5f));
 
-    g.drawLine(0.0f, yAxis * 1.0f, xAxis * 8.0f, yAxis * 1.0f);
-    g.drawLine(0.0f, yAxis * 3.0f, xAxis * 8.0f, yAxis * 3.0f);
-    g.drawLine(0.0f, yAxis * 5.0f, xAxis * 8.0f, yAxis * 5.0f);
-    g.drawLine(0.0f, yAxis * 7.0f, xAxis * 8.0f, yAxis * 7.0f);
-
     g.drawLine(xAxis * 1.0f, 0.0f, xAxis * 1.0f, yAxis * 8.0f);
     g.drawLine(xAxis * 3.0f, 0.0f, xAxis * 3.0f, yAxis * 8.0f);
     g.drawLine(xAxis * 5.0f, 0.0f, xAxis * 5.0f, yAxis * 8.0f);
@@ -64,7 +59,7 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
 
     for (size_t i = 1; i < m_displayBuffer.size(); ++i) {
         float x = i * xStep;
-        float y = halfHeight - (m_displayBuffer[i] * halfHeight);
+        float y = halfHeight - (m_displayBuffer[i] * halfHeight * 2.0f);
         wavePath.lineTo(x, y);
     }
 
@@ -74,6 +69,28 @@ void GuiWaveformPreview::paint(juce::Graphics& g)
 
     g.setColour(borderColor);
     g.drawRect(getLocalBounds(), 1);
+}
+
+// コンストラクタで色を受け取る
+GuiStateView::GuiStateView(juce::Colour tColor, juce::Colour fColor, juce::Colour bColor)
+    : trueColor(tColor), falseColor(fColor), borderColor(bColor)
+{
+}
+
+void GuiStateView::updateState(bool state)
+{
+    this->state = state;
+
+    repaint(); // データが来たら再描画
+}
+
+void GuiStateView::paint(juce::Graphics& g)
+{
+    g.fillAll(this->state ? trueColor : falseColor);
+
+
+    g.setColour(borderColor);
+    g.drawRect(getLocalBounds(), 2);
 }
 
 void ColoredGroupComponent::setBackgroundColor(juce::Colour c)

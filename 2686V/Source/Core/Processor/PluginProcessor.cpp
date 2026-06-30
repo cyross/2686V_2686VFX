@@ -245,21 +245,29 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     if (previewVisiblity)
     {
         auto* finalOutL = buffer.getReadPointer(0);
+        auto* finalOutR = buffer.getReadPointer(1);
         int numSamples = buffer.getNumSamples();
-        int bufferSize = 512;
 
-        int shiftAmount = juce::jmin(numSamples, bufferSize);
-        int keepAmount = bufferSize - shiftAmount;
+        // 現在の書き込み位置を取得
+        int pos = realTimeWritePos.load(std::memory_order_relaxed);
 
-        for (int i = 0; i < keepAmount; ++i) {
-            float oldVal = realTimeBuffer[i + shiftAmount].load(std::memory_order_relaxed);
-            realTimeBuffer[i].store(oldVal, std::memory_order_relaxed);
+        for (int i = 0; i < numSamples; ++i) {
+            float l = finalOutL[i];
+            float r = finalOutR[i];
+
+            // リングバッファに書き込み
+            realTimeBufferL[pos] = l;
+            realTimeBufferR[pos] = r;
+            realTimeBufferMono[pos] = (l + r) * 0.5f;
+
+            // 位置を進め、バッファ終端に来たら0に戻す
+            pos++;
+
+            if (pos >= ringBufferSize) pos = 0;
         }
 
-        for (int i = 0; i < shiftAmount; ++i) {
-            float newVal = finalOutL[numSamples - shiftAmount + i];
-            realTimeBuffer[keepAmount + i].store(newVal, std::memory_order_relaxed);
-        }
+        // 最新の書き込み位置を保存 (GUI側がここを読み取る)
+        realTimeWritePos.store(pos, std::memory_order_release);
     }
 }
 
@@ -1168,10 +1176,10 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
     previewSynth.noteOn(1, 69, 1.0f); // 69 = A3 (440.0Hz)
 
     // 3. アタックフェーズのスキップ (エンベロープを安定させる)
-    juce::AudioBuffer<float> skipBuffer(2, 512);
+    juce::AudioBuffer<float> skipBuffer(2, previewBufferSize);
     for (int i = 0; i < 40; ++i) {
         skipBuffer.clear();
-        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, 512);
+        previewSynth.renderNextBlock(skipBuffer, juce::MidiBuffer(), 0, previewBufferSize);
     }
 
     // 4. 1周期をピッタリ100サンプルにする
@@ -1370,4 +1378,28 @@ std::vector<int> AudioPlugin2686V::getFxOrder() {
 void AudioPlugin2686V::updateFxOrder(std::vector<int> newOrder)
 {
     prFx.updateOrder(newOrder);
+}
+
+bool AudioPlugin2686V::isPlaying()
+{
+    bool flag = false;
+
+    for (int i = 0; i < m_synth.getNumVoices(); ++i) {
+        if (auto* voice = dynamic_cast<SynthVoice*>(m_synth.getVoice(i))) {
+            flag = flag || voice->isVoiceActive() || voice->isPlaying();
+        }
+    }
+
+    return flag;
+}
+
+bool AudioPlugin2686V::isMidiProcessing() {
+    return m_synth.isMidiProcessing;
+}
+
+OscMode AudioPlugin2686V::getCurrentMode()
+{
+    int m = (int)pMode->load(std::memory_order_relaxed);
+
+    return (OscMode)m;
 }
