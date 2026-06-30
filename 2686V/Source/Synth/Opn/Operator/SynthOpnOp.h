@@ -26,7 +26,7 @@ public:
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
-	void getSample(float& output, float modulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
+	void getSample(float& output, float modulator, float feedbackModulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 	void setCurveCore(CurveCore* p_curveCore);
 
 	// ユニゾン・ハーモニー用

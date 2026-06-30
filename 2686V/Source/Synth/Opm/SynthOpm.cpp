@@ -2,6 +2,51 @@
 
 #include "../../Core/Synth/SynthHelpers.h"
 
+// ============================================================================
+// マトリクスを簡単に構築するためのヘルパー関数 (6オペ完全対応・拡張フィードバック)
+// ============================================================================
+OpmCore::AlgRouting makeAlgOpm(
+    std::initializer_list<int> carriers,
+    std::initializer_list<std::pair<int, int>> mods,
+    std::initializer_list<std::pair<int, int>> fbMods) // NEW: フィードバックの接続リスト
+{
+    OpmCore::AlgRouting r;
+
+    // 出力マトリクスを初期化
+    r.out.fill(0.0f);
+    for (int c : carriers) r.out[c] = 1.0f;
+
+    // 通常の変調マトリクスを初期化
+    for (auto& row : r.mod) row.fill(0.0f);
+    for (auto& m : mods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.mod[m.second][m.first] = 1.0f;
+    }
+
+    // フィードバック変調マトリクスを初期化
+    for (auto& row : r.fbMod) row.fill(0.0f);
+    for (auto& m : fbMods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.fbMod[m.second][m.first] = 1.0f;
+    }
+
+    return r;
+}
+
+// ============================================================================
+// アルゴリズムの定義 (例: 32種類と仮定)
+// ============================================================================
+const std::array<OpmCore::AlgRouting, OpmPrValue::algorithms> OpmCore::routings = { {
+    makeAlgOpm({3}, {{0, 1}, {1, 2}, {2, 3}}, {{0, 0}}),       // 00
+    makeAlgOpm({3}, {{0, 2}, {1, 2}, {2, 3}}, {{0, 0}}),       // 01
+    makeAlgOpm({3}, {{0, 1}, {1, 3}, {2, 3}}, {{2, 2}}),       // 02
+    makeAlgOpm({3}, {{0, 1}, {1, 3}, {2, 3}}, {{0, 0}}),       // 03
+    makeAlgOpm({1, 3}, {{0, 1}, {2, 3}}, {{0, 0}}),            // 04
+    makeAlgOpm({1, 2, 3}, {{0, 1}, {0, 2}, {0, 3}}, {{0, 0}}), // 05
+    makeAlgOpm({1, 2, 3}, {{0, 1}}, {{0, 0}}),                 // 06
+    makeAlgOpm({0, 1, 2, 3}, {}, {{0, 0}}),                    // 07
+} };
+
 void OpmCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
@@ -199,60 +244,66 @@ float OpmCore::getSample() {
 
         m_lfo.getSample();
 
-        float out1 = 0.0f, out2 = 0.0f, out3 = 0.0f, out4 = 0.0f;
+        std::array<float, Opl3PrValue::ops> currentOut = { 0.0f };
         float finalOut = 0.0f;
 
-        // 安全のため 0〜7 の範囲に丸める
-        int algIndex = std::clamp(m_algorithm, 0, 7);
-        const auto& r = baseRoutings[algIndex];
+        int algIndex = std::clamp(m_algorithm, 0, Opl3PrValue::algorithms - 1);
+        const auto& r = routings[algIndex];
 
         // =================================================================
-        // OP1 (入力なし。フィードバックは内部で解決される)
+        // オペレータの評価 (OP1 -> OP6 の正順で計算)
         // =================================================================
-        m_operators[0].getSample(out1, 0.0f, m_lfo, m_modWheel);
-        if (m_opMask[0]) out1 = 0.0f;
+        for (int i = 0; i < Opl3PrValue::ops; ++i) { // 0 から 5 へ
+            float modulator = 0.0f;
+            float fbModulator = 0.0f;
 
-        // =================================================================
-        // OP2 (入力: OP1)
-        // =================================================================
-        float in2 = out1 * r.in2_1;
-        m_operators[1].getSample(out2, in2, m_lfo, m_modWheel);
-        if (m_opMask[1]) out2 = 0.0f;
+            // 1. 通常の変調入力 (mod)
+            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+                if (r.mod[i][src] > 0.0f) {
+                    // src が i より「小さい」なら既に計算済み(currentOut)、
+                    // 大きいなら未計算なので1サンプル前の history1 を使う
+                    float srcVal = (src < i) ? currentOut[src] : m_history1[src];
 
-        // =================================================================
-        // OP3 (入力: OP1, OP2)
-        // =================================================================
-        float in3 = (out1 * r.in3_1) + (out2 * r.in3_2);
-        m_operators[2].getSample(out3, in3, m_lfo, m_modWheel);
-        if (m_opMask[2]) out3 = 0.0f;
+                    modulator += srcVal * r.mod[i][src];
+                }
+            }
 
-        // =================================================================
-        // OP4 (入力: OP1, OP2, OP3)
-        // =================================================================
-        float in4 = (out1 * r.in4_1) + (out2 * r.in4_2) + (out3 * r.in4_3);
-        m_operators[3].getSample(out4, in4, m_lfo, m_modWheel);
-        if (m_opMask[3]) out4 = 0.0f;
+            // 2. フィードバック変調入力 (fbMod)
+            for (int src = 0; src < Opl3PrValue::ops; ++src) {
+                if (r.fbMod[i][src] > 0.0f) {
+                    // フィードバックは常に「過去2サンプルの平均」
+                    float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
 
-        // =================================================================
-        // Final Output
-        // =================================================================
-        finalOut = ((out1 * r.out_1) + (out2 * r.out_2) + (out3 * r.out_3) + (out4 * r.out_4)) * 2.0f;
+                    fbModulator += averageFb * r.fbMod[i][src];
+                }
+            }
 
-        // =======================================================
-        // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
-        // =======================================================
-        if (m_quantizeSteps > 0.0f) {
-            // 単純に掛け算して丸め、割り算で戻すだけでゼロクロスが保証されます
-            finalOut = std::round(finalOut * m_quantizeSteps) / m_quantizeSteps;
+            // 3. オペレータを計算
+            m_operators[i].getSample(currentOut[i], modulator, fbModulator, m_lfo, m_modWheel);
 
-            // 安全のためのクリップ
-            finalOut = std::clamp(finalOut, -1.0f, 1.0f);
+            if (m_opMask[i]) currentOut[i] = 0.0f;
         }
+
+        // =================================================================
+        // 履歴 (History) のシフト
+        // =================================================================
+        m_history2 = m_history1;
+        m_history1 = currentOut;
+
+        // =================================================================
+        // Final Output (各OPからマスターアウトへの加算)
+        // =================================================================
+        for (int i = 0; i < Opl3PrValue::ops; ++i) {
+            finalOut += currentOut[i] * r.out[i];
+        }
+
+        finalOut *= 2.0f; // ゲイン補正
 
         m_lastSample = finalOut;
     }
 
     float fraction = (float)(m_rateAccumulator / stepSize);
+
     if (fraction > 1.0f) fraction = 1.0f;
 
     return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
