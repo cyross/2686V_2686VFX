@@ -172,7 +172,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     panicButton.setTooltip(EditorGuiText::Panic::tooltip);
     panicButton.setLookAndFeel(&panicButtonLF);
     panicButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    panicButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    panicButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
     panicButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
     panicButton.onClick = [this] {
         audioProcessor.panic();
@@ -185,8 +185,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     undoButton.setButtonText(EditorGuiText::Undo::title);
     undoButton.setTooltip(getUndoTooltipText());
     undoButton.setLookAndFeel(&undoButtonLF);
-    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    undoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    undoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    undoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
     undoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
     undoButton.onClick = [this] {
         audioProcessor.undoManager.undo();
@@ -198,8 +198,8 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     redoButton.setButtonText(EditorGuiText::Redo::title);
     redoButton.setTooltip(getRedoTooltipText());
     redoButton.setLookAndFeel(&redoButtonLF);
-    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    redoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    redoButton.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    redoButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.2f));
     redoButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
     redoButton.onClick = [this] {
         audioProcessor.undoManager.redo();
@@ -216,7 +216,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     copyParamsButton.setTooltip(EditorGuiText::Copy::tooltip);
     copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
     copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    copyParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    copyParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
     copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
     copyParamsButton.onClick = [this] {
         copyFmParamsToString();
@@ -230,7 +230,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     pasteParamsButton.setTooltip(EditorGuiText::Paste::tooltip);
     pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
     pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    pasteParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    pasteParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
     pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
     pasteParamsButton.onClick = [this] {
         pasteFmParamsFromObject();
@@ -245,7 +245,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     initParamsButton.setTooltip(EditorGuiText::Reset::tooltip);
     initParamsButton.setLookAndFeel(&initParamsButtonLF);
     initParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    initParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
     initParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::white);
     initParamsButton.onClick = [this] {
         initParams();
@@ -270,7 +270,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     toggleMiniBtn.setTooltip(EditorGuiText::MiniPlayer::tooltipToMini);
     toggleMiniBtn.setLookAndFeel(&miniToggleBtnLF);
     toggleMiniBtn.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::white.darker(0.5f));
+    toggleMiniBtn.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
     toggleMiniBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::cyan);
     toggleMiniBtn.setColour(juce::TextButton::buttonOnColourId, juce::Colours::cyan);
     toggleMiniBtn.onClick = [this] {

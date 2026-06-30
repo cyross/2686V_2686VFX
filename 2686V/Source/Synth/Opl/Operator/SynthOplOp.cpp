@@ -160,7 +160,7 @@ void OplOperator::processLfo()
     m_lfo.getSample();
 }
 
-void OplOperator::getSample(float& output, float modulator)
+void OplOperator::getSample(float& output, float modulator, float feedbackModulator)
 {
     if (!isPlaying() && !m_ampAdsr.isBypass()) {
         if (m_params.pitchEnvEnable) {
@@ -192,15 +192,17 @@ void OplOperator::getSample(float& output, float modulator)
     // AM適用 (無条件。変調がない場合はコア側から 1.0 が渡ってくる)
     envVal *= m_lfo.value.am;
 
-    float feedbackMod = 0.0f;
-    if (m_feedback > 0) {
-        // 過去2サンプルの「生の波形値」の平均を使用する
-        feedbackMod = (m_fb1 + m_fb2) * 0.5f * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
-    }
-
-    // PM適用 (無条件。変調がない場合は 1.0 が渡ってくる)
+    // ========================================================
+    // 3. 位相と波形の生成
+    // ========================================================
     float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * m_lfo.value.pm;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
+
+    // 位相の変調
+    float feedbackPhaseOffset = 0.0f;
+    if (m_feedback > 0 && feedbackModulator != 0.0f) {
+        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
+    }
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
@@ -209,8 +211,7 @@ void OplOperator::getSample(float& output, float modulator)
     // ここは既存のシステムに合わせておきます)
     float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
 
-    // 位相の変調
-    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackMod;
+    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
 
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);

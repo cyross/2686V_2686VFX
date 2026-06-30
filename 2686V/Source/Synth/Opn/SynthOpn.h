@@ -40,9 +40,21 @@ public:
         // (例: 3ボイスなら 0.0, 0.33, 0.66)
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
+
+    struct AlgRouting {
+        std::array<float, OpnPrValue::ops> out;                // 最終出力へのミックス割合
+        std::array<std::array<float, OpnPrValue::ops>, OpnPrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
+        std::array<std::array<float, OpnPrValue::ops>, OpnPrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
+    };
 private:
     std::array<OpnOperator, OpnPrValue::ops> m_operators;
     std::array<bool, OpnPrValue::ops> m_opMask{ false };
+
+    static const std::array<AlgRouting, OpnPrValue::algorithms> routings;
+
+    std::array<float, OpnPrValue::ops> m_history1 = { 0.0f };
+    std::array<float, OpnPrValue::ops> m_history2 = { 0.0f };
+
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
 

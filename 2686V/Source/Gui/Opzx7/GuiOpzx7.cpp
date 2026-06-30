@@ -326,6 +326,11 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     qualityCat(context),
     algFbCat(context),
     levelSlider(context),
+    levelPM1(context),
+    levelPM01(context),
+    levelTo1(context),
+    levelP01(context),
+    levelP1(context),
     algSelector(context),
     feedbackSlider(context),
     bitSelector(context),
@@ -462,6 +467,41 @@ void GuiOpzx7::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    levelPM1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-1.0", .isReset = false });
+    levelPM1.setWantsKeyboardFocus(true);
+    levelPM1.setExplicitFocusOrder(++tabOrder);
+    levelPM1.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() - 1.0f, juce::sendNotification);
+        };
+
+    levelPM01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
+    levelPM01.setWantsKeyboardFocus(true);
+    levelPM01.setExplicitFocusOrder(++tabOrder);
+    levelPM01.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() - 0.1f, juce::sendNotification);
+        };
+
+    levelTo1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-> 1.0", .isReset = false });
+    levelTo1.setWantsKeyboardFocus(true);
+    levelTo1.setExplicitFocusOrder(++tabOrder);
+    levelTo1.onClick = [this]() {
+        levelSlider.setValue(1.0f, juce::sendNotification);
+        };
+
+    levelP01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
+    levelP01.setWantsKeyboardFocus(true);
+    levelP01.setExplicitFocusOrder(++tabOrder);
+    levelP01.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() + 0.1f, juce::sendNotification);
+        };
+
+    levelP1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "+1.0", .isReset = false });
+    levelP1.setWantsKeyboardFocus(true);
+    levelP1.setExplicitFocusOrder(++tabOrder);
+    levelP1.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() + 1.0f, juce::sendNotification);
+        };
+
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::visibleQuality, .invisibleTitle = Opzx7GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Opzx7PrKey::bit, .title = Opzx7GuiText::bit, .items = bdItems, .isReset = true });
@@ -495,20 +535,26 @@ void GuiOpzx7::setup()
     panpotSlider.setWantsKeyboardFocus(true);
     panpotSlider.setExplicitFocusOrder(++tabOrder);
 
-    setupPanBtn(panToLBtn, Opzx7GuiText::Fm::Pan::l, tabOrder);
-    panToLBtn.onClick = [this] {
+    panToLBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = Opzx7GuiText::Fm::Pan::l, .isReset = false });
+    panToLBtn.setWantsKeyboardFocus(true);
+    panToLBtn.setExplicitFocusOrder(++tabOrder);
+    panToLBtn.onClick = [this]() {
         panpotEnableToggle.setToggleState(true, juce::sendNotification);
         panpotSlider.setValue(0, juce::sendNotification);
         };
 
-    setupPanBtn(panToCBtn, Opzx7GuiText::Fm::Pan::c, tabOrder);
-    panToCBtn.onClick = [this] {
+    panToCBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = Opzx7GuiText::Fm::Pan::c, .isReset = false });
+    panToCBtn.setWantsKeyboardFocus(true);
+    panToCBtn.setExplicitFocusOrder(++tabOrder);
+    panToCBtn.onClick = [this]() {
         panpotEnableToggle.setToggleState(false, juce::sendNotification);
         panpotSlider.setValue(15, juce::sendNotification);
         };
 
-    setupPanBtn(panToRBtn, Opzx7GuiText::Fm::Pan::r, tabOrder);
-    panToRBtn.onClick = [this] {
+    panToRBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = Opzx7GuiText::Fm::Pan::r, .isReset = false });
+    panToRBtn.setWantsKeyboardFocus(true);
+    panToRBtn.setExplicitFocusOrder(++tabOrder);
+    panToRBtn.onClick = [this]() {
         panpotEnableToggle.setToggleState(true, juce::sendNotification);
         panpotSlider.setValue(31, juce::sendNotification);
         };
@@ -987,6 +1033,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutMainFiveComps({ .rect = mRect, .comp1 = &levelPM1, .comp2 = &levelPM01, .comp3 = &levelTo1, .comp4 = &levelP01, .comp5 = &levelP1 });
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });

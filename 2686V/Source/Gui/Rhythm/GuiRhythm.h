@@ -192,6 +192,11 @@ class GuiRhythm : public GuiBase
 
     // Master Level
 	GuiSlider levelSlider;
+    GuiTextButton levelPM1;
+    GuiTextButton levelPM01;
+    GuiTextButton levelTo1;
+    GuiTextButton levelP01;
+    GuiTextButton levelP1;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;

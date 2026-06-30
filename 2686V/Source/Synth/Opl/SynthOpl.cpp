@@ -2,6 +2,45 @@
 
 #include "../../Core/Synth/SynthHelpers.h"
 
+// ============================================================================
+// マトリクスを簡単に構築するためのヘルパー関数 (6オペ完全対応・拡張フィードバック)
+// ============================================================================
+OplCore::AlgRouting makeAlgOpl(
+    std::initializer_list<int> carriers,
+    std::initializer_list<std::pair<int, int>> mods,
+    std::initializer_list<std::pair<int, int>> fbMods) // NEW: フィードバックの接続リスト
+{
+    OplCore::AlgRouting r;
+
+    // 出力マトリクスを初期化
+    r.out.fill(0.0f);
+    for (int c : carriers) r.out[c] = 1.0f;
+
+    // 通常の変調マトリクスを初期化
+    for (auto& row : r.mod) row.fill(0.0f);
+    for (auto& m : mods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.mod[m.second][m.first] = 1.0f;
+    }
+
+    // フィードバック変調マトリクスを初期化
+    for (auto& row : r.fbMod) row.fill(0.0f);
+    for (auto& m : fbMods) {
+        // m.first = 接続元(src), m.second = 接続先(dest)
+        r.fbMod[m.second][m.first] = 1.0f;
+    }
+
+    return r;
+}
+
+// ============================================================================
+// アルゴリズムの定義 (例: 32種類と仮定)
+// ============================================================================
+const std::array<OplCore::AlgRouting, OplPrValue::algorithms> OplCore::routings = { {
+    makeAlgOpl({1}, {{0, 1}}, {{0, 0}}), // 00
+    makeAlgOpl({0, 1}, {}, {{0, 0}}),    // 01
+} };
+
 void OplCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
 
@@ -153,41 +192,66 @@ float OplCore::getSample() {
         m_operators[0].processLfo();
         m_operators[1].processLfo();
 
-        float out1 = 0.0f;
-        float out2 = 0.0f;
+        std::array<float, OplPrValue::ops> currentOut = { 0.0f };
         float finalOut = 0.0f;
 
-        m_operators[0].getSample(out1, 0.0f);
-        if (m_opMask[0]) out1 = 0.0f;
+        int algIndex = std::clamp(m_algorithm, 0, OplPrValue::algorithms - 1);
+        const auto& r = routings[algIndex];
 
-        if (m_algorithm == 0) { // Serial (FM)
-            m_operators[1].getSample(out2, out1);
-            if (m_opMask[1]) out2 = 0.0f;
-            // velocity を 0.25倍した補正として、finalOut を 2 倍しています。
-            finalOut = out2 * 2.0f;
-        }
-        else { // Parallel (AM)
-            m_operators[1].getSample(out2, 0.0f);
-            if (m_opMask[1]) out2 = 0.0f;
-            // velocity を 0.25倍した補正として、finalOut をそのまま出力します。
-            finalOut = (out1 + out2);
+        // =================================================================
+        // オペレータの評価 (OP1 -> OP6 の正順で計算)
+        // =================================================================
+        for (int i = 0; i < OplPrValue::ops; ++i) { // 0 から 5 へ
+            float modulator = 0.0f;
+            float fbModulator = 0.0f;
+
+            // 1. 通常の変調入力 (mod)
+            for (int src = 0; src < OplPrValue::ops; ++src) {
+                if (r.mod[i][src] > 0.0f) {
+                    // src が i より「小さい」なら既に計算済み(currentOut)、
+                    // 大きいなら未計算なので1サンプル前の history1 を使う
+                    float srcVal = (src < i) ? currentOut[src] : m_history1[src];
+
+                    modulator += srcVal * r.mod[i][src];
+                }
+            }
+
+            // 2. フィードバック変調入力 (fbMod)
+            for (int src = 0; src < OplPrValue::ops; ++src) {
+                if (r.fbMod[i][src] > 0.0f) {
+                    // フィードバックは常に「過去2サンプルの平均」
+                    float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
+
+                    fbModulator += averageFb * r.fbMod[i][src];
+                }
+            }
+
+            // 3. オペレータを計算
+            m_operators[i].getSample(currentOut[i], modulator, fbModulator);
+
+            if (m_opMask[i]) currentOut[i] = 0.0f;
         }
 
-        // =======================================================
-        // 無音(0.0)が完全に0.0になるBipolar(双極性)量子化
-        // =======================================================
-        if (m_quantizeSteps > 0.0f) {
-            // 単純に掛け算して丸め、割り算で戻すだけでゼロクロスが保証されます
-            finalOut = std::round(finalOut * m_quantizeSteps) / m_quantizeSteps;
+        // =================================================================
+        // 履歴 (History) のシフト
+        // =================================================================
+        m_history2 = m_history1;
+        m_history1 = currentOut;
 
-            // 安全のためのクリップ
-            finalOut = std::clamp(finalOut, -1.0f, 1.0f);
+        // =================================================================
+        // Final Output (各OPからマスターアウトへの加算)
+        // =================================================================
+        for (int i = 0; i < OplPrValue::ops; ++i) {
+            finalOut += currentOut[i] * r.out[i];
         }
+
+        finalOut *= 2.0f; // ゲイン補正
 
         m_lastSample = finalOut;
     }
 
     float fraction = (float)(m_rateAccumulator / stepSize);
+
     if (fraction > 1.0f) fraction = 1.0f;
 
     return (m_prevSample + (m_lastSample - m_prevSample) * fraction * 2.0f) * m_level;

@@ -48,10 +48,10 @@ public:
         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
         auto bounds = button.getLocalBounds().toFloat();
-        float cornerSize = 2.0f; // 角丸のサイズ（お好みで調整してください）
+        float cornerSize = 1.0f; // 角丸のサイズ（お好みで調整してください）
 
         // 背景の塗りつぶし
-        juce::Colour baseColour = backgroundColour.darker(0.6f).withMultipliedAlpha(button.isEnabled() ? 0.7f : 0.4f);
+        juce::Colour baseColour = backgroundColour.darker(0.6f).withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
 
         // マウスホバー時やクリック時は少し明るくする
         if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)

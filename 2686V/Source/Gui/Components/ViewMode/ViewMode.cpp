@@ -10,7 +10,7 @@ void GuiComponentViewMode::setupComponent(juce::Component& parent, int& tabOrder
     viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
     viewModeLabel.setWantsKeyboardFocus(false);
 
-    viewModeToTopButton.setup({ .parent = parent, .title = juce::String("") + "▲", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToTopButton.setup({ .parent = parent, .title = juce::String("") + "▲", .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     viewModeToTopButton.setWantsKeyboardFocus(true);
     viewModeToTopButton.setExplicitFocusOrder(++tabOrder);
     viewModeToTopButton.onClick = [this] {
@@ -22,7 +22,7 @@ void GuiComponentViewMode::setupComponent(juce::Component& parent, int& tabOrder
         }
         };
 
-    viewModeToTwinButton.setup({ .parent = parent, .title = juce::String("") + "■", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToTwinButton.setup({ .parent = parent, .title = juce::String("") + "■", .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     viewModeToTwinButton.setWantsKeyboardFocus(true);
     viewModeToTwinButton.setExplicitFocusOrder(++tabOrder);
     viewModeToTwinButton.onClick = [this] {
@@ -34,7 +34,7 @@ void GuiComponentViewMode::setupComponent(juce::Component& parent, int& tabOrder
         }
         };
 
-    viewModeToBottomButton.setup({ .parent = parent, .title = juce::String("") + "▼", .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    viewModeToBottomButton.setup({ .parent = parent, .title = juce::String("") + "▼", .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     viewModeToBottomButton.setWantsKeyboardFocus(true);
     viewModeToBottomButton.setExplicitFocusOrder(++tabOrder);
     viewModeToBottomButton.onClick = [this] {

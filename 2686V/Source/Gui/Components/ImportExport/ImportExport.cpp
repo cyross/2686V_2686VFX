@@ -3,7 +3,7 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 
 void GuiComponentImportExport::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& title) {
-    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false});
+    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkkhaki.darker(0.5f), .isReset = false, .isResized = false});
     importButton.setWantsKeyboardFocus(true);
     importButton.setExplicitFocusOrder(++tabOrder);
     importButton.onClick = [this] {
@@ -12,7 +12,7 @@ void GuiComponentImportExport::setupComponent(juce::Component& parent, int& tabO
         }
         };
 
-    exportButton.setup({ .parent = parent, .title = juce::String("") + "[EX]" + title, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    exportButton.setup({ .parent = parent, .title = juce::String("") + "[EX]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     exportButton.setWantsKeyboardFocus(true);
     exportButton.setExplicitFocusOrder(++tabOrder);
     exportButton.onClick = [this] {
@@ -23,7 +23,7 @@ void GuiComponentImportExport::setupComponent(juce::Component& parent, int& tabO
 }
 
 void GuiComponentImportExport::setupComponentOp(juce::Component& parent, int& tabOrder, const juce::String& title) {
-    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
+    importButton.setup({ .parent = parent, .title = juce::String("") + "[IM]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::hotpink.darker(0.5f), .isReset = false, .isResized = false });
     importButton.setWantsKeyboardFocus(true);
     importButton.setExplicitFocusOrder(++tabOrder);
     importButton.onClick = [this] {
@@ -32,7 +32,7 @@ void GuiComponentImportExport::setupComponentOp(juce::Component& parent, int& ta
         }
         };
 
-    exportButton.setup({ .parent = parent, .title = juce::String("") + "[EX]" + title, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
+    exportButton.setup({ .parent = parent, .title = juce::String("") + "[EX]" + title, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkblue, .isReset = false, .isResized = false });
     exportButton.setWantsKeyboardFocus(true);
     exportButton.setExplicitFocusOrder(++tabOrder);
     exportButton.onClick = [this] {

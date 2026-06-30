@@ -286,6 +286,11 @@ class GuiOpzx7 : public GuiBase
     GuiComponentViewMode viewModeComp;
 
     GuiSlider levelSlider;
+    GuiTextButton levelPM1;
+    GuiTextButton levelPM01;
+    GuiTextButton levelTo1;
+    GuiTextButton levelP01;
+    GuiTextButton levelP1;
 
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;

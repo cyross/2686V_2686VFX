@@ -10,7 +10,7 @@ namespace CorePrValue
 	inline constexpr float rateMin = 0.001f;
 	inline constexpr float rateMax = Global::RateMaxSeconds::real;
 	inline constexpr float levelMin = 0.0;
-	inline constexpr float levelMax = 1.0f;
+	inline constexpr float levelMax = 10.0f;
 	inline constexpr int pitchLevelMin = -4800;
 	inline constexpr int pitchLevelMax = 4800;
 	inline constexpr int pitchLevelIni = 0;
