@@ -91,6 +91,11 @@ class GuiWt2 : public GuiBase
     Waveform2Container<256> customSliders256;
 
     GuiSlider levelSlider;
+    GuiTextButton levelPM1;
+    GuiTextButton levelPM01;
+    GuiTextButton levelTo1;
+    GuiTextButton levelP01;
+    GuiTextButton levelP1;
 
     GuiCategoryLabel formCat;
     GuiCategoryLabel qualityCat;
@@ -175,6 +180,11 @@ public:
         customSliders128(context),
         customSliders256(context),
         levelSlider(context),
+        levelPM1(context),
+        levelPM01(context),
+        levelTo1(context),
+        levelP01(context),
+        levelP1(context),
         formCat(context),
         qualityCat(context),
         modCat(context),

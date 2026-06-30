@@ -377,6 +377,27 @@ protected:
             // 指定がない場合は、ボタンの高さに合わせたJUCEの標準フォントを返す
             return juce::Font(juce::FontOptions(juce::jmin(16.0f, (float)buttonHeight * 0.6f)));
         }
+
+        // =======================================================
+        // ボタンの背景と枠線の描画を完全にコントロールする
+        // =======================================================
+        void drawButtonBackground(juce::Graphics& g, juce::Button& button,
+            const juce::Colour& backgroundColour,
+            bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+        {
+            auto bounds = button.getLocalBounds().toFloat();
+            float cornerSize = 1.0f; // 角丸のサイズ（お好みで調整してください）
+
+            // 背景の塗りつぶし
+            juce::Colour baseColour = backgroundColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.4f);
+
+            // マウスホバー時やクリック時は少し明るくする
+            if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+                baseColour = baseColour.brighter(0.5f);
+
+            g.setColour(baseColour);
+            g.fillRoundedRectangle(bounds, cornerSize);
+        }
     };
 
     TextButtonLF customLF;

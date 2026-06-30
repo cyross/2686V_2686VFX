@@ -27,6 +27,11 @@ class GuiBeep : public GuiBase {
     GuiComponentPresetName presetName;
 
     GuiSlider levelSlider;
+    GuiTextButton levelPM1;
+    GuiTextButton levelPM01;
+    GuiTextButton levelTo1;
+    GuiTextButton levelP01;
+    GuiTextButton levelP1;
 
 	GuiComponentFix fixComponent;
 
@@ -78,7 +83,12 @@ public:
         mainGroup(context),
         presetName(context),
         levelSlider(context),
-		fixComponent(context),
+        levelPM1(context),
+        levelPM01(context),
+        levelTo1(context),
+        levelP01(context),
+        levelP1(context),
+        fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),

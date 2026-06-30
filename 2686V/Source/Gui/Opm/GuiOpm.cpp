@@ -173,6 +173,41 @@ void GuiOpm::setup()
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 
+    levelPM1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-1.0", .isReset = false });
+    levelPM1.setWantsKeyboardFocus(true);
+    levelPM1.setExplicitFocusOrder(++tabOrder);
+    levelPM1.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() - 1.0f, juce::sendNotification);
+        };
+
+    levelPM01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
+    levelPM01.setWantsKeyboardFocus(true);
+    levelPM01.setExplicitFocusOrder(++tabOrder);
+    levelPM01.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() - 0.1f, juce::sendNotification);
+        };
+
+    levelTo1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-> 1.0", .isReset = false });
+    levelTo1.setWantsKeyboardFocus(true);
+    levelTo1.setExplicitFocusOrder(++tabOrder);
+    levelTo1.onClick = [this]() {
+        levelSlider.setValue(1.0f, juce::sendNotification);
+        };
+
+    levelP01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
+    levelP01.setWantsKeyboardFocus(true);
+    levelP01.setExplicitFocusOrder(++tabOrder);
+    levelP01.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() + 0.1f, juce::sendNotification);
+        };
+
+    levelP1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "+1.0", .isReset = false });
+    levelP1.setWantsKeyboardFocus(true);
+    levelP1.setExplicitFocusOrder(++tabOrder);
+    levelP1.onClick = [this]() {
+        levelSlider.setValue(levelSlider.getValue() + 1.0f, juce::sendNotification);
+        };
+
     qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visibleQuality, .invisibleTitle = OpmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
     bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::bit, .title = OpmGuiText::bit, .items = bdItems, .isReset = true });
@@ -202,18 +237,24 @@ void GuiOpm::setup()
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
-    setupPanBtn(panToLBtn, OpmGuiText::Fm::Pan::l, tabOrder);
-    panToLBtn.onClick = [this] {
+    panToLBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = OpmGuiText::Fm::Pan::l, .isReset = false });
+    panToLBtn.setWantsKeyboardFocus(true);
+    panToLBtn.setExplicitFocusOrder(++tabOrder);
+    panToLBtn.onClick = [this]() {
         panSlider.setValue(-1, juce::sendNotification);
         };
 
-    setupPanBtn(panToCBtn, OpmGuiText::Fm::Pan::c, tabOrder);
-    panToCBtn.onClick = [this] {
+    panToCBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = OpmGuiText::Fm::Pan::c, .isReset = false });
+    panToCBtn.setWantsKeyboardFocus(true);
+    panToCBtn.setExplicitFocusOrder(++tabOrder);
+    panToCBtn.onClick = [this]() {
         panSlider.setValue(0, juce::sendNotification);
         };
 
-    setupPanBtn(panToRBtn, OpmGuiText::Fm::Pan::r, tabOrder);
-    panToRBtn.onClick = [this] {
+    panToRBtn.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = OpmGuiText::Fm::Pan::r, .isReset = false });
+    panToRBtn.setWantsKeyboardFocus(true);
+    panToRBtn.setExplicitFocusOrder(++tabOrder);
+    panToRBtn.onClick = [this]() {
         panSlider.setValue(1, juce::sendNotification);
         };
 
@@ -545,6 +586,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
     layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutMainFiveComps({ .rect = mRect, .comp1 = &levelPM1, .comp2 = &levelPM01, .comp3 = &levelTo1, .comp4 = &levelP01, .comp5 = &levelP1 });
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
     layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });

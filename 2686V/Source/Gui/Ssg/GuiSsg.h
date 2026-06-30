@@ -39,6 +39,11 @@ class GuiSsg : public GuiBase
     GuiCategoryLabel hwEnvCat;
 
     GuiSlider levelSlider;
+    GuiTextButton levelPM1;
+    GuiTextButton levelPM01;
+    GuiTextButton levelTo1;
+    GuiTextButton levelP01;
+    GuiTextButton levelP1;
 
     GuiSlider toneSlider;
 
@@ -146,6 +151,11 @@ public:
         triPeakCat(context),
         hwEnvCat(context),
         levelSlider(context),
+        levelPM1(context),
+        levelPM01(context),
+        levelTo1(context),
+        levelP01(context),
+        levelP1(context),
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),

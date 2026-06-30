@@ -29,17 +29,17 @@ namespace GuiColor {
 		};
 	};
 	namespace ComboBox {
-		static inline const juce::Colour Text = defaultFgColor;
-		static inline const juce::Colour Bg = defaultBgColor;
+		static inline const juce::Colour Text = juce::Colours::black.brighter(0.2f);
+		static inline const juce::Colour Bg = juce::Colours::white.darker(0.2f);
 	};
 	namespace ToggleButton {
 		static inline const juce::Colour Fg = defaultFgColor;
 	};
 	namespace TextButton {
-		static inline const juce::Colour Text = defaultFgColor;
-		static inline const juce::Colour TextOn = juce::Colours::white;
-		static inline const juce::Colour Bg = defaultBgColor;
-		static inline const juce::Colour Border = defaultFgColor;
+		static inline const juce::Colour Text = juce::Colours::black.brighter(0.2f);
+		static inline const juce::Colour TextOn = juce::Colours::black;
+		static inline const juce::Colour Bg = juce::Colours::white.darker(0.2f);;
+		static inline const juce::Colour Border = juce::Colours::black.brighter(0.2f);;
 	};
 	namespace HyperLink {
 		static inline const juce::Colour Fg = juce::Colours::lightblue;

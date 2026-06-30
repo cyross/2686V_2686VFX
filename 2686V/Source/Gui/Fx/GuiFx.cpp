@@ -138,7 +138,7 @@ void GuiFx::setup()
     addAndMakeVisible(mainSeparator);
     mainSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .bgColor = juce::Colours::grey });
+    resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = juce::Colours::white, .bgColor = juce::Colours::grey });
     resetBtn.setWantsKeyboardFocus(true);
     resetBtn.setExplicitFocusOrder(++tabOrder);
     resetBtn.onClick = [&] { this->ctx.audioProcessor.initParams("FX_"); };
@@ -146,7 +146,7 @@ void GuiFx::setup()
     addAndMakeVisible(routeSeparator);
     routeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
-    showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
+    showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
     showRouteBtn.setExplicitFocusOrder(++tabOrder);
     showRouteBtn.onClick = [this] {
@@ -202,22 +202,22 @@ void GuiFx::setup()
     addAndMakeVisible(fileSeparator);
     fileSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
 
-    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     importFxOrderBtn.setWantsKeyboardFocus(true);
     importFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     importFxOrderBtn.onClick = [this] { importFxOrder(); };
 
-    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .bgColor = juce::Colours::darkgrey.darker(0.5f), .isReset = false, .isResized = false});
+    exportFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileExport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey.darker(0.5f), .isReset = false, .isResized = false});
     exportFxOrderBtn.setWantsKeyboardFocus(true);
     exportFxOrderBtn.setExplicitFocusOrder(++tabOrder);
     exportFxOrderBtn.onClick = [this] { exportFxOrder(); };
 
-    importFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileImport, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
+    importFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileImport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen, .isReset = false, .isResized = false });
     importFxParamBtn.setWantsKeyboardFocus(true);
     importFxParamBtn.setExplicitFocusOrder(++tabOrder);
     importFxParamBtn.onClick = [this] { importFxParam(); };
 
-    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .bgColor = juce::Colours::darkgreen.darker(0.5f), .isReset = false, .isResized = false });
+    exportFxParamBtn.setup({ .parent = *this, .title = FxGuiText::Fx::paramFileExport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen.darker(0.5f), .isReset = false, .isResized = false });
     exportFxParamBtn.setWantsKeyboardFocus(true);
     exportFxParamBtn.setExplicitFocusOrder(++tabOrder);
     exportFxParamBtn.onClick = [this] { exportFxParam(); };
@@ -668,7 +668,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = flRect, .label = &flQSlider.label, .component = &flQSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     flRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = flRect, .label = &flMixSlider.label, .component = &flMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = flRect, .comp1 = &flDryBtn, .comp2 = &flHalfBtn, .comp3 = &flWetBtn });
 
     // 3-Band EQ
     auto rect2 = row1.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -692,7 +692,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = eq3bRect, .label = &eq3bHighGainDbSlider.label, .component = &eq3bHighGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     eq3bRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = eq3bRect, .label = &eq3bMixSlider.label, .component = &eq3bMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = eq3bRect, .comp1 = &eq3bDryBtn, .comp2 = &eq3bHalfBtn, .comp3 = &eq3bWetBtn });
 
     // Tremolo
     auto rect3 = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -714,7 +714,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     trmRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = trmRect, .label = &tMixSlider.label, .component = &tMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = trmRect, .comp1 = &tDryBtn, .comp2 = &tHalfBtn, .comp3 = &tWetBtn });
 
     // Vibrato
     auto rect4 = row2.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -736,7 +736,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     vibRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = vibRect, .label = &vMixSlider.label, .component = &vMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = vibRect, .comp1 = &vDryBtn, .comp2 = &vHalfBtn, .comp3 = &vWetBtn });
 
     // Modern Bit Crusher
     auto rect5 = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -758,7 +758,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     mbcRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = mbcRect, .label = &mbcMixSlider.label, .component = &mbcMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = mbcRect, .comp1 = &mbcDryBtn, .comp2 = &mbcHalfBtn, .comp3 = &mbcWetBtn });
 
     // Delay
     auto rect6 = row3.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -780,7 +780,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     dlyRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = dlyRect, .label = &dMixSlider.label, .component = &dMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = dlyRect, .comp1 = &dDryBtn, .comp2 = &dHalfBtn, .comp3 = &dWetBtn });
 
     // Reverb
     auto rect7 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -802,7 +802,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     rvbRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = rvbRect, .label = &rMixSlider.label, .component = &rMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = rvbRect, .comp1 = &rDryBtn, .comp2 = &rHalfBtn, .comp3 = &rWetBtn });
 
     // SfcEcho
     auto rect8 = row4.removeFromLeft(FxGuiValue::Fx::AreaWidth);
@@ -833,7 +833,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
     layoutRow({ .rowRect = sfceRect, .label = &sfceFirCoef7Slider.label, .component = &sfceFirCoef7Slider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     sfceRect.removeFromTop(FxGuiValue::Padding::space);
     layoutRow({ .rowRect = sfceRect, .label = &sfceMixSlider.label, .component = &sfceMixSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
-    layoutRowThreeComps({ .rect = sfceRect, .comp1 = &sfceDryBtn, .comp2 = &sfceHalfBtn, .comp3 = &sfceWetBtn, .paddingBottom = 0, .compWidth = FxGuiValue::Fx::MixBtnWidth });
+    layoutRowThreeComps({ .rect = sfceRect, .comp1 = &sfceDryBtn, .comp2 = &sfceHalfBtn, .comp3 = &sfceWetBtn });
 }
 
 void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
