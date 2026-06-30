@@ -138,37 +138,49 @@ namespace CoreGuiValue
 		{
 			namespace One
 			{
-				static inline constexpr int width = 260;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Two
 			{
-				static inline constexpr int width = 128;
-				static inline constexpr int paddingRight = 4;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Three
 			{
-				static inline constexpr int width = 85;
-				static inline constexpr int paddingRight = 2;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Four
 			{
-				static inline constexpr int width = 63;
-				static inline constexpr int paddingRight = 2;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Five
 			{
-				static inline constexpr int width = 45;
-				static inline constexpr int paddingRight = 1;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Six
 			{
-				static inline constexpr int width = 40;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
 		}
@@ -227,37 +239,48 @@ namespace CoreGuiValue
 		{
 			namespace One
 			{
-				static inline constexpr int width = 226;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
 				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Two
 			{
-				static inline constexpr int width = 111;
-				static inline constexpr int paddingRight = 4;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Three
 			{
-				static inline constexpr int width = 74;
-				static inline constexpr int paddingRight = 2;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Four
 			{
-				static inline constexpr int width = 54;
-				static inline constexpr int paddingRight = 3;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Five
 			{
-				static inline constexpr int width = 42;
-				static inline constexpr int paddingRight = 4;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
 			}
 
 			namespace Six
 			{
-				static inline constexpr int width = 38;
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
 		}

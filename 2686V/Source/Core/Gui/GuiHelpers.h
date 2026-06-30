@@ -129,6 +129,7 @@ struct RowConfigOneComp {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::One::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::One::paddingRight;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::One::paddingLeft;
 };
 
 void layoutRowOneComp(const RowConfigOneComp& c);
@@ -143,6 +144,8 @@ struct RowConfigTwoComps {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::Two::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Two::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Two::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Two::paddingLeft;
 };
 
 void layoutRowTwoComps(const RowConfigTwoComps& c);
@@ -158,6 +161,8 @@ struct RowConfigThreeComps {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::Three::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Three::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Three::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Three::paddingLeft;
 };
 
 void layoutRowThreeComps(const RowConfigThreeComps& c);
@@ -174,6 +179,8 @@ struct RowConfigFourComps {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::Four::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Four::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Four::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Four::paddingLeft;
 };
 
 void layoutRowFourComps(const RowConfigFourComps& c);
@@ -191,6 +198,8 @@ struct RowConfigFiveComps {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::Five::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Five::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Five::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Five::paddingLeft;
 };
 
 void layoutRowFiveComps(const RowConfigFiveComps& c);
@@ -209,6 +218,8 @@ struct RowConfigSixComps {
     int paddingBottom = CoreGuiValue::ParamGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::ParamGroup::Comps::Six::width;
     int compPaddingRight = CoreGuiValue::ParamGroup::Comps::Six::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Six::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Six::paddingLeft;
 };
 
 void layoutRowSixComps(const RowConfigSixComps& c);
@@ -222,6 +233,7 @@ struct MainConfigOneComp {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::One::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::One::paddingRight;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::One::paddingLeft;
 };
 
 void layoutMainOneComp(const MainConfigOneComp& c);
@@ -236,6 +248,8 @@ struct MainConfigTwoComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Two::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Two::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Two::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Two::paddingLeft;
 };
 
 void layoutMainTwoComps(const MainConfigTwoComps& c);
@@ -251,6 +265,8 @@ struct MainConfigThreeComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Three::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Three::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Three::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Three::paddingLeft;
 };
 
 void layoutMainThreeComps(const MainConfigThreeComps& c);
@@ -267,6 +283,8 @@ struct MainConfigFourComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Four::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Four::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Four::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Four::paddingLeft;
 };
 
 void layoutMainFourComps(const MainConfigFourComps& c);
@@ -284,6 +302,8 @@ struct MainConfigFiveComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Five::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Five::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Five::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Five::paddingLeft;
 };
 
 void layoutMainFiveComps(const MainConfigFiveComps& c);
@@ -302,6 +322,8 @@ struct MainConfigSixComps {
     int paddingBottom = CoreGuiValue::MainGroup::Row::paddingBottom;
     int compWidth = CoreGuiValue::MainGroup::Comps::Six::width;
     int compPaddingRight = CoreGuiValue::MainGroup::Comps::Six::paddingRight;
+    int compPaddingInner = CoreGuiValue::ParamGroup::Comps::Six::paddingInner;
+    int compPaddingLeft = CoreGuiValue::ParamGroup::Comps::Six::paddingLeft;
 };
 
 void layoutMainSixComps(const MainConfigSixComps& c);

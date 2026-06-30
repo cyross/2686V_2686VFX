@@ -100,7 +100,7 @@ void layoutRow(
     // ラベルのみ配置
     if (component == nullptr)
     {
-        int newLabelWidth = labelWidth == -1 ? CoreGuiValue::MainGroup::Comps::One::width : labelWidth;
+        int newLabelWidth = labelWidth == -1 ? rect.getWidth() : labelWidth;
         int newLabelPaddingRight = labelPaddingRight == -1 ? 0 : labelPaddingRight;
 
         layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, label, newLabelWidth, newLabelPaddingRight);
@@ -108,7 +108,7 @@ void layoutRow(
     // コンポーネントのみ配置
     else if (label == nullptr)
     {
-        int newCompWidth = compWidth == -1 ? CoreGuiValue::MainGroup::Comps::One::width : compWidth;
+        int newCompWidth = compWidth == -1 ? rect.getWidth() : compWidth;
         int newCompPaddingRight = compPaddingRight == -1 ? 0 : compPaddingRight;
 
         layoutRowOneSide(rect, rowHeight, paddingTop, paddingBottom, component, newCompWidth, newCompPaddingRight);
@@ -154,11 +154,13 @@ void layoutRowOneComp(const RowConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? area.getWidth() - c.compPaddingLeft - c.compPaddingRight : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    c.comp->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingLeft);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -167,13 +169,17 @@ void layoutRowTwoComps(const RowConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner) / 2 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingLeft);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -182,17 +188,21 @@ void layoutRowThreeComps(const RowConfigThreeComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 2) / 3 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingLeft);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -201,21 +211,25 @@ void layoutRowFourComps(const RowConfigFourComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 3) / 4 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingLeft);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -224,25 +238,29 @@ void layoutRowFiveComps(const RowConfigFiveComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 4) / 5 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingLeft);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
 
-    area.removeFromLeft(c.compPaddingRight);
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
-    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
+    area.removeFromLeft(c.compPaddingInner);
+
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -252,31 +270,33 @@ void layoutRowSixComps(const RowConfigSixComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 5) / 6 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp6->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp6->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -286,11 +306,13 @@ void layoutMainOneComp(const MainConfigOneComp& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? area.getWidth() - c.compPaddingLeft - c.compPaddingRight : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -300,15 +322,17 @@ void layoutMainTwoComps(const MainConfigTwoComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner) / 2 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -318,19 +342,21 @@ void layoutMainThreeComps(const MainConfigThreeComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 2) / 3 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -340,23 +366,25 @@ void layoutMainFourComps(const MainConfigFourComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 3) / 4 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -366,27 +394,29 @@ void layoutMainFiveComps(const MainConfigFiveComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 4) / 5 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
@@ -396,31 +426,33 @@ void layoutMainSixComps(const MainConfigSixComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 
+    int cWidth = c.compWidth == 0 ? (area.getWidth() - c.compPaddingLeft - c.compPaddingRight - c.compPaddingInner * 5) / 6 : c.compWidth;
+
     c.rect.removeFromTop(c.paddingTop);
 
-    area.removeFromLeft(c.paddingLeft);
+    area.removeFromLeft(c.compPaddingLeft);
 
-    c.comp1->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp1->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp2->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp2->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp3->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp3->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp4->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp4->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp5->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp5->setBounds(area.removeFromLeft(cWidth));
 
-    area.removeFromLeft(c.compPaddingRight);
+    area.removeFromLeft(c.compPaddingInner);
 
-    c.comp6->setBounds(area.removeFromLeft(c.compWidth));
+    c.comp6->setBounds(area.removeFromLeft(cWidth));
 
     c.rect.removeFromTop(c.paddingBottom);
 }
