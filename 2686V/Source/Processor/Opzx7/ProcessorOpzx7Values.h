@@ -323,14 +323,14 @@ namespace Opzx7PrValue
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 31;
-				inline constexpr int initial = 0;
+				inline constexpr int initial = 31;
 			}
 
 			namespace D1l
 			{
 				inline constexpr int min = 0;
 				inline constexpr int max = 15;
-				inline constexpr int initial = 15;
+				inline constexpr int initial = 0;
 			}
 
 			namespace D2r

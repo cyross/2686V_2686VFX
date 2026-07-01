@@ -19,6 +19,7 @@
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Level/Level.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -43,12 +44,7 @@ class GuiAdpcm : public GuiBase
     GuiSlider pcmOffsetSlider;
     GuiSlider pcmRatioSlider;
 
-    GuiSlider levelSlider;
-    GuiTextButton levelPM1;
-    GuiTextButton levelPM01;
-    GuiTextButton levelTo1;
-    GuiTextButton levelP01;
-    GuiTextButton levelP1;
+	GuiComponentLevel levelComponent;
 
     GuiSlider toneSlider;
     GuiSlider noiseSlider;
@@ -137,12 +133,7 @@ public:
         optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),
-        levelSlider(context),
-        levelPM1(context),
-        levelPM01(context),
-        levelTo1(context),
-        levelP01(context),
-        levelP1(context),
+        levelComponent(context),
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),

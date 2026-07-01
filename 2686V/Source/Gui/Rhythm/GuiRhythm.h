@@ -21,6 +21,7 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Level/Level.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -190,13 +191,7 @@ class GuiRhythm : public GuiBase
     GuiComponentPresetName presetName;
     GuiComponentViewMode viewModeComp;
 
-    // Master Level
-	GuiSlider levelSlider;
-    GuiTextButton levelPM1;
-    GuiTextButton levelPM01;
-    GuiTextButton levelTo1;
-    GuiTextButton levelP01;
-    GuiTextButton levelP1;
+    GuiComponentLevel levelComponent;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;

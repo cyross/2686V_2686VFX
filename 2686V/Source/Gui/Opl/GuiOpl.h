@@ -18,6 +18,7 @@
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Level/Level.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -51,12 +52,7 @@ class GuiOpl : public GuiBase
     GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
-    GuiSlider levelSlider;
-    GuiTextButton levelPM1;
-    GuiTextButton levelPM01;
-    GuiTextButton levelTo1;
-    GuiTextButton levelP01;
-    GuiTextButton levelP1;
+    GuiComponentLevel levelComponent;
 
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
@@ -168,12 +164,7 @@ public:
         presetName(context),
         qualityCat(context),
         algFbCat(context),
-        levelSlider(context),
-        levelPM1(context),
-        levelPM01(context),
-        levelTo1(context),
-        levelP01(context),
-        levelP1(context),
+        levelComponent(context),
         algSelector(context),
         feedbackSlider(context),
         bitSelector(context),

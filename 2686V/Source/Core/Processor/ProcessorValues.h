@@ -11,6 +11,7 @@ namespace CorePrValue
 	inline constexpr float rateMax = Global::RateMaxSeconds::real;
 	inline constexpr float levelMin = 0.0;
 	inline constexpr float levelMax = 10.0f;
+	inline constexpr float levelIni = 1.0f;
 	inline constexpr int pitchLevelMin = -4800;
 	inline constexpr int pitchLevelMax = 4800;
 	inline constexpr int pitchLevelIni = 0;
@@ -41,7 +42,7 @@ namespace CorePrValue
 	{
 		inline constexpr float min = CorePrValue::levelMin;
 		inline constexpr float max = CorePrValue::levelMax;
-		inline constexpr float initial = CorePrValue::levelMax;
+		inline constexpr float initial = CorePrValue::levelIni;
 	}
 
 	namespace Unison
@@ -91,9 +92,9 @@ namespace CorePrValue
 
 		namespace Sl
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace Sr
@@ -119,9 +120,9 @@ namespace CorePrValue
 
 		namespace D1l
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace D2r
@@ -133,9 +134,9 @@ namespace CorePrValue
 
 		namespace Stl
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMin;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
 		}
 
 		namespace Kor
@@ -295,44 +296,44 @@ namespace CorePrValue
 
 		namespace L1
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L2
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L3
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L4
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L5
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L6
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMin;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
 		}
 	}
 
@@ -497,14 +498,14 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 31;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 31;
 		}
 
 		namespace Sl
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 15;
+			inline constexpr int initial = 0;
 		}
 
 		namespace Sr
@@ -532,14 +533,14 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 31;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 31;
 		}
 
 		namespace D1l
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 15;
+			inline constexpr int initial = 0;
 		}
 
 		namespace D2r
@@ -568,14 +569,14 @@ namespace CorePrValue
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 0;
+			inline constexpr int initial = 15;
 		}
 
 		namespace Sl
 		{
 			inline constexpr int min = 0;
 			inline constexpr int max = 15;
-			inline constexpr int initial = 15;
+			inline constexpr int initial = 0;
 		}
 
 		namespace Rr
