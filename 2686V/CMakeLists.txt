@@ -613,6 +613,11 @@ set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
 )
 
+set(GUI_COMPONENT_LEVEL_FILES
+    "Source/Gui/Components/Level/Level.h"
+    "Source/Gui/Components/Level/Level.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -673,6 +678,7 @@ source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHB
 source_group("2686V\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
 source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686V\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
+source_group("2686V\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

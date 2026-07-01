@@ -20,6 +20,7 @@
 #include "../../Gui/Components/LfoOpzx7/LfoOpzx7.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Level/Level.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -86,12 +87,7 @@ class GuiWt : public GuiBase
     WaveformContainer<128> customSliders128;
     WaveformContainer<256> customSliders256;
 
-    GuiSlider levelSlider;
-    GuiTextButton levelPM1;
-    GuiTextButton levelPM01;
-    GuiTextButton levelTo1;
-    GuiTextButton levelP01;
-    GuiTextButton levelP1;
+    GuiComponentLevel levelComponent;
 
     GuiCategoryLabel formCat;
     GuiCategoryLabel qualityCat;
@@ -178,12 +174,7 @@ public:
         customSliders64(context),
         customSliders128(context),
         customSliders256(context),
-        levelSlider(context),
-        levelPM1(context),
-        levelPM01(context),
-        levelTo1(context),
-        levelP01(context),
-        levelP1(context),
+        levelComponent(context),
         formCat(context),
         qualityCat(context),
         modCat(context),

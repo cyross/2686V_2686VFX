@@ -92,44 +92,7 @@ void GuiAdpcm::setup()
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
     // 出力レベル
-	levelSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::level, .title = AdpcmGuiText::Adpcm::level, .isReset = true });
-    levelSlider.setWantsKeyboardFocus(true);
-    levelSlider.setExplicitFocusOrder(++tabOrder);
-
-    levelPM1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-1.0", .isReset = false });
-    levelPM1.setWantsKeyboardFocus(true);
-    levelPM1.setExplicitFocusOrder(++tabOrder);
-    levelPM1.onClick = [this]() {
-        levelSlider.setValue(levelSlider.getValue() - 1.0f, juce::sendNotification);
-        };
-
-    levelPM01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
-    levelPM01.setWantsKeyboardFocus(true);
-    levelPM01.setExplicitFocusOrder(++tabOrder);
-    levelPM01.onClick = [this]() {
-        levelSlider.setValue(levelSlider.getValue() - 0.1f, juce::sendNotification);
-        };
-
-    levelTo1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-> 1.0", .isReset = false });
-    levelTo1.setWantsKeyboardFocus(true);
-    levelTo1.setExplicitFocusOrder(++tabOrder);
-    levelTo1.onClick = [this]() {
-        levelSlider.setValue(1.0f, juce::sendNotification);
-        };
-
-    levelP01.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "-0.1", .isReset = false });
-    levelP01.setWantsKeyboardFocus(true);
-    levelP01.setExplicitFocusOrder(++tabOrder);
-    levelP01.onClick = [this]() {
-        levelSlider.setValue(levelSlider.getValue() + 0.1f, juce::sendNotification);
-        };
-
-    levelP1.setup(GuiTextButton::Config{ .parent = mainGroup.contentCanvas, .id = "", .title = "+1.0", .isReset = false });
-    levelP1.setWantsKeyboardFocus(true);
-    levelP1.setExplicitFocusOrder(++tabOrder);
-    levelP1.onClick = [this]() {
-        levelSlider.setValue(levelSlider.getValue() + 1.0f, juce::sendNotification);
-        };
+    levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
     toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
@@ -269,7 +232,7 @@ void GuiAdpcm::setup()
     broadcastLevelButton.setWantsKeyboardFocus(true);
     broadcastLevelButton.setExplicitFocusOrder(++tabOrder);
     broadcastLevelButton.onClick = [this] {
-        float level = levelSlider.getValue();
+        float level = levelComponent.getLevel();
 
         ctx.editor.breadcastLevel(level);
         };
@@ -340,8 +303,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
 
-    layoutMain({ .mainRect = mRect, .label = &levelSlider.label, .component = &levelSlider });
-    layoutMainFiveComps({ .rect = mRect, .comp1 = &levelPM1, .comp2 = &levelPM01, .comp3 = &levelTo1, .comp4 = &levelP01, .comp5 = &levelP1 });
+	levelComponent.layoutComponent(mRect);
 
     layoutFormCat(mRect);
 
@@ -638,7 +600,7 @@ void GuiAdpcm::updateGraph()
 }
 
 void GuiAdpcm::setLevel(float level) {
-    levelSlider.setValue(level, juce::NotificationType::sendNotification);
+    levelComponent.setLevel(level);
 }
 
 void GuiAdpcm::importToneNoiseParam() {
