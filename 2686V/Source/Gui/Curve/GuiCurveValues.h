@@ -21,7 +21,8 @@ namespace CurveGuiValue
 		{
 			static inline constexpr int height = 24;
 			static inline constexpr int paddingY = 8;
-			static inline constexpr int valuePaddingY = 2;
+			static inline constexpr int valueSpacingY = 20;
+			static inline constexpr int valuePaddingY = 4;
 
 			static inline constexpr int titleWidth = 80;
 

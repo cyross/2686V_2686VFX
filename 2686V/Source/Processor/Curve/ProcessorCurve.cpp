@@ -1,7 +1,6 @@
 ﻿#include "./ProcessorCurve.h"
 
 #include "./ProcessorCurveKeys.h"
-#include "./ProcessorCurveValues.h"
 #include "./ProcessorCurveNames.h"
 
 void CurveProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
@@ -54,7 +53,7 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
                 pLogics[p][t][vp] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::logic);
                 pKs[p][t][vp] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::k);
 
-                for (int i = 0; i < 8; i++) {
+                for (int i = 0; i < CurvePrValue::values; i++) {
                     pValues[p][t][vp][i] = apvts.getRawParameterValue(vpPrefix + CurvePrKey::valueList[i]);
                 }
             }
@@ -71,8 +70,8 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         params.curve.params[p][t][vp].logCurve.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Sp1] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].sp1Curve.cp.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp1Curve.cp.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Curve.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Curve.cp1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Sp2] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].sp2Curve.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
@@ -81,68 +80,68 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         params.curve.params[p][t][vp].sp2Curve.cp2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearArcExp] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1ArcExp.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1ArcExp.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcExp.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcExp.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearArcLog] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1ArcLog.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1ArcLog.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcLog.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1ArcLog.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearExp] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1Exp.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Exp.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Exp.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Exp.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Exp.rate = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearLog] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1Log.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Log.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Log.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Log.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Log.rate = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearSp1] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1Sp1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Sp1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Sp1.cp.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Sp1.cp.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.cp1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp1.cp1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LinearSp2] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].linear1Sp2.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear1Sp2.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear1Sp2.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Sp2.cp1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Sp2.cp1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Sp2.cp2.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear1Sp2.cp2.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::ArcExpLinear] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].arcExpLinear1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].arcExpLinear1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcExpLinear1.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcExpLinear1.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::ArcLogLinear] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].arcLogLinear1.pos.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].arcLogLinear1.pos.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcLogLinear1.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].arcLogLinear1.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::ExpLinear] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].expLinear1.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].expLinear1.pos.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].expLinear1.pos.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].expLinear1.pos1.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].expLinear1.pos1.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::LogLinear] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].logLinear1.rate = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].logLinear1.pos.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].logLinear1.pos.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].logLinear1.pos1.x = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].logLinear1.pos1.y = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Sp1Linear] = [this](SynthParams& params, int p, int t, int vp) {
-        params.curve.params[p][t][vp].sp1Linear1.cp.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp1Linear1.cp.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp1Linear1.pos.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp1Linear1.pos.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.cp1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.pos1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp1Linear1.pos1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Sp2Linear] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].sp2Linear1.cp1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].sp2Linear1.cp1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].sp2Linear1.cp2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].sp2Linear1.cp2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp2Linear1.pos.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].sp2Linear1.pos.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.pos1.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sp2Linear1.pos1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Linear2ArcExp] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].linear2ArcExp.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
@@ -175,8 +174,8 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         params.curve.params[p][t][vp].linear2Sp1.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear2Sp1.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear2Sp1.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear2Sp1.cp.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
-        params.curve.params[p][t][vp].linear2Sp1.cp.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.cp1.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2Sp1.cp1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
         };
     lLogics[(int)CurveParams::Logic::Linear2Sp2] = [this](SynthParams& params, int p, int t, int vp) {
         params.curve.params[p][t][vp].linear2Sp2.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
@@ -187,6 +186,66 @@ void CurveProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         params.curve.params[p][t][vp].linear2Sp2.cp1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear2Sp2.cp2.x = pValues[p][t][vp][6]->load(std::memory_order_relaxed);
         params.curve.params[p][t][vp].linear2Sp2.cp2.y = pValues[p][t][vp][7]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear2] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear2.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear2.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Linear3] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].linear3.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear3.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear3.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].linear3.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sprine12] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sprine12.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine12.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine12.cp1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine12.cp1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine12.cp2.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine12.cp2.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sprine22] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sprine22.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp1.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp1.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp2.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp2.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp3.x = pValues[p][t][vp][6]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp3.y = pValues[p][t][vp][7]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp4.x = pValues[p][t][vp][8]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine22.cp4.y = pValues[p][t][vp][9]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sprine13] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sprine13.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp1.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp2.x = pValues[p][t][vp][6]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp2.y = pValues[p][t][vp][7]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp3.x = pValues[p][t][vp][8]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine13.cp3.y = pValues[p][t][vp][9]->load(std::memory_order_relaxed);
+        };
+    lLogics[(int)CurveParams::Logic::Sprine23] = [this](SynthParams& params, int p, int t, int vp) {
+        params.curve.params[p][t][vp].sprine23.pos1.x = pValues[p][t][vp][0]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.pos1.y = pValues[p][t][vp][1]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.pos2.x = pValues[p][t][vp][2]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.pos2.y = pValues[p][t][vp][3]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp1.x = pValues[p][t][vp][4]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp1.y = pValues[p][t][vp][5]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp2.x = pValues[p][t][vp][6]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp2.y = pValues[p][t][vp][7]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp3.x = pValues[p][t][vp][8]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp3.y = pValues[p][t][vp][9]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp4.x = pValues[p][t][vp][10]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp4.y = pValues[p][t][vp][11]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp5.x = pValues[p][t][vp][12]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp5.y = pValues[p][t][vp][13]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp6.x = pValues[p][t][vp][14]->load(std::memory_order_relaxed);
+        params.curve.params[p][t][vp].sprine23.cp6.y = pValues[p][t][vp][15]->load(std::memory_order_relaxed);
         };
 }
 

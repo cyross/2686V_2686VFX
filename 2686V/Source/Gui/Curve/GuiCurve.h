@@ -15,7 +15,7 @@ class AudioPlugin2686VEditor;
 class GuiCurve : public GuiBase
 {
     // Pane Groups
-    GuiGroup curveGroup;
+    GuiScrollGroup curveGroup;
 
     std::array<std::unique_ptr<GuiCurveGraph>, CurvePrValue::params> curveGraphs;
 

@@ -29,5 +29,5 @@ namespace CurvePrName
 	static inline const juce::String k = " K";
 
 	// バリューリスト
-	static const std::array<juce::String, 8> valueList{ " Value[1]", " Value[2]", " Value[3]", " Value[4]", " Value[5]", " Value[6]", " Value[7]", " Value[8]" };
+	static const std::array<juce::String, 16> valueList{ " Value[1]", " Value[2]", " Value[3]", " Value[4]", " Value[5]", " Value[6]", " Value[7]", " Value[8]", " Value[9]", " Value[10]", " Value[11]", " Value[12]", " Value[13]", " Value[14]", " Value[15]", " Value[16]" };
 }

@@ -32,6 +32,6 @@ namespace CurvePrKey
 	static inline const juce::String k = "_K";
 
 	// バリューリスト
-	static const std::array<juce::String, 8> valueList{ "_V1", "_V2", "_V3", "_V4", "_V5", "_V6", "_V7", "_V8" };
+	static const std::array<juce::String, 16> valueList{ "_V1", "_V2", "_V3", "_V4", "_V5", "_V6", "_V7", "_V8", "_V9", "_V10", "_V11", "_V12", "_V13", "_V14", "_V15", "_V16" };
 };
 

@@ -9,13 +9,18 @@ namespace CurvePrValue
 	inline constexpr int positions = 7;
 	inline constexpr int targets = 4;
 	inline constexpr int params = 8;
-	inline constexpr int logics = 25;
-	inline constexpr int values = 8;
+	inline constexpr int logics = 31;
+	inline constexpr int values = 16;
 
 	inline constexpr int regValParams = 6;
 	inline constexpr int regAmpEnvParams = 4;
 	inline constexpr int regPitchEnvParams = 3;
 	inline constexpr int regSsgSwEnvParams = 7;
+
+	inline constexpr float posMin = 0.0f;
+	inline constexpr float posMax = 1.0f;
+	inline constexpr float valueMin = -3.0f;
+	inline constexpr float valueMax = 3.0f;
 
 	namespace Enable
 	{
@@ -25,7 +30,7 @@ namespace CurvePrValue
 	namespace Logic
 	{
 		inline constexpr int min = 0;
-		inline constexpr int max = CurvePrValue::logics;
+		inline constexpr int max = CurvePrValue::logics - 1;
 		inline constexpr int initial = 0;
 	}
 
@@ -38,8 +43,8 @@ namespace CurvePrValue
 
 	namespace Value
 	{
-		inline constexpr float min = 0.0f;
-		inline constexpr float max = 1.0f;
+		inline constexpr float min = CurvePrValue::valueMin;
+		inline constexpr float max = CurvePrValue::valueMax;
 		inline constexpr float initial = 0.0f;
 	}
 }
