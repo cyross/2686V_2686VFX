@@ -17,17 +17,31 @@ class GuiComponentLevel : public GuiBase {
     GuiTextButton levelPM001;
     GuiTextButton levelP001;
     GuiTextButton levelP01;
+    GuiTextButton levelTo016;
+    GuiTextButton levelTo02;
+    GuiTextButton levelTo025;
+    GuiTextButton levelTo033;
+    GuiTextButton levelTo04;
+    GuiTextButton levelTo05;
+    GuiTextButton levelTo067;
 public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
         levelSlider(context),
-        levelPM1(context),
         levelTo1(context),
+        levelPM1(context),
         levelP1(context),
         levelPM01(context),
         levelPM001(context),
         levelP001(context),
-        levelP01(context)
+        levelP01(context),
+        levelTo016(context),
+        levelTo02(context),
+        levelTo025(context),
+        levelTo033(context),
+        levelTo04(context),
+        levelTo05(context),
+        levelTo067(context)
     {
     }
 
