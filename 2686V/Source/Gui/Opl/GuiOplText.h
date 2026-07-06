@@ -14,8 +14,8 @@ namespace OplGuiText
 		static inline const juce::String visibleQuality = u8"[■]--- QUALITY ---";
 		static inline const juce::String invisibleQuality = u8"[□]--- QUALITY ---";
 		static inline const juce::String algFb = u8"--- ALGORITHM/FEEDBACK ---";
-		static inline const juce::String visibleDetune = u8"[■]--- DETUNE ---";
-		static inline const juce::String invisibleDetune = u8"[□]--- DETUNE ---";
+		static inline const juce::String visibleDetune = u8"[■]--- MUL/DET ---";
+		static inline const juce::String invisibleDetune = u8"[□]--- MUL/DET ---";
 		static inline const juce::String visibleAmpEnv = u8"[■]--- AMP ENV ---";
 		static inline const juce::String invisibleAmpEnv = u8"[□]--- AMP ENV ---";
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";

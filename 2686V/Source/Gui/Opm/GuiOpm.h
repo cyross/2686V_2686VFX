@@ -127,6 +127,27 @@ class GuiOpm : public GuiBase
     std::array<GuiCategoryLabel, OpmPrValue::ops> catAmp;
     std::array<GuiComboBox, OpmPrValue::ops> mul;
     std::array<GuiSlider, OpmPrValue::ops> mulRatio;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo001;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo005;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo1;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo10;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo2757;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo02;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo025;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo04;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo05;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo06;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo075;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo08;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioPM10;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioPM1;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioPM01;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioPM001;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioP001;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioP01;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioP1;
+    std::array<GuiTextButton, OpmPrValue::ops> mulRatioP10;
+    std::array<NormalSeparator, OpmPrValue::ops> mulDetSep;
     std::array<GuiSlider, OpmPrValue::ops> dt1;
     std::array<GuiSlider, OpmPrValue::ops> dt2;
 
@@ -228,6 +249,27 @@ public:
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        mulRatioTo001{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo005{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo10{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo2757{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo02{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo025{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo04{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo05{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo06{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo075{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioTo08{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioPM10{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioPM1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioPM01{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioPM001{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioP001{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioP01{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioP1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulRatioP10{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
+        mulDetSep{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         dt1{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         dt2{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         ksCat{ GuiCategoryLabel(context), GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },

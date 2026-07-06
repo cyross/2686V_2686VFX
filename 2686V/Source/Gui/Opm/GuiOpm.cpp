@@ -413,6 +413,148 @@ void GuiOpm::setup()
         mulRatio[i].setWantsKeyboardFocus(true);
         mulRatio[i].setExplicitFocusOrder(++tabOrder);
 
+        mulRatioTo001[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+		mulRatioTo001[i].setWantsKeyboardFocus(true);
+		mulRatioTo001[i].setExplicitFocusOrder(++tabOrder);
+		mulRatioTo001[i].onClick = [this, i]() {
+			mulRatio[i].setValue(0.01f, juce::sendNotification);
+			};
+
+        mulRatioTo005[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.05", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+        mulRatioTo005[i].setWantsKeyboardFocus(true);
+        mulRatioTo005[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo005[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.05f, juce::sendNotification);
+            };
+
+        mulRatioTo1[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "1", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+        mulRatioTo1[i].setWantsKeyboardFocus(true);
+        mulRatioTo1[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo1[i].onClick = [this, i]() {
+            mulRatio[i].setValue(1.0f, juce::sendNotification);
+            };
+
+        mulRatioTo10[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "10", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+        mulRatioTo10[i].setWantsKeyboardFocus(true);
+        mulRatioTo10[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo10[i].onClick = [this, i]() {
+            mulRatio[i].setValue(10.0f, juce::sendNotification);
+            };
+
+        mulRatioTo2757[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "27.57", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+        mulRatioTo2757[i].setWantsKeyboardFocus(true);
+        mulRatioTo2757[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo2757[i].onClick = [this, i]() {
+            mulRatio[i].setValue(27.57f, juce::sendNotification);
+            };
+
+        mulRatioTo02[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.2", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+        mulRatioTo02[i].setWantsKeyboardFocus(true);
+        mulRatioTo02[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo02[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.2f, juce::sendNotification);
+            };
+
+        mulRatioTo025[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.25", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+        mulRatioTo025[i].setWantsKeyboardFocus(true);
+        mulRatioTo025[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo025[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.25f, juce::sendNotification);
+            };
+
+        mulRatioTo04[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.4", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+        mulRatioTo04[i].setWantsKeyboardFocus(true);
+        mulRatioTo04[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo04[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.4f, juce::sendNotification);
+            };
+
+        mulRatioTo05[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.5", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+        mulRatioTo05[i].setWantsKeyboardFocus(true);
+        mulRatioTo05[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo05[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.5f, juce::sendNotification);
+            };
+
+        mulRatioTo06[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.6", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+        mulRatioTo06[i].setWantsKeyboardFocus(true);
+        mulRatioTo06[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo06[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.6f, juce::sendNotification);
+            };
+
+        mulRatioTo075[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.75", .bgColor = juce::Colours::lightgreen.brighter(0.5f), .isReset = false });
+        mulRatioTo075[i].setWantsKeyboardFocus(true);
+        mulRatioTo075[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo075[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.75f, juce::sendNotification);
+            };
+
+        mulRatioTo08[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.8", .bgColor = juce::Colours::lightsalmon.brighter(0.5f), .isReset = false });
+        mulRatioTo08[i].setWantsKeyboardFocus(true);
+        mulRatioTo08[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioTo08[i].onClick = [this, i]() {
+            mulRatio[i].setValue(0.8f, juce::sendNotification);
+            };
+
+        mulRatioPM10[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "-10", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioPM10[i].setWantsKeyboardFocus(true);
+        mulRatioPM10[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioPM10[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() - 10.0f, juce::sendNotification);
+            };
+
+        mulRatioP10[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "+10", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioP10[i].setWantsKeyboardFocus(true);
+        mulRatioP10[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioP10[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() + 10.0f, juce::sendNotification);
+            };
+
+        mulRatioPM1[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "-1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioPM1[i].setWantsKeyboardFocus(true);
+        mulRatioPM1[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioPM1[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() - 1.0f, juce::sendNotification);
+            };
+
+        mulRatioP1[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "+1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioP1[i].setWantsKeyboardFocus(true);
+        mulRatioP1[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioP1[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() + 1.0f, juce::sendNotification);
+            };
+
+        mulRatioPM01[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "-0.1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioPM01[i].setWantsKeyboardFocus(true);
+        mulRatioPM01[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioPM01[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() - 0.1f, juce::sendNotification);
+            };
+
+        mulRatioP01[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "+0.1", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioP01[i].setWantsKeyboardFocus(true);
+        mulRatioP01[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioP01[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() + 0.1f, juce::sendNotification);
+            };
+
+        mulRatioPM001[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "-0.01", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioPM001[i].setWantsKeyboardFocus(true);
+        mulRatioPM001[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioPM001[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() - 0.01f, juce::sendNotification);
+            };
+
+        mulRatioP001[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "+0.01", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
+        mulRatioP001[i].setWantsKeyboardFocus(true);
+        mulRatioP001[i].setExplicitFocusOrder(++tabOrder);
+        mulRatioP001[i].onClick = [this, i]() {
+            mulRatio[i].setValue(mulRatio[i].getValue() + 0.01f, juce::sendNotification);
+            };
+
+        mulDetSep[i].setupComponent(opGroups[i].contentCanvas);
+
         dt1[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::dt, .title = OpmGuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
         dt1[i].setWantsKeyboardFocus(true);
         dt1[i].setExplicitFocusOrder(++tabOrder);
@@ -1032,12 +1174,38 @@ void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
 
     mul[opIndex].setVisibleWithLabel(visible);
     mulRatio[opIndex].setVisibleWithLabel(visible);
+    mulRatioTo001[opIndex].setVisible(visible);
+    mulRatioTo005[opIndex].setVisible(visible);
+    mulRatioTo1[opIndex].setVisible(visible);
+    mulRatioTo2757[opIndex].setVisible(visible);
+    mulRatioTo02[opIndex].setVisible(visible);
+    mulRatioTo025[opIndex].setVisible(visible);
+    mulRatioTo04[opIndex].setVisible(visible);
+    mulRatioTo05[opIndex].setVisible(visible);
+    mulRatioTo06[opIndex].setVisible(visible);
+    mulRatioTo075[opIndex].setVisible(visible);
+    mulRatioTo08[opIndex].setVisible(visible);
+    mulRatioPM10[opIndex].setVisible(visible);
+    mulRatioP10[opIndex].setVisible(visible);
+    mulRatioPM1[opIndex].setVisible(visible);
+    mulRatioP1[opIndex].setVisible(visible);
+    mulRatioPM01[opIndex].setVisible(visible);
+    mulRatioP01[opIndex].setVisible(visible);
+    mulRatioPM001[opIndex].setVisible(visible);
+    mulRatioP001[opIndex].setVisible(visible);
+    mulDetSep[opIndex].setVisible(visible);
     dt1[opIndex].setVisibleWithLabel(visible);
     dt2[opIndex].setVisibleWithLabel(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
         layoutRow({ .rowRect = rect, .label = &mulRatio[opIndex].label, .component = &mulRatio[opIndex] });
+		layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001[opIndex], .comp2 = &mulRatioTo005[opIndex], .comp3 = &mulRatioTo1[opIndex], .comp4 = &mulRatioTo10[opIndex], .comp5 = &mulRatioTo2757[opIndex] });
+		layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025[opIndex], .comp2 = &mulRatioTo05[opIndex], .comp3 = &mulRatioTo075[opIndex] });
+        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02[opIndex], .comp2 = &mulRatioTo04[opIndex], .comp3 = &mulRatioTo06[opIndex], .comp4 = &mulRatioTo08[opIndex] });
+        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10[opIndex], .comp2 = &mulRatioPM1[opIndex], .comp3 = &mulRatioP1[opIndex], .comp4 = &mulRatioP10[opIndex] });
+        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001[opIndex], .comp2 = &mulRatioPM01[opIndex], .comp3 = &mulRatioP01[opIndex], .comp4 = &mulRatioP001[opIndex] });
+        mulDetSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &dt1[opIndex].label, .component = &dt1[opIndex] });
         layoutRow({ .rowRect = rect, .label = &dt2[opIndex].label, .component = &dt2[opIndex] });
     }

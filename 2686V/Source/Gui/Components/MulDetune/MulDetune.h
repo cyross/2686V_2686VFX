@@ -13,6 +13,8 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -21,6 +23,27 @@ class GuiComponentMulDetune : public GuiBase {
     GuiCategoryLabel cat;
     GuiComboBox mul;
     GuiSlider mulRatio;
+    GuiTextButton mulRatioTo001;
+    GuiTextButton mulRatioTo005;
+    GuiTextButton mulRatioTo1;
+    GuiTextButton mulRatioTo10;
+    GuiTextButton mulRatioTo2757;
+    GuiTextButton mulRatioTo02;
+    GuiTextButton mulRatioTo025;
+    GuiTextButton mulRatioTo04;
+    GuiTextButton mulRatioTo05;
+    GuiTextButton mulRatioTo06;
+    GuiTextButton mulRatioTo075;
+    GuiTextButton mulRatioTo08;
+    GuiTextButton mulRatioPM10;
+    GuiTextButton mulRatioPM1;
+    GuiTextButton mulRatioPM01;
+    GuiTextButton mulRatioPM001;
+    GuiTextButton mulRatioP001;
+    GuiTextButton mulRatioP01;
+    GuiTextButton mulRatioP1;
+    GuiTextButton mulRatioP10;
+    NormalSeparator mulDetSep;
     GuiComboBox dt1;
     GuiSlider dt2;
     GuiSlider dt3;
@@ -33,6 +56,27 @@ public:
         cat(context),
         mul(context),
         mulRatio(context),
+		mulRatioTo001(context),
+		mulRatioTo005(context),
+   		mulRatioTo1(context),
+        mulRatioTo10(context),
+        mulRatioTo2757(context),
+		mulRatioTo02(context),
+		mulRatioTo025(context),
+		mulRatioTo04(context),
+		mulRatioTo05(context),
+		mulRatioTo06(context),
+		mulRatioTo075(context),
+		mulRatioTo08(context),
+		mulRatioPM10(context),
+		mulRatioPM1(context),
+		mulRatioPM01(context),
+		mulRatioPM001(context),
+		mulRatioP001(context),
+		mulRatioP01(context),
+		mulRatioP1(context),
+		mulRatioP10(context),
+		mulDetSep(context),
         dt1(context),
         dt2(context),
         dt3(context),
