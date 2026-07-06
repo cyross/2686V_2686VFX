@@ -408,7 +408,7 @@ void GuiOpm::setup()
         juce::String paramPrefix = opCode + juce::String(i);
 
         catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleDetune, .invisibleTitle = OpmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleAmpEnv, .invisibleTitle = OpmGuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleAmpEnv, .invisibleTitle = OpmGuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
         mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
@@ -597,15 +597,15 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
         juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
 
-        layoutOpDetCat(i, innerRect);
-
         updateRgDisplayAsOp(i, true);
 
         layoutOpAmpCat(i, innerRect);
 
-        layoutOpKsCat(i, innerRect);
-
         layoutOpOptionalCat(i, innerRect);
+
+        layoutOpDetCat(i, innerRect);
+
+        layoutOpKsCat(i, innerRect);
 
         pitchEnv[i].layoutComponentRow(innerRect);
 

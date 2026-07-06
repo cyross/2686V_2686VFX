@@ -653,7 +653,7 @@ void GuiOpzx7::setup()
 
         mulDetune[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, true);
 
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleAmpEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::Category::visibleAmpEnv, .invisibleTitle = Opzx7GuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
         rgEn[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::rgEn, .title = Opzx7GuiText::Fm::Op::RgEn, .isReset = true });
         rgEn[i].setWantsKeyboardFocus(true);
@@ -1093,15 +1093,15 @@ void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
     bool rgMode = rgEn[opIndex].getToggleState();
     int selectedWs = ws[opIndex].getSelectedId();
 
-    mulDetune[opIndex].layoutComponentRow(innerRect);
-
     layoutOpAmpCat(opIndex, innerRect, rgMode);
+
+    layoutOpOptionalCat(opIndex, innerRect);
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
 
     layoutOpWsCat(opIndex, innerRect, selectedWs);
 
     layoutOpKsCat(opIndex, innerRect, rgMode);
-
-    layoutOpOptionalCat(opIndex, innerRect);
 
     layoutOpSsgEnvCat(opIndex, innerRect);
 
