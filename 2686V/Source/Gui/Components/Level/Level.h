@@ -23,7 +23,11 @@ class GuiComponentLevel : public GuiBase {
     GuiTextButton levelTo033;
     GuiTextButton levelTo04;
     GuiTextButton levelTo05;
+    GuiTextButton levelTo06;
     GuiTextButton levelTo067;
+    GuiTextButton levelTo075;
+    GuiTextButton levelTo08;
+    GuiTextButton levelTo083;
 public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
@@ -41,7 +45,11 @@ public:
         levelTo033(context),
         levelTo04(context),
         levelTo05(context),
-        levelTo067(context)
+        levelTo06(context),
+        levelTo067(context),
+        levelTo075(context),
+        levelTo08(context),
+        levelTo083(context)
     {
     }
 
