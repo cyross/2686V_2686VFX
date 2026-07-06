@@ -610,6 +610,8 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
     // Custom Wave Size
     sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
@@ -1110,6 +1112,7 @@ void GuiWt::layoutFormCat(Rectangle<int>& rect) {
     bool visibleCustom = index == 9; // custom
 
     waveSelector.setVisibleWithLabel(visible);
+    formSeparator.setVisible(visible && visibleCustom);
     sizeSelector.setVisibleWithLabel(visible && visibleCustom);
     stepsSelector.setVisibleWithLabel(visible && visibleCustom);
 
@@ -1119,6 +1122,7 @@ void GuiWt::layoutFormCat(Rectangle<int>& rect) {
 
         if (visibleCustom)
         {
+            formSeparator.layoutComponent(rect);
             layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
             layoutMain({ .mainRect = rect, .label = &stepsSelector.label, .component = &stepsSelector, });
         }

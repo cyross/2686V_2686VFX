@@ -39,6 +39,8 @@ class RhythmPadGui: public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
 
+    NormalSeparator formSeparator;
+
     GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
 
@@ -109,6 +111,7 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        formSeparator(context),
         formCat(context),
         optionalCat(context),
         pcmOffsetSlider(context),

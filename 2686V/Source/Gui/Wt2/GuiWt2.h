@@ -126,6 +126,8 @@ class GuiWt2 : public GuiBase
 
     GuiComboBox waveSelector;
 
+    NormalSeparator formSeparator;
+
     // Moduration
 	GuiToggleButton modEnableButton;
     GuiSlider modDepthSlider;
@@ -204,6 +206,7 @@ public:
         sizeSelector(context),
         resoSelector(context),
         waveSelector(context),
+        formSeparator(context),
         modEnableButton(context),
         modDepthSlider(context),
         modSpeedSlider(context),

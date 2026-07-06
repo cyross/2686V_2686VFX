@@ -181,6 +181,8 @@ void GuiSsg::setup()
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
     toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
@@ -443,6 +445,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
     bool visible = formCat.isDetailVisible();
 
     waveSelector.setVisibleWithLabel(visible);
+    formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
@@ -455,6 +458,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector, });
+        formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });

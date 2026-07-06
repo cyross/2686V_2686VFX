@@ -380,6 +380,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     fix{ GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context),GuiComponentFix(context) },
     catWaveShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
     ws{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
+    wsSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     loadPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearPcmBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     pcmFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
@@ -388,12 +389,6 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     loopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     loopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     loopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-    wtLoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-    wtLoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-    wtLoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-    wt2LoopPointEnable{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-    wt2LoopPointStart{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-    wt2LoopPointEnd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     loadWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     clearWtBtn{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
     wtFileNameLabel{ GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
@@ -777,7 +772,9 @@ void GuiOpzx7::setup()
             ctx.editor.resized();
             };
 
-        loadPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::Pcm, .isReset = false, .isResized = false });
+        wsSeparator[i].setupComponent(opGroups[i].contentCanvas);
+
+        loadPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::Pcm, .isReset = false, .isResized = true });
         loadPcmBtn[i].setWantsKeyboardFocus(true);
         loadPcmBtn[i].setExplicitFocusOrder(++tabOrder);
         loadPcmBtn[i].onClick = [this, i] {
@@ -802,7 +799,7 @@ void GuiOpzx7::setup()
             );
             };
 
-        clearPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
         clearPcmBtn[i].setWantsKeyboardFocus(true);
         clearPcmBtn[i].setExplicitFocusOrder(++tabOrder);
         clearPcmBtn[i].onClick = [this, i] {
@@ -835,7 +832,7 @@ void GuiOpzx7::setup()
         loopPointEnd[i].setWantsKeyboardFocus(true);
         loopPointEnd[i].setExplicitFocusOrder(++tabOrder);
 
-        loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = false });
+        loadWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT", .isReset = false, .isResized = true });
         loadWtBtn[i].setWantsKeyboardFocus(true);
         loadWtBtn[i].setExplicitFocusOrder(++tabOrder);
         loadWtBtn[i].onClick = [this, i] {
@@ -859,7 +856,7 @@ void GuiOpzx7::setup()
             );
             };
 
-        clearWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearWtBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
         clearWtBtn[i].setWantsKeyboardFocus(true);
         clearWtBtn[i].setExplicitFocusOrder(++tabOrder);
         clearWtBtn[i].onClick = [this, i] {
@@ -872,7 +869,7 @@ void GuiOpzx7::setup()
             updateWtFileName(i, juce::File(ctx.audioProcessor.opzx7WtFilePaths[i]).getFileName());
         }
 
-        loadWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT2", .isReset = false, .isResized = false });
+        loadWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = "WT2", .isReset = false, .isResized = true });
         loadWt2Btn[i].setWantsKeyboardFocus(true);
         loadWt2Btn[i].setExplicitFocusOrder(++tabOrder);
         loadWt2Btn[i].onClick = [this, i] {
@@ -896,7 +893,7 @@ void GuiOpzx7::setup()
             );
             };
 
-        clearWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = false });
+        clearWt2Btn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
         clearWt2Btn[i].setWantsKeyboardFocus(true);
         clearWt2Btn[i].setExplicitFocusOrder(++tabOrder);
         clearWt2Btn[i].onClick = [this, i] {
@@ -1081,7 +1078,7 @@ void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
     juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].viewport.getMaximumVisibleWidth(), 2000);
 
     bool rgMode = rgEn[opIndex].getToggleState();
-    int selectedWs = ws[opIndex].getSelectedId();
+    int selectedWs = ws[opIndex].getSelectedItemIndex();
 
     layoutOpAmpCat(opIndex, innerRect, rgMode);
 
@@ -1342,45 +1339,58 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
 
 void GuiOpzx7::updateOnWsChange(int idx)
 {
-    int selectedWs = ws[idx].getSelectedId();
-    if (selectedWs == (Opzx7PrValue::wtIndex + 1))
+    int selectedWs = ws[idx].getSelectedItemIndex();
+    bool visible = catWaveShape[idx].isDetailVisible();
+    if (selectedWs == Opzx7PrValue::wtIndex)
     {
         // WT関連だけ表示
+        wsSeparator[idx].setVisible(visible);
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
         pcmOffset[idx].setVisibleWithLabel(false);
         pcmRatio[idx].setVisibleWithLabel(false);
-        loadWtBtn[idx].setVisible(true);
-        clearWtBtn[idx].setVisible(true);
-        wtFileNameLabel[idx].setVisible(true);
+        loopPointEnable[idx].setVisible(false);
+        loopPointStart[idx].setVisibleWithLabel(false);
+        loopPointEnd[idx].setVisibleWithLabel(false);
+        loadWtBtn[idx].setVisible(visible);
+        clearWtBtn[idx].setVisible(visible);
+        wtFileNameLabel[idx].setVisible(visible);
         loadWt2Btn[idx].setVisible(false);
         clearWt2Btn[idx].setVisible(false);
         wt2FileNameLabel[idx].setVisible(false);
     }
-    else if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+    else if (selectedWs == Opzx7PrValue::wt2Index)
     {
         // WT2関連だけ表示
-        loadPcmBtn[idx].setVisible(true);
-        clearPcmBtn[idx].setVisible(true);
-        pcmFileNameLabel[idx].setVisible(true);
-        pcmOffset[idx].setVisibleWithLabel(true);
-        pcmRatio[idx].setVisibleWithLabel(true);
+        wsSeparator[idx].setVisible(visible);
+        loadPcmBtn[idx].setVisible(false);
+        clearPcmBtn[idx].setVisible(false);
+        pcmFileNameLabel[idx].setVisible(false);
+        pcmOffset[idx].setVisibleWithLabel(false);
+        pcmRatio[idx].setVisibleWithLabel(false);
+        loopPointEnable[idx].setVisible(false);
+        loopPointStart[idx].setVisibleWithLabel(false);
+        loopPointEnd[idx].setVisibleWithLabel(false);
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
-        loadWt2Btn[idx].setVisible(true);
-        clearWt2Btn[idx].setVisible(true);
-        wt2FileNameLabel[idx].setVisible(true);
+        loadWt2Btn[idx].setVisible(visible);
+        clearWt2Btn[idx].setVisible(visible);
+        wt2FileNameLabel[idx].setVisible(visible);
     }
-    else if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+    else if (selectedWs == Opzx7PrValue::pcmIndex)
     {
         // PCM関連だけ表示
-        loadPcmBtn[idx].setVisible(true);
-        clearPcmBtn[idx].setVisible(true);
-        pcmFileNameLabel[idx].setVisible(true);
-        pcmOffset[idx].setVisibleWithLabel(true);
-        pcmRatio[idx].setVisibleWithLabel(true);
+        wsSeparator[idx].setVisible(visible);
+        loadPcmBtn[idx].setVisible(visible);
+        clearPcmBtn[idx].setVisible(visible);
+        pcmFileNameLabel[idx].setVisible(visible);
+        pcmOffset[idx].setVisibleWithLabel(visible);
+        pcmRatio[idx].setVisibleWithLabel(visible);
+        loopPointEnable[idx].setVisible(visible);
+        loopPointStart[idx].setVisibleWithLabel(visible);
+        loopPointEnd[idx].setVisibleWithLabel(visible);
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
@@ -1390,11 +1400,15 @@ void GuiOpzx7::updateOnWsChange(int idx)
     }
     else {
         // 全関連非表示
+        wsSeparator[idx].setVisible(false);
         loadPcmBtn[idx].setVisible(false);
         clearPcmBtn[idx].setVisible(false);
         pcmFileNameLabel[idx].setVisible(false);
         pcmOffset[idx].setVisibleWithLabel(false);
         pcmRatio[idx].setVisibleWithLabel(false);
+        loopPointEnable[idx].setVisible(false);
+        loopPointStart[idx].setVisibleWithLabel(false);
+        loopPointEnd[idx].setVisibleWithLabel(false);
         loadWtBtn[idx].setVisible(false);
         clearWtBtn[idx].setVisible(false);
         wtFileNameLabel[idx].setVisible(false);
@@ -1803,32 +1817,28 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
     bool visible = catWaveShape[opIndex].isDetailVisible();
 
     ws[opIndex].setVisibleWithLabel(visible);
-    loadPcmBtn[opIndex].setVisible(visible);
-    pcmFileNameLabel[opIndex].setVisible(visible);
-    clearPcmBtn[opIndex].setVisible(visible);
-    pcmOffset[opIndex].setVisibleWithLabel(visible);
-    pcmRatio[opIndex].setVisibleWithLabel(visible);
-    loopPointEnable[opIndex].setVisible(visible);
-    loopPointStart[opIndex].setVisibleWithLabel(visible);
-    loopPointEnd[opIndex].setVisibleWithLabel(visible);
-    loadWtBtn[opIndex].setVisible(visible);
-    wtFileNameLabel[opIndex].setVisible(visible);
-    clearWtBtn[opIndex].setVisible(visible);
-    wtLoopPointEnable[opIndex].setVisible(visible);
-    wtLoopPointStart[opIndex].setVisibleWithLabel(visible);
-    wtLoopPointEnd[opIndex].setVisibleWithLabel(visible);
-    loadWt2Btn[opIndex].setVisible(visible);
-    wt2FileNameLabel[opIndex].setVisible(visible);
-    clearWt2Btn[opIndex].setVisible(visible);
-    wt2LoopPointEnable[opIndex].setVisible(visible);
-    wt2LoopPointStart[opIndex].setVisibleWithLabel(visible);
-    wt2LoopPointEnd[opIndex].setVisibleWithLabel(visible);
+    wsSeparator[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loadPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    clearPcmBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmOffset[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    pcmRatio[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopPointEnable[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopPointStart[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loopPointEnd[opIndex].setVisibleWithLabel(visible && selectedWs == Opzx7PrValue::pcmIndex);
+    loadWtBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wtIndex);
+    wtFileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wtIndex);
+    clearWtBtn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wtIndex);
+    loadWt2Btn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wt2Index);
+    wt2FileNameLabel[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wt2Index);
+    clearWt2Btn[opIndex].setVisible(visible && selectedWs == Opzx7PrValue::wt2Index);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &ws[opIndex].label, .component = &ws[opIndex] });
 
-        if (selectedWs == (Opzx7PrValue::pcmIndex + 1))
+        if (selectedWs == Opzx7PrValue::pcmIndex)
         {
+            wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadPcmBtn[opIndex], .pcmFileNameLabel = &pcmFileNameLabel[opIndex], .clearPcmBtn = &clearPcmBtn[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmOffset[opIndex].label, .component = &pcmOffset[opIndex] });
             layoutRow({ .rowRect = rect, .label = &pcmRatio[opIndex].label, .component = &pcmRatio[opIndex] });
@@ -1837,20 +1847,16 @@ void GuiOpzx7::layoutOpWsCat(int opIndex, juce::Rectangle<int>& rect, int select
             layoutRow({ .rowRect = rect, .label = &loopPointEnd[opIndex].label, .component = &loopPointEnd[opIndex], });
         } 
 
-        if (selectedWs == (Opzx7PrValue::wtIndex + 1))
+        if (selectedWs == Opzx7PrValue::wtIndex)
         {
+            wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWtBtn[opIndex], .pcmFileNameLabel = &wtFileNameLabel[opIndex], .clearPcmBtn = &clearWtBtn[opIndex] });
-            layoutRow({ .rowRect = rect, .component = &wtLoopPointEnable[opIndex] });
-            layoutRow({ .rowRect = rect, .label = &wtLoopPointStart[opIndex].label, .component = &wtLoopPointStart[opIndex], });
-            layoutRow({ .rowRect = rect, .label = &wtLoopPointEnd[opIndex].label, .component = &wtLoopPointEnd[opIndex], });
         }
 
-        if (selectedWs == (Opzx7PrValue::wt2Index + 1))
+        if (selectedWs == Opzx7PrValue::wt2Index)
         {
+            wsSeparator[opIndex].layoutComponent(rect);
             layoutRowOpzx7File({ .rect = rect, .loadPcmBtn = &loadWt2Btn[opIndex], .pcmFileNameLabel = &wt2FileNameLabel[opIndex], .clearPcmBtn = &clearWt2Btn[opIndex] });
-            layoutRow({ .rowRect = rect, .component = &wt2LoopPointEnable[opIndex] });
-            layoutRow({ .rowRect = rect, .label = &wt2LoopPointStart[opIndex].label, .component = &wt2LoopPointStart[opIndex], });
-            layoutRow({ .rowRect = rect, .label = &wt2LoopPointEnd[opIndex].label, .component = &wt2LoopPointEnd[opIndex], });
         }
     }
 }

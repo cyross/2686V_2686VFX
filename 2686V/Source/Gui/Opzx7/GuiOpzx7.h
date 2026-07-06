@@ -367,6 +367,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiComponentFix, Opzx7PrValue::ops> fix;
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catWaveShape;
     std::array<GuiComboBox, Opzx7PrValue::ops> ws;
+    std::array<NormalSeparator, Opzx7PrValue::ops> wsSeparator;
     std::array<GuiTextButton, Opzx7PrValue::ops> loadPcmBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearPcmBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> pcmFileNameLabel;
@@ -375,12 +376,6 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiToggleButton, Opzx7PrValue::ops> loopPointEnable;
     std::array<GuiSlider, Opzx7PrValue::ops> loopPointStart;
     std::array<GuiSlider, Opzx7PrValue::ops> loopPointEnd;
-    std::array<GuiToggleButton, Opzx7PrValue::ops> wtLoopPointEnable;
-    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointStart;
-    std::array<GuiSlider, Opzx7PrValue::ops> wtLoopPointEnd;
-    std::array<GuiToggleButton, Opzx7PrValue::ops> wt2LoopPointEnable;
-    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointStart;
-    std::array<GuiSlider, Opzx7PrValue::ops> wt2LoopPointEnd;
     std::array<GuiTextButton, Opzx7PrValue::ops> loadWtBtn;
     std::array<GuiTextButton, Opzx7PrValue::ops> clearWtBtn;
     std::array<GuiLabel, Opzx7PrValue::ops> wtFileNameLabel;

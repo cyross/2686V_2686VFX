@@ -213,6 +213,8 @@ void GuiAdpcm::setup()
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleUtil, .invisibleTitle = AdpcmGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
@@ -424,6 +426,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
     clearButton.setVisible(visible);
+    formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
@@ -435,6 +438,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutMainPcm({ .rect = rect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+        formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });

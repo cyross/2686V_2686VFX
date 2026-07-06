@@ -63,6 +63,8 @@ class GuiSsg : public GuiBase
 
     GuiComboBox waveSelector;
 
+    NormalSeparator formSeparator;
+
     GuiComponentFix fixComponent;
 
     // UNISON/HARMONY
@@ -156,6 +158,7 @@ public:
         mixSetMix(context),
         mixSetNoise(context),
         waveSelector(context),
+        formSeparator(context),
         fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),

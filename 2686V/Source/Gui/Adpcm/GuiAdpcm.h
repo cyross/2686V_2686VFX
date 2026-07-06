@@ -42,6 +42,8 @@ class GuiAdpcm : public GuiBase
     GuiTextButton clearButton;
     GuiLabel fileNameLabel;
 
+    NormalSeparator formSeparator;
+
     GuiCategoryLabel optionalCat;
 
     GuiSlider pcmOffsetSlider;
@@ -129,6 +131,7 @@ public:
         loadButton(context),
         clearButton(context),
         fileNameLabel(context),
+        formSeparator(context),
         optionalCat(context),
         pcmOffsetSlider(context),
         pcmRatioSlider(context),

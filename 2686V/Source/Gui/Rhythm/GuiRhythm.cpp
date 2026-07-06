@@ -119,6 +119,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
 
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleOptional, .invisibleTitle = RhythmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
@@ -344,6 +346,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
     clearButton.setVisible(visible);
+    formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
@@ -355,6 +358,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutRowRhythmPadPcmFile({ .rect = rect, .loadBtn = &loadButton, .filenameLabel = &fileNameLabel, .clearBtn = &clearButton });
+        formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
