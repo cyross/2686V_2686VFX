@@ -26,6 +26,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -290,14 +291,13 @@ class GuiOpzx7 : public GuiBase
 
     GuiComponentLevel levelComponent;
 
-    GuiCategoryLabel qualityCat;
+    Quality qualityComponent;
+
     GuiCategoryLabel algFbCat;
 
     // Global
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
-    GuiComboBox bitSelector;
-    GuiComboBox rateSelector;
 
     GuiCategoryLabel panCat;
     GuiToggleButton panpotEnableToggle;

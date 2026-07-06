@@ -91,19 +91,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     mainGroup.setup(*this, padTitle);
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleForm, .invisibleTitle = RhythmGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleQuality, .invisibleTitle = RhythmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::mode, .title = RhythmGuiText::Rhythm::Pad::quality, .items = qualityItems, .isReset = true });
-    modeSelector.setWantsKeyboardFocus(true);
-    modeSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::rate, .title = RhythmGuiText::Rhythm::Pad::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
-
-    interpSelector.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::interp, .title = RhythmGuiText::Rhythm::Pad::interp, .items = interpItems, .isReset = true });
-    interpSelector.setWantsKeyboardFocus(true);
-    interpSelector.setExplicitFocusOrder(++tabOrder);
+    qualityPcmComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
     // 音声ファイルロードボタン
     loadButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::File::load, .isReset = false });
@@ -318,12 +307,9 @@ void RhythmPadGui::updatePadVisible(bool visible) {
     loopPointEnableButton.setVisible(visible);
     loopPointStartSlider.setVisibleWithLabel(visible);
     loopPointEndSlider.setVisibleWithLabel(visible);
-    qualityCat.setVisible(visible);
-    interpSelector.setVisibleWithLabel(visible);
+	qualityPcmComponent.setVisibles(visible);
     panCat.setVisible(visible);
     noteSlider.setVisibleWithLabel(visible);
-    modeSelector.setVisibleWithLabel(visible);
-    rateSelector.setVisibleWithLabel(visible);
     panSlider.setVisibleWithLabel(visible);
     panToLBtn.setVisible(visible);
     panToCBtn.setVisible(visible);
@@ -378,20 +364,7 @@ void RhythmPadGui::layoutFormCat(Rectangle<int>& rect) {
 }
 
 void RhythmPadGui::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutRowCategory({ .rowRect = rect, .label = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    modeSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-    interpSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutRow({ .rowRect = rect, .label = &modeSelector.label, .component = &modeSelector });
-        layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-        layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
-    }
+    qualityPcmComponent.layoutComponent(rect);
 }
 
 void RhythmPadGui::layoutPanCat(juce::Rectangle<int>& rect)
@@ -529,8 +502,8 @@ void RhythmPadGui::copyParams(CopyRhythmPad& copyObj) {
     copyObj.noteNumber = noteSlider.getValue();
     copyObj.pcm.pcmOffset = pcmOffsetSlider.getValue();
     copyObj.pcm.pcmRatio = pcmRatioSlider.getValue();
-    copyObj.quality.mode = modeSelector.getSelectedId();
-    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.quality.mode = qualityPcmComponent.getMode();
+    copyObj.quality.rate = qualityPcmComponent.getRate();
     copyObj.toneLevel = toneSlider.getValue();
     copyObj.noiseLevel = noiseSlider.getValue();
     copyObj.noiseFreq = noiseFreqSlider.getValue();
@@ -547,8 +520,8 @@ void RhythmPadGui::pasteParams(CopyRhythmPad& copyObj) {
     noteSlider.setValue(copyObj.noteNumber, juce::sendNotification);
     pcmOffsetSlider.setValue(copyObj.pcm.pcmOffset, juce::sendNotification);
     pcmRatioSlider.setValue(copyObj.pcm.pcmRatio, juce::sendNotification);
-    modeSelector.setSelectedId(copyObj.quality.mode);
-    rateSelector.setSelectedId(copyObj.quality.rate);
+    qualityPcmComponent.setMode(copyObj.quality.mode);
+    qualityPcmComponent.setRate(copyObj.quality.rate);
     toneSlider.setValue(copyObj.toneLevel);
     noiseSlider.setValue(copyObj.noiseLevel);
     noiseFreqSlider.setValue(copyObj.noiseFreq);
@@ -677,9 +650,9 @@ void RhythmPadGui::importPcmPlayParam() {
 
                 if (size < 3) return;
 
-                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+                qualityPcmComponent.setMode(lines[0].getIntValue());
+                qualityPcmComponent.setRate(lines[1].getIntValue());
+                qualityPcmComponent.setInterp(lines[2].getIntValue());
             }
         });
 }
@@ -701,9 +674,9 @@ void RhythmPadGui::exportPcmPlayParam() {
 
                 juce::String content = "";
 
-                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityPcmComponent.getMode()) + "\n";
+                content += juce::String(qualityPcmComponent.getRate()) + "\n";
+                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
 
                 file.replaceWithText(content);
             }
@@ -732,9 +705,9 @@ void RhythmPadGui::importQualityParam() {
 
                 if (size < 3) return;
 
-                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+                qualityPcmComponent.setMode(lines[0].getIntValue());
+                qualityPcmComponent.setRate(lines[1].getIntValue());
+                qualityPcmComponent.setInterp(lines[2].getIntValue());
             }
         });
 }
@@ -756,9 +729,9 @@ void RhythmPadGui::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityPcmComponent.getMode()) + "\n";
+                content += juce::String(qualityPcmComponent.getRate()) + "\n";
+                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
 
                 file.replaceWithText(content);
             }

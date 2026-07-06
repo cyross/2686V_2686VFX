@@ -216,15 +216,7 @@ void GuiOpna::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::visibleQuality, .invisibleTitle = OpnaGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
-
-    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpnaPrKey::bit, .title = OpnaGuiText::bit, .items = bdItems, .isReset = true });
-    bitSelector.setWantsKeyboardFocus(true);
-    bitSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpnaPrKey::rate, .title = OpnaGuiText::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpnaGuiText::Category::algFb });
 
@@ -1055,18 +1047,7 @@ void GuiOpna::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
 }
 
 void GuiOpna::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    bitSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
+    qualityComponent.layoutComponent(rect);
 }
 
 void GuiOpna::layoutPanCat(juce::Rectangle<int>& rect)
@@ -1477,8 +1458,8 @@ void GuiOpna::setLevel(float level) {
 }
 
 void GuiOpna::copyParams(CopyOpna& copyObj) {
-    copyObj.quality.depth = bitSelector.getSelectedId();
-    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.quality.depth = qualityComponent.getBit();
+    copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
     copyObj.fmBase.feedback = feedbackSlider.getValue();
@@ -1530,8 +1511,8 @@ void GuiOpna::copyOpParams(int p, CopyOpnaOp& copyObj) {
 }
 
 void GuiOpna::pasteParams(CopyOpna& copyObj) {
-    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
-    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    qualityComponent.setBit(copyObj.quality.depth);
+    qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
     feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
@@ -1583,8 +1564,8 @@ void GuiOpna::pasteOpParams(int p, CopyOpnaOp& copyObj) {
 }
 
 void GuiOpna::copyParamsOpm(CopyOpnOpm& copyObj) {
-    copyObj.quality.depth = bitSelector.getSelectedId();
-    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.quality.depth = qualityComponent.getBit();
+    copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
     copyObj.fmBase.feedback = feedbackSlider.getValue();
@@ -1614,8 +1595,8 @@ void GuiOpna::copyOpParamsOpm(int p, CopyOpnOpmOp& copyObj) {
 }
 
 void GuiOpna::pasteParamsOpm(CopyOpnOpm& copyObj) {
-    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
-    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    qualityComponent.setBit(copyObj.quality.depth);
+    qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
     feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
@@ -1645,8 +1626,8 @@ void GuiOpna::pasteOpParamsOpm(int p, CopyOpnOpmOp& copyObj) {
 }
 
 void GuiOpna::copyParamsOpnOpm(CopyOpnaOpnOpm& copyObj) {
-    copyObj.quality.depth = bitSelector.getSelectedId();
-    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.quality.depth = qualityComponent.getBit();
+    copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
     copyObj.fmBase.feedback = feedbackSlider.getValue();
@@ -1676,8 +1657,8 @@ void GuiOpna::copyOpParamsOpnOpm(int p, CopyOpnaOpnOpmOp& copyObj) {
 }
 
 void GuiOpna::pasteParamsOpnOpm(CopyOpnaOpnOpm& copyObj) {
-    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
-    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    qualityComponent.setBit(copyObj.quality.depth);
+    qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
     feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
@@ -1888,8 +1869,8 @@ void GuiOpna::importQualityParam() {
 
                 if (size < 2) return;
 
-                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                qualityComponent.setBit(lines[0].getIntValue());
+                qualityComponent.setRate(lines[1].getIntValue());
             }
         });
 }
@@ -1911,8 +1892,8 @@ void GuiOpna::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityComponent.getBit()) + "\n";
+                content += juce::String(qualityComponent.getRate()) + "\n";
 
                 file.replaceWithText(content);
             }

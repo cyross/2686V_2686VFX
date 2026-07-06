@@ -81,15 +81,8 @@ void GuiAdpcm::setup()
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
     formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleForm, .invisibleTitle = AdpcmGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
-    modeSelector.setWantsKeyboardFocus(true);
-    modeSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+	qualityPcmComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 出力レベル
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
@@ -125,10 +118,6 @@ void GuiAdpcm::setup()
     mixSetNoise.setWantsKeyboardFocus(true);
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
-
-    interpSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::interp, .title = AdpcmGuiText::Adpcm::interp, .items = interpItems, .isReset = true });
-    interpSelector.setWantsKeyboardFocus(true);
-    interpSelector.setExplicitFocusOrder(++tabOrder);
 
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
@@ -455,20 +444,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
 }
 
 void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    modeSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-    interpSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-        layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
-    }
+    qualityPcmComponent.layoutComponent(rect);
 }
 
 void GuiAdpcm::layoutPanCat(juce::Rectangle<int>& rect)
@@ -726,9 +702,9 @@ void GuiAdpcm::importQualityParam() {
 
                 if (size < 3) return;
 
-                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+				qualityPcmComponent.setMode(lines[0].getIntValue());
+                qualityPcmComponent.setRate(lines[1].getIntValue());
+                qualityPcmComponent.setInterp(lines[2].getIntValue());
             }
         });
 }
@@ -750,9 +726,9 @@ void GuiAdpcm::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityPcmComponent.getMode()) + "\n";
+                content += juce::String(qualityPcmComponent.getRate()) + "\n";
+                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
 
                 file.replaceWithText(content);
             }

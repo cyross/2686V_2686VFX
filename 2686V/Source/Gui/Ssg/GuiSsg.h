@@ -22,6 +22,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -35,13 +36,14 @@ class GuiSsg : public GuiBase
 
     GuiComponentPresetName presetName;
 
-    GuiCategoryLabel qualityCat;
     GuiCategoryLabel formCat;
     GuiCategoryLabel pulseInvCat;
     GuiCategoryLabel triPeakCat;
     GuiCategoryLabel hwEnvCat;
 
     GuiComponentLevel levelComponent;
+
+    Quality qualityComponent;
 
     GuiSlider toneSlider;
 
@@ -60,10 +62,6 @@ class GuiSsg : public GuiBase
     GuiTextButton mixSetNoise; // 1.0
 
     GuiComboBox waveSelector;
-
-    GuiComboBox bitSelector;
-
-    GuiComboBox rateSelector;
 
     GuiComponentFix fixComponent;
 
@@ -143,12 +141,12 @@ public:
         presetName(context),
         dutyGroup(context),
         triGroup(context),
-        qualityCat(context),
         formCat(context),
         pulseInvCat(context),
         triPeakCat(context),
         hwEnvCat(context),
         levelComponent(context),
+        qualityComponent(context),
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
@@ -158,8 +156,6 @@ public:
         mixSetMix(context),
         mixSetNoise(context),
         waveSelector(context),
-        bitSelector(context),
-        rateSelector(context),
         fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),

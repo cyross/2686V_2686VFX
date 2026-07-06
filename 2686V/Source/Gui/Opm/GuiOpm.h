@@ -22,6 +22,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -58,16 +59,15 @@ class GuiOpm : public GuiBase
 
     GuiComponentPresetName presetName;
 
-    GuiCategoryLabel qualityCat;
     GuiCategoryLabel algFbCat;
 
     GuiComponentLevel levelComponent;
 
+    Quality qualityComponent;
+
     // Global
     GuiComboBox algSelector;
     GuiFbSlider feedbackSlider;
-    GuiComboBox bitSelector;
-    GuiComboBox rateSelector;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -181,13 +181,11 @@ public:
         GuiBase(context),
         mainGroup(context),
         presetName(context),
-        qualityCat(context),
         algFbCat(context),
         levelComponent(context),
+        qualityComponent(context),
         algSelector(context),
         feedbackSlider(context),
-        bitSelector(context),
-        rateSelector(context),
         unisonComponent(context),
         panCat(context),
         panSlider(context),

@@ -625,6 +625,13 @@ set(GUI_COMPONENT_SEPARATOR_FILES
     "Source/Gui/Components/Separator/ShortSeparator.cpp"
 )
 
+set(GUI_COMPONENT_QUALITY_FILES
+    "Source/Gui/Components/Quality/Quality.h"
+    "Source/Gui/Components/Quality/Quality.cpp"
+    "Source/Gui/Components/Quality/QualityPcm.h"
+    "Source/Gui/Components/Quality/QualityPcm.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -687,6 +694,7 @@ source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_
 source_group("2686V\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686V\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("2686V\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
+source_group("2686V\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

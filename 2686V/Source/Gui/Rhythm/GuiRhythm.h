@@ -24,6 +24,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/QualityPcm.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -47,15 +48,11 @@ class RhythmPadGui: public GuiBase
     GuiSlider loopPointStartSlider;
     GuiSlider loopPointEndSlider;
 
-    GuiCategoryLabel qualityCat;
+    QualityPcm qualityPcmComponent;
+
     GuiCategoryLabel panCat;
-    GuiComboBox interpSelector;
 
     GuiSlider noteSlider;
-
-    GuiComboBox modeSelector;
-
-    GuiComboBox rateSelector;
 
     GuiSlider panSlider;
 
@@ -119,12 +116,9 @@ public:
         loopPointEnableButton(context),
         loopPointStartSlider(context),
         loopPointEndSlider(context),
-        qualityCat(context),
-        interpSelector(context),
+		qualityPcmComponent(context),
         panCat(context),
         noteSlider(context),
-        modeSelector(context),
-        rateSelector(context),
         panSlider(context),
         panToLBtn(context),
         panToCBtn(context),

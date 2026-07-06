@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -95,8 +96,9 @@ class GuiWt2 : public GuiBase
 
     GuiComponentLevel levelComponent;
 
+    Quality qualityComponent;
+
     GuiCategoryLabel formCat;
-    GuiCategoryLabel qualityCat;
     GuiCategoryLabel modCat;
 
     GuiComponentFix fixComponent;
@@ -119,8 +121,6 @@ class GuiWt2 : public GuiBase
     // LFO
     GuiComponentLfoOpzx7 lfo;
 
-    GuiComboBox bitSelector;
-    GuiComboBox rateSelector;
     GuiComboBox sizeSelector;
     GuiComboBox resoSelector;
 
@@ -178,8 +178,8 @@ public:
         customSliders128(context),
         customSliders256(context),
         levelComponent(context),
+		qualityComponent(context),
         formCat(context),
-        qualityCat(context),
         modCat(context),
         fixComponent(context),
         unisonComponent(context),
@@ -188,8 +188,6 @@ public:
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
         lfo(context),
-        bitSelector(context),
-        rateSelector(context),
 		utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),

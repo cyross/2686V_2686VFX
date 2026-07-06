@@ -22,6 +22,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/QualityPcm.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -35,7 +36,7 @@ class GuiAdpcm : public GuiBase
 
     GuiCategoryLabel formCat;
 
-    GuiComboBox modeSelector;
+	QualityPcm qualityPcmComponent;
 
     GuiTextButton loadButton;
     GuiTextButton clearButton;
@@ -55,7 +56,6 @@ class GuiAdpcm : public GuiBase
     GuiTextButton mixSetTone;  // 0.0
     GuiTextButton mixSetMix;   // 0.5
     GuiTextButton mixSetNoise; // 1.0
-    GuiComboBox interpSelector;
     GuiSlider panSlider;
 
     GuiTextButton panToLBtn;
@@ -73,7 +73,6 @@ class GuiAdpcm : public GuiBase
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
 
-    GuiCategoryLabel qualityCat;
     GuiCategoryLabel panCat;
 
     // Amp ADSR
@@ -89,8 +88,6 @@ class GuiAdpcm : public GuiBase
     GuiComponentMulDetune mulDetuneComponent;
 
     GuiComponentLfoOpzx7 lfoComponent;
-
-    GuiComboBox rateSelector;
 
     GuiComponentMidi midiComponent;
 
@@ -128,7 +125,7 @@ public:
         mainGroup(context),
         presetName(context),
         formCat(context),
-        modeSelector(context),
+		qualityPcmComponent(context),
         loadButton(context),
         clearButton(context),
         fileNameLabel(context),
@@ -143,7 +140,6 @@ public:
         mixSetTone(context),
         mixSetMix(context),
         mixSetNoise(context),
-        interpSelector(context),
         panSlider(context),
         panToLBtn(context),
         panToCBtn(context),
@@ -154,14 +150,12 @@ public:
         loopPointEndSlider(context),
         fixComponent(context),
         unisonComponent(context),
-        qualityCat(context),
         panCat(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
 		mulDetuneComponent(context),
         lfoComponent(context),
-        rateSelector(context),
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
