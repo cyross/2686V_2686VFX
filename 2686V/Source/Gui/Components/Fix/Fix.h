@@ -30,7 +30,6 @@ class GuiComponentFix : public GuiBase {
     GuiTextButton freqTo05;
     GuiTextButton freqTo1;
     GuiTextButton freqTo2;
-    NormalSeparator freqAddSeparator;
     GuiTextButton freqM05;
     GuiTextButton freqM02;
     GuiTextButton freqM01;
@@ -74,7 +73,6 @@ public:
         freqTo05(context),
         freqTo1(context),
         freqTo2(context),
-        freqAddSeparator(context),
         freqM05(context),
         freqM02(context),
         freqM01(context),
