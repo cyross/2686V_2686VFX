@@ -6,6 +6,10 @@
 
 void GuiComponentPitchButtons::setupComponent(juce::Component& parent, GuiSlider& slider, int& tabOrder, std::optional<juce::Font> font)
 {
+	if (font == nullopt) {
+		font = juce::Font(juce::FontOptions(16.0f));
+	}
+
     minus1200.setup({ .parent = parent, .id = "", .title = "-1200", .font = font, .isReset = false });
     minus1200.setWantsKeyboardFocus(true);
     minus1200.setExplicitFocusOrder(++tabOrder);

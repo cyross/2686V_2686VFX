@@ -289,9 +289,9 @@ namespace CorePrValue
 
 		namespace Stl
 		{
-			inline constexpr float min = CorePrValue::levelMin;
-			inline constexpr float max = CorePrValue::levelMax;
-			inline constexpr float initial = CorePrValue::levelMax;
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
 		}
 
 		namespace L1

@@ -13,6 +13,8 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -23,22 +25,26 @@ class GuiComponentSsgSwEnv : public GuiBase {
     // SSG SW ENV
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
+	NormalSeparator flagSeparator;
     GuiSlider steps;
+	NormalSeparator stepsSeparator;
     GuiToggleButton loop;
     GuiSlider loopTo;
     GuiSlider loopCount;
-    GuiSlider startLevel;
+	NormalSeparator loopSeparator;
     GuiSlider r1;
-    GuiSlider l1;
     GuiSlider r2;
-    GuiSlider l2;
     GuiSlider r3;
-    GuiSlider l3;
     GuiSlider r4;
-    GuiSlider l4;
     GuiSlider r5;
-    GuiSlider l5;
     GuiSlider r6;
+    NormalSeparator rateSeparator;
+    GuiSlider startLevel;
+    GuiSlider l1;
+    GuiSlider l2;
+    GuiSlider l3;
+    GuiSlider l4;
+    GuiSlider l5;
     GuiSlider l6;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -48,22 +54,26 @@ public:
         GuiBase(context),
         cat(context),
         flag(context),
+		flagSeparator(context),
 		steps(context),
+		stepsSeparator(context),
 		loop(context),
 		loopTo(context), 
 		loopCount(context),
-		startLevel(context),
-		r1(context),
+		loopSeparator(context),
+        r1(context),
+        r2(context),
+        r3(context),
+        r4(context),
+        r5(context),
+        r6(context),
+		rateSeparator(context),
+        startLevel(context),
 		l1(context),
-		r2(context),
 		l2(context),
-		r3(context),
 		l3(context),
-		r4(context),
 		l4(context),
-		r5(context),
 		l5(context),
-		r6(context),
 		l6(context)
     {
     }

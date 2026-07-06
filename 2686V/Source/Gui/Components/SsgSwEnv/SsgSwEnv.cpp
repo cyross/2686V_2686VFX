@@ -41,6 +41,8 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
 
+    flagSeparator.setupComponent(parent);
+
     steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "STEP", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
     steps.setExplicitFocusOrder(++tabOrder);
@@ -49,6 +51,8 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 
         applyLoopValues(ssgEnvLoopEnable);
         };
+
+    stepsSeparator.setupComponent(parent);
 
     loop.setup({ .parent = parent, .id = code + "_SSGSW_LOOP", .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
@@ -84,53 +88,57 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
     loopCount.setEnabled(ssgEnvLoopEnable);
     loopCount.label.setEnabled(ssgEnvLoopEnable);
 
-    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
-    startLevel.setWantsKeyboardFocus(true);
-    startLevel.setExplicitFocusOrder(++tabOrder);
+    loopSeparator.setupComponent(parent);
 
     r1.setup({ .parent = parent, .id = code + "_SSGSW_R1", .title = "R1", .isReset = true, .labelFont = labelFont });
     r1.setWantsKeyboardFocus(true);
     r1.setExplicitFocusOrder(++tabOrder);
 
-    l1.setup({ .parent = parent, .id = code + "_SSGSW_L1", .title = "L1", .isReset = true, .labelFont = labelFont });
-    l1.setWantsKeyboardFocus(true);
-    l1.setExplicitFocusOrder(++tabOrder);
-
     r2.setup({ .parent = parent, .id = code + "_SSGSW_R2", .title = "R2", .isReset = true, .labelFont = labelFont });
     r2.setWantsKeyboardFocus(true);
     r2.setExplicitFocusOrder(++tabOrder);
-
-    l2.setup({ .parent = parent, .id = code + "_SSGSW_L2", .title = "L2", .isReset = true, .labelFont = labelFont });
-    l2.setWantsKeyboardFocus(true);
-    l2.setExplicitFocusOrder(++tabOrder);
 
     r3.setup({ .parent = parent, .id = code + "_SSGSW_R3", .title = "R3", .isReset = true, .labelFont = labelFont });
     r3.setWantsKeyboardFocus(true);
     r3.setExplicitFocusOrder(++tabOrder);
 
-    l3.setup({ .parent = parent, .id = code + "_SSGSW_L3", .title = "L3", .isReset = true, .labelFont = labelFont });
-    l3.setWantsKeyboardFocus(true);
-    l3.setExplicitFocusOrder(++tabOrder);
-
     r4.setup({ .parent = parent, .id = code + "_SSGSW_R4", .title = "R4", .isReset = true, .labelFont = labelFont });
     r4.setWantsKeyboardFocus(true);
     r4.setExplicitFocusOrder(++tabOrder);
-
-    l4.setup({ .parent = parent, .id = code + "_SSGSW_L4", .title = "L4", .isReset = true, .labelFont = labelFont });
-    l4.setWantsKeyboardFocus(true);
-    l4.setExplicitFocusOrder(++tabOrder);
 
     r5.setup({ .parent = parent, .id = code + "_SSGSW_R5", .title = "R5", .isReset = true, .labelFont = labelFont });
     r5.setWantsKeyboardFocus(true);
     r5.setExplicitFocusOrder(++tabOrder);
 
-    l5.setup({ .parent = parent, .id = code + "_SSGSW_L5", .title = "L5", .isReset = true, .labelFont = labelFont });
-    l5.setWantsKeyboardFocus(true);
-    l5.setExplicitFocusOrder(++tabOrder);
-
     r6.setup({ .parent = parent, .id = code + "_SSGSW_R6", .title = "R6", .isReset = true, .labelFont = labelFont });
     r6.setWantsKeyboardFocus(true);
     r6.setExplicitFocusOrder(++tabOrder);
+
+    rateSeparator.setupComponent(parent);
+
+    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
+    startLevel.setWantsKeyboardFocus(true);
+    startLevel.setExplicitFocusOrder(++tabOrder);
+
+    l1.setup({ .parent = parent, .id = code + "_SSGSW_L1", .title = "L1", .isReset = true, .labelFont = labelFont });
+    l1.setWantsKeyboardFocus(true);
+    l1.setExplicitFocusOrder(++tabOrder);
+
+    l2.setup({ .parent = parent, .id = code + "_SSGSW_L2", .title = "L2", .isReset = true, .labelFont = labelFont });
+    l2.setWantsKeyboardFocus(true);
+    l2.setExplicitFocusOrder(++tabOrder);
+
+    l3.setup({ .parent = parent, .id = code + "_SSGSW_L3", .title = "L3", .isReset = true, .labelFont = labelFont });
+    l3.setWantsKeyboardFocus(true);
+    l3.setExplicitFocusOrder(++tabOrder);
+
+    l4.setup({ .parent = parent, .id = code + "_SSGSW_L4", .title = "L4", .isReset = true, .labelFont = labelFont });
+    l4.setWantsKeyboardFocus(true);
+    l4.setExplicitFocusOrder(++tabOrder);
+
+    l5.setup({ .parent = parent, .id = code + "_SSGSW_L5", .title = "L5", .isReset = true, .labelFont = labelFont });
+    l5.setWantsKeyboardFocus(true);
+    l5.setExplicitFocusOrder(++tabOrder);
 
     l6.setup({ .parent = parent, .id = code + "_SSGSW_L6", .title = "L6", .isReset = true, .labelFont = labelFont });
     l6.setWantsKeyboardFocus(true);
@@ -144,43 +152,51 @@ void GuiComponentSsgSwEnv::layoutComponent(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
     flag.setVisible(visible);
+	flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
+	stepsSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
-    startLevel.setVisibleWithLabel(visible);
+	loopSeparator.setVisible(visible);
     r1.setVisibleWithLabel(visible);
-    l1.setVisibleWithLabel(visible);
     r2.setVisibleWithLabel(visible);
-    l2.setVisibleWithLabel(visible);
     r3.setVisibleWithLabel(visible);
-    l3.setVisibleWithLabel(visible);
     r4.setVisibleWithLabel(visible);
-    l4.setVisibleWithLabel(visible);
     r5.setVisibleWithLabel(visible);
-    l5.setVisibleWithLabel(visible);
     r6.setVisibleWithLabel(visible);
+	rateSeparator.setVisible(visible);
+    startLevel.setVisibleWithLabel(visible);
+    l1.setVisibleWithLabel(visible);
+    l2.setVisibleWithLabel(visible);
+    l3.setVisibleWithLabel(visible);
+    l4.setVisibleWithLabel(visible);
+    l5.setVisibleWithLabel(visible);
     l6.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &flag });
+        flagSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 13 });
+        stepsSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &loop, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
+        loopSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 13 });
+        rateSeparator.layoutComponent(rect);
+        layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 13 });
     }
 }
@@ -192,43 +208,51 @@ void GuiComponentSsgSwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
     flag.setVisible(visible);
+    flagSeparator.setVisible(visible);
     steps.setVisibleWithLabel(visible);
+    stepsSeparator.setVisible(visible);
     loop.setVisible(visible);
     loopTo.setVisibleWithLabel(visible);
     loopCount.setVisibleWithLabel(visible);
-    startLevel.setVisibleWithLabel(visible);
+    loopSeparator.setVisible(visible);
     r1.setVisibleWithLabel(visible);
-    l1.setVisibleWithLabel(visible);
     r2.setVisibleWithLabel(visible);
-    l2.setVisibleWithLabel(visible);
     r3.setVisibleWithLabel(visible);
-    l3.setVisibleWithLabel(visible);
     r4.setVisibleWithLabel(visible);
-    l4.setVisibleWithLabel(visible);
     r5.setVisibleWithLabel(visible);
-    l5.setVisibleWithLabel(visible);
     r6.setVisibleWithLabel(visible);
+    rateSeparator.setVisible(visible);
+    startLevel.setVisibleWithLabel(visible);
+    l1.setVisibleWithLabel(visible);
+    l2.setVisibleWithLabel(visible);
+    l3.setVisibleWithLabel(visible);
+    l4.setVisibleWithLabel(visible);
+    l5.setVisibleWithLabel(visible);
     l6.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &flag });
+        flagSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &steps.label, .component = &steps, .rowHeight = 12 });
+        stepsSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &loop, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
+        loopSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 12 });
+        rateSeparator.layoutComponent(rect);
+        layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 12 });
+        layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 12 });
     }
 }
@@ -294,10 +318,14 @@ void GuiComponentSsgSwEnv::setEnabled(bool enabled) {
 
     cat.setEnabled(enabled);
     flag.setEnabled(enabled);
+	flagSeparator.setEnabled(enabled);
     steps.setEnabled(enabled);
+	stepsSeparator.setEnabled(enabled);
     loop.setEnabled(enabled);
     loopTo.setEnabled(enabled && ssgEnvLoopEnable);
     loopCount.setEnabled(enabled && ssgEnvLoopEnable);
+	loopSeparator.setEnabled(enabled);
+	rateSeparator.setEnabled(enabled);
     startLevel.setEnabled(enabled);
     r1.setEnabled(enabled);
     l1.setEnabled(enabled);

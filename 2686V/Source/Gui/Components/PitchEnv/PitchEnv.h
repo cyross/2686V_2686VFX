@@ -13,20 +13,24 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../PitchButtons/PitchButtons.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
 class GuiComponentPitchEnv : public GuiBase {
     bool isEnable = false;
-    juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
+    juce::Font labelFont = juce::Font(juce::FontOptions(12.0f));
 
     // PITCH ENV
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
+    NormalSeparator flagSeparator;
     GuiSlider attack;
     GuiSlider decay;
     GuiSlider release;
+    NormalSeparator rateSeparator;
     GuiSlider startLevel;
     GuiComponentPitchButtons startLevelButtons;
     GuiSlider attackLevel;
@@ -42,9 +46,11 @@ public:
         GuiBase(context),
         cat(context),
         flag(context),
+        flagSeparator(context),
         attack(context),
         decay(context),
         release(context),
+		rateSeparator(context),
         startLevel(context),
         startLevelButtons(context),
         attackLevel(context),

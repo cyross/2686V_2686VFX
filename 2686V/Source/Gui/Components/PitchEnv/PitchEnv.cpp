@@ -20,6 +20,8 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
     flag.setWantsKeyboardFocus(true);
     flag.setExplicitFocusOrder(++tabOrder);
 
+	flagSeparator.setupComponent(parent);
+
 	attack.setup({ .parent = parent, .id = code + "_PITCH_AR", .title = "AR", .isReset = true, .labelFont = labelFont });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
@@ -31,6 +33,8 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 	release.setup({ .parent = parent, .id = code + "_PITCH_RR", .title = "RR", .isReset = true, .labelFont = labelFont });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
+
+	rateSeparator.setupComponent(parent);
 
 	startLevel.setup({ .parent = parent, .id = code + "_PITCH_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
 	startLevel.setWantsKeyboardFocus(true);
@@ -64,9 +68,11 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
 	flag.setVisible(visible);
+	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
 	decay.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
 	startLevelButtons.setVisibles(visible);
 	attackLevel.setVisibleWithLabel(visible);
@@ -79,9 +85,11 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
     if (visible)
     {
 		layoutMain({ .mainRect = rect, .component = &flag });
+		flagSeparator.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &release.label, .component = &release, .rowHeight = 13 });
+		rateSeparator.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
 		startLevelButtons.layoutComponent(rect, 13);
 		layoutMain({ .mainRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 13 });
@@ -100,9 +108,11 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	bool visible = cat.isDetailVisible();
 
 	flag.setVisible(visible);
+	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
 	decay.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
 	startLevelButtons.setVisibles(visible);
 	attackLevel.setVisibleWithLabel(visible);
@@ -115,9 +125,11 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	if (visible)
 	{
 		layoutRow({ .rowRect = rect, .component = &flag });
+		flagSeparator.layoutComponent(rect);
 		layoutRow({ .rowRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 12 });
 		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 12 });
 		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release, .rowHeight = 12 });
+		rateSeparator.layoutComponent(rect);
 		layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
 		startLevelButtons.layoutComponentRow(rect, 12);
 		layoutRow({ .rowRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 12 });
