@@ -12,6 +12,8 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiComponentMidi : public GuiBase {
     // UNISON/HARMONY
@@ -20,7 +22,7 @@ class GuiComponentMidi : public GuiBase {
     GuiToggleButton useVelocity;
     GuiSlider fixedVelocity;
     GuiToggleButton pitchResetOnLegato;
-    GuiSeparator resetSeparator;
+    NormalSeparator resetSeparator;
     GuiTextButton monoButton;
     GuiTextButton polyButton;
 public:

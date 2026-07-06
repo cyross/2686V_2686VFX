@@ -24,6 +24,8 @@
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -314,18 +316,18 @@ class GuiOpzx7 : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiComponentImportExport ieOpPcmPlay;
     GuiSlider targerOpSlider;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -399,7 +401,7 @@ class GuiOpzx7 : public GuiBase
 
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
-    std::array<GuiSeparator, Opzx7PrValue::ops> mmlSeparator;
+    std::array<NormalSeparator, Opzx7PrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, Opzx7PrValue::ops> mml;
 
     std::array<GuiToggleButton, Opzx7PrValue::ops> rgEn;
@@ -420,7 +422,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnSsg;
-    std::array<GuiSeparator, Opzx7PrValue::ops> graphSeparator;
+    std::array<NormalSeparator, Opzx7PrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, Opzx7PrValue::ops> currentGraphMode;

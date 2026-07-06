@@ -13,6 +13,8 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -31,7 +33,7 @@ class GuiComponentLfoOpzx7 : public GuiBase {
     GuiComboBox pgShape;
     GuiSlider pms;
     GuiSlider pmd;
-    GuiSeparator pmAmSeparator;
+    NormalSeparator pmAmSeparator;
     GuiLabel amLabel;
     GuiToggleButton amEnable;
     GuiSlider amFreq;

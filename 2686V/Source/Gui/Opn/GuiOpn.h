@@ -19,6 +19,8 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -86,18 +88,18 @@ class GuiOpn : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
     GuiTextButton copyParamsToOpmBtn;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiSlider targerOpSlider;
-    GuiSeparator uSep004;
+    NormalSeparator uSep004;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -128,7 +130,7 @@ class GuiOpn : public GuiBase
     std::array<GuiSlider, OpnPrValue::ops> n88Ams;
     std::array<GuiCategoryLabel, OpnPrValue::ops> catMask;
     std::array<GuiToggleButton, OpnPrValue::ops> mask; // Mask
-    std::array<GuiSeparator, OpnPrValue::ops> mmlSeparator;
+    std::array<NormalSeparator, OpnPrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, OpnPrValue::ops> mml;
 
     std::array<GuiSlider, OpnPrValue::ops> rgAr;
@@ -148,7 +150,7 @@ class GuiOpn : public GuiBase
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg;
-    std::array<GuiSeparator, OpnPrValue::ops> graphSeparator;
+    std::array<NormalSeparator, OpnPrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, OpnPrValue::ops> currentGraphMode;
@@ -217,7 +219,7 @@ public:
         n88Ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
+        mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -233,7 +235,7 @@ public:
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
+        graphSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) }
     {
         currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

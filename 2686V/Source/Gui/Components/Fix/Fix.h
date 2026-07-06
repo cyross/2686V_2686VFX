@@ -12,6 +12,8 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -22,13 +24,13 @@ class GuiComponentFix : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton enable;
     GuiSlider freq;
-    GuiSeparator freqToSeparator;
+    NormalSeparator freqToSeparator;
     GuiTextButton freqTo;
     GuiTextButton freqToZero;
     GuiTextButton freqTo05;
     GuiTextButton freqTo1;
     GuiTextButton freqTo2;
-    GuiSeparator freqAddSeparator;
+    NormalSeparator freqAddSeparator;
     GuiTextButton freqM05;
     GuiTextButton freqM02;
     GuiTextButton freqM01;
@@ -55,7 +57,7 @@ class GuiComponentFix : public GuiBase {
     GuiTextButton freqP500;
     GuiTextButton freqM1000;
     GuiTextButton freqP1000;
-    GuiSeparator freqNoteSeparator;
+    NormalSeparator freqNoteSeparator;
     GuiSlider freqNote;
     GuiLabel note;
     GuiTextButton applyNote;

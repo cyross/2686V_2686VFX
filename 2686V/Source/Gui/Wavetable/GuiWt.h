@@ -21,6 +21,8 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -135,10 +137,10 @@ class GuiWt : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton customWaveImportBtn;
     GuiTextButton customWaveExportBtn;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
@@ -154,7 +156,7 @@ class GuiWt : public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiSeparator graphSeparator;
+    NormalSeparator graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;

@@ -50,8 +50,7 @@ void GuiBeep::setup() {
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
     ieLfo.onClickImport = [this] { importLfoParam(); };
@@ -149,8 +148,9 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+
+        uSep001.layoutComponent(rect);
+
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieAmpEnv.layoutComponent(rect);
@@ -197,8 +197,7 @@ void GuiBeep::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiBeep::setGraphMode(GraphMode mode)
@@ -216,12 +215,9 @@ void GuiBeep::setGraphMode(GraphMode mode)
 
 void GuiBeep::layoutGraph(juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(BeepGuiValue::MainGroup::Graph::height + BeepGuiValue::MainGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(BeepGuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(BeepGuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(BeepGuiValue::MainGroup::Graph::ButtonHeight);

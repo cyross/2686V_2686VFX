@@ -70,8 +70,7 @@ void GuiComponentLfoOpzx7::setupComponent(
     pmd.setWantsKeyboardFocus(true);
     pmd.setExplicitFocusOrder(++tabOrder);
 
-    parent.addAndMakeVisible(pmAmSeparator);
-    pmAmSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	pmAmSeparator.setupComponent(parent);
 
     amLabel.setup({ .parent = parent, .title = "[AM]" });
 
@@ -155,7 +154,9 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
-        layoutMain({ .mainRect = rect, .component = &pmAmSeparator, .rowHeight = 12 });
+
+		pmAmSeparator.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &amLabel, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .component = &amEnable, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });
@@ -205,7 +206,9 @@ void GuiComponentLfoOpzx7::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &pgShape.label, .component = &pgShape, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pms.label, .component = &pms, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &pmd.label, .component = &pmd, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .component = &pmAmSeparator, .rowHeight = 12 });
+
+        pmAmSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &amLabel, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .component = &amEnable, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &amFreq.label, .component = &amFreq, .rowHeight = 12 });

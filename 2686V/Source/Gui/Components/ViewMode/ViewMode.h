@@ -7,6 +7,8 @@
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 enum class GuiComponentViewModes {
     Top = 0,
@@ -17,7 +19,7 @@ enum class GuiComponentViewModes {
 class GuiComponentViewMode : public GuiBase {
     GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
 
-    GuiSeparator viewModeSeparator;
+    NormalSeparator viewModeSeparator;
     GuiLabel viewModeLabel;
     GuiTextButton viewModeToTopButton;
     GuiTextButton viewModeToTwinButton;

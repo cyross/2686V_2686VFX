@@ -461,8 +461,7 @@ void RhythmPadGui::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator.setupComponent(*this);
 }
 
 void RhythmPadGui::setGraphMode(GraphMode mode)
@@ -479,12 +478,9 @@ void RhythmPadGui::setGraphMode(GraphMode mode)
 
 void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(RhythmGuiValue::Pad::Graph::height + RhythmGuiValue::Pad::Separator::height);
+    auto mainArea = rect.removeFromTop(RhythmGuiValue::Pad::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
@@ -831,8 +827,7 @@ void GuiRhythm::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     copyPadParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Pad Params", .bgColor = juce::Colours::turquoise.darker(0.3f) });
     copyPadParamBtn.setWantsKeyboardFocus(true);
@@ -870,8 +865,7 @@ void GuiRhythm::setup()
         copyPadParamBtn.setEnabled(from != to);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importToneNoiseParam(padIndex); };
@@ -912,8 +906,7 @@ void GuiRhythm::setup()
     targerPadSlider.setWantsKeyboardFocus(true);
     targerPadSlider.setExplicitFocusOrder(++tabOrder);
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
-    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep003.setupComponent(mainGroup.contentCanvas);
 
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
@@ -1065,15 +1058,13 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
 
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+        uSep001.layoutComponent(rect);
 
         layoutMain({ .mainRect = rect, .component = &copyPadParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyPadFromSlider.label, .component = &copyPadFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyPadToSlider.label, .component = &copyPadToSlider });
 
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+        uSep002.layoutComponent(rect);
 
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1092,8 +1083,9 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerPadSlider.label, .component = &targerPadSlider });
-        auto uSep003Area = rect.removeFromTop(4);
-        uSep003.setBounds(uSep003Area);
+
+        uSep003.layoutComponent(rect);
+
         ieUnison.layoutComponent(rect);
     }
 }

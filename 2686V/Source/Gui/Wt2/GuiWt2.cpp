@@ -516,8 +516,7 @@ void GuiWt2::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -529,8 +528,7 @@ void GuiWt2::setup()
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
     ieLfo.onClickImport = [this] { importLfoParam(); };
@@ -972,11 +970,9 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+        uSep001.layoutComponent(rect);
         layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+        uSep002.layoutComponent(rect);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieAmpEnv.layoutComponent(rect);
@@ -1015,8 +1011,7 @@ void GuiWt2::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiWt2::setGraphMode(GraphMode mode)
@@ -1036,10 +1031,7 @@ void GuiWt2::layoutGraph(juce::Rectangle<int>& rect)
 {
     auto mainArea = rect.removeFromTop(Wt2GuiValue::MainGroup::Graph::height + Wt2GuiValue::MainGroup::Separator::height);
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(Wt2GuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(Wt2GuiValue::MainGroup::Graph::ButtonHeight);

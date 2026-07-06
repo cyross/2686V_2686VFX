@@ -181,13 +181,13 @@ void GuiCurve::setup()
 {
     // Position が Common で、Target が RegValue のときは Target を AmpEnv に設定
     auto correctTarget = [this]() {
-		int p = position.getSelectedItemIndex();
-		int t = target.getSelectedItemIndex();
+        int p = position.getSelectedItemIndex();
+        int t = target.getSelectedItemIndex();
 
         if (p == 0 && t == 0) {
-			target.setSelectedItemIndex(1);
-		}
-	};
+            target.setSelectedItemIndex(1);
+        }
+        };
 
     auto setRangeByLogic = [this](int currentLogic, int p, int t, int vp, int vv) {
         // 1. 対象となるパラメータのIDを正確に再構築する
@@ -278,7 +278,7 @@ void GuiCurve::setup()
 
         // 値を初期化（すでに記述されている処理）
         value[p][t][vp][vv]->setValue(0.0f, juce::sendNotification);
-    };
+        };
 
     // Logic によって x, y のスライダー制限を変更する
     auto correctPos = [this, setRangeByLogic]() {
@@ -329,7 +329,7 @@ void GuiCurve::setup()
             ctx.audioProcessor.bakeCurvesPrim(p, t, vp);
             };
 
-		auto applyChange = [this, correctPosition](int p, int t, int vp, int vv) {
+        auto applyChange = [this, correctPosition](int p, int t, int vp, int vv) {
             if (vv >= 0 && vv < 2) {
                 value[p][t][vp][vv]->onValueChange = [this, p, t, vp, vv, correctPosition] {
                     correctPosition(p, t, vp, vv);
@@ -340,9 +340,9 @@ void GuiCurve::setup()
                     ctx.audioProcessor.bakeCurvesPrim(p, t, vp);
                     };
             }
-        };
+            };
 
-		auto applyChangePos = [this, correctPosition, correctPosition0, correctPosition2](int p, int t, int vp, int vv) {
+        auto applyChangePos = [this, correctPosition, correctPosition0, correctPosition2](int p, int t, int vp, int vv) {
             switch (vv) {
             case 0:
                 value[p][t][vp][vv]->onValueChange = [this, p, t, vp, correctPosition0] {
@@ -436,7 +436,7 @@ void GuiCurve::setup()
 
             for (int vv = 0; vv < CurvePrValue::values; vv++) {
                 setRangeByLogic(currentLogic, p, t, vp, vv);
-				applyRangeEventByLogic(currentLogic, p, t, vp, vv);
+                applyRangeEventByLogic(currentLogic, p, t, vp, vv);
             }
         }
         };
@@ -455,7 +455,7 @@ void GuiCurve::setup()
         ctx.editor.resized();
         };
 
-    position.setup({ .parent = *this, .id = "", .title = CurveGuiText::position, .items = positionItems, .isReset = false});
+    position.setup({ .parent = *this, .id = "", .title = CurveGuiText::position, .items = positionItems, .isReset = false });
     position.setSelectedItemIndex(0);
     position.setWantsKeyboardFocus(true);
     position.setExplicitFocusOrder(++tabOrder);
@@ -478,8 +478,7 @@ void GuiCurve::setup()
 
     correctTarget();
 
-    addAndMakeVisible(mainSeparator);
-    mainSeparator.setup({ .lineRate = 0.8f, .lineThick = 4.0f, .lineColour = juce::Colours::grey });
+    mainSeparator.setupComponent(*this);
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setup({ .parent = curveGroup.contentCanvas, .title = "" });
@@ -583,9 +582,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
 
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = mmRect.removeFromTop(CurveGuiValue::CurveGroup::Separator::height);
-    mainSeparator.setBounds(presetNameSeparatorArea);
+    mainSeparator.layoutComponent(mmRect);
 
     // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
     // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)

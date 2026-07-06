@@ -6,6 +6,8 @@
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiSettings : public GuiBase
 {
@@ -16,7 +18,7 @@ class GuiSettings : public GuiBase
     // 高解像度対応
     GuiComboBox uiScaleSelector;
 
-    GuiSeparator separator1;
+    NormalSeparator separator1;
 
     // 壁紙のファイルパス
     GuiLabel wallpaperLabel;
@@ -31,7 +33,7 @@ class GuiSettings : public GuiBase
     // 3: Original
     GuiComboBox wallpaperModeSelector;
 
-    GuiSeparator separator2;
+    NormalSeparator separator2;
 
     // Directories
     GuiLabel sampleDirLabel;
@@ -90,30 +92,30 @@ class GuiSettings : public GuiBase
     GuiLabel toneNoiseParamDirPathLabel;
     GuiTextButton toneNoiseParamDirBrowseBtn;
 
-    GuiSeparator separator3;
+    NormalSeparator separator3;
 
     // Tooltip Visible Switch
     GuiToggleButton tooltipToggle;
 
-    GuiSeparator separator4;
+    NormalSeparator separator4;
 
     // For Headroom
     GuiToggleButton useHeadroomToggle;
     GuiSlider headroomGainSlider;
 
-    GuiSeparator separator5;
+    NormalSeparator separator5;
 
     // 仮想MIDIキーボード表示制御
     GuiToggleButton virtualMidiKeyboardToggle;
 
-    GuiSeparator separator6;
+    NormalSeparator separator6;
 
     // Global Settings I/O
     GuiTextButton saveSettingsBtn;
     GuiTextButton loadSettingsBtn;
     GuiTextButton saveStartupSettingsBtn;
 
-    GuiSeparator separator7;
+    NormalSeparator separator7;
 
     // アンドゥ・リドゥ履歴消去
     GuiTextButton clearUndoHistoryBtn;

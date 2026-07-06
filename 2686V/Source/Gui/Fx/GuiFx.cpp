@@ -135,16 +135,14 @@ void GuiFx::setup()
     bypassToggle.setWantsKeyboardFocus(true);
     bypassToggle.setExplicitFocusOrder(++tabOrder);
 
-    addAndMakeVisible(mainSeparator);
-    mainSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	mainSeparator.setupComponent(*this);
 
     resetBtn.setup({ .parent = *this, .title = FxGuiText::Fx::reset, .textColor = juce::Colours::white, .bgColor = juce::Colours::grey });
     resetBtn.setWantsKeyboardFocus(true);
     resetBtn.setExplicitFocusOrder(++tabOrder);
     resetBtn.onClick = [&] { this->ctx.audioProcessor.initParams("FX_"); };
 
-    addAndMakeVisible(routeSeparator);
-    routeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    routeSeparator.setupComponent(*this);
 
     showRouteBtn.setup({ .parent = *this, .title = juce::String("") + "設定", .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgoldenrod.darker(0.2f), .isReset = false });
     showRouteBtn.setWantsKeyboardFocus(true);
@@ -199,8 +197,7 @@ void GuiFx::setup()
             };
     }
 
-    addAndMakeVisible(fileSeparator);
-    fileSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    fileSeparator.setupComponent(*this);
 
     importFxOrderBtn.setup({ .parent = *this, .title = FxGuiText::Fx::orderFileImport, .textColor = juce::Colours::white.darker(0.2f), .textOnColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     importFxOrderBtn.setWantsKeyboardFocus(true);
@@ -234,8 +231,7 @@ void GuiFx::setup()
         updateFilterEnabled();
         };
 
-    addAndMakeVisible(flSeparator);
-    flSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    flSeparator.setupComponent(*this);
 
     flTypeSelector.setup({ .parent = *this, .id = filterPrefix + FxPrKey::Filter::type, .title = FxGuiText::Fx::Filter::type, .items = flTypeItems, .isReset = true });
     flTypeSelector.setWantsKeyboardFocus(true);
@@ -280,8 +276,7 @@ void GuiFx::setup()
         updateEq3bEnabled();
         };
 
-    addAndMakeVisible(eq3bSeparator);
-    eq3bSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    eq3bSeparator.setupComponent(*this);
 
     eq3bLowGainDbSlider.setup({ .parent = *this, .id = eq3bPrefix + FxPrKey::Eq3b::lowGainDb, .title = FxGuiText::Fx::Eq3b::lowGainDb, .isReset = true });
     eq3bLowGainDbSlider.setWantsKeyboardFocus(true);
@@ -330,8 +325,7 @@ void GuiFx::setup()
         updateTremoloEnabled();
         };
 
-    addAndMakeVisible(tSeparator);
-    tSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    tSeparator.setupComponent(*this);
 
     tRateSlider.setup({ .parent = *this, .id = trmPrefix + FxPrKey::Tremolo::rate, .title = FxGuiText::Fx::Tremolo::rate, .isReset = true });
     tRateSlider.setWantsKeyboardFocus(true);
@@ -372,8 +366,7 @@ void GuiFx::setup()
         updateVibratoEnabled();
         };
 
-    addAndMakeVisible(vSeparator);
-    vSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    vSeparator.setupComponent(*this);
 
     vRateSlider.setup({ .parent = *this, .id = vibPrefix + FxPrKey::Vibrato::rate, .title = FxGuiText::Fx::Vibrate::rate, .isReset = true });
     vRateSlider.setWantsKeyboardFocus(true);
@@ -414,8 +407,7 @@ void GuiFx::setup()
         updateMBCEnabled();
         };
 
-    addAndMakeVisible(mbcSeparator);
-    mbcSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    mbcSeparator.setupComponent(*this);
 
     mbcBitsSlider.setup({ .parent = *this, .id = mbcPrefix + FxPrKey::Mbc::bit, .title = FxGuiText::Fx::Mbc::bit, .isReset = true });
     mbcBitsSlider.setWantsKeyboardFocus(true);
@@ -459,8 +451,7 @@ void GuiFx::setup()
         updateDelayEnabled();
         };
 
-    addAndMakeVisible(dSeparator);
-    dSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    dSeparator.setupComponent(*this);
 
     dTimeSlider.setup({ .parent = *this, .id = dlyPrefix + FxPrKey::Delay::time, .title = FxGuiText::Fx::Delay::time, .isReset = true });
     dTimeSlider.setWantsKeyboardFocus(true);
@@ -501,8 +492,7 @@ void GuiFx::setup()
         updateReverbEnabled();
         };
 
-    addAndMakeVisible(rSeparator);
-    rSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    rSeparator.setupComponent(*this);
 
     rSizeSlider.setup({ .parent = *this, .id = rvbPrefix + FxPrKey::Reverb::size, .title = FxGuiText::Fx::Reverb::size, .isReset = true });
     rSizeSlider.setWantsKeyboardFocus(true);
@@ -543,8 +533,7 @@ void GuiFx::setup()
         updateSfcEchoEnabled();
         };
 
-    addAndMakeVisible(sfceSeparator);
-    sfceSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    sfceSeparator.setupComponent(*this);
 
     sfceTimeSlider.setup({ .parent = *this, .id = sfcePrefix + FxPrKey::SfcEcho::time, .title = FxGuiText::Fx::SfcEcho::time, .isReset = true });
     sfceTimeSlider.setWantsKeyboardFocus(true);
@@ -631,9 +620,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutMain({ .mainRect = mRect, .component = &bypassToggle });
 
-    // 区切り線エリアを確保
-    auto separatorArea = mRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    mainSeparator.setBounds(separatorArea);
+    mainSeparator.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .component = &resetBtn });
 
@@ -659,9 +646,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = flRect, .component = &flBypassBtn });
 
-    // 区切り線エリアを確保
-    auto flSprArea = flRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    flSeparator.setBounds(flSprArea);
+    flSeparator.layoutComponent(flRect);
 
     layoutRow({ .rowRect = flRect, .label = &flTypeSelector.label, .component = &flTypeSelector, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = flRect, .label = &flFreqSlider.label, .component = &flFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -682,9 +667,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = eq3bRect, .component = &eq3bBypassBtn });
 
-    // 区切り線エリアを確保
-    auto eq3bSprArea = eq3bRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    eq3bSeparator.setBounds(eq3bSprArea);
+    eq3bSeparator.layoutComponent(eq3bRect);
 
     layoutRow({ .rowRect = eq3bRect, .label = &eq3bLowGainDbSlider.label, .component = &eq3bLowGainDbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = eq3bRect, .label = &eq3bMidFreqSlider.label, .component = &eq3bMidFreqSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -706,9 +689,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = trmRect, .component = &tBypassBtn });
 
-    // 区切り線エリアを確保
-    auto trmSprArea = trmRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    tSeparator.setBounds(trmSprArea);
+    tSeparator.layoutComponent(trmRect);
 
     layoutRow({ .rowRect = trmRect, .label = &tRateSlider.label, .component = &tRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = trmRect, .label = &tDepthSlider.label, .component = &tDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -728,9 +709,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = vibRect, .component = &vBypassBtn });
 
-    // 区切り線エリアを確保
-    auto vibSprArea = vibRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    vSeparator.setBounds(vibSprArea);
+    vSeparator.layoutComponent(vibRect);
 
     layoutRow({ .rowRect = vibRect, .label = &vRateSlider.label, .component = &vRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = vibRect, .label = &vDepthSlider.label, .component = &vDepthSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -750,9 +729,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = mbcRect, .component = &mbcBypassBtn });
 
-    // 区切り線エリアを確保
-    auto mbcSprArea = mbcRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    mbcSeparator.setBounds(mbcSprArea);
+    mbcSeparator.layoutComponent(mbcRect);
 
     layoutRow({ .rowRect = mbcRect, .label = &mbcBitsSlider.label, .component = &mbcBitsSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = mbcRect, .label = &mbcRateSlider.label, .component = &mbcRateSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -772,9 +749,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = dlyRect, .component = &dBypassBtn });
 
-    // 区切り線エリアを確保
-    auto dlySprArea = dlyRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    dSeparator.setBounds(dlySprArea);
+    dSeparator.layoutComponent(dlyRect);
 
     layoutRow({ .rowRect = dlyRect, .label = &dTimeSlider.label, .component = &dTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = dlyRect, .label = &dFbSlider.label, .component = &dFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -794,9 +769,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = rvbRect, .component = &rBypassBtn });
 
-    // 区切り線エリアを確保
-    auto rvbSprArea = rvbRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    rSeparator.setBounds(rvbSprArea);
+    rSeparator.layoutComponent(rvbRect);
 
     layoutRow({ .rowRect = rvbRect, .label = &rSizeSlider.label, .component = &rSizeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = rvbRect, .label = &rDampSlider.label, .component = &rDampSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -816,9 +789,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = sfceRect, .component = &sfceBypassBtn });
 
-    // 区切り線エリアを確保
-    auto sfceSprArea = sfceRect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    rSeparator.setBounds(sfceSprArea);
+    sfceSeparator.setBounds(sfceRect);
 
     layoutRow({ .rowRect = sfceRect, .label = &sfceTimeSlider.label, .component = &sfceTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = sfceRect, .label = &sfceFbSlider.label, .component = &sfceFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
@@ -837,8 +808,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 }
 
 void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
-    auto spr = rect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    routeSeparator.setBounds(spr);
+    routeSeparator.layoutComponent(rect);
 
     layoutMain({ .mainRect = rect, .component = &showRouteBtn });
 
@@ -862,8 +832,7 @@ void GuiFx::layoutFxOrder(juce::Rectangle<int> rect) {
         layoutMainFxOrder({ .rect = rect, .comp1 = &routeFx[fxr], .comp2 = &routeUp[fxr], .comp3 = &routeDown[fxr] });
     }
 
-    auto spr2 = rect.removeFromTop(FxGuiValue::Fx::SeparatorHeight);
-    fileSeparator.setBounds(spr2);
+    fileSeparator.layoutComponent(rect);
 
     layoutMainTwoComps({ .rect = rect, .comp1 = &importFxOrderBtn, .comp2 = &exportFxOrderBtn, .paddingBottom = 0 });
     rect.removeFromTop(4);

@@ -8,6 +8,8 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiCurveGraph.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -27,7 +29,7 @@ public:
     GuiToggleButton enable;
     GuiComboBox position;
     GuiComboBox target;
-    GuiSeparator mainSeparator;
+    NormalSeparator mainSeparator;
 
     std::array<std::unique_ptr<GuiLabel>, CurvePrValue::params> paramLabel;
 

@@ -22,6 +22,8 @@
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -93,7 +95,7 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiSeparator graphSeparator;
+    NormalSeparator graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     GraphMode currentGraphMode;
@@ -200,11 +202,11 @@ class GuiRhythm : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton copyPadParamBtn;
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
@@ -214,7 +216,7 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
     GuiSlider targerPadSlider;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiComponentImportExport ieUnison;
 
     // 8 Pads

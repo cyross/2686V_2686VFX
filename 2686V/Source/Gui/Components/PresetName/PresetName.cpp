@@ -10,18 +10,14 @@ void GuiComponentPresetName::setupComponent(juce::Component& parent, int& tabOrd
     );
     presetNameLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkblue.withAlpha(0.4f));
 
-    parent.addAndMakeVisible(presetNameSeparator);
-    presetNameSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	presetNameSeparator.setupComponent(parent);
 }
 
 void GuiComponentPresetName::layoutComponent(juce::Rectangle<int>& rect) {
 
     layoutMainParamName({ .mainRect = rect, .label = &presetNameLabel });
 
-    // 区切り線エリアを確保
-    auto presetNameSeparatorArea = rect.removeFromTop(20);
-    presetNameSeparator.setBounds(presetNameSeparatorArea);
-
+    presetNameSeparator.layoutComponent(rect);
 }
 
 void GuiComponentPresetName::updatePresetName(const juce::String& name) {

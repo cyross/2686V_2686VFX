@@ -410,7 +410,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
     catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
     mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-    mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
+    mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
     rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -426,7 +426,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-    graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
+    graphSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) }
 {
     currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -534,8 +534,7 @@ void GuiOpzx7::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamBtn.setWantsKeyboardFocus(true);
@@ -578,8 +577,7 @@ void GuiOpzx7::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
     ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpLfoParam(opIndex); };
@@ -601,8 +599,7 @@ void GuiOpzx7::setup()
     ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
     ieOpPcmPlay.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpPcmPlayParam(opIndex); };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
-    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep003.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
     targerOpSlider.setRange(1.0, 6.0, 1.0);
@@ -952,8 +949,7 @@ void GuiOpzx7::setup()
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        opGroups[i].contentCanvas.addAndMakeVisible(mmlSeparator[i]);
-        mmlSeparator[i].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+        mmlSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
         mml[i].setup({ .parent = opGroups[i].contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -1119,9 +1115,7 @@ void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
 
     layoutOpMaskCat(opIndex, innerRect);
 
-    // 区切り線エリアを確保
-    auto mmlSeparatorArea = innerRect.removeFromTop(Opzx7GuiValue::ParamGroup::Separator::height);
-    mmlSeparator[opIndex].setBounds(mmlSeparatorArea);
+    mmlSeparator[opIndex].layoutComponent(innerRect);
 
     layoutRow({ .rowRect = innerRect, .component = &mml[opIndex], .paddingBottom = 0 });
 
@@ -1591,13 +1585,15 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+
+        uSep001.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+
+        uSep002.layoutComponent(rect);
+
         ieOpLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpDetune.layoutComponent(rect);
@@ -1609,8 +1605,9 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpPcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
-        auto uSep003Area = rect.removeFromTop(4);
-        uSep003.setBounds(uSep003Area);
+
+        uSep003.layoutComponent(rect);
+
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -1720,8 +1717,7 @@ void GuiOpzx7::setupGraph(int opIndex)
     pitchEnv[opIndex].setupGraph(repaintGraph);
     ssgSwEnv[opIndex].setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator[opIndex]);
-    graphSeparator[opIndex].setup({.lineThick = 2.0f, .lineColour = juce::Colours::grey});
+    graphSeparator[opIndex].setupComponent(*this);
 }
 
 void GuiOpzx7::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect, bool rgMode) {
@@ -1895,12 +1891,9 @@ void GuiOpzx7::setGraphMode(int opIndex, GraphMode mode)
 
 void GuiOpzx7::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(Opzx7GuiValue::ParamGroup::Graph::height + Opzx7GuiValue::ParamGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(Opzx7GuiValue::ParamGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(Opzx7GuiValue::ParamGroup::Separator::height);
-
-    graphSeparator[opIndex].setBounds(separatorArea);
+    graphSeparator[opIndex].layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(Opzx7GuiValue::ParamGroup::Graph::ButtonHeight);

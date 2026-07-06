@@ -29,8 +29,7 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
     pitchResetOnLegato.setWantsKeyboardFocus(true);
     pitchResetOnLegato.setExplicitFocusOrder(++tabOrder);
 
-    parent.addAndMakeVisible(resetSeparator);
-    resetSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	resetSeparator.setupComponent(parent);
 
     monoButton.setup(GuiTextButton::Config{
         .parent = parent,
@@ -87,7 +86,9 @@ void GuiComponentMidi::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .component = &useVelocity });
         layoutMain({ .mainRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutMain({ .mainRect = rect, .component = &pitchResetOnLegato });
-        layoutMain({ .mainRect = rect, .component = &resetSeparator });
+
+		resetSeparator.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &monoButton });
         layoutMain({ .mainRect = rect, .component = &polyButton });
     }
@@ -113,7 +114,9 @@ void GuiComponentMidi::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .component = &useVelocity });
         layoutRow({ .rowRect = rect, .label = &fixedVelocity.label, .component = &fixedVelocity });
         layoutRow({ .rowRect = rect, .component = &pitchResetOnLegato });
-        layoutRow({ .rowRect = rect, .component = &resetSeparator });
+
+        resetSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &monoButton });
         layoutRow({ .rowRect = rect, .component = &polyButton });
     }

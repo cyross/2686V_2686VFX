@@ -19,6 +19,8 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -66,23 +68,23 @@ class GuiOpl : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton initLfoToOplBtn;
     GuiTextButton initLfoToOpllBtn;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiTextButton copyOpParamToOpl3Btn;
     GuiTextButton copyOpParamToOpl312Btn;
     GuiTextButton copyOpParamToOpl334Btn;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    GuiSeparator uSep004;
+    NormalSeparator uSep004;
     GuiComponentImportExport ieOpLfo;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
     GuiSlider targerOpSlider;
-    GuiSeparator uSep005;
+    NormalSeparator uSep005;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -113,7 +115,7 @@ class GuiOpl : public GuiBase
     std::array<GuiComboBox, OplPrValue::ops> eg; // Envlope Generator
     std::array<GuiCategoryLabel, OplPrValue::ops> catMask;
     std::array<GuiToggleButton, OplPrValue::ops> mask; // Mask
-    std::array<GuiSeparator, OplPrValue::ops> mmlSeparator;
+    std::array<NormalSeparator, OplPrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, OplPrValue::ops> mml;
     std::array<GuiSlider, OplPrValue::ops> ams;
     std::array<GuiSlider, OplPrValue::ops> amd;
@@ -147,7 +149,7 @@ class GuiOpl : public GuiBase
     std::array<GuiToggleButton, OplPrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, OplPrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, OplPrValue::ops> graphBtnSsg;
-    std::array<GuiSeparator, OplPrValue::ops> graphSeparator;
+    std::array<NormalSeparator, OplPrValue::ops> graphSeparator;
 
     enum class GraphMode { Amp, Pitch, SsgSw };
     std::array<GraphMode, OplPrValue::ops> currentGraphMode;
@@ -208,7 +210,7 @@ public:
         eg{ GuiComboBox(context), GuiComboBox(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context) },
-        mmlSeparator{ GuiSeparator(context), GuiSeparator(context) },
+        mmlSeparator{ NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context) },
         ams{ GuiSlider(context), GuiSlider(context) },
         amd{ GuiSlider(context), GuiSlider(context) },
@@ -238,7 +240,7 @@ public:
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context) },
-        graphSeparator{ GuiSeparator(context), GuiSeparator(context) }
+        graphSeparator{ NormalSeparator(context), NormalSeparator(context) }
     {
         currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);

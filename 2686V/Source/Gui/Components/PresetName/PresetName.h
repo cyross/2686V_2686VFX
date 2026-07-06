@@ -5,11 +5,13 @@
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiComponentPresetName : public GuiBase {
     // プリセット名ラベル
     GuiLabel presetNameLabel;
-    GuiSeparator presetNameSeparator;
+    NormalSeparator presetNameSeparator;
 public:
     GuiComponentPresetName(const GuiContext& context) :
         GuiBase(context),

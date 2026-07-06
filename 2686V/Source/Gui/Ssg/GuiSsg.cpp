@@ -150,8 +150,7 @@ void GuiSsg::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -526,8 +525,7 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+        uSep001.layoutComponent(rect);
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
@@ -568,8 +566,7 @@ void GuiSsg::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiSsg::setGraphMode(GraphMode mode)
@@ -587,12 +584,9 @@ void GuiSsg::setGraphMode(GraphMode mode)
 
 void GuiSsg::layoutGraph(juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(SsgGuiValue::MainGroup::Graph::height + SsgGuiValue::MainGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(SsgGuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Graph::ButtonHeight);

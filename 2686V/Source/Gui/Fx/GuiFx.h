@@ -8,6 +8,8 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "./GuiFxText.h"
 #include "../../Effect/Fx/Fx.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
 
 class GuiFx : public GuiBase
 {
@@ -36,14 +38,14 @@ class GuiFx : public GuiBase
     GuiGroup sfceGroup;
 
     GuiToggleButton bypassToggle;
-    GuiSeparator mainSeparator;
+    NormalSeparator mainSeparator;
     GuiTextButton resetBtn;
-    GuiSeparator routeSeparator;
+    NormalSeparator routeSeparator;
     GuiTextButton showRouteBtn;
     std::array<GuiLabel, NumEffects> routeFx;
     std::array<GuiTextButton, NumEffects> routeUp;
     std::array<GuiTextButton, NumEffects> routeDown;
-    GuiSeparator fileSeparator;
+    NormalSeparator fileSeparator;
     GuiTextButton importFxOrderBtn;
     GuiTextButton exportFxOrderBtn;
     GuiTextButton importFxParamBtn;
@@ -54,42 +56,42 @@ class GuiFx : public GuiBase
 
     // トレモロ(Tremolo)
     GuiToggleButton tBypassBtn;
-    GuiSeparator tSeparator;
+    NormalSeparator tSeparator;
     GuiSlider tRateSlider, tDepthSlider;
     GuiSlider tMixSlider;
     GuiTextButton tDryBtn, tHalfBtn, tWetBtn;
 
     // ビブラート(Vibrato)
     GuiToggleButton vBypassBtn;
-    GuiSeparator vSeparator;
+    NormalSeparator vSeparator;
     GuiSlider vRateSlider, vDepthSlider;
     GuiSlider vMixSlider;
     GuiTextButton vDryBtn, vHalfBtn, vWetBtn;
 
     // ビットクラッシャー(Modern Bit Crusher)
     GuiToggleButton mbcBypassBtn;
-    GuiSeparator mbcSeparator;
+    NormalSeparator mbcSeparator;
     GuiSlider mbcRateSlider, mbcBitsSlider;
     GuiSlider mbcMixSlider;
     GuiTextButton mbcDryBtn, mbcHalfBtn, mbcWetBtn;
 
     // ディレイ(Delay)
     GuiToggleButton dBypassBtn;
-    GuiSeparator dSeparator;
+    NormalSeparator dSeparator;
     GuiSlider dTimeSlider, dFbSlider;
     GuiSlider dMixSlider;
     GuiTextButton dDryBtn, dHalfBtn, dWetBtn;
 
     // Reverb
     GuiToggleButton rBypassBtn;
-    GuiSeparator rSeparator;
+    NormalSeparator rSeparator;
     GuiSlider rSizeSlider, rDampSlider;
     GuiSlider rMixSlider;
     GuiTextButton rDryBtn, rHalfBtn, rWetBtn;
 
     // Filter
     GuiToggleButton flBypassBtn;
-    GuiSeparator flSeparator;
+    NormalSeparator flSeparator;
     GuiComboBox flTypeSelector;
     GuiSlider flFreqSlider;
     GuiSlider flQSlider;
@@ -98,7 +100,7 @@ class GuiFx : public GuiBase
 
     // 3Band EQ
     GuiToggleButton eq3bBypassBtn;
-    GuiSeparator eq3bSeparator;
+    NormalSeparator eq3bSeparator;
     GuiSlider eq3bLowGainDbSlider;
     GuiSlider eq3bMidFreqSlider;
     GuiSlider eq3bMidGainDbSlider;
@@ -108,7 +110,7 @@ class GuiFx : public GuiBase
 
     // SFC Echo
     GuiToggleButton sfceBypassBtn;
-    GuiSeparator sfceSeparator;
+    NormalSeparator sfceSeparator;
     GuiSlider sfceTimeSlider, sfceFbSlider;
     GuiSlider sfceFirCoef0Slider, sfceFirCoef1Slider;
     GuiSlider sfceFirCoef2Slider, sfceFirCoef3Slider;

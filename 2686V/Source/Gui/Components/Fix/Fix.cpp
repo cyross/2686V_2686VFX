@@ -47,8 +47,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     freq.setExplicitFocusOrder(++tabOrder);
     freq.setValue(toValue);
 
-    parent.addAndMakeVisible(freqToSeparator);
-    freqToSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	freqToSeparator.setupComponent(parent);
 
     freqTo.setup({ .parent = parent, .title = toLabel, .isReset = false, .isResized = false });
     freqTo.setWantsKeyboardFocus(true);
@@ -75,8 +74,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     freqTo2.setExplicitFocusOrder(++tabOrder);
     freqTo2.onClick = [this] { freq.setValue(2, juce::sendNotification); };
 
-    parent.addAndMakeVisible(freqAddSeparator);
-    freqAddSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    freqAddSeparator.setupComponent(parent);
 
     freqM05.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.5", .isReset = false, .isResized = false });
     freqM05.setWantsKeyboardFocus(true);
@@ -208,8 +206,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     freqP1000.setExplicitFocusOrder(++tabOrder);
     freqP1000.onClick = [this] { freq.setValue(freq.getValue() + 1000.0f, juce::sendNotification); };
 
-    parent.addAndMakeVisible(freqNoteSeparator);
-    freqNoteSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    freqNoteSeparator.setupComponent(parent);
 
     freqNote.setup({ .parent = parent, .title = "Note", .isReset = false });
     freqNote.setWantsKeyboardFocus(true);
@@ -289,10 +286,14 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
     {
         layoutMain({ .mainRect = rect, .component = &enable });
         layoutMain({ .mainRect = rect, .label = &freq.label, .component = &freq });
-        layoutMain({ .mainRect = rect, .component = &freqToSeparator });
-		layoutMain({ .mainRect = rect, .component = &freqTo });
+
+		freqToSeparator.layoutComponent(rect);
+
+        layoutMain({ .mainRect = rect, .component = &freqTo });
         layoutMainFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
-        layoutMain({ .mainRect = rect, .component = &freqAddSeparator });
+
+        freqAddSeparator.layoutComponent(rect);
+
         layoutMainSixComps({
             .rect = rect,
             .comp1 = &freqM05,
@@ -334,7 +335,9 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
             .comp1 = &freqM1000,
             .comp2 = &freqP1000,
             });
-        layoutMain({ .mainRect = rect, .component = &freqNoteSeparator });
+
+        freqNoteSeparator.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutMainThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
     }
@@ -390,10 +393,14 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
     {
         layoutRow({ .rowRect = rect, .component = &enable });
         layoutRow({ .rowRect = rect, .label = &freq.label, .component = &freq });
-        layoutRow({ .rowRect = rect, .component = &freqToSeparator });
+
+        freqToSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .component = &freqTo });
         layoutRowFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
-        layoutRow({ .rowRect = rect, .component = &freqAddSeparator });
+
+        freqAddSeparator.layoutComponent(rect);
+
         layoutRowSixComps({
             .rect = rect,
             .comp1 = &freqM05, 
@@ -435,7 +442,9 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
             .comp1 = &freqM1000,
             .comp2 = &freqP1000,
             });
-        layoutRow({ .rowRect = rect, .component = &freqNoteSeparator });
+
+        freqNoteSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutRowThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
     }

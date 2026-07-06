@@ -155,8 +155,7 @@ void GuiOpl3::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     initLfoToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Fm::initLfoToOpl });
     initLfoToOplBtn.setWantsKeyboardFocus(true);
@@ -185,8 +184,7 @@ void GuiOpl3::setup()
         }
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params (OP 1/2) -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
@@ -209,8 +207,7 @@ void GuiOpl3::setup()
         ctx.editor.copyOpl334ParamsToOpl();
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
-    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep003.setupComponent(mainGroup.contentCanvas);
 
     copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamBtn.setWantsKeyboardFocus(true);
@@ -248,8 +245,7 @@ void GuiOpl3::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep004);
-    uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep004.setupComponent(mainGroup.contentCanvas);
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
     ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importLfoParam(opIndex); };
@@ -263,8 +259,7 @@ void GuiOpl3::setup()
     ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
     ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep005);
-    uSep005.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep005.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
     targerOpSlider.setRange(1.0, 4.0, 1.0);
@@ -431,8 +426,7 @@ void GuiOpl3::setup()
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        opGroups[i].contentCanvas.addAndMakeVisible(mmlSeparator[i]);
-        mmlSeparator[i].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+        mmlSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
         mml[i].setup({ .parent = opGroups[i].contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -533,9 +527,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
         layoutOpMaskCat(i, innerRect);
 
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opl3GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
+        mmlSeparator[i].layoutComponent(innerRect);
 
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
 
@@ -823,22 +815,26 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+
+        uSep001.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
         layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+
+        uSep002.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOplBtn });
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl12Btn });
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl34Btn });
-        auto uSep003Area = rect.removeFromTop(4);
-        uSep003.setBounds(uSep003Area);
+
+        uSep003.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-        auto uSep004Area = rect.removeFromTop(4);
-        uSep004.setBounds(uSep004Area);
+
+        uSep004.layoutComponent(rect);
+
         ieOpLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpPitchEnv.layoutComponent(rect);
@@ -846,8 +842,9 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
-        auto uSep005Area = rect.removeFromTop(4);
-        uSep005.setBounds(uSep005Area);
+
+        uSep005.layoutComponent(rect);
+
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
@@ -1005,8 +1002,7 @@ void GuiOpl3::setupGraph(int opIndex)
     pitchEnv[opIndex].setupGraph(repaintGraph);
     ssgSwEnv[opIndex].setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator[opIndex]);
-    graphSeparator[opIndex].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator[opIndex].setupComponent(*this);
 }
 
 void GuiOpl3::setGraphMode(int opIndex, GraphMode mode)
@@ -1024,12 +1020,9 @@ void GuiOpl3::setGraphMode(int opIndex, GraphMode mode)
 
 void GuiOpl3::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(Opl3GuiValue::ParamGroup::Graph::height + Opl3GuiValue::ParamGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(Opl3GuiValue::ParamGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(Opl3GuiValue::ParamGroup::Separator::height);
-
-    graphSeparator[opIndex].setBounds(separatorArea);
+    graphSeparator[opIndex].layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(Opl3GuiValue::ParamGroup::Graph::ButtonHeight);

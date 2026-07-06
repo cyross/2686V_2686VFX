@@ -3,8 +3,7 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 
 void GuiComponentViewMode::setupComponent(juce::Component& parent, int& tabOrder) {
-    parent.addAndMakeVisible(viewModeSeparator);
-    viewModeSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	viewModeSeparator.setupComponent(parent);
 
     viewModeLabel.setup({ .parent = parent, .title = "", .color = juce::Colours::gold.brighter(0.5f) });
     viewModeLabel.setText("VIEW MODE: TWIN", juce::sendNotification);
@@ -56,6 +55,5 @@ void GuiComponentViewMode::layoutComponent(juce::Rectangle<int>& rect) {
 
     layoutMainViewMode({ .rect = rect, .label = viewModeLabel, .comp1 = &viewModeToTopButton, .comp2 = &viewModeToTwinButton, .comp3 = &viewModeToBottomButton });
 
-    auto viewModeSeparatorArea = rect.removeFromTop(20);
-    viewModeSeparator.setBounds(viewModeSeparatorArea);
+	viewModeSeparator.layoutComponent(rect);
 }
