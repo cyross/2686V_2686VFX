@@ -43,9 +43,9 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &voices.label, .component = &voices });
+        layoutMain({ .mainRect = rect, .label = &spread.label, .component = &spread });
         layoutMain({ .mainRect = rect, .label = &detune.label, .component = &detune });
         detuneButtons.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .label = &spread.label, .component = &spread });
     }
 }
 void GuiComponentUnison::copyParams(CopyUnison& copyObj) {

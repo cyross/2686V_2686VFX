@@ -103,6 +103,7 @@ class GuiSsg : public GuiBase
 
     // HW Env
     GuiToggleButton envEnableButton;
+	NormalSeparator hwEnvSeparator;
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
 
@@ -179,6 +180,7 @@ public:
         triSetTri(context),
         triSetSawUp(context),
         envEnableButton(context),
+		hwEnvSeparator(context),
         shapeSelector(context),
         periodSlider(context),
         midiComponent(context),

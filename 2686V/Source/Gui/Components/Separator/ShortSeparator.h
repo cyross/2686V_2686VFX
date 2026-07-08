@@ -10,8 +10,8 @@
 
 class ShortSeparator : public GuiSeparator {
 public:
-    static constexpr int paddingTop = 2;
-    static constexpr int paddingBottom = 2;
+    static constexpr int paddingTop = 6;
+    static constexpr int paddingBottom = 6;
     static constexpr int thick = 2;
     static constexpr float widthRate = 0.8f;
 

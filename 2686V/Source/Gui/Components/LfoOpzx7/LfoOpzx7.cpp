@@ -146,8 +146,8 @@ void GuiComponentLfoOpzx7::layoutComponent(juce::Rectangle<int>& rect)
 
     if (visible)
     {
-        layoutMain({ .mainRect = rect, .component = &pmEnable, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .component = &pmLabel, .rowHeight = 12 });
+        layoutMain({ .mainRect = rect, .component = &pmEnable, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmFreq.label, .component = &pmFreq, .rowHeight = 12 });
         layoutMain({ .mainRect = rect, .label = &pmSyncDelay.label, .component = &pmSyncDelay, .rowHeight = 12 });
         layoutMainTwoComps({ .rect = rect, .comp1 = &pmSDToZero, .comp2 = &pmSDToOne, .rowHeight = 12 });

@@ -297,6 +297,7 @@ class GuiOpzx7 : public GuiBase
 
     // Global
     GuiComboBox algSelector;
+    NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
 
     GuiCategoryLabel panCat;
@@ -400,6 +401,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiMmlButton, Opzx7PrValue::ops> mml;
 
     std::array<GuiToggleButton, Opzx7PrValue::ops> rgEn;
+    std::array<NormalSeparator, Opzx7PrValue::ops> rgSeparator;
     std::array<GuiSlider, Opzx7PrValue::ops> rgAr;
     std::array<GuiSlider, Opzx7PrValue::ops> rgD1r;
     std::array<GuiSlider, Opzx7PrValue::ops> rgD2r;
@@ -407,6 +409,7 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiSlider, Opzx7PrValue::ops> rgRr;
     std::array<GuiSlider, Opzx7PrValue::ops> rgTl;
 
+    std::array<NormalSeparator, Opzx7PrValue::ops> optionalSeparator;
     std::array<GuiToggleButton, Opzx7PrValue::ops> sus; // Sus
     std::array<GuiToggleButton, Opzx7PrValue::ops> xof; // Xof
     std::array<GuiToggleButton, Opzx7PrValue::ops> kor;

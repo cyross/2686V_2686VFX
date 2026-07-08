@@ -118,6 +118,9 @@ void GuiOpl::setup()
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
+
+	algFbSep.setupComponent(mainGroup.contentCanvas);
+
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OplPrKey::fb, .title = OplGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
@@ -422,6 +425,8 @@ void GuiOpl::setup()
         pmdTo14[i].setExplicitFocusOrder(++tabOrder);
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
+		lfoSep[i].setupComponent(opGroups[i].contentCanvas);
+
         catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OplGuiText::Category::visibleMask, .invisibleTitle = OplGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
         mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OplPrKey::mask, .title = OplGuiText::Fm::Op::Mask, .isReset = true });
@@ -473,7 +478,7 @@ void GuiOpl::layout(juce::Rectangle<int> content)
     auto imgArea = mRect.removeFromTop(120);
     algImageComp.setBounds(imgArea);
 
-    mRect.removeFromTop(OplGuiValue::Category::paddingTop);
+	algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
@@ -880,6 +885,7 @@ void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
     amdTo1[opIndex].setVisible(visible);
     amdTo12[opIndex].setVisible(visible);
     amdTo48[opIndex].setVisible(visible);
+	lfoSep[opIndex].setVisible(visible);
     vib[opIndex].setVisible(visible);
     pms[opIndex].setVisibleWithLabel(visible);
     pmsTo606[opIndex].setVisible(visible);
@@ -896,6 +902,7 @@ void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
         layoutRowTwoComps({ .rect = rect, .comp1 = &amsTo37[opIndex], .comp2 = &amsTo606[opIndex] });
         layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
         layoutRowThreeComps({ .rect = rect, .comp1 = &amdTo1[opIndex], .comp2 = &amdTo12[opIndex], .comp3 = &amdTo48[opIndex] });
+		lfoSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &vib[opIndex] });
         layoutRow({ .rowRect = rect, .label = &pms[opIndex].label, .component = &pms[opIndex] });
         layoutRowTwoComps({ .rect = rect, .comp1 = &pmsTo606[opIndex], .comp2 = &pmsTo64[opIndex] });

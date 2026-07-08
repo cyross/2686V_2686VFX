@@ -116,6 +116,8 @@ void GuiSsg::setup()
     envEnableButton.setWantsKeyboardFocus(true);
     envEnableButton.setExplicitFocusOrder(++tabOrder);
 
+	hwEnvSeparator.setupComponent(mainGroup.contentCanvas);
+
     shapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
@@ -479,12 +481,14 @@ void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
     bool visible = hwEnvCat.isDetailVisible();
 
     envEnableButton.setVisible(visible);
+	hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &envEnableButton });
+        hwEnvSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
     }

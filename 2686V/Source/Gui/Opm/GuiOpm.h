@@ -67,6 +67,7 @@ class GuiOpm : public GuiBase
 
     // Global
     GuiComboBox algSelector;
+    NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
 
     // UNISON/HARMONY
@@ -94,6 +95,8 @@ class GuiOpm : public GuiBase
     GuiComboBox lfoAmsSelector;
     GuiSlider lfoPmdSlider;
     GuiSlider lfoAmdSlider;
+    NormalSeparator lfoSep1;
+    NormalSeparator lfoSep2;
 
     GuiComponentMidi midiComponent;
 
@@ -206,6 +209,7 @@ public:
         levelComponent(context),
         qualityComponent(context),
         algSelector(context),
+        algFbSep(context),
         feedbackSlider(context),
         unisonComponent(context),
         panCat(context),
@@ -227,6 +231,8 @@ public:
         lfoAmsSelector(context),
         lfoPmdSlider(context),
         lfoAmdSlider(context),
+		lfoSep1(context),
+        lfoSep2(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),

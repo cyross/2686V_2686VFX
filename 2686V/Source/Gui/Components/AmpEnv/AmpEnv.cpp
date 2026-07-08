@@ -18,6 +18,8 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 
+	separator1.setupComponent(parent);
+
 	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "STL", .isReset = true });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
@@ -38,6 +40,8 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
+	separator2.setupComponent(parent);
+
 	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
 	kor.setExplicitFocusOrder(++tabOrder);
@@ -50,21 +54,25 @@ void GuiComponentAmpEnv::layoutComponent(juce::Rectangle<int>& rect)
     bool visible = cat.isDetailVisible();
 
 	bypass.setVisible(visible);
+	separator1.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
 	attack.setVisibleWithLabel(visible);
 	decay.setVisibleWithLabel(visible);
 	sustain.setVisibleWithLabel(visible);
 	release.setVisibleWithLabel(visible);
+	separator2.setVisible(visible);
 	kor.setVisible(visible);
 
     if (visible)
     {
 		layoutMain({ .mainRect = rect, .component = &bypass });
+		separator1.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel });
 		layoutMain({ .mainRect = rect, .label = &attack.label, .component = &attack });
         layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay });
 		layoutMain({ .mainRect = rect, .label = &sustain.label, .component = &sustain });
 		layoutMain({ .mainRect = rect, .label = &release.label, .component = &release });
+		separator2.layoutComponent(rect);
 		layoutMain({ .mainRect = rect, .component = &kor });
 	}
 }

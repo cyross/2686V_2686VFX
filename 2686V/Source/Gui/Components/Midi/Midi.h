@@ -19,8 +19,10 @@ class GuiComponentMidi : public GuiBase {
     // UNISON/HARMONY
     GuiCategoryLabel cat;
     GuiToggleButton monoMode;
+    NormalSeparator separator1;
     GuiToggleButton useVelocity;
     GuiSlider fixedVelocity;
+    NormalSeparator separator2;
     GuiToggleButton pitchResetOnLegato;
     NormalSeparator resetSeparator;
     GuiTextButton monoButton;
@@ -30,8 +32,10 @@ public:
         GuiBase(context),
         cat(context),
 		monoMode(context),
+        separator1(context),
         useVelocity(context),
         fixedVelocity(context),
+        separator2(context),
         pitchResetOnLegato(context),
         resetSeparator(context),
         monoButton(context),

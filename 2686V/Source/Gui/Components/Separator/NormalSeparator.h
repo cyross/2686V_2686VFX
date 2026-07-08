@@ -10,8 +10,8 @@
 
 class NormalSeparator : public GuiSeparator {
 public:
-    static constexpr int paddingTop = 4;
-    static constexpr int paddingBottom = 4;
+    static constexpr int paddingTop = 6;
+    static constexpr int paddingBottom = 6;
     static constexpr int thick = 4;
 
     NormalSeparator(const GuiContext& context) :

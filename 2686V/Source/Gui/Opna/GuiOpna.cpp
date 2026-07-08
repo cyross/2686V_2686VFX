@@ -227,6 +227,8 @@ void GuiOpna::setup()
         updateAlgorithmDisplay();
     };
 
+    algFbSep.setupComponent(mainGroup.contentCanvas);
+
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpnaPrKey::fb, .title = OpnaGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
@@ -311,6 +313,9 @@ void GuiOpna::setup()
     lfoAmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpnaPrKey::N88Lfo::amd, .title = OpnaGuiText::Fm::amd, .isReset = true });
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
+    lfoSep1.setupComponent(mainGroup.contentCanvas);
+    lfoSep2.setupComponent(mainGroup.contentCanvas);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -653,7 +658,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     auto imgArea = mRect.removeFromTop(120);
     algImageComp.setBounds(imgArea);
 
-    mRect.removeFromTop(OpnaGuiValue::Category::paddingTop);
+    algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
@@ -1080,9 +1085,11 @@ void GuiOpna::layoutN88LfoCat(juce::Rectangle<int>& rect)
     lfoSyncDelaySlider.setVisibleWithLabel(visible);
     lfoSyncDelayToZeroBtn.setVisible(visible);
     lfoSyncDelayToOneBtn.setVisible(visible);
+    lfoSep1.setVisible(visible);
     lfoPmToggle.setVisible(visible);
     lfoPmsSlider.setVisibleWithLabel(visible);
     lfoPmdSlider.setVisibleWithLabel(visible);
+    lfoSep2.setVisible(visible);
     lfoAmToggle.setVisible(visible);
     lfoAmdSlider.setVisibleWithLabel(visible);
 
@@ -1093,9 +1100,11 @@ void GuiOpna::layoutN88LfoCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
         layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
         layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
+        lfoSep1.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
         layoutMain({ .mainRect = rect, .label = &lfoPmsSlider.label, .component = &lfoPmsSlider });
+        lfoSep2.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoAmdSlider.label, .component = &lfoAmdSlider });
     }

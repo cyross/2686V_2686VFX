@@ -327,6 +327,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     levelComponent(context),
     qualityComponent(context),
     algSelector(context),
+    algFbSep(context),
     feedbackSlider(context),
     panCat(context),
     panpotEnableToggle(context),
@@ -406,12 +407,14 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
     rgEn{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+    rgSeparator{ NormalSeparator(context),NormalSeparator(context),NormalSeparator(context),NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     rgD1r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     rgD2r{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     rgD1l{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     rgRr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
     rgTl{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+    optionalSeparator{ NormalSeparator(context),NormalSeparator(context),NormalSeparator(context),NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
     sus{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     xof{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
     kor{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
@@ -463,6 +466,8 @@ void GuiOpzx7::setup()
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
+
+    algFbSep.setupComponent(mainGroup.contentCanvas);
 
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Opzx7PrKey::fb, .title = Opzx7GuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
@@ -648,6 +653,8 @@ void GuiOpzx7::setup()
             ctx.editor.resized();
             };
 
+		rgSeparator[i].setupComponent(opGroups[i].contentCanvas);
+
         rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::rgAr, .title = Opzx7GuiText::Fm::Op::Ar, .isReset = true });
         rgAr[i].setWantsKeyboardFocus(true);
         rgAr[i].setExplicitFocusOrder(++tabOrder);
@@ -748,6 +755,8 @@ void GuiOpzx7::setup()
         ksRs[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::ksRs, .title = "R.SC", .isReset = true});
         ksRs[i].setWantsKeyboardFocus(true);
         ksRs[i].setExplicitFocusOrder(++tabOrder);
+
+        optionalSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
         sus[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opzx7PrKey::sus, .title = Opzx7GuiText::Fm::Op::sus, .isReset = true });
         sus[i].setWantsKeyboardFocus(true);
@@ -983,7 +992,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     auto imgArea = mRect.removeFromTop(120);
     algImageComp.setBounds(imgArea);
 
-    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+    algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
@@ -1235,6 +1244,7 @@ void GuiOpzx7::updateOpVisible(int idx, bool visible) {
     mmlSeparator[idx].setVisible(visible);
     mml[idx].setVisible(visible);
     rgEn[idx].setVisible(visible);
+    rgSeparator[idx].setVisible(visible);
     rgAr[idx].setVisibleWithLabel(visible);
     rgD1r[idx].setVisibleWithLabel(visible);
     rgD1r[idx].setVisibleWithLabel(visible);
@@ -1246,6 +1256,7 @@ void GuiOpzx7::updateOpVisible(int idx, bool visible) {
     rgRr[idx].setVisible(visible);
     rgTl[idx].setVisibleWithLabel(visible);
     rgTl[idx].setEnabled(visible);
+	optionalSeparator[idx].setVisible(visible);
     sus[idx].setVisible(visible);
     xof[idx].setVisible(visible);
     kor[idx].setVisible(visible);
@@ -1312,6 +1323,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     mmlSeparator[idx].setEnabled(enable);
     mml[idx].setEnabled(enable);
     rgEn[idx].setEnabled(enable);
+	rgSeparator[idx].setEnabled(enable);
     rgAr[idx].setEnabledWithLabel(enable);
     rgD1r[idx].setEnabledWithLabel(enable);
     rgD1r[idx].setEnabledWithLabel(enable);
@@ -1323,6 +1335,7 @@ void GuiOpzx7::updateOpEnable(int idx, bool enable)
     rgRr[idx].setEnabled(enable);
     rgTl[idx].setEnabledWithLabel(enable);
     rgTl[idx].setEnabled(enable);
+	optionalSeparator[idx].setEnabled(enable);
     sus[idx].setEnabled(enable);
     xof[idx].setEnabled(enable);
     kor[idx].setEnabled(enable);
@@ -1767,6 +1780,7 @@ void GuiOpzx7::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMo
     bool visible = catAmp[opIndex].isDetailVisible();
 
     rgEn[opIndex].setVisible(visible);
+	rgSeparator[opIndex].setVisible(visible);
     rgAr[opIndex].setVisibleWithLabel(visible && rgMode);
     rgD1r[opIndex].setVisibleWithLabel(visible && rgMode);
     rgD1l[opIndex].setVisibleWithLabel(visible && rgMode);
@@ -1779,12 +1793,14 @@ void GuiOpzx7::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMo
     d2r[opIndex].setVisibleWithLabel(visible && !rgMode);
     rr[opIndex].setVisibleWithLabel(visible && !rgMode);
     tl[opIndex].setVisibleWithLabel(visible && !rgMode);
+	optionalSeparator[opIndex].setVisible(visible);
     sus[opIndex].setVisible(visible);
     xof[opIndex].setVisible(visible);
     kor[opIndex].setVisible(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .component = &rgEn[opIndex] });
+		rgSeparator[opIndex].layoutComponent(rect);
         updateRgDisplayAsOp(opIndex, rgMode);
         if (rgMode)
         {
@@ -1805,6 +1821,7 @@ void GuiOpzx7::layoutOpAmpCat(int opIndex, juce::Rectangle<int>& rect, bool rgMo
             layoutRow({ .rowRect = rect, .label = &tl[opIndex].label, .component = &tl[opIndex] });
         }
 
+		optionalSeparator[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &sus[opIndex] });
         layoutRow({ .rowRect = rect, .component = &xof[opIndex] });
         layoutRow({ .rowRect = rect, .component = &kor[opIndex] });

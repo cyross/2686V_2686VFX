@@ -59,6 +59,7 @@ class GuiOpl : public GuiBase
     Quality qualityComponent;
 
     GuiComboBox algSelector;
+    NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
 
     // UNISON/HARMONY
@@ -117,6 +118,7 @@ class GuiOpl : public GuiBase
     std::array<GuiToggleButton, OplPrValue::ops> mask; // Mask
     std::array<NormalSeparator, OplPrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, OplPrValue::ops> mml;
+	std::array<NormalSeparator, OplPrValue::ops> lfoSep;
     std::array<GuiSlider, OplPrValue::ops> ams;
     std::array<GuiSlider, OplPrValue::ops> amd;
     std::array<GuiSlider, OplPrValue::ops> pms;
@@ -168,6 +170,7 @@ public:
         levelComponent(context),
         qualityComponent(context),
         algSelector(context),
+		algFbSep(context),
         feedbackSlider(context),
         unisonComponent(context),
         utilityCat(context),
@@ -210,6 +213,7 @@ public:
         mask{ GuiToggleButton(context),GuiToggleButton(context) },
         mmlSeparator{ NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context) },
+        lfoSep{ NormalSeparator(context), NormalSeparator(context) },
         ams{ GuiSlider(context), GuiSlider(context) },
         amd{ GuiSlider(context), GuiSlider(context) },
         pms{ GuiSlider(context), GuiSlider(context) },

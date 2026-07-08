@@ -182,6 +182,8 @@ void GuiOpm::setup()
         updateAlgorithmDisplay();
         };
 
+    algFbSep.setupComponent(mainGroup.contentCanvas);
+
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::fb, .title = OpmGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
@@ -274,6 +276,9 @@ void GuiOpm::setup()
     lfoAmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::amd, .title = OpmGuiText::Fm::amd, .isReset = true });
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
+
+	lfoSep1.setupComponent(mainGroup.contentCanvas);
+    lfoSep2.setupComponent(mainGroup.contentCanvas);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -687,7 +692,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     auto imgArea = mRect.removeFromTop(120);
     algImageComp.setBounds(imgArea);
 
-    mRect.removeFromTop(OpmGuiValue::Category::paddingTop);
+    algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
@@ -1101,10 +1106,12 @@ void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
     lfoSyncDelaySlider.setVisibleWithLabel(visible);
     lfoSyncDelayToZeroBtn.setVisible(visible);
     lfoSyncDelayToOneBtn.setVisible(visible);
+    lfoSep1.setVisible(visible);
     lfoPmToggle.setVisible(visible);
     lfoPgShapeSelector.setVisibleWithLabel(visible);
     lfoPmsSelector.setVisibleWithLabel(visible);
     lfoPmdSlider.setVisibleWithLabel(visible);
+    lfoSep2.setVisible(visible);
     lfoAmToggle.setVisible(visible);
     lfoEgShapeSelector.setVisibleWithLabel(visible);
     lfoAmsSelector.setVisibleWithLabel(visible);
@@ -1116,10 +1123,12 @@ void GuiOpm::layoutHwLfoCat(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &lfoAmSmRtSlider.label, .component = &lfoAmSmRtSlider });
         layoutMain({ .mainRect = rect, .label = &lfoSyncDelaySlider.label, .component = &lfoSyncDelaySlider });
         layoutMainTwoComps({ .rect = rect, .comp1 = &lfoSyncDelayToZeroBtn, .comp2 = &lfoSyncDelayToOneBtn });
+		lfoSep1.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoPmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoPgShapeSelector.label, .component = &lfoPgShapeSelector });
         layoutMain({ .mainRect = rect, .label = &lfoPmsSelector.label, .component = &lfoPmsSelector });
         layoutMain({ .mainRect = rect, .label = &lfoPmdSlider.label, .component = &lfoPmdSlider });
+        lfoSep2.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &lfoAmToggle });
         layoutMain({ .mainRect = rect, .label = &lfoEgShapeSelector.label, .component = &lfoEgShapeSelector });
         layoutMain({ .mainRect = rect, .label = &lfoAmsSelector.label, .component = &lfoAmsSelector });

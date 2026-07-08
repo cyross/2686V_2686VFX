@@ -13,6 +13,8 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
+#include "../../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../../Gui/Components/Separator/ShortSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -20,11 +22,13 @@ class GuiComponentAmpEnv : public GuiBase {
     // AMP ENV
     GuiCategoryLabel cat;
     GuiToggleButton bypass;
+	NormalSeparator separator1;
     GuiSlider startLevel;
     GuiSlider attack;
     GuiSlider decay;
     GuiSlider sustain;
     GuiSlider release;
+    NormalSeparator separator2;
     GuiToggleButton kor;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -33,11 +37,13 @@ public:
         GuiBase(context),
         cat(context),
         bypass(context),
+        separator1(context),
         attack(context),
         decay(context),
         sustain(context),
         release(context),
         startLevel(context),
+		separator2(context),
         kor(context)
     {
     }

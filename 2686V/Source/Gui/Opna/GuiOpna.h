@@ -65,7 +65,8 @@ class GuiOpna : public GuiBase
     GuiCategoryLabel algFbCat;
 
 	GuiComboBox algSelector;
-	GuiFbSlider feedbackSlider;
+    NormalSeparator algFbSep;
+    GuiFbSlider feedbackSlider;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -89,6 +90,8 @@ class GuiOpna : public GuiBase
     GuiSlider lfoPmdSlider;
     GuiSlider lfoPmsSlider;
     GuiSlider lfoAmdSlider;
+    NormalSeparator lfoSep1;
+    NormalSeparator lfoSep2;
 
     GuiComponentMidi midiComponent;
 
@@ -191,6 +194,7 @@ public:
         levelComponent(context),
         qualityComponent(context),
         algSelector(context),
+        algFbSep(context),
         feedbackSlider(context),
         unisonComponent(context),
         panCat(context),
@@ -210,6 +214,8 @@ public:
         lfoPmdSlider(context),
         lfoPmsSlider(context),
         lfoAmdSlider(context),
+        lfoSep1(context),
+        lfoSep2(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
