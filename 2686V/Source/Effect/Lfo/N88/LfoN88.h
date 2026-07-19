@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 
+#include "./LfoN88Params.h"
 #include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 struct N88LfoValues {
@@ -63,7 +64,7 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate);
+	void setParameters(const LfoN88Params &params);
 	void noteOn();
 	void getSample();
 	inline void updatePhaseDelta();

@@ -1,6 +1,7 @@
 ﻿#include "./QualityPcm.h"
 
 #include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 std::vector<SelectItem> QualityPcm::qualityItems = {
@@ -52,15 +53,15 @@ std::vector<SelectItem> QualityPcm::interpItems = {
 void QualityPcm::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupHwCategory({ .parent = parent, .title = juce::String("") + "[■]--- QUALITY ---", .invisibleTitle = juce::String("") + "[□]--- QUALITY ---", .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = parent, .id = code + "_MODE", .title = "BIT", .items = qualityItems, .isReset = true });
+    modeSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::mode, .title = "BIT", .items = qualityItems, .isReset = true });
     modeSelector.setWantsKeyboardFocus(true);
     modeSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = parent, .id = code + "_RATE", .title = "RATE", .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::rate, .title = "RATE", .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 
-    interpSelector.setup({ .parent = parent, .id = code + "_INTERP", .title = "INTP", .items = interpItems, .isReset = true });
+    interpSelector.setup({ .parent = parent, .id = code + CPK::QualityPcm::interp, .title = "INTP", .items = interpItems, .isReset = true });
     interpSelector.setWantsKeyboardFocus(true);
     interpSelector.setExplicitFocusOrder(++tabOrder);
 }

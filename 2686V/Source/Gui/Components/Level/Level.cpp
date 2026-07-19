@@ -1,10 +1,11 @@
 ﻿#include "./Level.h"
 
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 
 void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix) {
     // 出力レベル
-    levelSlider.setup({ .parent = parent, .id = prefix + "_LEVEL", .title = "LV", .isReset = true });
+    levelSlider.setup({ .parent = parent, .id = prefix + CPK::level, .title = "LV", .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
 

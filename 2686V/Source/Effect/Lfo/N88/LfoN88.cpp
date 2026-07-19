@@ -24,23 +24,23 @@ void N88LfoCore::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pmIndex, int amIndex, float pms, float pmd, float amd, float amSmoothRate)
+void N88LfoCore::setParameters(const LfoN88Params& params)
 {
-	this->m_sdParam = syncDelay;
+	this->m_sdParam = params.syncDelay;
     this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
     this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
-    this->pmEnable = pm;
-    this->m_pmFreq = pmFreq;
-    this->m_pmWaveIndex = std::clamp(pmIndex, 0, 5);
+    this->pmEnable = params.pm;
+    this->m_pmFreq = params.pmFreq;
+    this->m_pmWaveIndex = std::clamp(params.pmIndex, 0, 5);
     this->m_isOneshotPm = this->m_pmWaveIndex == 4 || this->m_pmWaveIndex == 5;
 
     this->pms = pms;
     this->pmd = pmd;
 
-    this->amEnable = am;
-    this->m_amFreq = amFreq;
-    this->m_amWaveIndex = std::clamp(amIndex, 0, 5);
+    this->amEnable = params.am;
+    this->m_amFreq = params.amFreq;
+    this->m_amWaveIndex = std::clamp(params.amIndex, 0, 5);
     this->m_isOneshotAm = this->m_amWaveIndex == 4 || this->m_amWaveIndex == 5;
     this->ams = 0.0f;
     this->amd = amd;
@@ -49,7 +49,7 @@ void N88LfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, fl
     this->depthDb = std::abs(this->amd / 127.0f);
     this->depthNorm = (this->pmd / 127.0f) * (this->pms / 15.0f);
 
-    this->m_amSmoothRate = amSmoothRate;
+    this->m_amSmoothRate = params.amSmoothRate;
 
     updatePhaseDelta();
 }

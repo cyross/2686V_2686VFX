@@ -15,6 +15,8 @@ void SsgCore::prepare(double sampleRate) {
     m_adsr.prepare(m_sampleRate);
 	m_pitchAdsr.prepare(0, m_sampleRate);
 	m_ssgSwEnv.prepare(0, m_sampleRate);
+    m_ssgSwEnv11.prepare(0, m_sampleRate);
+    m_ssgSwPenv11.prepare(0, m_sampleRate);
 
     m_targetRate = getTargetRate(m_rateIndex);
 
@@ -28,6 +30,8 @@ void SsgCore::setCurveCore(CurveCore* p_curveCore)
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void SsgCore::setSampleRate(double sampleRate) {
@@ -36,61 +40,51 @@ void SsgCore::setSampleRate(double sampleRate) {
     m_adsr.updateSampleRate(m_sampleRate);
     m_pitchAdsr.updateSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
 }
 
 void SsgCore::setParameters(const SynthParams& params)
 {
     m_level = params.ssg.level;
 
-    m_tone = params.ssg.tone;
-    m_mix = params.ssg.mix;
+    m_tone = params.ssg.tn.tone;
+    m_mix = params.ssg.tn.mix;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
     m_adsr.setParameters(params.ssg.adsr);
 	m_pitchAdsr.setParameters(params.ssg.pitchAdsr);
-    m_detune.setParameters(params.ssg.detune, params.ssg.detune2, params.ssg.detune3, params.ssg.multiple, params.ssg.multipleRatio);
+    m_detune.setParameters(params.ssg.detune);
 	m_ssgSwEnv.setParameters(params.ssg.ssgSwEnv);
-    m_lfo.setParameters(
-        params.ssg.lfoPmSyncDelay,
-        params.ssg.lfoAmSyncDelay,
-        params.ssg.lfoPmEnable,
-        params.ssg.lfoAmEnable,
-        params.ssg.lfoPmFreq,
-        params.ssg.lfoAmFreq,
-        params.ssg.lfoPmWave,
-        params.ssg.lfoAmWave,
-        params.ssg.lfoPms,
-        params.ssg.lfoPmd,
-        params.ssg.lfoAms,
-        params.ssg.lfoAmd,
-        params.ssg.lfoAmSmRt
-    );
+    m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
+    m_lfo.setParameters(params.ssg.lfo);
 
-    m_fixMode.setParameters(params.ssg.fixedMode, params.ssg.fixedFreq);
+    m_fixMode.setParameters(params.ssg.fix);
 
     m_waveform = params.ssg.waveform;
 
-    m_useHwEnv = params.ssg.useHwEnv;
-    m_envShape = params.ssg.envShape;
-    m_envFreq = params.ssg.envPeriod;
+    m_useHwEnv = params.ssg.env.enable;
+    m_envShape = params.ssg.env.shape;
+    m_envFreq = params.ssg.env.period;
 
-    m_dutyMode = params.ssg.dutyMode;
-    m_dutyPreset = params.ssg.dutyPreset;
-    m_dutyVar = params.ssg.dutyVar;
-    m_dutyInvert = params.ssg.dutyInvert;
-    m_dutyFc = params.ssg.dutyFc;
-    m_dutyFcFluc = params.ssg.dutyFcFluc;
+    m_dutyMode = params.ssg.duty.mode;
+    m_dutyPreset = params.ssg.duty.preset;
+    m_dutyVar = params.ssg.duty.var;
+    m_dutyInvert = params.ssg.duty.invert;
+    m_dutyFc = params.ssg.duty.fc;
+    m_dutyFcFluc = params.ssg.duty.fcFluc;
 
-    m_triKeyTrack = params.ssg.triKeyTrack;
-    m_triPeak = params.ssg.triPeak;
-    m_triFreq = params.ssg.triFreq;
+    m_triKeyTrack = params.ssg.tri.keyTrack;
+    m_triPeak = params.ssg.tri.peak;
+    m_triFreq = params.ssg.tri.freq;
 
-    m_noiseGen.setParameters(params.ssg.noiseLevel, params.ssg.noiseFreq, params.ssg.noiseOnNote);
+    m_noiseGen.setParameters({ .level = params.ssg.tn.noiseLevel, .noiseOnNote = params.ssg.tn.noiseOnNote, .baseFreq = params.ssg.tn.noiseFreq });
 
-    if (m_rateIndex != params.ssg.rateIndex) {
-        m_rateIndex = params.ssg.rateIndex;
+    if (m_rateIndex != params.ssg.quality.rate) {
+        m_rateIndex = params.ssg.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
 
@@ -102,7 +96,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_noiseGen.updateFrequency(m_currentFrequency);
     m_noiseGen.updateDelta();
 
-    m_quantizeSteps = getTargetBitDepth(params.ssg.bitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.ssg.quality.bit);
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 }
@@ -177,10 +171,22 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            m_ssgSwEnv11.noteOn();
+        }
+
+        if (!m_ssgSwPenv11.isBypass()) {
+            m_ssgSwPenv11.noteOn();
+        }
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 }
 
@@ -195,9 +201,17 @@ void SsgCore::noteOff()
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (!m_ssgSwEnv11.isBypass()) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (!m_ssgSwPenv11.isBypass()) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
-bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
+bool SsgCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying(); }
 
 // ピッチベンド (0 - 16383, Center=8192)
 void SsgCore::setPitchBend(int pitchWheelValue)
@@ -229,48 +243,62 @@ void SsgCore::setPitchBendRatio(float ratio)
 
 float SsgCore::getSample()
 {
-    if (!isPlaying() && m_adsr.isBypass()) {
-        if (m_pitchAdsr.isBypass()) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    // すべてのアンプエンベロープがバイパスされているかどうかを判定
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
-        if (m_ssgSwEnv.isBypass()) {
+    if (isAllAmpBypassed) {
+        // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
+        // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
             m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_pitchAdsr.bypassedReleasedProcess();
+            m_ssgSwPenv11.bypassedReleasedProcess();
+            return 0.0f;
         }
-
-        return 0.0f;
     }
-
-    if (!isPlaying()) {
-		// ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
-		// ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+    else if (!isPlaying()) {
+        // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
+        // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
         m_pitchAdsr.bypassedReleasedProcess();
-
+        m_ssgSwPenv11.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
-    // --- ADSR & SwEnv Gate Logic ---
-    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypass()) {
-        m_currentLevel = m_adsr.process(m_currentLevel);
-        finalEnv *= m_currentLevel; // 掛け算
-    }
-    else {
-        if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-        else {
+    if (!isAllAmpBypassed) {
+        // 1. ADSR処理
+        if (!m_adsr.isBypass()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
-            finalEnv *= m_currentLevel; // 掛け算
+            finalEnv *= m_currentLevel;
         }
-    }
+        else {
+            if (m_adsr.isRelease()) {
+                m_adsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_adsr.process(m_currentLevel);
+                finalEnv *= m_currentLevel;
+            }
+        }
 
-    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypass()) {
-        finalEnv *= m_ssgSwEnv.process(); // 掛け算
-    }
-    else {
-        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypass()) {
+            finalEnv *= m_ssgSwEnv.process();
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (!m_ssgSwEnv11.isBypass()) {
+            finalEnv *= m_ssgSwEnv11.process();
+        }
+        else {
+            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
+        }
     }
 
     // --- Sample Rate Emulation ---
@@ -278,6 +306,7 @@ float SsgCore::getSample()
     m_rateAccumulator += stepSize;
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+    newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
     // Update core logic only when virtual clock ticks
     while (m_rateAccumulator >= 1.0)

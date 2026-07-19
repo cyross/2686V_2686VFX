@@ -50,16 +50,16 @@ OpmDetune::OpmDetune() {
     };
 }
 
-void OpmDetune::setParameters(int dt, int dt2, int mul, float mulRatio)
+void OpmDetune::setParameters(const OpmDetuneParams& params)
 {
-    detune = dt & 7;
+    detune = params.detune & 7;
     realDetune = dtScales[detune];
 
-    detune2 = dt2 & 3;
+    detune2 = params.detune2 & 3;
     realDetune2 = dt2Scales[detune2];
 
-    multiple = mul;
-    mulScales[16] = mulRatio; // 16番目にユーザー指定のmulRatioをセット
+    multiple = params.multiple;
+    mulScales[16] = params.mulRatio; // 16番目にユーザー指定のmulRatioをセット
     realMultiple = mulScales[multiple];
 }
 

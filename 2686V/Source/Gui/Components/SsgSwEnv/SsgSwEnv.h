@@ -15,12 +15,13 @@
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
 class GuiComponentSsgSwEnv : public GuiBase {
     bool isEnable = false;
-    juce::Font labelFont = juce::Font(juce::FontOptions(6.0f));
+    juce::Font labelFont = juce::Font(juce::FontOptions(12.0f));
 
     // SSG SW ENV
     GuiCategoryLabel cat;
@@ -40,12 +41,19 @@ class GuiComponentSsgSwEnv : public GuiBase {
     GuiSlider r6;
     NormalSeparator rateSeparator;
     GuiSlider startLevel;
+    GuiComponentSsgSwButtons stlBtns;
     GuiSlider l1;
+    GuiComponentSsgSwButtons l1Btns;
     GuiSlider l2;
+    GuiComponentSsgSwButtons l2Btns;
     GuiSlider l3;
+    GuiComponentSsgSwButtons l3Btns;
     GuiSlider l4;
+    GuiComponentSsgSwButtons l4Btns;
     GuiSlider l5;
+    GuiComponentSsgSwButtons l5Btns;
     GuiSlider l6;
+    GuiComponentSsgSwButtons l6Btns;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     void applyLoopValues(bool enabled);
@@ -69,12 +77,19 @@ public:
         r6(context),
 		rateSeparator(context),
         startLevel(context),
-		l1(context),
-		l2(context),
-		l3(context),
-		l4(context),
-		l5(context),
-		l6(context)
+        stlBtns(context),
+        l1(context),
+        l1Btns(context),
+        l2(context),
+        l2Btns(context),
+        l3(context),
+        l3Btns(context),
+        l4(context),
+        l4Btns(context),
+        l5(context),
+        l5Btns(context),
+        l6(context),
+        l6Btns(context)
     {
     }
 

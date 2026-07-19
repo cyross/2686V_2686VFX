@@ -82,19 +82,12 @@ void OpmCore::setSampleRate(double sampleRate) {
 void OpmCore::setParameters(const SynthParams& params) {
     m_level = params.opm.level;
 
-    m_algorithm = params.opm.algorithm;
+    m_algorithm = params.opm.algFb.algorithm;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_lfo.setParameters(
-        params.opm.lfoSyncDelay,
-        params.opm.pmEnable, params.opm.amEnable,
-        params.opm.lfoFreq, params.opm.lfoFreq,
-        params.opm.pgLfoWave, params.opm.egLfoWave,
-        params.opm.lfoPms, params.opm.lfoPmd,
-        params.opm.lfoAms, params.opm.lfoAmd,
-        params.opm.lfoAmSmRt);
+    m_lfo.setParameters(params.opm.glLfo);
 
     m_pan = params.opm.pan;
 
@@ -107,8 +100,8 @@ void OpmCore::setParameters(const SynthParams& params) {
         m_pan_r_rate = (float)((m_pan + 1) >> 1);
     }
 
-    if (m_rateIndex != params.opm.fmRateIndex) {
-        m_rateIndex = params.opm.fmRateIndex;
+    if (m_rateIndex != params.opm.quality.rate) {
+        m_rateIndex = params.opm.quality.rate;
 
 		double target = getTargetRate(m_rateIndex);
 
@@ -122,10 +115,10 @@ void OpmCore::setParameters(const SynthParams& params) {
         m_lfo.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opm.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opm.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opm.op[0], m_algorithm != 2 ? params.opm.feedback : 0.0f);
+    m_operators[0].setParameters(params.opm.op[0], m_algorithm != 2 ? params.opm.algFb.feedback : 0.0f);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opm.op[0].mask;
@@ -133,7 +126,7 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opm.op[1].mask;
-    m_operators[2].setParameters(params.opm.op[2], m_algorithm == 2 ? params.opm.feedback : 0.0f);
+    m_operators[2].setParameters(params.opm.op[2], m_algorithm == 2 ? params.opm.algFb.feedback : 0.0f);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opm.op[2].mask;

@@ -89,27 +89,15 @@ void OpnCore::setParameters(const SynthParams& params)
 {
     m_level = params.opn.level;
 
-    m_algorithm = params.opn.algorithm;
+    m_algorithm = params.opn.algFb.algorithm;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_n88Lfo.setParameters(
-        params.opn.lfoSyncDelay,
-        params.opn.pmEnable,
-        params.opn.amEnable,
-        params.opn.lfoFreq,
-        params.opn.lfoFreq,
-        params.opn.lfoWave,
-        params.opn.lfoWave,
-        params.opn.lfoPms,
-        params.opn.lfoPmd,
-        params.opn.lfoAmd,
-        params.opn.lfoAmSmRt
-    );
+    m_n88Lfo.setParameters(params.opn.glLfo);
 
-    if (m_rateIndex != params.opn.fmRateIndex) {
-        m_rateIndex = params.opn.fmRateIndex;
+    if (m_rateIndex != params.opn.quality.rate) {
+        m_rateIndex = params.opn.quality.rate;
 
 		double target = getTargetRate(m_rateIndex);
 
@@ -123,10 +111,10 @@ void OpnCore::setParameters(const SynthParams& params)
         m_n88Lfo.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opn.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opn.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opn.op[0], m_algorithm != 2 ? params.opn.feedback : 0.0f);
+    m_operators[0].setParameters(params.opn.op[0], m_algorithm != 2 ? params.opn.algFb.feedback : 0.0f);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opn.op[0].mask;
@@ -134,7 +122,7 @@ void OpnCore::setParameters(const SynthParams& params)
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opn.op[1].mask;
-    m_operators[2].setParameters(params.opn.op[2], m_algorithm == 2 ? params.opn.feedback : 0.0f);
+    m_operators[2].setParameters(params.opn.op[2], m_algorithm == 2 ? params.opn.algFb.feedback : 0.0f);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opn.op[2].mask;

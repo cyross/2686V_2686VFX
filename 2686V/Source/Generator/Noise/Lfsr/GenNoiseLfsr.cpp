@@ -7,11 +7,11 @@ void LfsrNoiseGen::prepare(double newTargetRate) {
 	updateDelta(newTargetRate);
 }
 
-void LfsrNoiseGen::setParameters(float newLevel, float newBaseFreq, bool noiseOnNote)
+void LfsrNoiseGen::setParameters(const LfsrNoiseGenParams& params)
 {
-	this->level = newLevel;
-	this->baseFreq = newBaseFreq;
-	this->noiseOnNote = noiseOnNote;
+	this->level = params.level;
+	this->baseFreq = params.baseFreq;
+	this->noiseOnNote = params.noiseOnNote;
 }
 
 float LfsrNoiseGen::generate() {

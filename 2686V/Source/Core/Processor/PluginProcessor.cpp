@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 
 #include "../Processor/ProcessorNames.h"
+#include "../Processor/ProcessorHelper.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
@@ -32,11 +33,11 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::ADPCM] = &prAdpcm;
     prMap[OscMode::BEEP] = &prBeep;
 
-    pMode = apvts.getRawParameterValue(CorePrKey::mode);
-    pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
-    pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
-    pPitchResetOnLegato = apvts.getRawParameterValue(CorePrKey::pitchResetOnLegato);
-    pFixedVelocity = apvts.getRawParameterValue(CorePrKey::fixedVelocity);
+    pMode = apvts.getRawParameterValue(CPK::mode);
+    pMonoMode = apvts.getRawParameterValue(CPK::Midi::monoMode);
+    pUseVelocity = apvts.getRawParameterValue(CPK::Midi::useVelocity);
+    pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
+    pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
     prOpna.init(apvts);
     prOpn.init(apvts);
@@ -94,7 +95,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:WT2 10:RHYTHM, 11:ADPCM. 12:FX, 13:PRESET, 14:SETTING, 15:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(CorePrKey::mode, CorePrName::mode, 0, CoreGuiValue::TabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(CPK::mode, CPN::mode, 0, CoreGuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
 	prOpn.createLayout(layout);
@@ -112,29 +113,29 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prCurve.createLayout(layout);
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::monoMode,
-        CorePrName::monoMode,
-        CorePrValue::MonoMode::initial
+        CPK::Midi::monoMode,
+        CPN::Midi::monoMode,
+        CPV::Midi::MonoMode::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::useVelocity,
-        CorePrName::useVelocity,
-        CorePrValue::UseVelocity::initial
+        CPK::Midi::useVelocity,
+        CPN::Midi::useVelocity,
+        CPV::Midi::UseVelocity::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::pitchResetOnLegato,
-        CorePrName::pitchResetOnLegato,
-        CorePrValue::PitchResetOnLegato::initial
+        CPK::Midi::pitchResetOnLegato,
+        CPN::Midi::pitchResetOnLegato,
+        CPV::Midi::PitchResetOnLegato::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        CorePrKey::fixedVelocity,
-        CorePrName::fixedVelocity,
-        CorePrValue::FixedVelocity::min,
-        CorePrValue::FixedVelocity::max,
-        CorePrValue::FixedVelocity::initial
+        CPK::Midi::fixedVelocity,
+        CPN::Midi::fixedVelocity,
+        CPV::Midi::FixedVelocity::min,
+        CPV::Midi::FixedVelocity::max,
+        CPV::Midi::FixedVelocity::initial
     ));
 
     return layout;
@@ -192,7 +193,7 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     buffer.clear();
 
     // --- Global ---
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
     m_currentParams.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
     prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
@@ -200,22 +201,22 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
 	prCurve.processBlock(m_currentParams, apvts);
 
-    bool isMono = (pMonoMode->load(std::memory_order_relaxed) > 0.5f);
+    bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
     m_currentParams.monoMode = isMono;
 
-    bool useVelo = (pUseVelocity->load(std::memory_order_relaxed) > 0.5f);
+    bool useVelo = PrHelper::getBool(pUseVelocity);
 
     m_synth.useVelocity = useVelo;
     m_currentParams.useVelocity = useVelo;
 
-    bool ptResetOnLegato = (pPitchResetOnLegato->load(std::memory_order_relaxed) > 0.5f);
+    bool ptResetOnLegato = PrHelper::getBool(pPitchResetOnLegato);
 
     m_synth.pitchResetOnLegato = ptResetOnLegato;
     m_currentParams.pitchResetOnLegato = ptResetOnLegato;
 
-    float fixedVelocity = pFixedVelocity->load(std::memory_order_relaxed);
+    float fixedVelocity = PrHelper::getFloat(pFixedVelocity);
 
     m_synth.fixedVelocity = fixedVelocity;
     m_currentParams.fixedVelocity = fixedVelocity;
@@ -368,7 +369,7 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
-    int currentMode = (int)pMode->load(std::memory_order_relaxed);
+    int currentMode = PrHelper::getInt(pMode);
 
     if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
         lastActiveSynthMode = (OscMode)currentMode;
@@ -1141,7 +1142,7 @@ void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
 void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
 {
     // 1. パラメータの取得と設定
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
     m_previewParams.mode = (OscMode)m;
 
     switch (m_previewParams.mode) {
@@ -1399,7 +1400,7 @@ bool AudioPlugin2686V::isMidiProcessing() {
 
 OscMode AudioPlugin2686V::getCurrentMode()
 {
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
 }

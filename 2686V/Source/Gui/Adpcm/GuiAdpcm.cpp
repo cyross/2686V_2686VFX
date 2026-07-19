@@ -3,6 +3,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmValues.h"
 
@@ -11,53 +13,6 @@
 #include "./GuiAdpcmText.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiAdpcmHelpers.h"
-
-// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
-static std::vector<SelectItem> qualityItems = {
-    {.name = " 1: Raw (32bit)", .value =  1 },
-    {.name = " 2: 24-bit PCM",  .value =  2 },
-    {.name = " 3: 20-bit PCM",  .value =  3 },
-    {.name = " 4: 16-bit PCM",  .value =  4 },
-    {.name = " 5: 12-bit PCM",  .value =  5 },
-    {.name = " 6: 10-bit PCM",  .value =  6 },
-    {.name = " 7: 9-bit PCM",   .value =  7 },
-    {.name = " 8: 8-bit PCM",   .value =  8 },
-    {.name = " 9: 7-bit PCM",   .value =  9 },
-    {.name = "10: 6-bit PCM",   .value = 10 },
-    {.name = "11: 5-bit PCM",   .value = 11 },
-    {.name = "12: 4-bit PCM",   .value = 12 },
-    {.name = "13: 4-bit ADPCM", .value = 13 },
-    {.name = "14: 1-bit DPCM",  .value = 14 },
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value =  1 },
-    {.name = " 2: 55.5kHz",  .value =  2 },
-    {.name = " 3: 49.7kHz",  .value =  3 },
-    {.name = " 4: 48kHz",    .value =  4 },
-    {.name = " 5: 44.1kHz",  .value =  5 },
-    {.name = " 6: 33.08kHz", .value =  6 },
-    {.name = " 7: 32kHz",    .value =  7 },
-    {.name = " 8: 22.05kHz", .value =  8 },
-    {.name = " 9: 16kHz",    .value =  9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
-
-static std::vector<SelectItem> interpItems = {
-    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
-    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
-    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 },
-    {.name = juce::String("") + "4: ZOH (Zero-Order Hold)", .value = 4 },
-    {.name = juce::String("") + "5: コサイン補間 (Cosine)", .value = 5 },
-    {.name = juce::String("") + "6: B-スプライン補間 (B-Spline)", .value = 6 },
-    {.name = juce::String("") + "7: ラグランジュ補間 (Lagrange)", .value = 7 }
-};
 
 void GuiAdpcm::setup()
 {
@@ -87,20 +42,20 @@ void GuiAdpcm::setup()
     // 出力レベル
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noiseFreq, .title = AdpcmGuiText::Adpcm::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::freq, .title = AdpcmGuiText::Adpcm::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     // 初期状態反映
-    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mix , .title = AdpcmGuiText::Adpcm::mix, .isReset = true });
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::mix , .title = AdpcmGuiText::Adpcm::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -122,34 +77,34 @@ void GuiAdpcm::setup()
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
-    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointEnable, .title = AdpcmGuiText::Adpcm::loopPointEnable, .isReset = true });
+    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::lpEnable, .title = AdpcmGuiText::Adpcm::loopPointEnable, .isReset = true });
     loopPointEnableButton.setWantsKeyboardFocus(true);
     loopPointEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointStart, .title = AdpcmGuiText::Adpcm::loopPointStart, .isReset = true });
+    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::lpStart, .title = AdpcmGuiText::Adpcm::loopPointStart, .isReset = true });
     loopPointStartSlider.setWantsKeyboardFocus(true);
     loopPointStartSlider.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointEnd, .title = AdpcmGuiText::Adpcm::loopPointEnd, .isReset = true });
+    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::lpEnd, .title = AdpcmGuiText::Adpcm::loopPointEnd, .isReset = true });
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
@@ -177,9 +132,13 @@ void GuiAdpcm::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, AdpcmGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, AdpcmGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, AdpcmGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, AdpcmGuiText::SsgSwEnv::bypass);
+
+	ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, AdpcmGuiText::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, AdpcmGuiText::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -254,6 +213,14 @@ void GuiAdpcm::setup()
     ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
     ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
+    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
+    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
@@ -308,6 +275,10 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
+
+    ssgSwEnv11Component.layoutComponent(mRect);
+
+    ssgSwPEnv11Component.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
     
@@ -388,6 +359,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
@@ -407,6 +380,10 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -495,15 +472,21 @@ void GuiAdpcm::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this]() { updateGraph(); };
 
@@ -512,6 +495,10 @@ void GuiAdpcm::setupGraph()
     pitchEnvComponent.setupGraph(repaintGraph);
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
+
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
 
     graphSeparator.setupComponent(*this);
 }
@@ -524,6 +511,8 @@ void GuiAdpcm::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -537,11 +526,13 @@ void GuiAdpcm::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(AdpcmGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -566,6 +557,18 @@ void GuiAdpcm::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -796,4 +799,20 @@ void GuiAdpcm::exportPcmPlayParam() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiAdpcm::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void GuiAdpcm::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void GuiAdpcm::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void GuiAdpcm::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
 }

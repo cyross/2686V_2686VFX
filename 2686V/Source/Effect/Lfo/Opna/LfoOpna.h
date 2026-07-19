@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 
+#include "./LfoOpnaParams.h"
 #include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 
 struct OpnaLfoValues {
@@ -63,7 +64,7 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, float pms, float ams, float amSmoothRate);
+	void setParameters(const LfoOpnaParams& params);
 	void noteOn();
 	void getSample();
 	inline void updatePhaseDelta();

@@ -6,7 +6,7 @@
 
 namespace FxPrValue
 {
-	inline constexpr float boolThread = CorePrValue::boolThread;
+	inline constexpr float boolThread = CPV::boolThread;
 
 	namespace MBypass
 	{

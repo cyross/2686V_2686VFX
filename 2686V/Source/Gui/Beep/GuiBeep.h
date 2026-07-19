@@ -20,6 +20,8 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -45,6 +47,9 @@ class GuiBeep : public GuiBase {
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnvComponent;
 
+    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+
     // Detune
 	GuiComponentMulDetune mulDetuneComponent;
 
@@ -59,6 +64,8 @@ class GuiBeep : public GuiBase {
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
 
@@ -66,9 +73,11 @@ class GuiBeep : public GuiBase {
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
     NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -86,7 +95,9 @@ public:
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
-		mulDetuneComponent(context),
+        ssgSwEnv11Component(context),
+        ssgSwPEnv11Component(context),
+        mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
         utilityCat(context),
@@ -96,11 +107,15 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgSwEnv(context),
+        ieSsgSwEnv11(context),
+        ieSsgSwPEnv11(context),
         ieDetune(context),
         ieUnison(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
@@ -122,6 +137,10 @@ public:
     void exportPitchEnvParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
+    void importSsgSwEnv11Param();
+    void exportSsgSwEnv11Param();
+    void importSsgSwPEnv11Param();
+    void exportSsgSwPEnv11Param();
     void importDetuneParam();
     void exportDetuneParam();
     void importUnisonParam();

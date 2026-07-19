@@ -30,34 +30,34 @@ void OpmLfoCore::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void OpmLfoCore::setParameters(int syncDelay, bool pm, bool am, float pmFreq, float amFreq, int pgIndex, int egIndex, int pmsIndex, int pmd, int amsIndex, int amd, float amSmoothRate)
+void OpmLfoCore::setParameters(const LfoOpmParams& params)
 {
-	this->m_sdParam = syncDelay;
+	this->m_sdParam = params.syncDelay;
     this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
     this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
-    this->pmEnable = pm;
-    this->m_pmFreq = pmFreq;
-    this->m_pmWaveIndex = std::clamp(pgIndex, 0, 7);
+    this->pmEnable = params.pm;
+    this->m_pmFreq = params.pmFreq;
+    this->m_pmWaveIndex = std::clamp(params.pgIndex, 0, 7);
     this->m_isOneshotPm = this->m_pmWaveIndex == 6 || this->m_pmWaveIndex == 7;
 
-    this->m_pmsIndex = std::clamp(pmsIndex, 0, 3);
+    this->m_pmsIndex = std::clamp(params.pmsIndex, 0, 3);
     this->pms = pmsDepths[this->m_pmsIndex];
     this->pmd = (float)pmd;
 
-    this->amEnable = am;
-    this->m_amFreq = amFreq;
-    this->m_amWaveIndex = std::clamp(egIndex, 0, 7);
+    this->amEnable = params.am;
+    this->m_amFreq = params.amFreq;
+    this->m_amWaveIndex = std::clamp(params.egIndex, 0, 7);
     this->m_isOneshotAm = this->m_amWaveIndex == 6 || this->m_amWaveIndex == 7;
 
-    this->m_amsIndex = std::clamp(amsIndex, 0, 7);
+    this->m_amsIndex = std::clamp(params.amsIndex, 0, 7);
     this->ams = amsDepths[this->m_amsIndex];
     this->amd = (float)amd;
 
     this->depthDb = (this->amd >= 0.0f) ? (this->amd / 127.0f) : 1.0f;
     this->depthCent = (this->pmd >= 0.0f) ? (this->pmd / 127.0f) : 1.0f;
 
-    this->m_amSmoothRate = amSmoothRate;
+    this->m_amSmoothRate = params.amSmoothRate;
 
     updatePhaseDelta();
 }

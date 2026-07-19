@@ -22,24 +22,10 @@ void Opzx7LfoCore::updateTargetSampleRate(double newSampleRate) {
     am.updateTargetSampleRate(newSampleRate);
 }
 
-void Opzx7LfoCore::setParameters(
-    int pmSyncDelay,
-    int amSyncDelay,
-    bool pmEnable,
-    bool amEnable,
-    float pmFreq,
-    float amFreq,
-    int pgIndex,
-    int egIndex,
-    float pms,
-    float pmd,
-    float ams,
-    float amd,
-    float amSmoothRate
-)
+void Opzx7LfoCore::setParameters(const LfoOpzx7Params& params)
 {
-    pm.setParameters(pmSyncDelay, pmEnable, pmFreq, pgIndex, pms, pmd, 0.0f);
-    am.setParameters(amSyncDelay, amEnable, amFreq, egIndex, ams, amd, amSmoothRate);
+    pm.setParameters(params.pmSyncDelay, params.pmEnable, params.pmFreq, params.pgIndex, params.pms, params.pmd, 0.0f);
+    am.setParameters(params.amSyncDelay, params.amEnable, params.amFreq, params.egIndex, params.ams, params.amd, params.amSmoothRate);
 }
 
 void Opzx7LfoCore::noteOn()

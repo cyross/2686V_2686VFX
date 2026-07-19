@@ -154,11 +154,13 @@ struct BaseCurveParams
 struct CurveParams
 {
     enum class Position { Common, Op1, Op2, Op3, Op4, Op5, Op6, Size };
-    enum class Target { RegValue, AmpEnv, PitchEnv, SsgSwEnv, Size };
+    enum class Target { RegValue, AmpEnv, PitchEnv, SsgSwEnv, SsgSwEnv11, SsgSwPEnv11, Size };
 	enum class TargetRegValue { Ar, Dr, Sl, Rr, Sr, Tl, Size };
 	enum class TargetAmpEnv { Ar, Dr, Rr, Sr, Size };
 	enum class TargetPitchEnv { Ar, Dr, Rr, Size };
 	enum class TargetSsgSwEnv { R1, R2, R3, R4, R5, R6, LoopTo, Size };
+	enum class TargetSsgSwEnv11 { R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, LoopTo, Size };
+	enum class TargetSsgSwPEnv11 { R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, LoopTo, Size };
 	enum class Logic {
 		Linear,        //  0 | 線形
 		ArcExp,        //  1 | 円弧(指数的)
@@ -197,5 +199,5 @@ struct CurveParams
     bool enable = false; // 従来モードかカーブモードか
 
 	// params[Position][Target][(Ar/Dr or R1/R2)...]
-	std::array<std::array<std::array<BaseCurveParams, 8>, (int)Target::Size>, (int)Position::Size> params;
+	std::array<std::array<std::array<BaseCurveParams, 16>, (int)Target::Size>, (int)Position::Size> params;
 };

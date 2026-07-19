@@ -497,3 +497,7 @@ void OplAdsr::setParamMax(int ar, int dr, int sl, int rr, int tl) {
     rrMax = rr;
     tlMax = tl;
 }
+
+void OplAdsr::bypassedReleasedProcess() {
+    this->state = State::Idle;
+}

@@ -1,9 +1,8 @@
 ﻿#pragma once
 
 // CSM/Fix Mode
-class FixModeParams
+struct FixModeParams
 {
-public:
     bool enable = false;
     float freq = 440.0f;
 };

@@ -29,21 +29,21 @@ void OpnaLfoCore::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void OpnaLfoCore::setParameters(int syncDelay, bool pm, bool am, int pmFreqIndex, int amFreqIndex, float pms, float ams, float amSmoothRate)
+void OpnaLfoCore::setParameters(const LfoOpnaParams& params)
 {
-	this->m_sdParam = syncDelay;
+	this->m_sdParam = params.syncDelay;
     this->m_sdIndex = std::clamp(this->m_sdParam, 0, 2);
     this->m_sd = (float)(m_sdParam - 1) * (1000.0f / 60.0f);
 
-    this->pmEnable = pm;
-    this->m_pmFreq = freqs[std::clamp(pmFreqIndex, 0, 7)];
+    this->pmEnable = params.pm;
+    this->m_pmFreq = freqs[std::clamp(params.pmFreqIndex, 0, 7)];
     this->pms = pmsDepths[std::clamp((int)pms, 0, 7)];
 
-    this->amEnable = am;
-    this->m_amFreq = freqs[std::clamp(amFreqIndex, 0, 7)];
+    this->amEnable = params.am;
+    this->m_amFreq = freqs[std::clamp(params.amFreqIndex, 0, 7)];
     this->ams = amsDepths[std::clamp((int)ams, 0, 3)];
 
-    this->m_amSmoothRate = amSmoothRate;
+    this->m_amSmoothRate = params.amSmoothRate;
 
     updatePhaseDelta();
 }

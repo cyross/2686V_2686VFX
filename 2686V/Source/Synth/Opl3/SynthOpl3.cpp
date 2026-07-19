@@ -81,13 +81,13 @@ void Opl3Core::setSampleRate(double sampleRate) {
 void Opl3Core::setParameters(const SynthParams& params) {
     m_level = params.opl3.level;
 
-    m_algorithm = params.opl3.algorithm;
+    m_algorithm = params.opl3.algFb.algorithm;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    if (m_rateIndex != params.opl3.fmRateIndex) {
-        m_rateIndex = params.opl3.fmRateIndex;
+    if (m_rateIndex != params.opl3.quality.rate) {
+        m_rateIndex = params.opl3.quality.rate;
 
 		double target = getTargetRate(m_rateIndex);
 
@@ -98,22 +98,22 @@ void Opl3Core::setParameters(const SynthParams& params) {
 		m_operators[3].setSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opl3.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opl3.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opl3.op[0], params.opl3.feedback);
+    m_operators[0].setParameters(params.opl3.op[0], params.opl3.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opl3.op[0].mask;
-    m_operators[1].setParameters(params.opl3.op[1], params.opl3.feedback);
+    m_operators[1].setParameters(params.opl3.op[1], params.opl3.algFb.feedback);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opl3.op[1].mask;
-    m_operators[2].setParameters(params.opl3.op[2], params.opl3.feedback);
+    m_operators[2].setParameters(params.opl3.op[2], params.opl3.algFb.feedback);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opl3.op[2].mask;
-    m_operators[3].setParameters(params.opl3.op[3], params.opl3.feedback);
+    m_operators[3].setParameters(params.opl3.op[3], params.opl3.algFb.feedback);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opl3.op[3].mask;

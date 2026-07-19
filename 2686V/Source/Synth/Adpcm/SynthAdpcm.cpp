@@ -19,6 +19,8 @@ void AdpcmCore::prepare(double sampleRate)
     m_adsr.prepare(m_sampleRate);
     m_pitchAdsr.prepare(0, m_sampleRate);
     m_ssgSwEnv.prepare(0, m_sampleRate);
+    m_ssgSwEnv11.prepare(0, m_sampleRate);
+    m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_phaseDelta = m_currentFrequency / m_sampleRate;
@@ -31,6 +33,8 @@ void AdpcmCore::setCurveCore(CurveCore* p_curveCore)
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void AdpcmCore::setSampleRate(double sampleRate)
@@ -39,6 +43,8 @@ void AdpcmCore::setSampleRate(double sampleRate)
 	m_adsr.updateSampleRate(m_sampleRate);
 	m_pitchAdsr.updateSampleRate(m_sampleRate);
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
     m_phaseDelta = m_currentFrequency / m_sampleRate;
@@ -48,8 +54,8 @@ void AdpcmCore::setParameters(const SynthParams& params)
 {
     m_level = params.adpcm.level;
     m_pan = params.adpcm.pan;
-    m_tone = params.adpcm.tone;
-    m_mix = params.adpcm.mix;
+    m_tone = params.adpcm.tn.tone;
+    m_mix = params.adpcm.tn.mix;
 
 	if (m_pan == 0.5f) {
 		m_panL = 1.0f;
@@ -60,13 +66,13 @@ void AdpcmCore::setParameters(const SynthParams& params)
 		m_panR = (float)((m_pan) * 2);
 	}
 
-    m_pcmOffset = params.adpcm.offset;
-    m_pcmRatio = params.adpcm.ratio;
-    m_loopPointEnable = params.adpcm.loopPointEnable;
-    m_loopPointStart = std::clamp(params.adpcm.loopPointStart, 0.0f, 0.999999f);
-    m_loopPointEnd = std::clamp(params.adpcm.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
+    m_pcmOffset = params.adpcm.pcm.offset;
+    m_pcmRatio = params.adpcm.pcm.ratio;
+    m_loopPointEnable = params.adpcm.lp.enable;
+    m_loopPointStart = std::clamp(params.adpcm.lp.start, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.adpcm.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 
-    m_fixMode.setParameters(params.adpcm.fixedMode, params.adpcm.fixedFreq);
+    m_fixMode.setParameters(params.adpcm.fix);
 
     bool newLoopState = params.adpcm.loop;
     if (m_isLooping != newLoopState) {
@@ -82,42 +88,30 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.adpcm.adsr);
     m_pitchAdsr.setParameters(params.adpcm.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.adpcm.ssgSwEnv);
-    m_detune.setParameters(params.adpcm.detune, params.adpcm.detune2, params.adpcm.detune3, params.adpcm.multiple, params.adpcm.multipleRatio);
-    m_lfo.setParameters(
-        params.adpcm.lfoPmSyncDelay,
-        params.adpcm.lfoAmSyncDelay,
-        params.adpcm.lfoPmEnable,
-        params.adpcm.lfoAmEnable,
-        params.adpcm.lfoPmFreq,
-        params.adpcm.lfoAmFreq,
-        params.adpcm.lfoPmWave,
-        params.adpcm.lfoAmWave,
-        params.adpcm.lfoPms,
-        params.adpcm.lfoPmd,
-        params.adpcm.lfoAms,
-        params.adpcm.lfoAmd,
-        params.adpcm.lfoAmSmRt
-    );
-    m_noiseGen.setParameters(params.adpcm.noiseLevel, params.adpcm.noiseFreq, false);
+    m_ssgSwEnv11.setParameters(params.adpcm.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.adpcm.ssgSwPEnv11);
+    m_detune.setParameters(params.adpcm.detune);
+    m_lfo.setParameters(params.adpcm.lfo);
+    m_noiseGen.setParameters({ .level = params.adpcm.tn.noiseLevel, .noiseOnNote = false, .baseFreq = params.adpcm.tn.noiseFreq });
 
     m_rootNote = params.adpcm.rootNote;
 
     bool needRefresh = false;
 
-    if (m_qualityMode != params.adpcm.qualityMode) {
-        m_qualityMode = params.adpcm.qualityMode;
+    if (m_qualityMode != params.adpcm.quality.mode) {
+        m_qualityMode = params.adpcm.quality.mode;
 
         needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
     }
 
-    if (m_rateIndex != params.adpcm.rateIndex) {
-        m_rateIndex = params.adpcm.rateIndex;
+    if (m_rateIndex != params.adpcm.quality.rate) {
+        m_rateIndex = params.adpcm.quality.rate;
         m_targetRate = getTargetRate(m_rateIndex);
 
         needRefresh = true;
     }
 
-    m_interpolationMode = params.adpcm.interpolationMode;
+    m_interpolationMode = params.adpcm.quality.interp;
 
     if (needRefresh) {
         refreshPcmBuffer();
@@ -140,6 +134,8 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
     m_adsr.prepare(m_bufferSampleRate);
     m_pitchAdsr.prepare(0, m_bufferSampleRate);
     m_ssgSwEnv.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
+    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
 
     double step = sourceRate / targetRate;
 
@@ -251,11 +247,24 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            m_ssgSwEnv11.noteOn();
+        }
+
+        if (!m_ssgSwPenv11.isBypass()) {
+            m_ssgSwPenv11.noteOn();
+        }
+
         m_lfo.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 }
 
@@ -272,11 +281,19 @@ void AdpcmCore::noteOff()
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (!m_ssgSwEnv11.isBypass()) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (!m_ssgSwPenv11.isBypass()) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
 bool AdpcmCore::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -314,55 +331,61 @@ void AdpcmCore::setPitchBendRatio(float ratio)
 
 float AdpcmCore::getSample()
 {
-    if (!isPlaying() && m_adsr.isBypass()) {
-        if (m_pitchAdsr.isBypass()) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    // すべてのアンプエンベロープがバイパスされているかどうかを判定
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
-        if (m_ssgSwEnv.isBypass()) {
+    if (isAllAmpBypassed) {
+        // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
+        // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
             m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_pitchAdsr.bypassedReleasedProcess();
+            m_ssgSwPenv11.bypassedReleasedProcess();
+            return 0.0f;
         }
-
-        return 0.0f;
     }
-
-    if (!isPlaying()) {
-        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
-        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
+    else if (!isPlaying()) {
+        // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
+        // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
         m_pitchAdsr.bypassedReleasedProcess();
-
+        m_ssgSwPenv11.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
-    // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypass() && m_ssgSwEnv.isBypass())
-    {
-        // どちらもバイパスの時は完全な矩形波（Gate）動作
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
-            m_adsr.bypassedReleasedProcess();
-            m_ssgSwEnv.bypassedReleasedProcess();
-            finalEnv = 1.0f;
-        }
-    }
-    else
-    {
-        // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
+    if (!isAllAmpBypassed) {
+        // 1. ADSR処理
         if (!m_adsr.isBypass()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
-            finalEnv *= m_currentLevel; // 掛け算
+            finalEnv *= m_currentLevel;
         }
         else {
-            if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
+            if (m_adsr.isRelease()) {
+                m_adsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_adsr.process(m_currentLevel);
+                finalEnv *= m_currentLevel;
+            }
         }
 
         // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
         if (!m_ssgSwEnv.isBypass()) {
-            finalEnv *= m_ssgSwEnv.process(); // 掛け算
+            finalEnv *= m_ssgSwEnv.process();
         }
         else {
             if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (!m_ssgSwEnv11.isBypass()) {
+            finalEnv *= m_ssgSwEnv11.process();
+        }
+        else {
+            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
         }
     }
 
@@ -697,6 +720,7 @@ float AdpcmCore::getSample()
     float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
     float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
     double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
+    currentIncrement = m_ssgSwPenv11.process(currentIncrement);
 
     // ==========================================
     // 周波数倍率の決定
@@ -736,6 +760,8 @@ void AdpcmCore::refreshPcmBuffer()
     m_adsr.prepare(m_bufferSampleRate);
     m_pitchAdsr.prepare(0, m_bufferSampleRate);
     m_ssgSwEnv.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
+    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
     m_noiseGen.prepare(m_bufferSampleRate);
 
     // Resample & Encode

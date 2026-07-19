@@ -34,12 +34,12 @@ const std::array<float, 16> OpnDetune::mulScales = {
     15.0f   // 15: x15.0
 };
 
-void OpnDetune::setParameters(int dt, int mul)
+void OpnDetune::setParameters(const OpnDetuneParams& params)
 {
-    detune = std::clamp(dt, -3, 3);
+    detune = std::clamp(params.detune, -3, 3);
     realDetune = dtScales[detune + 3];
 
-    multiple = mul;
+    multiple = params.multiple;
     realMultiple = mulScales[multiple];
 }
 

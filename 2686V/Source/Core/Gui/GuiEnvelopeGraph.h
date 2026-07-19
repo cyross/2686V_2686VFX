@@ -13,7 +13,7 @@ public:
 
     void paint(juce::Graphics& g) override;
 
-    enum class EnvType { Amp, Pitch, SsgSw };
+    enum class EnvType { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
 
     struct PhaseDef {
         float widthPx;
@@ -55,6 +55,28 @@ public:
         const GuiSlider& ssgSwLoopCountSlider,
         const std::array<juce::Slider*, 7>& rSl,
         const std::array<juce::Slider*, 7>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
+    );
+    void updateSsgSwEnv11(
+        const GuiSlider& ssgSwStepsSlider,
+        const GuiToggleButton& ssgSwEnvLoopButton,
+        const GuiSlider& ssgSwLoopToSlider,
+        const GuiSlider& ssgSwLoopCountSlider,
+        const std::array<juce::Slider*, 12>& rSl,
+        const std::array<juce::Slider*, 12>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
+    );
+    void updateSsgSwPEnv11(
+        const GuiSlider& ssgSwStepsSlider,
+        const GuiToggleButton& ssgSwEnvLoopButton,
+        const GuiSlider& ssgSwLoopToSlider,
+        const GuiSlider& ssgSwLoopCountSlider,
+        const std::array<juce::Slider*, 12>& rSl,
+        const std::array<juce::Slider*, 12>& lSl,
         CurveCore* p_curveCore,
         bool isCurveMode,
         int posIdx

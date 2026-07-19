@@ -1,9 +1,9 @@
 ﻿#include "./LfoOpzx7.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
-#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> lfoShapeItems = {
@@ -32,15 +32,15 @@ void GuiComponentLfoOpzx7::setupComponent(
 
     pmLabel.setup({ .parent = parent, .title = "[PM]" });
 
-    pmEnable.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pm, .title = "Enable", .isReset = true });
+    pmEnable.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pm, .title = "Enable", .isReset = true });
     pmEnable.setWantsKeyboardFocus(true);
     pmEnable.setExplicitFocusOrder(++tabOrder);
 
-    pmFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmFreq, .title = "FQ", .isReset = true });
+    pmFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmFreq, .title = "FQ", .isReset = true });
     pmFreq.setWantsKeyboardFocus(true);
     pmFreq.setExplicitFocusOrder(++tabOrder);
 
-    pmSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
+    pmSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmSyncDelay, .title = "SDLY", .isReset = true });
     pmSyncDelay.setWantsKeyboardFocus(true);
     pmSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -58,15 +58,15 @@ void GuiComponentLfoOpzx7::setupComponent(
         pmSyncDelay.setValue(1.0f);
         };
 
-    pgShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pgShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    pgShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pgShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
     pgShape.setWantsKeyboardFocus(true);
     pgShape.setExplicitFocusOrder(++tabOrder);
 
-    pms.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pms, .title = "PMS", .isReset = true });
+    pms.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pms, .title = "PMS", .isReset = true });
     pms.setWantsKeyboardFocus(true);
     pms.setExplicitFocusOrder(++tabOrder);
 
-    pmd.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::pmd, .title = "PMD", .isReset = true });
+    pmd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::pmd, .title = "PMD", .isReset = true });
     pmd.setWantsKeyboardFocus(true);
     pmd.setExplicitFocusOrder(++tabOrder);
 
@@ -74,15 +74,15 @@ void GuiComponentLfoOpzx7::setupComponent(
 
     amLabel.setup({ .parent = parent, .title = "[AM]" });
 
-    amEnable.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::am, .title = "Enable", .isReset = true });
+    amEnable.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::am, .title = "Enable", .isReset = true });
     amEnable.setWantsKeyboardFocus(true);
     amEnable.setExplicitFocusOrder(++tabOrder);
 
-    amFreq.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amFreq, .title = "FQ", .isReset = true });
+    amFreq.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amFreq, .title = "FQ", .isReset = true });
     amFreq.setWantsKeyboardFocus(true);
     amFreq.setExplicitFocusOrder(++tabOrder);
 
-    amSyncDelay.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
+    amSyncDelay.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSyncDelay, .title = "SDLY", .isReset = true });
     amSyncDelay.setWantsKeyboardFocus(true);
     amSyncDelay.setExplicitFocusOrder(++tabOrder);
 
@@ -100,19 +100,19 @@ void GuiComponentLfoOpzx7::setupComponent(
         amSyncDelay.setValue(1.0f);
         };
 
-    egShape.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::egShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
+    egShape.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::egShape, .title = "SH", .items = lfoShapeItems, .isReset = true });
     egShape.setWantsKeyboardFocus(true);
     egShape.setExplicitFocusOrder(++tabOrder);
 
-    amSmRt.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amSmoothRatio, .title = "SR", .isReset = true });
+    amSmRt.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amSmoothRatio, .title = "SR", .isReset = true });
     amSmRt.setWantsKeyboardFocus(true);
     amSmRt.setExplicitFocusOrder(++tabOrder);
 
-    ams.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::ams, .title = "AMS", .isReset = true });
+    ams.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::ams, .title = "AMS", .isReset = true });
     ams.setWantsKeyboardFocus(true);
     ams.setExplicitFocusOrder(++tabOrder);
 
-    amd.setup({ .parent = parent, .id = code + CorePrKey::Post::Lfo::amd, .title = "AMD", .isReset = true });
+    amd.setup({ .parent = parent, .id = code + CPK::Opzx7Lfo::amd, .title = "AMD", .isReset = true });
     amd.setWantsKeyboardFocus(true);
     amd.setExplicitFocusOrder(++tabOrder);
 }

@@ -53,6 +53,16 @@ namespace OplGuiText
 		static inline const juce::String enable = u8"Enable";
 	}
 
+	namespace SsgSwEnv11
+	{
+		static inline const juce::String enable = u8"Enable";
+	}
+
+	namespace SsgSwPEnv11
+	{
+		static inline const juce::String enable = u8"Enable";
+	}
+
 	namespace Fm
 	{
 		static inline const juce::String level = u8"LV";

@@ -1,6 +1,7 @@
 ﻿#include "./Unison.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -14,17 +15,17 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
         .enableChangeDetailVisible = true
         });
 
-    voices.setup({ .parent = parent, .id = code + "_UNI_VOICES", .title = "VICE", .isReset = true });
+    voices.setup({ .parent = parent, .id = code + CPK::Unison::voices, .title = "VOIC", .isReset = true });
     voices.setWantsKeyboardFocus(true);
     voices.setExplicitFocusOrder(++tabOrder);
 
-    detune.setup({ .parent = parent, .id = code + "_UNI_DETUNE", .title = "DT", .isReset = true });
+    detune.setup({ .parent = parent, .id = code + CPK::Unison::detune, .title = "DT", .isReset = true });
     detune.setWantsKeyboardFocus(true);
     detune.setExplicitFocusOrder(++tabOrder);
 
     detuneButtons.setupComponent(parent, detune, tabOrder);
 
-    spread.setup({ .parent = parent, .id = code + "_UNI_SPREAD", .title = "SPR", .isReset = true });
+    spread.setup({ .parent = parent, .id = code + CPK::Unison::spread, .title = "SPR", .isReset = true });
     spread.setWantsKeyboardFocus(true);
     spread.setExplicitFocusOrder(++tabOrder);
 }

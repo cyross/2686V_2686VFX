@@ -110,4 +110,5 @@ public:
 	void updateIncrements(int noteNumber);
 	float updateEnvelopeState(float currentLevel);
 	void setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl);
+	void bypassedReleasedProcess();
 };

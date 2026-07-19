@@ -17,10 +17,10 @@ namespace CurvePrName
 	static const std::array<juce::String, 7> position{ " Common", " Op1", " Op2", " Op3", " Op4", " Op5", " Op6" };
 
 	// Target
-	static const std::array<juce::String, 4> target{ " Register Value", " Amp Env", " Pitch Env", " SSG Sw Env" };
+	static const std::array<juce::String, 6> target{ " Register Value", " Amp Env", " Pitch Env", " SSG Sw Env", " SSG Sw Env11", " SSG Sw PEnv11" };
 
 	// パラメータリスト
-	static const std::array<juce::String, 8> paramList{ " Param[1]", " Param[2]", " Param[3]", " Param[4]", " Param[5]", " Param[6]", " Param[7]", " Param[8]" };
+	static const std::array<juce::String, 16> paramList{ " Param[1]", " Param[2]", " Param[3]", " Param[4]", " Param[5]", " Param[6]", " Param[7]", " Param[8]", " Param[9]", " Param[10]", " Param[11]", " Param[12]", " Param[13]", " Param[14]", " Param[15]", " Param[16]" };
 
 	// カーブロジック
 	static inline const juce::String logic = " Logic";

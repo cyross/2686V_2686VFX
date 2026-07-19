@@ -1,6 +1,7 @@
 ﻿#include "./Midi.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 
@@ -13,23 +14,23 @@ void GuiComponentMidi::setupComponent(juce::Component& parent, int &tabOrder)
         .enableChangeDetailVisible = true
         });
 
-    monoMode.setup({ .parent = parent, .id = "MONO_MODE", .title = "MonoPhonic", .isReset = true });
+    monoMode.setup({ .parent = parent, .id = CPK::Midi::monoMode, .title = "MonoPhonic", .isReset = true });
     monoMode.setWantsKeyboardFocus(true);
     monoMode.setExplicitFocusOrder(++tabOrder);
 
 	separator1.setupComponent(parent);
 
-    useVelocity.setup({ .parent = parent, .id = "USE_VELICITY", .title = "Use Velocity", .isReset = true });
+    useVelocity.setup({ .parent = parent, .id = CPK::Midi::useVelocity, .title = "Use Velocity", .isReset = true });
     useVelocity.setWantsKeyboardFocus(true);
     useVelocity.setExplicitFocusOrder(++tabOrder);
 
-    fixedVelocity.setup({ .parent = parent, .id = "FIXED_VELICITY", .title = "Fixed Velocity", .isReset = true });
+    fixedVelocity.setup({ .parent = parent, .id = CPK::Midi::fixedVelocity, .title = "Fixed Velocity", .isReset = true });
     fixedVelocity.setWantsKeyboardFocus(true);
     fixedVelocity.setExplicitFocusOrder(++tabOrder);
 
 	separator2.setupComponent(parent);
 
-    pitchResetOnLegato.setup({ .parent = parent, .id = "PITCH_RESET_LEGATO", .title = "PitchEnv Reset On Legato", .isReset = true });
+    pitchResetOnLegato.setup({ .parent = parent, .id = CPK::Midi::pitchResetOnLegato, .title = "PitchEnv Reset On Legato", .isReset = true });
     pitchResetOnLegato.setWantsKeyboardFocus(true);
     pitchResetOnLegato.setExplicitFocusOrder(++tabOrder);
 

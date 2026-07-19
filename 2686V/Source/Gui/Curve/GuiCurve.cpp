@@ -26,7 +26,9 @@ static std::vector<SelectItem> targetItems = {
     {.name = "RegValue", .value = 1 },
     {.name = "AmpEnv",   .value = 2 },
     {.name = "PitchEnv", .value = 3 },
-    {.name = "SsgSwEnv", .value = 4 }
+    {.name = "SsgSwEnv", .value = 4 },
+    {.name = "SsgSwEnv11", .value = 5 },
+    {.name = "SsgSwPEnv11", .value = 6 }
 };
 
 static std::vector<SelectItem> logicItems = {
@@ -91,10 +93,38 @@ static std::vector< std::vector<juce::String>> paramTitles = {
         "R5",
         "R6",
         "Loop To"
+    },
+    {
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "Loop To"
+    },
+    {
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "Loop To"
     }
 };
 
-static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams };
+static std::vector<int> paramLengthes = { CurvePrValue::regValParams, CurvePrValue::regAmpEnvParams, CurvePrValue::regPitchEnvParams, CurvePrValue::regSsgSwEnvParams, CurvePrValue::regSsgSwEnv11Params, CurvePrValue::regSsgSwPEnv11Params };
 
 static std::vector<int> valueLengthes = {
     0,    // Linear
@@ -543,7 +573,7 @@ void GuiCurve::setup()
 
 void GuiCurve::layout(juce::Rectangle<int> content)
 {
-    const int scrollHeight = 3000;
+    const int scrollHeight = 8000;
     const int graphWidth = 400;
 	const int graphHeight = 400;
     juce::String code = CurvePrKey::prefix;

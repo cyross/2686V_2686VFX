@@ -1,6 +1,7 @@
 ﻿#include "./Quality.h"
 
 #include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 
 // 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 std::vector<SelectItem> Quality::bdItems = {
@@ -40,11 +41,11 @@ std::vector<SelectItem> Quality::rateItems = {
 void Quality::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder) {
     qualityCat.setupHwCategory({ .parent = parent, .title = juce::String("") + "[■]--- QUALITY ---", .invisibleTitle = juce::String("") + "[□]--- QUALITY ---", .enableChangeDetailVisible = true});
 
-    bitSelector.setup({ .parent = parent, .id = code + "_BIT", .title = "BIT", .items = bdItems, .isReset = true });
+    bitSelector.setup({ .parent = parent, .id = code + CPK::Quality::bit, .title = "BIT", .items = bdItems, .isReset = true });
     bitSelector.setWantsKeyboardFocus(true);
     bitSelector.setExplicitFocusOrder(++tabOrder);
 
-    rateSelector.setup({ .parent = parent, .id = code + "_RATE", .title = "RATE", .items = rateItems, .isReset = true });
+    rateSelector.setup({ .parent = parent, .id = code + CPK::Quality::rate, .title = "RATE", .items = rateItems, .isReset = true });
     rateSelector.setWantsKeyboardFocus(true);
     rateSelector.setExplicitFocusOrder(++tabOrder);
 }

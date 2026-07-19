@@ -1,6 +1,7 @@
 ﻿#include "./AmpEnv.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -14,35 +15,35 @@ void GuiComponentAmpEnv::setupComponent(juce::Component& parent, const juce::Str
         .enableChangeDetailVisible = true
         });
 
-    bypass.setup({ .parent = parent, .id = code + "_ADSR_BYPASS", .title = "Bypass", .isReset = true });
+    bypass.setup({ .parent = parent, .id = code + CPK::adsr + CPK::bypass, .title = "Bypass", .isReset = true });
     bypass.setWantsKeyboardFocus(true);
     bypass.setExplicitFocusOrder(++tabOrder);
 
 	separator1.setupComponent(parent);
 
-	startLevel.setup({ .parent = parent, .id = code + "_STL", .title = "STL", .isReset = true });
+	startLevel.setup({ .parent = parent, .id = code + CPK::Adsr::stl, .title = "STL", .isReset = true });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
 
-	attack.setup({ .parent = parent, .id = code + "_AR", .title = "AR", .isReset = true });
+	attack.setup({ .parent = parent, .id = code + CPK::Adsr::ar, .title = "AR", .isReset = true });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
 
-	decay.setup({ .parent = parent, .id = code + "_DR", .title = "DR", .isReset = true });
+	decay.setup({ .parent = parent, .id = code + CPK::Adsr::dr, .title = "DR", .isReset = true });
 	decay.setWantsKeyboardFocus(true);
 	decay.setExplicitFocusOrder(++tabOrder);
 
-	sustain.setup({ .parent = parent, .id = code + "_SL", .title = "SL", .isReset = true });
+	sustain.setup({ .parent = parent, .id = code + CPK::Adsr::sl, .title = "SL", .isReset = true });
 	sustain.setWantsKeyboardFocus(true);
 	sustain.setExplicitFocusOrder(++tabOrder);
 
-	release.setup({ .parent = parent, .id = code + "_RR", .title = "RR", .isReset = true });
+	release.setup({ .parent = parent, .id = code + CPK::Adsr::rr, .title = "RR", .isReset = true });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
 	separator2.setupComponent(parent);
 
-	kor.setup({ .parent = parent, .id = code + "_KOR", .title = "KOR", .isReset = true });
+	kor.setup({ .parent = parent, .id = code + CPK::Adsr::kor, .title = "KOR", .isReset = true });
 	kor.setWantsKeyboardFocus(true);
 	kor.setExplicitFocusOrder(++tabOrder);
 }

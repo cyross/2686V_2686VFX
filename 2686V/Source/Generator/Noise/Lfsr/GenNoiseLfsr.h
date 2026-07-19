@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "./GenNoiseLfsrParams.h"
+
 class LfsrNoiseGen
 {
     unsigned int lfsr = 0x1FFFF;
@@ -15,7 +17,7 @@ class LfsrNoiseGen
     float currentSample = 0.0f;
 public:
     void prepare(double newTargetRate);
-    void setParameters(float newLevel, float newBaseFreq, bool noiseOnNote);
+    void setParameters(const LfsrNoiseGenParams &params);
 	void updateTargetRate(double newTargetRate) { this->targetSampleRate = newTargetRate; }
     float generate();
     void updateDelta(double newTargetRate);

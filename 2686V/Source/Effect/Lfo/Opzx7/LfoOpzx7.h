@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 
+#include "./LfoOpzx7Params.h"
 #include "../../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "./LfoOpzx7Unit.h"
 
@@ -24,21 +25,7 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(
-		int pmSyncDelay,
-		int amSyncDelay,
-		bool pmEnable,
-		bool amEnable,
-		float pmFreq,
-		float amFreq,
-		int pgIndex, 
-		int egIndex,
-		float pms,
-		float pmd,
-		float ams,
-		float amd,
-		float amSmoothRate
-	);
+	void setParameters(const LfoOpzx7Params& params);
 	void noteOn();
 	void getSample();
 	inline void updatePhaseDelta();

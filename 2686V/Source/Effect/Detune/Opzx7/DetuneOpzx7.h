@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "./DetuneOpzx7Params.h"
+
 class Opzx7Detune
 {
 	static const std::array<float, 16> dtScales;
@@ -19,6 +21,6 @@ class Opzx7Detune
 	float realMultiple;
 public:
 	Opzx7Detune();
-	void setParameters(int dt, int dt2, int dt3, int mul, float mulRatio);
+	void setParameters(const Opzx7DetuneParams& params);
 	float noteOn(float baseFreq) const;
 };

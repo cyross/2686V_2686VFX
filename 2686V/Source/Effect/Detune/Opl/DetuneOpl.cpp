@@ -21,9 +21,9 @@ const std::array<float, 16> OplDetune::mulScales = {
     15.0f   // 15: x15.0
 };
 
-void OplDetune::setParameters(int mul)
+void OplDetune::setParameters(const OplDetuneParams& params)
 {
-    multiple = mul;
+    multiple = params.multiple;
     realMultiple = mulScales[multiple];
 }
 

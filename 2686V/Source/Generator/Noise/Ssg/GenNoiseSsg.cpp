@@ -6,11 +6,11 @@ void SsgNoiseGen::prepare(double newTargetRate) {
 	this->targetSampleRate = newTargetRate;
 }
 
-void SsgNoiseGen::setParameters(float newLevel, float newBaseFreq, bool noiseOnNote)
+void SsgNoiseGen::setParameters(const SsgNoiseGenParams& params)
 {
-	this->level = newLevel;
-	this->baseFreq = newBaseFreq;
-	this->noiseOnNote = noiseOnNote;
+	this->level = params.level;
+	this->baseFreq = params.baseFreq;
+	this->noiseOnNote = params.noiseOnNote;
 }
 
 void SsgNoiseGen::generate() {

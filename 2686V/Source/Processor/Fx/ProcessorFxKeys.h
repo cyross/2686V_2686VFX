@@ -10,7 +10,7 @@ namespace FxPrKey
 {
 	static inline const juce::String prefix = "FX";
 
-	static inline const juce::String bypass = CorePrKey::bypass;
+	static inline const juce::String bypass = CPK::bypass;
 
 	static inline const juce::String vib = "_VIB";
 	static inline const juce::String trm = "_TRM";

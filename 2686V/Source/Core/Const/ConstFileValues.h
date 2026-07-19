@@ -44,6 +44,8 @@ namespace Io
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
 		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "*.pitchEnv";
+		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
+		static inline const juce::String SsgSwPEnvParam11 = "*.ssgSwPEnv11";
 		static inline const juce::String DetuneParam = "*.detune";
 		static inline const juce::String UnisonParam = "*.unison";
 		static inline const juce::String QualityParam = "*.quality";

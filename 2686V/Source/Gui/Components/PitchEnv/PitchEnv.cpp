@@ -1,6 +1,7 @@
 ﻿#include "./PitchEnv.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -22,39 +23,39 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	flagSeparator.setupComponent(parent);
 
-	attack.setup({ .parent = parent, .id = code + "_PITCH_AR", .title = "AR", .isReset = true, .labelFont = labelFont });
+	attack.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ar, .title = "AR", .isReset = true, .labelFont = labelFont });
 	attack.setWantsKeyboardFocus(true);
 	attack.setExplicitFocusOrder(++tabOrder);
 
-	decay.setup({ .parent = parent, .id = code + "_PITCH_DR", .title = "DR", .isReset = true, .labelFont = labelFont });
+	decay.setup({ .parent = parent, .id = code + CPK::PitchAdsr::dr, .title = "DR", .isReset = true, .labelFont = labelFont });
 	decay.setWantsKeyboardFocus(true);
 	decay.setExplicitFocusOrder(++tabOrder);
 
-	release.setup({ .parent = parent, .id = code + "_PITCH_RR", .title = "RR", .isReset = true, .labelFont = labelFont });
+	release.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rr, .title = "RR", .isReset = true, .labelFont = labelFont });
 	release.setWantsKeyboardFocus(true);
 	release.setExplicitFocusOrder(++tabOrder);
 
 	rateSeparator.setupComponent(parent);
 
-	startLevel.setup({ .parent = parent, .id = code + "_PITCH_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
+	startLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::stl, .title = "STL", .isReset = true, .labelFont = labelFont });
 	startLevel.setWantsKeyboardFocus(true);
 	startLevel.setExplicitFocusOrder(++tabOrder);
 
 	startLevelButtons.setupComponent(parent, startLevel, tabOrder, labelFont);
 
-	attackLevel.setup({ .parent = parent, .id = code + "_PITCH_ATL", .title = "ATL", .isReset = true, .labelFont = labelFont });
+	attackLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::atl, .title = "ATL", .isReset = true, .labelFont = labelFont });
 	attackLevel.setWantsKeyboardFocus(true);
 	attackLevel.setExplicitFocusOrder(++tabOrder);
 
 	attackLevelButtons.setupComponent(parent, attackLevel, tabOrder, labelFont);
 
-	sustainLevel.setup({ .parent = parent, .id = code + "_PITCH_SSL", .title = "SSL", .isReset = true, .labelFont = labelFont });
+	sustainLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ssl, .title = "SSL", .isReset = true, .labelFont = labelFont });
 	sustainLevel.setWantsKeyboardFocus(true);
 	sustainLevel.setExplicitFocusOrder(++tabOrder);
 
 	sustainLevelButtons.setupComponent(parent, sustainLevel, tabOrder, labelFont);
 
-	releaseLevel.setup({ .parent = parent, .id = code + "_PITCH_RLL", .title = "RLL", .isReset = true, .labelFont = labelFont });
+	releaseLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rll, .title = "RLL", .isReset = true, .labelFont = labelFont });
 	releaseLevel.setWantsKeyboardFocus(true);
 	releaseLevel.setExplicitFocusOrder(++tabOrder);
 

@@ -69,10 +69,10 @@ void OplCore::setSampleRate(double sampleRate) {
 void OplCore::setParameters(const SynthParams& params) {
     m_level = params.opl.level;
 
-    m_algorithm = params.opl.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algorithm = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
 
-    if (m_rateIndex != params.opl.fmRateIndex) {
-        m_rateIndex = params.opl.fmRateIndex;
+    if (m_rateIndex != params.opl.quality.rate) {
+        m_rateIndex = params.opl.quality.rate;
 
 		double target = getTargetRate(m_rateIndex);
 
@@ -81,10 +81,10 @@ void OplCore::setParameters(const SynthParams& params) {
         m_operators[1].setSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opl.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opl.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opl.op[0], params.opl.feedback);
+    m_operators[0].setParameters(params.opl.op[0], params.opl.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opl.op[0].mask;

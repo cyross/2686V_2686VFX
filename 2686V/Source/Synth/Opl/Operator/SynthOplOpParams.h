@@ -3,39 +3,27 @@
 #include "../../../Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
+#include "../../../Effect/Lfo/Opl/LfoOplParams.h"
+#include "../../../Effect/Detune/Opl/DetuneOplParams.h"
+#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Core/Synth/CommonParams.h"
 
 struct OplOpParams
 {
-    // --- Mask ---
-    bool mask = false;
-
     OplAdsrParams m_adsrParams;
+    bool ssgEnvEnable = false;
+    SsgSwEnvParams ssgSwEnv;
+    bool ssgEnv11Enable = false;
+    SsgSwEnv11Params ssgSwEnv11;
+    bool pitchEnvEnable = true;
+    PitchAdsrParams pitchAdsr;
+    bool ssgPEnv11Enable = true;
+    SsgSwPEnv11Params ssgSwPEnv11;
+    OplDetuneParams detune;
+    LfoOplParams lfo;
 
     int waveSelect = 0;
-
-    int multiple = 1;      // MULTI: 0~15
-
-    bool amEnable = false;
-    bool vibEnable = false; // VIB (LFO Pitch)
     bool egType = false;    // EG-TYP (Sustain Mode)
-
-    // LFO Sync Delay
-    int lfoSyncDelay = 0;
-    int lfoFreqIndex = 0;
-    float lfoFreq = 0.0f;
-
-    // --- OPL/OPL3 LFO Settings ---
-    float ams = 3.7f;  // AM Speed (Hz)
-    float amd = 4.8f;  // AM Depth (dB)
-    float pms = 6.4f;  // PM Speed (Hz)
-    float pmd = 14.0f; // PM Depth (Cent)
-
-    bool pitchEnvEnable = true;
-    bool ssgEnvEnable = false;
-
-    // --- Pitch Envelope ---
-    PitchAdsrParams pitchAdsr;
-
-    // --- SSG Software Envelope ---
-    SsgSwEnvParams ssgSwEnv;
+    bool mask = false;
 };

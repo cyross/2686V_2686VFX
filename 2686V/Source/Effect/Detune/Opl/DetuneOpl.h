@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "./DetuneOplParams.h"
+
 class OplDetune
 {
 	static const std::array<float, 16> mulScales;
@@ -9,6 +11,6 @@ class OplDetune
 	int multiple;
 	float realMultiple;
 public:
-	void setParameters(int mul);
+	void setParameters(const OplDetuneParams& params);
 	float noteOn(float baseFreq) const;
 };

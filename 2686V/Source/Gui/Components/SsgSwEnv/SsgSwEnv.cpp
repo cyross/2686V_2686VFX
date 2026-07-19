@@ -1,6 +1,8 @@
 ﻿#include "./SsgSwEnv.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Processor/ProcessorValues.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -43,7 +45,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 
     flagSeparator.setupComponent(parent);
 
-    steps.setup({ .parent = parent, .id = code + "_SSGSW_STEPS", .title = "STEP", .isReset = true, .labelFont = labelFont });
+    steps.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::steps, .title = "STEP", .isReset = true, .labelFont = labelFont });
     steps.setWantsKeyboardFocus(true);
     steps.setExplicitFocusOrder(++tabOrder);
     steps.onValueChange = [this] {
@@ -54,7 +56,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 
     stepsSeparator.setupComponent(parent);
 
-    loop.setup({ .parent = parent, .id = code + "_SSGSW_LOOP", .title = "LOOP", .isReset = true });
+    loop.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loop, .title = "LOOP", .isReset = true });
     loop.setWantsKeyboardFocus(true);
     loop.setExplicitFocusOrder(++tabOrder);
     loop.onClick = [this] {
@@ -68,7 +70,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopTo.setup({ .parent = parent, .id = code + "_SSGSW_LOOPTO", .title = "L.TO", .isReset = true, .labelFont = labelFont });
+    loopTo.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopTo, .title = "L.TO", .isReset = true, .labelFont = labelFont });
     loopTo.setWantsKeyboardFocus(true);
     loopTo.setExplicitFocusOrder(++tabOrder);
     loopTo.onValueChange = [this] {
@@ -77,7 +79,7 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
         applyLoopValues(ssgEnvLoopEnable);
         };
 
-    loopCount.setup({ .parent = parent, .id = code + "_SSGSW_LOOPCNT", .title = "L.CN", .isReset = true, .labelFont = labelFont });
+    loopCount.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::loopCount, .title = "L.CN", .isReset = true, .labelFont = labelFont });
     loopCount.setWantsKeyboardFocus(true);
     loopCount.setExplicitFocusOrder(++tabOrder);
 
@@ -90,59 +92,73 @@ void GuiComponentSsgSwEnv::setupComponent(juce::Component& parent, const juce::S
 
     loopSeparator.setupComponent(parent);
 
-    r1.setup({ .parent = parent, .id = code + "_SSGSW_R1", .title = "R1", .isReset = true, .labelFont = labelFont });
+    r1.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r1, .title = "R1", .isReset = true, .labelFont = labelFont });
     r1.setWantsKeyboardFocus(true);
     r1.setExplicitFocusOrder(++tabOrder);
 
-    r2.setup({ .parent = parent, .id = code + "_SSGSW_R2", .title = "R2", .isReset = true, .labelFont = labelFont });
+    r2.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r2, .title = "R2", .isReset = true, .labelFont = labelFont });
     r2.setWantsKeyboardFocus(true);
     r2.setExplicitFocusOrder(++tabOrder);
 
-    r3.setup({ .parent = parent, .id = code + "_SSGSW_R3", .title = "R3", .isReset = true, .labelFont = labelFont });
+    r3.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r3, .title = "R3", .isReset = true, .labelFont = labelFont });
     r3.setWantsKeyboardFocus(true);
     r3.setExplicitFocusOrder(++tabOrder);
 
-    r4.setup({ .parent = parent, .id = code + "_SSGSW_R4", .title = "R4", .isReset = true, .labelFont = labelFont });
+    r4.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r4, .title = "R4", .isReset = true, .labelFont = labelFont });
     r4.setWantsKeyboardFocus(true);
     r4.setExplicitFocusOrder(++tabOrder);
 
-    r5.setup({ .parent = parent, .id = code + "_SSGSW_R5", .title = "R5", .isReset = true, .labelFont = labelFont });
+    r5.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r5, .title = "R5", .isReset = true, .labelFont = labelFont });
     r5.setWantsKeyboardFocus(true);
     r5.setExplicitFocusOrder(++tabOrder);
 
-    r6.setup({ .parent = parent, .id = code + "_SSGSW_R6", .title = "R6", .isReset = true, .labelFont = labelFont });
+    r6.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::r6, .title = "R6", .isReset = true, .labelFont = labelFont });
     r6.setWantsKeyboardFocus(true);
     r6.setExplicitFocusOrder(++tabOrder);
 
     rateSeparator.setupComponent(parent);
 
-    startLevel.setup({ .parent = parent, .id = code + "_SSGSW_STL", .title = "STL", .isReset = true, .labelFont = labelFont });
+    startLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::stl, .title = "STL", .isReset = true, .labelFont = labelFont });
     startLevel.setWantsKeyboardFocus(true);
     startLevel.setExplicitFocusOrder(++tabOrder);
 
-    l1.setup({ .parent = parent, .id = code + "_SSGSW_L1", .title = "L1", .isReset = true, .labelFont = labelFont });
+    stlBtns.setupComponent(parent, startLevel, tabOrder, labelFont);
+
+    l1.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l1, .title = "L1", .isReset = true, .labelFont = labelFont });
     l1.setWantsKeyboardFocus(true);
     l1.setExplicitFocusOrder(++tabOrder);
 
-    l2.setup({ .parent = parent, .id = code + "_SSGSW_L2", .title = "L2", .isReset = true, .labelFont = labelFont });
+    l1Btns.setupComponent(parent, l1, tabOrder, labelFont);
+
+    l2.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l2, .title = "L2", .isReset = true, .labelFont = labelFont });
     l2.setWantsKeyboardFocus(true);
     l2.setExplicitFocusOrder(++tabOrder);
 
-    l3.setup({ .parent = parent, .id = code + "_SSGSW_L3", .title = "L3", .isReset = true, .labelFont = labelFont });
+    l2Btns.setupComponent(parent, l2, tabOrder, labelFont);
+
+    l3.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l3, .title = "L3", .isReset = true, .labelFont = labelFont });
     l3.setWantsKeyboardFocus(true);
     l3.setExplicitFocusOrder(++tabOrder);
 
-    l4.setup({ .parent = parent, .id = code + "_SSGSW_L4", .title = "L4", .isReset = true, .labelFont = labelFont });
+    l3Btns.setupComponent(parent, l3, tabOrder, labelFont);
+
+    l4.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l4, .title = "L4", .isReset = true, .labelFont = labelFont });
     l4.setWantsKeyboardFocus(true);
     l4.setExplicitFocusOrder(++tabOrder);
 
-    l5.setup({ .parent = parent, .id = code + "_SSGSW_L5", .title = "L5", .isReset = true, .labelFont = labelFont });
+    l4Btns.setupComponent(parent, l4, tabOrder, labelFont);
+
+    l5.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l5, .title = "L5", .isReset = true, .labelFont = labelFont });
     l5.setWantsKeyboardFocus(true);
     l5.setExplicitFocusOrder(++tabOrder);
 
-    l6.setup({ .parent = parent, .id = code + "_SSGSW_L6", .title = "L6", .isReset = true, .labelFont = labelFont });
+    l5Btns.setupComponent(parent, l5, tabOrder, labelFont);
+
+    l6.setup({ .parent = parent, .id = code + CPK::SsgSwEnv::l6, .title = "L6", .isReset = true, .labelFont = labelFont });
     l6.setWantsKeyboardFocus(true);
     l6.setExplicitFocusOrder(++tabOrder);
+
+    l6Btns.setupComponent(parent, l6, tabOrder, labelFont);
 }
 
 void GuiComponentSsgSwEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -167,12 +183,19 @@ void GuiComponentSsgSwEnv::layoutComponent(juce::Rectangle<int>& rect)
     r6.setVisibleWithLabel(visible);
 	rateSeparator.setVisible(visible);
     startLevel.setVisibleWithLabel(visible);
+    stlBtns.setVisibles(visible);
     l1.setVisibleWithLabel(visible);
+    l1Btns.setVisibles(visible);
     l2.setVisibleWithLabel(visible);
+    l2Btns.setVisibles(visible);
     l3.setVisibleWithLabel(visible);
+    l3Btns.setVisibles(visible);
     l4.setVisibleWithLabel(visible);
+    l4Btns.setVisibles(visible);
     l5.setVisibleWithLabel(visible);
+    l5Btns.setVisibles(visible);
     l6.setVisibleWithLabel(visible);
+    l6Btns.setVisibles(visible);
 
     if (visible)
     {
@@ -192,12 +215,19 @@ void GuiComponentSsgSwEnv::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 13 });
         rateSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
+        stlBtns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 13 });
+        l1Btns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 13 });
+        l2Btns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 13 });
+        l3Btns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 13 });
+        l4Btns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 13 });
+        l5Btns.layoutComponent(rect, 13);
         layoutMain({ .mainRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 13 });
+        l6Btns.layoutComponent(rect, 13);
     }
 }
 
@@ -223,12 +253,19 @@ void GuiComponentSsgSwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     r6.setVisibleWithLabel(visible);
     rateSeparator.setVisible(visible);
     startLevel.setVisibleWithLabel(visible);
+    stlBtns.setVisibles(visible);
     l1.setVisibleWithLabel(visible);
+    l1Btns.setVisibles(visible);
     l2.setVisibleWithLabel(visible);
+    l2Btns.setVisibles(visible);
     l3.setVisibleWithLabel(visible);
+    l3Btns.setVisibles(visible);
     l4.setVisibleWithLabel(visible);
+    l4Btns.setVisibles(visible);
     l5.setVisibleWithLabel(visible);
+    l5Btns.setVisibles(visible);
     l6.setVisibleWithLabel(visible);
+    l6Btns.setVisibles(visible);
 
     if (visible)
     {
@@ -248,12 +285,19 @@ void GuiComponentSsgSwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 12 });
         rateSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
+        stlBtns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 12 });
+        l1Btns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 12 });
+        l2Btns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 12 });
+        l3Btns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 12 });
+        l4Btns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 12 });
+        l5Btns.layoutComponentRow(rect, 12);
         layoutRow({ .rowRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 12 });
+        l6Btns.layoutComponentRow(rect, 12);
     }
 }
 
@@ -327,18 +371,25 @@ void GuiComponentSsgSwEnv::setEnabled(bool enabled) {
 	loopSeparator.setEnabled(enabled);
 	rateSeparator.setEnabled(enabled);
     startLevel.setEnabled(enabled);
+    stlBtns.setEnables(enabled);
     r1.setEnabled(enabled);
     l1.setEnabled(enabled);
+    l1Btns.setEnables(enabled);
     r2.setEnabled(enabled);
     l2.setEnabled(enabled);
+    l2Btns.setEnables(enabled);
     r3.setEnabled(enabled);
     l3.setEnabled(enabled);
+    l3Btns.setEnables(enabled);
     r4.setEnabled(enabled);
     l4.setEnabled(enabled);
+    l4Btns.setEnables(enabled);
     r5.setEnabled(enabled);
     l5.setEnabled(enabled);
+    l5Btns.setEnables(enabled);
     r6.setEnabled(enabled);
     l6.setEnabled(enabled);
+    l6Btns.setEnables(enabled);
 }
 
 void GuiComponentSsgSwEnv::copyParams(CopyEnvSsgSw& copyObj) {

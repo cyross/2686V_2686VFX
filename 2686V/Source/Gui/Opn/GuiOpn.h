@@ -22,6 +22,8 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -101,6 +103,8 @@ class GuiOpn : public GuiBase
     NormalSeparator uSep003;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
+    GuiComponentImportExport ieOpSsgSwEnv11;
+    GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiSlider targerOpSlider;
     NormalSeparator uSep004;
     GuiComponentImportExport ieLfo;
@@ -124,6 +128,9 @@ class GuiOpn : public GuiBase
     std::array<GuiComponentPitchEnv, OpnPrValue::ops> pitchEnv;
     // SSG SW Env
     std::array<GuiComponentSsgSwEnv, OpnPrValue::ops> ssgSwEnv;
+
+    std::array<GuiComponentSsgSwEnv11, OpnPrValue::ops> ssgSwEnv11;
+    std::array<GuiComponentSsgSwPEnv11, OpnPrValue::ops> ssgSwPEnv11;
 
     std::array<GuiCategoryLabel, OpnPrValue::ops> catShape;
     std::array<GuiComboBox, OpnPrValue::ops> se; // SSG-EG Shape Selector
@@ -153,9 +160,11 @@ class GuiOpn : public GuiBase
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg11;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsgP11;
     std::array<NormalSeparator, OpnPrValue::ops> graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     std::array<GraphMode, OpnPrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -201,6 +210,8 @@ public:
         uSep003(context),
         ieOpPitchEnv(context),
         ieOpSsgSwEnv(context),
+        ieOpSsgSwEnv11(context),
+        ieOpSsgSwPEnv11(context),
         targerOpSlider(context),
         uSep004(context),
         ieLfo(context),
@@ -215,6 +226,8 @@ public:
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
+        ssgSwEnv11{ GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
+        ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         catShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -239,6 +252,8 @@ public:
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsg11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsgP11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) }
     {
         currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
@@ -284,6 +299,10 @@ public:
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
     void exportSsgSwEnvParam(int opIndex);
+    void importSsgSwEnv11Param(int opIndex);
+    void exportSsgSwEnv11Param(int opIndex);
+    void importSsgSwPEnv11Param(int opIndex);
+    void exportSsgSwPEnv11Param(int opIndex);
     void importLfoParam();
     void exportLfoParam();
     void importUnisonParam();

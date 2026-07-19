@@ -71,19 +71,19 @@ Opzx7Detune::Opzx7Detune()
 	realDetune3 = 0.0f;
 }
 
-void Opzx7Detune::setParameters(int dt, int dt2, int dt3, int mul, float mulRatio)
+void Opzx7Detune::setParameters(const Opzx7DetuneParams& params)
 {
-    detune = dt & 15;
+    detune = params.detune & 15;
     realDetune = dtScales[detune];
 
-    detune2 = dt2 & 3;
+    detune2 = params.detune2 & 3;
     realDetune2 = dt2Scales[detune2];
 
-	detune3 = dt3;
+	detune3 = params.detune3;
 	realDetune3 = dt3Scales[std::clamp(detune3, -4800, 4800) + 4800]; // detune3 = -4800 - 4800
 
-    multiple = mul;
-	mulScales[21] = mulRatio; // 21番目にユーザー指定のmulRatioをセット
+    multiple = params.multiple;
+	mulScales[21] = params.mulRatio; // 21番目にユーザー指定のmulRatioをセット
 	realMultiple = mulScales[multiple];
 }
 

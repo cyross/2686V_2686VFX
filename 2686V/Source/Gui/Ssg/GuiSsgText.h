@@ -58,6 +58,16 @@ namespace SsgGuiText
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
+	namespace SsgSwEnv11
+	{
+		static inline const juce::String bypass = u8"Bypass";
+	}
+
+	namespace SsgSwPEnv11
+	{
+		static inline const juce::String bypass = u8"Bypass";
+	}
+
 	namespace Lfo
 	{
 		static inline const juce::String pmSpeed = u8"P.SP";

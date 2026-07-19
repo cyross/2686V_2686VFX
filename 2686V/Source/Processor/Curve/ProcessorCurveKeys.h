@@ -20,10 +20,10 @@ namespace CurvePrKey
 	static const std::array<juce::String, 7> position{ "_C", "_OP1", "_OP2", "_OP3", "_OP4", "_OP5", "_OP6" };
 
 	// Target
-	static const std::array<juce::String, 4> target{ "_RVAL", "_AENV", "_PENV", "_SSE" };
+	static const std::array<juce::String, 6> target{ "_RVAL", "_AENV", "_PENV", "_SSE", "_SSE11", "_SPE11" };
 
 	// パラメータリスト
-	static const std::array<juce::String, 8> paramList{ "_P1", "_P2", "_P3", "_P4", "_P5", "_P6", "_P7", "_P8" };
+	static const std::array<juce::String, 16> paramList{ "_P1", "_P2", "_P3", "_P4", "_P5", "_P6", "_P7", "_P8", "_P9", "_P10", "_P11", "_P12", "_P13", "_P14", "_P15", "_P16" };
 
 	// カーブロジック
 	static inline const juce::String logic = "_LOGIC";

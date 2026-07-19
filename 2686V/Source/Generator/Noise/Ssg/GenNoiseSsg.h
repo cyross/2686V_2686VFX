@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "./GenNoiseSsgParams.h"
+
 class SsgNoiseGen
 {
     unsigned int lfsr = 0x1FFFF;
@@ -15,7 +17,7 @@ class SsgNoiseGen
     float currentSample = 0.0f;
 public:
     void prepare(double newTargetRate);
-    void setParameters(float newLevel, float newBaseFreq, bool noiseOnNote);
+    void setParameters(const SsgNoiseGenParams &params);
 	void updateTargetRate(double newTargetRate) {
         this->targetSampleRate = newTargetRate;
         updateDelta();

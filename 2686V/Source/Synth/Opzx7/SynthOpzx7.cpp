@@ -193,30 +193,16 @@ void Opzx7Core::setSampleRate(double sampleRate) {
 void Opzx7Core::setParameters(const SynthParams& params) {
     m_level = params.opzx7.level;
 
-    m_algorithm = params.opzx7.algorithm; // Range: 0-27
+    m_algorithm = params.opzx7.algFb.algorithm; // Range: 0-27
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_lfo.setParameters(
-        params.opzx7.lfoPmSyncDelay,
-        params.opzx7.lfoAmSyncDelay,
-        params.opzx7.pmEnable,
-        params.opzx7.amEnable,
-        params.opzx7.lfoPmFreq,
-        params.opzx7.lfoAmFreq,
-        params.opzx7.pgLfoWave,
-        params.opzx7.egLfoWave,
-        params.opzx7.lfoPms,
-        params.opzx7.lfoPmd,
-        params.opzx7.lfoAms,
-        params.opzx7.lfoAmd,
-        params.opzx7.lfoAmSmRt
-    );
+    m_lfo.setParameters(params.opzx7.glLfo);
 
-    m_panpot = params.opzx7.panpot;
-    m_panpot_enable = params.opzx7.panpot_enable;
+    m_panpot = params.opzx7.panpot.pan;
+    m_panpot_enable = params.opzx7.panpot.enable;
 
     if (m_panpot_enable) {
         float pan = (float)(m_panpot + 1) / 33.0f;
@@ -229,8 +215,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_panpot_r_rate = 1.0f;
     }
 
-    if (m_rateIndex != params.opzx7.fmRateIndex) {
-        m_rateIndex = params.opzx7.fmRateIndex;
+    if (m_rateIndex != params.opzx7.quality.rate) {
+        m_rateIndex = params.opzx7.quality.rate;
 
         double target = getTargetRate(m_rateIndex);
 
@@ -245,30 +231,30 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_lfo.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.feedback);
+    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opzx7.op[0].mask;
-    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.feedback);
+    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.algFb.feedback);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opzx7.op[1].mask;
-    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.feedback);
+    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.algFb.feedback);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opzx7.op[2].mask;
-    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.feedback);
+    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.algFb.feedback);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opzx7.op[3].mask;
-    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.feedback);
+    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.algFb.feedback);
     m_operators[4].setMonoMode(m_isMonoMode);
     m_operators[4].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[4] = params.opzx7.op[4].mask;
-    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.feedback);
+    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.algFb.feedback);
     m_operators[5].setMonoMode(m_isMonoMode);
     m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[5] = params.opzx7.op[5].mask;

@@ -1,6 +1,7 @@
 ﻿#include "./MulDetune.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 #include "../../../Core/Const/ConstGlobal.h"
@@ -62,11 +63,11 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
             });
     }
 
-    mul.setup({ .parent = parent, .id = code + "_MUL", .title = "MUL", .items = multems, .isReset = true });
+    mul.setup({ .parent = parent, .id = code + CPK::mul, .title = "MUL", .items = multems, .isReset = true });
     mul.setWantsKeyboardFocus(true);
     mul.setExplicitFocusOrder(++tabOrder);
 
-    mulRatio.setup({ .parent = parent, .id = code + "_MUL_RATIO", .title = "MURT", .isReset = true });
+    mulRatio.setup({ .parent = parent, .id = code + CPK::mulRatio, .title = "MURT", .isReset = true });
     mulRatio.setWantsKeyboardFocus(true);
     mulRatio.setExplicitFocusOrder(++tabOrder);
 
@@ -212,15 +213,15 @@ void GuiComponentMulDetune::setupComponent(juce::Component& parent, const juce::
 
 	mulDetSep.setupComponent(parent);
 
-    dt1.setup({ .parent = parent, .id = code + "_DT", .title = "DT1", .items = dtItems, .isReset = true });
+    dt1.setup({ .parent = parent, .id = code + CPK::dt, .title = "DT1", .items = dtItems, .isReset = true });
     dt1.setWantsKeyboardFocus(true);
     dt1.setExplicitFocusOrder(++tabOrder);
 
-    dt2.setup({ .parent = parent, .id = code + "_DT2", .title = "DT2", .isReset = true });
+    dt2.setup({ .parent = parent, .id = code + CPK::dt2, .title = "DT2", .isReset = true });
     dt2.setWantsKeyboardFocus(true);
     dt2.setExplicitFocusOrder(++tabOrder);
 
-    dt3.setup({ .parent = parent, .id = code + "_DT3", .title = "DT3", .isReset = true });
+    dt3.setup({ .parent = parent, .id = code + CPK::dt3, .title = "DT3", .isReset = true });
     dt3.setWantsKeyboardFocus(true);
     dt3.setExplicitFocusOrder(++tabOrder);
 

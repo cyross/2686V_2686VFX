@@ -19,15 +19,15 @@ void OplLfoCore::updateTargetSampleRate(double newSampleRate) {
     updatePhaseDelta();
 }
 
-void OplLfoCore::setParameters(bool pm, bool am, float pms, float pmd, float ams, float amd)
+void OplLfoCore::setParameters(const LfoOplParams& params)
 {
-    this->pmEnable = pm;
-    this->pms = pms;
-    this->pmd = pmd;
+    this->pmEnable = params.pm;
+    this->pms = params.pms;
+    this->pmd = params.pmd;
 
-    this->amEnable = am;
-    this->ams = ams;
-    this->amd = amd;
+    this->amEnable = params.am;
+    this->ams = params.ams;
+    this->amd = params.amd;
 
     this->depthDb = 1.0f - std::pow(10.0f, -this->amd / 20.0f);
     this->depthCent = std::pow(2.0f, this->pmd / 1200.0f) - 1.0f + this->m_modWheel;

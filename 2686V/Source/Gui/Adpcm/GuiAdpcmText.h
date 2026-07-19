@@ -47,6 +47,16 @@ namespace AdpcmGuiText
 		static inline const juce::String bypass = u8"Bypass";
 	}
 
+	namespace SsgSwEnv11
+	{
+		static inline const juce::String bypass = u8"Bypass";
+	}
+
+	namespace SsgSwPEnv11
+	{
+		static inline const juce::String bypass = u8"Bypass";
+	}
+
 	namespace Adpcm
 	{
 		static inline const juce::String level = u8"LV";

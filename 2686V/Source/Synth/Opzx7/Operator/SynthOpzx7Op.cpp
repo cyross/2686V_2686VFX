@@ -1,19 +1,22 @@
 ﻿#include "./SynthOpzx7Op.h"
-#include "../../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../../Core/Processor/ProcessorValues.h"
 
 void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
 	m_ssgSwEnv.prepare(opIndex, sampleRate);
+    m_ssgSwEnv11.prepare(opIndex, sampleRate);
+    m_ssgSwPenv11.prepare(opIndex, sampleRate);
+
     m_lfo.prepare(sampleRate);
 
     m_ampAdsr.setParamMax(
-        Opzx7PrValue::Op::RgAdsr::Ar::max,
-        Opzx7PrValue::Op::RgAdsr::D1r::max,
-        Opzx7PrValue::Op::RgAdsr::D2r::max,
-        Opzx7PrValue::Op::RgAdsr::D1l::max,
-        Opzx7PrValue::Op::RgAdsr::Rr::max,
-        Opzx7PrValue::Op::RgAdsr::Tl::max
+        CPV::Opzx7Rg::Ar::max,
+        CPV::Opzx7Rg::D1r::max,
+        CPV::Opzx7Rg::D2r::max,
+        CPV::Opzx7Rg::D1l::max,
+        CPV::Opzx7Rg::Rr::max,
+        CPV::Opzx7Rg::Tl::max
     );
 }
 
@@ -22,6 +25,8 @@ void Opzx7Operator::setCurveCore(CurveCore* p_curveCore)
     m_ampAdsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void Opzx7Operator::setSampleRate(double sampleRate) {
@@ -29,38 +34,28 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
 	m_ampAdsr.updateSampleRate(sampleRate);
 	m_pitchAdsr.updateSampleRate(sampleRate);
 	m_ssgSwEnv.updateSampleRate(sampleRate);
+    m_ssgSwEnv11.updateSampleRate(sampleRate);
+    m_ssgSwPenv11.updateSampleRate(sampleRate);
 }
 
 void Opzx7Operator::setParameters(const Opzx7OpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;
-    m_ssgEgFreq = params.fmSsgEgFreq;
+    m_ssgEgFreq = params.se.freq;
     m_params.waveSelect = params.waveSelect;
 
     m_ampAdsr.setParameters(params.m_adsrParams);
-    m_detune.setParameters(params.detune, params.detune2, params.detune3, params.multiple, params.multipleRatio);
-    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_detune.setParameters(params.detune);
+    m_fixMode.setParameters(params.fix);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_lfo.setParameters(
-        params.lfoPmSyncDelay,
-        params.lfoAmSyncDelay,
-        params.vibEnable,
-        params.amEnable,
-        params.lfoPmFreq,
-        params.lfoAmFreq,
-        params.pgLfoWave,
-        params.egLfoWave,
-        params.pms,
-        params.pmd,
-        params.ams,
-        params.amd,
-        params.lfoAmSmRt
-    );
-    m_loopPointEnable = params.loopPointEnable;
-    m_loopPointStart = std::clamp(params.loopPointStart, 0.0f, 0.999999f);
-    m_loopPointEnd = std::clamp(params.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
+    m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_lfo.setParameters(params.lfo);
+    m_loopPointEnable = params.lp.enable;
+    m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 }
 
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -97,17 +92,17 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
     {
         // オフセットとレシオを考慮した再生区間の計算
         size_t totalSize = m_pcmBuffer->size();
-        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        size_t offsetSamples = (size_t)((m_params.pcm.offset / 1000.0f) * m_hostSampleRate);
         if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
 
         size_t remainingSize = totalSize - offsetSamples;
-        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        size_t playSize = (size_t)(remainingSize * m_params.pcm.ratio);
         if (playSize < 1) playSize = 1;
 
         float originalHz = (float)m_hostSampleRate / (float)playSize;
 
-        if (m_params.fixedMode) {
-            baseFreq = originalHz * m_params.fixedFreq;
+        if (m_params.fix.enable) {
+            baseFreq = originalHz * m_params.fix.freq;
         }
         else {
             float rootFreq = 261.625565f;
@@ -133,17 +128,29 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
             m_targetLevel = velocity;
         }
 
-        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
+        if (m_params.pitchEnvEnable && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
 
         if (m_params.ssgEnvEnable) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (m_params.ssgEnv11Enable && !m_pitchResetOnLegato) {
+            m_ssgSwPenv11.noteOn();
+        }
+
+        if (m_params.ssgEnv11Enable) {
+            m_ssgSwEnv11.noteOn();
+        }
     }
 
-    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+    if (m_params.pitchEnvEnable && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (m_params.ssgPEnv11Enable && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 
     // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
@@ -167,35 +174,90 @@ void Opzx7Operator::noteOff()
 	if (m_params.ssgEnvEnable) {
 		m_ssgSwEnv.noteOff();
 	}
+
+    if (m_params.ssgEnv11Enable) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (m_params.ssgPEnv11Enable) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
 void Opzx7Operator::getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore& glLfo, float modWheel)
 {
-    if (!isPlaying() && !m_ampAdsr.isBypass()) {
-        if (m_params.pitchEnvEnable) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    bool allAmpBypassed = isAllAmpBypassed();
 
-        if (m_params.ssgEnvEnable) {
-            m_ssgSwEnv.bypassedReleasedProcess();
+    if (allAmpBypassed) {
+        // すべてのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作。
+        // リリース状態になったら即座にミュートして終了する。
+        if (m_ampAdsr.isRelease() || (m_params.ssgEnvEnable && m_ssgSwEnv.isRelease()) || (m_params.ssgEnv11Enable && m_ssgSwEnv11.isRelease())) {
+            m_ampAdsr.bypassedReleasedProcess();
+            if (m_params.ssgEnvEnable) m_ssgSwEnv.bypassedReleasedProcess();
+            if (m_params.ssgEnv11Enable) m_ssgSwEnv11.bypassedReleasedProcess();
+
+            if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
+            if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
+
+            output = 0.0f;
+            m_fb1 = 0.0f;
+            m_fb2 = 0.0f;
+            return;
         }
+    }
+    else if (!isPlaying()) {
+        // 有効なエンベロープがあり、かつ全て再生終了（音が減衰しきった）時は、
+        // ピッチエンベロープなども状態をクリアして安全に停止させる
+        if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
+        if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
 
         output = 0.0f;
-
+        m_fb1 = 0.0f;
+        m_fb2 = 0.0f;
         return;
     }
 
-    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
-    float envVal = m_currentLevel;
+    float envVal = 1.0f;
 
-    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (m_params.ssgEnvEnable) {
-        envVal *= m_ssgSwEnv.process(); // 掛け算
+    if (!allAmpBypassed) {
+        // 1. ADSR処理
+        if (!m_ampAdsr.isBypass()) {
+            m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+            envVal *= m_currentLevel;
+        }
+        else {
+            if (m_ampAdsr.isRelease()) {
+                m_ampAdsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+                envVal *= m_currentLevel;
+            }
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (m_params.ssgEnvEnable) {
+            if (!m_ssgSwEnv.isBypass()) {
+                envVal *= m_ssgSwEnv.process();
+            }
+            else if (m_ssgSwEnv.isRelease()) {
+                m_ssgSwEnv.bypassedReleasedProcess();
+            }
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (m_params.ssgEnv11Enable) {
+            if (!m_ssgSwEnv11.isBypass()) {
+                envVal *= m_ssgSwEnv11.process();
+            }
+            else if (m_ssgSwEnv11.isRelease()) {
+                m_ssgSwEnv11.bypassedReleasedProcess();
+            }
+        }
     }
 
-    if (m_params.ssgEg > 0) {
-        int safeWave = std::clamp(m_params.ssgEg, 0, 15);
+    if (m_params.se.eg > 0) {
+        int safeWave = std::clamp(m_params.se.eg, 0, 15);
 
         int cycle = (int)m_ssgPhase;
         double subPos = m_ssgPhase - cycle;
@@ -331,6 +393,7 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
+    currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
 
     // --------------------------------------------------------
     // PCM波形への過剰な位相変調を抑え、音量低下を防ぐスケーリング
@@ -342,10 +405,10 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
         size_t totalSize = m_pcmBuffer->size();
-        size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+        size_t offsetSamples = (size_t)((m_params.pcm.offset / 1000.0f) * m_hostSampleRate);
         if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
         size_t remainingSize = totalSize - offsetSamples;
-        size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+        size_t playSize = (size_t)(remainingSize * m_params.pcm.ratio);
         if (playSize < 1) playSize = 1;
 
         float originalHz = (float)m_hostSampleRate / (float)playSize;
@@ -408,12 +471,12 @@ float Opzx7Operator::calcWaveform(double phase, int wave)
         {
             // OffsetとRatioを適用して切り出す
             size_t totalSize = m_pcmBuffer->size();
-            size_t offsetSamples = (size_t)((m_params.pcmOffset / 1000.0f) * m_hostSampleRate);
+            size_t offsetSamples = (size_t)((m_params.pcm.offset / 1000.0f) * m_hostSampleRate);
 
             if (offsetSamples >= totalSize) offsetSamples = totalSize - 1;
 
             size_t remainingSize = totalSize - offsetSamples;
-            size_t playSize = (size_t)(remainingSize * m_params.pcmRatio);
+            size_t playSize = (size_t)(remainingSize * m_params.pcm.ratio);
 
             if (playSize < 1) playSize = 1;
 

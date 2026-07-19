@@ -1,6 +1,7 @@
 ﻿#include "./Fix.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
 
@@ -37,11 +38,11 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
             });
     }
 
-    enable.setup({ .parent = parent, .id = code + "_FIX", .title = "Enable", .isReset = true });
+    enable.setup({ .parent = parent, .id = code + CPK::fix, .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "FQ", .isReset = true});
+    freq.setup({ .parent = parent, .id = code + CPK::fixFreq, .title = "FQ", .isReset = true});
     freq.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setWantsKeyboardFocus(true);
     freq.setExplicitFocusOrder(++tabOrder);

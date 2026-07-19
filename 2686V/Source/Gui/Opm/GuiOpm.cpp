@@ -5,6 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opm/ProcessorOpmKeys.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
 #include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
@@ -19,41 +21,6 @@
 #include "./GuiOpmValues.h"
 #include "./GuiOpmText.h"
 #include "../../Core/Gui/GuiStructs.h"
-
-// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
-static std::vector<SelectItem> bdItems = {
-    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
-    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
-    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
-    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
-    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
-    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
-    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
-    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
-    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
-    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
-    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
-    {.name = "12: Raw",                     .value = 12 }
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
 
 static std::vector<SelectItem> opmAlgItems = {
     {.name = "00: <OPM-00>", .value = 1 },
@@ -175,7 +142,7 @@ void GuiOpm::setup()
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::algFb });
 
-    algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::alg, .title = OpmGuiText::Fm::alg, .items = opmAlgItems, .isReset = true });
+    algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = OpmGuiText::Fm::alg, .items = opmAlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
     algSelector.setExplicitFocusOrder(++tabOrder);
     algSelector.onChange = [this] {
@@ -184,13 +151,13 @@ void GuiOpm::setup()
 
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
-    feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::fb, .title = OpmGuiText::Fm::fb, .isReset = true });
+    feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb, .title = OpmGuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visiblePan, .invisibleTitle = OpmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::pan, .title = OpmGuiText::Fm::pan, .isReset = true });
+    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = OpmGuiText::Fm::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -217,16 +184,16 @@ void GuiOpm::setup()
 
     lfoCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
 
-    lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::freq, .title = OpmGuiText::Fm::lfoFreq, .isReset = true });
+    lfoFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::freq, .title = OpmGuiText::Fm::lfoFreq, .isReset = true });
     lfoFreqSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoFreqSlider.setWantsKeyboardFocus(true);
     lfoFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmSmRtSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::amSmoothRatio, .title = OpmGuiText::Fm::amSmoothRatio, .isReset = true });
+    lfoAmSmRtSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::amSmoothRatio, .title = OpmGuiText::Fm::amSmoothRatio, .isReset = true });
     lfoAmSmRtSlider.setWantsKeyboardFocus(true);
     lfoAmSmRtSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoSyncDelaySlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::syncDelay, .title = OpmGuiText::Fm::lfoSyncDelay, .isReset = true });
+    lfoSyncDelaySlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::syncDelay, .title = OpmGuiText::Fm::lfoSyncDelay, .isReset = true });
     lfoSyncDelaySlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     lfoSyncDelaySlider.setWantsKeyboardFocus(true);
     lfoSyncDelaySlider.setExplicitFocusOrder(++tabOrder);
@@ -245,35 +212,35 @@ void GuiOpm::setup()
         lfoSyncDelaySlider.setValue(1.0f);
         };
 
-    lfoPmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::pm, .title = OpmGuiText::Fm::pmEn, .isReset = true });
+    lfoPmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::pm, .title = OpmGuiText::Fm::pmEn, .isReset = true });
     lfoPmToggle.setWantsKeyboardFocus(true);
     lfoPmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoPgShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::pgShape, .title = OpmGuiText::Fm::lfoPgShape, .items = lfoPgShapeItems, .isReset = true });
+    lfoPgShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::pgShape, .title = OpmGuiText::Fm::lfoPgShape, .items = lfoPgShapeItems, .isReset = true });
     lfoPgShapeSelector.setWantsKeyboardFocus(true);
     lfoPgShapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::pms, .title = OpmGuiText::Fm::pms, .items = pmsItems, .isReset = true });
+    lfoPmsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::pms, .title = OpmGuiText::Fm::pms, .items = pmsItems, .isReset = true });
     lfoPmsSelector.setWantsKeyboardFocus(true);
     lfoPmsSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoPmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::pmd, .title = OpmGuiText::Fm::pmd, .isReset = true });
+    lfoPmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::pmd, .title = OpmGuiText::Fm::pmd, .isReset = true });
     lfoPmdSlider.setWantsKeyboardFocus(true);
     lfoPmdSlider.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::am, .title = OpmGuiText::Fm::amEn, .isReset = true });
+    lfoAmToggle.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::am, .title = OpmGuiText::Fm::amEn, .isReset = true });
     lfoAmToggle.setWantsKeyboardFocus(true);
     lfoAmToggle.setExplicitFocusOrder(++tabOrder);
 
-    lfoEgShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::egShape, .title = OpmGuiText::Fm::lfoEgShape, .items = lfoEgShapeItems, .isReset = true });
+    lfoEgShapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::egShape, .title = OpmGuiText::Fm::lfoEgShape, .items = lfoEgShapeItems, .isReset = true });
     lfoEgShapeSelector.setWantsKeyboardFocus(true);
     lfoEgShapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::ams, .title = OpmGuiText::Fm::ams, .items = amsItems, .isReset = true });
+    lfoAmsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::ams, .title = OpmGuiText::Fm::ams, .items = amsItems, .isReset = true });
     lfoAmsSelector.setWantsKeyboardFocus(true);
     lfoAmsSelector.setExplicitFocusOrder(++tabOrder);
 
-    lfoAmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + OpmPrKey::Lfo::amd, .title = OpmGuiText::Fm::amd, .isReset = true });
+    lfoAmdSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::OpmLfo::amd, .title = OpmGuiText::Fm::amd, .isReset = true });
     lfoAmdSlider.setWantsKeyboardFocus(true);
     lfoAmdSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -359,6 +326,14 @@ void GuiOpm::setup()
     ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
     ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
+    ieOpSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieOpSsgSwEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnv11Param(opIndex); };
+    ieOpSsgSwEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnv11Param(opIndex); };
+
+    ieOpSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieOpSsgSwPEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv11Param(opIndex); };
+    ieOpSsgSwPEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv11Param(opIndex); };
+
     uSep004.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
@@ -396,7 +371,7 @@ void GuiOpm::setup()
     mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
 
     // Operators
-    const juce::String opCode = code + OpmPrKey::op;
+    const juce::String opCode = code + CPK::op;
 
     for (int i = 0; i < OpmPrValue::ops; ++i)
     {
@@ -407,14 +382,14 @@ void GuiOpm::setup()
         catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleDetune, .invisibleTitle = OpmGuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
         catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleAmpEnv, .invisibleTitle = OpmGuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
-        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = OpmGuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
         mul[i].onChange = [this, i, updateMulRatioEnable] {
             updateMulRatioEnable(i);
             };
 
-        mulRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mulRatio, .title = OpmGuiText::Fm::Op::MulRatio, .isReset = true });
+        mulRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mulRatio, .title = OpmGuiText::Fm::Op::MulRatio, .isReset = true });
         mulRatio[i].setWantsKeyboardFocus(true);
         mulRatio[i].setExplicitFocusOrder(++tabOrder);
 
@@ -560,80 +535,84 @@ void GuiOpm::setup()
 
         mulDetSep[i].setupComponent(opGroups[i].contentCanvas);
 
-        dt1[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::dt, .title = OpmGuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
+        dt1[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::dt, .title = OpmGuiText::Fm::Op::Dt1, .isReset = true, .regType = RegisterType::FmDt });
         dt1[i].setWantsKeyboardFocus(true);
         dt1[i].setExplicitFocusOrder(++tabOrder);
 
-        dt2[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::dt2, .title = OpmGuiText::Fm::Op::Dt2, .isReset = true, .regType = RegisterType::FmDt2 });
+        dt2[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::dt2, .title = OpmGuiText::Fm::Op::Dt2, .isReset = true, .regType = RegisterType::FmDt2 });
         dt2[i].setWantsKeyboardFocus(true);
         dt2[i].setExplicitFocusOrder(++tabOrder);
 
-        rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgAr, .title = OpmGuiText::Fm::Op::Ar, .isReset = true });
+        rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgAr, .title = OpmGuiText::Fm::Op::Ar, .isReset = true });
         rgAr[i].setWantsKeyboardFocus(true);
         rgAr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgD1r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgD1r, .title = OpmGuiText::Fm::Op::D1r, .isReset = true });
+        rgD1r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgD1r, .title = OpmGuiText::Fm::Op::D1r, .isReset = true });
         rgD1r[i].setWantsKeyboardFocus(true);
         rgD1r[i].setExplicitFocusOrder(++tabOrder);
 
-        rgD1l[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgD1l, .title = OpmGuiText::Fm::Op::D1l, .isReset = true });
+        rgD1l[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgD1l, .title = OpmGuiText::Fm::Op::D1l, .isReset = true });
         rgD1l[i].setWantsKeyboardFocus(true);
         rgD1l[i].setExplicitFocusOrder(++tabOrder);
 
-        rgD2r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgD2r, .title = OpmGuiText::Fm::Op::D2r, .isReset = true });
+        rgD2r[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgD2r, .title = OpmGuiText::Fm::Op::D2r, .isReset = true });
         rgD2r[i].setWantsKeyboardFocus(true);
         rgD2r[i].setExplicitFocusOrder(++tabOrder);
 
-        rgRr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgRr, .title = OpmGuiText::Fm::Op::Rr, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgRr, .title = OpmGuiText::Fm::Op::Rr, .isReset = true });
         rgRr[i].setWantsKeyboardFocus(true);
         rgRr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgTl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::rgTl, .title = OpmGuiText::Fm::Op::Tl, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgTl, .title = OpmGuiText::Fm::Op::Tl, .isReset = true });
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
         ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleKs, .invisibleTitle = OpmGuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
 
-        ksMode[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ksMode, .title = "Mode", .items = ksModeItems, .isReset = true });
+        ksMode[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksMode, .title = "Mode", .items = ksModeItems, .isReset = true });
         ksMode[i].setWantsKeyboardFocus(true);
         ksMode[i].setExplicitFocusOrder(++tabOrder);
         ksMode[i].onChange = [this]() {
             ctx.editor.resized();
             };
 
-        ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ks, .title = OpmGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
+        ks[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ks, .title = OpmGuiText::Fm::Op::Ks, .items = ksItems, .isReset = true });
         ks[i].setWantsKeyboardFocus(true);
         ks[i].setExplicitFocusOrder(++tabOrder);
 
-        ksrOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ksrOPP, .title = OpmGuiText::Fm::Op::Ksr, .isReset = true });
+        ksrOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksrOPP, .title = OpmGuiText::Fm::Op::Ksr, .isReset = true });
         ksrOPP[i].setWantsKeyboardFocus(true);
         ksrOPP[i].setExplicitFocusOrder(++tabOrder);
 
-        kslOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::kslOPP, .title = OpmGuiText::Fm::Op::Ksl, .isReset = true });
+        kslOPP[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::kslOPP, .title = OpmGuiText::Fm::Op::Ksl, .isReset = true });
         kslOPP[i].setWantsKeyboardFocus(true);
         kslOPP[i].setExplicitFocusOrder(++tabOrder);
 
         catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleOptional, .invisibleTitle = OpmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
-        xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::xof, .title = OpmGuiText::Fm::Op::xof, .isReset = true });
+        xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = OpmGuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
 
-        kor[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::kor, .title = OpmGuiText::Fm::Op::kor, .isReset = true });
+        kor[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::kor, .title = OpmGuiText::Fm::Op::kor, .isReset = true });
         kor[i].setWantsKeyboardFocus(true);
         kor[i].setExplicitFocusOrder(++tabOrder);
 
-        bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::ampBypass, .title = OpmGuiText::Fm::Op::bypass, .isReset = true });
+        bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::bypass, .title = OpmGuiText::Fm::Op::bypass, .isReset = true });
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
 
-        pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, OpmPrKey::PitchAdsr::enable, OpmGuiText::PitchAdsr::enable, true);
+        pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, OpmGuiText::PitchAdsr::enable, true);
 
-        ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, OpmPrKey::SsgSwEnv::enable, OpmGuiText::SsgSwEnv::enable, true);
+        ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, OpmGuiText::SsgSwEnv::enable, true);
+
+        ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, OpmGuiText::SsgSwEnv11::enable, true);
+
+        ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, OpmGuiText::SsgSwPEnv11::enable, true);
 
         cafLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleHwLfo, .invisibleTitle = OpmGuiText::Category::invisibileHwLfo, .enableChangeDetailVisible = true });
 
-        amsEnable[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
+        amsEnable[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::OpmLfo::amsEn, .title = OpmGuiText::Fm::Op::AmsEn, .isReset = true });
         amsEnable[i].setWantsKeyboardFocus(true);
         amsEnable[i].setExplicitFocusOrder(++tabOrder);
 
@@ -641,7 +620,7 @@ void GuiOpm::setup()
 
         catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = OpmGuiText::Category::visibleMask, .invisibleTitle = OpmGuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
-        mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + OpmPrKey::mask, .title = OpmGuiText::Fm::Op::Mask, .isReset = true });
+        mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = OpmGuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
@@ -749,6 +728,10 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         pitchEnv[i].layoutComponentRow(innerRect);
 
         ssgSwEnv[i].layoutComponentRow(innerRect);
+
+        ssgSwEnv11[i].layoutComponentRow(innerRect);
+
+        ssgSwPEnv11[i].layoutComponentRow(innerRect);
 
         layoutOpHwLfoCat(i, innerRect);
 
@@ -1021,6 +1004,8 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
     uSep003.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
     ieOpSsgSwEnv.setVisible(visible);
+    ieOpSsgSwEnv11.setVisible(visible);
+    ieOpSsgSwPEnv11.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
     ieLfo.setVisible(visible);
@@ -1047,6 +1032,10 @@ void GuiOpm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieOpPitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpSsgSwPEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
 
@@ -1246,15 +1235,21 @@ void GuiOpm::setupGraph(int opIndex)
 {
     addAndMakeVisible(&opGraphs[opIndex]); // グラフを追加
 
-    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp[opIndex].setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Amp); };
 
-    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Pitch); };
 
-    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw); };
+
+    graphBtnSsg11[opIndex].setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw11); };
+
+    graphBtnSsgP11[opIndex].setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
 
@@ -1271,6 +1266,8 @@ void GuiOpm::setupGraph(int opIndex)
 
     pitchEnv[opIndex].setupGraph(repaintGraph);
     ssgSwEnv[opIndex].setupGraph(repaintGraph);
+    ssgSwEnv11[opIndex].setupGraph(repaintGraph);
+    ssgSwPEnv11[opIndex].setupGraph(repaintGraph);
 
     graphSeparator[opIndex].setupComponent(*this);
 }
@@ -1283,6 +1280,8 @@ void GuiOpm::setGraphMode(int opIndex, GraphMode mode)
     graphBtnAmp[opIndex].setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch[opIndex].setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg[opIndex].setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11[opIndex].setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11[opIndex].setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateOpGraph(opIndex);
@@ -1296,11 +1295,13 @@ void GuiOpm::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(OpmGuiValue::ParamGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg[opIndex].setBounds(btnArea);
+    graphBtnSsg[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11[opIndex].setBounds(btnArea);
 
     // 残りをグラフエリアにする
     opGraphs[opIndex].setBounds(mainArea);
@@ -1346,6 +1347,18 @@ void GuiOpm::updateOpGraph(int opIndex)
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // Amp Env
@@ -1871,4 +1884,20 @@ void GuiOpm::exportQualityParam() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiOpm::importSsgSwEnv11Param(int opIndex) {
+    ssgSwEnv11[opIndex].importParams();
+}
+
+void GuiOpm::exportSsgSwEnv11Param(int opIndex) {
+    ssgSwEnv11[opIndex].exportParams();
+}
+
+void GuiOpm::importSsgSwPEnv11Param(int opIndex) {
+    ssgSwPEnv11[opIndex].importParams();
+}
+
+void GuiOpm::exportSsgSwPEnv11Param(int opIndex) {
+    ssgSwPEnv11[opIndex].exportParams();
 }

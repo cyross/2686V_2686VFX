@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "./AdvancedCurveParams.h"
+#include "../../Processor/Curve/ProcessorCurveValues.h"
 
 class CurveCore
 {
@@ -14,7 +15,7 @@ private:
     // カーブの結果を保存する配列 (解像度 1024)
     // [position][target][param][1024 steps]
     static constexpr int LUT_SIZE = 2048;
-    float curveLUT[7][4][8][LUT_SIZE] = { 0.0f };
+    float curveLUT[CurvePrValue::positions][CurvePrValue::targets][CurvePrValue::params][LUT_SIZE] = { 0.0f };
 
     // 内部の生計算関数
     float processRaw(int positionIndex, int targetIndex, int paramIndex, float x);

@@ -5,6 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Rhythm/ProcessorRhythmKeys.h"
 #include "../../Processor/Rhythm/ProcessorRhythmValues.h"
 #include "../../Core/Const/ConstFileValues.h"
@@ -15,53 +17,6 @@
 #include "./GuiRhythmHelpers.h"
 
 #include "../../Core/Processor/PluginProcessorStateKey.h"
-
-// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
-static std::vector<SelectItem> qualityItems = {
-    {.name = " 1: Raw (32bit)", .value = 1 },
-    {.name = " 2: 24-bit PCM",  .value = 2 },
-    {.name = " 3: 20-bit PCM",  .value = 3 },
-    {.name = " 4: 16-bit PCM",  .value = 4 },
-    {.name = " 5: 12-bit PCM",  .value = 5 },
-    {.name = " 6: 10-bit PCM",  .value = 6 },
-    {.name = " 7: 9-bit PCM",   .value = 7 },
-    {.name = " 8: 8-bit PCM",   .value = 8 },
-    {.name = " 9: 7-bit PCM",   .value = 9 },
-    {.name = "10: 6-bit PCM",   .value = 10 },
-    {.name = "11: 5-bit PCM",   .value = 11 },
-    {.name = "12: 4-bit PCM",   .value = 12 },
-    {.name = "13: 4-bit ADPCM", .value = 13 },
-    {.name = "14: 1-bit DPCM",  .value = 14 },
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
-
-static std::vector<SelectItem> interpItems = {
-    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
-    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
-    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 },
-    {.name = juce::String("") + "4: ZOH (Zero-Order Hold)", .value = 4 },
-    {.name = juce::String("") + "5: コサイン補間 (Cosine)", .value = 5 },
-    {.name = juce::String("") + "6: B-スプライン補間 (B-Spline)", .value = 6 },
-    {.name = juce::String("") + "7: ラグランジュ補間 (Lagrange)", .value = 7 }
-};
 
 void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 {
@@ -123,45 +78,45 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visibleOptional, .invisibleTitle = RhythmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pcmOffset, .title = RhythmGuiText::Rhythm::Pad::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::pcmRatio, .title = RhythmGuiText::Rhythm::Pad::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pcmRatio, .title = RhythmGuiText::Rhythm::Pad::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointEnable, .title = RhythmGuiText::Rhythm::Pad::loopPointEnable, .isReset = true });
+    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpEnable, .title = RhythmGuiText::Rhythm::Pad::loopPointEnable, .isReset = true });
     loopPointEnableButton.setWantsKeyboardFocus(true);
     loopPointEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointStart, .title = RhythmGuiText::Rhythm::Pad::loopPointStart, .isReset = true });
+    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpStart, .title = RhythmGuiText::Rhythm::Pad::loopPointStart, .isReset = true });
     loopPointStartSlider.setWantsKeyboardFocus(true);
     loopPointStartSlider.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::loopPointEnd, .title = RhythmGuiText::Rhythm::Pad::loopPointEnd, .isReset = true });
+    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::lpEnd, .title = RhythmGuiText::Rhythm::Pad::loopPointEnd, .isReset = true });
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
 
     // Vol
-    volSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::volume, .title = RhythmGuiText::Rhythm::Pad::vol, .isReset = true });
+    volSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::vol, .title = RhythmGuiText::Rhythm::Pad::vol, .isReset = true });
     volSlider.setWantsKeyboardFocus(true);
     volSlider.setExplicitFocusOrder(++tabOrder);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::tone, .title = RhythmGuiText::Rhythm::Pad::tone, .isReset = true });
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::Tn::tone, .title = RhythmGuiText::Rhythm::Pad::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::noise, .title = RhythmGuiText::Rhythm::Pad::noise, .isReset = true });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::Tn::noise, .title = RhythmGuiText::Rhythm::Pad::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::noiseFreq, .title = RhythmGuiText::Rhythm::Pad::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::Tn::freq, .title = RhythmGuiText::Rhythm::Pad::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     // 初期状態反映
-    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::mix , .title = RhythmGuiText::Rhythm::Pad::mix, .isReset = true });
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::Tn::mix , .title = RhythmGuiText::Rhythm::Pad::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -181,12 +136,12 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
     // ワンショット機能トグル
-    oneShotButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::oneShot, .title = RhythmGuiText::Rhythm::Pad::oneShot, .isReset = true });
+    oneShotButton.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::oneShot, .title = RhythmGuiText::Rhythm::Pad::oneShot, .isReset = true });
     oneShotButton.setWantsKeyboardFocus(true);
     oneShotButton.setExplicitFocusOrder(++tabOrder);
 
     // 割り当てキーノート番号
-    noteSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::note, .title = RhythmGuiText::Rhythm::Pad::note, .isReset = true });
+    noteSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::note, .title = RhythmGuiText::Rhythm::Pad::note, .isReset = true });
     noteSlider.setRange(0, 127, 1);
     noteSlider.setWantsKeyboardFocus(true);
     noteSlider.setExplicitFocusOrder(++tabOrder);
@@ -198,7 +153,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::Category::visiblePan, .invisibleTitle = RhythmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
     // パンポット
-    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + RhythmPrKey::Pad::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
+    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = padPrefix + CPK::pan, .title = RhythmGuiText::Rhythm::Pad::pan, .isReset = true });
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
     panSlider.setRange(0.0f, 1.0f);
@@ -228,9 +183,13 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, RhythmPrKey::pitchAdsr + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, CPK::pitchAdsr + CPK::bypass, RhythmGuiText::Rhythm::Pad::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, RhythmPrKey::ssgSwEnv + RhythmPrKey::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, CPK::ssgSwEnv + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv::bypass);
+
+    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, RhythmGuiText::Rhythm::Pad::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
@@ -274,6 +233,10 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     pitchEnvComponent.layoutComponent(padRect);
 
     ssgSwEnvComponent.layoutComponent(padRect);
+
+    ssgSwEnv11Component.layoutComponent(padRect);
+
+    ssgSwPEnv11Component.layoutComponent(padRect);
 
     mulDetuneComponent.layoutComponent(padRect);
 
@@ -335,6 +298,8 @@ void RhythmPadGui::updatePadVisible(bool visible) {
     graphBtnAmp.setVisible(visible);
     graphBtnPitch.setVisible(visible);
     graphBtnSsg.setVisible(visible);
+    graphBtnSsg11.setVisible(visible);
+    graphBtnSsgP11.setVisible(visible);
     graphSeparator.setVisible(visible);
 }
 
@@ -420,15 +385,21 @@ void RhythmPadGui::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this]() { updateGraph(); };
 
@@ -437,6 +408,10 @@ void RhythmPadGui::setupGraph()
     pitchEnvComponent.setupGraph(repaintGraph);
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
+
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
 
     graphSeparator.setupComponent(*this);
 }
@@ -448,6 +423,8 @@ void RhythmPadGui::setGraphMode(GraphMode mode)
     // ラジオボタン的な排他制御
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -461,11 +438,13 @@ void RhythmPadGui::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(RhythmGuiValue::Pad::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -490,6 +469,18 @@ void RhythmPadGui::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -622,6 +613,22 @@ void RhythmPadGui::importSsgSwEnvParam() {
 
 void RhythmPadGui::exportSsgSwEnvParam() {
     ssgSwEnvComponent.exportParams();
+}
+
+void RhythmPadGui::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void RhythmPadGui::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void RhythmPadGui::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void RhythmPadGui::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
 }
 
 void RhythmPadGui::importDetuneParam() {
@@ -762,6 +769,8 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieAmpEnv(context),
     iePitchEnv(context),
     ieSsgSwEnv(context),
+    ieSsgSwEnv11(context),
+    ieSsgSwPEnv11(context),
     ieDetune(context),
     ieQuality(context),
     iePcmPlay(context),
@@ -867,6 +876,14 @@ void GuiRhythm::setup()
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
+
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnv11Param(padIndex); };
+    ieSsgSwEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnv11Param(padIndex); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwPEnv11Param(padIndex); };
+    ieSsgSwPEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwPEnv11Param(padIndex); };
 
     ieQuality.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importQualityParam(padIndex); };
@@ -1025,6 +1042,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
@@ -1052,6 +1071,10 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         iePitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
         rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1224,4 +1247,20 @@ void GuiRhythm::importUnisonParam() {
 
 void GuiRhythm::exportUnisonParam() {
     unisonComponent.exportParams();
+}
+
+void GuiRhythm::importSsgSwEnv11Param(int p) {
+    pads[p].importSsgSwEnv11Param();
+}
+
+void GuiRhythm::exportSsgSwEnv11Param(int p) {
+    pads[p].exportSsgSwEnv11Param();
+}
+
+void GuiRhythm::importSsgSwPEnv11Param(int p) {
+    pads[p].importSsgSwPEnv11Param();
+}
+
+void GuiRhythm::exportSsgSwPEnv11Param(int p) {
+    pads[p].importSsgSwPEnv11Param();
 }

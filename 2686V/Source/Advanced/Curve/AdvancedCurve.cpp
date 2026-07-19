@@ -456,9 +456,9 @@ void CurveCore::setParameters(const CurveParams& params)
 
 void CurveCore::bakeCurves()
 {
-	for (int p = 0; p < (int)CurveParams::Position::Size; ++p) {
-		for (int t = 0; t < (int)CurveParams::Target::Size; ++t) {
-			for (int prm = 0; prm < 8; ++prm) {
+	for (int p = 0; p < CurvePrValue::positions; ++p) {
+		for (int t = 0; t < CurvePrValue::targets; ++t) {
+			for (int prm = 0; prm < CurvePrValue::params; ++prm) {
 				// 線形や無効なパラメータはスキップしても良いが、単純化のため全部計算する
 				for (int i = 0; i < LUT_SIZE; ++i) {
 					float x = (float)i / (float)(LUT_SIZE - 1); // 0.0 ~ 1.0

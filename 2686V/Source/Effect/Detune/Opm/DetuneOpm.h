@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "./DetuneOpmParams.h"
+
 class OpmDetune
 {
 	static const std::array<float, 8> dtScales;
@@ -17,6 +19,6 @@ class OpmDetune
 public:
 	OpmDetune();
 
-	void setParameters(int dt, int dt2, int mul, float mulRatio);
+	void setParameters(const OpmDetuneParams& params);
 	float noteOn(float baseFreq) const;
 };

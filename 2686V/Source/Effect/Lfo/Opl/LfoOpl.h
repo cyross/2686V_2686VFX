@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "./LfoOplParams.h"
+
 struct OplLfoValues {
 	float am = 0.0f;
 	float pm = 0.0f;
@@ -33,7 +35,7 @@ public:
 
 	void prepare(double sampleRate);
 	void updateTargetSampleRate(double newSampleRate);
-	void setParameters(bool pm, bool am, float pms, float pmd, float ams, float amd);
+	void setParameters(const LfoOplParams& params);
 	void getSample();
 	inline void updatePhaseDelta();
 	void setModWheel(float newWheel);

@@ -486,3 +486,7 @@ void FmRgAdssr::setParamMax(int ar, int dr, int sr, int sl, int rr, int tl) {
     rrMax = rr;
     tlMax = tl;
 }
+
+void FmRgAdssr::bypassedReleasedProcess() {
+    this->state = State::Idle;
+}

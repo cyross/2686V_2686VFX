@@ -1,9 +1,9 @@
 ﻿#include "./FmFix.h"
 
-void FixMode::setParameters(bool enable, float freq)
+void FixMode::setParameters(const FixModeParams& params)
 {
-	this->enable = enable;
-	this->freq = freq;
+	this->enable = params.enable;
+	this->freq = params.freq;
 }
 
 float FixMode::noteOn(float baseFreq)

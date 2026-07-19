@@ -27,6 +27,8 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -326,6 +328,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpDetune;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
+    GuiComponentImportExport ieOpSsgSwEnv11;
+    GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpPcmPlay;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
@@ -395,6 +399,9 @@ class GuiOpzx7 : public GuiBase
     // SSG SW Env
     std::array<GuiComponentSsgSwEnv, Opzx7PrValue::ops> ssgSwEnv;
 
+    std::array<GuiComponentSsgSwEnv11, Opzx7PrValue::ops> ssgSwEnv11;
+    std::array<GuiComponentSsgSwPEnv11, Opzx7PrValue::ops> ssgSwPEnv11;
+
     std::array<GuiCategoryLabel, Opzx7PrValue::ops> catMask;
     std::array<GuiToggleButton, Opzx7PrValue::ops> mask; // Mask
     std::array<NormalSeparator, Opzx7PrValue::ops> mmlSeparator;
@@ -420,9 +427,11 @@ class GuiOpzx7 : public GuiBase
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnSsg;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnSsg11;
+    std::array<GuiToggleButton, Opzx7PrValue::ops> graphBtnSsgP11;
     std::array<NormalSeparator, Opzx7PrValue::ops> graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     std::array<GraphMode, Opzx7PrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
@@ -498,6 +507,10 @@ public:
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
     void exportSsgSwEnvParam(int opIndex);
+    void importSsgSwEnv11Param(int opIndex);
+    void exportSsgSwEnv11Param(int opIndex);
+    void importSsgSwPEnv11Param(int opIndex);
+    void exportSsgSwPEnv11Param(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
     void importUnisonParam();

@@ -5,6 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Wavetable/ProcessorWtKeys.h"
 #include "../../Processor/Wavetable/ProcessorWtValues.h"
 #include "../../Core/Const/ConstFileValues.h"
@@ -15,41 +17,6 @@
 #include "./GuiWtText.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiWtHelpers.h"
-
-// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
-static std::vector<SelectItem> bdItems = {
-    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
-    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
-    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
-    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
-    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
-    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
-    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
-    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
-    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
-    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
-    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
-    {.name = "12: Raw",                     .value = 12 }
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
 
 static std::vector<SelectItem> wtWsItems = {
     {.name = "0: Sine",          .value = 1 },
@@ -603,7 +570,7 @@ void GuiWt::setup()
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
     // Waveform
-    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::wave, .title = WtGuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt::wave, .title = WtGuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
@@ -613,12 +580,12 @@ void GuiWt::setup()
     formSeparator.setupComponent(mainGroup.contentCanvas);
 
     // Custom Wave Size
-    sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
+    sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt::sampleSize, .title = WtGuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
     sizeSelector.setExplicitFocusOrder(++tabOrder);
 
     // Steps
-    stepsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
+    stepsSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt::steps, .title = WtGuiText::Wt::steps, .items = wtStepsItems, .isReset = true, .isResized = true });
     stepsSelector.setWantsKeyboardFocus(true);
     stepsSelector.setExplicitFocusOrder(++tabOrder);
     stepsSelector.onChange = [this] {
@@ -674,23 +641,27 @@ void GuiWt::setup()
     modCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleMod, .invisibleTitle = WtGuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
-    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
+    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::enable, .title = WtGuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
     modEnableButton.setWantsKeyboardFocus(true);
     modEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
+    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::depth, .title = WtGuiText::Wt::Mod::depth, .isReset = true });
     modDepthSlider.setWantsKeyboardFocus(true);
     modDepthSlider.setExplicitFocusOrder(++tabOrder);
 
-    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + WtPrKey::Mod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
+    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::speed, .title = WtGuiText::Wt::Mod::speed, .isReset = true });
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, WtPrKey::pitchAdsr + WtPrKey::bypass, WtGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, WtGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, WtPrKey::ssgSwEnv + WtPrKey::bypass, WtGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, WtGuiText::SsgSwEnv::bypass);
+
+    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, WtGuiText::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, WtGuiText::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -745,6 +716,14 @@ void GuiWt::setup()
     ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
     ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
+    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
+    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
@@ -759,12 +738,12 @@ void GuiWt::setup()
 	customWaveGroup.setup(*this, WtGuiText::Group::wtCustom);
 
     // Custom Wave Sliders
-	customSliders32.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom32 });
-    customSliders64.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom64 });
-    customSliders128.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom128 });
-    customSliders256.setup({ .parent = *this, .idPrefix = code + WtPrKey::custom256 });
+	customSliders32.setup({ .parent = *this, .idPrefix = code + CPK::custom32 });
+    customSliders64.setup({ .parent = *this, .idPrefix = code + CPK::custom64 });
+    customSliders128.setup({ .parent = *this, .idPrefix = code + CPK::custom128 });
+    customSliders256.setup({ .parent = *this, .idPrefix = code + CPK::custom256 });
 
-	customWaveResetTo0Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to0, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
+	customWaveResetTo0Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to0, .font = labelFont, .bgColor = GuiColor::WaveformContainer::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
     customWaveResetTo0Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo0Btn.onClick = [this] {
@@ -775,7 +754,7 @@ void GuiWt::setup()
         ctx.editor.resized();
     };
 
-    customWaveResetTo1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to1, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
+    customWaveResetTo1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::to1, .font = labelFont, .bgColor = GuiColor::WaveformContainer::ResetBtn::To1, .isReset = false, .isResized = false });
     customWaveResetTo1Btn.setWantsKeyboardFocus(true);
     customWaveResetTo1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo1Btn.onClick = [this] {
@@ -786,7 +765,7 @@ void GuiWt::setup()
         ctx.editor.resized();
         };
 
-    customWaveResetToM1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::toM1, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
+    customWaveResetToM1Btn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::toM1, .font = labelFont, .bgColor = GuiColor::WaveformContainer::ResetBtn::ToM1, .isReset = false, .isResized = false });
     customWaveResetToM1Btn.setWantsKeyboardFocus(true);
     customWaveResetToM1Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetToM1Btn.onClick = [this] {
@@ -797,7 +776,7 @@ void GuiWt::setup()
         resized();
         };
 
-    customWaveSmoothBtn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::smooth, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
+    customWaveSmoothBtn.setup({ .parent = *this, .title = WtGuiText::Wt::Custom::smooth, .font = labelFont, .bgColor = juce::Colours::darkcyan, .isReset = false, .isResized = false });
     customWaveSmoothBtn.setWantsKeyboardFocus(true);
     customWaveSmoothBtn.setExplicitFocusOrder(++tabOrder);
     customWaveSmoothBtn.onClick = [this] {
@@ -849,6 +828,10 @@ void GuiWt::layout(juce::Rectangle<int> content)
     pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
+
+    ssgSwEnv11Component.layoutComponent(mRect);
+
+    ssgSwPEnv11Component.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
 
@@ -1167,6 +1150,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
 
@@ -1184,6 +1169,10 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -1196,15 +1185,21 @@ void GuiWt::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
+
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this]() { updateGraph(); };
 
@@ -1213,6 +1208,10 @@ void GuiWt::setupGraph()
     pitchEnvComponent.setupGraph(repaintGraph);
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
+
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
 
     graphSeparator.setupComponent(*this);
 }
@@ -1225,6 +1224,8 @@ void GuiWt::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -1238,11 +1239,13 @@ void GuiWt::layoutGraph(juce::Rectangle<int>& rect)
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(WtGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -1267,6 +1270,18 @@ void GuiWt::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -1379,4 +1394,20 @@ void GuiWt::exportQualityParam() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiWt::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void GuiWt::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void GuiWt::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void GuiWt::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
 }

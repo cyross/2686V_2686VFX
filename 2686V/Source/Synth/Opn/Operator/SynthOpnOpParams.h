@@ -3,32 +3,31 @@
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
+#include "../../../Effect/Lfo/N88/LfoN88Params.h"
+#include "../../../Effect/Detune/Opn/DetuneOpnParams.h"
+#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "../../../Generator/Fm/Fix/FmFixParams.h"
+#include "../../../Core/Synth/CommonParams.h"
 
 struct OpnOpParams
 {
-    // --- Mask ---
-    bool mask = false;
-
     FmRgAdssrParams m_adsrParams;
-
-    int multiple = 1;      // MULTI: 0~15
-    int detune = 0;        // DT: 0~7
-
-    int n88Ams = 0;
-
-    // CSM/Fix Mode
-    bool fixedMode = false;
-    float fixedFreq = 440.0f;
+    bool ssgEnvEnable = false;
+    SsgSwEnvParams ssgSwEnv;
+    bool ssgEnv11Enable = false;
+    SsgSwEnv11Params ssgSwEnv11;
+    bool pitchEnvEnable = true;
+    PitchAdsrParams pitchAdsr;
+    bool ssgPEnv11Enable = true;
+    SsgSwPEnv11Params ssgSwPEnv11;
+    OpnDetuneParams detune;
+    LfoN88OpParams n88Lfo;
+    FixModeParams fix;
 
     // Wave Select (0:Sine, 1:Half, 2:Abs, 3:Quarter)
     int waveSelect = 0;
 
-    bool pitchEnvEnable = true;
-    bool ssgEnvEnable = false;
-
-    // --- Pitch Envelope ---
-    PitchAdsrParams pitchAdsr;
-
-    // --- SSG Software Envelope ---
-    SsgSwEnvParams ssgSwEnv;
+    // --- Mask ---
+    bool mask = false;
 };

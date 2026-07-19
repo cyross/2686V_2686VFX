@@ -9,6 +9,8 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
@@ -84,6 +86,8 @@ private:
     Opzx7LfoCore m_lfo;
     FixMode m_fixMode;
     SsgNoiseGen m_noiseGen;
+    SsgSwEnv11 m_ssgSwEnv11;
+    SsgSwPEnv11 m_ssgSwPenv11;
 
     float m_phase = 0.0f;
     float m_currentFrequency = 440.0f;

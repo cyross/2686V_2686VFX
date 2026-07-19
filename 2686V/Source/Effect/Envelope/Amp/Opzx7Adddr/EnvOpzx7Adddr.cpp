@@ -648,3 +648,7 @@ void Opzx7Adddr::setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl) 
     m_rgMax.rr = rr;
     m_rgMax.tl = tl;
 }
+
+void Opzx7Adddr::bypassedReleasedProcess() {
+    this->m_state = State::Idle;
+}
