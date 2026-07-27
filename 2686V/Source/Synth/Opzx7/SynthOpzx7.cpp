@@ -151,6 +151,10 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlgOpzx7({ 1, 2, 3, 4 }, { {0,1},{0,2},{0,3} }, { {0,0} }), // 110
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0} }), // 111
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0}, {1,1}, {2,2}, {3,3}, {4,4} }), // 112
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6 }, {}, { {0,0} }), // 113
+        makeAlgOpzx7({ 6 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6} }, { {0,0} }), // 114
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 115
+        makeAlgOpzx7({ 7 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6},{6,7} }, { {0,0} }), // 116
     } };
 
 void Opzx7Core::prepare(double sampleRate) {
@@ -165,6 +169,8 @@ void Opzx7Core::prepare(double sampleRate) {
     m_operators[3].prepare(4, target);
     m_operators[4].prepare(5, target);
     m_operators[5].prepare(6, target);
+    m_operators[6].prepare(7, target);
+    m_operators[7].prepare(8, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
@@ -182,6 +188,8 @@ void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
     m_operators[3].setCurveCore(p_curveCore);
     m_operators[4].setCurveCore(p_curveCore);
     m_operators[5].setCurveCore(p_curveCore);
+    m_operators[6].setCurveCore(p_curveCore);
+    m_operators[7].setCurveCore(p_curveCore);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -227,6 +235,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_operators[3].setSampleRate(target);
         m_operators[4].setSampleRate(target);
         m_operators[5].setSampleRate(target);
+        m_operators[6].setSampleRate(target);
+        m_operators[7].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
     }
@@ -258,6 +268,14 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_operators[5].setMonoMode(m_isMonoMode);
     m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[5] = params.opzx7.op[5].mask;
+    m_operators[6].setParameters(params.opzx7.op[6], params.opzx7.algFb.feedback);
+    m_operators[6].setMonoMode(m_isMonoMode);
+    m_operators[6].m_pitchResetOnLegato = params.pitchResetOnLegato;
+    m_opMask[6] = params.opzx7.op[6].mask;
+    m_operators[7].setParameters(params.opzx7.op[7], params.opzx7.algFb.feedback);
+    m_operators[7].setMonoMode(m_isMonoMode);
+    m_operators[7].m_pitchResetOnLegato = params.pitchResetOnLegato;
+    m_opMask[7] = params.opzx7.op[7].mask;
 }
 
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -296,6 +314,8 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[4].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[5].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[6].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[7].setUnisonPhaseOffset(phaseOffsetNorm);
 
     m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
@@ -303,6 +323,8 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[4].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[5].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[6].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[7].noteOn(finalFreq, gain, noteNum, isLegato);
 
     if (!isLegato) {
         // 新規ノートオン時に履歴を完全にクリアする
@@ -322,6 +344,8 @@ void Opzx7Core::noteOff()
     m_operators[3].noteOff();
     m_operators[4].noteOff();
     m_operators[5].noteOff();
+    m_operators[6].noteOff();
+    m_operators[7].noteOff();
 }
 
 bool Opzx7Core::isPlaying() const
@@ -332,6 +356,8 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[3].isPlaying()) return true;
     if (m_operators[4].isPlaying()) return true;
     if (m_operators[5].isPlaying()) return true;
+    if (m_operators[6].isPlaying()) return true;
+    if (m_operators[7].isPlaying()) return true;
 
     return false;
 }
@@ -348,6 +374,8 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
     m_operators[3].setPitchBendRatio(ratio);
     m_operators[4].setPitchBendRatio(ratio);
     m_operators[5].setPitchBendRatio(ratio);
+    m_operators[6].setPitchBendRatio(ratio);
+    m_operators[7].setPitchBendRatio(ratio);
 }
 
 void Opzx7Core::setModulationWheel(int wheelValue)
