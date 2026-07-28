@@ -463,12 +463,14 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     int usedHeight = 2000 - mRect.getHeight();
 
+    int opWidth = pageArea.getWidth() / 4;
+
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
     // --- Operators Section ---
     for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
-        auto opArea = pageArea.removeFromLeft(Opl3GuiValue::Fm::Op::width);
+        auto opArea = pageArea.removeFromLeft(opWidth);
         opGroups[i].setBounds(opArea);
 
         auto iinnerRect = opArea.reduced(Opl3GuiValue::Fm::Op::Padding::width, Opl3GuiValue::Fm::Op::Padding::height);

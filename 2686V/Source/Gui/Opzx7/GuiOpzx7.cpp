@@ -1002,6 +1002,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
+    int opWidth = pageArea.getWidth() / 4;
+
     switch (viewMode) {
     case GuiComponentViewModes::Top:
     {
@@ -1012,7 +1014,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         for (int i = 0; i < 4; ++i)
         {
             updateOpVisible(i, true);
-            layoutOp(i, pageArea);
+            layoutOp(i, opWidth, pageArea);
         }
         break;
     }
@@ -1025,7 +1027,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         for (int i = 4; i < Opzx7PrValue::ops; ++i)
         {
             updateOpVisible(i, true);
-            layoutOp(i, pageArea);
+            layoutOp(i, opWidth, pageArea);
         }
 
         break;
@@ -1037,13 +1039,13 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         for (int i = 0; i < 4; ++i)
         {
             updateOpVisible(i, true);
-            layoutOp(i, upperOpArea);
+            layoutOp(i, opWidth, upperOpArea);
         }
 
         for (int i = 4; i < Opzx7PrValue::ops; ++i)
         {
             updateOpVisible(i, true);
-            layoutOp(i, pageArea);
+            layoutOp(i, opWidth, pageArea);
         }
 
         break;
@@ -1054,8 +1056,8 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     updateAlgorithmDisplay();
 }
 
-void GuiOpzx7::layoutOp(int opIndex, juce::Rectangle<int>& rect) {
-    auto opArea = rect.removeFromLeft(Opzx7GuiValue::Fm::Op::width);
+void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
+    auto opArea = rect.removeFromLeft(width);
 
     // 枠線
     opGroups[opIndex].setBounds(opArea);

@@ -445,10 +445,12 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
 
+    int opWidth = pageArea.getWidth() / 4;
+
     // --- B. Operators Section (Bottom) ---
     for (int i = 0; i < OpnPrValue::ops; ++i)
     {
-        auto opArea = pageArea.removeFromLeft(OpnGuiValue::Fm::Op::width);
+        auto opArea = pageArea.removeFromLeft(opWidth);
 
         // 枠線
         opGroups[i].setBounds(opArea);

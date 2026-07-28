@@ -36,10 +36,10 @@ namespace FxGuiValue
 	{
 		static inline constexpr int Width = 1000;
 		static inline constexpr int Height = 720;
-		static inline constexpr int MainWidth = 300;
+		static inline constexpr int MainWidth = 400;
 		static inline constexpr int MainHeight = 120;
 		static inline constexpr int MainHeightRoute = 320;
-		static inline constexpr int AreaWidth = 150;
+		static inline constexpr int AreaWidth = 200;
 		static inline constexpr int AreaHeightBig = 166;
 		static inline constexpr int AreaHeightMini = 136;
 		static inline constexpr int AreaHeight = 146;

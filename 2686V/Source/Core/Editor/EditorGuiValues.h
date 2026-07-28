@@ -8,7 +8,7 @@ namespace EditorGuiValue
 {
 	namespace Window
 	{
-		static inline constexpr int width = 1580;
+		static inline constexpr int width = 1780;
 		static inline constexpr int height = 920;
 	}
 
@@ -108,6 +108,6 @@ namespace EditorGuiValue
 
 	namespace Fx
 	{
-		static inline constexpr int width = 300;
+		static inline constexpr int width = 400;
 	}
 }

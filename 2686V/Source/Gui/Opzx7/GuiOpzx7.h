@@ -491,7 +491,7 @@ public:
     void pasteFmParamsFromObject();
     void initParams();
     void layoutUtilityCat(Rectangle<int>& rect);
-    void layoutOp(int opIndex, juce::Rectangle<int>& rect);
+    void layoutOp(int opIndex, int width, juce::Rectangle<int>& rect);
     void layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
     void layoutPanpotCat(juce::Rectangle<int>& rect);
