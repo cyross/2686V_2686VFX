@@ -502,19 +502,19 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
         layoutOpOptionalCat(i, innerRect);
 
-        layoutOpDetCat(i, innerRect);
-
-        layoutOpEgCat(i, innerRect);
-
-        layoutOpKsCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
-
         ssgSwEnv[i].layoutComponentRow(innerRect);
 
         ssgSwEnv11[i].layoutComponentRow(innerRect);
 
+        pitchEnv[i].layoutComponentRow(innerRect);
+
         ssgSwPEnv11[i].layoutComponentRow(innerRect);
+
+        layoutOpDetCat(i, innerRect);
+
+        layoutOpKsCat(i, innerRect);
+
+        layoutOpEgCat(i, innerRect);
 
         layoutOpLfoCat(i, innerRect);
 

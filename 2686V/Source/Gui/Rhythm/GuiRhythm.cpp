@@ -61,7 +61,7 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // パッド音声アンロード
-    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::File::clear, .isReset = false });
+    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = RhythmGuiText::File::clear, .textColor = juce::Colours::white, .isReset = false });
     clearButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred.withAlpha(0.7f));
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
@@ -226,21 +226,21 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
 
     layoutPanCat(padRect);
 
-    fixComponent.layoutComponent(padRect);
-
     ampEnvComponent.layoutComponent(padRect);
-
-    pitchEnvComponent.layoutComponent(padRect);
 
     ssgSwEnvComponent.layoutComponent(padRect);
 
     ssgSwEnv11Component.layoutComponent(padRect);
+
+    pitchEnvComponent.layoutComponent(padRect);
 
     ssgSwPEnv11Component.layoutComponent(padRect);
 
     mulDetuneComponent.layoutComponent(padRect);
 
     lfoComponent.layoutComponent(padRect);
+
+    fixComponent.layoutComponent(padRect);
 
     layoutQualityCat(padRect);
 

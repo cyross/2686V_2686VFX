@@ -160,7 +160,7 @@ void GuiAdpcm::setup()
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]
@@ -268,21 +268,21 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutPanCat(mRect);
 
-    fixComponent.layoutComponent(mRect);
-
     ampEnvComponent.layoutComponent(mRect);
-
-    pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
     ssgSwEnv11Component.layoutComponent(mRect);
+
+    pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwPEnv11Component.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
     
     lfoComponent.layoutComponent(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

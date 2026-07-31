@@ -793,7 +793,7 @@ void GuiOpzx7::setup()
             );
             };
 
-        clearPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
+        clearPcmBtn[i].setup({ .parent = opGroups[i].contentCanvas, .title = Opzx7GuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false, .isResized = true });
         clearPcmBtn[i].setWantsKeyboardFocus(true);
         clearPcmBtn[i].setExplicitFocusOrder(++tabOrder);
         clearPcmBtn[i].onClick = [this, i] {
@@ -1084,21 +1084,21 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
 
     layoutOpOptionalCat(opIndex, innerRect);
 
-    mulDetune[opIndex].layoutComponentRow(innerRect);
-
-    layoutOpWsCat(opIndex, innerRect, selectedWs);
-
-    layoutOpKsCat(opIndex, innerRect, rgMode);
-
-    layoutOpSsgEnvCat(opIndex, innerRect);
-
-    pitchEnv[opIndex].layoutComponentRow(innerRect);
-
     ssgSwEnv[opIndex].layoutComponentRow(innerRect);
 
     ssgSwEnv11[opIndex].layoutComponentRow(innerRect);
 
+    pitchEnv[opIndex].layoutComponentRow(innerRect);
+
     ssgSwPEnv11[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpWsCat(opIndex, innerRect, selectedWs);
+
+    layoutOpSsgEnvCat(opIndex, innerRect);
+
+    mulDetune[opIndex].layoutComponentRow(innerRect);
+
+    layoutOpKsCat(opIndex, innerRect, rgMode);
 
     lfo[opIndex].layoutComponentRow(innerRect);
 

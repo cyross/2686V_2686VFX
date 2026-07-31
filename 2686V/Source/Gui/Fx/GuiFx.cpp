@@ -789,7 +789,7 @@ void GuiFx::layout(juce::Rectangle<int> content)
 
     layoutRow({ .rowRect = sfceRect, .component = &sfceBypassBtn });
 
-    sfceSeparator.setBounds(sfceRect);
+    sfceSeparator.layoutComponent(sfceRect);
 
     layoutRow({ .rowRect = sfceRect, .label = &sfceTimeSlider.label, .component = &sfceTimeSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });
     layoutRow({ .rowRect = sfceRect, .label = &sfceFbSlider.label, .component = &sfceFbSlider, .labelWidth = FxGuiValue::Fx::AreaLabelWidth });

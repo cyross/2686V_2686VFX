@@ -119,21 +119,21 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     levelComponent.layoutComponent(mRect);
 
-    fixComponent.layoutComponent(mRect);
-
     ampEnvComponent.layoutComponent(mRect);
-
-    pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
     ssgSwEnv11Component.layoutComponent(mRect);
+
+    pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwPEnv11Component.layoutComponent(mRect);
 
 	mulDetuneComponent.layoutComponent(mRect);
 
     lfoComponent.layoutComponent(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 

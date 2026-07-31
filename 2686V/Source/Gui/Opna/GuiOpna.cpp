@@ -687,23 +687,23 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
         layoutOpOptionalCat(i, innerRect);
 
-        layoutOpDetCat(i, innerRect);
-
-        layoutOpKsCat(i, innerRect);
-
         layoutOpSsgEnvelopeCat(i, innerRect);
-
-        pitchEnv[i].layoutComponentRow(innerRect);
 
         ssgSwEnv[i].layoutComponentRow(innerRect);
 
         ssgSwEnv11[i].layoutComponentRow(innerRect);
+
+        pitchEnv[i].layoutComponentRow(innerRect);
 
         ssgSwPEnv11[i].layoutComponentRow(innerRect);
 
         layoutOpHwLfoCat(i, innerRect);
 
         layoutOpN88LfoCat(i, innerRect);
+
+        layoutOpDetCat(i, innerRect);
+
+        layoutOpKsCat(i, innerRect);
 
         fix[i].layoutComponentRow(innerRect);
 
