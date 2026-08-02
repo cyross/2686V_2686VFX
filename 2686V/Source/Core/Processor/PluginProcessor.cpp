@@ -1404,3 +1404,11 @@ OscMode AudioPlugin2686V::getCurrentMode()
 
     return (OscMode)m;
 }
+
+void AudioPlugin2686V::updateCurveCurrent(int position, int target) {
+    prCurve.updateCurrent(position, target);
+}
+
+void AudioPlugin2686V::resetCurveProcessBlock() {
+    prCurve.resetProcessBlock();
+}

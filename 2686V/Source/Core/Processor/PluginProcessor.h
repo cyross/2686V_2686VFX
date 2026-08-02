@@ -636,6 +636,8 @@ public:
     bool isPlaying();
     bool isMidiProcessing();
     OscMode getCurrentMode();
+    void updateCurveCurrent(int position, int target);
+    void resetCurveProcessBlock();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

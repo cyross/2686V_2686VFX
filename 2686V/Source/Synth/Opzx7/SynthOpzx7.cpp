@@ -151,10 +151,23 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlgOpzx7({ 1, 2, 3, 4 }, { {0,1},{0,2},{0,3} }, { {0,0} }), // 110
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0} }), // 111
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0}, {1,1}, {2,2}, {3,3}, {4,4} }), // 112
-        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6 }, {}, { {0,0} }), // 113
-        makeAlgOpzx7({ 6 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6} }, { {0,0} }), // 114
-        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 115
-        makeAlgOpzx7({ 7 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6},{6,7} }, { {0,0} }), // 116
+        makeAlgOpzx7({ 0, 1 }, { {0, 1}, {0, 2} }, { {0,0} }), // 113
+        makeAlgOpzx7({ 1, 2, 3 }, { {0, 1}, {0, 2} }, { {0,0} }), // 114
+        makeAlgOpzx7({ 6 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6} }, { {0,0} }), // 115
+        makeAlgOpzx7({ 3, 6 }, { {0,1},{1,2},{2,3},{4,5},{5,6} }, { {0,0} }), // 116
+        makeAlgOpzx7({ 3, 6 }, { {0,1},{1,3},{2,3},{4,6},{5,6} }, { {0,0} }), // 117
+        makeAlgOpzx7({ 2, 4, 6 }, { {0,1},{1,2},{3,4},{5,6} }, { {0,0} }), // 118
+        makeAlgOpzx7({ 2, 4, 6 }, { {0,1},{0,3},{1,2},{3,4},{5,6}}, {{0,0}}), // 119
+        makeAlgOpzx7({ 1, 3, 5, 6 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 120
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6 }, {}, { {0,0} }), // 121
+        makeAlgOpzx7({ 7 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6},{6,7} }, { {0,0} }), // 122
+        makeAlgOpzx7({ 3, 7 }, { {0,1},{1,2},{2,3},{4,5},{5,6},{6,7} }, { {0,0} }), // 123
+        makeAlgOpzx7({ 3, 7 }, { {0,1},{0,2},{2,3},{4,6},{5,6},{6,7} }, { {0,0} }), // 124
+        makeAlgOpzx7({ 2, 5, 7 }, { {0,1},{1,2},{3,4},{4,5},{6,7} }, { {0,0} }), // 125
+        makeAlgOpzx7({ 2, 5, 7 }, { {0,2},{1,2},{3,5},{4,5},{6,7} }, { {0,0} }), // 126
+        makeAlgOpzx7({ 1, 3, 5, 7 }, { {0,1},{2,3},{4,5},{6,7} }, { {0,0} }), // 127
+        makeAlgOpzx7({ 1, 3, 5, 6, 7 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 128
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 129
     } };
 
 void Opzx7Core::prepare(double sampleRate) {
@@ -326,14 +339,10 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[6].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[7].noteOn(finalFreq, gain, noteNum, isLegato);
 
-    if (!isLegato) {
-        // 新規ノートオン時に履歴を完全にクリアする
-        m_history1.fill(0.0f);
-        m_history2.fill(0.0f);
-        m_lfoPhase = 0.0;
-        m_rateAccumulator = 0.0;
-        m_lfo.noteOn();
-    }
+    m_lfoPhase = 0.0;
+    m_rateAccumulator = 0.0;
+ 
+    m_lfo.noteOn();
 }
 
 void Opzx7Core::noteOff()
@@ -404,9 +413,9 @@ float Opzx7Core::getSample() {
         const auto& r = routings[algIndex];
 
         // =================================================================
-        // オペレータの評価 (OP1 -> OP6 の正順で計算)
+        // オペレータの評価 (OP1 -> OP8 の正順で計算)
         // =================================================================
-        for (int i = 0; i < Opzx7PrValue::ops; ++i) { // 0 から 5 へ
+        for (int i = 0; i < Opzx7PrValue::ops; ++i) { // 0 から 7 へ
             float modulator = 0.0f;
             float fbModulator = 0.0f;
 
@@ -459,7 +468,7 @@ float Opzx7Core::getSample() {
 
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * m_level * fraction;
+    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
 
 void Opzx7Core::setPcmBuffer(int opIndex, std::vector<float>* pcmData)

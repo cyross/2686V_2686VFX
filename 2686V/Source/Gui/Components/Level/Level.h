@@ -17,6 +17,8 @@ class GuiComponentLevel : public GuiBase {
     GuiTextButton levelPM001;
     GuiTextButton levelP001;
     GuiTextButton levelP01;
+    GuiTextButton levelTo0125;
+    GuiTextButton levelTo0142;
     GuiTextButton levelTo016;
     GuiTextButton levelTo02;
     GuiTextButton levelTo025;
@@ -39,6 +41,8 @@ public:
         levelPM001(context),
         levelP001(context),
         levelP01(context),
+        levelTo0125(context),
+        levelTo0142(context),
         levelTo016(context),
         levelTo02(context),
         levelTo025(context),

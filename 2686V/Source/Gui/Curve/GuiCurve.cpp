@@ -19,7 +19,9 @@ static std::vector<SelectItem> positionItems = {
     {.name = "Op3",    .value = 4 },
     {.name = "Op4",    .value = 5 },
     {.name = "Op5",    .value = 6 },
-    {.name = "Op6",    .value = 7 }
+    {.name = "Op6",    .value = 7 },
+    {.name = "Op7",    .value = 8 },
+    {.name = "Op8",    .value = 9 }
 };
 
 static std::vector<SelectItem> targetItems = {
@@ -490,6 +492,8 @@ void GuiCurve::setup()
     position.setWantsKeyboardFocus(true);
     position.setExplicitFocusOrder(++tabOrder);
     position.onChange = [this, correctTarget] {
+		ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex()); // Positionが変わったら、カーブの現在値を更新する
+
         updateVisible();
 
         correctTarget();
@@ -502,6 +506,8 @@ void GuiCurve::setup()
     target.setWantsKeyboardFocus(true);
     target.setExplicitFocusOrder(++tabOrder);
     target.onChange = [this] {
+        ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex()); // Positionが変わったら、カーブの現在値を更新する
+
         updateVisible();
         ctx.editor.resized();
         };

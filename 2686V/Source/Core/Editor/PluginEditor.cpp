@@ -899,6 +899,9 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
 
+	// カーブプリセットの全パラメータ再読み込みを行う
+    audioProcessor.resetCurveProcessBlock();
+
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {

@@ -17,7 +17,7 @@ namespace CurvePrKey
 	static inline const juce::String enable = "_ENABLE";
 
 	// Position
-	static const std::array<juce::String, 7> position{ "_C", "_OP1", "_OP2", "_OP3", "_OP4", "_OP5", "_OP6" };
+	static const std::array<juce::String, 9> position{ "_C", "_OP1", "_OP2", "_OP3", "_OP4", "_OP5", "_OP6", "_OP7", "_OP8" };
 
 	// Target
 	static const std::array<juce::String, 6> target{ "_RVAL", "_AENV", "_PENV", "_SSE", "_SSE11", "_SPE11" };

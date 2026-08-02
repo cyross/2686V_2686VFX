@@ -272,6 +272,8 @@ void GuiPreset::setup()
                     // 1. プロセッサ側の初期化実行
                     ctx.audioProcessor.initPreset();
 
+                    ctx.audioProcessor.resetCurveProcessBlock();
+
                     // 2. エディタの表示更新
                     // テキストエディタへの反映
                     nameEditor.setText(ctx.audioProcessor.presetName);

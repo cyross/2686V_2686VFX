@@ -107,6 +107,20 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
         levelSlider.setValue(0.8f, juce::sendNotification);
         };
 
+    levelTo0125.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.125", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    levelTo0125.setWantsKeyboardFocus(true);
+    levelTo0125.setExplicitFocusOrder(++tabOrder);
+    levelTo0125.onClick = [this]() {
+        levelSlider.setValue(0.125f, juce::sendNotification);
+        };
+
+    levelTo0142.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.142", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
+    levelTo0142.setWantsKeyboardFocus(true);
+    levelTo0142.setExplicitFocusOrder(++tabOrder);
+    levelTo0142.onClick = [this]() {
+        levelSlider.setValue(0.142f, juce::sendNotification);
+        };
+
     levelTo016.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "0.16", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
     levelTo016.setWantsKeyboardFocus(true);
     levelTo016.setExplicitFocusOrder(++tabOrder);
@@ -141,7 +155,7 @@ void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
     layoutMainThreeComps({ .rect = rect, .comp1 = &levelPM1, .comp2 = &levelTo1, .comp3 = &levelP1 });
     layoutMainThreeComps({ .rect = rect, .comp1 = &levelTo025, .comp2 = &levelTo05, .comp3 = &levelTo075 });
     layoutMainFourComps({ .rect = rect, .comp1 = &levelTo02, .comp2 = &levelTo04, .comp3 = &levelTo06, .comp4 = &levelTo08 });
-    layoutMainFourComps({ .rect = rect, .comp1 = &levelTo016, .comp2 = &levelTo033, .comp3 = &levelTo067, .comp4 = &levelTo083 });
+    layoutMainSixComps({ .rect = rect, .comp1 = &levelTo0125, .comp2 = &levelTo0142, .comp3 = &levelTo016, .comp4 = &levelTo033, .comp5 = &levelTo067, .comp6 = &levelTo083 });
     layoutMainFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
 }
 
@@ -150,7 +164,7 @@ void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
     layoutRowThreeComps({ .rect = rect, .comp1 = &levelPM1, .comp2 = &levelTo1, .comp3 = &levelP1 });
     layoutRowThreeComps({ .rect = rect, .comp1 = &levelTo025, .comp2 = &levelTo05, .comp3 = &levelTo075 });
     layoutRowFourComps({ .rect = rect, .comp1 = &levelTo02, .comp2 = &levelTo04, .comp3 = &levelTo06, .comp4 = &levelTo08 });
-    layoutRowFourComps({ .rect = rect, .comp1 = &levelTo016, .comp2 = &levelTo033, .comp3 = &levelTo067, .comp4 = &levelTo083 });
+    layoutRowSixComps({ .rect = rect, .comp1 = &levelTo0125, .comp2 = &levelTo0142, .comp3 = &levelTo016, .comp4 = &levelTo033, .comp5 = &levelTo067, .comp6 = &levelTo083 });
     layoutRowFourComps({ .rect = rect, .comp1 = &levelPM001, .comp2 = &levelPM01, .comp3 = &levelP01, .comp4 = &levelP001 });
 }
 
@@ -170,6 +184,8 @@ void GuiComponentLevel::setVisible(bool visible) {
     levelTo04.setVisible(visible);
     levelTo06.setVisible(visible);
     levelTo08.setVisible(visible);
+	levelTo0125.setVisible(visible);
+	levelTo0142.setVisible(visible);
     levelTo016.setVisible(visible);
     levelTo033.setVisible(visible);
 	levelTo067.setVisible(visible);
@@ -192,6 +208,8 @@ void GuiComponentLevel::setEnable(bool enabled) {
     levelTo04.setEnabled(enabled);
     levelTo06.setEnabled(enabled);
     levelTo08.setEnabled(enabled);
+    levelTo0125.setEnabled(enabled);
+    levelTo0142.setEnabled(enabled);
     levelTo016.setEnabled(enabled);
     levelTo033.setEnabled(enabled);
     levelTo067.setEnabled(enabled);
