@@ -65,10 +65,10 @@ void CurveProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
 {
     params.curve.enable = (pEnable->load(std::memory_order_relaxed) > CurvePrValue::boolThread);
 
-    if (isFirst) {
+    if (forceAll) {
 		processBlockAllParams(params, apvts);
 
-		isFirst = false;
+        forceAll = false;
     }
     else {
         for (int vp = 0; vp < CurvePrValue::params; vp++) {
@@ -499,5 +499,5 @@ void CurveProcessor::updateCurrent(int position, int target) {
 void CurveProcessor::resetProcessBlock()
 {
 	// プリセット読み込み時などで、すべてのパラメータを更新する必要がある場合に呼び出す
-    isFirst = true;
+    forceAll = true;
 }

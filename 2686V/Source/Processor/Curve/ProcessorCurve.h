@@ -10,7 +10,7 @@
 #include "./ProcessorCurveValues.h"
 
 class CurveProcessor : public PrBase {
-    bool isFirst = true;
+    bool forceAll = true;
     int currentPosition = 0;
 	int currentTarget = 0;
     std::atomic<float>* pEnable = nullptr;

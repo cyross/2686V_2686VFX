@@ -15,8 +15,6 @@ class Opl3Core : public FmCore
 public:
     Opl3Core() : FmCore() {}
 
-    std::array<Opl3Operator, Opl3PrValue::ops> m_operators;
-
     struct AlgRouting {
         std::array<float, Opl3PrValue::ops> out;                // 最終出力へのミックス割合
         std::array<std::array<float, Opl3PrValue::ops>, Opl3PrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
@@ -46,13 +44,44 @@ public:
         // (例: 3ボイスなら 0.0, 0.33, 0.66)
         m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
     }
+
+    struct ModConnection {
+        int srcOp;
+        float amount;
+        bool isForward;
+    };
+
+    struct OpRoutingConfig {
+        std::array<ModConnection, Opl3PrValue::ops> mods;
+        int modCount = 0;
+
+        std::array<ModConnection, Opl3PrValue::ops> fbMods;
+        int fbModCount = 0;
+
+        float outLevel = 0.0f;
+    };
+
+    // =========================================================================
+    // テンプレートによる強制ループ展開 (Loop Unrolling)
+    // =========================================================================
+    template<size_t I>
+    inline void processSingleOperator(float* currentOut, float& finalOut);
+
+    template<size_t... Is>
+    inline void processAllOperators(std::index_sequence<Is...>, float* currentOut, float& finalOut) {
+        // Fold Expression を用いて関数呼び出しをベタ書き展開する
+        (processSingleOperator<Is>(currentOut, finalOut), ...);
+    }
 private:
-    std::array<bool, Opl3PrValue::ops> m_opMask{ false };
-
     static const std::array<AlgRouting, Opl3PrValue::algorithms> routings;
-
+    std::array<OpRoutingConfig, Opl3PrValue::ops> m_activeRoutings;
+    std::array<Opl3Operator, Opl3PrValue::ops> m_operators;
+    std::array<bool, Opl3PrValue::ops> m_opMask{ false };
     std::array<float, Opl3PrValue::ops> m_history1 = { 0.0f };
     std::array<float, Opl3PrValue::ops> m_history2 = { 0.0f };
+
+    int m_cachedAlgorithm = -1;
+    void updateRoutingCache();
 
     float m_level = 1.0f;
 

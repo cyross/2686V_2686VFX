@@ -66,13 +66,47 @@ public:
         std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
         std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
     };
+
+    struct ModConnection {
+        int srcOp;
+        float amount;
+        bool isForward;
+    };
+
+    struct OpRoutingConfig {
+        std::array<ModConnection, Opzx7PrValue::ops> mods;
+        int modCount = 0;
+
+        std::array<ModConnection, Opzx7PrValue::ops> fbMods;
+        int fbModCount = 0;
+
+        float outLevel = 0.0f;
+    };
+
+    // =========================================================================
+    // テンプレートによる強制ループ展開 (Loop Unrolling)
+    // =========================================================================
+    template<size_t I>
+    inline void processSingleOperator(float* currentOut, float& finalOut);
+
+    template<size_t... Is>
+    inline void processAllOperators(std::index_sequence<Is...>, float* currentOut, float& finalOut) {
+        // Fold Expression を用いて関数呼び出しをベタ書き展開する
+        (processSingleOperator<Is>(currentOut, finalOut), ...);
+    }
 private:
+
+    static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings;
+    std::array<OpRoutingConfig, Opzx7PrValue::ops> m_activeRoutings;
     std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
     std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
-    Opzx7LfoCore m_lfo;
-
     std::array<float, Opzx7PrValue::ops> m_history1 = { 0.0f };
     std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
+
+    Opzx7LfoCore m_lfo;
+
+    int m_cachedAlgorithm = -1;
+    void updateRoutingCache();
 
     double m_hostSampleRate = 44100.0;
     int m_algorithm = 0;
@@ -114,8 +148,6 @@ private:
     // LFO Sync Delay とカウンター
     float m_lfoSyncDelay = 0.0f;
     float m_lfoDelayCounter = 0.0f;
-
-    static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings;
 
     int m_panpot = 0;
     bool m_panpot_enable = false;

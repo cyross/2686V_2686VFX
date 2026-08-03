@@ -46,17 +46,47 @@ public:
         std::array<std::array<float, OpnaPrValue::ops>, OpnaPrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
         std::array<std::array<float, OpnaPrValue::ops>, OpnaPrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
     };
+
+    struct ModConnection {
+        int srcOp;
+        float amount;
+        bool isForward;
+    };
+
+    struct OpRoutingConfig {
+        std::array<ModConnection, OpnaPrValue::ops> mods;
+        int modCount = 0;
+
+        std::array<ModConnection, OpnaPrValue::ops> fbMods;
+        int fbModCount = 0;
+
+        float outLevel = 0.0f;
+    }; 
+
+    // =========================================================================
+    // テンプレートによる強制ループ展開 (Loop Unrolling)
+    // =========================================================================
+    template<size_t I>
+    inline void processSingleOperator(float* currentOut, float& finalOut);
+
+    template<size_t... Is>
+    inline void processAllOperators(std::index_sequence<Is...>, float* currentOut, float& finalOut) {
+        // Fold Expression を用いて関数呼び出しをベタ書き展開する
+        (processSingleOperator<Is>(currentOut, finalOut), ...);
+    }
 private:
+    static const std::array<AlgRouting, OpnaPrValue::algorithms> routings;
+    std::array<OpRoutingConfig, OpnaPrValue::ops> m_activeRoutings;
     std::array<OpnaOperator, OpnaPrValue::ops> m_operators;
     std::array<bool, OpnaPrValue::ops> m_opMask{ false, false };
-
-    static const std::array<AlgRouting, OpnaPrValue::algorithms> routings;
-
     std::array<float, OpnaPrValue::ops> m_history1 = { 0.0f };
     std::array<float, OpnaPrValue::ops> m_history2 = { 0.0f };
 
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
+
+    int m_cachedAlgorithm = -1;
+    void updateRoutingCache();
 
     float m_level = 1.0f;
 

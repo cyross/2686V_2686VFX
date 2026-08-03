@@ -229,8 +229,8 @@ void GuiCurve::setup()
             + CurvePrKey::paramList[vp]
             + CurvePrKey::valueList[vv];
 
-        float minVal = CurvePrValue::valueMin;  // -5.0f
-        float maxVal = CurvePrValue::valueMax;  //  5.0f
+        float minVal = CurvePrValue::valueMin;  // -3.0f
+        float maxVal = CurvePrValue::valueMax;  //  3.0f
         float step = 0.0001f;
 
         // 2. ロジックに応じて範囲を決定
@@ -299,17 +299,14 @@ void GuiCurve::setup()
             break;
         }
 
-        // APVTSから生のパラメータを取り出し、不変と思われがちな range を直接上書きする
         if (auto* param = dynamic_cast<juce::AudioParameterFloat*>(ctx.apvts.getParameter(paramID)))
         {
             param->range = juce::NormalisableRange<float>(minVal, maxVal, step);
         }
 
-        // スライダー自身の範囲も更新する
         value[p][t][vp][vv]->setRange(minVal, maxVal, step);
-
-        // 値を初期化（すでに記述されている処理）
-        value[p][t][vp][vv]->setValue(0.0f, juce::sendNotification);
+        // 重い初期化なので、ここでは通知を送らない
+        value[p][t][vp][vv]->setValue(0.0f, juce::dontSendNotification);
         };
 
     // Logic によって x, y のスライダー制限を変更する
@@ -492,12 +489,9 @@ void GuiCurve::setup()
     position.setWantsKeyboardFocus(true);
     position.setExplicitFocusOrder(++tabOrder);
     position.onChange = [this, correctTarget] {
-		ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex()); // Positionが変わったら、カーブの現在値を更新する
-
+        ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex());
         updateVisible();
-
         correctTarget();
-
         ctx.editor.resized();
         };
 
@@ -506,65 +500,60 @@ void GuiCurve::setup()
     target.setWantsKeyboardFocus(true);
     target.setExplicitFocusOrder(++tabOrder);
     target.onChange = [this] {
-        ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex()); // Positionが変わったら、カーブの現在値を更新する
-
+        ctx.audioProcessor.updateCurveCurrent(position.getSelectedItemIndex(), target.getSelectedItemIndex());
         updateVisible();
         ctx.editor.resized();
         };
 
     correctTarget();
-
     mainSeparator.setupComponent(*this);
 
+    // 全体をループするのではなく、必要な初期設定だけを行う
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setup({ .parent = curveGroup.contentCanvas, .title = "" });
         paramLabel[vp]->setWantsKeyboardFocus(true);
         paramLabel[vp]->setExplicitFocusOrder(++tabOrder);
-
         curveGroup.contentCanvas.addAndMakeVisible(curveGraphs[vp].get());
     }
 
     for (int p = 0; p < CurvePrValue::positions; p++) {
         const juce::String pCode = code + CurvePrKey::position[p];
-
         for (int t = 0; t < CurvePrValue::targets; t++) {
             const juce::String tCode = pCode + CurvePrKey::target[t];
-
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
                 const juce::String vpCode = tCode + CurvePrKey::paramList[vp];
 
-                logic[p][t][vp]->setup({.parent = curveGroup.contentCanvas, .id = vpCode + CurvePrKey::logic, .title = CurveGuiText::logic, .items = logicItems, .isReset = true});
+                logic[p][t][vp]->setup({ .parent = curveGroup.contentCanvas, .id = vpCode + CurvePrKey::logic, .title = CurveGuiText::logic, .items = logicItems, .isReset = true });
                 logic[p][t][vp]->setWantsKeyboardFocus(true);
                 logic[p][t][vp]->setExplicitFocusOrder(++tabOrder);
+
+                // 変更があった時だけ現在の表示タブ（p,t,vp）のものを更新する
                 logic[p][t][vp]->onChange = [this, p, t, vp, setRangeByLogic] {
                     int currentLogic = logic[p][t][vp]->getSelectedItemIndex();
-
                     for (int vv = 0; vv < CurvePrValue::values; vv++) {
                         setRangeByLogic(currentLogic, p, t, vp, vv);
                     }
-
                     updateVisible();
                     ctx.editor.resized();
-					ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // カーブのロジックが変わるので、ロジック変更時もカーブをベイクする
+                    ctx.audioProcessor.bakeCurvesPrim(p, t, vp);
                     };
 
-				int currentLogic = logic[p][t][vp]->getSelectedItemIndex();
+                int currentLogic = logic[p][t][vp]->getSelectedItemIndex();
 
                 k[p][t][vp]->setup({ .parent = curveGroup.contentCanvas, .id = vpCode + CurvePrKey::k, .title = CurveGuiText::k, .isReset = true });
                 k[p][t][vp]->setWantsKeyboardFocus(true);
                 k[p][t][vp]->setExplicitFocusOrder(++tabOrder);
                 k[p][t][vp]->onValueChange = [this, p, t, vp] {
-					ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // Kの値が変わるとカーブの形状が変わるので、K変更時もカーブをベイクする
+                    ctx.audioProcessor.bakeCurvesPrim(p, t, vp);
                     };
 
                 for (int vv = 0; vv < CurvePrValue::values; vv++) {
                     const juce::String vvCode = vpCode + CurvePrKey::valueList[vv];
-
-                    value[p][t][vp][vv]->setup({ .parent = curveGroup.contentCanvas, .id = vvCode, .title = "", .isReset = true});
+                    value[p][t][vp][vv]->setup({ .parent = curveGroup.contentCanvas, .id = vvCode, .title = "", .isReset = true });
                     value[p][t][vp][vv]->setWantsKeyboardFocus(true);
                     value[p][t][vp][vv]->setExplicitFocusOrder(++tabOrder);
                     value[p][t][vp][vv]->onValueChange = [this, p, t, vp] {
-						ctx.audioProcessor.bakeCurvesPrim(p, t, vp); // 値が変わるとカーブの形状が変わるので、値変更時もカーブをベイクする
+                        ctx.audioProcessor.bakeCurvesPrim(p, t, vp);
                         };
 
                     setRangeByLogic(currentLogic, p, t, vp, vv);
@@ -579,10 +568,9 @@ void GuiCurve::setup()
 
 void GuiCurve::layout(juce::Rectangle<int> content)
 {
-    const int scrollHeight = 8000;
-    const int graphWidth = 400;
-	const int graphHeight = 400;
-    juce::String code = CurvePrKey::prefix;
+    const int scrollHeight = 5000;
+    const int graphWidth = 300;
+    const int graphHeight = 300;
     auto pageArea = content.withZeroOrigin();
     int p = position.getSelectedItemIndex();
     int t = target.getSelectedItemIndex();
@@ -592,11 +580,8 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     int lw = CurveGuiValue::CurveGroup::Row::labelWidth;
 
     auto mainArea = pageArea;
-
     curveGroup.setBounds(mainArea);
-
     auto mmRect = mainArea.reduced(CurveGuiValue::CurveGroup::Padding::width, CurveGuiValue::CurveGroup::Padding::height);
-
     mmRect.removeFromTop(CurveGuiValue::CurveGroup::Padding::height);
 
     int titleWidth = CurveGuiValue::CurveGroup::Row::titleWidth;
@@ -605,76 +590,59 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     int valueWidth = (baseWidth - graphWidth) / 2;
 
     auto enRect = mmRect.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
-
     enable.setBounds(enRect.removeFromLeft(titleWidth).reduced(px, py));
 
     auto pRect = enRect.removeFromLeft(mainWidth);
-
     position.label.setBounds(pRect.removeFromLeft(lw).reduced(px, py));
     position.setBounds(pRect.reduced(px, py));
 
     auto tRect = enRect.removeFromLeft(mainWidth);
-
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
 
     mainSeparator.layoutComponent(mmRect);
 
-    // 固定ヘッダーを配置して残った「mmRect」を、Viewportの領域としてセットする
-    // (mainArea の左上座標を引いて、グループ内での相対座標に変換しています)
     curveGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
-    // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
     juce::Rectangle<int> mRect(0, 0, curveGroup.viewport.getMaximumVisibleWidth(), scrollHeight);
 
     auto layoutValue = [this, titleWidth, valueWidth, lw, px, py](juce::Rectangle<int>& valueArea, int logicNum, int valNum, int p, int t, int vp, int vv) {
         auto vvRect = valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
-        int x = vv % 2;
-
         vvRect.removeFromLeft(titleWidth);
 
         auto vv1Rect = vvRect.removeFromLeft(valueWidth);
-
         value[p][t][vp][vv]->label.setText(valueLabels[logicNum][vv], juce::dontSendNotification);
         value[p][t][vp][vv]->label.setBounds(vv1Rect.removeFromLeft(lw).reduced(px, py));
         value[p][t][vp][vv]->setBounds(vv1Rect.reduced(px, py));
 
-        if (vv + 1 == valNum) {
-            return;
-        }
+        if (vv + 1 == valNum) return;
 
         auto vv2Rect = vvRect.removeFromLeft(valueWidth);
-
         value[p][t][vp][vv + 1]->label.setText(valueLabels[logicNum][vv + 1], juce::dontSendNotification);
         value[p][t][vp][vv + 1]->label.setBounds(vv2Rect.removeFromLeft(lw).reduced(px, py));
         value[p][t][vp][vv + 1]->setBounds(vv2Rect.reduced(px, py));
 
-        if (vv + 2 == valNum) {
-            return;
-        }
+        if (vv + 2 == valNum) return;
 
         valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::valuePaddingY);
         };
 
+    // 現在表示されるパラメータ (vpLen) のみレイアウトを計算する
     for (int vp = 0; vp < vpLen; vp++) {
         auto paramArea = mRect.removeFromTop(graphHeight);
-
         auto valueArea = paramArea.removeFromLeft(paramArea.getWidth() - graphWidth);
 
         auto vpRect = valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
-
         auto vpLbRect = vpRect.removeFromLeft(titleWidth);
 
         paramLabel[vp]->setText(paramTitles[t][vp], juce::NotificationType::dontSendNotification);
         paramLabel[vp]->setBounds(vpLbRect.reduced(px, py));
 
         auto logicRect = vpRect.removeFromLeft(valueWidth);
-
         logic[p][t][vp]->label.setBounds(logicRect.removeFromLeft(lw).reduced(px, py));
         logic[p][t][vp]->setBounds(logicRect.reduced(px, py));
 
         auto kRect = vpRect.removeFromLeft(valueWidth);
-
         k[p][t][vp]->label.setBounds(kRect.removeFromLeft(lw).reduced(px, py));
         k[p][t][vp]->setBounds(kRect.reduced(px, py));
 
@@ -684,13 +652,10 @@ void GuiCurve::layout(juce::Rectangle<int> content)
         valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::valueSpacingY);
 
         for (int vv = 0; vv < values; vv += 2) {
-			layoutValue(valueArea, logicNum, values, p, t, vp, vv);
+            layoutValue(valueArea, logicNum, values, p, t, vp, vv);
         }
 
-        curveGraphs[vp]->setVisible(vp < vpLen);
-
         auto graphArea = paramArea.reduced(20, 20);
-
         curveGraphs[vp]->setBounds(graphArea);
 
         if (vp < vpLen - 1) {
@@ -699,8 +664,6 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     }
 
     int usedHeight = scrollHeight - mRect.getHeight();
-
-    // 下部の余白を足して、キャンバスの最終的な高さをセット
     curveGroup.setContentHeight(usedHeight);
 }
 
@@ -744,24 +707,31 @@ void GuiCurve::updateVisible()
     int selectedTarget = target.getSelectedItemIndex();
     int vpLen = paramLengthes[selectedTarget];
 
-    bool baseVisible = false;
-
+    // setVisible の呼び出し回数を激減させる
+    // 1. ラベルとグラフの表示切替
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         bool paramVisible = (vp < vpLen);
-
-        paramLabel[vp]->setVisible(paramVisible);
+        if (paramLabel[vp]->isVisible() != paramVisible) {
+            paramLabel[vp]->setVisible(paramVisible);
+            curveGraphs[vp]->setVisible(paramVisible);
+        }
     }
 
+    // 2. 膨大なコンボボックス/スライダーの表示切替
     for (int p = 0; p < CurvePrValue::positions; p++) {
         for (int t = 0; t < CurvePrValue::targets; t++) {
-            baseVisible = (p == selectedPosition) && (t == selectedTarget);
+            bool baseVisible = (p == selectedPosition) && (t == selectedTarget);
 
             for (int vp = 0; vp < CurvePrValue::params; vp++) {
                 bool paramVisible = baseVisible && (vp < vpLen);
 
+                // もしすでに状態が一致していれば、余計な処理（子要素のループ含む）をスキップ
+                if (logic[p][t][vp]->isVisible() == paramVisible && !paramVisible) {
+                    continue;
+                }
+
                 logic[p][t][vp]->label.setVisible(paramVisible);
                 logic[p][t][vp]->setVisible(paramVisible);
-
                 k[p][t][vp]->label.setVisible(paramVisible);
                 k[p][t][vp]->setVisible(paramVisible);
 
@@ -771,32 +741,17 @@ void GuiCurve::updateVisible()
                 for (int vv = 0; vv < CurvePrValue::values; vv++) {
                     bool valueVisible = paramVisible && (vv < valueLen);
 
-                    value[p][t][vp][vv]->label.setVisible(valueVisible);
-                    value[p][t][vp][vv]->setVisible(valueVisible);
+                    // 状態が変わった時だけ `setVisible` を呼ぶ
+                    if (value[p][t][vp][vv]->isVisible() != valueVisible) {
+                        value[p][t][vp][vv]->label.setVisible(valueVisible);
+                        value[p][t][vp][vv]->setVisible(valueVisible);
+                    }
                 }
             }
         }
     }
 
-    // グラフを現在の選択状態にバインドする
-    std::vector<GuiSlider*> activeSliders;
-    GuiSlider* activeKSlider = nullptr;
-    int currentLogicNum = 0;
-
-    for (int vp = 0; vp < vpLen; vp++) {
-        if (paramLabel[vp]->isVisible()) {
-            currentLogicNum = logic[selectedPosition][selectedTarget][vp]->getSelectedItemIndex();
-            int valueLen = valueLengthes[currentLogicNum];
-
-            activeKSlider = k[selectedPosition][selectedTarget][vp].get(); // Kを取得
-
-            for (int vv = 0; vv < valueLen; vv++) {
-                activeSliders.push_back(value[selectedPosition][selectedTarget][vp][vv].get());
-            }
-            break;
-        }
-    }
-
+    // グラフのバインド処理 (表示中のものだけ)
     for (int vp = 0; vp < vpLen; vp++) {
         if (!paramLabel[vp]->isVisible()) continue;
 
@@ -810,18 +765,21 @@ void GuiCurve::updateVisible()
             activeSliders.push_back(value[selectedPosition][selectedTarget][vp][vv].get());
         }
 
-        // タイトルとして "AR" 等のパラメータ名を渡してバインド
         juce::String graphTitle = paramTitles[selectedTarget][vp];
         curveGraphs[vp]->bindActiveParameters(graphTitle, currentLogicNum, activeSliders, activeKSlider);
 
-        // スライダーが動いたら「自分自身のグラフだけ」を再描画するようにコールバックを更新
         auto graphPtr = curveGraphs[vp].get();
         for (auto* sl : activeSliders) {
-            // ※既存のコールバックを上書きするため、ラムダでキャプチャするgraphPtrを使います
-            sl->onValueChange = [graphPtr]() { graphPtr->repaint(); };
+            sl->onValueChange = [this, selectedPosition, selectedTarget, vp, graphPtr]() {
+                ctx.audioProcessor.bakeCurvesPrim(selectedPosition, selectedTarget, vp);
+                graphPtr->repaint();
+                };
         }
         if (activeKSlider != nullptr) {
-            activeKSlider->onValueChange = [graphPtr]() { graphPtr->repaint(); };
+            activeKSlider->onValueChange = [this, selectedPosition, selectedTarget, vp, graphPtr]() {
+                ctx.audioProcessor.bakeCurvesPrim(selectedPosition, selectedTarget, vp);
+                graphPtr->repaint();
+                };
         }
     }
 }
