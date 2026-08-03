@@ -25,15 +25,6 @@ void SsgCore::prepare(double sampleRate) {
     m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
-void SsgCore::setCurveCore(CurveCore* p_curveCore)
-{
-    m_adsr.setCurveCore(p_curveCore);
-    m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
-}
-
 void SsgCore::setSampleRate(double sampleRate) {
     m_sampleRate = sampleRate;
 

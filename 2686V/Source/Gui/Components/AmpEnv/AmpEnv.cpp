@@ -114,7 +114,7 @@ void GuiComponentAmpEnv::setupGraph(std::function<void()> repaintGraph) {
 	kor.onStateChange = repaintGraph;
 }
 
-void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
+void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph) {
 	graph.updateBypass(bypass.getToggleState());
 
 	graph.updateAmpEnv(
@@ -123,10 +123,7 @@ void GuiComponentAmpEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curve
 		decay,
 		sustain,
 		release,
-		kor,
-		p_curveCore,
-		isCurveMode,
-		posIdx
+		kor
 	);
 }
 

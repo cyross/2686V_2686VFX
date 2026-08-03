@@ -7,8 +7,6 @@
 #include "../../Core/Gui/GuiBase.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../Gui/Curve/GuiCurve.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/MulDetune/MulDetune.h"
@@ -140,9 +138,6 @@ class GuiSsg : public GuiBase
 
     enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     GraphMode currentGraphMode;
-
-    CurveCore* p_curveCore = nullptr;
-    GuiCurve* p_guiCurve = nullptr;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);

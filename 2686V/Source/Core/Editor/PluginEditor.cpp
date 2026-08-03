@@ -48,7 +48,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
-    curveGui = std::make_unique<GuiCurve>(context);
 
     wtGui->addComponentListener(this);
     wt2Gui->addComponentListener(this);
@@ -76,7 +75,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     fxGui->setup();
     settingsGui->setup();
     aboutGui->setup();
-    curveGui->setup();
 
     // Initial Wallpaper Load
     loadWallpaperImage();
@@ -736,7 +734,6 @@ void AudioPlugin2686VEditor::resized()
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     aboutGui->layout(tabContent);
-    curveGui->layout(tabContent);
 
     content.removeFromTop(tabs.getTabBarDepth());
     fxGui->setBounds(content);
@@ -880,7 +877,6 @@ void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
     tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::advanced, juce::Colours::transparentBlack, curveGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::about, juce::Colours::transparentBlack, aboutGui.get(), true);
@@ -898,9 +894,6 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     updateAdpcmFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
-
-	// カーブプリセットの全パラメータ再読み込みを行う
-    audioProcessor.resetCurveProcessBlock();
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
@@ -1630,12 +1623,6 @@ void AudioPlugin2686VEditor::initParams()
 {
     int targetMode = tabs.getCurrentTabIndex();
 
-    if (targetMode == (int)OscMode::BEEP + 1) { // Curve
-        curveGui->initParams();
-
-        return;
-    }
-
     switch ((OscMode)targetMode)
     {
     case OscMode::OPNA:
@@ -1695,10 +1682,6 @@ inline juce::String AudioPlugin2686VEditor::getUndoTooltipText()
 inline juce::String AudioPlugin2686VEditor::getRedoTooltipText()
 {
     return audioProcessor.undoManager.canRedo() ? EditorGuiText::Redo::tooltip : EditorGuiText::Redo::tooltipNone;
-}
-
-GuiCurve* AudioPlugin2686VEditor::getCurveGui() {
-    return curveGui.get();
 }
 
 void AudioPlugin2686VEditor::parentHierarchyChanged()

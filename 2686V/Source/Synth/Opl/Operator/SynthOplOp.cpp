@@ -22,15 +22,6 @@ void OplOperator::prepare(int opIndex, double sampleRate) {
         );
 }
 
-void OplOperator::setCurveCore(CurveCore* p_curveCore)
-{
-    m_ampAdsr.setCurveCore(p_curveCore);
-    m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
-}
-
 void OplOperator::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;

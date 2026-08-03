@@ -4,7 +4,6 @@
 
 #include "./EnvFmRgAdssrParams.h"
 #include "../../../KeyScale/Opn/KSOpn.h"
-#include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class FmRgAdssr
 {
@@ -53,13 +52,8 @@ class FmRgAdssr
 	// rrが無限大のとき、ストッパーの役目を果たす
 	int releaseCounter = 0;
 
-	// カーブモード用の変数
-	int positionIndex = 1; // 1,2,3,4
-	CurveCore* m_curveCore = nullptr;
-
-	// カーブモード用の時間管理変数
+	// 時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
-	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 public:
 	FmRgAdssr();
 	void prepare(int posIndex, double sampleRate);
@@ -69,7 +63,6 @@ public:
 	bool isPlaying() const { return state != State::Idle; }
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
-	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const FmRgAdssrParams& params);
 	float noteOn(float velocity);
 	void noteOff();

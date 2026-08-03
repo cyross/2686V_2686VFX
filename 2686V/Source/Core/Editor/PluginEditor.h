@@ -26,7 +26,6 @@
 #include "../../Gui/Fx/GuiFx.h"
 #include "../../Gui/Settings/GuiSettings.h"
 #include "../../Gui/About/GuiAbout.h"
-#include "../../Gui/Curve/GuiCurve.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -139,7 +138,6 @@ public:
     void updateTimerState(bool start);
     void updatePreviewVisibilityToProcessor();
     bool keyPressed(const juce::KeyPress& key) override;
-    GuiCurve* getCurveGui();
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
@@ -210,7 +208,6 @@ private:
     std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
     std::unique_ptr<GuiBeep> beepGui;
     std::unique_ptr<GuiPreset> presetGui;
-    std::unique_ptr<GuiCurve> curveGui;
 
     // 仮想MIDIキーボード用
     std::unique_ptr<juce::MidiKeyboardComponent> midiKeyboard;

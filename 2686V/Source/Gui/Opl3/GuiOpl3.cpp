@@ -76,9 +76,6 @@ void GuiOpl3::setup()
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
     setWantsKeyboardFocus(true);
 
-    p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
-
     const juce::String code = Opl3PrKey::prefix;
     int tabOrder = 1;
 
@@ -1034,9 +1031,6 @@ void GuiOpl3::updateOpGraph(int opIndex)
 {
     GraphMode mode = currentGraphMode[opIndex];
 
-    // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
-
     // -------------------------------------------------------------
     // Helper: 幅の計算 (Amp 用)
     // -------------------------------------------------------------
@@ -1046,41 +1040,29 @@ void GuiOpl3::updateOpGraph(int opIndex)
         return maxWidth * norm;
         };
 
-    // -------------------------------------------------------------
-    // Helper: カーブ関数を生成する
-    // -------------------------------------------------------------
-    auto getCurveFunc = [this, isCurveMode](int posIdx, int targetIdx, int prmIdx) {
-        return [this, isCurveMode, posIdx, targetIdx, prmIdx](float progress) -> float {
-            if (!isCurveMode || p_curveCore == nullptr) return progress;
-            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
-            };
-        };
-
-    int posIdx = opIndex + 1; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
-
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+        pitchEnv[opIndex].updateGraph(opGraphs[opIndex]);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex]);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex]);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex]);
     }
     // =============================================================
     // Amp Env
@@ -1114,7 +1096,6 @@ void GuiOpl3::updateOpGraph(int opIndex)
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
         auto color = juce::Colours::cyan;
-        int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
         float currentTotalWidth = 0.0f;
 
@@ -1122,7 +1103,6 @@ void GuiOpl3::updateOpGraph(int opIndex)
         float attackWidth = rateToWidth(arVal, arMax);
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
             .phaseLineColor = juce::Colours::red
             });
         currentTotalWidth += attackWidth;
@@ -1131,7 +1111,6 @@ void GuiOpl3::updateOpGraph(int opIndex)
         float decayWidth = rateToWidth(drVal, drMax);
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
-            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
             .phaseLineColor = juce::Colours::blue
             });
         currentTotalWidth += decayWidth;
@@ -1174,7 +1153,6 @@ void GuiOpl3::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
                 .color = color,
-                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
                 .isMax = (rrVal == rrMax)

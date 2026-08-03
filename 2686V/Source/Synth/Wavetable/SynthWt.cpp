@@ -12,15 +12,6 @@ WtCore::WtCore() : SynthCore()
     generateWaveform(0); // Default Sine
 }
 
-void WtCore::setCurveCore(CurveCore* p_curveCore)
-{
-    m_adsr.setCurveCore(p_curveCore);
-    m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
-}
-
 void WtCore::prepare(double sampleRate)
 {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;

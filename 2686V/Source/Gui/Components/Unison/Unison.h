@@ -10,8 +10,6 @@
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../../Gui/Curve/GuiCurve.h"
-#include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"

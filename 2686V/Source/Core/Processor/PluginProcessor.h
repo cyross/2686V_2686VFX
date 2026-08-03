@@ -17,7 +17,6 @@
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Beep/ProcessorBeep.h"
 #include "../../Processor/Fx/ProcessorFx.h"
-#include "../../Processor/Curve/ProcessorCurve.h"
 
 #include "../Const/ConstGlobal.h"
 #include "../Processor/ProcessorKeys.h"
@@ -461,9 +460,6 @@ private:
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
     FxProcessor prFx;
-    CurveProcessor prCurve;
-
-    CurveCore m_curveCore;
 
     SynthParams m_currentParams;
     SynthParams m_previewParams;
@@ -626,18 +622,13 @@ public:
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
-    CurveCore* getCurveCore();
 
-    void bakeCurves();
-    void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
     void resetMidiSettings();
     std::vector<int> getFxOrder();
     void updateFxOrder(std::vector<int> newOrder);
     bool isPlaying();
     bool isMidiProcessing();
     OscMode getCurrentMode();
-    void updateCurveCurrent(int position, int target);
-    void resetCurveProcessBlock();
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

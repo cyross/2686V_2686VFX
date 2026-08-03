@@ -192,19 +192,6 @@ void Opzx7Core::prepare(double sampleRate) {
     m_lfo.prepare(target);
 }
 
-void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
-{
-    // 高速化のためのループアンローリング
-    m_operators[0].setCurveCore(p_curveCore);
-    m_operators[1].setCurveCore(p_curveCore);
-    m_operators[2].setCurveCore(p_curveCore);
-    m_operators[3].setCurveCore(p_curveCore);
-    m_operators[4].setCurveCore(p_curveCore);
-    m_operators[5].setCurveCore(p_curveCore);
-    m_operators[6].setCurveCore(p_curveCore);
-    m_operators[7].setCurveCore(p_curveCore);
-}
-
 void Opzx7Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;

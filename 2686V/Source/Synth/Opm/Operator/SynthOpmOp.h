@@ -42,7 +42,6 @@ public:
 	}
 
 	void getSample(float& output, float modulator, float feedbackModulator, const OpmLfoCore& hwLfo, float modWheel = 0.0f);
-	void setCurveCore(CurveCore* p_curveCore);
 
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数

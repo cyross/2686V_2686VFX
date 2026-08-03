@@ -3,7 +3,6 @@
 #include <functional>
 
 #include "./EnvPirchAdsrParams.h"
-#include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class PitchAdsrEnv {
 	enum class State { Idle, Attack, Decay, Sustain, Release };
@@ -30,13 +29,8 @@ class PitchAdsrEnv {
 
 	void updateIncrements();
 
-	// カーブモード用の変数
-	int targetIndex = 0; // 0,1,2,3,4
-	CurveCore* m_curveCore = nullptr;
-
-	// カーブモード用の時間管理変数
+	// 時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
-	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 public:
 	PitchAdsrEnv();
 	void prepare(int targetIndex, double sampleRate);
@@ -47,7 +41,6 @@ public:
 	bool isRelease() const { return state == State::Release; }
 	bool isBypass() const { return bypass; }
 	void setParameters(const PitchAdsrParams& params);
-	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
 	void noteOff();
 	float process(float phaseDelta);

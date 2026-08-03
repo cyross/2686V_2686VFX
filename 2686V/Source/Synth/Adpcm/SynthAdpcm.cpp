@@ -28,15 +28,6 @@ void AdpcmCore::prepare(double sampleRate)
     m_targetRate = getTargetRate(m_rateIndex);
 }
 
-void AdpcmCore::setCurveCore(CurveCore* p_curveCore)
-{
-    m_adsr.setCurveCore(p_curveCore);
-    m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
-}
-
 void AdpcmCore::setSampleRate(double sampleRate)
 {
 	m_sampleRate = sampleRate;

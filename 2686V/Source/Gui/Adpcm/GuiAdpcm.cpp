@@ -28,9 +28,6 @@ void GuiAdpcm::setup()
     const juce::String code = AdpcmPrKey::prefix;
     int tabOrder = 1;
 
-    p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
-
     mainGroup.setup(*this, AdpcmGuiText::Group::mainGroup);
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
@@ -543,38 +540,35 @@ void GuiAdpcm::updateGraph()
 {
     GraphMode mode = currentGraphMode;
 
-    // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
-
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        pitchEnvComponent.updateGraph(graph);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwEnvComponent.updateGraph(graph);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwEnv11Component.updateGraph(graph);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwPEnv11Component.updateGraph(graph);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ampEnvComponent.updateGraph(graph);
     }
 }
 

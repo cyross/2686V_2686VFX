@@ -5,7 +5,6 @@
 #include "../../Core/Fm/FmCore.h"
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/Opm/LfoOpm.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
 
 #include "./Operator/SynthOpmOp.h"
@@ -24,7 +23,6 @@ public:
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
-    void setCurveCore(CurveCore* p_curveCore);
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {

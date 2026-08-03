@@ -460,7 +460,7 @@ void GuiComponentSsgSwPEnv11::setupGraph(std::function<void()> repaintGraph) {
     l11.onValueChange = repaintGraph;
 }
 
-void GuiComponentSsgSwPEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
+void GuiComponentSsgSwPEnv11::updateGraph(GuiEnvelopeGraph& graph) {
     graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
     graph.updateSsgSwPEnv11(
@@ -469,10 +469,7 @@ void GuiComponentSsgSwPEnv11::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_
         loopTo,
         loopCount,
         { nullptr, &r1, &r2, &r3, &r4, &r5, &r6, &r7, &r8, &r9, &r10, &r11 },
-        { &startLevel, &l1, &l2, &l3, &l4, &l5, &l6, &l7, &l8, &l9, &l10, &l11 },
-        p_curveCore,
-        isCurveMode,
-        posIdx
+        { &startLevel, &l1, &l2, &l3, &l4, &l5, &l6, &l7, &l8, &l9, &l10, &l11 }
     );
 }
 

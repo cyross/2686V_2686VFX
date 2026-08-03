@@ -9,8 +9,6 @@
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiValues.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
-#include "../../Gui/Curve/GuiCurve.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Gui/Components/Unison/Unison.h"
 #include "../../Gui/Components/Fix/Fix.h"
 #include "../../Gui/Components/PitchEnv/PitchEnv.h"
@@ -203,9 +201,6 @@ class GuiOpm : public GuiBase
 
     enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     std::array<GraphMode, OpmPrValue::ops> currentGraphMode;
-
-    CurveCore* p_curveCore = nullptr;
-    GuiCurve* p_guiCurve = nullptr;
 
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);

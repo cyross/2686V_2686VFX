@@ -18,7 +18,6 @@
 #include "../../Synth/Rhythm/SynthRhythm.h"
 #include "../../Synth/Adpcm/SynthAdpcm.h"
 #include "../../Synth/Beep/SynthBeep.h"
-#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
 {
@@ -68,8 +67,6 @@ public:
     void clearOpzx7WtBuffer(int opIndex);
 
     void clearOpzx7Wt2Buffer(int opIndex);
-
-    void setCurveCore(CurveCore* p_curveCore);
 
     bool isPlaying();
 

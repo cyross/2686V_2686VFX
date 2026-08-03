@@ -7,7 +7,6 @@
 #include "../../../KeyScale/Ma7/KSMa7.h"
 #include "../../../KeyScale/Opz/KSOpz.h"
 #include "../../../KeyScale/Ops/KSOps.h"
-#include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 struct Opzx7RealAdssr
 {
@@ -84,13 +83,8 @@ class Opzx7Adddr
 
 	int m_noteNumber = 60; // C3
 
-	// カーブモード用の変数
-	int m_positionIndex = 1; // 1,2,3,4
-	CurveCore* m_curveCore = nullptr;
-
-	// カーブモード用の時間管理変数
+	// 時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
-	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 
 	int calcRateScaling() const;
 	float calcLevelScalingDb() const;
@@ -103,7 +97,6 @@ public:
 	bool isPlaying() const { return m_state != State::Idle; }
 	bool isIdle() const { return m_state == State::Idle; }
 	bool isRelease() const { return m_state == State::Release; }
-	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void setParameters(const Opzx7AdddrParams& params);
 	float noteOn(float velocity);
 	void noteOff();

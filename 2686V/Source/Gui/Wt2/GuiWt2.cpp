@@ -394,9 +394,6 @@ void GuiWt2::setup()
     const juce::String code = Wt2PrKey::prefix;
     int tabOrder = 1;
 
-    p_curveCore = ctx.audioProcessor.getCurveCore();
-    p_guiCurve = ctx.editor.getCurveGui();
-
     mainGroup.setup(*this, Wt2GuiText::Group::mainGroup);
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
@@ -484,12 +481,12 @@ void GuiWt2::setup()
 
     uSep001.setupComponent(mainGroup.contentCanvas);
 
-    customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
+    customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
     customWaveImportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveImportBtn.onClick = [this] { importWavetable(); };
 
-    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .bgColor = juce::Colours::darkgrey.darker(0.8f), .isReset = false, .isResized = false});
+    customWaveExportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileExport, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgrey.darker(0.8f), .isReset = false, .isResized = false});
     customWaveExportBtn.setWantsKeyboardFocus(true);
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
@@ -1039,38 +1036,35 @@ void GuiWt2::updateGraph()
 {
     GraphMode mode = currentGraphMode;
 
-    // カーブモードが有効かどうかを判定
-    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
-
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        pitchEnvComponent.updateGraph(graph);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwEnvComponent.updateGraph(graph);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwEnv11Component.updateGraph(graph);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ssgSwPEnv11Component.updateGraph(graph);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+        ampEnvComponent.updateGraph(graph);
     }
 }
 

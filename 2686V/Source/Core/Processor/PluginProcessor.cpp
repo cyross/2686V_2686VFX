@@ -52,26 +52,21 @@ AudioPlugin2686V::AudioPlugin2686V()
     prAdpcm.init(apvts);
     prBeep.init(apvts);
     prFx.init(apvts);
-    prCurve.init(apvts);
 
     m_synth.addSound(new SynthSound());
     for (int i = 0; i < Global::totalVoices; i++) {
         auto voice = new SynthVoice();
 
         voice->prepare(44100.0);
-        voice->setCurveCore(&m_curveCore);
         m_synth.addVoice(voice);
     }
 
     prFx.prepare(44100.0);
 
-    m_curveCore.bakeCurves();
-
     previewSynth.addSound(new SynthSound());
 
     auto prevVoice = new SynthVoice();
 
-    prevVoice->setCurveCore(&m_curveCore);
     prevVoice->prepare(44100.0);
     previewSynth.addVoice(prevVoice);
 
@@ -110,7 +105,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prAdpcm.createLayout(layout);
     prBeep.createLayout(layout);
 	prFx.createLayout(layout);
-	prCurve.createLayout(layout);
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
         CPK::Midi::monoMode,
@@ -198,9 +192,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
 
-	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
-	prCurve.processBlock(m_currentParams, apvts);
-
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -229,8 +220,6 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
             voice->setParameters(m_currentParams);
         }
     }
-
-    m_curveCore.setParameters(m_currentParams.curve);
 
     // シンセの発音
     m_synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
@@ -1350,21 +1339,6 @@ void AudioPlugin2686V::unloadOpzx7Wt2File(int opIndex)
     }
 }
 
-CurveCore* AudioPlugin2686V::getCurveCore()
-{
-    return &m_curveCore;
-}
-
-void AudioPlugin2686V::bakeCurves()
-{
-	m_curveCore.bakeCurves(); // 内部で必要な計算を行う
-}
-
-void AudioPlugin2686V::bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex)
-{
-	m_curveCore.bakeCurvesPrim(positionIndex, targetIndex, paramIndex); // 内部で必要な計算を行う
-}
-
 void AudioPlugin2686V::resetMidiSettings() {
     m_synth.isMonoMode = false;
     m_synth.useVelocity = false;
@@ -1403,12 +1377,4 @@ OscMode AudioPlugin2686V::getCurrentMode()
     int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
-}
-
-void AudioPlugin2686V::updateCurveCurrent(int position, int target) {
-    prCurve.updateCurrent(position, target);
-}
-
-void AudioPlugin2686V::resetCurveProcessBlock() {
-    prCurve.resetProcessBlock();
 }

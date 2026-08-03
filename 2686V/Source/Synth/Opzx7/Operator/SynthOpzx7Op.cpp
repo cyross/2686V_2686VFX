@@ -20,15 +20,6 @@ void Opzx7Operator::prepare(int opIndex, double sampleRate) {
     );
 }
 
-void Opzx7Operator::setCurveCore(CurveCore* p_curveCore)
-{
-    m_ampAdsr.setCurveCore(p_curveCore);
-    m_pitchAdsr.setCurveCore(p_curveCore);
-    m_ssgSwEnv.setCurveCore(p_curveCore);
-    m_ssgSwEnv11.setCurveCore(p_curveCore);
-    m_ssgSwPenv11.setCurveCore(p_curveCore);
-}
-
 void Opzx7Operator::setSampleRate(double sampleRate) {
 	m_sampleRate = sampleRate;
 	m_ampAdsr.updateSampleRate(sampleRate);
