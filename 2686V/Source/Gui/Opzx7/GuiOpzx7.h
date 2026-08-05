@@ -466,6 +466,8 @@ class GuiOpzx7 : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     std::array<GraphMode, Opzx7PrValue::ops> currentGraphMode;
 
+    bool isUpdatingGraph = false;
+
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
 public:

@@ -215,8 +215,14 @@ void GuiBeep::setupGraph()
     graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
     graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
-    auto repaintGraph = [this]() { updateGraph(); };
-    
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return;
+
+        this->isUpdatingGraph = true;
+        this->updateGraph();
+        this->isUpdatingGraph = false;
+        };
+
     ampEnvComponent.setupGraph(repaintGraph);
 
     pitchEnvComponent.setupGraph(repaintGraph);

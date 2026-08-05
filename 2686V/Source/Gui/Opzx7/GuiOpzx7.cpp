@@ -1727,7 +1727,14 @@ void GuiOpzx7::setupGraph(int opIndex)
     graphBtnSsgP11[opIndex].setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
     graphBtnSsgP11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSwP11); };
 
-    auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
+    auto repaintGraph = [this, opIndex]() {
+        if (this->isUpdatingGraph) return;
+
+        this->isUpdatingGraph = true;
+        this->updateOpGraph(opIndex);
+        this->isUpdatingGraph = false;
+        };
+
 
     bypass[opIndex].onStateChange = repaintGraph;
 

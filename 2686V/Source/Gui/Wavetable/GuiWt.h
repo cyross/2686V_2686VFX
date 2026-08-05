@@ -172,6 +172,8 @@ class GuiWt : public GuiBase
     enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     GraphMode currentGraphMode;
 
+    bool isUpdatingGraph = false;
+
     void updateGraph();
     void setGraphMode(GraphMode mode);
 public:

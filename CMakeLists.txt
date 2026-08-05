@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(IS_OPZX7S TRUE)
+set(IS_OPZX7S FALSE)
 
 # プロジェクト名 (ソリューション名)
 if(IS_OPZX7S)
