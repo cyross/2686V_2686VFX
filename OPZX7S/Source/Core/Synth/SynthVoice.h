@@ -6,18 +6,7 @@
 #include "./SynthParams.h"
 #include "./SynthCore.h"
 
-#include "../../Synth/Opna/SynthOpna.h"
-#include "../../Synth/Opn/SynthOpn.h"
-#include "../../Synth/Opl/SynthOpl.h"
-#include "../../Synth/Opl3/SynthOpl3.h"
-#include "../../Synth/Opm/SynthOpm.h"
 #include "../../Synth/Opzx7/SynthOpzx7.h"
-#include "../../Synth/Ssg/SynthSsg.h"
-#include "../../Synth/Wavetable/SynthWt.h"
-#include "../../Synth/Wt2/SynthWt2.h"
-#include "../../Synth/Rhythm/SynthRhythm.h"
-#include "../../Synth/Adpcm/SynthAdpcm.h"
-#include "../../Synth/Beep/SynthBeep.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 
 class SynthSound : public juce::SynthesiserSound
@@ -34,9 +23,6 @@ public:
 
     void prepare(double sampleRate);
     void setParameters(const SynthParams& params);
-
-    AdpcmCore* getAdpcmCore() { return &m_adpcmCore; }
-    RhythmCore* getRhythmCore() { return &m_rhythmCore; }
 
     bool canPlaySound(juce::SynthesiserSound* sound) override
     {
@@ -81,17 +67,6 @@ public:
         coreMap[m_mode]->setUnisonParams(index, total, detune, spread);
     }
 private:
-    OscMode m_mode = OscMode::OPNA;
-    OpnaCore m_opnaCore;
-    OpnCore m_opnCore;
-    OplCore m_oplCore;
-    Opl3Core m_opl3Core;
-    OpmCore  m_opmCore;
+    OscMode m_mode = OscMode::OPZX7;
     Opzx7Core m_opzx7Core;
-    SsgCore m_ssgCore;
-    WtCore m_wtCore;
-    Wt2Core m_wt2Core;
-    RhythmCore m_rhythmCore;
-    AdpcmCore m_adpcmCore;
-    BeepCore m_beepCore;
 };

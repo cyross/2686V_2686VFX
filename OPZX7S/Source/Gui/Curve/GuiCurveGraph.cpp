@@ -358,7 +358,15 @@ void GuiCurveGraph::mouseDrag(const juce::MouseEvent& e) {
     repaint();
 }
 
-void GuiCurveGraph::mouseUp(const juce::MouseEvent&) { draggingHandleIndex = -1; }
+void GuiCurveGraph::mouseUp(const juce::MouseEvent&) {
+    if (draggingHandleIndex >= 0) {
+        draggingHandleIndex = -1;
+        // ドラッグ終了を通知
+        if (onGraphDragEnd != nullptr) {
+            onGraphDragEnd();
+        }
+    }
+}
 
 // ------------------------------------------------------------------
 // UIプレビュー用 数学エンジン

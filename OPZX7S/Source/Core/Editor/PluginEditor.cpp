@@ -32,26 +32,12 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     GuiContext context(audioProcessor, *this, audioProcessor.apvts, sliderRegMap);
 
-    opnaGui = std::make_unique<GuiOpna>(context);
-	opnGui = std::make_unique<GuiOpn>(context);
-	oplGui = std::make_unique<GuiOpl>(context);
-	opl3Gui = std::make_unique<GuiOpl3>(context);
-	opmGui = std::make_unique<GuiOpm>(context);
 	opzx7Gui = std::make_unique<GuiOpzx7>(context);
-	ssgGui = std::make_unique<GuiSsg>(context);
-	wtGui = std::make_unique<GuiWt>(context);
-    wt2Gui = std::make_unique<GuiWt2>(context);
-	rhythmGui = std::make_unique<GuiRhythm>(context);
-	adpcmGui = std::make_unique<GuiAdpcm>(context);
-    beepGui = std::make_unique<GuiBeep>(context);
     presetGui = std::make_unique<GuiPreset>(context);
     fxGui = std::make_unique<GuiFx>(context);
 	settingsGui = std::make_unique<GuiSettings>(context);
 	aboutGui = std::make_unique<GuiAbout>(context);
     curveGui = std::make_unique<GuiCurve>(context);
-
-    wtGui->addComponentListener(this);
-    wt2Gui->addComponentListener(this);
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
@@ -60,18 +46,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     setupLogo();
     setupMiniLogo();
 
-    opnaGui->setup();
-    opnGui->setup();
-    oplGui->setup();
-    opl3Gui->setup();
-    opmGui->setup();
     opzx7Gui->setup();
-    ssgGui->setup();
-    wtGui->setup();
-    wt2Gui->setup();
-    rhythmGui->setup();
-    adpcmGui->setup();
-    beepGui->setup();
     presetGui->setup();
     fxGui->setup();
     settingsGui->setup();
@@ -324,8 +299,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
     updateUiScale(uiScale);
 
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
-    updateRhythmFileNames("Reload");
-    updateAdpcmFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
 
@@ -336,13 +309,6 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 {
     tabs.setLookAndFeel(nullptr);
     tabs.getTabbedButtonBar().removeChangeListener(this);
-
-    wtGui->removeComponentListener(this);
-    wt2Gui->removeComponentListener(this);
-
-    adpcmGui->removeLoadButtonListener(this);
-
-    rhythmGui->removeLoadButtonListener(this);
 
     audioProcessor.apvts.removeParameterListener(CPK::mode, this);
 
@@ -721,18 +687,7 @@ void AudioPlugin2686VEditor::resized()
     auto tabContent = content.removeFromLeft(content.getWidth() - EditorGuiValue::Fx::width);
     tabContent.removeFromTop(tabs.getTabBarDepth()).reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
 
-    opnaGui->layout(tabContent);
-    opnGui->layout(tabContent);
-    oplGui->layout(tabContent);
-    opl3Gui->layout(tabContent);
-    opmGui->layout(tabContent);
     opzx7Gui->layout(tabContent);
-    ssgGui->layout(tabContent);
-    wtGui->layout(tabContent);
-    wt2Gui->layout(tabContent);
-    rhythmGui->layout(tabContent);
-    adpcmGui->layout(tabContent);
-    beepGui->layout(tabContent);
     presetGui->layout(tabContent);
     settingsGui->layout(tabContent);
     aboutGui->layout(tabContent);
@@ -868,18 +823,7 @@ void AudioPlugin2686VEditor::setupMiniLogo()
 void AudioPlugin2686VEditor::setupTabs(juce::TabbedComponent& tabs)
 {
     addAndMakeVisible(tabs);
-    tabs.addTab(EditorGuiText::Tab::opna, juce::Colours::transparentBlack, opnaGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opn, juce::Colours::transparentBlack, opnGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opl, juce::Colours::transparentBlack, oplGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opl3, juce::Colours::transparentBlack, opl3Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::opm, juce::Colours::transparentBlack, opmGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::opzx7, juce::Colours::transparentBlack, opzx7Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::ssg, juce::Colours::transparentBlack, ssgGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::wt, juce::Colours::transparentBlack, wtGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::wt2, juce::Colours::transparentBlack, wt2Gui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::rhythm, juce::Colours::transparentBlack, rhythmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::adpcm, juce::Colours::transparentBlack, adpcmGui.get(), true);
-    tabs.addTab(EditorGuiText::Tab::beep, juce::Colours::transparentBlack, beepGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::advanced, juce::Colours::transparentBlack, curveGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::preset, juce::Colours::transparentBlack, presetGui.get(), true);
     tabs.addTab(EditorGuiText::Tab::settings, juce::Colours::transparentBlack, settingsGui.get(), true);
@@ -894,17 +838,12 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     presetGui->setMetaData(audioProcessor.presetName, audioProcessor.presetAuthor, audioProcessor.presetVersion, audioProcessor.presetComment, audioProcessor.presetGenre, audioProcessor.presetFilePath);
 
     // Io::empty 以外の文字列を渡すことで、プロセッサ内に保持されたパスから再読み込みさせます
-    updateRhythmFileNames("Reload");
-    updateAdpcmFileNames("Reload");
     updateOpzx7PcmFileNames("Reload");
     updateOpzx7WtFileNames("Reload");
 
-	// カーブプリセットの全パラメータ再読み込みを行う
-    audioProcessor.resetCurveProcessBlock();
-
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
     int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
-    if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
+    if (loadedMode >= 0 && loadedMode <= (int)OscMode::OPZX7) {
         audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
         tabs.setCurrentTabIndex(loadedMode);
     }
@@ -1057,18 +996,7 @@ void AudioPlugin2686VEditor::saveCurrentPresetAs()
 
 void AudioPlugin2686VEditor::updatePresetNameToTabs(const juce::String& pName) {
     // 4. 各タブのプリセット名を更新
-    opnaGui->updatePresetName(pName);
-    opnGui->updatePresetName(pName);
-    oplGui->updatePresetName(pName);
-    opl3Gui->updatePresetName(pName);
-    opmGui->updatePresetName(pName);
     opzx7Gui->updatePresetName(pName);
-    ssgGui->updatePresetName(pName);
-    wtGui->updatePresetName(pName);
-    wt2Gui->updatePresetName(pName);
-    rhythmGui->updatePresetName(pName);
-    adpcmGui->updatePresetName(pName);
-    beepGui->updatePresetName(pName);
 }
 
 void AudioPlugin2686VEditor::loadWallpaperImage()
@@ -1110,58 +1038,10 @@ void AudioPlugin2686VEditor::loadWallpaperImage()
 
 void AudioPlugin2686VEditor::componentMovedOrResized(juce::Component& component, bool wasMoved, bool wasResized)
 {
-    // wtPage のサイズが変わったときだけレイアウトを実行
-    if (&component == wtGui.get() && wasResized)
-    {
-        auto content = tabs.getLocalBounds();
-        content.removeFromTop(tabs.getTabBarDepth());
-        content.reduce(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height); // 全体の余白
-
-        wtGui->layout(content);
-    }
-    // もし gui.page も登録したなら
-    // if (&component == &gui.page && wasResized) layoutgui.page(); // (関数化していれば)
 }
 
 void AudioPlugin2686VEditor::buttonClicked(juce::Button* button)
 {
-    // ADPCM Load Buttons
-    if (adpcmGui->isThis(button))
-    {
-        // ... (Existing ADPCM load logic) ...
-        auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        openFileChooser(
-            Io::Dialog::Title::openAudioFile,
-            audioProcessor.lastSampleDirectory,
-            fileFilter,
-            [this](const juce::FileChooser& fc)
-            {
-                auto file = fc.getResult();
-                if (file.existsAsFile())
-                {
-                    adpcmGui->updateFileName("Loading...");
-
-                    juce::Timer::callAfterDelay(50, [this, file]()
-                        {
-                            audioProcessor.loadAdpcmFile(file);
-                            adpcmGui->updateFileName(file.getFileName());
-                            audioProcessor.lastSampleDirectory = file.getParentDirectory();
-                        });
-                }
-            }
-        );
-    }
-    // ADPCM Pan Buttons
-    else if (adpcmGui->isBtnPanL(button)) { adpcmGui->setPan(0.0); }
-    else if (adpcmGui->isBtnPanC(button)) { adpcmGui->setPan(0.5); }
-    else if (adpcmGui->isBtnPanR(button)) { adpcmGui->setPan(1.0); }
-    // Rhythm Pads Buttons
-    else
-    {
-        auto fileFilter = audioProcessor.formatManager.getWildcardForAllFormats();
-        fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::openAudioFile, audioProcessor.lastSampleDirectory, fileFilter);
-        rhythmGui->buttonClicked(button, audioProcessor.formatManager, fileChooser);
-    }
 }
 
 void AudioPlugin2686VEditor::showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered)
@@ -1249,34 +1129,6 @@ void AudioPlugin2686VEditor::setTooltipState(bool enabled)
     }
 }
 
-void AudioPlugin2686VEditor::updateRhythmFileNames(const juce::String filename)
-{
-    if (filename == Io::empty) {
-        for (int i = 0; i < 8; ++i)
-        {
-            rhythmGui->updatePadFileName(i, filename);
-        }
-
-    }
-    else {
-        for (int i = 0; i < 8; ++i)
-        {
-            juce::String path = audioProcessor.rhythmFilePaths[i];
-            juce::String text = Io::empty;
-
-            if (path.isNotEmpty())
-            {
-                // パスが存在すればファイル名を取得
-                // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
-                juce::File f = audioProcessor.resolvePath(path);
-                text = f.getFileName();
-            }
-
-            rhythmGui->updatePadFileName(i, text);
-        }
-    }
-}
-
 void AudioPlugin2686VEditor::updateOpzx7PcmFileNames(const juce::String filename)
 {
     if (filename == Io::empty) {
@@ -1330,27 +1182,6 @@ void AudioPlugin2686VEditor::updateOpzx7WtFileNames(const juce::String filename)
 
             opzx7Gui->updateWtFileName(i, text);
         }
-    }
-}
-
-void AudioPlugin2686VEditor::updateAdpcmFileNames(const juce::String filename)
-{
-    if (filename == Io::empty) {
-        adpcmGui->updateFileName(filename);
-    }
-    else {
-        juce::String path = audioProcessor.adpcmFilePath;
-        juce::String text = Io::empty;
-
-        if (path.isNotEmpty())
-        {
-            // パスが存在すればファイル名を取得
-            // (resolvePathを使って絶対パス化してから名前を取得するのが確実です)
-            juce::File f = audioProcessor.resolvePath(path);
-            text = f.getFileName();
-        }
-
-        adpcmGui->updateFileName(text);
     }
 }
 
@@ -1433,7 +1264,7 @@ void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, f
     {
         int idx = (int)newValue;
 
-        if (idx >= 0 && idx <= (int)OscMode::BEEP) {
+        if (idx >= 0 && idx <= (int)OscMode::OPZX7) {
             audioProcessor.lastActiveSynthMode = (OscMode)idx;
         }
 
@@ -1540,7 +1371,7 @@ void AudioPlugin2686VEditor::updateParameterInitializeButtons()
     // 表示しているタブが音源のタブか
     // 0:OPNA, 1:OPN, 2:OPL, ...
     int targetMode = tabs.getCurrentTabIndex();
-    bool isNotSystemTab = targetMode >= 0 && targetMode <= ((int)OscMode::BEEP + 1); // OPNA ～ FX
+    bool isNotSystemTab = targetMode >= 0 && targetMode <= ((int)OscMode::OPZX7 + 1); // OPZX3 ～ CURVE
 
     initParamsButton.setEnabled(isNotSystemTab);
 }
@@ -1551,21 +1382,6 @@ void AudioPlugin2686VEditor::copyFmParamsToString()
 
     switch (targetMode)
     {
-    case OscMode::OPNA:
-        opnaGui->copyFmParamsToString();
-        break;
-    case OscMode::OPN:
-        opnGui->copyFmParamsToString();
-        break;
-    case OscMode::OPL:
-        oplGui->copyFmParamsToString();
-        break;
-    case OscMode::OPL3:
-        opl3Gui->copyFmParamsToString();
-        break;
-    case OscMode::OPM:
-        opmGui->copyFmParamsToString();
-        break;
     case OscMode::OPZX7:
         opzx7Gui->copyFmParamsToString();
         break;
@@ -1578,21 +1394,6 @@ void AudioPlugin2686VEditor::copyFmParamsToObject()
 
     switch (targetMode)
     {
-    case OscMode::OPNA:
-        opnaGui->copyFmParamsToObject();
-        break;
-    case OscMode::OPN:
-        opnGui->copyFmParamsToObject();
-        break;
-    case OscMode::OPL:
-        oplGui->copyFmParamsToObject();
-        break;
-    case OscMode::OPL3:
-        opl3Gui->copyFmParamsToObject();
-        break;
-    case OscMode::OPM:
-        opmGui->copyFmParamsToObject();
-        break;
     case OscMode::OPZX7:
         opzx7Gui->copyFmParamsToObject();
         break;
@@ -1605,21 +1406,6 @@ void AudioPlugin2686VEditor::pasteFmParamsFromObject()
 
     switch (targetMode)
     {
-    case OscMode::OPNA:
-        opnaGui->pasteFmParamsFromObject();
-        break;
-    case OscMode::OPN:
-        opnGui->pasteFmParamsFromObject();
-        break;
-    case OscMode::OPL:
-        oplGui->pasteFmParamsFromObject();
-        break;
-    case OscMode::OPL3:
-        opl3Gui->pasteFmParamsFromObject();
-        break;
-    case OscMode::OPM:
-        opmGui->pasteFmParamsFromObject();
-        break;
     case OscMode::OPZX7:
         opzx7Gui->pasteFmParamsFromObject();
         break;
@@ -1630,7 +1416,7 @@ void AudioPlugin2686VEditor::initParams()
 {
     int targetMode = tabs.getCurrentTabIndex();
 
-    if (targetMode == (int)OscMode::BEEP + 1) { // Curve
+    if (targetMode == (int)OscMode::OPZX7 + 1) { // Curve
         curveGui->initParams();
 
         return;
@@ -1638,41 +1424,8 @@ void AudioPlugin2686VEditor::initParams()
 
     switch ((OscMode)targetMode)
     {
-    case OscMode::OPNA:
-        opnaGui->initParams();
-        break;
-    case OscMode::OPN:
-        opnGui->initParams();
-        break;
-    case OscMode::OPL:
-        oplGui->initParams();
-        break;
-    case OscMode::OPL3:
-        opl3Gui->initParams();
-        break;
-    case OscMode::OPM:
-        opmGui->initParams();
-        break;
     case OscMode::OPZX7:
         opzx7Gui->initParams();
-        break;
-    case OscMode::SSG:
-        ssgGui->initParams();
-        break;
-    case OscMode::WAVETABLE:
-        wtGui->initParams();
-        break;
-    case OscMode::WT2:
-        wt2Gui->initParams();
-        break;
-    case OscMode::RHYTHM:
-        rhythmGui->initParams();
-        break;
-    case OscMode::ADPCM:
-        adpcmGui->initParams();
-        break;
-    case OscMode::BEEP:
-        beepGui->initParams();
         break;
     };
 }
@@ -1721,72 +1474,8 @@ void AudioPlugin2686VEditor::resetMidiSettings() {
 
 // 現在のチャンネルのレベルを全チャンネルに伝播
 void AudioPlugin2686VEditor::breadcastLevel(float level) {
-    opnaGui->setLevel(level);
-    opnGui->setLevel(level);
-    oplGui->setLevel(level);
-    opl3Gui->setLevel(level);
-    opmGui->setLevel(level);
     opzx7Gui->setLevel(level);
-    ssgGui->setLevel(level);
-    wtGui->setLevel(level);
-    wt2Gui->setLevel(level);
-    rhythmGui->setLevel(level);
-    adpcmGui->setLevel(level);
-    beepGui->setLevel(level);
 }
-
-void AudioPlugin2686VEditor::copyRhythmPadParams(int from, int to) {
-    CopyRhythmPad padParams;
-
-    rhythmGui->copyPadParams(from, padParams);
-
-    rhythmGui->pastePadParams(to, padParams);
-}
-
-void AudioPlugin2686VEditor::copyOplOpParams(int from, int to) {
-    CopyOplOp opParams;
-
-    oplGui->copyOpParams(from, opParams);
-
-    oplGui->pasteOpParams(to, opParams);
-}
-
-
-void AudioPlugin2686VEditor::copyOpl3OpParams(int from, int to) {
-    CopyOpl3Op opParams;
-
-    opl3Gui->copyOpParams(from, opParams);
-
-    opl3Gui->pasteOpParams(to, opParams);
-}
-
-
-void AudioPlugin2686VEditor::copyOpmOpParams(int from, int to) {
-    CopyOpmOp opParams;
-
-    opmGui->copyOpParams(from, opParams);
-
-    opmGui->pasteOpParams(to, opParams);
-}
-
-
-void AudioPlugin2686VEditor::copyOpnOpParams(int from, int to) {
-    CopyOpnOp opParams;
-
-    opnGui->copyOpParams(from, opParams);
-
-    opnGui->pasteOpParams(to, opParams);
-}
-
-
-void AudioPlugin2686VEditor::copyOpnaOpParams(int from, int to) {
-    CopyOpnaOp opParams;
-
-    opnaGui->copyOpParams(from, opParams);
-
-    opnaGui->pasteOpParams(to, opParams);
-}
-
 
 void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
     CopyOpzx7Op opParams;
@@ -1794,291 +1483,6 @@ void AudioPlugin2686VEditor::copyOpzx7OpParams(int from, int to) {
     opzx7Gui->copyOpParams(from, opParams);
 
     opzx7Gui->pasteOpParams(to, opParams);
-}
-
-void AudioPlugin2686VEditor::copyOplParamsToOpl3() {
-    CopyOpl oplParams;
-    CopyOpl3 opl3Params;
-
-    oplGui->copyParams(oplParams);
-
-    // アルゴリズムは母数が違うのでコピーしない
-    opl3Params.fmBase.level = oplParams.fmBase.level;
-    opl3Params.fmBase.feedback = oplParams.fmBase.feedback;
-    opl3Params.quality = oplParams.quality;
-    opl3Params.unison = oplParams.unison;
-
-    opl3Gui->pasteParams(opl3Params);
-
-    for (int i = 0; i < 2; i++) {
-        CopyOplOp oplOpParams;
-        CopyOpl3Op opl3OpParams;
-
-        oplGui->copyOpParams(i, oplOpParams);
-
-        opl3OpParams.detune = oplOpParams.detune;
-        opl3OpParams.aAdsr = oplOpParams.aAdsr;
-        // waveSelectは、母数が違うためコピーしない
-        opl3OpParams.lfo = oplOpParams.lfo;
-        opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
-        opl3OpParams.mask = oplOpParams.mask;
-
-        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
-        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
-    }
-}
-
-void AudioPlugin2686VEditor::copyOplParamsToOpl312() {
-    for (int i = 0; i < 2; i++) {
-        CopyOplOp oplOpParams;
-        CopyOpl3Op opl3OpParams;
-
-        oplGui->copyOpParams(i, oplOpParams);
-
-        opl3OpParams.detune = oplOpParams.detune;
-        opl3OpParams.aAdsr = oplOpParams.aAdsr;
-        // waveSelectは、母数が違うためコピーしない
-        opl3OpParams.lfo = oplOpParams.lfo;
-        opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
-        opl3OpParams.mask = oplOpParams.mask;
-
-        opl3Gui->pasteOpParams(i, opl3OpParams); // OP1 -> OP1 / OP2 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOplParamsToOpl334() {
-    for (int i = 0; i < 2; i++) {
-        CopyOplOp oplOpParams;
-        CopyOpl3Op opl3OpParams;
-
-        oplGui->copyOpParams(i, oplOpParams);
-
-        opl3OpParams.detune = oplOpParams.detune;
-        opl3OpParams.aAdsr = oplOpParams.aAdsr;
-        // waveSelectは、母数が違うためコピーしない
-        opl3OpParams.lfo = oplOpParams.lfo;
-        opl3OpParams.pAdsr = oplOpParams.pAdsr;
-        opl3OpParams.aSsgSw = oplOpParams.aSsgSw;
-        opl3OpParams.mask = oplOpParams.mask;
-
-        opl3Gui->pasteOpParams(i + 2, opl3OpParams); // OP1 -> OP3 / OP2 -> OP4
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpl3ParamsToOpl() {
-    CopyOpl3 opl3Params;
-    CopyOpl oplParams;
-
-    opl3Gui->copyParams(opl3Params);
-
-    // アルゴリズムは母数が違うのでコピーしない
-    oplParams.fmBase.level = opl3Params.fmBase.level;
-    oplParams.fmBase.feedback = opl3Params.fmBase.feedback;
-    oplParams.quality = opl3Params.quality;
-    oplParams.unison = opl3Params.unison;
-
-    oplGui->pasteParams(oplParams);
-
-    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
-    for (int i = 0; i < 2; i++) {
-        CopyOpl3Op opl3OpParams;
-        CopyOplOp oplOpParams;
-
-        opl3Gui->copyOpParams(i, opl3OpParams);
-
-        oplOpParams.detune = opl3OpParams.detune;
-        oplOpParams.aAdsr = opl3OpParams.aAdsr;
-        oplOpParams.aAdsr.sus = false;
-        // waveSelectは、母数が違うためコピーしない
-        oplOpParams.lfo = opl3OpParams.lfo;
-        oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
-        oplOpParams.mask = opl3OpParams.mask;
-
-        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpl312ParamsToOpl() {
-    // OPL3 の OP1, OP2 のパラメータを OPL にコピー
-    for (int i = 0; i < 2; i++) {
-        CopyOpl3Op opl3OpParams;
-        CopyOplOp oplOpParams;
-
-        opl3Gui->copyOpParams(i, opl3OpParams);
-
-        oplOpParams.detune = opl3OpParams.detune;
-        oplOpParams.aAdsr = opl3OpParams.aAdsr;
-        oplOpParams.aAdsr.sus = false;
-        // waveSelectは、母数が違うためコピーしない
-        oplOpParams.lfo = opl3OpParams.lfo;
-        oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
-        oplOpParams.mask = opl3OpParams.mask;
-
-        oplGui->pasteOpParams(i, oplOpParams); // OP1 -> OP1 / OP2 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpl334ParamsToOpl() {
-    // OPL3 の OP3, OP4 のパラメータを OPL にコピー
-    for (int i = 0; i < 2; i++) {
-        CopyOpl3Op opl3OpParams;
-        CopyOplOp oplOpParams;
-
-        opl3Gui->copyOpParams(i + 2, opl3OpParams);
-
-        oplOpParams.detune = opl3OpParams.detune;
-        oplOpParams.aAdsr = opl3OpParams.aAdsr;
-        oplOpParams.aAdsr.sus = false;
-        // waveSelectは、母数が違うためコピーしない
-        oplOpParams.lfo = opl3OpParams.lfo;
-        oplOpParams.pAdsr = opl3OpParams.pAdsr;
-        oplOpParams.aSsgSw = opl3OpParams.aSsgSw;
-        oplOpParams.mask = opl3OpParams.mask;
-
-        oplGui->pasteOpParams(i, oplOpParams); // OP3 -> OP1 / OP4 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpnParamsToOpna() {
-    CopyOpn opnParams;
-    CopyOpna opnaParams;
-
-    opnGui->copyParams(opnParams);
-
-    opnaParams.fmBase = opnParams.fmBase;
-    // OPNAへの pan は必ずC
-    opnaParams.pan.pan = 0;
-    opnaParams.n88Lfo = opnParams.n88Lfo;
-    opnaParams.quality = opnParams.quality;
-    opnaParams.unison = opnParams.unison;
-
-    opnaGui->pasteParams(opnaParams);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnOp opnOpParams;
-        CopyOpnaOp opnaOpParams;
-
-        opnGui->copyOpParams(i, opnOpParams);
-
-        opnaOpParams.detune = opnOpParams.detune;
-        opnaOpParams.aAdsr = opnOpParams.aAdsr;
-        opnaOpParams.fix = opnOpParams.fix;
-        opnaOpParams.n88Lfo = opnOpParams.n88Lfo;
-        opnaOpParams.pAdsr = opnOpParams.pAdsr;
-        opnaOpParams.aSsgSw = opnOpParams.aSsgSw;
-        opnaOpParams.mask = opnOpParams.mask;
-        opnaOpParams.waveSelect = 0;
-        opnaOpParams.ssgEg.ssgEg = 0;
-        opnaOpParams.ssgEg.fmSsgEgFreq = 0.0f;
-        opnaOpParams.opnaLfo.freqsIndex = 0;
-        opnaOpParams.opnaLfo.syncDelay = 0;
-        opnaOpParams.opnaLfo.am = false;
-        opnaOpParams.opnaLfo.amSmoothRate = 0.0f;
-        opnaOpParams.opnaLfo.ams = 0.0f;
-        opnaOpParams.opnaLfo.pm = false;
-        opnaOpParams.opnaLfo.pms = 0.0f;
-
-        opnaGui->pasteOpParams(i, opnaOpParams); // OP1 -> OP1 / OP2 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpnaParamsToOpn() {
-    CopyOpna opnaParams;
-    CopyOpn opnParams;
-
-    opnaGui->copyParams(opnaParams);
-
-    opnParams.fmBase = opnaParams.fmBase;
-    opnParams.n88Lfo = opnaParams.n88Lfo;
-    opnParams.quality = opnaParams.quality;
-    opnParams.unison = opnaParams.unison;
-
-    opnGui->pasteParams(opnParams);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnaOp opnaOpParams;
-        CopyOpnOp opnOpParams;
-
-        opnaGui->copyOpParams(i, opnaOpParams);
-
-        opnOpParams.detune = opnaOpParams.detune;
-        opnOpParams.aAdsr = opnaOpParams.aAdsr;
-        opnOpParams.fix = opnaOpParams.fix;
-        opnOpParams.n88Lfo = opnaOpParams.n88Lfo;
-        opnOpParams.pAdsr = opnaOpParams.pAdsr;
-        opnOpParams.aSsgSw = opnaOpParams.aSsgSw;
-        opnOpParams.mask = opnaOpParams.mask;
-
-        opnGui->pasteOpParams(i, opnOpParams); // OP1 -> OP1 / OP2 -> OP2
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpnaParamsToOpm() {
-    CopyOpnaOpnOpm params;
-
-    opnaGui->copyParamsOpnOpm(params);
-
-    opmGui->pasteParamsOpnaOpn(params);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnaOpnOpmOp opParams;
-
-        opnaGui->copyOpParamsOpnOpm(i, opParams);
-
-        opmGui->pasteOpParamsOpnaOpn(i, opParams);
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpmParamsToOpna() {
-    CopyOpnaOpnOpm params;
-
-    opmGui->copyParamsOpnaOpn(params);
-
-    opnaGui->pasteParamsOpnOpm(params);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnaOpnOpmOp opParams;
-
-        opmGui->copyOpParamsOpnaOpn(i, opParams);
-
-        opnaGui->pasteOpParamsOpnOpm(i, opParams);
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpnParamsToOpm() {
-    CopyOpnaOpnOpm params;
-
-    opnGui->copyParamsOpnaOpm(params);
-
-    opmGui->pasteParamsOpnaOpn(params);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnaOpnOpmOp opParams;
-
-        opnGui->copyOpParamsOpnaOpm(i, opParams);
-
-        opmGui->pasteOpParamsOpnaOpn(i, opParams);
-    }
-}
-
-void AudioPlugin2686VEditor::copyOpmParamsToOpn() {
-    CopyOpnaOpnOpm params;
-
-    opmGui->copyParamsOpnaOpn(params);
-
-    opnGui->pasteParamsOpnaOpm(params);
-
-    for (int i = 0; i < 4; i++) {
-        CopyOpnaOpnOpmOp opParams;
-
-        opmGui->copyOpParamsOpnaOpn(i, opParams);
-
-        opnGui->pasteOpParamsOpnaOpm(i, opParams);
-    }
 }
 
 void AudioPlugin2686VEditor::updateFxOrder(){

@@ -8,18 +8,7 @@ namespace EditorGuiText
 {
 	namespace Tab
 	{
-		static inline const juce::String opna = u8"OPNA";
-		static inline const juce::String opn = u8"OPN";
-		static inline const juce::String opl = u8"OPL";
-		static inline const juce::String opl3 = u8"OPL3";
-		static inline const juce::String opm = u8"OPM";
 		static inline const juce::String opzx7 = u8"OPZX7S";
-		static inline const juce::String ssg = u8"SSG";
-		static inline const juce::String wt = u8"WT";
-		static inline const juce::String wt2 = u8"WT2";
-		static inline const juce::String rhythm = u8"RHYTHM";
-		static inline const juce::String adpcm = u8"ADPCM";
-		static inline const juce::String beep = u8"BEEP";
 		static inline const juce::String fx = u8"FX";
 		static inline const juce::String preset = u8"PRESET";
 		static inline const juce::String settings = u8"SETTINGS";

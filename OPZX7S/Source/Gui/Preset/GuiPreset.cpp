@@ -272,8 +272,6 @@ void GuiPreset::setup()
                     // 1. プロセッサ側の初期化実行
                     ctx.audioProcessor.initPreset();
 
-                    ctx.audioProcessor.resetCurveProcessBlock();
-
                     // 2. エディタの表示更新
                     // テキストエディタへの反映
                     nameEditor.setText(ctx.audioProcessor.presetName);
@@ -284,8 +282,6 @@ void GuiPreset::setup()
                     filePathEditor.setText(ctx.audioProcessor.presetFilePath);
 
                     // ファイル名表示のクリア
-                    ctx.editor.updateRhythmFileNames(Io::empty);
-                    ctx.editor.updateAdpcmFileNames(Io::empty);
                     ctx.editor.updateOpzx7PcmFileNames(Io::empty);
                     ctx.editor.updateOpzx7WtFileNames(Io::empty);
 

@@ -51,22 +51,11 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     // お好みの色を指定してください（アルファ値で濃さを調整すると綺麗です）
     switch (tabIndex)
     {
-    case 0: return juce::Colours::darkgreen;      // OPNA
-    case 1: return juce::Colours::darkgreen;      // OPN
-    case 2: return juce::Colours::darkgreen;      // OPL
-    case 3: return juce::Colours::darkgreen;      // OPL3
-    case 4: return juce::Colours::darkgreen;      // OPM
-    case 5: return juce::Colours::darkgreen;      // OPZX7
-    case 6: return juce::Colours::darkcyan;       // SSG
-    case 7: return juce::Colours::darkcyan;       // WT
-    case 8: return juce::Colours::darkcyan;       // WT2
-    case 9: return juce::Colours::darkcyan;       // RHYTHM
-    case 10: return juce::Colours::darkcyan;       // ADPCM
-    case 11: return juce::Colours::darkcyan;      // BEEP
-    case 12: return juce::Colours::darkred;       // ADVANCED
-    case 13: return juce::Colours::darkgoldenrod; // PRESET
-    case 14: return juce::Colours::darkgoldenrod; // SETTINGS
-    case 15: return juce::Colours::darkgoldenrod; // ABOUT
-    default: return juce::Colours::darkgrey;      // OTHER
+    case 0: return juce::Colours::darkgreen;     // OPZX7S
+    case 1: return juce::Colours::darkred;       // ADVANCED
+    case 2: return juce::Colours::darkgoldenrod; // PRESET
+    case 3: return juce::Colours::darkgoldenrod; // SETTINGS
+    case 4: return juce::Colours::darkgoldenrod; // ABOUT
+    default: return juce::Colours::darkgrey;     // OTHER
     }
 }

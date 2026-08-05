@@ -21,21 +21,27 @@ class GuiCurve : public GuiBase
 
     std::array<std::unique_ptr<GuiCurveGraph>, CurvePrValue::params> curveGraphs;
 
-    void updateEnabled();
+    // ヘルパーメソッド
     void updateVisible();
+    void updateGraphBinding(int vp);
+
 public:
     GuiCurve(const GuiContext& context);
 
-    GuiToggleButton enable;
     GuiComboBox position;
     GuiComboBox target;
     NormalSeparator mainSeparator;
 
+    // 14000個の配列をやめ、現在表示中のタブ(最大16パラメータ)の分だけを保持する
     std::array<std::unique_ptr<GuiLabel>, CurvePrValue::params> paramLabel;
+    std::array<std::unique_ptr<GuiComboBox>, CurvePrValue::params> logic;
+    std::array<std::unique_ptr<GuiSlider>, CurvePrValue::params> k;
 
-    std::array<std::array<std::array<std::unique_ptr<GuiComboBox>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> logic;
-    std::array<std::array<std::array<std::unique_ptr<GuiSlider>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> k;
-    std::array<std::array<std::array<std::array<std::unique_ptr<GuiSlider>, CurvePrValue::values>, CurvePrValue::params>, CurvePrValue::targets>, CurvePrValue::positions> value;
+    // Values は [パラメータ数:16] × [最大Value数:16]
+    std::array<std::array<std::unique_ptr<GuiSlider>, CurvePrValue::values>, CurvePrValue::params> value;
+
+    // 再帰呼び出し防止フラグ
+    bool isUpdatingUI = false;
 
     void setup() override;
     void layout(juce::Rectangle<int> content) override;

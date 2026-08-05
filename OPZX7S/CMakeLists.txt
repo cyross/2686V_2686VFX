@@ -129,18 +129,6 @@ set(EFFECT_CORE_FILES
 )
 
 set(AMP_ENVELOPE_FILES
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
-    "Source/Effect/Envelope/Amp/Adsr/EnvAmpAdsr.cpp"
-    "Source/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
-    "Source/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.h"
-    "Source/Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddr.cpp"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
-    "Source/Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.cpp"
-    "Source/Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
-    "Source/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
-    "Source/Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.cpp"
     "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
     "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.h"
     "Source/Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7Adddr.cpp"
@@ -162,15 +150,6 @@ set(PITCH_ENVELOPE_FILES
 )
 
 set(KEY_SCALE_FILES
-    "Source/Effect/KeyScale/Opl/KSOplParams.h"
-    "Source/Effect/KeyScale/Opl/KSOpl.h"
-    "Source/Effect/KeyScale/Opl/KSOpl.cpp"
-    "Source/Effect/KeyScale/Opn/KSOpnParams.h"
-    "Source/Effect/KeyScale/Opn/KSOpn.h"
-    "Source/Effect/KeyScale/Opn/KSOpn.cpp"
-    "Source/Effect/KeyScale/Opp/KSOppParams.h"
-    "Source/Effect/KeyScale/Opp/KSOpp.h"
-    "Source/Effect/KeyScale/Opp/KSOpp.cpp"
     "Source/Effect/KeyScale/Ops/KSOpsParams.h"
     "Source/Effect/KeyScale/Ops/KSOps.h"
     "Source/Effect/KeyScale/Ops/KSOps.cpp"
@@ -183,15 +162,6 @@ set(KEY_SCALE_FILES
 )
 
 set(DETUNE_FILES
-    "Source/Effect/Detune/Opl/DetuneOplParams.h"
-    "Source/Effect/Detune/Opl/DetuneOpl.h"
-    "Source/Effect/Detune/Opl/DetuneOpl.cpp"
-    "Source/Effect/Detune/Opn/DetuneOpnParams.h"
-    "Source/Effect/Detune/Opn/DetuneOpn.h"
-    "Source/Effect/Detune/Opn/DetuneOpn.cpp"
-    "Source/Effect/Detune/Opm/DetuneOpmParams.h"
-    "Source/Effect/Detune/Opm/DetuneOpm.h"
-    "Source/Effect/Detune/Opm/DetuneOpm.cpp"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.h"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
@@ -204,18 +174,6 @@ set(FEEDBACK_FILES
 )
 
 set(LFO_FILES
-    "Source/Effect/Lfo/N88/LfoN88Params.h"
-    "Source/Effect/Lfo/N88/LfoN88.h"
-    "Source/Effect/Lfo/N88/LfoN88.cpp"
-    "Source/Effect/Lfo/Opna/LfoOpnaParams.h"
-    "Source/Effect/Lfo/Opna/LfoOpna.h"
-    "Source/Effect/Lfo/Opna/LfoOpna.cpp"
-    "Source/Effect/Lfo/Opl/LfoOplParams.h"
-    "Source/Effect/Lfo/Opl/LfoOpl.h"
-    "Source/Effect/Lfo/Opl/LfoOpl.cpp"
-    "Source/Effect/Lfo/Opm/LfoOpmParams.h"
-    "Source/Effect/Lfo/Opm/LfoOpm.h"
-    "Source/Effect/Lfo/Opm/LfoOpm.cpp"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.h"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
@@ -228,51 +186,6 @@ set(FX_EFFECT_FILES
     "Source/Effect/Fx/Fx.cpp"
 )
 
-set(OPNA_SYNTH_FILES
-    "Source/Synth/Opna/SynthOpna.h"
-    "Source/Synth/Opna/SynthOpna.cpp"
-    "Source/Synth/Opna/SynthOpnaParams.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.h"
-    "Source/Synth/Opna/Operator/SynthOpnaOp.cpp"
-    "Source/Synth/Opna/Operator/SynthOpnaOpParams.h"
-)
-
-set(OPN_SYNTH_FILES
-    "Source/Synth/Opn/SynthOpn.h"
-    "Source/Synth/Opn/SynthOpn.cpp"
-    "Source/Synth/Opn/SynthOpnParams.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.h"
-    "Source/Synth/Opn/Operator/SynthOpnOp.cpp"
-    "Source/Synth/Opn/Operator/SynthOpnOpParams.h"
-)
-
-set(OPL_SYNTH_FILES
-    "Source/Synth/Opl/SynthOpl.h"
-    "Source/Synth/Opl/SynthOpl.cpp"
-    "Source/Synth/Opl/SynthOplParams.h"
-    "Source/Synth/Opl/Operator/SynthOplOp.h"
-    "Source/Synth/Opl/Operator/SynthOplOp.cpp"
-    "Source/Synth/Opl/Operator/SynthOplOpParams.h"
-)
-
-set(OPL3_SYNTH_FILES
-    "Source/Synth/Opl3/SynthOpl3.h"
-    "Source/Synth/Opl3/SynthOpl3.cpp"
-    "Source/Synth/Opl3/SynthOpl3Params.h"
-    "Source/Synth/Opl3/Operator/SynthOpl3Op.h"
-    "Source/Synth/Opl3/Operator/SynthOpl3Op.cpp"
-    "Source/Synth/Opl3/Operator/SynthOpl3OpParams.h"
-)
-
-set(OPM_SYNTH_FILES
-    "Source/Synth/Opm/SynthOpm.h"
-    "Source/Synth/Opm/SynthOpm.cpp"
-    "Source/Synth/Opm/SynthOpmParams.h"
-    "Source/Synth/Opm/Operator/SynthOpmOp.h"
-    "Source/Synth/Opm/Operator/SynthOpmOp.cpp"
-    "Source/Synth/Opm/Operator/SynthOpmOpParams.h"
-)
-
 set(OPZX7_SYNTH_FILES
     "Source/Synth/Opzx7/SynthOpzx7.h"
     "Source/Synth/Opzx7/SynthOpzx7.cpp"
@@ -282,86 +195,10 @@ set(OPZX7_SYNTH_FILES
     "Source/Synth/Opzx7/Operator/SynthOpzx7OpParams.h"
 )
 
-set(SSG_SYNTH_FILES
-    "Source/Synth/Ssg/SynthSsg.h"
-    "Source/Synth/Ssg/SynthSsg.cpp"
-    "Source/Synth/Ssg/SynthSsgParams.h"
-)
-
-set(WT_SYNTH_FILES
-    "Source/Synth/Wavetable/SynthWt.h"
-    "Source/Synth/Wavetable/SynthWt.cpp"
-    "Source/Synth/Wavetable/SynthWtParams.h"
-)
-
-set(WT2_SYNTH_FILES
-    "Source/Synth/Wt2/SynthWt2.h"
-    "Source/Synth/Wt2/SynthWt2.cpp"
-    "Source/Synth/Wt2/SynthWt2Params.h"
-)
-
-set(RHYTHM_SYNTH_FILES
-    "Source/Synth/Rhythm/SynthRhythm.h"
-    "Source/Synth/Rhythm/SynthRhythm.cpp"
-    "Source/Synth/Rhythm/SynthRhythmParams.h"
-)
-
-set(ADPCM_SYNTH_FILES
-    "Source/Synth/Adpcm/SynthAdpcm.h"
-    "Source/Synth/Adpcm/SynthAdpcm.cpp"
-    "Source/Synth/Adpcm/SynthAdpcmParams.h"
-)
-
-set(BEEP_SYNTH_FILES
-    "Source/Synth/Beep/SynthBeep.h"
-    "Source/Synth/Beep/SynthBeep.cpp"
-    "Source/Synth/Beep/SynthBeepParams.h"
-)
-
 set(CURVE_FILES
     "Source/Advanced/Curve/AdvancedCurve.h"
     "Source/Advanced/Curve/AdvancedCurve.cpp"
     "Source/Advanced/Curve/AdvancedCurveParams.h"
-)
-
-set(OPNA_PROCESSOR_FILES
-    "Source/Processor/Opna/ProcessorOpnaKeys.h"
-    "Source/Processor/Opna/ProcessorOpnaNames.h"
-    "Source/Processor/Opna/ProcessorOpnaValues.h"
-    "Source/Processor/Opna/ProcessorOpna.h"
-    "Source/Processor/Opna/ProcessorOpna.cpp"
-)
-
-set(OPN_PROCESSOR_FILES
-    "Source/Processor/Opn/ProcessorOpnKeys.h"
-    "Source/Processor/Opn/ProcessorOpnNames.h"
-    "Source/Processor/Opn/ProcessorOpnValues.h"
-    "Source/Processor/Opn/ProcessorOpn.h"
-    "Source/Processor/Opn/ProcessorOpn.cpp"
-)
-
-set(OPL_PROCESSOR_FILES
-    "Source/Processor/Opl/ProcessorOplKeys.h"
-    "Source/Processor/Opl/ProcessorOplNames.h"
-    "Source/Processor/Opl/ProcessorOplValues.h"
-    "Source/Processor/Opl/ProcessorOpl.h"
-    "Source/Processor/Opl/ProcessorOpl.cpp"
-)
-
-set(OPL3_PROCESSOR_FILES
-    "Source/Processor/Opl3/ProcessorOpl3Keys.h"
-    "Source/Processor/Opl3/ProcessorOpl3Names.h"
-    "Source/Processor/Opl3/ProcessorOpl3Values.h"
-    "Source/Processor/Opl3/ProcessorOpl3.h"
-    "Source/Processor/Opl3/ProcessorOpl3.cpp"
-)
-
-set(OPM_PROCESSOR_FILES
-    "Source/Processor/Opm/ProcessorOpmKeys.h"
-    "Source/Processor/Opm/ProcessorOpmNames.h"
-    "Source/Processor/Opm/ProcessorOpmValues.h"
-    "Source/Processor/Opm/ProcessorOpm.h"
-    "Source/Processor/Opm/ProcessorOpm.cpp"
 )
 
 set(OPZX7_PROCESSOR_FILES
@@ -370,54 +207,6 @@ set(OPZX7_PROCESSOR_FILES
     "Source/Processor/Opzx7/ProcessorOpzx7Values.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.h"
     "Source/Processor/Opzx7/ProcessorOpzx7.cpp"
-)
-
-set(SSG_PROCESSOR_FILES
-    "Source/Processor/Ssg/ProcessorSsgKeys.h"
-    "Source/Processor/Ssg/ProcessorSsgNames.h"
-    "Source/Processor/Ssg/ProcessorSsgValues.h"
-    "Source/Processor/Ssg/ProcessorSsg.h"
-    "Source/Processor/Ssg/ProcessorSsg.cpp"
-)
-
-set(WT_PROCESSOR_FILES
-    "Source/Processor/Wavetable/ProcessorWtKeys.h"
-    "Source/Processor/Wavetable/ProcessorWtNames.h"
-    "Source/Processor/Wavetable/ProcessorWtValues.h"
-    "Source/Processor/Wavetable/ProcessorWt.h"
-    "Source/Processor/Wavetable/ProcessorWt.cpp"
-)
-
-set(WT2_PROCESSOR_FILES
-    "Source/Processor/Wt2/ProcessorWt2Keys.h"
-    "Source/Processor/Wt2/ProcessorWt2Names.h"
-    "Source/Processor/Wt2/ProcessorWt2Values.h"
-    "Source/Processor/Wt2/ProcessorWt2.h"
-    "Source/Processor/Wt2/ProcessorWt2.cpp"
-)
-
-set(RHYTHM_PROCESSOR_FILES
-    "Source/Processor/Rhythm/ProcessorRhythmKeys.h"
-    "Source/Processor/Rhythm/ProcessorRhythmNames.h"
-    "Source/Processor/Rhythm/ProcessorRhythmValues.h"
-    "Source/Processor/Rhythm/ProcessorRhythm.h"
-    "Source/Processor/Rhythm/ProcessorRhythm.cpp"
-)
-
-set(ADPCM_PROCESSOR_FILES
-    "Source/Processor/Adpcm/ProcessorAdpcmKeys.h"
-    "Source/Processor/Adpcm/ProcessorAdpcmNames.h"
-    "Source/Processor/Adpcm/ProcessorAdpcmValues.h"
-    "Source/Processor/Adpcm/ProcessorAdpcm.h"
-    "Source/Processor/Adpcm/ProcessorAdpcm.cpp"
-)
-
-set(BEEP_PROCESSOR_FILES
-    "Source/Processor/Beep/ProcessorBeepKeys.h"
-    "Source/Processor/Beep/ProcessorBeepNames.h"
-    "Source/Processor/Beep/ProcessorBeepValues.h"
-    "Source/Processor/Beep/ProcessorBeep.h"
-    "Source/Processor/Beep/ProcessorBeep.cpp"
 )
 
 set(CURVE_PROCESSOR_FILES
@@ -436,41 +225,6 @@ set(FX_PROCESSOR_FILES
     "Source/Processor/Fx/ProcessorFx.cpp"
 )
 
-set(OPNA_GUI_FILES
-    "Source/Gui/Opna/GuiOpnaText.h"
-    "Source/Gui/Opna/GuiOpnaValues.h"
-    "Source/Gui/Opna/GuiOpna.h"
-    "Source/Gui/Opna/GuiOpna.cpp"
-)
-
-set(OPN_GUI_FILES
-    "Source/Gui/Opn/GuiOpnText.h"
-    "Source/Gui/Opn/GuiOpnValues.h"
-    "Source/Gui/Opn/GuiOpn.h"
-    "Source/Gui/Opn/GuiOpn.cpp"
-)
-
-set(OPL_GUI_FILES
-    "Source/Gui/Opl/GuiOplText.h"
-    "Source/Gui/Opl/GuiOplValues.h"
-    "Source/Gui/Opl/GuiOpl.h"
-    "Source/Gui/Opl/GuiOpl.cpp"
-)
-
-set(OPL3_GUI_FILES
-    "Source/Gui/Opl3/GuiOpl3Text.h"
-    "Source/Gui/Opl3/GuiOpl3Values.h"
-    "Source/Gui/Opl3/GuiOpl3.h"
-    "Source/Gui/Opl3/GuiOpl3.cpp"
-)
-
-set(OPM_GUI_FILES
-    "Source/Gui/Opm/GuiOpmText.h"
-    "Source/Gui/Opm/GuiOpmValues.h"
-    "Source/Gui/Opm/GuiOpm.h"
-    "Source/Gui/Opm/GuiOpm.cpp"
-)
-
 set(OPZX7_GUI_FILES
     "Source/Gui/Opzx7/GuiOpzx7Helpers.h"
     "Source/Gui/Opzx7/GuiOpzx7Helpers.cpp"
@@ -478,56 +232,6 @@ set(OPZX7_GUI_FILES
     "Source/Gui/Opzx7/GuiOpzx7Values.h"
     "Source/Gui/Opzx7/GuiOpzx7.h"
     "Source/Gui/Opzx7/GuiOpzx7.cpp"
-)
-
-set(SSG_GUI_FILES
-    "Source/Gui/Ssg/GuiSsgText.h"
-    "Source/Gui/Ssg/GuiSsgValues.h"
-    "Source/Gui/Ssg/GuiSsg.h"
-    "Source/Gui/Ssg/GuiSsg.cpp"
-)
-
-set(WT_GUI_FILES
-    "Source/Gui/Wavetable/GuiWtHelpers.h"
-    "Source/Gui/Wavetable/GuiWtHelpers.cpp"
-    "Source/Gui/Wavetable/GuiWtText.h"
-    "Source/Gui/Wavetable/GuiWtValues.h"
-    "Source/Gui/Wavetable/GuiWt.h"
-    "Source/Gui/Wavetable/GuiWt.cpp"
-)
-
-set(WT2_GUI_FILES
-    "Source/Gui/Wt2/GuiWt2Helpers.h"
-    "Source/Gui/Wt2/GuiWt2Helpers.cpp"
-    "Source/Gui/Wt2/GuiWt2Text.h"
-    "Source/Gui/Wt2/GuiWt2Values.h"
-    "Source/Gui/Wt2/GuiWt2.h"
-    "Source/Gui/Wt2/GuiWt2.cpp"
-)
-
-set(RHYTHM_GUI_FILES
-    "Source/Gui/Rhythm/GuiRhythmHelpers.h"
-    "Source/Gui/Rhythm/GuiRhythmHelpers.cpp"
-    "Source/Gui/Rhythm/GuiRhythmText.h"
-    "Source/Gui/Rhythm/GuiRhythmValues.h"
-    "Source/Gui/Rhythm/GuiRhythm.h"
-    "Source/Gui/Rhythm/GuiRhythm.cpp"
-)
-
-set(ADPCM_GUI_FILES
-    "Source/Gui/Adpcm/GuiAdpcmHelpers.h"
-    "Source/Gui/Adpcm/GuiAdpcmHelpers.cpp"
-    "Source/Gui/Adpcm/GuiAdpcmText.h"
-    "Source/Gui/Adpcm/GuiAdpcmValues.h"
-    "Source/Gui/Adpcm/GuiAdpcm.h"
-    "Source/Gui/Adpcm/GuiAdpcm.cpp"
-)
-
-set(BEEP_GUI_FILES
-    "Source/Gui/Beep/GuiBeepText.h"
-    "Source/Gui/Beep/GuiBeepValues.h"
-    "Source/Gui/Beep/GuiBeep.h"
-    "Source/Gui/Beep/GuiBeep.cpp"
 )
 
 set(FX_GUI_FILES
@@ -586,11 +290,6 @@ set(GUI_COMPONENT_FIX_FILES
 set(GUI_COMPONENT_MULDETUNE_FILES
     "Source/Gui/Components/MulDetune/MulDetune.h"
     "Source/Gui/Components/MulDetune/MulDetune.cpp"
-)
-
-set(GUI_COMPONENT_AMPENV_FILES
-    "Source/Gui/Components/AmpEnv/AmpEnv.h"
-    "Source/Gui/Components/AmpEnv/AmpEnv.cpp"
 )
 
 set(GUI_COMPONENT_PITCHENV_FILES
@@ -663,8 +362,6 @@ set(GUI_COMPONENT_SEPARATOR_FILES
 set(GUI_COMPONENT_QUALITY_FILES
     "Source/Gui/Components/Quality/Quality.h"
     "Source/Gui/Components/Quality/Quality.cpp"
-    "Source/Gui/Components/Quality/QualityPcm.h"
-    "Source/Gui/Components/Quality/QualityPcm.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
@@ -679,18 +376,7 @@ source_group("OPZX7S\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
 source_group("OPZX7S\\Generator\\Fm\\Fix" FILES ${FM_FIX_FILES})
 source_group("OPZX7S\\Synth\\Core" FILES ${SYNTH_FILES})
 source_group("OPZX7S\\Synth\\Fm" FILES ${FM_FILES})
-source_group("OPZX7S\\Synth\\Opna" FILES ${OPNA_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Opn" FILES ${OPN_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Opl" FILES ${OPL_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Opl3" FILES ${OPL3_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Opm" FILES ${OPM_SYNTH_FILES})
 source_group("OPZX7S\\Synth\\Opzx7" FILES ${OPZX7_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Ssg" FILES ${SSG_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Wt" FILES ${WT_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Wt2" FILES ${WT2_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Rhythm" FILES ${RHYTHM_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Adpcm" FILES ${ADPCM_SYNTH_FILES})
-source_group("OPZX7S\\Synth\\Beep" FILES ${BEEP_SYNTH_FILES})
 source_group("OPZX7S\\Effect\\Core" FILES ${EFFECT_CORE_FILES})
 source_group("OPZX7S\\Effect\\Envelope\\Amp" FILES ${AMP_ENVELOPE_FILES})
 source_group("OPZX7S\\Effect\\Envelope\\Pitch" FILES ${PITCH_ENVELOPE_FILES})
@@ -700,19 +386,7 @@ source_group("OPZX7S\\Effect\\Fx" FILES ${FX_EFFECT_FILES})
 source_group("OPZX7S\\Effect\\Feedback" FILES ${FEEDBACK_FILES})
 source_group("OPZX7S\\Effect\\KeyScale" FILES ${KEY_SCALE_FILES})
 source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opna" FILES ${OPNA_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opn" FILES ${OPN_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opl" FILES ${OPL_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opl3" FILES ${OPL3_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Opm" FILES ${OPM_PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Ssg" FILES ${SSG_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Wt" FILES ${WT_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Wt2" FILES ${WT2_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
-source_group("OPZX7S\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("OPZX7S\\Gui\\Core" FILES ${GUI_FILES})
 source_group("OPZX7S\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
@@ -734,18 +408,7 @@ source_group("OPZX7S\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FI
 source_group("OPZX7S\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("OPZX7S\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
 source_group("OPZX7S\\Gui\\Editor" FILES ${EDITOR_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Opl" FILES ${OPL_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Opl3" FILES ${OPL3_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Opm" FILES ${OPM_GUI_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Ssg" FILES ${SSG_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Wt" FILES ${WT_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Wt2" FILES ${WT2_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Rhythm" FILES ${RHYTHM_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Adpcm" FILES ${ADPCM_GUI_FILES})
-source_group("OPZX7S\\Gui\\Tab\\Beep" FILES ${BEEP_GUI_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Curve" FILES ${CURVE_GUI_FILES})
 source_group("OPZX7S\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})

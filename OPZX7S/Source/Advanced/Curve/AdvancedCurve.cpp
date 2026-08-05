@@ -21,12 +21,12 @@ CurveCore::CurveCore() {
 
 	auto calcExp = [](float x, float rate) {
 		if (std::abs(rate) < 0.001f) return x;
-		return std::exp(1.0f + rate * x) / std::exp(1.0f + rate);
+		return (std::exp(rate * x) - 1.0f) / (std::exp(rate) - 1.0f);
 		};
 
 	auto calcLog = [](float x, float rate) {
 		if (std::abs(rate) < 0.001f) return x;
-		return (std::log(rate * x) - 1.0f) / (std::log(rate) - 1.0f);
+		return std::log(1.0f + rate * x) / std::log(1.0f + rate);
 		};
 
 	// 1点スプライン (二次ベジェ曲線の厳密解)
@@ -446,40 +446,9 @@ CurveCore::CurveCore() {
 void CurveCore::setParameters(const CurveParams& params)
 {
 	this->m_params = params;
-
-	this->index = this->m_params.enable ? 1 : 0; // カーブモードなら1、従来モードなら0
-
-	if (this->index == 1) {
-		bakeCurves();
-	}
 }
 
-void CurveCore::bakeCurves()
-{
-	for (int p = 0; p < CurvePrValue::positions; ++p) {
-		for (int t = 0; t < CurvePrValue::targets; ++t) {
-			for (int prm = 0; prm < CurvePrValue::params; ++prm) {
-				// 線形や無効なパラメータはスキップしても良いが、単純化のため全部計算する
-				for (int i = 0; i < LUT_SIZE; ++i) {
-					float x = (float)i / (float)(LUT_SIZE - 1); // 0.0 ~ 1.0
-					curveLUT[p][t][prm][i] = processRaw(p, t, prm, x);
-				}
-			}
-		}
-	}
-}
-
-void CurveCore::bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex)
-{
-	// 線形や無効なパラメータはスキップしても良いが、単純化のため全部計算する
-	for (int i = 0; i < LUT_SIZE; ++i) {
-		float x = (float)i / (float)(LUT_SIZE - 1); // 0.0 ~ 1.0
-		curveLUT[positionIndex][targetIndex][paramIndex][i] = processRaw(positionIndex, targetIndex, paramIndex, x);
-	}
-}
-
-// 以前の process の中身 (重い計算)
-float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, float x)
+float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, float x) const
 {
 	if (x <= 1e-5f) return 0.0f;
 	if (x >= 1.0f - 1e-5f) return 1.0f;
@@ -487,6 +456,9 @@ float CurveCore::processRaw(int positionIndex, int targetIndex, int paramIndex, 
 	int logicIndex = m_params.params[positionIndex][targetIndex][paramIndex].logic;
 	auto logic = static_cast<CurveParams::Logic>(logicIndex);
 
-	if (logics.find(logic) == logics.end()) return x;
-	return logics[logic](positionIndex, targetIndex, paramIndex, x);
+	// logics マップからの検索を安全に行う
+	auto it = logics.find(logic);
+	if (it == logics.end()) return x; // 見つからなければ線形
+
+	return it->second(positionIndex, targetIndex, paramIndex, x);
 }

@@ -10,14 +10,8 @@ namespace Io
 
 	namespace Extension
 	{
-		static inline const juce::String wavetable = "wt";
-		static inline const juce::String wt2 = "wt2";
 		static inline const juce::String fxOrder = "fxo";
 		static inline const juce::String fxParam = "2fx";
-		static inline const juce::String OpnaLfoParam = "lfoOpna";
-		static inline const juce::String N88LfoParam = "lfoN88";
-		static inline const juce::String OpmLfoParam = "lfoOpm";
-		static inline const juce::String OplLfoParam = "lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
@@ -25,7 +19,6 @@ namespace Io
 		static inline const juce::String DetuneParam = "detune";
 		static inline const juce::String UnisonParam = "unison";
 		static inline const juce::String QualityParam = "quality";
-		static inline const juce::String PcmQualityParam = "pcmQuality";
 		static inline const juce::String PcmPlayParam = "pcmPlay";
 		static inline const juce::String ToneNoiseParam = "toneNoise";
 	};
@@ -36,10 +29,6 @@ namespace Io
 		static inline const juce::String wt2 = "*.wt2";
 		static inline const juce::String fxOrder = "*.fxo";
 		static inline const juce::String fxParam = "*.2fx";
-		static inline const juce::String OpnaLfoParam = "*.lfoOpna";
-		static inline const juce::String N88LfoParam = "*.lfoN88";
-		static inline const juce::String OpmLfoParam = "*.lfoOpm";
-		static inline const juce::String OplLfoParam = "*.lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
 		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
@@ -49,7 +38,6 @@ namespace Io
 		static inline const juce::String DetuneParam = "*.detune";
 		static inline const juce::String UnisonParam = "*.unison";
 		static inline const juce::String QualityParam = "*.quality";
-		static inline const juce::String PcmQualityParam = "*.pcmQuality";
 		static inline const juce::String PcmPlayParam = "*.pcmPlay";
 		static inline const juce::String ToneNoiseParam = "*.toneNoise";
 	};
@@ -57,7 +45,7 @@ namespace Io
 	namespace Folder
 	{
 		static inline const juce::String asset = "2686V";
-		static inline const juce::String preset = "Presets";
+		static inline const juce::String preset = "OPZX7Presets";
 		static inline const juce::String resource = "Resources";
 		static inline const juce::String sample = "Samples";
 		static inline const juce::String wavetable = "Wavetables";

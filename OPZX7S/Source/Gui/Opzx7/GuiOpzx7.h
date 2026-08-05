@@ -471,6 +471,8 @@ class GuiOpzx7 : public GuiBase
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
 
+    bool isUpdatingGraph = false;
+
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
 public:

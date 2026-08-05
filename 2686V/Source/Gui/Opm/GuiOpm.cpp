@@ -1316,8 +1316,12 @@ void GuiOpm::updateOpGraph(int opIndex)
     // Helper: 幅の計算 (Amp 用)
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return maxWidth;
+
         if (rateValue <= 0.0f) return maxWidth;
+
         float norm = 1.0f - (rateValue / maxRate);
+
         return maxWidth * norm;
         };
 
@@ -1376,6 +1380,9 @@ void GuiOpm::updateOpGraph(int opIndex)
 
         float sl = (d1lMax - d1lVal) / d1lMax; // 15=0.0, 0=1.0
         float tlScale = 1.0f - (tlVal / tlMax); // TL=127で無音
+
+        if (std::isnan(sl) || std::isinf(sl)) sl = 0.0f;
+        if (std::isnan(tlScale) || std::isinf(tlScale)) tlScale = 1.0f;
 
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
         auto color = juce::Colours::cyan;

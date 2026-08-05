@@ -63,8 +63,6 @@ namespace PresetKey
 	static inline const juce::String genre = "presetGenre";
 	static inline const juce::String mode = "activeModeName";
 	static inline const juce::String puginVersion = "pluginVersion";
-	static inline const juce::String adpcmPath = "adpcmPath";
-	static inline const juce::String rhythmPathPrefix = "rhythmPath";
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
 	static inline const juce::String opzx7Wt2PathPrefix = "opzx7Wt2Path";

@@ -20,18 +20,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     apvts(*this, &undoManager, Global::Plugin::parameters, createParameterLayout()) // APVTSの初期化
 #endif
 {
-    prMap[OscMode::OPNA] = &prOpna;
-    prMap[OscMode::OPN] = &prOpn;
-    prMap[OscMode::OPL] = &prOpl;
-    prMap[OscMode::OPL3] = &prOpl3;
-    prMap[OscMode::OPM] = &prOpm;
     prMap[OscMode::OPZX7] = &prOpzx7;
-    prMap[OscMode::SSG] = &prSsg;
-    prMap[OscMode::WAVETABLE] = &prWt;
-    prMap[OscMode::WT2] = &prWt2;
-    prMap[OscMode::RHYTHM] = &prRhythm;
-    prMap[OscMode::ADPCM] = &prAdpcm;
-    prMap[OscMode::BEEP] = &prBeep;
 
     pMode = apvts.getRawParameterValue(CPK::mode);
     pMonoMode = apvts.getRawParameterValue(CPK::Midi::monoMode);
@@ -39,18 +28,7 @@ AudioPlugin2686V::AudioPlugin2686V()
     pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
     pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
-    prOpna.init(apvts);
-    prOpn.init(apvts);
-    prOpl.init(apvts);
-    prOpl3.init(apvts);
-    prOpm.init(apvts);
     prOpzx7.init(apvts);
-    prSsg.init(apvts);
-    prWt.init(apvts);
-    prWt2.init(apvts);
-    prRhythm.init(apvts);
-    prAdpcm.init(apvts);
-    prBeep.init(apvts);
     prFx.init(apvts);
     prCurve.init(apvts);
 
@@ -94,21 +72,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:WT2 10:RHYTHM, 11:ADPCM. 12:FX, 13:PRESET, 14:SETTING, 15:ABOUT
+    // Mode: 0:OPZX7S
     layout.add(std::make_unique<juce::AudioParameterInt>(CPK::mode, CPN::mode, 0, CoreGuiValue::TabNumber, 0));
 
-    prOpna.createLayout(layout);
-	prOpn.createLayout(layout);
-	prOpl.createLayout(layout);
-	prOpl3.createLayout(layout);
-	prOpm.createLayout(layout);
 	prOpzx7.createLayout(layout);
-	prSsg.createLayout(layout);
-	prWt.createLayout(layout);
-    prWt2.createLayout(layout);
-    prRhythm.createLayout(layout);
-	prAdpcm.createLayout(layout);
-    prBeep.createLayout(layout);
 	prFx.createLayout(layout);
 	prCurve.createLayout(layout);
 
@@ -281,77 +248,6 @@ juce::AudioProcessorEditor* AudioPlugin2686V::createEditor()
     return new AudioPlugin2686VEditor(*this);
 }
 
-void AudioPlugin2686V::loadAdpcmFile(const juce::File& file)
-{
-    auto* reader = formatManager.createReaderFor(file);
-    if (reader != nullptr)
-    {
-        adpcmFilePath = file.getFullPathName();
-
-        std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
-
-        // Buffer to load the entire file
-        juce::AudioBuffer<float> fileBuffer;
-        fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
-
-        // Execute load
-        audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
-
-        // Convert to mono std::vector<float>
-        std::vector<float> sourceData;
-        sourceData.resize(fileBuffer.getNumSamples());
-
-        // Get only L channel or mix LR
-        auto* channelData = fileBuffer.getReadPointer(0);
-        for (int i = 0; i < fileBuffer.getNumSamples(); ++i)
-        {
-            sourceData[i] = channelData[i];
-            // Add mixing logic here if stereo support is needed
-        }
-
-        // --- Set data to AdpcmCore for all voices ---
-        // Important: Distribute data to all Voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i)
-        {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-            {
-                // Set while letting AdpcmCore handle "Resampling & 4bit degradation"
-                voice->getAdpcmCore()->setSampleData(sourceData, audioReader->sampleRate);
-            }
-        }
-    }
-}
-
-// Function to load Rhythm file
-void AudioPlugin2686V::loadRhythmFile(const juce::File& file, int padIndex)
-{
-    auto* reader = formatManager.createReaderFor(file);
-    if (reader != nullptr)
-    {
-        if (padIndex >= 0 && padIndex < RhythmPrValue::pads) {
-            rhythmFilePaths[padIndex] = file.getFullPathName();
-        }
-
-        std::unique_ptr<juce::AudioFormatReader> audioReader(reader);
-        juce::AudioBuffer<float> fileBuffer;
-        fileBuffer.setSize(audioReader->numChannels, (int)audioReader->lengthInSamples);
-        audioReader->read(&fileBuffer, 0, (int)audioReader->lengthInSamples, 0, true, true);
-
-        std::vector<float> sourceData(fileBuffer.getNumSamples());
-        auto* channelData = fileBuffer.getReadPointer(0);
-        for (int i = 0; i < fileBuffer.getNumSamples(); ++i) {
-            sourceData[i] = channelData[i];
-        }
-
-        // Set data to the specified pad of RhythmCore for all voices
-        for (int i = 0; i < m_synth.getNumVoices(); ++i) {
-            if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i))) {
-                voice->getRhythmCore()->setSampleData(padIndex, sourceData, reader->sampleRate);
-            }
-        }
-    }
-}
-
 bool AudioPlugin2686V::hasEditor() const { return true; }
 
 // Parameters / Settings Related
@@ -371,7 +267,7 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
     int currentMode = PrHelper::getInt(pMode);
 
-    if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
+    if (currentMode >= 0 && currentMode <= (int)OscMode::OPZX7) {
         lastActiveSynthMode = (OscMode)currentMode;
     }
 
@@ -383,14 +279,6 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::genre, sanitizeString(presetGenre, PresetValue::MetaData::Length::genre));
     xml->setAttribute(PresetKey::mode, getModeName(lastActiveSynthMode));
     xml->setAttribute(PresetKey::puginVersion, Global::Plugin::version);
-
-    // サンプルパス保存 (ADPCM)
-    xml->setAttribute(PresetKey::adpcmPath, makePathRelative(juce::File(adpcmFilePath)));
-
-    // サンプルパス保存 (RHYTHM)
-    for (int i = 0; i < RhythmPrValue::pads; ++i) {
-        xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
-    }
 
     // サンプルパス保存 (OPZX7 PCM/WT/WT2)
     for (int i = 0; i < Opzx7PrValue::ops; ++i) {
@@ -405,6 +293,8 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         sa.add(juce::String(fxId));
 
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
+
+    prCurve.saveToXml(xml.get());
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
@@ -421,22 +311,6 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         presetComment = xmlState->getStringAttribute(PresetKey::comment, PresetValue::MetaData::Initial::comment);
         presetGenre = xmlState->getStringAttribute(PresetKey::genre, PresetValue::MetaData::Initial::genre);
         presetPluginVersion = xmlState->getStringAttribute(PresetKey::puginVersion, Global::Plugin::version);
-
-        // サンプル復帰 (ADPCM)
-        juce::String storedAdpcm = xmlState->getStringAttribute(PresetKey::adpcmPath);
-        juce::File adpcmFile = resolvePath(storedAdpcm);
-        if (adpcmFile.existsAsFile()) {
-            loadAdpcmFile(adpcmFile);
-        }
-
-        // サンプル復帰 (RHYTHM)
-        for (int i = 0; i < RhythmPrValue::pads; ++i) {
-            juce::String storedRhy = xmlState->getStringAttribute(PresetKey::rhythmPathPrefix + juce::String(i));
-            juce::File rhyFile = resolvePath(storedRhy);
-            if (rhyFile.existsAsFile()) {
-                loadRhythmFile(rhyFile, i);
-            }
-        }
 
         // サンプル復帰 (OPZX7)
         for (int i = 0; i < Opzx7PrValue::ops; ++i) {
@@ -484,6 +358,9 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         }
 
         prFx.updateOrder(loadedFxOrder);
+
+        prCurve.loadFromXml(xmlState.get());
+        m_curveCore.bakeCurves();
     }
 };
 
@@ -640,7 +517,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
 void AudioPlugin2686V::loadStartupSettings()
 {
     // 1. 読み込むディレクトリとファイル名を指定
-    // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_preset.xml"
+    // 例: マイドキュメントフォルダ内の "2686V" フォルダにある "init_settings_opzx7s.xml"
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     auto pluginDir = docDir.getChildFile(Io::Folder::asset);
     auto presetFile = pluginDir.getChildFile(SettingsValue::File::Name::initial);
@@ -848,46 +725,6 @@ juce::String AudioPlugin2686V::getDefaultPresetDir()
     return defaultPresetDir;
 }
 
-void AudioPlugin2686V::unloadAdpcmFile()
-{
-    // パス情報を削除
-    adpcmFilePath.clear();
-
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの ADPCM Core に空データをセット（＝クリア）
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            // レートはなんでも良いので適当な値(44100)を渡す
-            voice->getAdpcmCore()->clearBuffer();
-        }
-    }
-}
-
-void AudioPlugin2686V::unloadRhythmFile(int padIndex)
-{
-    // インデックスチェック
-    if (padIndex < 0 || padIndex >= 8) return;
-
-    // パス情報を削除
-    rhythmFilePaths[padIndex].clear();
-
-    // 空のデータを作成
-    std::vector<float> emptyData(1, 0.0f);
-
-    // 全ボイスの Rhythm Core の該当パッドに空データをセット
-    for (int i = 0; i < m_synth.getNumVoices(); ++i)
-    {
-        if (auto* voice = static_cast<SynthVoice*>(m_synth.getVoice(i)))
-        {
-            voice->getRhythmCore()->clearBuffer(padIndex);
-        }
-    }
-}
-
 // 絶対パスのFileを、defaultSampleDirからの相対パス文字列に変換する
 juce::String AudioPlugin2686V::makePathRelative(const juce::File& targetFile)
 {
@@ -1054,15 +891,6 @@ void AudioPlugin2686V::initPreset()
     presetGenre = PresetValue::MetaData::Initial::genre;
     presetFilePath = "";
 
-    // 3. サンプルのアンロードとパスクリア
-    unloadAdpcmFile();
-    // unloadAdpcmFile内で adpcmFilePath.clear() されています
-
-    for (int i = 0; i < RhythmPrValue::pads; ++i) {
-        unloadRhythmFile(i);
-        // unloadRhythmFile内で rhythmFilePaths[i].clear() されています
-    }
-
     for (int i = 0; i < Opzx7PrValue::ops; i++) {
         unloadOpzx7PcmFile(i);
         unloadOpzx7WtFile(i);
@@ -1080,17 +908,6 @@ void AudioPlugin2686V::initParams(const juce::String& code)
             if (p->paramID.startsWith(code) || p->paramID == "MASTER_VOL") { // マスターボリュームも初期化
                 p->setValueNotifyingHost(p->getDefaultValue());
             }
-        }
-    }
-
-
-    if (code == "ADPCM_") {
-        unloadAdpcmFile();
-    }
-
-    if (code == "RHYTHM_") {
-        for (int i = 0; i < RhythmPrValue::pads; ++i) {
-            unloadRhythmFile(i);
         }
     }
 
@@ -1146,18 +963,7 @@ void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
     m_previewParams.mode = (OscMode)m;
 
     switch (m_previewParams.mode) {
-    case OscMode::OPNA:      prOpna.processBlock(m_previewParams, apvts); break;
-    case OscMode::OPN:       prOpn.processBlock(m_previewParams, apvts); break;
-    case OscMode::OPL:       prOpl.processBlock(m_previewParams, apvts); break;
-    case OscMode::OPL3:      prOpl3.processBlock(m_previewParams, apvts); break;
-    case OscMode::OPM:       prOpm.processBlock(m_previewParams, apvts); break;
     case OscMode::OPZX7:     prOpzx7.processBlock(m_previewParams, apvts); break;
-    case OscMode::SSG:       prSsg.processBlock(m_previewParams, apvts); break;
-    case OscMode::WAVETABLE: prWt.processBlock(m_previewParams, apvts); break;
-    case OscMode::WT2:       prWt2.processBlock(m_previewParams, apvts); break;
-    case OscMode::RHYTHM:    prRhythm.processBlock(m_previewParams, apvts); break;
-    case OscMode::ADPCM:     prAdpcm.processBlock(m_previewParams, apvts); break;
-    case OscMode::BEEP:      prBeep.processBlock(m_previewParams, apvts); break;
     }
 
     if (auto* voice = dynamic_cast<SynthVoice*>(previewSynth.getVoice(0))) {
@@ -1403,12 +1209,4 @@ OscMode AudioPlugin2686V::getCurrentMode()
     int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
-}
-
-void AudioPlugin2686V::updateCurveCurrent(int position, int target) {
-    prCurve.updateCurrent(position, target);
-}
-
-void AudioPlugin2686V::resetCurveProcessBlock() {
-    prCurve.resetProcessBlock();
 }

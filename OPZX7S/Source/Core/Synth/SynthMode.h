@@ -1,56 +1,22 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-static constexpr int MaxRhythmPads = 8;
-static constexpr int MaxFmOperators = 4;
+static constexpr int MaxFmOperators = 8;
 
 enum class OscMode
 {
-    OPNA = 0,   // YM2608
-    OPN = 1,    // YM2203
-    OPL = 2,    // YM3526 (2op + WaveSelect)
-    OPL3 = 3, // YMF262
-    OPM = 4,   // YM2151 (X68000/Arcade)
-    OPZX7 = 5,
-    SSG = 6,
-    WAVETABLE = 7,
-    WT2 = 8,
-    RHYTHM = 9,
-    ADPCM = 10,
-    BEEP = 11,
-    Count = 12, // カウント用
+    OPZX7 = 0,
+    Count = 1, // カウント用
 };
 
 static juce::String getModeName(OscMode mode) {
     switch (mode) {
-    case OscMode::OPNA: return "OPNA";
-    case OscMode::OPN:  return "OPN";
-    case OscMode::OPL:  return "OPL";
-    case OscMode::OPL3: return "OPL3";
-    case OscMode::OPM:  return "OPM";
     case OscMode::OPZX7:  return "OPZX7";
-    case OscMode::SSG:  return "SSG";
-    case OscMode::WAVETABLE: return "WAVETABLE";
-    case OscMode::WT2: return "WT2";
-    case OscMode::RHYTHM: return "RHYTHM";
-    case OscMode::ADPCM:  return "ADPCM";
-    case OscMode::BEEP:  return "BEEP";
     default: return "Unknown";
     }
 }
 
 static OscMode getModeFromString(const juce::String& name) {
-    if (name == "OPNA") return OscMode::OPNA;
-    if (name == "OPN")  return OscMode::OPN;
-    if (name == "OPL")  return OscMode::OPL;
-    if (name == "OPL3") return OscMode::OPL3;
-    if (name == "OPM")  return OscMode::OPM;
     if (name == "OPZX7")  return OscMode::OPZX7;
-    if (name == "SSG")  return OscMode::SSG;
-    if (name == "WAVETABLE") return OscMode::WAVETABLE;
-    if (name == "WT2") return OscMode::WT2;
-    if (name == "RHYTHM") return OscMode::RHYTHM;
-    if (name == "ADPCM")  return OscMode::ADPCM;
-    if (name == "BEEP")  return OscMode::BEEP;
-    return OscMode::OPNA; // Default
+    return OscMode::OPZX7; // Default
 }

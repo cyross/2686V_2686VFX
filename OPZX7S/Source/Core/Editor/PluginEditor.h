@@ -10,18 +10,7 @@
 #include "./EditorGuiText.h"
 #include "./EditorGuiValues.h"
 
-#include "../../Gui/Opna/GuiOpna.h"
-#include "../../Gui/Opn/GuiOpn.h"
-#include "../../Gui/Opl/GuiOpl.h"
-#include "../../Gui/Opl3/GuiOpl3.h"
-#include "../../Gui/Opm/GuiOpm.h"
 #include "../../Gui/Opzx7/GuiOpzx7.h"
-#include "../../Gui/Ssg/GuiSsg.h"
-#include "../../Gui/Wavetable/GuiWt.h"
-#include "../../Gui/Wt2/GuiWt2.h"
-#include "../../Gui/Rhythm/GuiRhythm.h"
-#include "../../Gui/Adpcm/GuiAdpcm.h"
-#include "../../Gui/Beep/GuiBeep.h"
 #include "../../Gui/Preset/GuiPreset.h"
 #include "../../Gui/Fx/GuiFx.h"
 #include "../../Gui/Settings/GuiSettings.h"
@@ -81,8 +70,6 @@ public:
     void buttonClicked(juce::Button* button) override;
     void showRegisterInput(juce::Component* targetComp, std::function<void(int)> onValueEntered);
     void parameterChanged(const juce::String& parameterID, float newValue) override;
-    void updateRhythmFileNames(const juce::String finename);
-    void updateAdpcmFileNames(const juce::String finename);
     void updateOpzx7PcmFileNames(const juce::String finename);
     void updateOpzx7WtFileNames(const juce::String finename);
     void setupLogo();
@@ -143,25 +130,7 @@ public:
     void updateUiScale(float newScale);
     void resetMidiSettings();
     void breadcastLevel(float level);
-    void copyRhythmPadParams(int from, int to);
-    void copyOplOpParams(int from, int to);
-    void copyOpl3OpParams(int from, int to);
-    void copyOpmOpParams(int from, int to);
-    void copyOpnOpParams(int from, int to);
-    void copyOpnaOpParams(int from, int to);
     void copyOpzx7OpParams(int from, int to);
-    void copyOplParamsToOpl3();
-    void copyOplParamsToOpl312();
-    void copyOplParamsToOpl334();
-    void copyOpl3ParamsToOpl();
-    void copyOpl312ParamsToOpl();
-    void copyOpl334ParamsToOpl();
-    void copyOpnParamsToOpna();
-    void copyOpnaParamsToOpn();
-    void copyOpnaParamsToOpm();
-    void copyOpmParamsToOpna();
-    void copyOpnParamsToOpm();
-    void copyOpmParamsToOpn();
     void updateFxOrder();
 private:
     AudioPlugin2686V& audioProcessor;
@@ -197,18 +166,7 @@ private:
 
     SliderRegMap sliderRegMap;
 
-    std::unique_ptr<GuiOpna> opnaGui;  // OPNA
-    std::unique_ptr<GuiOpn> opnGui; // OPN
-    std::unique_ptr<GuiOpl> oplGui; // OPL
-    std::unique_ptr<GuiOpl3> opl3Gui; // OPL3
-    std::unique_ptr<GuiOpm> opmGui; // OPM
     std::unique_ptr<GuiOpzx7> opzx7Gui; // OPZX7
-    std::unique_ptr<GuiSsg> ssgGui; // SSG
-    std::unique_ptr<GuiWt> wtGui; // Wavetable
-    std::unique_ptr<GuiWt2> wt2Gui; // Wt2
-    std::unique_ptr<GuiRhythm> rhythmGui; // Rhythm
-    std::unique_ptr<GuiAdpcm> adpcmGui; // ADPCM
-    std::unique_ptr<GuiBeep> beepGui;
     std::unique_ptr<GuiPreset> presetGui;
     std::unique_ptr<GuiCurve> curveGui;
 

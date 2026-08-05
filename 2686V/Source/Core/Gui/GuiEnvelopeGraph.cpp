@@ -175,6 +175,7 @@ void GuiEnvelopeGraph::updatePitchEnv(
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return 2.0f;
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
         return (rateValue / maxRate) * maxWidth;
         };
@@ -234,6 +235,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return 2.0f;
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
         return (rateValue / maxRate) * maxWidth;
         };
@@ -328,6 +330,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return 2.0f;
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
         return (rateValue / maxRate) * maxWidth;
         };
@@ -422,6 +425,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return 2.0f;
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
         return (rateValue / maxRate) * maxWidth;
         };
@@ -516,6 +520,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return maxWidth;
         if (rateValue <= 0.0f) return maxWidth;
         float norm = rateValue / maxRate;
         return std::max(2.0f, maxWidth * norm);

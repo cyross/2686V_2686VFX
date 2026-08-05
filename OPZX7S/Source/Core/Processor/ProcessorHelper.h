@@ -9,38 +9,16 @@
 #include "./ProcessorValues.h"
 
 #include "../../Core/Synth/CommonParams.h"
-#include "../../Effect/Envelope/Amp/OplAdsr/EnvOplAdsrParams.h"
-#include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
-#include "../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssrParams.h"
 #include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
-#include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
-#include "../../Effect/Detune/Opl/DetuneOplParams.h"
-#include "../../Effect/Detune/Opm/DetuneOpmParams.h"
-#include "../../Effect/Detune/Opn/DetuneOpnParams.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7Params.h"
-#include "../../Effect/Lfo/Opl/LfoOplParams.h"
-#include "../../Effect/Lfo/Opm/LfoOpmParams.h"
-#include "../../Effect/Lfo/N88/LfoN88Params.h"
-#include "../../Effect/Lfo/Opna/LfoOpnaParams.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7Params.h"
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
-#include "../../Synth/Adpcm/SynthAdpcmParams.h"
-#include "../../Synth/Beep/SynthBeepParams.h"
-#include "../../Synth/Opl/SynthOplParams.h"
-#include "../../Synth/Opl3/SynthOpl3Params.h"
-#include "../../Synth/Opm/SynthOpmParams.h"
-#include "../../Synth/Opn/SynthOpnParams.h"
-#include "../../Synth/Opna/SynthOpnaParams.h"
 #include "../../Synth/Opzx7/SynthOpzx7Params.h"
-#include "../../Synth/Rhythm/SynthRhythmParams.h"
-#include "../../Synth/Ssg/SynthSsgParams.h"
-#include "../../Synth/Wavetable/SynthWtParams.h"
-#include "../../Synth/Wt2/SynthWt2Params.h"
 
 namespace PrHelper {
 	static inline bool getBool(std::atomic<float>* ptr){
@@ -679,15 +657,6 @@ namespace PrHelper {
 		params.feedback = getInt(ptPtrs.fb);
 	}
 
-	static inline void applyAdsrAmpEnv(PrPtrsAdsrAmpEnv& ptPtrs, AmpAdsrParams& params){
-		params.bypass = getBool(ptPtrs.bypass);
-		params.ar = getFloat(ptPtrs.ar);
-		params.dr = getFloat(ptPtrs.dr);
-		params.sl = getFloat(ptPtrs.sl);
-		params.rr = getFloat(ptPtrs.rr);
-		params.kor = getFloat(ptPtrs.kor);
-	}
-
 	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
 		params.bypass = getBool(ptPtrs.bypass);
 		params.steps = getInt(ptPtrs.steps);
@@ -880,62 +849,12 @@ namespace PrHelper {
 		params.l11 = getInt(ptPtrs.l11);
 	}
 
-	static inline void applyOplDetune(PrPtrsOplDetune& ptPtrs, OplDetuneParams& params){
-		params.multiple = getInt(ptPtrs.mutiple);
-	}
-
-	static inline void applyOpmDetune(PrPtrsOpmDetune& ptPtrs, OpmDetuneParams& params){
-		params.multiple = getInt(ptPtrs.multiple);
-		params.mulRatio = getFloat(ptPtrs.mulRatio);
-		params.detune = getInt(ptPtrs.detune);
-		params.detune2 = getInt(ptPtrs.detune2);
-	}
-
-	static inline void applyOpnDetune(PrPtrsOpnDetune& ptPtrs, OpnDetuneParams& params){
-		params.multiple = getInt(ptPtrs.multiple);
-		params.detune = getInt(ptPtrs.detune);
-	}
-
 	static inline void applyOpzx7Detune(PrPtrsOpzx7Detune& ptPtrs, Opzx7DetuneParams& params){
 		params.multiple = getInt(ptPtrs.multiple);
 		params.mulRatio = getFloat(ptPtrs.mulRatio);
 		params.detune = getInt(ptPtrs.detune);
 		params.detune2 = getInt(ptPtrs.detune2);
 		params.detune3 = getInt(ptPtrs.detune3);
-	}
-
-	static inline void applyOplLfo(PrPtrsOplLfo& ptPtrs, LfoOplParams& params){
-		params.pm = getBool(ptPtrs.pmEnable);
-		params.am = getBool(ptPtrs.amEnable);
-		params.ams = getFloat(ptPtrs.ams);
-		params.amd = getFloat(ptPtrs.amd);
-		params.pms = getFloat(ptPtrs.pms);
-		params.pmd = getFloat(ptPtrs.pmd);
-	}
-
-	static inline void applyOpmLfo(PrPtrsOpmLfo& ptPtrs, LfoOpmParams& params){
-		params.syncDelay = getFloat(ptPtrs.syncDelay);
-		params.pm = getBool(ptPtrs.pmEnable);
-		params.pmFreq = getFloat(ptPtrs.freq);
-		params.pgIndex = getInt(ptPtrs.pmWave);
-		params.pmsIndex = getInt(ptPtrs.pms);
-		params.pmd = getInt(ptPtrs.pmd);
-		params.am = getBool(ptPtrs.amEnable);
-		params.amFreq = params.pmFreq;
-		params.amSmoothRate = getFloat(ptPtrs.amSmRt);
-		params.egIndex = getInt(ptPtrs.amWave);
-		params.amsIndex = getInt(ptPtrs.ams);
-		params.amd = getInt(ptPtrs.amd);
-	}
-
-	static inline void applyOpnaLfo(PrPtrsOpnaLfo& ptPtrs, LfoOpnaParams& params){
-		params.syncDelay = getInt(ptPtrs.syncDelay);
-		params.pmFreqIndex = getInt(ptPtrs.freqs);
-		params.pm = getBool(ptPtrs.pmEnable);
-		params.pms = getInt(ptPtrs.pms);
-		params.amFreqIndex = params.pmFreqIndex;
-		params.am = getBool(ptPtrs.amEnable);
-		params.ams = getInt(ptPtrs.ams);
 	}
 
 	static inline void applyOpzx7Lfo(PrPtrsOpzx7Lfo& ptPtrs, LfoOpzx7Params& params){
@@ -952,24 +871,6 @@ namespace PrHelper {
 		params.amd = getFloat(ptPtrs.amd);
 		params.pmSyncDelay = getFloat(ptPtrs.pmSyncDelay);
 		params.amSyncDelay = getFloat(ptPtrs.amSyncDelay);
-	}
-
-	static inline void applyN88Lfo(PrPtrsN88Lfo& ptPtrs, LfoN88Params& params){
-		// Int(0〜16383) として読み込み、Hzに変換する
-		float n88Speed = getFloat(ptPtrs.freq);
-		// ソフトウェアLFOの周波数変換公式 (60Hz割り込み、16bitカウンター)
-		// f = (Speed * 60Hz) / 65536
-		params.syncDelay = getInt(ptPtrs.syncDelay);
-		params.pm = getBool(ptPtrs.pmEnable);
-		params.pmIndex = getInt(ptPtrs.shape);
-		params.pmFreq = (n88Speed * 60.0f) / 65536.0f;
-		params.pms = getInt(ptPtrs.pms);
-		params.pmd = getInt(ptPtrs.pmd);
-		params.am = getBool(ptPtrs.amEnable);
-		params.amIndex = params.pmIndex;
-		params.amFreq = params.pmFreq;
-		params.amSmoothRate = getFloat(ptPtrs.amSmRt);
-		params.amd = getInt(ptPtrs.amd);
 	}
 
 	static inline void applyFix(PrPtrsFix& ptPtrs, FixModeParams& params){
@@ -1034,140 +935,8 @@ namespace PrHelper {
 		params.pan = getInt(ptPtrs.panpot);
 	}
 
-	static inline void applyAdpcmBasic(PrPtrsAdpcmBasic& ptPtrs, AdpcmParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.loop = PrHelper::getBool(ptPtrs.loop);
-		params.pan = PrHelper::getFloat(ptPtrs.pan);
-	}
-
-	static inline void applyBeepBasic(PrPtrsBeepBasic& ptPtrs, BeepParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyOplBasic(PrPtrsOplBasic& ptPtrs, OplParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyOpl3Basic(PrPtrsOpl3Basic& ptPtrs,Opl3Params& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyOpmBasic(PrPtrsOpmBasic& ptPtrs, OpmParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.pan = PrHelper::getInt(ptPtrs.pan);
-	}
-
-	static inline void applyOpnBasic(PrPtrsOpnBasic& ptPtrs, OpnParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyOpnaBasic(PrPtrsOpnaBasic& ptPtrs, OpnaParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.pan = PrHelper::getInt(ptPtrs.pan);
-	}
-
 	static inline void applyOpzx7Basic(PrPtrsOpzx7Basic& ptPtrs, Opzx7Params& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyRhythmBasic(PrPtrsRhythmBasic& ptPtrs, RhythmParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-	}
-
-	static inline void applyRhythmPadBasic(PrPtrsRhythmPadBasic& ptPtrs, RhythmPadParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.pan = PrHelper::getFloat(ptPtrs.pan);
-		params.noteNumber = PrHelper::getInt(ptPtrs.noteNumber);
-		params.isOneShot = PrHelper::getBool(ptPtrs.isOneShot);
-	}
-
-	static inline void applySsgBasic(PrPtrsSsgBasic& ptPtrs, SsgParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.waveform = PrHelper::getInt(ptPtrs.waveform);
-	}
-
-	static inline void applyWtBasic(PrPtrsWtBasic& ptPtrs, WtParams& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.waveform = PrHelper::getInt(ptPtrs.wave);
-		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
-		params.steps = PrHelper::getInt(ptPtrs.step);
-	}
-
-	static inline void applyWt2Basic(PrPtrsWt2Basic& ptPtrs, Wt2Params& params){
-		params.level = PrHelper::getFloat(ptPtrs.level);
-		params.waveform = PrHelper::getInt(ptPtrs.wave);
-		params.tableSize = PrHelper::getInt(ptPtrs.sampleSize);
-		params.customWaveResolution = PrHelper::getInt(ptPtrs.resolution);
-	}
-
-	static inline void applyOplAdsr(PrPtrsOplAdsr& ptPtrs, OplAdsrParams& params){
-		params.bypass = PrHelper::getBool(ptPtrs.bypass);
-
-		params.ar = PrHelper::getInt(ptPtrs.ar);
-		params.dr = PrHelper::getInt(ptPtrs.dr);
-		params.sl = PrHelper::getInt(ptPtrs.sl);
-		params.rr = PrHelper::getInt(ptPtrs.rr);
-		params.tl = PrHelper::getInt(ptPtrs.tl);
-		params.egType = PrHelper::getBool(ptPtrs.egType);
-
-		params.ksOPL.ksr = PrHelper::getBool(ptPtrs.ksr);
-		params.ksOPL.ksl = PrHelper::getInt(ptPtrs.ksl);
-
-		params.sus = PrHelper::getBool(ptPtrs.sus);
-		params.xof = PrHelper::getBool(ptPtrs.xof);
-		params.kor = PrHelper::getBool(ptPtrs.kor);
-	}
-
-	static inline void applyOpl3Adsr(PrPtrsOpl3Adsr& ptPtrs, OplAdsrParams& params){
-		params.bypass = PrHelper::getBool(ptPtrs.bypass);
-
-		params.ar = PrHelper::getInt(ptPtrs.ar);
-		params.dr = PrHelper::getInt(ptPtrs.dr);
-		params.sl = PrHelper::getInt(ptPtrs.sl);
-		params.rr = PrHelper::getInt(ptPtrs.rr);
-		params.tl = PrHelper::getInt(ptPtrs.tl);
-		params.egType = PrHelper::getBool(ptPtrs.egType);
-
-		params.ksOPL.ksr = PrHelper::getBool(ptPtrs.ksr);
-		params.ksOPL.ksl = PrHelper::getInt(ptPtrs.ksl);
-
-		params.xof = PrHelper::getBool(ptPtrs.xof);
-		params.kor = PrHelper::getBool(ptPtrs.kor);
-	}
-
-	static inline void applyOpmAdsr(PrPtrsOpmAdsr& ptPtrs, FmRgAdddrParams& params){
-		params.bypass = PrHelper::getBool(ptPtrs.bypass);
-
-		params.ar = PrHelper::getInt(ptPtrs.ar);
-		params.d1r = PrHelper::getInt(ptPtrs.d1r);
-		params.d1l = PrHelper::getInt(ptPtrs.d1l);
-		params.d2r = PrHelper::getInt(ptPtrs.d2r);
-		params.rr = PrHelper::getInt(ptPtrs.rr);
-		params.tl = PrHelper::getInt(ptPtrs.tl);
-
-		params.ksMode = (FmRgAdddrKeyScaleMode)PrHelper::getInt(ptPtrs.ksMode);
-		params.ksOPM.ks = PrHelper::getInt(ptPtrs.ks);
-		params.ksOPP.ksr = PrHelper::getInt(ptPtrs.ksrOPP);
-		params.ksOPP.ksl = PrHelper::getInt(ptPtrs.kslOPP);
-
-		params.xof = PrHelper::getBool(ptPtrs.xof);
-		params.kor = PrHelper::getBool(ptPtrs.kor);
-	}
-
-	static inline void applyOpnAdsr(PrPtrsOpnAdsr& ptPtrs, FmRgAdssrParams& params){
-		params.bypass = PrHelper::getBool(ptPtrs.bypass);
-
-		params.ar = PrHelper::getInt(ptPtrs.ar);
-		params.dr = PrHelper::getInt(ptPtrs.dr);
-		params.sl = PrHelper::getInt(ptPtrs.sl);
-		params.sr = PrHelper::getInt(ptPtrs.sr);
-		params.rr = PrHelper::getInt(ptPtrs.rr);
-		params.tl = PrHelper::getInt(ptPtrs.tl);
-
-		params.ksOPN.ks = PrHelper::getInt(ptPtrs.ks);
-
-		params.xof = PrHelper::getBool(ptPtrs.xof);
-		params.kor = PrHelper::getBool(ptPtrs.kor);
 	}
 
 	static inline void applyOpzx7Adsr(PrPtrsOpzx7Adsr& ptPtrs, Opzx7AdddrParams& params){
@@ -1209,50 +978,6 @@ namespace PrHelper {
 	static inline void applySsgEg(PrPtrsSsgEg& ptPtrs, SsgEgParams& params){
 		params.eg = PrHelper::getInt(ptPtrs.ssgEg);
 		params.freq = PrHelper::getFloat(ptPtrs.ssgEgFreq);
-	}
-
-	static inline void applyWtCustomWave(PrPtrsWtCustomWave& ptPtrs, WtParams& params){
-		for (int i = 0; i < 32; ++i)
-		{
-			params.customWave32[i] = PrHelper::getFloat(ptPtrs.c32[i]);
-		}
-
-		for (int i = 0; i < 64; ++i)
-		{
-			params.customWave64[i] = PrHelper::getFloat(ptPtrs.c64[i]);
-		}
-
-		for (int i = 0; i < 128; ++i)
-		{
-			params.customWave128[i] = PrHelper::getFloat(ptPtrs.c128[i]);
-		}
-
-		for (int i = 0; i < 256; ++i)
-		{
-			params.customWave256[i] = PrHelper::getFloat(ptPtrs.c256[i]);
-		}
-	}
-
-	static inline void applyWt2CustomWave(PrPtrsWtCustomWave& ptPtrs, Wt2Params& params){
-		for (int i = 0; i < 32; ++i)
-		{
-			params.customWave32[i] = PrHelper::getInt(ptPtrs.c32[i]);
-		}
-
-		for (int i = 0; i < 64; ++i)
-		{
-			params.customWave64[i] = PrHelper::getInt(ptPtrs.c64[i]);
-		}
-
-		for (int i = 0; i < 128; ++i)
-		{
-			params.customWave128[i] = PrHelper::getInt(ptPtrs.c128[i]);
-		}
-
-		for (int i = 0; i < 256; ++i)
-		{
-			params.customWave256[i] = PrHelper::getInt(ptPtrs.c256[i]);
-		}
 	}
 
 	static inline void addFloat(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& code, const juce::String& name, float min, float max, float ini) {

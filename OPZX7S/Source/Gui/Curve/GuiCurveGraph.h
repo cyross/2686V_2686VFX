@@ -18,6 +18,7 @@ public:
     void bindActiveParameters(const juce::String& graphTitle, int logicIndex, std::vector<GuiSlider*> activeSliders, GuiSlider* kSlider);
     void setEnabled(bool enabled);
 
+    std::function<void()> onGraphDragEnd = nullptr;
 private:
     juce::String title;
     int currentLogic = 0;
@@ -25,7 +26,7 @@ private:
     GuiSlider* boundKSlider = nullptr; // Kの値を追跡
     int draggingHandleIndex = -1;
 
-    bool enabled = false;
+    bool enabled = true;
 
     // --- 動的スケーリング用変数 ---
     float displayMinX = 0.0f;
