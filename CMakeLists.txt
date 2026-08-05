@@ -5,10 +5,15 @@ project(2686V VERSION 2.6.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(IS_OPZX7S TRUE)
 
 set(JUCE_VST3_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/vst3sdk" CACHE PATH "Path to the VST3 SDK" FORCE)
 
 # JUCEの読み込み (ここで1回だけJUCEが構成・ビルドされます！)
 add_subdirectory(external/JUCE)
 
-add_subdirectory(2686V)
+if(IS_OPZX7S)
+	add_subdirectory(OPZX7S)
+else()
+	add_subdirectory(2686V)
+endif()

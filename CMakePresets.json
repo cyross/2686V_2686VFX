@@ -36,7 +36,7 @@
     },
     {
       "name": "2686V-linux-wsl-x64-debug",
-      "displayName": "Linux WSL2 x64 (Debug)",
+      "displayName": "2686V Linux WSL2 x64 (Debug)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
@@ -50,7 +50,7 @@
     },
     {
       "name": "2686V-linux-wsl-x64-release",
-      "displayName": "Linux WSL2 x64 (Release)",
+      "displayName": "2686V Linux WSL2 x64 (Release)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
@@ -64,7 +64,7 @@
     },
     {
       "name": "2686V-linux-wsl-arm64-cross-debug",
-      "displayName": "Linux WSL2 ARM64 (Debug)",
+      "displayName": "2686V Linux WSL2 ARM64 (Debug)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
@@ -79,7 +79,99 @@
     },
     {
       "name": "2686V-linux-wsl-arm64-cross-release",
-      "displayName": "Linux WSL2 ARM64 (Release)",
+      "displayName": "2686V Linux WSL2 ARM64 (Release)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/arm64-linux-toolchain.cmake"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/V1": {
+          "intelliSenseMode": "linux-gcc-arm64"
+        }
+      }
+    },
+
+    {
+      "name": "OPZX7S-windows-x64-msvc",
+      "displayName": "OPZX7S Windows x64 (MSVC)",
+      "description": "Builds both Synth and FX plugins for x64",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/out/build/${presetName}"
+    },
+    {
+      "name": "OPZX7S-windows-arm64-msvc",
+      "displayName": "OPZX7S Windows ARM64 (MSVC)",
+      "description": "Builds both Synth and FX plugins for ARM64",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "arm64",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/out/build/${presetName}"
+    },
+    {
+      "name": "OPZX7S-windows-arm64ec-msvc",
+      "displayName": "OPZX7S Windows ARM64EC (MSVC)",
+      "description": "Builds both Synth and FX plugins for ARM64EC",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "arm64ec",
+        "strategy": "set"
+      },
+      "binaryDir": "${sourceDir}/out/build/${presetName}"
+    },
+    {
+      "name": "OPZX7S-linux-wsl-x64-debug",
+      "displayName": "OPZX7S Linux WSL2 x64 (Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/V1": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      }
+    },
+    {
+      "name": "OPZX7S-linux-wsl-x64-release",
+      "displayName": "OPZX7S Linux WSL2 x64 (Release)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/V1": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      }
+    },
+    {
+      "name": "OPZX7S-linux-wsl-arm64-cross-debug",
+      "displayName": "OPZX7S Linux WSL2 ARM64 (Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/arm64-linux-toolchain.cmake"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/V1": {
+          "intelliSenseMode": "linux-gcc-arm64"
+        }
+      }
+    },
+    {
+      "name": "OPZX7S-linux-wsl-arm64-cross-release",
+      "displayName": "OPZX7S Linux WSL2 ARM64 (Release)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
@@ -92,53 +184,100 @@
         }
       }
     }
+
   ],
   "buildPresets": [
     {
-      "name": "windows-x64-debug",
+      "name": "2686V-windows-x64-debug",
       "configurePreset": "2686V-windows-x64-msvc",
       "configuration": "Debug"
     },
     {
-      "name": "windows-x64-release",
+      "name": "2686V-windows-x64-release",
       "configurePreset": "2686V-windows-x64-msvc",
       "configuration": "Release"
     },
     {
-      "name": "windows-arm64-debug",
+      "name": "2686V-windows-arm64-debug",
       "configurePreset": "2686V-windows-arm64-msvc",
       "configuration": "Debug"
     },
     {
-      "name": "windows-arm64-release",
+      "name": "2686V-windows-arm64-release",
       "configurePreset": "2686V-windows-arm64-msvc",
       "configuration": "Release"
     },
     {
-      "name": "windows-arm64ec-debug",
+      "name": "2686V-windows-arm64ec-debug",
       "configurePreset": "2686V-windows-arm64ec-msvc",
       "configuration": "Debug"
     },
     {
-      "name": "windows-arm64ec-release",
+      "name": "2686V-windows-arm64ec-release",
       "configurePreset": "2686V-windows-arm64ec-msvc",
       "configuration": "Release"
     },
     {
-      "name": "linux-x64-debug",
+      "name": "2686V-linux-x64-debug",
       "configurePreset": "2686V-linux-wsl-x64-debug"
     },
     {
-      "name": "linux-x64-release",
+      "name": "2686V-linux-x64-release",
       "configurePreset": "2686V-linux-wsl-x64-release"
     },
     {
-      "name": "linux-arm64-debug",
+      "name": "2686V-linux-arm64-debug",
       "configurePreset": "2686V-linux-wsl-arm64-cross-debug"
     },
     {
-      "name": "linux-arm64-release",
+      "name": "2686V-linux-arm64-release",
       "configurePreset": "2686V-linux-wsl-arm64-cross-release"
+    },
+    {
+      "name": "OPZX7S-windows-x64-debug",
+      "configurePreset": "OPZX7S-windows-x64-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "OPZX7S-windows-x64-release",
+      "configurePreset": "OPZX7S-windows-x64-msvc",
+      "configuration": "Release"
+    },
+    {
+      "name": "OPZX7S-windows-arm64-debug",
+      "configurePreset": "OPZX7S-windows-arm64-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "OPZX7S-windows-arm64-release",
+      "configurePreset": "OPZX7S-windows-arm64-msvc",
+      "configuration": "Release"
+    },
+    {
+      "name": "OPZX7S-windows-arm64ec-debug",
+      "configurePreset": "OPZX7S-windows-arm64ec-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "OPZX7S-windows-arm64ec-release",
+      "configurePreset": "OPZX7S-windows-arm64ec-msvc",
+      "configuration": "Release"
+    },
+    {
+      "name": "OPZX7S-linux-x64-debug",
+      "configurePreset": "OPZX7S-linux-wsl-x64-debug"
+    },
+    {
+      "name": "OPZX7S-linux-x64-release",
+      "configurePreset": "OPZX7S-linux-wsl-x64-release"
+    },
+    {
+      "name": "OPZX7S-linux-arm64-debug",
+      "configurePreset": "OPZX7S-linux-wsl-arm64-cross-debug"
+    },
+    {
+      "name": "OPZX7S-linux-arm64-release",
+      "configurePreset": "OPZX7S-linux-wsl-arm64-cross-release"
     }
   ]
 }
