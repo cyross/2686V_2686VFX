@@ -318,6 +318,12 @@ set(BEEP_SYNTH_FILES
     "Source/Synth/Beep/SynthBeepParams.h"
 )
 
+set(CURVE_FILES
+    "Source/Advanced/Curve/AdvancedCurve.h"
+    "Source/Advanced/Curve/AdvancedCurve.cpp"
+    "Source/Advanced/Curve/AdvancedCurveParams.h"
+)
+
 set(OPNA_PROCESSOR_FILES
     "Source/Processor/Opna/ProcessorOpnaKeys.h"
     "Source/Processor/Opna/ProcessorOpnaNames.h"
@@ -412,6 +418,14 @@ set(BEEP_PROCESSOR_FILES
     "Source/Processor/Beep/ProcessorBeepValues.h"
     "Source/Processor/Beep/ProcessorBeep.h"
     "Source/Processor/Beep/ProcessorBeep.cpp"
+)
+
+set(CURVE_PROCESSOR_FILES
+    "Source/Processor/Curve/ProcessorCurveKeys.h"
+    "Source/Processor/Curve/ProcessorCurveNames.h"
+    "Source/Processor/Curve/ProcessorCurveValues.h"
+    "Source/Processor/Curve/ProcessorCurve.h"
+    "Source/Processor/Curve/ProcessorCurve.cpp"
 )
 
 set(FX_PROCESSOR_FILES
@@ -550,6 +564,15 @@ set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAbout.cpp"
 )
 
+set(CURVE_GUI_FILES
+    "Source/Gui/Curve/GuiCurveText.h"
+    "Source/Gui/Curve/GuiCurveValues.h"
+    "Source/Gui/Curve/GuiCurveGraph.h"
+    "Source/Gui/Curve/GuiCurveGraph.cpp"
+    "Source/Gui/Curve/GuiCurve.h"
+    "Source/Gui/Curve/GuiCurve.cpp"
+)
+
 set(GUI_COMPONENT_UNISON_FILES
     "Source/Gui/Components/Unison/Unison.h"
     "Source/Gui/Components/Unison/Unison.cpp"
@@ -649,6 +672,7 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("2686V\\Constants" FILES ${CONST_FILES})
 source_group("2686V\\Documents" FILES ${DOCUMENT_FILES})
+source_group("2686V\\Advanced\\Curve" FILES ${CURVE_FILES})
 source_group("2686V\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686V\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686V\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
@@ -689,6 +713,7 @@ source_group("2686V\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Beep" FILES ${BEEP_PROCESSOR_FILES})
 source_group("2686V\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
+source_group("2686V\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("2686V\\Gui\\Core" FILES ${GUI_FILES})
 source_group("2686V\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("2686V\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
@@ -721,6 +746,7 @@ source_group("2686V\\Gui\\Tab\\Wt2" FILES ${WT2_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Rhythm" FILES ${RHYTHM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Adpcm" FILES ${ADPCM_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Beep" FILES ${BEEP_GUI_FILES})
+source_group("2686V\\Gui\\Tab\\Curve" FILES ${CURVE_GUI_FILES})
 source_group("2686V\\Gui\\Pane\\Fx" FILES ${FX_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("2686V\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})

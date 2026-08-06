@@ -15,6 +15,7 @@
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class SsgCore : public SynthCore
 {
@@ -34,6 +35,7 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {

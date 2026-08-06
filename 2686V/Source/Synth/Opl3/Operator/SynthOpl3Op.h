@@ -46,6 +46,7 @@ public:
 	void processLfo();
 	float calcWaveform(double phase, int wave) override;
 	void setModWheel(float modWheel) { this->m_lfo.setModWheel(modWheel); };
+	void setCurveCore(CurveCore* p_curveCore);
 
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数

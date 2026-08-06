@@ -32,6 +32,8 @@ Opzx7Adddr::Opzx7Adddr()
 }
 
 void Opzx7Adddr::prepare(int posIndex, double sampleRate) {
+    this->m_positionIndex = posIndex;
+
     updateTargetSampleRate(sampleRate);
 }
 
@@ -73,27 +75,64 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
 
     this->m_bypass = params.bypass;
 
-    if (this->m_rgEnable)
-    {
-        this->m_zeroDecay = this->m_rg.d1r == 0;
-        // サステインレベル (SL) の計算
-        if (this->m_rg.d1l == 15) {
-            this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
+    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+        if (this->m_rgEnable)
+        {
+            this->m_zeroDecay = this->m_rg.d1r == 0;
+            // サステインレベル (SL) の計算
+            if (this->m_rg.d1l == 15) {
+                this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
+            }
+            else {
+                // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
+                float slDb = this->m_rg.d1l * 3.0f;
+                this->m_sustain = std::pow(10.0f, -slDb / 20.0f);
+            }
         }
-        else {
-            // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
-            float slDb = this->m_rg.d1l * 3.0f;
-            this->m_sustain = std::pow(10.0f, -slDb / 20.0f);
+        else
+        {
+            this->m_zeroDecay = this->m_real.d1r == 0;
+            // 従来モードのサステインレベルはそのまま適用する
+            this->m_sustain = this->m_real.d1l;
         }
-    }
-    else
-    {
-        this->m_zeroDecay = this->m_real.d1r == 0;
-        // 従来モードのサステインレベルはそのまま適用する
-        this->m_sustain = this->m_real.d1l;
-    }
 
-    this->updateIncrements(m_noteNumber);
+        this->updateIncrements(m_noteNumber);
+    }
+    else {
+        if (this->m_rgEnable)
+        {
+            auto calcLevel = [this](int prmIdx, int value, float maxValue) -> float {
+                float normRate = (float)value / maxValue;
+
+                return m_curveCore->process(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+
+                };
+
+            this->m_totalLevel = calcLevel((int)CurveParams::TargetRegValue::Tl, this->m_rg.tl, 63.0f);
+
+            this->m_zeroDecay = this->m_rg.d1r == 0;
+            // サステインレベル (SL) の計算
+            if (this->m_rg.d1l == 15) {
+                this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
+            }
+            else {
+                // SL 1ステップにつき 3dB の減衰 (OPN/OPL共通)
+                float baseSustainLevel = calcLevel((int)CurveParams::TargetRegValue::Sl, this->m_rg.d1l, 15.0f);
+                float slDb = (baseSustainLevel * 15.0f) * 3.0f;
+                this->m_sustain = std::pow(10.0f, -slDb / 20.0f);
+            }
+        }
+        else
+        {
+            this->m_totalLevel = this->m_real.tl;
+
+            this->m_zeroDecay = this->m_real.d1r == 0;
+            // 従来モードのサステインレベルはそのまま適用する
+            this->m_sustain = this->m_real.d1l;
+        }
+
+        this->updateIncrements(m_noteNumber);
+    }
 }
 
 // ============================================================================
@@ -145,9 +184,16 @@ float Opzx7Adddr::noteOn(float velocity) {
 
     float attenuationDb = 0.0f;
 
-    // TLレジスタ値から直接減衰量(dB)を計算
-    // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-    attenuationDb = (m_rgEnable ? m_rg.tl : m_real.tl) * 0.75f;
+    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+        // TLレジスタ値から直接減衰量(dB)を計算
+        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+        attenuationDb = (m_rgEnable ? m_rg.tl : m_real.tl) * 0.75f;
+    }
+    else {
+        // TLレジスタ値から直接減衰量(dB)を計算
+        // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
+        attenuationDb = (this->m_totalLevel * 63.0f) * 0.75f;
+    }
 
     float tlGain = std::pow(10.0f, -attenuationDb / 20.0f);
     float kslDb = calcLevelScalingDb();
@@ -185,93 +231,182 @@ void Opzx7Adddr::updateIncrements(int noteNumber)
 
     int ksrValue = calcRateScaling();
 
-    // ====================================================================
-    // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
-    // ====================================================================
-    if (m_rgEnable)
-    {
-        // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
-        // isAttack 引数を追加し、アタックと減衰で時間を調整する
-        auto calcRegRate = [&](int regVal, int regMax, bool isRR, bool isAttack) -> float {
-            // RR以外のRate0は停止（サステイン維持など）。
-            if (regVal == 0 && !isRR) return 0.0f;
+    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+        // ====================================================================
+        // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
+        // ====================================================================
+        if (m_rgEnable)
+        {
+            // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
+            // isAttack 引数を追加し、アタックと減衰で時間を調整する
+            auto calcRegRate = [&](int regVal, int regMax, bool isRR, bool isAttack) -> float {
+                // RR以外のRate0は停止（サステイン維持など）。
+                if (regVal == 0 && !isRR) return 0.0f;
 
-            // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
-            // ゆっくり（約5秒）減衰して消えるようにする。
-            if (regVal <= 1 && isRR) {
-                return 1.0f / (Global::RateMaxSeconds::reg * (float)m_sampleRate);
+                // DAW向け安全装置: RRが0（baseRateが1）の場合でも、永遠に鳴り止まないのを防ぐため
+                // ゆっくり（約5秒）減衰して消えるようにする。
+                if (regVal <= 1 && isRR) {
+                    return 1.0f / (Global::RateMaxSeconds::reg * (float)m_sampleRate);
+                }
+
+                // 実効レート = 基本レート(0-31) * 2 + KSR (0-3)
+                // (regMax が 31 であることを前提とした 0-63 へのマッピング)
+                int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
+                if (effectiveRate > 63) effectiveRate = 63;
+
+                float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
+
+                // 最終的なデクリック保証
+                if (isRR) {
+                    // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+                    timeInSeconds = std::max(timeInSeconds, 0.005f);
+                }
+                else if (isAttack) {
+                    // アタック時も 1ms は最低保証
+                    timeInSeconds = std::max(timeInSeconds, 0.001f);
+                }
+                else {
+                    // それ以外は極小値
+                    timeInSeconds = std::max(timeInSeconds, 0.0001f);
+                }
+
+                return 1.0f / (timeInSeconds * (float)m_sampleRate);
+                };
+
+            // 各レートの計算
+            m_attackInc = calcRegRate(m_rg.ar, m_rgMax.ar, false, true);
+            m_decayDec = calcRegRate(m_rg.d1r, m_rgMax.d1r, false, false);
+            m_sustainRateDec = (m_rg.d2r == 0) ? 0.0f : calcRegRate(m_rg.d2r, m_rgMax.d2r, false, false);
+            m_releaseTimeInc = calcRegRate(this->m_sus ? 5 : m_rg.rr, m_rgMax.rr, true, false);;
+            m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
+        }
+        // ====================================================================
+        // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
+        // ====================================================================
+        else
+        {
+            float rateScale = 1.0f;
+
+            if (this->m_ksEn) {
+                rateScale = 1.0f + ((float)ksrValue * 0.1f);
             }
 
-            // 実効レート = 基本レート(0-31) * 2 + KSR (0-3)
-            // (regMax が 31 であることを前提とした 0-63 へのマッピング)
-            int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
-            if (effectiveRate > 63) effectiveRate = 63;
+            // param(秒数) に対してスケーリングを行う。
+            // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
+            auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
+                float scaledSeconds = paramInSeconds / rateScale;
+                // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
+                float minSeconds = isRR ? 0.005f : 0.001f;
+                float finalSeconds = std::max(minSeconds, scaledSeconds);
 
-            float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
+                // サンプルレートから「1サンプルあたりに進む量」を返す
+                return 1.0f / (finalSeconds * (float)m_sampleRate);
+                };
 
-            // 最終的なデクリック保証
-            if (isRR) {
-                // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
-                timeInSeconds = std::max(timeInSeconds, 0.005f);
-            }
-            else if (isAttack) {
-                // アタック時も 1ms は最低保証
-                timeInSeconds = std::max(timeInSeconds, 0.001f);
+            m_attackInc = calcInc(m_real.ar);
+            m_decayDec = calcInc(m_real.d1r);
+            m_releaseTimeInc = calcInc(this->m_sus ? 1.5f : m_real.rr, true);
+            m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
+
+            if (m_real.d2r <= 0.001f) {
+                m_sustainRateDec = 0.0f;
             }
             else {
-                // それ以外は極小値
-                timeInSeconds = std::max(timeInSeconds, 0.0001f);
+                // Sustain Rate は値(0.0~1.0)が小さいほど遅い（長い）という特殊な仕様
+                float srTime = Global::RateMaxSeconds::real * (1.0f - m_real.d2r);
+                m_sustainRateDec = calcInc(srTime);
+            }
+        }
+
+        m_currentReleaseDec = getReleaseDec();
+    }
+    else {
+        // ====================================================================
+        // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
+        // ====================================================================
+        if (m_rgEnable)
+        {
+            // 2. レジスタ値から実効レート(0~63)を算出し、インクリメントに変換する関数
+            auto calcRegRate = [&](int regVal, int regMax, int prmIdx, bool isRR, bool isAttack) -> float {
+                if (regVal == 0 && !isRR) return 0.0f;
+
+                if (regVal <= 1 && isRR) {
+                    return 1.0f / (Global::RateMaxSeconds::reg * (float)m_sampleRate);
+                }
+
+                int effectiveRate = (int)((float)regVal * 63.0 / (float)regMax) + ksrValue;
+                if (effectiveRate > 63) effectiveRate = 63;
+
+                float timeInSeconds = isAttack ? attcckTimeInSecondsLut[effectiveRate] : timeInSecondsLut[effectiveRate];
+                float normRate = (float)effectiveRate / 63.0f;
+                float curveFactor = m_curveCore->process(m_positionIndex, (int)CurveParams::Target::RegValue, prmIdx, normRate);
+
+                // カーブの影響を反映 (0.5倍〜2.0倍の範囲など、調整可能)
+                float modulatedTime = timeInSeconds * (2.0f - (curveFactor * 2.0f));
+                modulatedTime = std::max(0.00001f, modulatedTime);
+
+                // 最終的なデクリック保証
+                if (isRR) {
+                    // リリース時は最低 5ms (0.005秒) かけてフェードアウトし、プチプチを消す
+                    modulatedTime = std::max(modulatedTime, 0.005f);
+                }
+                else if (isAttack) {
+                    modulatedTime = std::max(modulatedTime, 0.001f);
+                }
+                else {
+                    modulatedTime = std::max(modulatedTime, 0.00001f);
+                }
+
+                return 1.0f / (modulatedTime * (float)m_sampleRate);
+                };
+
+            // 各レートの計算
+            m_attackInc = calcRegRate(m_rg.ar, m_rgMax.ar, (int)CurveParams::TargetRegValue::Ar, false, true);
+            m_decayDec = calcRegRate(m_rg.d1r, m_rgMax.d1r, (int)CurveParams::TargetRegValue::Dr, false, false);
+            m_sustainRateDec = (m_rg.d2r == 0) ? 0.0f : calcRegRate(m_rg.d2r, m_rgMax.d2r, (int)CurveParams::TargetRegValue::Sr, false, false);
+            m_releaseTimeInc = calcRegRate(this->m_sus ? 5 : m_rg.rr, m_rgMax.rr, (int)CurveParams::TargetRegValue::Rr, true, false);
+            m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
+        }
+        // ====================================================================
+        // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
+        // ====================================================================
+        else
+        {
+            float rateScale = 1.0f;
+
+            if (this->m_ksEn) {
+                rateScale = 1.0f + ((float)ksrValue * 0.1f);
             }
 
-            return 1.0f / (timeInSeconds * (float)m_sampleRate);
-            };
+            // param(秒数) に対してスケーリングを行う。
+            // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
+            auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
+                float scaledSeconds = paramInSeconds / rateScale;
+                // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
+                float minSeconds = isRR ? 0.005f : 0.001f;
+                float finalSeconds = std::max(minSeconds, scaledSeconds);
 
-        // 各レートの計算
-        m_attackInc = calcRegRate(m_rg.ar, m_rgMax.ar, false, true);
-        m_decayDec = calcRegRate(m_rg.d1r, m_rgMax.d1r, false, false);
-        m_sustainRateDec = (m_rg.d2r == 0) ? 0.0f : calcRegRate(m_rg.d2r, m_rgMax.d2r, false, false);
-        m_releaseTimeInc = calcRegRate(this->m_sus ? 5 : m_rg.rr, m_rgMax.rr, true, false);;
-        m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
-    }
-    // ====================================================================
-    // 従来モード (RG-EN = OFF) : 既存の秒数ベースの計算
-    // ====================================================================
-    else
-    {
-        float rateScale = 1.0f;
+                // サンプルレートから「1サンプルあたりに進む量」を返す
+                return 1.0f / (finalSeconds * (float)m_sampleRate);
+                };
 
-        if (this->m_ksEn) {
-            rateScale = 1.0f + ((float)ksrValue * 0.1f);
+            m_attackInc = calcInc(m_real.ar);
+            m_decayDec = calcInc(m_real.d1r);
+            m_releaseTimeInc = calcInc(this->m_sus ? 1.5f : m_real.rr, true);
+            m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
+
+            if (m_real.d2r <= 0.001f) {
+                m_sustainRateDec = 0.0f;
+            }
+            else {
+                // Sustain Rate は値(0.0~1.0)が小さいほど遅い（長い）という特殊な仕様
+                float srTime = Global::RateMaxSeconds::real * (1.0f - m_real.d2r);
+                m_sustainRateDec = calcInc(srTime);
+            }
         }
 
-        // param(秒数) に対してスケーリングを行う。
-        // param が 0 の時（0.001fの時）に正しく 1ms になるように計算式を修正。
-        auto calcInc = [&](float paramInSeconds, bool isRR = false) -> float {
-            float scaledSeconds = paramInSeconds / rateScale;
-            // リリース時(isRR)は最低 5ms、それ以外は 1ms を保証
-            float minSeconds = isRR ? 0.005f : 0.001f;
-            float finalSeconds = std::max(minSeconds, scaledSeconds);
-
-            // サンプルレートから「1サンプルあたりに進む量」を返す
-            return 1.0f / (finalSeconds * (float)m_sampleRate);
-            };
-
-        m_attackInc = calcInc(m_real.ar);
-        m_decayDec = calcInc(m_real.d1r);
-        m_releaseTimeInc = calcInc(this->m_sus ? 1.5f : m_real.rr, true);
-        m_releaseDec = m_kor ? 0.0f : m_releaseTimeInc;
-
-        if (m_real.d2r <= 0.001f) {
-            m_sustainRateDec = 0.0f;
+        m_currentReleaseDec = getReleaseDec();
         }
-        else {
-            // Sustain Rate は値(0.0~1.0)が小さいほど遅い（長い）という特殊な仕様
-            float srTime = Global::RateMaxSeconds::real * (1.0f - m_real.d2r);
-            m_sustainRateDec = calcInc(srTime);
-        }
-    }
-
-    m_currentReleaseDec = getReleaseDec();
 }
 
 float Opzx7Adddr::updateEnvelopeState(float currentLevel)
@@ -280,75 +415,226 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
         return 1.0f;
     }
 
-    float limitLevel = 0.0f;
+    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+        float limitLevel = 0.0f;
 
-    switch (this->m_state) {
-    case State::Idle:
-        return currentLevel;
-    case State::Attack:
-        currentLevel += m_attackInc;
+        switch (this->m_state) {
+        case State::Idle:
+            return currentLevel;
+        case State::Attack:
+            currentLevel += m_attackInc;
 
-        if (currentLevel >= 1.0f) {
-            currentLevel = 1.0f;
-            m_state = State::Decay;
-        }
+            if (currentLevel >= 1.0f) {
+                currentLevel = 1.0f;
+                m_state = State::Decay;
+            }
 
-        return currentLevel;
-    case State::Decay:
-        limitLevel = m_sustain;
+            return currentLevel;
+        case State::Decay:
+            limitLevel = m_sustain;
 
-        // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
-        if (m_zeroDecay)
-        {
-            currentLevel = 1.0;
-            m_state = State::Sustain;
-        }
-        else if (currentLevel > limitLevel) {
-            if (m_decayDec > 0.0f) {
-                currentLevel -= m_decayDec;
-                if (currentLevel <= limitLevel) {
-                    currentLevel = limitLevel;
-                    m_state = State::Sustain;
+            // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
+            if (m_zeroDecay)
+            {
+                currentLevel = 1.0;
+                m_state = State::Sustain;
+            }
+            else if (currentLevel > limitLevel) {
+                if (m_decayDec > 0.0f) {
+                    currentLevel -= m_decayDec;
+                    if (currentLevel <= limitLevel) {
+                        currentLevel = limitLevel;
+                        m_state = State::Sustain;
+                    }
                 }
             }
-        }
-        else {
-            currentLevel = limitLevel;
-            m_state = State::Sustain;
-        }
+            else {
+                currentLevel = limitLevel;
+                m_state = State::Sustain;
+            }
 
-        return currentLevel;
-    case State::Sustain:
-        // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
-        if (m_sustainRateDec > 0.0f) {
-            currentLevel -= m_sustainRateDec;
+            return currentLevel;
+        case State::Sustain:
+            // SR(Sustain Rate / OPMではD2R) でゆっくり減衰する
+            if (m_sustainRateDec > 0.0f) {
+                currentLevel -= m_sustainRateDec;
+
+                if (currentLevel <= 0.001f) {
+                    currentLevel = 0.0f;
+                    m_state = State::Idle;
+                }
+            }
+
+            return currentLevel;
+        case State::Release:
+            // kor向けに時間を進める
+            this->m_phaseProgress += this->m_releaseTimeInc;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->m_state = State::Idle;
+                currentLevel = 0.0f;
+                return 0.0f;
+            }
+
+            currentLevel -= m_currentReleaseDec;
 
             if (currentLevel <= 0.001f) {
                 currentLevel = 0.0f;
                 m_state = State::Idle;
             }
+
+            return currentLevel;
         }
+    }
+    else {
+        float limitLevel = 0.0f;
+        float y = 0.0f;
+        float startLevel = 0.0f;
+        float outLevel = 0.0f;
+        float totalDecayRange = 0.0f;
 
-        return currentLevel;
-    case State::Release:
-        // kor向けに時間を進める
-        this->m_phaseProgress += this->m_releaseTimeInc;
+        switch (this->m_state) {
+        case State::Idle:
+            return currentLevel;
+        case State::Attack:
+            if (this->m_phaseProgress == 0.0f) {
+                this->m_attackStartLevel = currentLevel;
+            }
 
-        if (this->m_phaseProgress >= 1.0f) {
-            this->m_phaseProgress = 0.0f;
-            this->m_state = State::Idle;
-            currentLevel = 0.0f;
-            return 0.0f;
+            // ユニゾン・ハーモニー対応
+
+            // 1. まず現在の進行度でカーブを計算する！ (初回は必ず y(0.0) になる)
+            y = 0.0f;
+
+            // 開始の瞬間は確実に 0.0f を保証し、カーブ計算の誤差ジャンプを防ぐ
+            if (this->m_phaseProgress > 0.0f) {
+                y = this->m_curveCore->process(
+                    this->m_positionIndex,
+                    (int)CurveParams::Target::AmpEnv,
+                    (int)CurveParams::TargetAmpEnv::Ar,
+                    this->m_phaseProgress);
+            }
+
+            outLevel = this->m_attackStartLevel + (1.0f - this->m_attackStartLevel) * y;
+
+            // 2. その後で時間を進める
+            this->m_phaseProgress += this->m_attackInc;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f; // Decayに向けて確実に進行度を0にリセット！
+                this->m_state = State::Decay;
+                outLevel = 1.0f;
+            }
+
+            return outLevel;
+        case State::Decay:
+            limitLevel = this->m_sustain;
+
+            if (this->m_zeroDecay) {
+                this->m_state = State::Sustain;
+                this->m_phaseProgress = 0.0f;
+
+                return 1.0f;
+            }
+
+            totalDecayRange = 1.0f - limitLevel;
+
+            if (totalDecayRange <= 0.001f) {
+                this->m_state = State::Sustain;
+                this->m_phaseProgress = 0.0f;
+
+                return limitLevel;
+            }
+
+            // 1. 時間を進める (decayDec から 0〜1 の進行割合を逆算)
+            this->m_phaseProgress += this->m_decayDec;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f; // Sustainに向けて確実に0にリセット！
+                this->m_state = State::Sustain;
+
+                return limitLevel; // 最後のサンプルはターゲットレベルをきっちり返す
+            }
+
+            // 2. カーブ取得
+            y = this->m_curveCore->process(
+                this->m_positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Dr,
+                this->m_phaseProgress);
+
+            return 1.0f - (y * totalDecayRange); // 1.0 から SL へ向かって減衰
+        case State::Sustain:
+            if (this->m_sustainRateDec <= 0.0f || m_sustain <= 0.0001f) {
+                return currentLevel; // 減衰しない場合はそのまま維持
+            }
+
+            // Sustainフェーズの開始時(m_phaseProgress=0)に、減衰開始の始点を決める
+            // ※通常は m_sustain と同じですが、何らかの理由でレベルがずれていた時の安全策
+            startLevel = this->m_sustain;
+
+            // ゼロ除算防止
+            if (startLevel <= 0.001f) {
+                this->m_state = State::Idle;
+                this->m_phaseProgress = 0.0f;
+
+                return 0.0f;
+            }
+
+            // 1. 時間を進める
+            this->m_phaseProgress += this->m_sustainRateDec;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->m_state = State::Idle;
+                return 0.0f;
+            }
+
+            // 2. カーブ取得
+            y = this->m_curveCore->process(
+                this->m_positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Sr,
+                this->m_phaseProgress
+            );
+
+            return startLevel - (y * startLevel); // SL から 0.0 へ向かって減衰
+        case State::Release:
+            if (this->m_phaseProgress == 0.0f) {
+                this->m_releaseStartLevel = currentLevel; // 離鍵時のレベルを記録
+            }
+
+            // 0.0f ではなく、0.001f (1000分の1の音量) 以下なら即座に消す。
+            // 人間の耳には聞こえないレベルであり、かつゼロ除算(Infinity爆発)を完全に防ぐための必須の措置です。
+            if (this->m_releaseStartLevel <= 0.001f) {
+                this->m_state = State::Idle;
+                this->m_phaseProgress = 0.0f;
+                return 0.0f;
+            }
+
+            // 1. 時間を進める
+            this->m_phaseProgress += this->m_releaseDec;
+
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 0.0f;
+                this->m_state = State::Idle;
+                return 0.0f;
+            }
+
+            if (m_kor) {
+                return this->m_releaseStartLevel;
+            }
+
+            // 2. カーブ取得
+            y = this->m_curveCore->process(
+                this->m_positionIndex,
+                (int)CurveParams::Target::AmpEnv,
+                (int)CurveParams::TargetAmpEnv::Rr,
+                this->m_phaseProgress);
+
+            return this->m_releaseStartLevel - (y * this->m_releaseStartLevel);
         }
-
-        currentLevel -= m_currentReleaseDec;
-
-        if (currentLevel <= 0.001f) {
-            currentLevel = 0.0f;
-            m_state = State::Idle;
-        }
-
-        return currentLevel;
     }
 
     return currentLevel; // 念のため、どこにも当てはまらない場合は現在のレベルを維持

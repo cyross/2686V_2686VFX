@@ -1,0 +1,101 @@
+﻿#include "./ProcessorOpzx7.h"
+
+#include "./ProcessorOpzx7Keys.h"
+#include "./ProcessorOpzx7Values.h"
+#include "./ProcessorOpzx7Names.h"
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorNames.h"
+#include "../../Core/Processor/ProcessorHelper.h"
+
+void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout)
+{
+    const juce::String prefix = Opzx7PrKey::prefix;
+    const juce::String prefixName = Opzx7PrName::prefix;
+
+    PrHelper::addLevelParameters(layout, prefix, prefixName);
+    PrHelper::addAlgFbParameters(layout, prefix, prefixName, Opzx7PrValue::Alg::max, Opzx7PrValue::Alg::initial);
+    PrHelper::addQualityParameters(layout, prefix, prefixName);
+    PrHelper::addOpzx7PanpotParameters(layout, prefix, prefixName);
+    PrHelper::addUnisonParameters(layout, prefix, prefixName);
+    PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
+
+    for (int op = 0; op < Opzx7PrValue::ops; ++op)
+    {
+        juce::String opPrefix = prefix + CPK::op + juce::String(op);
+        juce::String opPrefixName = prefixName + CPN::op + juce::String(op + 1);
+
+        PrHelper::addOpzx7DetuneParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpOpnaSeParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpOpzx7WsParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpPcmParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpLPParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpOpzx7AmpEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpFixParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpEnvEnableParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpPitchEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpSsgSwEnvParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpSsgSwEnv11Parameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpSsgSwPEnv11Parameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpOpzx7LfoParameters(layout, opPrefix, opPrefixName);
+        PrHelper::addOpMaskParameters(layout, opPrefix, opPrefixName);
+    }
+}
+
+void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
+    const juce::String prefix = Opzx7PrKey::prefix;
+
+    PrHelper::setupOpzx7BasicPtrs(apvts, prefix, pBasic);
+    PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
+    PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
+    PrHelper::setupPanpot(apvts, prefix, pPanpot);
+    PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
+    PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
+
+    for (int op = 0; op < Opzx7PrValue::ops; ++op)
+    {
+        juce::String p = prefix + CPK::op + juce::String(op);
+
+        PrHelper::setupOpzx7DetunePtrs(apvts, p, pOpzx7Detune[op]);
+        PrHelper::setupOpzx7AdsrPtrs(apvts, p, pOpAdsr[op]);
+        PrHelper::setupSsgEgPtrs(apvts, p, pOpSsgEg[op]);
+        PrHelper::setupWsPtrs(apvts, p, pOpWs[op]);
+        PrHelper::setupFixPtrs(apvts, p, pFix[op]);
+        PrHelper::setupOpzx7LfoPtrs(apvts, p, pOpOpzx7Lfo[op]);
+        PrHelper::setupPcm(apvts, p, pPcm[op]);
+        PrHelper::setupLp(apvts, p, pLp[op]);
+        PrHelper::setupPitchEnvPtrsOp(apvts, p, pOpPitchEnv[op]);
+        PrHelper::setupSsgSwEnvPtrsOp(apvts, p, pOpSsgSwEnv[op]);
+        PrHelper::setupSsgSwEnv11PtrsOp(apvts, p, pOpSsgSwEnv11[op]);
+        PrHelper::setupSsgSwPEnv11PtrsOp(apvts, p, pOpSsgSwPEnv11[op]);
+
+        pOpMask[op] = PrHelper::setupOpMaskPtr(apvts, p);
+    }
+}
+
+void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValueTreeState& apvts)
+{
+    PrHelper::applyOpzx7Basic(pBasic, params.opzx7);
+    PrHelper::applyQuality(pQuality, params.opzx7.quality);
+    PrHelper::applyAlgFb(pAlgFb, params.opzx7.algFb);
+    PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.opzx7.glLfo);
+    PrHelper::applyPanpot(pPanpot, params.opzx7.panpot);
+    PrHelper::applyUnison(pUnison, params.opzx7.unison);
+
+    for (int op = 0; op < Opzx7PrValue::ops; ++op)
+    {
+        PrHelper::applyOpzx7Detune(pOpzx7Detune[op], params.opzx7.op[op].detune);
+        PrHelper::applyOpzx7Adsr(pOpAdsr[op], params.opzx7.op[op].m_adsrParams);
+        PrHelper::applySsgEg(pOpSsgEg[op], params.opzx7.op[op].se);
+        PrHelper::applyFix(pFix[op], params.opzx7.op[op].fix);
+        PrHelper::applyOpzx7Lfo(pOpOpzx7Lfo[op], params.opzx7.op[op].lfo);
+        PrHelper::applyPcm(pPcm[op], params.opzx7.op[op].pcm);
+        PrHelper::applyLp(pLp[op], params.opzx7.op[op].lp);
+        PrHelper::applySsgSwEnvOp(pOpSsgSwEnv[op], params.opzx7.op[op].ssgSwEnv, params.opzx7.op[op].ssgEnvEnable);
+        PrHelper::applySsgSwEnv11Op(pOpSsgSwEnv11[op], params.opzx7.op[op].ssgSwEnv11, params.opzx7.op[op].ssgEnv11Enable);
+        PrHelper::applyPitchEnvOp(pOpPitchEnv[op], params.opzx7.op[op].pitchAdsr, params.opzx7.op[op].pitchEnvEnable);
+        PrHelper::applySsgSwPEnv11Op(pOpSsgSwPEnv11[op], params.opzx7.op[op].ssgSwPEnv11, params.opzx7.op[op].ssgPEnv11Enable);
+
+        params.opzx7.op[op].waveSelect = PrHelper::getInt(pOpWs[op].waveSelect);
+        params.opzx7.op[op].mask = PrHelper::getBool(pOpMask[op]);
+    }
+}

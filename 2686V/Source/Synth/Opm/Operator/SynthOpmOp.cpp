@@ -18,6 +18,15 @@ void OpmOperator::prepare(int opIndex, double sampleRate) {
     );
 }
 
+void OpmOperator::setCurveCore(CurveCore* p_curveCore)
+{
+    m_ampAdsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
+}
+
 void OpmOperator::setParameters(const OpmOpParams& params, int feedback)
 {
     m_params = params;

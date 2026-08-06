@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "./EnvSsgSw11Params.h"
+#include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class SsgSwPEnv11 {
 	enum class State { Idle, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11 };
@@ -31,8 +32,13 @@ class SsgSwPEnv11 {
 	void updateIncrements();
 	inline bool isReached(float inc, float current, float target) const; 
 
-	// 時間管理変数
+	// カーブモード用の変数
+	int targetIndex = 0; // 0,1,2,3,4
+	CurveCore* m_curveCore = nullptr;
+
+	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
+	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
 public:
 	SsgSwPEnv11();
 	void prepare(int targetIndex, double sampleRate);
@@ -43,6 +49,7 @@ public:
 	bool isRelease() const { return state == State::S6; }
 	bool isBypass() const { return bypass; }
 	void setParameters(const SsgSwPEnv11Params& params);
+	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	void noteOn();
 	void noteOff();
 	float process(float phaseDelta);

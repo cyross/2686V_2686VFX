@@ -25,6 +25,9 @@ void RhythmPadGui::updatePadFileName(const juce::String& fileName)
 
 void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padName, int& tabOrder)
 {
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     auto setupPanBtn = [this](juce::Component& parent, GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
             parent.addAndMakeVisible(btn);
@@ -399,7 +402,7 @@ void RhythmPadGui::setupGraph()
     graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this]() {
-        if (this->isUpdatingGraph) return;
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
         this->isUpdatingGraph = true;
         this->updateGraph();
@@ -458,35 +461,38 @@ void RhythmPadGui::updateGraph()
 {
     GraphMode mode = currentGraphMode;
 
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnvComponent.updateGraph(graph);
+        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph);
+        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph);
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph);
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        ampEnvComponent.updateGraph(graph);
+        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
 }
 
@@ -877,11 +883,11 @@ void GuiRhythm::setup()
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
 
-    ieSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
     ieSsgSwEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnv11Param(padIndex); };
     ieSsgSwEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnv11Param(padIndex); };
 
-    ieSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
     ieSsgSwPEnv11.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwPEnv11Param(padIndex); };
     ieSsgSwPEnv11.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwPEnv11Param(padIndex); };
 

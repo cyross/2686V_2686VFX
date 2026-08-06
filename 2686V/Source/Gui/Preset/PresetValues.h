@@ -51,7 +51,7 @@ namespace PresetValue
 
 		namespace Name
 		{
-			static inline const juce::String initial = "init_preset.xml";
+			static inline const juce::String initial = "init_preset_vl.xml";
 		}
 
 		namespace Message

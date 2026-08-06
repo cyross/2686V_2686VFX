@@ -423,6 +423,9 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
 
 void GuiOpzx7::setup()
 {
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     auto setupPanBtn = [this](GuiTextButton& btn, const juce::String& text, int& tabOrder)
         {
             mainGroup.contentCanvas.addAndMakeVisible(btn);
@@ -1728,13 +1731,12 @@ void GuiOpzx7::setupGraph(int opIndex)
     graphBtnSsgP11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this, opIndex]() {
-        if (this->isUpdatingGraph) return;
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
         this->isUpdatingGraph = true;
         this->updateOpGraph(opIndex);
         this->isUpdatingGraph = false;
         };
-
 
     bypass[opIndex].onStateChange = repaintGraph;
 
@@ -1954,29 +1956,34 @@ void GuiOpzx7::updateOpGraph(int opIndex)
 {
     GraphMode mode = currentGraphMode[opIndex];
 
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
+    int posIdx = opIndex + 1; // Position::Op1 = 1, Op2 = 2 ... (Common=0) に合わせる
+
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnv[opIndex].updateGraph(opGraphs[opIndex]);
+        pitchEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex]);
+        ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex]);
+        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex]);
+        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // Amp Env
@@ -2003,6 +2010,16 @@ void GuiOpzx7::updateOpGraph(int opIndex)
             return maxWidth * norm;
             };
 
+        // -------------------------------------------------------------
+        // Helper: カーブ関数を生成する
+        // -------------------------------------------------------------
+        auto getCurveFunc = [this, isCurveMode](int posIdx, int targetIdx, int prmIdx) {
+            return [this, isCurveMode, posIdx, targetIdx, prmIdx](float progress) -> float {
+                if (!isCurveMode || p_curveCore == nullptr) return progress;
+                return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+                };
+            };
+
         bool isRg = rgEn[opIndex].getToggleState();
         bool isSus = sus[opIndex].getToggleState();
         bool isXof = xof[opIndex].getToggleState();
@@ -2013,8 +2030,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
             };
 
         auto getMax = [isRg](GuiSlider& rgSlider, GuiSlider& realSlider) -> float {
-            float m = isRg ? (float)rgSlider.getMaximum() : (float)realSlider.getMaximum();
-            return m > 0.0f ? m : 1.0f;
+            return isRg ? (float)rgSlider.getMaximum() : (float)realSlider.getMaximum();
             };
 
         float arMax = getMax(rgAr[opIndex], ar[opIndex]);
@@ -2034,11 +2050,9 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float sl = isRg ? (d1lMax - d1lVal) / d1lMax : d1lVal / d1lMax; // 15=0.0, 0=1.0
         float tlScale = isRg ? 1.0f - (tlVal / tlMax) : tlVal / tlMax; // TL=127で無音
 
-        if (std::isnan(sl) || std::isinf(sl)) sl = 0.0f;
-        if (std::isnan(tlScale) || std::isinf(tlScale)) tlScale = 1.0f;
-
         std::vector<GuiEnvelopeGraph::PhaseDef> phases;
         auto color = juce::Colours::cyan;
+        int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
         float currentTotalWidth = 0.0f;
 
@@ -2046,6 +2060,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float attackWidth = rateToWidth(arVal, arMax);
         phases.push_back({
             .widthPx = attackWidth, .startLevel = 0.0f, .endLevel = 1.0f * tlScale, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
             .phaseLineColor = juce::Colours::red
             });
         currentTotalWidth += attackWidth;
@@ -2054,6 +2069,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
         float decayWidth = rateToWidth(d1rVal, d1rMax);
         phases.push_back({
             .widthPx = decayWidth, .startLevel = 1.0f * tlScale, .endLevel = sl * tlScale, .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
             .phaseLineColor = juce::Colours::blue
             });
         currentTotalWidth += decayWidth;
@@ -2068,10 +2084,14 @@ void GuiOpzx7::updateOpGraph(int opIndex)
 
             // カーブを加味したレベル計算
             float decayRatio = sustainTotalWidth / 300.0f;
-            releaseStartLevel = sl - (sl * 0.5f);
+            auto curveFunce = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr);
+            float drCurvedRatio = curveFunce(1.0f);
+            float rrCurvedRatio = curveFunce(0.5f);
+            releaseStartLevel = sl - (sl * rrCurvedRatio);
 
             phases.push_back({
                 .widthPx = sustainTotalWidth, .startLevel = sl * tlScale, .endLevel = 0.0f, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Sr),
                 .phaseLineColor = juce::Colours::green
                 });
 
@@ -2130,6 +2150,7 @@ void GuiOpzx7::updateOpGraph(int opIndex)
                 .startLevel = releaseStartLevel * tlScale,
                 .endLevel = 0.0f,
                 .color = d2rVal > 0.0f ? juce::Colours::yellow : color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr),
                 .moveToStart = true,
                 .startXOffsetPx = noteOffPositionX,
                 .isMax = (rrVal == rrMax)

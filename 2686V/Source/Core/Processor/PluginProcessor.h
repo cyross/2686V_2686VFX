@@ -17,6 +17,7 @@
 #include "../../Processor/Adpcm/ProcessorAdpcm.h"
 #include "../../Processor/Beep/ProcessorBeep.h"
 #include "../../Processor/Fx/ProcessorFx.h"
+#include "../../Processor/Curve/ProcessorCurve.h"
 
 #include "../Const/ConstGlobal.h"
 #include "../Processor/ProcessorKeys.h"
@@ -461,6 +462,8 @@ private:
     BeepProcessor prBeep;
     FxProcessor prFx;
 
+    CurveCore m_curveCore;
+
     SynthParams m_currentParams;
     SynthParams m_previewParams;
 
@@ -487,6 +490,8 @@ private:
 public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
+
+    CurveProcessor prCurve;
 
     static inline constexpr int previewBufferSize = 200;
 
@@ -622,7 +627,10 @@ public:
 
     juce::String getDefaultPresetDir();
     static juce::String sanitizeString(const juce::String& input, int length);
+    CurveCore* getCurveCore();
 
+    void bakeCurves();
+    void bakeCurvesPrim(int positionIndex, int targetIndex, int paramIndex);
     void resetMidiSettings();
     std::vector<int> getFxOrder();
     void updateFxOrder(std::vector<int> newOrder);

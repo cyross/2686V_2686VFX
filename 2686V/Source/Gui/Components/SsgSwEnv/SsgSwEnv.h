@@ -11,6 +11,8 @@
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../../Gui/Curve/GuiCurve.h"
+#include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
@@ -95,7 +97,7 @@ public:
     void layoutComponent(juce::Rectangle<int>& rect);
     void layoutComponentRow(juce::Rectangle<int>& rect);
     void setupGraph(std::function<void()> repaintGraph);
-    void updateGraph(GuiEnvelopeGraph& graph);
+    void updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx);
     void setEnabled(bool enabled);
     void copyParams(CopyEnvSsgSw& copyObj);
     void pasteParams(CopyEnvSsgSw& copyObj);

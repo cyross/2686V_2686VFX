@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../../Core/Fm/FmCore.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 
 #include "./Operator/SynthOpl3Op.h"
@@ -30,6 +31,7 @@ public:
     void setModulationWheel(int wheelValue) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
 
     // ユニゾン・ハーモニー用
     void setUnisonParams(int index, int total, float detune, float spread) {

@@ -1,0 +1,162 @@
+﻿#pragma once
+
+#include <random>
+#include <array>
+#include <cmath>
+#include <algorithm>
+
+#include "../../Core/Fm/FmCore.h"
+#include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
+#include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+
+#include "./Operator/SynthOpzx7Op.h"
+
+// ==========================================================
+// OPZX7 Core
+// Base: OPZ (YM2414)
+// Extension: OPX (YMF271) Algorithms & MA-7 Waveforms
+// ==========================================================
+class Opzx7Core : public FmCore
+{
+public:
+    Opzx7Core() : FmCore() {}
+
+    using Opzx7LfoCalculator = float(*)(double phase, float noise);
+
+    // OPM/PG-LFO波形の計算アルゴリズム配列
+    static const std::array<Opzx7LfoCalculator, 8> lfoPgStrategies;
+
+    // OPM/EG-LFO波形の計算アルゴリズム配列
+    static const std::array<Opzx7LfoCalculator, 8> lfoEgStrategies;
+
+    void prepare(double sampleRate) override;
+    void setSampleRate(double sampleRate) override;
+    void setParameters(const SynthParams& params);
+    void noteOn(float freq, float velocity, int midiNote, bool isLegato = false) override;
+    void noteOff() override;
+    bool isPlaying() const override;
+    void setPitchBend(int pitchWheelValue) override;
+    void setModulationWheel(int wheelValue) override;
+    float getSample() override;
+    void setPcmBuffer(int opIndex, std::vector<float>* pcmData);
+    void setWtBuffer(int opIndex, std::vector<float>* wtData);
+    void setWt2Buffer(int opIndex, std::vector<float>* wtData);
+    void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void clearPcmBuffer(int opIndex);
+    void clearWtBuffer(int opIndex);
+    void clearWt2Buffer(int opIndex);
+
+    // ユニゾン・ハーモニー用
+    void setUnisonParams(int index, int total, float detune, float spread) {
+        m_unisonIndex = index;
+        m_unisonTotal = total;
+        m_unisonDetuneAmt = detune;
+        m_unisonSpreadAmt = spread;
+
+        // ユニゾンのインデックスに応じて位相を均等にずらす (0.0 〜 1.0)
+        // (例: 3ボイスなら 0.0, 0.33, 0.66)
+        m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
+    }
+
+    struct AlgRouting {
+        std::array<float, Opzx7PrValue::ops> out;                // 最終出力へのミックス割合
+        std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
+        std::array<std::array<float, Opzx7PrValue::ops>, Opzx7PrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
+    };
+
+    struct ModConnection {
+        int srcOp;
+        float amount;
+        bool isForward;
+    };
+
+    struct OpRoutingConfig {
+        std::array<ModConnection, Opzx7PrValue::ops> mods;
+        int modCount = 0;
+
+        std::array<ModConnection, Opzx7PrValue::ops> fbMods;
+        int fbModCount = 0;
+
+        float outLevel = 0.0f;
+    };
+
+    // =========================================================================
+    // テンプレートによる強制ループ展開 (Loop Unrolling)
+    // =========================================================================
+    template<size_t I>
+    inline void processSingleOperator(float* currentOut, float& finalOut);
+
+    template<size_t... Is>
+    inline void processAllOperators(std::index_sequence<Is...>, float* currentOut, float& finalOut) {
+        // Fold Expression を用いて関数呼び出しをベタ書き展開する
+        (processSingleOperator<Is>(currentOut, finalOut), ...);
+    }
+private:
+
+    static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings;
+    std::array<OpRoutingConfig, Opzx7PrValue::ops> m_activeRoutings;
+    std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
+    std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
+    std::array<float, Opzx7PrValue::ops> m_history1 = { 0.0f };
+    std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
+
+    Opzx7LfoCore m_lfo;
+
+    int m_cachedAlgorithm = -1;
+    void updateRoutingCache();
+
+    double m_hostSampleRate = 44100.0;
+    int m_algorithm = 0;
+    int m_algorithmCodeBase = 0;
+    int m_algorithmCodeShift = 4; // x16
+
+    float m_level = 1.0f;
+
+    // Rate & Quality
+    int m_rateIndex = 1;
+    double m_rateAccumulator = 0.0;
+    float m_lastSample = 0.0f;
+    float m_prevSample = 0.0f;
+    float m_quantizeSteps = 0.0f;
+
+    // OPM LFO
+    double m_lfoPhase = 0.0;
+    float m_lfoFreq = 5.0f;
+    bool m_pm = false;
+    bool m_am = false;
+    int m_lfoPgWave = 0;
+    int m_lfoEgWave = 0;
+    float m_pms = 0.0f;
+    float m_ams = 0.0f;
+    float m_pmd = 0.0f;
+    float m_amd = 0.0f;
+
+    // Noise LFSR Variables
+    unsigned int m_lfsr = 0x1FFFF;
+    float m_noisePhase = 0.0f;
+    float m_noiseDelta = 0.0f;
+    float m_currentNoiseSample = 0.0f;
+    float m_targetNoiseFreq = 12000.0f;
+    float m_amSmooth = 0.0f;
+    float m_amSmoothRate = 0.005f;
+
+    float m_modWheel = 0.0f;
+
+    // LFO Sync Delay とカウンター
+    float m_lfoSyncDelay = 0.0f;
+    float m_lfoDelayCounter = 0.0f;
+
+    int m_panpot = 0;
+    bool m_panpot_enable = false;
+    float m_panpot_l_rate = 1.0f;
+    float m_panpot_r_rate = 1.0f;
+
+    // ユニゾン・ハーモニー用
+    bool m_isMonoMode = false;
+    int m_unisonIndex = 0;
+    int m_unisonTotal = 1;
+    float m_unisonDetuneAmt = 0.0f;
+    float m_unisonSpreadAmt = 0.0f;
+    float m_unisonPhaseOffset = 0.0f;
+};

@@ -44,6 +44,7 @@ public:
 
 	void getSample(float& output, float modulator, float feedbackModulator, Opzx7LfoCore &glLfo, float modWheel = 0.0f);
 	float calcWaveform(double phase, int wave) override;
+	void setCurveCore(CurveCore* p_curveCore);
 	// PCMデータ用
 	void setPcmBuffer(std::vector<float>* pcmData) { m_pcmBuffer = pcmData; }
 	void clearPcmBuffer() { m_pcmBuffer = nullptr; }

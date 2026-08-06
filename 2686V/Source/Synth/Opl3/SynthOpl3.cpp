@@ -61,6 +61,15 @@ void Opl3Core::prepare(double sampleRate) {
     m_rateAccumulator = 1.0;
 }
 
+void Opl3Core::setCurveCore(CurveCore* p_curveCore)
+{
+    // 高速化のためのループアンローリング
+    m_operators[0].setCurveCore(p_curveCore);
+    m_operators[1].setCurveCore(p_curveCore);
+    m_operators[2].setCurveCore(p_curveCore);
+    m_operators[3].setCurveCore(p_curveCore);
+}
+
 void Opl3Core::setSampleRate(double sampleRate) {
     if (sampleRate > 0.0) {
         m_hostSampleRate = sampleRate;

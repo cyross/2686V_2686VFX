@@ -16,6 +16,7 @@
 #include "../../Synth/Rhythm/SynthRhythmParams.h"
 #include "../../Synth/Adpcm/SynthAdpcmParams.h"
 #include "../../Synth/Beep/SynthBeepParams.h"
+#include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 struct SynthParams
 {
@@ -40,4 +41,5 @@ struct SynthParams
     RhythmParams rhythm;
     AdpcmParams adpcm;
     BeepParams beep;
+	CurveParams curve; 
 };

@@ -11,6 +11,7 @@
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 
@@ -34,6 +35,7 @@ public:
     void setPitchBendRatio(float ratio) override;
     float getSample() override;
     void renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive) override;
+    void setCurveCore(CurveCore* p_curveCore);
     void clearBuffer();
 
     // ユニゾン・ハーモニー用

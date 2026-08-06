@@ -16,6 +16,9 @@ void GuiBeep::setup() {
     juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
 
+    p_curveCore = ctx.audioProcessor.getCurveCore();
+    p_guiCurve = ctx.editor.getCurveGui();
+
     mainGroup.setup(*this, BeepGuiText::Group::mainGroup); // GuiText 等に置換
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
@@ -216,7 +219,7 @@ void GuiBeep::setupGraph()
     graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
 
     auto repaintGraph = [this]() {
-        if (this->isUpdatingGraph) return;
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
 
         this->isUpdatingGraph = true;
         this->updateGraph();
@@ -276,35 +279,38 @@ void GuiBeep::updateGraph()
 {
     GraphMode mode = currentGraphMode;
 
+    // カーブモードが有効かどうかを判定
+    bool isCurveMode = p_guiCurve != nullptr && p_guiCurve->enable.getToggleState();
+
     // =============================================================
     // Pitch Env
     // =============================================================
     if (mode == GraphMode::Pitch) {
-        pitchEnvComponent.updateGraph(graph);
+        pitchEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW Env
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
-        ssgSwEnvComponent.updateGraph(graph);
+        ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW Env 11
     // =============================================================
     else if (mode == GraphMode::SsgSw11) {
-        ssgSwEnv11Component.updateGraph(graph);
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // SSG SW PEnv 11
     // =============================================================
     else if (mode == GraphMode::SsgSwP11) {
-        ssgSwPEnv11Component.updateGraph(graph);
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
     // =============================================================
     else {
-        ampEnvComponent.updateGraph(graph);
+        ampEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
 }
 

@@ -168,6 +168,22 @@ void SynthVoice::clearOpzx7Wt2Buffer(int opIndex)
     m_opzx7Core.clearWt2Buffer(opIndex);
 }
 
+void SynthVoice::setCurveCore(CurveCore* p_curveCore)
+{
+    m_opnaCore.setCurveCore(p_curveCore);
+    m_opnCore.setCurveCore(p_curveCore);
+    m_oplCore.setCurveCore(p_curveCore);
+    m_opl3Core.setCurveCore(p_curveCore);
+    m_opmCore.setCurveCore(p_curveCore);
+    m_opzx7Core.setCurveCore(p_curveCore);
+    m_ssgCore.setCurveCore(p_curveCore);
+    m_wtCore.setCurveCore(p_curveCore);
+    m_wt2Core.setCurveCore(p_curveCore);
+    m_rhythmCore.setCurveCore(p_curveCore);
+    m_adpcmCore.setCurveCore(p_curveCore);
+    m_beepCore.setCurveCore(p_curveCore);
+}
+
 bool SynthVoice::isPlaying()
 {
     return coreMap[m_mode]->isPlaying();

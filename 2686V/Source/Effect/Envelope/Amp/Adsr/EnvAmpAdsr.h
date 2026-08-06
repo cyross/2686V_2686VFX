@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "./EnvAmpAdsrParams.h"
+#include "../../../../Advanced/Curve/AdvancedCurve.h"
 
 class AmpAdsrEnv {
 	enum class State { Idle, Attack, Decay, Sustain, Release, Size };
@@ -29,6 +30,9 @@ class AmpAdsrEnv {
 	float decayTimeInc = 0.0f;
 	float releaseTimeInc = 0.0f;
 
+	// カーブモード用の変数
+	CurveCore* m_curveCore = nullptr;
+
 	// カーブモード用の時間管理変数
 	float m_phaseProgress = 0.0f; // 現在のフェーズの進行度 (0.0f 〜 1.0f)
 	float m_releaseStartLevel = 0.0f; // リリース開始時のレベル(Releaseの始点Y)
@@ -44,6 +48,7 @@ public:
 	bool isIdle() const { return state == State::Idle; }
 	bool isRelease() const { return state == State::Release; }
 	void setParameters(const AmpAdsrParams& params);
+	void setCurveCore(CurveCore* core) { m_curveCore = core; }
 	float noteOn();
 	void noteOff();
 	float process(float currentLevel);

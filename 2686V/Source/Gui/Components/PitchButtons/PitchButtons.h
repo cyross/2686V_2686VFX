@@ -10,6 +10,8 @@
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Core/Gui/GuiValues.h"
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
+#include "../../../Gui/Curve/GuiCurve.h"
+#include "../../../Advanced/Curve/AdvancedCurve.h"
 
 class GuiComponentPitchButtons : public GuiBase {
     GuiTextButton minus1200;

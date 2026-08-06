@@ -153,7 +153,7 @@ void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
 	releaseLevel.onValueChange = repaintGraph;
 }
 
-void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
+void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph, CurveCore* p_curveCore, bool isCurveMode, int posIdx) {
 	graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
 	graph.updatePitchEnv(
@@ -163,7 +163,10 @@ void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
 		startLevel,
 		attackLevel,
 		sustainLevel,
-		releaseLevel
+		releaseLevel,
+		p_curveCore,
+		isCurveMode,
+		posIdx
 	);
 }
 

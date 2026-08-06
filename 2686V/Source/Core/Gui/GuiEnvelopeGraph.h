@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "./GuiComponents.h"
+#include "../../Advanced/Curve/AdvancedCurve.h"
 
 class GuiEnvelopeGraph : public juce::Component
 {
@@ -20,6 +21,11 @@ public:
         float endLevel;
         bool isDashed = false;
         juce::Colour color = juce::Colours::cyan;
+        std::function<float(float)> curveFunc = [](float x) { return x; };
+
+        // カーブのどの部分を切り出すか（0.0 〜 1.0）
+        float curveStartX = 0.0f;
+        float curveEndX = 1.0f;
 
         // 線の描画を前の終点から繋げず、指定位置から新しく開始するための設定
         bool moveToStart = false;
@@ -37,7 +43,10 @@ public:
         const GuiSlider& pitchStartLevelSlider,
         const GuiSlider& pitchAttackLevelSlider,
         const GuiSlider& pitchSustainLevelSlider,
-        const GuiSlider& pitchReleaseLevelSlider
+        const GuiSlider& pitchReleaseLevelSlider,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
     );
     void updateSsgSwEnv(
         const GuiSlider& ssgSwStepsSlider,
@@ -45,7 +54,10 @@ public:
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
         const std::array<juce::Slider*, 7>& rSl,
-        const std::array<juce::Slider*, 7>& lSl
+        const std::array<juce::Slider*, 7>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
     );
     void updateSsgSwEnv11(
         const GuiSlider& ssgSwStepsSlider,
@@ -53,7 +65,10 @@ public:
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
         const std::array<juce::Slider*, 12>& rSl,
-        const std::array<juce::Slider*, 12>& lSl
+        const std::array<juce::Slider*, 12>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
     );
     void updateSsgSwPEnv11(
         const GuiSlider& ssgSwStepsSlider,
@@ -61,7 +76,10 @@ public:
         const GuiSlider& ssgSwLoopToSlider,
         const GuiSlider& ssgSwLoopCountSlider,
         const std::array<juce::Slider*, 12>& rSl,
-        const std::array<juce::Slider*, 12>& lSl
+        const std::array<juce::Slider*, 12>& lSl,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
     );
     void updateAmpEnv(
         const GuiSlider& startLevelSlider,
@@ -69,7 +87,10 @@ public:
         const GuiSlider& decaySlider,
         const GuiSlider& sustainSlider,
         const GuiSlider& releaseSlider,
-        const GuiToggleButton& korButton
+        const GuiToggleButton& korButton,
+        CurveCore* p_curveCore,
+        bool isCurveMode,
+        int posIdx
     );
     void updateBypass(bool bypass) { this->isBypass = bypass; }
 private:

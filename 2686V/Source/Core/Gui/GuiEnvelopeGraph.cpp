@@ -1,6 +1,7 @@
 ﻿#include <cmath>
 
 #include "./GuiEnvelopeGraph.h"
+#include "../../Advanced/Curve/AdvancedCurveParams.h"
 
 GuiEnvelopeGraph::GuiEnvelopeGraph() {
     isBypass = false;
@@ -119,14 +120,31 @@ void GuiEnvelopeGraph::paint(juce::Graphics& g)
 
         int resolution = std::max(10, (int)actualWidth / 2);
 
+        float yStart = phase.curveFunc(phase.curveStartX);
+        float yEnd = phase.curveFunc(phase.curveEndX);
+        float yRange = yEnd - yStart;
+
         for (int i = 1; i <= resolution; ++i) {
             float localProgress = (float)i / resolution; // 現在のフェーズ内での進行度 (0.0 〜 1.0)
 
-            if (std::isnan(localProgress)) {
-                localProgress = 0.0f; // NAN回避
+            // 1. 本来のカーブX座標を算出 (0.5〜0.7など)
+            float curveX = phase.curveStartX + localProgress * (phase.curveEndX - phase.curveStartX);
+
+            // 2. カーブ関数を通した生のY値を取得
+            float rawY = phase.curveFunc(curveX);
+
+            if (std::isnan(rawY)) {
+                rawY = yStart; // NAN回避
             }
 
-            float currentLevel = phase.startLevel + (phase.endLevel - phase.startLevel) * localProgress;
+            // 3. 切り出した区間(yStart〜yEnd)の中で、現在のY値がどの割合(0.0〜1.0)かを正規化
+            float yRatio = localProgress; // デフォルトは線形(0除算回避)
+            if (std::abs(yRange) > 0.00001f) {
+                yRatio = (rawY - yStart) / yRange;
+            }
+
+            // 4. GUI上の描画レベル(startLevel〜endLevel)にマッピング
+            float currentLevel = phase.startLevel + (phase.endLevel - phase.startLevel) * yRatio;
 
             float px = currentPixelX + localProgress * actualWidth;
             float py = basePixelY - (currentLevel * heightScale);
@@ -169,14 +187,29 @@ void GuiEnvelopeGraph::updatePitchEnv(
     const GuiSlider& pitchStartLevelSlider,
     const GuiSlider& pitchAttackLevelSlider,
     const GuiSlider& pitchSustainLevelSlider,
-    const GuiSlider& pitchReleaseLevelSlider
+    const GuiSlider& pitchReleaseLevelSlider,
+    CurveCore* p_curveCore,
+    bool isCurveMode,
+    int posIdx
 ) {
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
     // -------------------------------------------------------------
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
+
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+
         return (rateValue / maxRate) * maxWidth;
         };
 
@@ -196,11 +229,13 @@ void GuiEnvelopeGraph::updatePitchEnv(
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::orange;
+    int targetIdx = (int)CurveParams::Target::PitchEnv;
 
     // Attack
     phases.push_back({
         .widthPx = rateToWidth(ar, arMax),
         .startLevel = stl, .endLevel = atl, .color = color,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Ar),
         .phaseLineColor = juce::Colours::red
         });
 
@@ -208,6 +243,7 @@ void GuiEnvelopeGraph::updatePitchEnv(
     phases.push_back({
         .widthPx = rateToWidth(dr, drMax),
         .startLevel = atl, .endLevel = ssl, .color = color,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Dr),
         .phaseLineColor = juce::Colours::blue
         });
 
@@ -217,7 +253,8 @@ void GuiEnvelopeGraph::updatePitchEnv(
     // Release
     phases.push_back({
         .widthPx = rateToWidth(rr, rrMax),
-        .startLevel = ssl, .endLevel = rll, .color = color
+        .startLevel = ssl, .endLevel = rll, .color = color,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetPitchEnv::Rr)
         });
 
     setEnvelope(GuiEnvelopeGraph::EnvType::Pitch, "Pitch Env", phases);
@@ -229,14 +266,29 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
     const std::array<juce::Slider*, 7>& rSl,
-    const std::array<juce::Slider*, 7>& lSl
+    const std::array<juce::Slider*, 7>& lSl,
+    CurveCore* p_curveCore,
+    bool isCurveMode,
+    int posIdx
 ) {
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
     // -------------------------------------------------------------
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
+
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+
         return (rateValue / maxRate) * maxWidth;
         };
 
@@ -248,6 +300,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::lightgreen;
+    int targetIdx = (int)CurveParams::Target::SsgSwEnv;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -259,11 +312,13 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
         float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
 
+        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
 
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightgreen
                 });
 
@@ -283,6 +338,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
                     .startLevel = startL,
                     .endLevel = endL,
                     .color = juce::Colours::blue,
+                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = juce::Colours::lightgreen
@@ -294,6 +350,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightgreen
                 });
         }
@@ -311,6 +368,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv(
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
         .color = juce::Colours::yellow,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv::R6),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -324,14 +382,29 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
     const std::array<juce::Slider*, 12>& rSl,
-    const std::array<juce::Slider*, 12>& lSl
+    const std::array<juce::Slider*, 12>& lSl,
+    CurveCore* p_curveCore,
+    bool isCurveMode,
+    int posIdx
 ) {
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
     // -------------------------------------------------------------
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
+
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+
         return (rateValue / maxRate) * maxWidth;
         };
 
@@ -343,6 +416,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::lightgreen;
+    int targetIdx = (int)CurveParams::Target::SsgSwEnv11;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -354,11 +428,13 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
         float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
 
+        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwEnv11::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
 
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightgreen
                 });
 
@@ -378,6 +454,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
                     .startLevel = startL,
                     .endLevel = endL,
                     .color = juce::Colours::blue,
+                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = juce::Colours::lightgreen
@@ -389,6 +466,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightgreen
                 });
         }
@@ -406,6 +484,7 @@ void GuiEnvelopeGraph::updateSsgSwEnv11(
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
         .color = juce::Colours::yellow,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwEnv11::R11),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -419,14 +498,29 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
     const GuiSlider& ssgSwLoopToSlider,
     const GuiSlider& ssgSwLoopCountSlider,
     const std::array<juce::Slider*, 12>& rSl,
-    const std::array<juce::Slider*, 12>& lSl
+    const std::array<juce::Slider*, 12>& lSl,
+    CurveCore* p_curveCore,
+    bool isCurveMode,
+    int posIdx
 ) {
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
     // -------------------------------------------------------------
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return 2.0f;
+
         if (rateValue <= 0.001f) return 2.0f; // 0なら左に詰める(一瞬)
+
         return (rateValue / maxRate) * maxWidth;
         };
 
@@ -439,6 +533,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::orange;
+    int targetIdx = (int)CurveParams::Target::SsgSwPEnv11;
 
     float currentTotalWidth = 0.0f;
     float loopToLevel = isLoop ? lSl[loopTo]->getValue() / lSl[loopTo]->getMaximum() : 0.0f;
@@ -449,11 +544,14 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         float rateMax = rSl[s]->getMaximum();
         float startL = lSl[s - 1]->getValue() / lSl[s - 1]->getMaximum();
         float endL = lSl[s]->getValue() / lSl[s]->getMaximum();
+
+        int prmIdx = (isLoop && s == steps) ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1);
         float width = rateToWidth(rate, rateMax);
 
         if (isLoop && s == steps) {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = loopToLevel, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightyellow
                 });
 
@@ -473,6 +571,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
                     .startLevel = startL,
                     .endLevel = endL,
                     .color = juce::Colours::blue,
+                    .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                     .moveToStart = true,
                     .startXOffsetPx = loopEndWidth,
                     .phaseLineColor = juce::Colours::lightyellow
@@ -484,6 +583,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         else {
             phases.push_back({
                 .widthPx = width, .startLevel = startL, .endLevel = endL, .color = color,
+                .curveFunc = getCurveFunc(posIdx, targetIdx, prmIdx),
                 .phaseLineColor = juce::Colours::lightyellow
                 });
         }
@@ -501,6 +601,7 @@ void GuiEnvelopeGraph::updateSsgSwPEnv11(
         .startLevel = (isLoop && loopCount == 0) ? loopToLevel : rStartL,
         .endLevel = rEndL,
         .color = juce::Colours::yellow,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetSsgSwPEnv11::R11),
         .moveToStart = isLoop,
         .startXOffsetPx = loopEndWidth
         });
@@ -514,15 +615,31 @@ void GuiEnvelopeGraph::updateAmpEnv(
     const GuiSlider& decaySlider,
     const GuiSlider& sustainSlider,
     const GuiSlider& releaseSlider,
-    const GuiToggleButton& korButton
+    const GuiToggleButton& korButton,
+    CurveCore* p_curveCore,
+    bool isCurveMode,
+    int posIdx
 ) {
+    // -------------------------------------------------------------
+    // Helper: カーブ関数を生成する
+    // -------------------------------------------------------------
+    auto getCurveFunc = [this, isCurveMode, p_curveCore](int posIdx, int targetIdx, int prmIdx) {
+        return [this, isCurveMode, posIdx, targetIdx, prmIdx, p_curveCore](float progress) -> float {
+            if (!isCurveMode || p_curveCore == nullptr) return progress;
+            return p_curveCore->process(posIdx, targetIdx, prmIdx, progress);
+            };
+        };
+
     // -------------------------------------------------------------
     // Helper: 幅の計算
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
         if (maxRate <= 0.0001f) return maxWidth;
+
         if (rateValue <= 0.0f) return maxWidth;
+
         float norm = rateValue / maxRate;
+
         return std::max(2.0f, maxWidth * norm);
         };
 
@@ -544,6 +661,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
 
     std::vector<GuiEnvelopeGraph::PhaseDef> phases;
     auto color = juce::Colours::cyan;
+    int targetIdx = (int)CurveParams::Target::AmpEnv; // または RegValue
 
     float currentTotalWidth = 0.0f;
 
@@ -551,6 +669,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float attackWidth = rateToWidth(arVal, arMax);
     phases.push_back({
         .widthPx = attackWidth, .startLevel = stlVal / stlMax, .endLevel = 1.0f, .color = color,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Ar),
         .phaseLineColor = juce::Colours::red
         });
     currentTotalWidth += attackWidth;
@@ -559,6 +678,7 @@ void GuiEnvelopeGraph::updateAmpEnv(
     float decayWidth = rateToWidth(drVal, drMax);
     phases.push_back({
         .widthPx = decayWidth, .startLevel = 1.0f, .endLevel = sl, .color = color,
+        .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Dr),
         .phaseLineColor = juce::Colours::blue
         });
     currentTotalWidth += decayWidth;
@@ -578,7 +698,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .widthPx = rateToWidth(rrVal, rrMax),
             .startLevel = sl,
             .endLevel = sl,
-            .color = juce::Colours::yellow
+            .color = juce::Colours::yellow,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
             });
     }
     else {
@@ -586,7 +707,8 @@ void GuiEnvelopeGraph::updateAmpEnv(
             .widthPx = rateToWidth(rrVal, rrMax),
             .startLevel = sl,
             .endLevel = 0.0f,
-            .color = color
+            .color = color,
+            .curveFunc = getCurveFunc(posIdx, targetIdx, (int)CurveParams::TargetAmpEnv::Rr)
             });
     }
 

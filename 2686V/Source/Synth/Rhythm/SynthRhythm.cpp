@@ -17,6 +17,15 @@ void RhythmPad::prepare(double hostSampleRate)
     m_noiseGen.prepare(m_sampleRate);
 }
 
+void RhythmPad::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
+}
+
 void RhythmPad::setSampleRate(double sampleRate)
 {
     m_sampleRate = sampleRate;
@@ -710,6 +719,13 @@ void RhythmCore::prepare(double sampleRate)
     m_sampleRate = sampleRate;
     for (auto& pad : pads) {
         pad.prepare(sampleRate);
+    }
+}
+
+void RhythmCore::setCurveCore(CurveCore* p_curveCore)
+{
+    for (auto& pad : pads) {
+        pad.setCurveCore(p_curveCore);
     }
 }
 

@@ -14,6 +14,15 @@ void BeepCore::prepare(double sampleRate) {
     m_lfo.prepare(44100.0);
 }
 
+void BeepCore::setCurveCore(CurveCore* p_curveCore)
+{
+    m_adsr.setCurveCore(p_curveCore);
+    m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
+}
+
 void BeepCore::setSampleRate(double sampleRate) {
 	if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
