@@ -302,12 +302,18 @@ static std::vector<SelectItem> ksCurveItems = {
     {.name = "3: +LIN", .value = 4 }
 };
 
+static std::vector<SelectItem> algModeItems = {
+    {.name = "0: 従来のアルゴリズム", .value = 1 },
+    {.name = "1: アルゴリズムマトリックス", .value = 2 }
+};
+
 GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
     presetName(context),
     viewModeComp(context),
     algFbCat(context),
+    algModeSelector(context),
     levelComponent(context),
     qualityComponent(context),
     algSelector(context),
@@ -446,6 +452,24 @@ void GuiOpzx7::setup()
     qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::algFb });
+
+    algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems, .isReset = true });
+    algModeSelector.setWantsKeyboardFocus(true);
+    algModeSelector.setExplicitFocusOrder(++tabOrder);
+    algModeSelector.onChange = [this] {
+        ctx.editor.resized();
+
+        ctx.audioProcessor.setOpzx7AlgMode((int)algModeSelector.getSelectedItemIndex());
+        };
+
+    mainGroup.contentCanvas.addAndMakeVisible(&algMatrixComp);
+    mainGroup.contentCanvas.addAndMakeVisible(&algGraphComp);
+
+    algMatrixComp.onMatrixChanged = [this](const AlgMatrixState& state) {
+        algGraphComp.updateState(state);
+
+        ctx.audioProcessor.setOpzx7AlgMatrix(state);
+        };
 
     algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = Opzx7GuiText::Fm::alg, .items = opzx7AlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
@@ -984,12 +1008,37 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     levelComponent.layoutComponent(mRect);
 
     layoutMainCategory({ .mainRect = mRect, .label = &algFbCat });
-    layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
 
-    mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+    layoutMain({ .mainRect = mRect, .label = &algModeSelector.label, .component = &algModeSelector });
 
-    auto imgArea = mRect.removeFromTop(120);
-    algImageComp.setBounds(imgArea);
+    int currentAlgMode = algModeSelector.getSelectedItemIndex();
+
+    if (currentAlgMode == 0) {
+        // 従来のアルゴリズムモード
+        algMatrixComp.setVisible(false);
+        algGraphComp.setVisible(false);
+        algSelector.setVisibleWithLabel(true);
+        algImageComp.setVisible(true);
+
+        layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
+        mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+        auto imgArea = mRect.removeFromTop(120);
+        algImageComp.setBounds(imgArea);
+    }
+    else {
+        // マトリックスモード
+        algSelector.setVisibleWithLabel(false);
+        algImageComp.setVisible(false);
+        algMatrixComp.setVisible(true);
+        algGraphComp.setVisible(true);
+
+        mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
+        auto matrixArea = mRect.removeFromTop(200);
+        algMatrixComp.setBounds(matrixArea);
+
+        auto graphArea = mRect.removeFromTop(160);
+        algGraphComp.setBounds(graphArea.reduced(10));
+    }
 
     algFbSep.layoutComponent(mRect);
 

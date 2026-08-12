@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(BUILD_TARGET 2)
+set(BUILD_TARGET 3)
 
 # プロジェクト名 (ソリューション名)
 if(BUILD_TARGET EQUAL 1)

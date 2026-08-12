@@ -26,11 +26,28 @@ struct QualityPcmParams {
     int interp = 1;
 };
 
+struct AlgMatrixParams {
+    // 0: 従来のアルゴリズム, 1: マトリックスモード
+    int mode = 0;
+
+    // キャリア指定 (OP1~OP8)
+    std::array<bool, 8> isCarrier = { false };
+
+    // モジュレータ指定 (src から dest への順方向接続 src < dest)
+    // [src][dest] の形で管理
+    std::array<std::array<bool, 8>, 8> mod = { false };
+
+    // フィードバック指定 (src から dest への逆方向/自己接続 src >= dest)
+    std::array<std::array<bool, 8>, 8> fbMod = { false };
+};
+
 struct AlgFbParams {
     // --- Algorithm ---
     int algorithm = 0;
     // --- Feedback ---
     int feedback = 0;
+
+	AlgMatrixParams matrix; // マトリックスモードのパラメータ
 };
 
 struct WtModParams {

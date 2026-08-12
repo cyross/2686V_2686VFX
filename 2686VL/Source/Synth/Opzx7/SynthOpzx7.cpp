@@ -203,6 +203,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
 
     m_algorithm = params.opzx7.algFb.algorithm; // Range: 0-27
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
+    m_algMatrix = params.opzx7.algFb.matrix;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
@@ -512,34 +513,70 @@ void Opzx7Core::clearWt2Buffer(int opIndex) {
 
 void Opzx7Core::updateRoutingCache()
 {
-    if (m_algorithm == m_cachedAlgorithm) return;
+    if (m_algMatrix.mode == 1) {
+        Opzx7Core::AlgRouting customRouting;
+        customRouting.out.fill(0.0f);
+        for (auto& row : customRouting.mod) row.fill(0.0f);
+        for (auto& row : customRouting.fbMod) row.fill(0.0f);
 
-    m_cachedAlgorithm = m_algorithm;
-    int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
-    const auto& r = routings[algIndex];
+        // キャリアの設定
+        for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+            if (m_algMatrix.isCarrier[i]) {
+                customRouting.out[i] = 1.0f;
+            }
+        }
 
+        // モジュレータの設定 (順方向)
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            for (int dest = src + 1; dest < Opzx7PrValue::ops; ++dest) {
+                if (m_algMatrix.mod[src][dest]) {
+                    customRouting.mod[dest][src] = 1.0f;
+                }
+            }
+        }
+
+        // フィードバックの設定 (逆方向・自身)
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            for (int dest = 0; dest <= src; ++dest) {
+                if (m_algMatrix.fbMod[src][dest]) {
+                    customRouting.fbMod[dest][src] = 1.0f;
+                }
+            }
+        }
+
+        // キャッシュへ適用する関数（既存のロジックを別関数化したもの）
+        applyRoutingToCache(customRouting);
+    }
+    else {
+        if (m_algorithm == m_cachedAlgorithm) return;
+
+        m_cachedAlgorithm = m_algorithm;
+
+        int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
+
+        applyRoutingToCache(routings[algIndex]);
+    }
+}
+
+void Opzx7Core::applyRoutingToCache(const AlgRouting& r)
+{
     for (int i = 0; i < Opzx7PrValue::ops; ++i) {
         m_activeRoutings[i].modCount = 0;
         m_activeRoutings[i].fbModCount = 0;
         m_activeRoutings[i].outLevel = r.out[i];
 
-        // 通常変調の登録
+        // 順方向
         for (int src = 0; src < Opzx7PrValue::ops; ++src) {
             if (r.mod[i][src] > 0.0f) {
                 auto& conn = m_activeRoutings[i].mods[m_activeRoutings[i].modCount++];
-                conn.srcOp = src;
-                conn.amount = r.mod[i][src];
-                conn.isForward = (src < i);
+                conn.srcOp = src; conn.amount = r.mod[i][src]; conn.isForward = true;
             }
         }
-
-        // フィードバック変調の登録
+        // 逆方向(FB)
         for (int src = 0; src < Opzx7PrValue::ops; ++src) {
             if (r.fbMod[i][src] > 0.0f) {
                 auto& conn = m_activeRoutings[i].fbMods[m_activeRoutings[i].fbModCount++];
-                conn.srcOp = src;
-                conn.amount = r.fbMod[i][src];
-                conn.isForward = false;
+                conn.srcOp = src; conn.amount = r.fbMod[i][src]; conn.isForward = false;
             }
         }
     }

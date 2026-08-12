@@ -364,6 +364,11 @@ set(GUI_COMPONENT_QUALITY_FILES
     "Source/Gui/Components/Quality/Quality.cpp"
 )
 
+set(GUI_COMPONENT_ALG_MATRIX_FILES
+    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
+    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -407,6 +412,7 @@ source_group("OPZX7S\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATO
 source_group("OPZX7S\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("OPZX7S\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("OPZX7S\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("OPZX7S\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("OPZX7S\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Opzx7" FILES ${OPZX7_GUI_FILES})
 source_group("OPZX7S\\Gui\\Tab\\Curve" FILES ${CURVE_GUI_FILES})

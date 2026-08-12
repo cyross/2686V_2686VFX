@@ -27,6 +27,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -328,6 +329,11 @@ class GuiOpzx7 : public GuiBase
     Quality qualityComponent;
 
     GuiCategoryLabel algFbCat;
+
+    // AlgMatrix
+    GuiComboBox algModeSelector;
+    GuiOpzx7AlgMatrix algMatrixComp;
+    GuiOpzx7AlgGraph algGraphComp;
 
     // Global
     GuiComboBox algSelector;

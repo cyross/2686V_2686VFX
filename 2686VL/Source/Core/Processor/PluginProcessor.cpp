@@ -192,6 +192,28 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
 
     prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
 
+    if (m_currentParams.mode == OscMode::OPZX7)
+    {
+        // プラグインプロセッサから直接最新のマトリックス情報を引っ張ってくる
+        m_currentParams.opzx7.algFb.matrix.mode = getOpzx7AlgMode();
+
+        // DSP用に定義した AlgMatrixParams へ移し替える
+        AlgMatrixState guiState = getOpzx7AlgMatrix();
+        for (int i = 0; i < 8; ++i) {
+            m_currentParams.opzx7.algFb.matrix.isCarrier[i] = guiState.isCarrier[i];
+            for (int j = 0; j < 8; ++j) {
+                if (i < j) {
+                    // 順方向
+                    m_currentParams.opzx7.algFb.matrix.mod[i][j] = guiState.mod[i][j];
+                }
+                else {
+                    // 逆方向/自己 (フィードバック)
+                    m_currentParams.opzx7.algFb.matrix.fbMod[i][j] = guiState.mod[i][j];
+                }
+            }
+        }
+    }
+
     bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
@@ -540,6 +562,8 @@ void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
         // ここでは何もしないか、デバッグログを出す程度に留めることでクラッシュを防ぎます。
         DBG("setStateInformation: Failed to parse XML state.");
     }
+
+    updateAlgMatrixCacheFromState();
 }
 
 void AudioPlugin2686V::savePreset(const juce::File& file)
@@ -1377,4 +1401,79 @@ OscMode AudioPlugin2686V::getCurrentMode()
     int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
+}
+
+// ==============================================================================
+// OPZX7S アルゴリズムマトリックス処理
+// ==============================================================================
+
+void AudioPlugin2686V::setOpzx7AlgMode(int mode)
+{
+    m_opzx7AlgMode.store(mode);
+    // DAWの保存データに含めるため、APVTSのプロパティとして保存
+    apvts.state.setProperty("OPZX7_ALG_MODE", mode, nullptr);
+}
+
+int AudioPlugin2686V::getOpzx7AlgMode() const
+{
+    return m_opzx7AlgMode.load();
+}
+
+void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
+{
+    {
+        // DSPスレッドと競合しないようにロックしてキャッシュを更新
+        juce::ScopedLock lock(m_matrixLock);
+        m_opzx7AlgMatrixState = state;
+    }
+
+    // 状態を 1 と 0 の文字列にシリアライズしてAPVTSに保存
+    // 例: キャリア "10000000" / モジュレータ "010000000010..."
+    juce::String cStr;
+    for (int i = 0; i < 8; ++i) {
+        cStr += state.isCarrier[i] ? "1" : "0";
+    }
+
+    juce::String mStr;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            mStr += state.mod[i][j] ? "1" : "0";
+        }
+    }
+
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_C", cStr, nullptr);
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_M", mStr, nullptr);
+}
+
+AlgMatrixState AudioPlugin2686V::getOpzx7AlgMatrix()
+{
+    juce::ScopedLock lock(m_matrixLock);
+    return m_opzx7AlgMatrixState;
+}
+
+void AudioPlugin2686V::updateAlgMatrixCacheFromState()
+{
+    // プロジェクトのロード時やプリセット読み込み時に呼ばれる想定
+    if (apvts.state.hasProperty("OPZX7_ALG_MODE")) {
+        m_opzx7AlgMode.store((int)apvts.state.getProperty("OPZX7_ALG_MODE"));
+    }
+
+    juce::String cStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_C", "00000000").toString();
+    juce::String mStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_M", "0000000000000000000000000000000000000000000000000000000000000000").toString();
+
+    juce::ScopedLock lock(m_matrixLock);
+
+    // 文字列から構造体へ復元
+    for (int i = 0; i < 8 && i < cStr.length(); ++i) {
+        m_opzx7AlgMatrixState.isCarrier[i] = (cStr[i] == '1');
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            int index = i * 8 + j;
+            if (index < mStr.length()) {
+                m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
+            }
+        }
+    }
 }
