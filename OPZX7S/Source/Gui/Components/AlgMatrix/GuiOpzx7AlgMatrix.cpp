@@ -279,7 +279,7 @@ void GuiOpzx7AlgMatrix::paint(juce::Graphics& g) {
     for (int dest = 1; dest < Opzx7PrValue::ops; ++dest) {
         int y = modChkStartY + cellH * (dest - 1);
         g.setColour(opColors[dest]);
-        g.drawText("OP" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
+        g.drawText("->" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
     }
 
     // ★要望1: OUT行ラベルを一番下に
@@ -301,7 +301,7 @@ void GuiOpzx7AlgMatrix::paint(juce::Graphics& g) {
     for (int dest = 0; dest < Opzx7PrValue::ops; ++dest) {
         int y = fbChkStartY + cellH * dest;
         g.setColour(opColors[dest]);
-        g.drawText("OP" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
+        g.drawText("->" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
     }
 }
 
