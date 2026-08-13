@@ -181,141 +181,145 @@ class GuiOpzx7 : public GuiBase
         { {"([M:FB->2])", "([C])", "([M->4])", "([C])", "([M->6])", "([C])", "([M->8])", "([C])"} },  // 127
         { {"([M:FB->2])", "([C])", "([M->4])", "([C])", "([M->6])", "([C])", "([C])", "([C])"} },  // 128
         { {"([C:FB])", "([C])", "([C])", "([C])", "([C])", "([C])", "([C])", "([C])"} },                      // 129
-    }};
+    } };
+
+    static inline const std::array<juce::String, Opzx7PrValue::ops> algMatrixOpPrefix = { {"(--)", "(--)", "(--)", "(--)", "(--)", "(--)", "(--)", "(--)"} };
 
     // アルゴリズムごとに利用可能なオペレーターを制限
     static inline const std::array<std::array<bool, Opzx7PrValue::ops>, Opzx7PrValue::algorithms> opEnableOnAlg = { {
-    {{true, true, true, true, false, false, false, false}},    // 00: <OPX-00>
-    {{true, true, true, true, false, false, false, false}},    // 01: <OPX-01>
-    {{true, true, true, true, false, false, false, false}},    // 02: <OPX-02>
-    {{true, true, true, true, false, false, false, false}},    // 03: <OPX-03>
-    {{true, true, true, true, false, false, false, false}},    // 04: <OPX-04>
-    {{true, true, true, true, false, false, false, false}},    // 05: <OPX-05>
-    {{true, true, true, true, false, false, false, false}},    // 06: <OPX-06>
-    {{true, true, true, true, false, false, false, false}},    // 07: <OPX-07>
-    {{true, true, true, true, false, false, false, false}},    // 08: <OPX-08>
-    {{true, true, true, true, false, false, false, false}},    // 09: <OPX-09>
-    {{true, true, true, true, false, false, false, false}},    // 10: <OPX-10>
-    {{true, true, true, true, false, false, false, false}},    // 11: <OPX-11>
-    {{true, true, true, true, false, false, false, false}},    // 12: <OPX-12>
-    {{true, true, true, true, false, false, false, false}},    // 13: <OPX-13>
-    {{true, true, true, true, false, false, false, false}},    // 14: <OPX-14>
-    {{true, true, true, true, false, false, false, false}},    // 15: <OPX-15>
-    {{true, true, true, false, false, false, false, false}},   // 16: <OPX-16>
-    {{true, true, true, false, false, false, false, false}},   // 17: <OPX-17>
-    {{true, true, true, false, false, false, false, false}},   // 18: <OPX-18>
-    {{true, true, true, false, false, false, false, false}},   // 19: <OPX-19>
-    {{true, true, true, false, false, false, false, false}},   // 20: <OPX-20>
-    {{true, true, true, false, false, false, false, false}},   // 21: <OPX-21>
-    {{true, true, true, false, false, false, false, false}},   // 22: <OPX-22>
-    {{true, true, true, false, false, false, false, false}},   // 23: <OPX-23>
-    {{true, true, false, false, false, false, false, false}},  // 24: <OPX-24>
-    {{true, true, false, false, false, false, false, false}},  // 25: <OPX-25>
-    {{true, true, false, false, false, false, false, false}},  // 26: <OPX-26>
-    {{true, true, false, false, false, false, false, false}},  // 27: <OPX-27>
-    {{true, true, false, false, false, false, false, false}},  // 28: <MA3-00>
-    {{true, true, false, false, false, false, false, false}},  // 29: <MA3-01>
-    {{true, true, true, true, false, false, false, false}},    // 30: <MA3-02>
-    {{true, true, true, true, false, false, false, false}},    // 31: <MA3-03>
-    {{true, true, true, true, false, false, false, false}},    // 32: <MA3-04>
-    {{true, true, true, true, false, false, false, false}},    // 33: <MA3-05>
-    {{true, true, true, true, false, false, false, false}},    // 34: <MA3-06>
-    {{true, true, true, true, false, false, false, false}},    // 35: <MA3-07>
-    {{true, true, true, true, true, true, false, false}},      // 36: <OPS-00>
-    {{true, true, true, true, true, true, false, false}},      // 37: <OPS-01>
-    {{true, true, true, true, true, true, false, false}},      // 38: <OPS-02>
-    {{true, true, true, true, true, true, false, false}},      // 39: <OPS-03>
-    {{true, true, true, true, true, true, false, false}},      // 40: <OPS-04>
-    {{true, true, true, true, true, true, false, false}},      // 41: <OPS-05>
-    {{true, true, true, true, true, true, false, false}},      // 42: <OPS-06>
-    {{true, true, true, true, true, true, false, false}},      // 43: <OPS-07>
-    {{true, true, true, true, true, true, false, false}},      // 44: <OPS-08>
-    {{true, true, true, true, true, true, false, false}},      // 45: <OPS-09>
-    {{true, true, true, true, true, true, false, false}},      // 46: <OPS-10>
-    {{true, true, true, true, true, true, false, false}},      // 47: <OPS-11>
-    {{true, true, true, true, true, true, false, false}},      // 48: <OPS-12>
-    {{true, true, true, true, true, true, false, false}},      // 49: <OPS-13>
-    {{true, true, true, true, true, true, false, false}},      // 50: <OPS-14>
-    {{true, true, true, true, true, true, false, false}},      // 51: <OPS-15>
-    {{true, true, true, true, true, true, false, false}},      // 52: <OPS-16>
-    {{true, true, true, true, true, true, false, false}},      // 53: <OPS-17>
-    {{true, true, true, true, true, true, false, false}},      // 54: <OPS-18>
-    {{true, true, true, true, true, true, false, false}},      // 55: <OPS-19>
-    {{true, true, true, true, true, true, false, false}},      // 56: <OPS-20>
-    {{true, true, true, true, true, true, false, false}},      // 57: <OPS-21>
-    {{true, true, true, true, true, true, false, false}},      // 58: <OPS-22>
-    {{true, true, true, true, true, true, false, false}},      // 59: <OPS-23>
-    {{true, true, true, true, true, true, false, false}},      // 60: <OPS-24>
-    {{true, true, true, true, true, true, false, false}},      // 61: <OPS-25>
-    {{true, true, true, true, true, true, false, false}},      // 62: <OPS-26>
-    {{true, true, true, true, true, true, false, false}},      // 63: <OPS-27>
-    {{true, true, true, true, true, true, false, false}},      // 64: <OPS-28>
-    {{true, true, true, true, true, true, false, false}},      // 65: <OPS-29>
-    {{true, true, true, true, true, true, false, false}},      // 66: <OPS-30>
-    {{true, true, true, true, true, true, false, false}},      // 67: <OPS-31>
-    {{true, false, false, false, false, false, false, false}}, // 68: <OPZX7S-000>
-    {{true, true, false, false, false, false, false, false}},  // 69: <OPZX7S-001>
-    {{true, true, true, true, false, false, false, false}},    // 70: <OPZX7S-002>
-    {{true, true, true, true, false, false, false, false}},    // 71: <OPZX7S-003>
-    {{true, true, true, true, true, true, false, false}},      // 72
-    {{true, true, true, true, true, true, false, false}},      // 73
-    {{true, true, true, true, true, true, false, false}},      // 74
-    {{true, true, true, true, true, true, false, false}},      // 75
-    {{true, true, true, true, true, true, false, false}},      // 76
-    {{true, true, true, true, true, true, false, false}},      // 77
-    {{true, true, true, true, true, false, false, false}},     // 78
-    {{true, true, true, true, true, false, false, false}},     // 79
-    {{true, true, true, true, true, false, false, false}},     // 80
-    {{true, true, true, true, true, false, false, false}},     // 81
-    {{true, true, true, true, true, false, false, false}},     // 82
-    {{true, true, true, true, true, false, false, false}},     // 83
-    {{true, true, true, true, true, false, false, false}},     // 84
-    {{true, true, true, true, true, false, false, false}},     // 85
-    {{true, true, true, true, true, false, false, false}},     // 86
-    {{true, true, true, true, true, false, false, false}},     // 87
-    {{true, true, true, true, true, false, false, false}},     // 88
-    {{true, true, true, true, true, false, false, false}},     // 89
-    {{true, true, true, true, true, false, false, false}},     // 90
-    {{true, true, true, true, true, false, false, false}},     // 91
-    {{true, true, true, true, true, false, false, false}},     // 92
-    {{true, true, true, true, true, false, false, false}},     // 93
-    {{true, true, true, true, true, false, false, false}},     // 94
-    {{true, true, true, true, true, false, false, false}},     // 95
-    {{true, true, true, true, true, false, false, false}},     // 96
-    {{true, true, true, true, true, false, false, false}},     // 97
-    {{true, true, true, true, true, false, false, false}},     // 98
-    {{true, true, true, true, true, false, false, false}},     // 99
-    { {true, true, true, true, true, false, false, false} },   // 100
-    { {true, true, true, true, true, false, false, false} },   // 101
-    { {true, true, true, true, true, false, false, false} },   // 102
-    { {true, true, true, true, true, false, false, false} },   // 103
-    { {true, true, true, true, true, false, false, false} },   // 104
-    { {true, true, true, true, true, false, false, false} },   // 105
-    { {true, true, true, true, true, false, false, false} },   // 106
-    { {true, true, true, true, true, false, false, false} },   // 107
-    { {true, true, true, true, true, false, false, false} },   // 108
-    { {true, true, true, true, true, false, false, false} },   // 109
-    { {true, true, true, true, true, false, false, false} },   // 110
-    { {true, true, true, true, true, false, false, false} },   // 111
-    { {true, true, true, true, true, false, false, false} },   // 112
-    { { true, true, true, false, false, false, false, false } },   // 113
-    { { true, true, true, true, false, false, false, false } },   // 114
-    { { true, true, true, true, true, true, true, false } },   // 115
-    { { true, true, true, true, true, true, true, false } },   // 116
-    { { true, true, true, true, true, true, true, false } },   // 117
-    { { true, true, true, true, true, true, true, false } },   // 118
-    { { true, true, true, true, true, true, true, false } },   // 119
-    { { true, true, true, true, true, true, true, false } },   // 120
-    { { true, true, true, true, true, true, true, false } },   // 121
-    { { true, true, true, true, true, true, true, true } },    // 122
-    { { true, true, true, true, true, true, true, true } },    // 123
-    { { true, true, true, true, true, true, true, true } },    // 124
-    { { true, true, true, true, true, true, true, true } },    // 125
-    { { true, true, true, true, true, true, true, true } },    // 126
-    { { true, true, true, true, true, true, true, true } },    // 127
-    { { true, true, true, true, true, true, true, true } },    // 128
-    { { true, true, true, true, true, true, true, true } }     // 129
-} };
+        {{true, true, true, true, false, false, false, false}},    // 00: <OPX-00>
+        {{true, true, true, true, false, false, false, false}},    // 01: <OPX-01>
+        {{true, true, true, true, false, false, false, false}},    // 02: <OPX-02>
+        {{true, true, true, true, false, false, false, false}},    // 03: <OPX-03>
+        {{true, true, true, true, false, false, false, false}},    // 04: <OPX-04>
+        {{true, true, true, true, false, false, false, false}},    // 05: <OPX-05>
+        {{true, true, true, true, false, false, false, false}},    // 06: <OPX-06>
+        {{true, true, true, true, false, false, false, false}},    // 07: <OPX-07>
+        {{true, true, true, true, false, false, false, false}},    // 08: <OPX-08>
+        {{true, true, true, true, false, false, false, false}},    // 09: <OPX-09>
+        {{true, true, true, true, false, false, false, false}},    // 10: <OPX-10>
+        {{true, true, true, true, false, false, false, false}},    // 11: <OPX-11>
+        {{true, true, true, true, false, false, false, false}},    // 12: <OPX-12>
+        {{true, true, true, true, false, false, false, false}},    // 13: <OPX-13>
+        {{true, true, true, true, false, false, false, false}},    // 14: <OPX-14>
+        {{true, true, true, true, false, false, false, false}},    // 15: <OPX-15>
+        {{true, true, true, false, false, false, false, false}},   // 16: <OPX-16>
+        {{true, true, true, false, false, false, false, false}},   // 17: <OPX-17>
+        {{true, true, true, false, false, false, false, false}},   // 18: <OPX-18>
+        {{true, true, true, false, false, false, false, false}},   // 19: <OPX-19>
+        {{true, true, true, false, false, false, false, false}},   // 20: <OPX-20>
+        {{true, true, true, false, false, false, false, false}},   // 21: <OPX-21>
+        {{true, true, true, false, false, false, false, false}},   // 22: <OPX-22>
+        {{true, true, true, false, false, false, false, false}},   // 23: <OPX-23>
+        {{true, true, false, false, false, false, false, false}},  // 24: <OPX-24>
+        {{true, true, false, false, false, false, false, false}},  // 25: <OPX-25>
+        {{true, true, false, false, false, false, false, false}},  // 26: <OPX-26>
+        {{true, true, false, false, false, false, false, false}},  // 27: <OPX-27>
+        {{true, true, false, false, false, false, false, false}},  // 28: <MA3-00>
+        {{true, true, false, false, false, false, false, false}},  // 29: <MA3-01>
+        {{true, true, true, true, false, false, false, false}},    // 30: <MA3-02>
+        {{true, true, true, true, false, false, false, false}},    // 31: <MA3-03>
+        {{true, true, true, true, false, false, false, false}},    // 32: <MA3-04>
+        {{true, true, true, true, false, false, false, false}},    // 33: <MA3-05>
+        {{true, true, true, true, false, false, false, false}},    // 34: <MA3-06>
+        {{true, true, true, true, false, false, false, false}},    // 35: <MA3-07>
+        {{true, true, true, true, true, true, false, false}},      // 36: <OPS-00>
+        {{true, true, true, true, true, true, false, false}},      // 37: <OPS-01>
+        {{true, true, true, true, true, true, false, false}},      // 38: <OPS-02>
+        {{true, true, true, true, true, true, false, false}},      // 39: <OPS-03>
+        {{true, true, true, true, true, true, false, false}},      // 40: <OPS-04>
+        {{true, true, true, true, true, true, false, false}},      // 41: <OPS-05>
+        {{true, true, true, true, true, true, false, false}},      // 42: <OPS-06>
+        {{true, true, true, true, true, true, false, false}},      // 43: <OPS-07>
+        {{true, true, true, true, true, true, false, false}},      // 44: <OPS-08>
+        {{true, true, true, true, true, true, false, false}},      // 45: <OPS-09>
+        {{true, true, true, true, true, true, false, false}},      // 46: <OPS-10>
+        {{true, true, true, true, true, true, false, false}},      // 47: <OPS-11>
+        {{true, true, true, true, true, true, false, false}},      // 48: <OPS-12>
+        {{true, true, true, true, true, true, false, false}},      // 49: <OPS-13>
+        {{true, true, true, true, true, true, false, false}},      // 50: <OPS-14>
+        {{true, true, true, true, true, true, false, false}},      // 51: <OPS-15>
+        {{true, true, true, true, true, true, false, false}},      // 52: <OPS-16>
+        {{true, true, true, true, true, true, false, false}},      // 53: <OPS-17>
+        {{true, true, true, true, true, true, false, false}},      // 54: <OPS-18>
+        {{true, true, true, true, true, true, false, false}},      // 55: <OPS-19>
+        {{true, true, true, true, true, true, false, false}},      // 56: <OPS-20>
+        {{true, true, true, true, true, true, false, false}},      // 57: <OPS-21>
+        {{true, true, true, true, true, true, false, false}},      // 58: <OPS-22>
+        {{true, true, true, true, true, true, false, false}},      // 59: <OPS-23>
+        {{true, true, true, true, true, true, false, false}},      // 60: <OPS-24>
+        {{true, true, true, true, true, true, false, false}},      // 61: <OPS-25>
+        {{true, true, true, true, true, true, false, false}},      // 62: <OPS-26>
+        {{true, true, true, true, true, true, false, false}},      // 63: <OPS-27>
+        {{true, true, true, true, true, true, false, false}},      // 64: <OPS-28>
+        {{true, true, true, true, true, true, false, false}},      // 65: <OPS-29>
+        {{true, true, true, true, true, true, false, false}},      // 66: <OPS-30>
+        {{true, true, true, true, true, true, false, false}},      // 67: <OPS-31>
+        {{true, false, false, false, false, false, false, false}}, // 68: <OPZX7S-000>
+        {{true, true, false, false, false, false, false, false}},  // 69: <OPZX7S-001>
+        {{true, true, true, true, false, false, false, false}},    // 70: <OPZX7S-002>
+        {{true, true, true, true, false, false, false, false}},    // 71: <OPZX7S-003>
+        {{true, true, true, true, true, true, false, false}},      // 72
+        {{true, true, true, true, true, true, false, false}},      // 73
+        {{true, true, true, true, true, true, false, false}},      // 74
+        {{true, true, true, true, true, true, false, false}},      // 75
+        {{true, true, true, true, true, true, false, false}},      // 76
+        {{true, true, true, true, true, true, false, false}},      // 77
+        {{true, true, true, true, true, false, false, false}},     // 78
+        {{true, true, true, true, true, false, false, false}},     // 79
+        {{true, true, true, true, true, false, false, false}},     // 80
+        {{true, true, true, true, true, false, false, false}},     // 81
+        {{true, true, true, true, true, false, false, false}},     // 82
+        {{true, true, true, true, true, false, false, false}},     // 83
+        {{true, true, true, true, true, false, false, false}},     // 84
+        {{true, true, true, true, true, false, false, false}},     // 85
+        {{true, true, true, true, true, false, false, false}},     // 86
+        {{true, true, true, true, true, false, false, false}},     // 87
+        {{true, true, true, true, true, false, false, false}},     // 88
+        {{true, true, true, true, true, false, false, false}},     // 89
+        {{true, true, true, true, true, false, false, false}},     // 90
+        {{true, true, true, true, true, false, false, false}},     // 91
+        {{true, true, true, true, true, false, false, false}},     // 92
+        {{true, true, true, true, true, false, false, false}},     // 93
+        {{true, true, true, true, true, false, false, false}},     // 94
+        {{true, true, true, true, true, false, false, false}},     // 95
+        {{true, true, true, true, true, false, false, false}},     // 96
+        {{true, true, true, true, true, false, false, false}},     // 97
+        {{true, true, true, true, true, false, false, false}},     // 98
+        {{true, true, true, true, true, false, false, false}},     // 99
+        { {true, true, true, true, true, false, false, false} },   // 100
+        { {true, true, true, true, true, false, false, false} },   // 101
+        { {true, true, true, true, true, false, false, false} },   // 102
+        { {true, true, true, true, true, false, false, false} },   // 103
+        { {true, true, true, true, true, false, false, false} },   // 104
+        { {true, true, true, true, true, false, false, false} },   // 105
+        { {true, true, true, true, true, false, false, false} },   // 106
+        { {true, true, true, true, true, false, false, false} },   // 107
+        { {true, true, true, true, true, false, false, false} },   // 108
+        { {true, true, true, true, true, false, false, false} },   // 109
+        { {true, true, true, true, true, false, false, false} },   // 110
+        { {true, true, true, true, true, false, false, false} },   // 111
+        { {true, true, true, true, true, false, false, false} },   // 112
+        { { true, true, true, false, false, false, false, false } },   // 113
+        { { true, true, true, true, false, false, false, false } },   // 114
+        { { true, true, true, true, true, true, true, false } },   // 115
+        { { true, true, true, true, true, true, true, false } },   // 116
+        { { true, true, true, true, true, true, true, false } },   // 117
+        { { true, true, true, true, true, true, true, false } },   // 118
+        { { true, true, true, true, true, true, true, false } },   // 119
+        { { true, true, true, true, true, true, true, false } },   // 120
+        { { true, true, true, true, true, true, true, false } },   // 121
+        { { true, true, true, true, true, true, true, true } },    // 122
+        { { true, true, true, true, true, true, true, true } },    // 123
+        { { true, true, true, true, true, true, true, true } },    // 124
+        { { true, true, true, true, true, true, true, true } },    // 125
+        { { true, true, true, true, true, true, true, true } },    // 126
+        { { true, true, true, true, true, true, true, true } },    // 127
+        { { true, true, true, true, true, true, true, true } },    // 128
+        { { true, true, true, true, true, true, true, true } }     // 129
+    } };
+
+    static inline const std::array<bool, Opzx7PrValue::ops> opEnableOnAlgMatrix = { { true, true, true, true, true, true, true, true } };
 
     GuiComponentViewModes viewMode = GuiComponentViewModes::Twin;
 
@@ -351,7 +355,7 @@ class GuiOpzx7 : public GuiBase
     GuiComponentLfoOpzx7 glLfo;
 
     // UNISON/HARMONY
-	GuiComponentUnison unisonComponent;
+    GuiComponentUnison unisonComponent;
 
     GuiComponentMidi midiComponent;
 
@@ -485,7 +489,7 @@ public:
         pcmFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
     void updateWtFileName(int opIndex, const juce::String& fileName) {
-		wtFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
+        wtFileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
     }
     void updateWt2FileName(int opIndex, const juce::String& fileName) {
         wt2FileNameLabel[opIndex].setText(fileName, juce::dontSendNotification);
@@ -510,9 +514,10 @@ public:
     }
     void updateOpVisible(int idx, bool visible);
     void updateOpEnable(int idx, bool enable);
-	void updateOnWsChange(int idx);
+    void updateOnWsChange(int idx);
     void updateAlgorithmDisplay();
     void updateRgDisplayAsOp(int idx, bool rgMode);
+    void updateAlgorithmMatrixDisplay();
     void updatePresetName(const juce::String& name);
     bool keyPressed(const juce::KeyPress& key) override;
     void copyFmParamsToString();

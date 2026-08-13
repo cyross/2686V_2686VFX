@@ -458,9 +458,11 @@ void GuiOpzx7::setup()
     algModeSelector.setWantsKeyboardFocus(true);
     algModeSelector.setExplicitFocusOrder(++tabOrder);
     algModeSelector.onChange = [this] {
+        int mode = algModeSelector.getSelectedItemIndex();
+
         ctx.editor.resized();
 
-        ctx.audioProcessor.setOpzx7AlgMode((int)algModeSelector.getSelectedItemIndex());
+        ctx.audioProcessor.setOpzx7AlgMode(mode);
         };
 
     int initialMode = ctx.audioProcessor.getOpzx7AlgMode();
@@ -1121,7 +1123,14 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     }
     }
 
-    updateAlgorithmDisplay();
+    int mode = algModeSelector.getSelectedItemIndex();
+
+    if (mode == 0) {
+        updateAlgorithmDisplay();
+    }
+    else {
+        updateAlgorithmMatrixDisplay();
+    }
 }
 
 void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
@@ -1535,6 +1544,20 @@ void GuiOpzx7::updateAlgorithmDisplay()
     {
         // 画像がない場合（ファイルが見つからなかった時など）はクリア
         algImageComp.setImage(juce::Image());
+    }
+}
+
+void GuiOpzx7::updateAlgorithmMatrixDisplay()
+{
+    for (int i = 0; i < Opzx7PrValue::ops; ++i)
+    {
+        juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algMatrixOpPrefix[i];
+
+        opGroups[i].setText(newTitle);
+
+        bool enable = opEnableOnAlgMatrix[i];
+
+        updateOpEnable(i, enable);
     }
 }
 

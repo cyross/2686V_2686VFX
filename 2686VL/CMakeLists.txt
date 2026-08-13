@@ -795,4 +795,4 @@ function(create_cyross_plugin TARGET_NAME)
     juce_generate_juce_header(${TARGET_NAME})
 endfunction()
 
-create_cyross_plugin("2686VL")
+create_cyross_plugin("2686VLight")

@@ -113,7 +113,7 @@ void GuiOpzx7AlgGraph::paint(juce::Graphics& g) {
             if (state.fbMod[src][dest]) {
                 g.setColour(fbModColor);
                 if (src == dest) {
-                    // ★要望4: 自己FB円を小さくし、オペレータの左上に配置（右下が角に4分の1程度被る）
+                    // 自己FB円を小さくし、オペレータの左上に配置（右下が角に4分の1程度被る）
                     float r = 5.0f;
                     float cx = pos[src].x - 7.0f;
                     float cy = pos[src].y - 7.0f;
@@ -122,7 +122,7 @@ void GuiOpzx7AlgGraph::paint(juce::Graphics& g) {
                     g.drawText("FB", cx - r - 12.0f, cy - r - 4.0f, 12.0f, 8.0f, juce::Justification::centredRight);
                 }
                 else {
-                    // ★要望5: 他OPへのフィードバック（逆コの字で横に飛び出して描画）
+                    // 他OPへのフィードバック（逆コの字で横に飛び出して描画）
                     float offsetX = -14.0f - std::abs(src - dest) * 3.5f;
                     float sX = pos[src].x - 7.0f;
                     float sY = pos[src].y;
@@ -182,6 +182,10 @@ GuiOpzx7AlgMatrix::GuiOpzx7AlgMatrix(const GuiContext& context) : GuiBaseCompone
             modBtns[src][dest]->setColour(juce::ToggleButton::textColourId, modColor);
             modBtns[src][dest]->onClick = [this] { updateValidity(); };
 
+            if (dest == 0) {
+                modBtns[src][dest]->setVisible(false);
+            }
+
             fbBtns[src][dest] = std::make_unique<GuiToggleButton>(context);
             addAndMakeVisible(fbBtns[src][dest].get());
             fbBtns[src][dest]->setSize(chkW, chkH);
@@ -206,7 +210,7 @@ void GuiOpzx7AlgMatrix::resized() {
             modBtns[src][dest]->setBounds(x, y, chkW, chkH);
         }
 
-        // ★要望1: OUTを一番下に配置
+        // OUTを一番下に配置
         int outY = modChkStartY + cellH * 7 + margin;
         carrierBtns[src]->setBounds(x, outY, chkW, chkH);
     }
@@ -282,7 +286,7 @@ void GuiOpzx7AlgMatrix::paint(juce::Graphics& g) {
         g.drawText("->" + juce::String(dest + 1), startX, y, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
     }
 
-    // ★要望1: OUT行ラベルを一番下に
+    // OUT行ラベルを一番下に
     int outY = modChkStartY + cellH * 7;
     g.setColour(juce::Colours::white);
     g.drawText("OUT", startX, outY, chkStartX - startX - margin, cellH, juce::Justification::centredRight);
