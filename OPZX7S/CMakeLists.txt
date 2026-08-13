@@ -365,6 +365,7 @@ set(GUI_COMPONENT_QUALITY_FILES
 )
 
 set(GUI_COMPONENT_ALG_MATRIX_FILES
+    "Source/Gui/Components/AlgMatrix/AlgMatrixState.h"
     "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
     "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.cpp"
 )

@@ -350,7 +350,7 @@ inline void OpmCore::processSingleOperator(float* currentOut, float& finalOut)
     // 2. フィードバック変調入力
     for (int f = 0; f < routing.fbModCount; ++f) {
         const auto& conn = routing.fbMods[f];
-        float averageFb = (m_history1[conn.srcOp] + m_history2[conn.srcOp]) * 0.5f;
+        float averageFb = m_operators[conn.srcOp].getFeedbackAverage();
         fbModulator += averageFb * conn.amount;
     }
 

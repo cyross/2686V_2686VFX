@@ -339,6 +339,11 @@ protected:
     std::unique_ptr<ButtonAttachment> att;
     juce::Justification textJustification = juce::Justification::centred;
     juce::Font buttonFont = juce::Font(juce::FontOptions(12.0f));
+    float boxW = 12.0f; // 縮小しても視認しやすい四角のサイズ
+    float boxH = 12.0f; // 縮小しても視認しやすい四角のサイズ
+    float boxGapW = 2.0f;      // 四角と文字の隙間
+    float boxGapH = 2.0f;      // 四角と文字の隙間
+    float labelGapW = 6.0f;      // 四角と文字の隙間
 public:
     GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {
     }
@@ -356,6 +361,9 @@ public:
 
     void setup(const Config& c);
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+	void setBoxSize(float w, float h) { boxW = w; boxH = h; }
+	void setBoxGap(float w, float h) { boxGapW = w; boxGapH = h; }
+    void setLabelGap(float w) { labelGapW = w; }
 };
 
 class GuiTextButton : public juce::TextButton, public GuiBaseComponent

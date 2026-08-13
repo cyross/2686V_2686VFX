@@ -6,6 +6,9 @@
 #include <vector>
 
 #include "./AlgMatrixState.h"
+#include "../../../Core/Gui/GuiBase.h"
+#include "../../../Core/Gui/GuiComponents.h"
+#include "../../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 // ==============================================================================
 // アルゴリズムを可視化するグラフコンポーネント
@@ -23,19 +26,23 @@ public:
 // ==============================================================================
 // 8x8 マトリックス入力コンポーネント
 // ==============================================================================
-class GuiOpzx7AlgMatrix : public juce::Component {
+class GuiOpzx7AlgMatrix : public juce::Component, public GuiBaseComponent {
 public:
-    GuiOpzx7AlgMatrix();
+    GuiOpzx7AlgMatrix(const GuiContext& context);
     void resized() override;
     void paint(juce::Graphics& g) override;
 
-    std::array<std::unique_ptr<juce::ToggleButton>, 8> carrierBtns;
-    std::array<std::array<std::unique_ptr<juce::ToggleButton>, 8>, 8> modBtns;
+    std::array<std::unique_ptr<GuiToggleButton>, Opzx7PrValue::ops> carrierBtns;
+    std::array<std::array<std::unique_ptr<GuiToggleButton>, Opzx7PrValue::ops>, Opzx7PrValue::ops> modBtns;
+    std::array<std::array<std::unique_ptr<GuiToggleButton>, Opzx7PrValue::ops>, Opzx7PrValue::ops> fbBtns;
 
-    // 状態が変更された際に呼ばれるコールバック
     std::function<void(const AlgMatrixState&)> onMatrixChanged;
 
     void updateValidity();
     AlgMatrixState getState() const;
     void setState(const AlgMatrixState& s);
+
+private:
+    // 描画時にグレーアウトさせるための到達可能フラグ
+    std::array<bool, Opzx7PrValue::ops> m_opReachable{ false };
 };

@@ -208,14 +208,9 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
         for (int i = 0; i < 8; ++i) {
             m_currentParams.opzx7.algFb.matrix.isCarrier[i] = guiState.isCarrier[i];
             for (int j = 0; j < 8; ++j) {
-                if (i < j) {
-                    // 順方向
-                    m_currentParams.opzx7.algFb.matrix.mod[i][j] = guiState.mod[i][j];
-                }
-                else {
-                    // 逆方向/自己 (フィードバック)
-                    m_currentParams.opzx7.algFb.matrix.fbMod[i][j] = guiState.mod[i][j];
-                }
+                // UIで設定した値をそのままDSPの配列にマッピングする
+                m_currentParams.opzx7.algFb.matrix.mod[i][j] = guiState.mod[i][j];
+                m_currentParams.opzx7.algFb.matrix.fbMod[i][j] = guiState.fbMod[i][j];
             }
         }
     }
@@ -1470,8 +1465,16 @@ void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
         }
     }
 
+    juce::String fStr;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            fStr += state.fbMod[i][j] ? "1" : "0";
+        }
+    }
+
     apvts.state.setProperty("OPZX7_ALG_MATRIX_C", cStr, nullptr);
     apvts.state.setProperty("OPZX7_ALG_MATRIX_M", mStr, nullptr);
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_F", fStr, nullptr);
 }
 
 AlgMatrixState AudioPlugin2686V::getOpzx7AlgMatrix()
@@ -1489,6 +1492,7 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
 
     juce::String cStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_C", "00000000").toString();
     juce::String mStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_M", "0000000000000000000000000000000000000000000000000000000000000000").toString();
+    juce::String fStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_F", "0000000000000000000000000000000000000000000000000000000000000000").toString();
 
     juce::ScopedLock lock(m_matrixLock);
 
@@ -1500,9 +1504,8 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             int index = i * 8 + j;
-            if (index < mStr.length()) {
-                m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
-            }
+            if (index < mStr.length()) m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
+            if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
         }
     }
 }

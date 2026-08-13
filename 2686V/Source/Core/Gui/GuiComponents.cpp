@@ -262,16 +262,13 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
 {
     if (!this->isVisible())
     {
-		return; // 非表示なら描画しない
+        return; // 非表示なら描画しない
     }
-
-    float boxSize = 12.0f; // 縮小しても視認しやすい四角のサイズ
-    float gap = 6.0f;      // 四角と文字の隙間
 
     g.setFont(buttonFont);
     juce::String text = getButtonText();
     float textWidth = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), juce::StringRef(text));
-    float totalWidth = boxSize + gap + textWidth;
+    float totalWidth = boxW + labelGapW + textWidth;
 
     float alpha = isEnabled() ? 1.0f : 0.5f;
     juce::Colour textColor = findColour(juce::ToggleButton::textColourId);
@@ -286,19 +283,19 @@ void GuiToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHigh
     }
 
     // 1. 枠線の描画
-    float boxY = (bounds.getHeight() - boxSize) * 0.5f;
-    juce::Rectangle<float> box(startX, boxY, boxSize, boxSize);
+    float boxY = (bounds.getHeight() - boxH) * 0.5f;
+    juce::Rectangle<float> box(startX, boxY, boxW, boxH);
 
     g.setColour(textColor.withMultipliedAlpha(alpha));
     g.drawRect(box, 1.0f);
 
     // 2. ONのときの塗りつぶし (■)
     if (getToggleState()) {
-        g.fillRect(box.reduced(2.0f)); // 2px内側を塗りつぶす
+        g.fillRect(box.reduced(boxGapW, boxGapH)); // 内側を塗りつぶす
     }
 
     // 3. テキストの描画
-    juce::Rectangle<float> textBounds(box.getRight() + gap, 0.0f, bounds.getWidth() - box.getRight() - gap, bounds.getHeight());
+    juce::Rectangle<float> textBounds(box.getRight() + labelGapW, 0.0f, bounds.getWidth() - box.getRight() - labelGapW, bounds.getHeight());
     g.drawFittedText(text, textBounds.toNearestInt(), juce::Justification::centredLeft, 1);
 }
 
@@ -374,7 +371,7 @@ void GuiTableList::setup(const Config& c)
 {
     c.parent.addAndMakeVisible(*this);
 
-	this->setMultipleSelectionEnabled(c.canMultipleSelection);
+    this->setMultipleSelectionEnabled(c.canMultipleSelection);
 
     if (!c.color.isTransparent())
     {
@@ -388,7 +385,7 @@ void GuiTableList::setup(const Config& c)
 
 void GuiTableList::addColumn(const juce::String& columnName, int columnId, int width)
 {
-	this->getHeader().addColumn(columnName, columnId, width);
+    this->getHeader().addColumn(columnName, columnId, width);
 }
 
 // 行数を返す
@@ -444,7 +441,7 @@ void GuiTextEditor::setup(const Config& c)
 
     c.parent.addAndMakeVisible(*this);
 
-	this->setMultiLine(c.isMultiLine);
+    this->setMultiLine(c.isMultiLine);
     this->setReturnKeyStartsNewLine(c.isReturnKeyStartsNewLine);
 
     if (!c.color.isTransparent())
@@ -499,7 +496,7 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
                     c.onMmlApplied(mmlText);
                 }
             }
-        }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
+            }), true); // deleteWhenDismissed = true になっているので w は自動で破棄されます
 
         if (auto* editor = w->getTextEditor("mmlInput"))
         {
@@ -508,7 +505,7 @@ void GuiMmlButton::setupMml(const MmlConfig& c)
             // テキストエディタ内でEnterキーが押されたら、OK(1)として終了する
             editor->onReturnKey = [w] { w->exitModalState(1); };
         }
-    };
+        };
 }
 
 void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
@@ -542,7 +539,7 @@ void GuiCategoryLabel::setupInner(const Config& c, juce::Colour colour)
 
 void GuiCategoryLabel::setup(const Config& c)
 {
-	setupInner(c, c.color);
+    setupInner(c, c.color);
 }
 
 void GuiCategoryLabel::setupHwCategory(const Config& c)

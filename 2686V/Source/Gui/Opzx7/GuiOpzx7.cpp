@@ -303,8 +303,8 @@ static std::vector<SelectItem> ksCurveItems = {
 };
 
 static std::vector<SelectItem> algModeItems = {
-    {.name = "0: 従来のアルゴリズム", .value = 1 },
-    {.name = "1: アルゴリズムマトリックス", .value = 2 }
+    {.name = juce::String("") + "0: 従来のアルゴリズム", .value = 1 },
+    {.name = juce::String("") + "1: アルゴリズムマトリックス", .value = 2 }
 };
 
 GuiOpzx7::GuiOpzx7(const GuiContext& context) :
@@ -314,6 +314,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     viewModeComp(context),
     algFbCat(context),
     algModeSelector(context),
+    algMatrixComp(context),
     levelComponent(context),
     qualityComponent(context),
     algSelector(context),
@@ -456,7 +457,7 @@ void GuiOpzx7::setup()
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::algFb });
 
-    algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems, .isReset = true });
+    algModeSelector.setup({ .parent = mainGroup.contentCanvas, .id = "", .title = "Mode", .items = algModeItems, .isReset = false });
     algModeSelector.setWantsKeyboardFocus(true);
     algModeSelector.setExplicitFocusOrder(++tabOrder);
     algModeSelector.onChange = [this] {
@@ -465,8 +466,15 @@ void GuiOpzx7::setup()
         ctx.audioProcessor.setOpzx7AlgMode((int)algModeSelector.getSelectedItemIndex());
         };
 
+    int initialMode = ctx.audioProcessor.getOpzx7AlgMode();
+    algModeSelector.setSelectedItemIndex(initialMode, juce::dontSendNotification);
+
     mainGroup.contentCanvas.addAndMakeVisible(&algMatrixComp);
     mainGroup.contentCanvas.addAndMakeVisible(&algGraphComp);
+
+    AlgMatrixState initialState = ctx.audioProcessor.getOpzx7AlgMatrix();
+    algMatrixComp.setState(initialState);
+    algGraphComp.updateState(initialState);
 
     algMatrixComp.onMatrixChanged = [this](const AlgMatrixState& state) {
         algGraphComp.updateState(state);
@@ -1035,10 +1043,11 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         algGraphComp.setVisible(true);
 
         mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-        auto matrixArea = mRect.removeFromTop(200);
+
+        auto matrixArea = mRect.removeFromTop(320);
         algMatrixComp.setBounds(matrixArea);
 
-        auto graphArea = mRect.removeFromTop(160);
+        auto graphArea = mRect.removeFromTop(260);
         algGraphComp.setBounds(graphArea.reduced(10));
     }
 

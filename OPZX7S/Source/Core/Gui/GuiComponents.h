@@ -254,7 +254,7 @@ protected:
     class ComboBoxLF : public juce::LookAndFeel_V4
     {
     public:
-        ComboBoxLF(): juce::LookAndFeel_V4() {
+        ComboBoxLF() : juce::LookAndFeel_V4() {
         }
 
         // デフォルトのフォントサイズ（少し大きめの14.0fなどを指定）
@@ -339,6 +339,11 @@ protected:
     std::unique_ptr<ButtonAttachment> att;
     juce::Justification textJustification = juce::Justification::centred;
     juce::Font buttonFont = juce::Font(juce::FontOptions(12.0f));
+    float boxW = 12.0f; // 縮小しても視認しやすい四角のサイズ
+    float boxH = 12.0f; // 縮小しても視認しやすい四角のサイズ
+    float boxGapW = 2.0f;      // 四角と文字の隙間
+    float boxGapH = 2.0f;      // 四角と文字の隙間
+    float labelGapW = 6.0f;      // 四角と文字の隙間
 public:
     GuiToggleButton(const GuiContext& context) : GuiBaseComponent(context) {
     }
@@ -356,6 +361,9 @@ public:
 
     void setup(const Config& c);
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    void setBoxSize(float w, float h) { boxW = w; boxH = h; }
+    void setBoxGap(float w, float h) { boxGapW = w; boxGapH = h; }
+    void setLabelGap(float w) { labelGapW = w; }
 };
 
 class GuiTextButton : public juce::TextButton, public GuiBaseComponent
@@ -438,7 +446,7 @@ public:
         juce::Component& parent;
         juce::String id = "";
         juce::String title;
-		juce::URL url;
+        juce::URL url;
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
         juce::Colour color = juce::Colour::fromFloatRGBA(1.0f, 1.0f, 1.0f, 1.0f);
@@ -491,7 +499,7 @@ public:
     };
 
     void setup(const Config& c);
-	void addColumn(const juce::String& columnName, int columnId, int width);
+    void addColumn(const juce::String& columnName, int columnId, int width);
     int getNumRows() override;
     void paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
     void paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
@@ -584,17 +592,17 @@ class GuiCategoryLabel : public GuiLabel
 {
     bool enableChangeDetailVisible = false;
     bool detailVisible = false;
-	juce::String visibleText = juce::String();
+    juce::String visibleText = juce::String();
     juce::String invisibleText = juce::String();
     juce::Font font = juce::Font(juce::FontOptions(16.0f, juce::Font::bold));
-	juce::Colour labelColor = GuiColor::Label::CategoryText;
+    juce::Colour labelColor = GuiColor::Label::CategoryText;
 public:
     GuiCategoryLabel(const GuiContext& context) : GuiLabel(context) {}
 
     struct Config {
         juce::Component& parent;
         juce::String title;
-		std::optional<juce::String> invisibleTitle = std::nullopt; // 詳細テキスト（省略可能）
+        std::optional<juce::String> invisibleTitle = std::nullopt; // 詳細テキスト（省略可能）
         std::optional<juce::Font> font = std::nullopt;
         juce::Justification justification = juce::Justification::centred;
         juce::Colour color = GuiColor::Label::CategoryText;
@@ -603,10 +611,10 @@ public:
     };
 
     void setup(const Config& c);
-	void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
-	void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
-	void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
-	bool isDetailVisible() const { return this->detailVisible; }
+    void setupHwCategory(const Config& c); // ハードウェアカテゴリ用の簡易設定
+    void setupSwCategory(const Config& c); // ソフトウェアカテゴリ用の簡易設定
+    void setupOtherCategory(const Config& c); // その他カテゴリ用の簡易設定
+    bool isDetailVisible() const { return this->detailVisible; }
 private:
     void setupInner(const Config& c, juce::Colour colour);
 };

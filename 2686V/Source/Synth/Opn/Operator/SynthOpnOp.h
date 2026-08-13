@@ -45,6 +45,10 @@ public:
 	void getSample(float& output, float modulator, float feedbackModulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 	void setCurveCore(CurveCore* p_curveCore);
 
+	float getFeedbackAverage() const {
+		return (m_fb1 + m_fb2) * 0.5f;
+	}
+
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数
 	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }

@@ -54,6 +54,10 @@ public:
 	void clearWtBuffer() { m_wtBuffer = nullptr; }
 	void clearWt2Buffer() { m_wt2Buffer = nullptr; }
 
+	float getFeedbackAverage() const {
+		return (m_fb1 + m_fb2) * 0.5f;
+	}
+
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数
 	void setUnisonPhaseOffset(float offset) { m_unisonPhaseOffset = offset; }

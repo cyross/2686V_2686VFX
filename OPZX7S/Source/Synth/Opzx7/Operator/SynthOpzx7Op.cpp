@@ -424,11 +424,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
-    // フィードバックバッファには「エンベロープ適用前」の純粋な値を保存する！
-    if (!m_isExternalFeedback) {
-        m_fb2 = m_fb1;
-        m_fb1 = rawWave; // outputではなくrawWaveを保存！
-    }
+    m_fb2 = m_fb1;
+    m_fb1 = rawWave; // outputではなくrawWaveを保存！
 
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;
