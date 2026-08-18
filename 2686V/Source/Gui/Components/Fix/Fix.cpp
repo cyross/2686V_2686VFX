@@ -4,6 +4,7 @@
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 std::array<juce::String, 128> GuiComponentFix::noteLabelText{
     "C-2", "C#-2", "D-2", "D#-2", "E-2", "F-2", "F#-2", "G-2", "G#-2", "A-2", "A#-2", "B-2",
@@ -494,4 +495,18 @@ void GuiComponentFix::copyParams(CopyFix& copyObj) {
 void GuiComponentFix::pasteParams(CopyFix& copyObj) {
     enable.setToggleState(copyObj.fixedMode, juce::sendNotification);
     freq.setValue(copyObj.fixedFreq, juce::sendNotification);
+}
+
+void GuiComponentFix::setImportingParams(juce::StringArray& lines, int& index) {
+    enable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    freq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentFix::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(enable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(freq.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
 }

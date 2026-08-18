@@ -2,6 +2,7 @@
 
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 // 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 std::vector<SelectItem> QualityPcm::qualityItems = {
@@ -98,4 +99,20 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
     }
+}
+
+void QualityPcm::setImportingParams(juce::StringArray& lines, int& index) {
+    modeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+	interpSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+}
+
+juce::String QualityPcm::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+
+    return content;
 }

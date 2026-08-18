@@ -50,3 +50,8 @@ void GuiComponentImportExport::setVisible(bool visible) {
     importButton.setVisible(visible);
     exportButton.setVisible(visible);
 }
+
+void GuiComponentImportExport::setEnable(bool enable) {
+    importButton.setEnabled(enable);
+    exportButton.setEnabled(enable);
+}

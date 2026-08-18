@@ -306,4 +306,8 @@ public:
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importChParam();
+    void exportChParam();
+    void importOpChParam(int opIndex);
+    void exportOpChParam(int opIndex);
 };

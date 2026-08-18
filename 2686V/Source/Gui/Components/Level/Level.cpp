@@ -2,6 +2,7 @@
 
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix) {
     // 出力レベル
@@ -222,4 +223,16 @@ float GuiComponentLevel::getLevel() {
 
 void GuiComponentLevel::setLevel(float level) {
 	levelSlider.setValue(level, juce::dontSendNotification);
+}
+
+void GuiComponentLevel::setImportingParams(juce::StringArray& lines, int& index) {
+    levelSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentLevel::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(levelSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
 }

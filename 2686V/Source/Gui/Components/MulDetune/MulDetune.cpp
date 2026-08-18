@@ -467,3 +467,23 @@ void GuiComponentMulDetune::setEnables(bool enable) {
     dt3.setEnabledWithLabel(enable);
     dt3Buttons.setEnables(enable);
 }
+
+void GuiComponentMulDetune::setImportingParams(juce::StringArray& lines, int& index) {
+    mul.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    mulRatio.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    dt1.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    dt2.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    dt3.setValue(lines[index++].getIntValue(), juce::sendNotification);
+}
+    
+juce::String GuiComponentMulDetune::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(mul.getSelectedItemIndex()) + "\n";
+    content += juce::String(mulRatio.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(dt1.getSelectedItemIndex()) + "\n";
+    content += juce::String(dt2.getValue()) + "\n";
+    content += juce::String(dt3.getValue()) + "\n";
+
+    return content;
+}

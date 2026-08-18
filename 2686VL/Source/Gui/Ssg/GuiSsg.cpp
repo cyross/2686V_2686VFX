@@ -811,3 +811,11 @@ void GuiSsg::importSsgSwPEnv11Param() {
 void GuiSsg::exportSsgSwPEnv11Param() {
     ssgSwPEnv11Component.exportParams();
 }
+
+void GuiSsg::importChParam() {
+
+}
+
+void GuiSsg::exportChParam() {
+
+}

@@ -1264,3 +1264,19 @@ void GuiRhythm::importSsgSwPEnv11Param(int p) {
 void GuiRhythm::exportSsgSwPEnv11Param(int p) {
     pads[p].importSsgSwPEnv11Param();
 }
+
+void GuiRhythm::importChParam() {
+
+}
+
+void GuiRhythm::exportChParam() {
+
+}
+
+void GuiRhythm::importPadChParam(int p) {
+
+}
+
+void GuiRhythm::exportPadChParam(int p) {
+
+}

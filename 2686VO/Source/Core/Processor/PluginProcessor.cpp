@@ -521,6 +521,8 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
     xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
     xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+    xml.setAttribute(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
+    xml.setAttribute(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
     xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
     xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
     xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
@@ -635,18 +637,6 @@ void AudioPlugin2686V::loadStartupSettings()
         lastSampleDirectory = newSampleDir;
     }
 
-    if (defaultWavetableDir.isEmpty() || !juce::File(defaultWavetableDir).isDirectory())
-    {
-        auto newWavetableDir = pluginDir.getChildFile(Io::Folder::wavetable);
-
-        // 存在していなければ作成
-        if (!newWavetableDir.exists()) {
-            newWavetableDir.createDirectory();
-        }
-
-        defaultWavetableDir = newWavetableDir.getFullPathName();
-    }
-
     if (defaultFxOrderDir.isEmpty() || !juce::File(defaultFxOrderDir).isDirectory())
     {
         auto newFxOrderDir = pluginDir.getChildFile(Io::Folder::fxOrder);
@@ -669,6 +659,18 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultFxParamDir = newFxParamDir.getFullPathName();
+    }
+
+    if (defaultChannelParamDir.isEmpty() || !juce::File(defaultChannelParamDir).isDirectory())
+    {
+        auto newChannelParamDir = pluginDir.getChildFile(Io::Folder::channelParam);
+
+        // 存在していなければ作成
+        if (!newChannelParamDir.exists()) {
+            newChannelParamDir.createDirectory();
+        }
+
+        defaultChannelParamDir = newChannelParamDir.getFullPathName();
     }
 
     if (defaultLfoParamDir.isEmpty() || !juce::File(defaultLfoParamDir).isDirectory())

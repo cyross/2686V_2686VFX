@@ -816,3 +816,11 @@ void GuiAdpcm::importSsgSwPEnv11Param() {
 void GuiAdpcm::exportSsgSwPEnv11Param() {
     ssgSwPEnv11Component.exportParams();
 }
+
+void GuiAdpcm::importChParam() {
+
+}
+
+void GuiAdpcm::exportChParam() {
+
+}

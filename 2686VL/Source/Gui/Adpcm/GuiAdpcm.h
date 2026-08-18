@@ -234,4 +234,6 @@ public:
     void exportQualityParam();
     void importPcmPlayParam();
     void exportPcmPlayParam();
+    void importChParam();
+    void exportChParam();
 };

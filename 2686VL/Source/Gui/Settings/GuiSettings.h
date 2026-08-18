@@ -56,6 +56,10 @@ class GuiSettings : public GuiBase
     GuiLabel fxParamDirPathLabel;
     GuiTextButton fxParamDirBrowseBtn;
 
+    GuiLabel channelParamDirLabel;
+    GuiLabel channelParamDirPathLabel;
+    GuiTextButton channelParamDirBrowseBtn;
+
     GuiLabel lfoParamDirLabel;
     GuiLabel lfoParamDirPathLabel;
     GuiTextButton lfoParamDirBrowseBtn;
@@ -146,6 +150,9 @@ public:
         fxParamDirLabel(context),
         fxParamDirPathLabel(context),
         fxParamDirBrowseBtn(context),
+        channelParamDirLabel(context),
+        channelParamDirPathLabel(context),
+        channelParamDirBrowseBtn(context),
         lfoParamDirLabel(context),
         lfoParamDirPathLabel(context),
         lfoParamDirBrowseBtn(context),

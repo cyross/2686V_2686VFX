@@ -596,6 +596,8 @@ public:
 	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
     juce::String defaultFxParamDir;
+    juce::String defaultChannelParamDir;
+    juce::String defaultCurveParamDir;
     juce::String defaultLfoParamDir;
     juce::String defaultAmpEnvParamDir;
     juce::String defaultPitchEnvParamDir;

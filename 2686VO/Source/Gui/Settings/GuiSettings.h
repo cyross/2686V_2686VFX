@@ -44,10 +44,6 @@ class GuiSettings : public GuiBase
     GuiLabel presetDirPathLabel;
     GuiTextButton presetDirBrowseBtn;
 
-    GuiLabel wavetableDirLabel;
-    GuiLabel wavetableDirPathLabel;
-    GuiTextButton wavetableDirBrowseBtn;
-
     GuiLabel fxOrderDirLabel;
     GuiLabel fxOrderDirPathLabel;
     GuiTextButton fxOrderDirBrowseBtn;
@@ -55,6 +51,10 @@ class GuiSettings : public GuiBase
     GuiLabel fxParamDirLabel;
     GuiLabel fxParamDirPathLabel;
     GuiTextButton fxParamDirBrowseBtn;
+
+    GuiLabel channelParamDirLabel;
+    GuiLabel channelParamDirPathLabel;
+    GuiTextButton channelParamDirBrowseBtn;
 
     GuiLabel lfoParamDirLabel;
     GuiLabel lfoParamDirPathLabel;
@@ -137,15 +137,15 @@ public:
         presetDirLabel(context),
         presetDirPathLabel(context),
         presetDirBrowseBtn(context),
-        wavetableDirLabel(context),
-        wavetableDirPathLabel(context),
-        wavetableDirBrowseBtn(context),
         fxOrderDirLabel(context),
         fxOrderDirPathLabel(context),
         fxOrderDirBrowseBtn(context),
         fxParamDirLabel(context),
         fxParamDirPathLabel(context),
         fxParamDirBrowseBtn(context),
+        channelParamDirLabel(context),
+        channelParamDirPathLabel(context),
+        channelParamDirBrowseBtn(context),
         lfoParamDirLabel(context),
         lfoParamDirPathLabel(context),
         lfoParamDirBrowseBtn(context),

@@ -142,4 +142,6 @@ public:
     void exportDetuneParam();
     void importUnisonParam();
     void exportUnisonParam();
+    void importChParam();
+    void exportChParam();
 };

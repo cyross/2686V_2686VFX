@@ -114,7 +114,7 @@ void GuiSettings::setup()
         );
     };
     
-	wallpaperClearBtn.setup({ .parent = *this, .title = juce::String("") + "解除", .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
+	wallpaperClearBtn.setup({ .parent = *this, .title = juce::String("") + "解除", .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false });
     wallpaperClearBtn.setWantsKeyboardFocus(true);
     wallpaperClearBtn.setExplicitFocusOrder(++tabOrder);
     wallpaperClearBtn.onClick = [this] {
@@ -239,6 +239,48 @@ void GuiSettings::setup()
                 if (file.isDirectory()) {
                     ctx.audioProcessor.defaultFxParamDir = file.getFullPathName();
                     fxParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Channel Param Dir ---
+    setupFolderRow(channelParamDirLabel, juce::String("") + "CHパラメータファイルディレクトリ:", channelParamDirPathLabel, channelParamDirBrowseBtn);
+    channelParamDirPathLabel.setText(ctx.audioProcessor.defaultChannelParamDir, juce::dontSendNotification);
+    channelParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    channelParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    channelParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    channelParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "CHパラメータファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultChannelParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultChannelParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultChannelParamDir = file.getFullPathName();
+                    channelParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
+    // --- Curve Param Dir ---
+    setupFolderRow(curveParamDirLabel, juce::String("") + "カーブ編集パラメータファイルディレクトリ:", curveParamDirPathLabel, curveParamDirBrowseBtn);
+    curveParamDirPathLabel.setText(ctx.audioProcessor.defaultCurveParamDir, juce::dontSendNotification);
+    curveParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    curveParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    curveParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    curveParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "カーブ編集パラメータファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultCurveParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultCurveParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultCurveParamDir = file.getFullPathName();
+                    curveParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
                 }
             }
         );
@@ -552,7 +594,7 @@ void GuiSettings::setup()
         );
         };
 
-    saveStartupSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "標準設定として保存", .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
+    saveStartupSettingsBtn.setup({ .parent = *this, .title = juce::String("") + "標準設定として保存", .textColor = juce::Colours::white, .bgColor = GuiColor::Settings::SaveAsDefaultBtnBg, .isReset = false });
     saveStartupSettingsBtn.setWantsKeyboardFocus(true);
     saveStartupSettingsBtn.setExplicitFocusOrder(++tabOrder);
     saveStartupSettingsBtn.onClick = [this]
@@ -614,7 +656,7 @@ void GuiSettings::setup()
     separator7.setupComponent(*this);
 
     // --- Clear Undo/Redo History Button ---
-    clearUndoHistoryBtn.setup({ .parent = *this, .title = juce::String("") + "アンドゥ・リドゥ履歴の初期化", .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
+    clearUndoHistoryBtn.setup({ .parent = *this, .title = juce::String("") + "アンドゥ・リドゥ履歴の初期化", .textColor = juce::Colours::white, .bgColor = juce::Colours::blue.darker(0.3f).withAlpha(0.3f), .isReset = false});
     clearUndoHistoryBtn.setWantsKeyboardFocus(true);
     clearUndoHistoryBtn.setExplicitFocusOrder(++tabOrder);
     clearUndoHistoryBtn.onClick = [this] {
@@ -688,6 +730,18 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     fxParamDirLabel.setBounds(rowFxParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     fxParamDirBrowseBtn.setBounds(rowFxParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     fxParamDirPathLabel.setBounds(rowFxParamDir);
+
+    // 7. Channel Param Dir
+    auto rowChannelParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    channelParamDirLabel.setBounds(rowChannelParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    channelParamDirBrowseBtn.setBounds(rowChannelParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    channelParamDirPathLabel.setBounds(rowChannelParamDir);
+
+    // 7. Curve Param Dir
+    auto rowCurveParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    curveParamDirLabel.setBounds(rowCurveParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    curveParamDirBrowseBtn.setBounds(rowCurveParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    curveParamDirPathLabel.setBounds(rowCurveParamDir);
 
     // 7. LFO Param Dir
     auto rowLfoParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);

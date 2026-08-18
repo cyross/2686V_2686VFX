@@ -561,4 +561,8 @@ public:
     void exportQualityParam();
     void importOpPcmPlayParam(int opIndex);
     void exportOpPcmPlayParam(int opIndex);
+    void importChParam();
+    void exportChParam();
+    void importOpChParam(int opIndex);
+    void exportOpChParam(int opIndex);
 };

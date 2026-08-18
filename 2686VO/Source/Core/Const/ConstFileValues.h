@@ -10,14 +10,16 @@ namespace Io
 
 	namespace Extension
 	{
-		static inline const juce::String wavetable = "wt";
-		static inline const juce::String wt2 = "wt2";
 		static inline const juce::String fxOrder = "fxo";
 		static inline const juce::String fxParam = "2fx";
+		static inline const juce::String opnaParam = "param.opna";
+		static inline const juce::String ssgParam = "param.ssg";
+		static inline const juce::String rhythmParam = "param.rhythm";
+		static inline const juce::String adpcmParam = "param.adpcm";
+		static inline const juce::String opnaOpParam = "param.opna.op";
+		static inline const juce::String rhythmPadParam = "param.rhythm.pad";
 		static inline const juce::String OpnaLfoParam = "lfoOpna";
 		static inline const juce::String N88LfoParam = "lfoN88";
-		static inline const juce::String OpmLfoParam = "lfoOpm";
-		static inline const juce::String OplLfoParam = "lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
@@ -32,14 +34,16 @@ namespace Io
 
 	namespace ExtensionGlob
 	{
-		static inline const juce::String wavetable = "*.wt";
-		static inline const juce::String wt2 = "*.wt2";
 		static inline const juce::String fxOrder = "*.fxo";
 		static inline const juce::String fxParam = "*.2fx";
+		static inline const juce::String opnaParam = "*.param.opna";
+		static inline const juce::String ssgParam = "*.param.ssg";
+		static inline const juce::String rhythmParam = "*.param.rhythm";
+		static inline const juce::String adpcmParam = "*.param.adpcm";
+		static inline const juce::String opnaOpParam = "*.param.opna.op";
+		static inline const juce::String rhythmPadParam = "*.param.rhythm.pad";
 		static inline const juce::String OpnaLfoParam = "*.lfoOpna";
 		static inline const juce::String N88LfoParam = "*.lfoN88";
-		static inline const juce::String OpmLfoParam = "*.lfoOpm";
-		static inline const juce::String OplLfoParam = "*.lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
 		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
@@ -60,9 +64,9 @@ namespace Io
 		static inline const juce::String preset = "2686VOPresets";
 		static inline const juce::String resource = "Resources";
 		static inline const juce::String sample = "Samples";
-		static inline const juce::String wavetable = "Wavetables";
 		static inline const juce::String fxOrder = "FxOrders";
 		static inline const juce::String fxParam = "FxParams";
+		static inline const juce::String channelParam = "ChannelParams";
 		static inline const juce::String lfoParam = "LfoParams";
 		static inline const juce::String ampEnvParam = "AmpEnvParams";
 		static inline const juce::String pitchEnvParam = "PitchEnvParams";
@@ -79,12 +83,12 @@ namespace Io
 		namespace Title
 		{
 			static inline const juce::String openAudioFile = "Select an Audio file";
-			static inline const juce::String importWavetableFile = "Import Wavetable";
-			static inline const juce::String exportWavetableFile = "Export Wavetable";
 			static inline const juce::String importFxOrderFile = "Import FX Order";
 			static inline const juce::String exportFxOrderFile = "Export FX Order";
 			static inline const juce::String importFxParamFile = "Import FX Param";
 			static inline const juce::String exportFxParamFile = "Export FX Param";
+			static inline const juce::String importChannelParamFile = "Import Channel Param";
+			static inline const juce::String exportChannelParamFile = "Export Channel Param";
 			static inline const juce::String importLfoParamFile = "Import LFO Param";
 			static inline const juce::String exportLfoParamFile = "Export LFO Param";
 			static inline const juce::String importAmpEnvParamFile = "Import Amp Env Param";

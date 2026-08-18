@@ -271,4 +271,8 @@ public:
     void exportPcmPlayParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
+    void importChParam();
+    void exportChParam();
+    void importPadChParam(int p);
+    void exportPadChParam(int p);
 };

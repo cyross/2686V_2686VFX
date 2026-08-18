@@ -268,4 +268,6 @@ public:
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importChParam();
+    void exportChParam();
 };

@@ -342,11 +342,13 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     ieOpSsgSwEnv11(context),
     ieOpSsgSwPEnv11(context),
     ieOpPcmPlay(context),
+	ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
     ieLfo(context),
     ieUnison(context),
     ieQuality(context),
+    ieChParam(context),
     opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
     mulDetune{ GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context), GuiComponentMulDetune(context) },
     catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -621,6 +623,10 @@ void GuiOpzx7::setup()
     ieOpPcmPlay.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpPcmPlayParam(opIndex); };
     ieOpPcmPlay.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpPcmPlayParam(opIndex); };
 
+    ieOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP Params");
+    ieOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpChParam(opIndex); };
+    ieOpChParam.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpChParam(opIndex); };
+
     uSep003.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
@@ -641,6 +647,10 @@ void GuiOpzx7::setup()
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
+
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
 
     viewModeComp.setupComponent(*this, tabOrder);
     viewModeComp.onChangeViewMode = [this](GuiComponentViewModes mode) {
@@ -1693,11 +1703,13 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
     ieOpPcmPlay.setVisible(visible);
+    ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -1725,6 +1737,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieOpPcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieOpChParam.layoutComponent(rect);
+        rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
 
         uSep003.layoutComponent(rect);
@@ -1734,6 +1748,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -2500,4 +2516,330 @@ void GuiOpzx7::importSsgSwPEnv11Param(int opIndex) {
 
 void GuiOpzx7::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
+}
+
+void GuiOpzx7::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opzx7sParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Algorithm & Feedback
+                algModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+                algMatrixComp.setImportingParams(lines, index);
+                feedbackSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                int mode = algModeSelector.getSelectedItemIndex();
+                if (mode == 0) {
+                    updateAlgorithmDisplay();
+                }
+                else {
+                    updateAlgorithmMatrixDisplay();
+                }
+
+                // Panpot
+                panpotEnableToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                panpotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components (Global)
+                glLfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                for (int i = 0; i < Opzx7PrValue::ops; i++) {
+                    getImportingOpParams(i, lines, index);
+                }
+            }
+        });
+
+}
+
+void GuiOpzx7::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opzx7sParam), Io::ExtensionGlob::opzx7sParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Algorithm & Feedback
+                content += juce::String(algModeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(algSelector.getSelectedId()) + "\n";
+                content += algMatrixComp.getExportedParams();
+                content += juce::String(feedbackSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Panpot
+                content += juce::String(panpotEnableToggle.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(panpotSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components (Global)
+                content += glLfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                for (int i = 0; i < Opzx7PrValue::ops; i++) {
+                    content += setExportedOpParams(i);
+                }
+
+                file.replaceWithText(content);
+            }
+        });
+
+}
+
+void GuiOpzx7::importOpChParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opzx7sOpParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                getImportingOpParams(opIndex, lines, index);
+            }
+        });
+
+}
+
+void GuiOpzx7::exportOpChParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opzx7sOpParam), Io::ExtensionGlob::opzx7sOpParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += setExportedOpParams(opIndex);
+
+                file.replaceWithText(content);
+            }
+        });
+
+}
+
+void GuiOpzx7::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Detune / Multiplier
+    mulDetune[opIndex].setImportingParams(lines, index);
+
+    // RG Env
+    rgEn[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD1l[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgD2r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Normal Env
+    ar[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d1r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d1l[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    d2r[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    tl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale
+    ksEn[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    ksMode[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksrMA7[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kslMA7[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksrOPZ[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    kslOPZ[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksBp[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksLc[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksRc[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    ksLd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksRd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ksRs[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Optional
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    sus[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Wave Shape
+    ws[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    ctx.audioProcessor.unloadOpzx7PcmFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7WtFile(opIndex);
+    ctx.audioProcessor.unloadOpzx7Wt2File(opIndex);
+
+    int wsIdx = ws[opIndex].getSelectedItemIndex();
+
+    if (wsIdx == Opzx7PrValue::pcmIndex) {
+        pcmFileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (pcmFileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7PcmFile(opIndex, pcmFileNameLabel[opIndex].getText());
+        }
+    }
+    else if (wsIdx == Opzx7PrValue::wtIndex) {
+        wtFileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (wtFileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7WtFile(opIndex, wtFileNameLabel[opIndex].getText());
+        }
+
+    }
+    else if (wsIdx == Opzx7PrValue::wt2Index) {
+        wt2FileNameLabel[opIndex].setText(lines[index++], juce::dontSendNotification);
+
+        if (wt2FileNameLabel[opIndex].getText().isNotEmpty()) {
+            ctx.audioProcessor.loadOpzx7Wt2File(opIndex, wt2FileNameLabel[opIndex].getText());
+        }
+    }
+
+    // PCM Play / Loop Point
+    pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // SSG Env
+    se[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    seFreq[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Components
+    fix[opIndex].setImportingParams(lines, index);
+    lfo[opIndex].setImportingParams(lines, index);
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
+}
+
+juce::String GuiOpzx7::setExportedOpParams(int opIndex) {
+    juce::String content = "";
+
+    // Detune / Multiplier
+    content += mulDetune[opIndex].getExportedParams();
+
+    // RG Env
+    content += juce::String(rgEn[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(rgAr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgD1r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgD1l[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgD2r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgRr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgTl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Normal Env
+    content += juce::String(ar[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(d1r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(d1l[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(d2r[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(tl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Key Scale
+    content += juce::String(ksEn[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(ksMode[opIndex].getSelectedId()) + "\n";
+    content += juce::String(ksrMA7[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(kslMA7[opIndex].getSelectedId()) + "\n";
+    content += juce::String(ksrOPZ[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(kslOPZ[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ksBp[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ksLc[opIndex].getSelectedId()) + "\n";
+    content += juce::String(ksRc[opIndex].getSelectedId()) + "\n";
+    content += juce::String(ksLd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ksRd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ksRs[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Optional
+    content += juce::String(bypass[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(sus[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(xof[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(kor[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(mask[opIndex].getToggleState() ? 1 : 0) + "\n";
+
+    // Wave Shape
+    content += juce::String(ws[opIndex].getSelectedId()) + "\n";
+
+    int wsIdx = ws[opIndex].getSelectedItemIndex();
+
+    if (wsIdx == Opzx7PrValue::pcmIndex) {
+        content += juce::String(ctx.audioProcessor.opzx7PcmFilePaths[opIndex]) + "\n";
+    }
+    else if (wsIdx == Opzx7PrValue::wtIndex) {
+        content += juce::String(ctx.audioProcessor.opzx7WtFilePaths[opIndex]) + "\n";
+    }
+    else if (wsIdx == Opzx7PrValue::wt2Index) {
+        content += juce::String(ctx.audioProcessor.opzx7Wt2FilePaths[opIndex]) + "\n";
+    }
+
+    // PCM Play / Loop Point
+    content += juce::String(pcmOffset[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pcmRatio[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(loopPointEnable[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(loopPointStart[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(loopPointEnd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // SSG Env
+    content += juce::String(se[opIndex].getSelectedId()) + "\n";
+    content += juce::String(seFreq[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Components
+    content += fix[opIndex].getExportedParams();
+    content += lfo[opIndex].getExportedParams();
+    content += pitchEnv[opIndex].getExportedParams();
+    content += ssgSwEnv[opIndex].getExportedParams();
+    content += ssgSwEnv11[opIndex].getExportedParams();
+    content += ssgSwPEnv11[opIndex].getExportedParams();
+
+    return content;
 }

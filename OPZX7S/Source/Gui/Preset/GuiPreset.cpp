@@ -64,7 +64,7 @@ void GuiPreset::setup()
 
     searchBox.onTextChange = [this] { applyFilter(); };
 
-    clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
+    clearSearchButton.setup({ .parent = *this, .title = PresetKey::Search::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::red.withAlpha(0.5f), .isReset = false});
     clearSearchButton.setWantsKeyboardFocus(true);
     clearSearchButton.setExplicitFocusOrder(++tabOrder);
 
@@ -256,7 +256,7 @@ void GuiPreset::setup()
     *********************/
 
     // --- Init Preset Button ---
-	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .font = buttonFont, .bgColor = juce::Colours::darkblue.withAlpha(0.7f)});
+	initButton.setup({ .parent = *this, .title = PresetKey::Button::initPreset, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkblue.withAlpha(0.7f)});
     initButton.setWantsKeyboardFocus(true);
     initButton.setExplicitFocusOrder(++tabOrder);
     initButton.onClick = [this] {
@@ -293,7 +293,7 @@ void GuiPreset::setup()
     };
 
     // --- Load Preset Info Button ---
-	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .font = buttonFont, .isReset = false });
+	loadButton.setup({ .parent = *this, .title = PresetKey::Button::loadPreset, .font = buttonFont, .textColor = juce::Colours::white, .isReset = false });
     loadButton.setEnabled(false);
     loadButton.setWantsKeyboardFocus(true);
     loadButton.setExplicitFocusOrder(++tabOrder);
@@ -315,13 +315,13 @@ void GuiPreset::setup()
     saveButton.onClick = [this] { ctx.editor.saveCurrentPreset(); };
 
     // --- Save Preset As Button ---
-    saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .font = buttonFont, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
+    saveAsButton.setup({ .parent = *this, .title = PresetKey::Button::savePresetAs, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkgreen.withAlpha(0.7f) });
     saveAsButton.setWantsKeyboardFocus(true);
     saveAsButton.setExplicitFocusOrder(++tabOrder);
     saveAsButton.onClick = [this] { ctx.editor.saveCurrentPresetAs(); };
 
     // --- Delete Preset Button ---
-	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .font = buttonFont, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
+	deleteButton.setup({ .parent = *this, .title = PresetKey::Button::deletePreset, .font = buttonFont, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f) });
     deleteButton.setWantsKeyboardFocus(true);
     deleteButton.setExplicitFocusOrder(++tabOrder);
     deleteButton.setEnabled(false);
@@ -372,7 +372,7 @@ void GuiPreset::setup()
     };
 
     // --- Copy Preset Info to Clipboard Button ---
-	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .font = buttonFont, .isReset = false });
+	copyButton.setup({ .parent = *this, .title = PresetKey::Button::copyPresetInfoToClipboard, .font = buttonFont, .textColor = juce::Colours::white, .isReset = false });
     copyButton.setWantsKeyboardFocus(true);
     copyButton.setExplicitFocusOrder(++tabOrder);
     copyButton.setEnabled(false);

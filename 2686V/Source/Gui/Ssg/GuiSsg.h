@@ -127,6 +127,7 @@ class GuiSsg : public GuiBase
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
+    GuiComponentImportExport ieChParam;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -210,6 +211,7 @@ public:
         ieDetune(context),
         ieUnison(context),
         ieQuality(context),
+        ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
@@ -252,4 +254,6 @@ public:
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importChParam();
+    void exportChParam();
 };

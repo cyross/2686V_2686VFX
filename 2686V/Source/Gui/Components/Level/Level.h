@@ -64,4 +64,6 @@ public:
     void setEnable(bool enable);
     float getLevel();
     void setLevel(float level);
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

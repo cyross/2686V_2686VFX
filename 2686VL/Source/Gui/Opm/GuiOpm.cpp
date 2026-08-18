@@ -1892,3 +1892,19 @@ void GuiOpm::importSsgSwPEnv11Param(int opIndex) {
 void GuiOpm::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
 }
+
+void GuiOpm::importChParam() {
+
+}
+
+void GuiOpm::exportChParam() {
+
+}
+
+void GuiOpm::importOpChParam(int opIndex) {
+
+}
+
+void GuiOpm::exportOpChParam(int opIndex) {
+
+}

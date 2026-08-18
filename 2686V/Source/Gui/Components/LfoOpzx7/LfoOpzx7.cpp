@@ -351,3 +351,39 @@ void GuiComponentLfoOpzx7::exportParams() {
             }
         });
 }
+
+void GuiComponentLfoOpzx7::setImportingParams(juce::StringArray& lines, int& index) {
+    pmEnable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    pmFreq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pmSyncDelay.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    pgShape.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    pms.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pmd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    amEnable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    amFreq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    egShape.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    amSyncDelay.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    amSmRt.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    ams.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    amd.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentLfoOpzx7::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(pmEnable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(pmFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pmSyncDelay.getValue()) + "\n";
+    content += juce::String(pgShape.getSelectedItemIndex()) + "\n";
+    content += juce::String(pms.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pmd.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(amEnable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(amFreq.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(egShape.getSelectedItemIndex()) + "\n";
+    content += juce::String(amSyncDelay.getValue()) + "\n";
+    content += juce::String(amSmRt.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ams.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(amd.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
+}

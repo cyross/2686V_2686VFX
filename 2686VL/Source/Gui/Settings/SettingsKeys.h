@@ -4,7 +4,7 @@
 
 namespace SettingsKey
 {
-	static inline const juce::String envCode = "PREF_2686V";
+	static inline const juce::String envCode = "PREF_2686VLight";
 	static inline const juce::String uiScaleIndex = "uiScaleIndex";
 	static inline const juce::String wallpaperPath = "wallpaperPath";
 	static inline const juce::String wallpaperMode = "wallpaperMode";
@@ -13,6 +13,8 @@ namespace SettingsKey
 	static inline const juce::String defaultWavetableDir = "defaultWavetableDir";
 	static inline const juce::String defaultFxOrderDir = "defaultFxOrderDir";
 	static inline const juce::String defaultFxParamDir = "defaultFxParamDir";
+	static inline const juce::String defaultChannelParamDir = "defaultChannelParamDir";
+	static inline const juce::String defaultCurveParamDir = "defaultCurveParamDir";
 	static inline const juce::String defaultLfoParamDir = "defaultLfoParamDir";
 	static inline const juce::String defaultAmpEnvParamDir = "defaultAmpEnvParamDir";
 	static inline const juce::String defaultPitchEnvParamDir = "defaultPitchEnvParamDir";

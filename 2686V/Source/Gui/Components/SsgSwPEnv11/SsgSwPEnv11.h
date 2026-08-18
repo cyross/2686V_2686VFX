@@ -133,4 +133,6 @@ public:
     void pasteParams(CopyPEnvSsgSw11& copyObj);
     void importParams();
     void exportParams();
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

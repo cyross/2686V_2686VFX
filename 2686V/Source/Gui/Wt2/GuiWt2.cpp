@@ -532,6 +532,10 @@ void GuiWt2::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     // Custom Wave Group
     customWaveGroup.setup(*this, Wt2GuiText::Group::wtCustom);
 
@@ -937,6 +941,7 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -961,6 +966,8 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -1199,4 +1206,150 @@ void GuiWt2::importSsgSwPEnv11Param() {
 
 void GuiWt2::exportSsgSwPEnv11Param() {
     ssgSwPEnv11Component.exportParams();
+}
+
+void GuiWt2::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::wt2Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form
+                int selectedSizeIdx = lines[index++].getIntValue();
+                int selectedResoIdx = lines[index++].getIntValue();
+                int selectedWaveIdx = lines[index++].getIntValue();
+
+                sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
+                resoSelector.setSelectedItemIndex(selectedResoIdx, juce::sendNotification);
+                waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
+
+                // Moduration
+                modEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                modDepthSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                modSpeedSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                if (selectedWaveIdx == 8)
+                {
+                    // sizeSelectorの戻り値インデックス(0: 32, 1: 64, 2: 128, 3: 256)に依存してステップ数を変更
+                    int sampleCount = 32;
+                    if (selectedSizeIdx == 1)      sampleCount = 64;
+                    else if (selectedSizeIdx == 2) sampleCount = 128;
+                    else if (selectedSizeIdx == 3) sampleCount = 256;
+
+                    // 現在の解像度(resolution)の範囲に合わせて安全にクランプするための最大値上限を計算
+                    int currentReso = 16 << selectedResoIdx;
+
+                    std::vector<int> customValues(sampleCount, currentReso >> 1);
+                    for (int i = 0; i < sampleCount; ++i)
+                    {
+                        if (index < lines.size()) {
+                            int val = lines[index++].getIntValue();
+                            customValues[i] = std::clamp(val, 0, currentReso - 1);
+                        }
+                    }
+
+                    // 適切なWaveform2Containerへ整数配列を一括反映
+                    if (sampleCount == 32)       customSliders32.setValues(customValues);
+                    else if (sampleCount == 64)  customSliders64.setValues(customValues);
+                    else if (sampleCount == 128) customSliders128.setValues(customValues);
+                    else if (sampleCount == 256) customSliders256.setValues(customValues);
+                }
+            }
+        });
+
+}
+
+void GuiWt2::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::wt2Param), Io::ExtensionGlob::wt2Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form
+                int selectedSizeIdx = sizeSelector.getSelectedItemIndex();
+                int selectedWaveIdx = waveSelector.getSelectedItemIndex();
+
+                content += juce::String(selectedSizeIdx) + "\n";
+                content += juce::String(resoSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(selectedWaveIdx) + "\n";
+
+                // Moduration
+                content += juce::String(modEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(modDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(modSpeedSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                if (selectedWaveIdx == 8)
+                {
+                    std::vector<int> customValues;
+                    // sizeSelectorの戻り値インデックス(0: 32, 1: 64, 2: 128, 3: 256)に依存して取得コンテナを変更
+                    if (selectedSizeIdx == 0)      customValues = customSliders32.getValues();
+                    else if (selectedSizeIdx == 1) customValues = customSliders64.getValues();
+                    else if (selectedSizeIdx == 2) customValues = customSliders128.getValues();
+                    else if (selectedSizeIdx == 3) customValues = customSliders256.getValues();
+
+                    for (int val : customValues)
+                    {
+                        content += juce::String(val) + "\n";
+                    }
+                }
+
+                file.replaceWithText(content);
+            }
+        });
+
 }

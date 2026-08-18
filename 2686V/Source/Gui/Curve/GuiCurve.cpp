@@ -187,6 +187,7 @@ GuiCurve::GuiCurve(const GuiContext& context) :
 	enable(context),
     position(context),
     target(context),
+    ieCurve(context),
     mainSeparator(context)
 {
     // グラフとラベルの初期化
@@ -261,6 +262,11 @@ void GuiCurve::setup()
         };
 
     correctTarget();
+    
+    ieCurve.setupComponent(*this, ++tabOrder, "Curve");
+    ieCurve.onClickImport = [this] { importCurveParam(); };
+    ieCurve.onClickExport = [this] { exportCurveParam(); };
+    
     mainSeparator.setupComponent(*this);
 
     // 実際に表示するコントロールのセットアップ (16個分だけ)
@@ -354,6 +360,7 @@ void GuiCurve::updateEnabled() {
 
     position.setEnabledWithLabel(enabled);
     target.setEnabledWithLabel(enabled);
+    ieCurve.setEnable(enabled);
 
     for (int vp = 0; vp < CurvePrValue::params; vp++) {
         paramLabel[vp]->setEnabled(enabled);
@@ -541,7 +548,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
     int titleWidth = CurveGuiValue::CurveGroup::Row::titleWidth;
     int baseWidth = mmRect.getWidth() - titleWidth;
-    int mainWidth = baseWidth / 3;
+    int mainWidth = baseWidth / 4;
     int valueWidth = (baseWidth - graphWidth) / 2;
 
     auto enRect = mmRect.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
@@ -555,6 +562,11 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     auto tRect = enRect.removeFromLeft(mainWidth);
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
+
+    auto ieRect = enRect.removeFromLeft(mainWidth);
+    ieRect.removeFromLeft(20);
+    ieRect.removeFromTop(4);
+    ieCurve.layoutComponent(ieRect);
 
     mainSeparator.layoutComponent(mmRect);
 
@@ -630,4 +642,116 @@ void GuiCurve::initParams()
 {
     ctx.audioProcessor.prCurve.resetToDefault();
     updateVisible();
+}
+
+void GuiCurve::importCurveParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    int posIndex = position.getSelectedItemIndex();
+
+    juce::String posExt = posIndex == 0 ? "common" : "op";
+
+    int targetIndex = target.getSelectedItemIndex();
+
+    juce::String targetExt = targetItems[targetIndex].name;
+
+    juce::String ext = posExt + "_" + targetExt;
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importCurveParamFile, defaultDir, Io::ExtensionGlob::curveParam + ext);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                int p = position.getSelectedItemIndex();
+                int t = target.getSelectedItemIndex();
+                int vpLen = paramLengthes[t];
+
+                // 現在表示中の Position と Target に該当するパラメータ群のみ復元
+                for (int vp = 0; vp < vpLen; vp++) {
+                    if (index < size) {
+                        int logicVal = lines[index++].getIntValue();
+                        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
+                    }
+                    if (index < size) {
+                        float kVal = lines[index++].getFloatValue();
+                        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
+                    }
+
+                    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
+                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+                        if (index < size) {
+                            float val = lines[index++].getFloatValue();
+                            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
+                        }
+                    }
+                }
+
+                // プロセッサ側でカーブ計算を再実行し、コアに反映
+                ctx.audioProcessor.bakeCurves();
+                ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
+
+                // GUIのコンポーネント（スライダーや表示状態）を最新値に更新
+                updateVisible();
+                ctx.editor.resized();
+            }
+        });
+}
+
+void GuiCurve::exportCurveParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    int posIndex = position.getSelectedItemIndex();
+
+    juce::String posExt = posIndex == 0 ? "common" : "op";
+
+    int targetIndex = target.getSelectedItemIndex();
+
+    juce::String targetExt = targetItems[targetIndex].name;
+
+    juce::String ext = posExt + "_" + targetExt;
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::curveParam + ext), Io::ExtensionGlob::curveParam + ext);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                int p = position.getSelectedItemIndex();
+                int t = target.getSelectedItemIndex();
+                int vpLen = paramLengthes[t];
+
+                // 現在表示中の Position と Target に該当するパラメータ群のみ保存
+                for (int vp = 0; vp < vpLen; vp++) {
+                    content += juce::String(ctx.audioProcessor.prCurve.getLogic(p, t, vp)) + "\n";
+                    content += juce::String(ctx.audioProcessor.prCurve.getK(p, t, vp), Global::floatDecimalPlaces) + "\n";
+
+                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+                        content += juce::String(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv), Global::floatDecimalPlaces) + "\n";
+                    }
+                }
+
+                file.replaceWithText(content);
+            }
+        });
 }

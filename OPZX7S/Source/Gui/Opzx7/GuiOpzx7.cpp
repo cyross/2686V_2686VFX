@@ -2506,3 +2506,19 @@ void GuiOpzx7::importSsgSwPEnv11Param(int opIndex) {
 void GuiOpzx7::exportSsgSwPEnv11Param(int opIndex) {
     ssgSwPEnv11[opIndex].exportParams();
 }
+
+void GuiOpzx7::importChParam() {
+
+}
+
+void GuiOpzx7::exportChParam() {
+
+}
+
+void GuiOpzx7::importOpChParam(int opIndex) {
+
+}
+
+void GuiOpzx7::exportOpChParam(int opIndex) {
+
+}

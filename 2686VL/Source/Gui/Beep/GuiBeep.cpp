@@ -374,3 +374,11 @@ void GuiBeep::importSsgSwPEnv11Param() {
 void GuiBeep::exportSsgSwPEnv11Param() {
     ssgSwPEnv11Component.exportParams();
 }
+
+void GuiBeep::importChParam() {
+
+}
+
+void GuiBeep::exportChParam() {
+
+}

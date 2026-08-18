@@ -2,6 +2,7 @@
 
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Processor/ProcessorKeys.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 // 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
 std::vector<SelectItem> Quality::bdItems = {
@@ -78,4 +79,18 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &bitSelector.label, .component = &bitSelector });
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
     }
+}
+
+void Quality::setImportingParams(juce::StringArray& lines, int& index) {
+    bitSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+}
+
+juce::String Quality::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+    return content;
 }

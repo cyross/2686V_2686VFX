@@ -80,7 +80,7 @@ namespace SettingsGuiValue
 	namespace Settings
 	{
 		static inline constexpr int PaddingHeight = 4;
-		static inline constexpr int RowHeight = 30;
+		static inline constexpr int RowHeight = 20;
 		static inline constexpr int LabelWidth = 180;
 		static inline constexpr int LongLabelWidth = 220;
 		static inline constexpr int UiScaleSelectorWidth = 320;

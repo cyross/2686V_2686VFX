@@ -592,6 +592,8 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
     xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
     xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+    xml.setAttribute(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
+    xml.setAttribute(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
     xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
     xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
     xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
@@ -625,6 +627,8 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
 		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
         defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
         defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
+        defaultChannelParamDir = xml->getStringAttribute(SettingsKey::defaultChannelParamDir);
+        defaultCurveParamDir = xml->getStringAttribute(SettingsKey::defaultCurveParamDir);
         defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
         defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
         defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
@@ -740,6 +744,18 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultFxParamDir = newFxParamDir.getFullPathName();
+    }
+
+    if (defaultChannelParamDir.isEmpty() || !juce::File(defaultChannelParamDir).isDirectory())
+    {
+        auto newChannelParamDir = pluginDir.getChildFile(Io::Folder::channelParam);
+
+        // 存在していなければ作成
+        if (!newChannelParamDir.exists()) {
+            newChannelParamDir.createDirectory();
+        }
+
+        defaultChannelParamDir = newChannelParamDir.getFullPathName();
     }
 
     if (defaultLfoParamDir.isEmpty() || !juce::File(defaultLfoParamDir).isDirectory())

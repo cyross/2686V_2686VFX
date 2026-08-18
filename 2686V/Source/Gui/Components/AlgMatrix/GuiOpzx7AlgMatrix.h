@@ -41,7 +41,8 @@ public:
     void updateValidity();
     AlgMatrixState getState() const;
     void setState(const AlgMatrixState& s);
-
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 private:
     // 描画時にグレーアウトさせるための到達可能フラグ
     std::array<bool, Opzx7PrValue::ops> m_opReachable{ false };

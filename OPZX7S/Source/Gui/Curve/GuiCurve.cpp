@@ -185,6 +185,7 @@ GuiCurve::GuiCurve(const GuiContext& context) :
     curveGroup(context),
     position(context),
     target(context),
+    ieCurve(context),
     mainSeparator(context)
 {
     // グラフとラベルの初期化
@@ -241,6 +242,11 @@ void GuiCurve::setup()
         };
 
     correctTarget();
+
+    ieCurve.setupComponent(*this, ++tabOrder, "Curve");
+    ieCurve.onClickImport = [this] { importCurveParam(); };
+    ieCurve.onClickExport = [this] { exportCurveParam(); };
+
     mainSeparator.setupComponent(*this);
 
     // 実際に表示するコントロールのセットアップ (16個分だけ)
@@ -497,7 +503,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
     int titleWidth = CurveGuiValue::CurveGroup::Row::titleWidth;
     int baseWidth = mmRect.getWidth() - titleWidth;
-    int mainWidth = baseWidth / 3;
+    int mainWidth = baseWidth / 4;
     int valueWidth = (baseWidth - graphWidth) / 2;
 
     auto enRect = mmRect.removeFromTop(CurveGuiValue::CurveGroup::Row::height);
@@ -509,6 +515,11 @@ void GuiCurve::layout(juce::Rectangle<int> content)
     auto tRect = enRect.removeFromLeft(mainWidth);
     target.label.setBounds(tRect.removeFromLeft(lw).reduced(px, py));
     target.setBounds(tRect.reduced(px, py));
+
+    auto ieRect = enRect.removeFromLeft(mainWidth);
+    ieRect.removeFromLeft(20);
+    ieRect.removeFromTop(4);
+    ieCurve.layoutComponent(ieRect);
 
     mainSeparator.layoutComponent(mmRect);
 
@@ -584,4 +595,69 @@ void GuiCurve::initParams()
 {
     ctx.audioProcessor.prCurve.resetToDefault(); 
     updateVisible();
+}
+
+void GuiCurve::importCurveParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    juce::String posExt = "op";
+
+    int targetIndex = target.getSelectedItemIndex();
+
+    juce::String targetExt = targetItems[targetIndex].name;
+
+    juce::String ext = posExt + "_" + targetExt;
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importCurveParamFile, defaultDir, Io::ExtensionGlob::curveParam + ext);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+
+                // ここにインポートコードを入れる
+            }
+        });
+}
+
+void GuiCurve::exportCurveParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultCurveParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    juce::String posExt = "op";
+
+    int targetIndex = target.getSelectedItemIndex();
+
+    juce::String targetExt = targetItems[targetIndex].name;
+
+    juce::String ext = posExt + "_" + targetExt;
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportQualityParamFile, defaultDir.getChildFile("default." + Io::Extension::curveParam + ext), Io::ExtensionGlob::curveParam + ext);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultCurveParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // ここにエクスポートコードを入れる
+
+                file.replaceWithText(content);
+            }
+        });
 }

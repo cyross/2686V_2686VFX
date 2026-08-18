@@ -26,4 +26,5 @@ public:
     void setupComponentOp(juce::Component& parent, int& tabOrder, const juce::String& title);
     void layoutComponent(juce::Rectangle<int>& rect);
     void setVisible(bool visible);
+    void setEnable(bool enable);
 };

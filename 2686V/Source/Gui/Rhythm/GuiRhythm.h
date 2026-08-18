@@ -196,6 +196,8 @@ public:
     void exportQualityParam();
     void importPcmPlayParam();
     void exportPcmPlayParam();
+    void setImportingParams(int p, juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };
 
 class GuiRhythm : public GuiBase
@@ -231,9 +233,12 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
+    GuiComponentImportExport ieChPadParam;
     GuiSlider targerPadSlider;
     NormalSeparator uSep003;
     GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieChParam;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
@@ -276,4 +281,10 @@ public:
     void exportPcmPlayParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
+    void importChParam();
+    void exportChParam();
+    void importPadChParam(int p);
+    void exportPadChParam(int p);
+    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
+    juce::String setExportedPadParams(int p);
 };

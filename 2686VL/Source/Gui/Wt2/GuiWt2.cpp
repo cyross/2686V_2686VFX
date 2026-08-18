@@ -1194,3 +1194,11 @@ void GuiWt2::importSsgSwPEnv11Param() {
 void GuiWt2::exportSsgSwPEnv11Param() {
     ssgSwPEnv11Component.exportParams();
 }
+
+void GuiWt2::importChParam() {
+
+}
+
+void GuiWt2::exportChParam() {
+
+}
