@@ -373,11 +373,13 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpPcmPlay;
+    GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
+    GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -565,4 +567,6 @@ public:
     void exportChParam();
     void importOpChParam(int opIndex);
     void exportOpChParam(int opIndex);
+    void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
+    juce::String setExportedOpParams(int opIndex);
 };

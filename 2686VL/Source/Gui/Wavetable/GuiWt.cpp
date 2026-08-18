@@ -729,6 +729,10 @@ void GuiWt::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     // Custom Wave Group
@@ -1151,6 +1155,7 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -1175,6 +1180,8 @@ void GuiWt::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -1413,9 +1420,140 @@ void GuiWt::exportSsgSwPEnv11Param() {
 }
 
 void GuiWt::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::wtParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form
+                int selectedSizeIdx = lines[index++].getIntValue();
+                int selectedStepsIdx = lines[index++].getIntValue();
+                int selectedWaveIdx = lines[index++].getIntValue();
+
+                sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
+                stepsSelector.setSelectedItemIndex(selectedStepsIdx, juce::sendNotification);
+                waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
+
+                // Moduration
+                modEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                modDepthSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                modSpeedSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                if (selectedWaveIdx == 8)
+                {
+                    int sampleCount = 32;
+                    if (selectedSizeIdx == 1)      sampleCount = 64;
+                    else if (selectedSizeIdx == 2) sampleCount = 128;
+                    else if (selectedSizeIdx == 3) sampleCount = 256;
+
+                    std::vector<float> customValues(sampleCount, 0.0f);
+                    for (int i = 0; i < sampleCount; ++i)
+                    {
+                        if (index < lines.size()) {
+                            customValues[i] = std::clamp(lines[index++].getFloatValue(), -1.0f, 1.0f);
+                        }
+                    }
+
+                    // 適切なWaveformContainerへ値を一括反映
+                    if (sampleCount == 32)       customSliders32.setValues(customValues);
+                    else if (sampleCount == 64)  customSliders64.setValues(customValues);
+                    else if (sampleCount == 128) customSliders128.setValues(customValues);
+                    else if (sampleCount == 256) customSliders256.setValues(customValues);
+                }
+            }
+        });
 
 }
 
 void GuiWt::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::wtParam), Io::ExtensionGlob::wtParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form
+                int selectedSizeIdx = sizeSelector.getSelectedItemIndex();
+                int selectedWaveIdx = waveSelector.getSelectedItemIndex();
+
+                content += juce::String(selectedSizeIdx) + "\n";
+                content += juce::String(stepsSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(selectedWaveIdx) + "\n";
+
+                // Moduration
+                content += juce::String(modEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(modDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(modSpeedSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                if (selectedWaveIdx == 8)
+                {
+                    std::vector<float> customValues;
+                    if (selectedSizeIdx == 0)      customValues = customSliders32.getValues();
+                    else if (selectedSizeIdx == 1) customValues = customSliders64.getValues();
+                    else if (selectedSizeIdx == 2) customValues = customSliders128.getValues();
+                    else if (selectedSizeIdx == 3) customValues = customSliders256.getValues();
+
+                    for (float val : customValues)
+                    {
+                        content += juce::String(val, Global::floatDecimalPlaces) + "\n";
+                    }
+                }
+
+                file.replaceWithText(content);
+            }
+        });
 
 }

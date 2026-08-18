@@ -2,14 +2,53 @@
 
 #include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
+#include "../../../Core/Const/ConstGlobal.h"
+
+void GuiComponentLevel::applyStepSnap()
+{
+    int index = stepSelector.getSelectedItemIndex();
+    if (index <= 0) return; // 0 (Free) の場合は何もしない
+
+    float stepAmount = 1.0f;
+    switch (index) {
+    case 1: stepAmount = 1.0f / 16.0f; break;
+    case 2: stepAmount = 1.0f / 32.0f; break;
+    case 3: stepAmount = 1.0f / 64.0f; break;
+    case 4: stepAmount = 1.0f / 128.0f; break;
+    case 5: stepAmount = 1.0f / 256.0f; break;
+    default: return;
+    }
+
+    float currentVal = (float)levelSlider.getValue();
+
+    // 1/n 単位で丸める
+    float snappedVal = std::round(currentVal / stepAmount) * stepAmount;
+
+    // スライダーの最小・最大値の範囲内にクランプする
+    snappedVal = std::clamp(snappedVal, (float)levelSlider.getMinimum(), (float)levelSlider.getMaximum());
+
+    // 再帰呼び出しを防ぐため、dontSendNotification で更新
+    levelSlider.setValue(snappedVal, juce::dontSendNotification);
+}
 
 void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, const juce::String& prefix) {
     // 出力レベル
     levelSlider.setup({ .parent = parent, .id = prefix + CPK::level, .title = "LV", .isReset = true });
     levelSlider.setWantsKeyboardFocus(true);
     levelSlider.setExplicitFocusOrder(++tabOrder);
+    levelSlider.onValueChange = [this]() {
+        applyStepSnap();
+        };
 
-    levelPM1.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "-1.0", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false});
+    stepSelector.setup({ .parent = parent, .id = "", .title = "Steps", .items = stepItems, .isReset = false });
+    stepSelector.setSelectedItemIndex(0, juce::dontSendNotification); // デフォルトはFree
+    stepSelector.setWantsKeyboardFocus(true);
+    stepSelector.setExplicitFocusOrder(++tabOrder);
+    stepSelector.onChange = [this]() {
+        applyStepSnap(); // 切り替えた瞬間に現在の値を丸める
+        };
+
+    levelPM1.setup(GuiTextButton::Config{ .parent = parent, .id = "", .title = "-1.0", .bgColor = juce::Colours::lightblue.brighter(0.5f), .isReset = false });
     levelPM1.setWantsKeyboardFocus(true);
     levelPM1.setExplicitFocusOrder(++tabOrder);
     levelPM1.onClick = [this]() {
@@ -152,6 +191,7 @@ void GuiComponentLevel::setupComponent(juce::Component& parent, int& tabOrder, c
 
 void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
     layoutMain({ .mainRect = rect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutMain({ .mainRect = rect, .label = &stepSelector.label, .component = &stepSelector });
     layoutMainThreeComps({ .rect = rect, .comp1 = &levelPM1, .comp2 = &levelTo1, .comp3 = &levelP1 });
     layoutMainThreeComps({ .rect = rect, .comp1 = &levelTo025, .comp2 = &levelTo05, .comp3 = &levelTo075 });
     layoutMainFourComps({ .rect = rect, .comp1 = &levelTo02, .comp2 = &levelTo04, .comp3 = &levelTo06, .comp4 = &levelTo08 });
@@ -161,6 +201,7 @@ void GuiComponentLevel::layoutComponent(juce::Rectangle<int>& rect) {
 
 void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
     layoutRow({ .rowRect = rect, .label = &levelSlider.label, .component = &levelSlider });
+    layoutRow({ .rowRect = rect, .label = &stepSelector.label, .component = &stepSelector });
     layoutRowThreeComps({ .rect = rect, .comp1 = &levelPM1, .comp2 = &levelTo1, .comp3 = &levelP1 });
     layoutRowThreeComps({ .rect = rect, .comp1 = &levelTo025, .comp2 = &levelTo05, .comp3 = &levelTo075 });
     layoutRowFourComps({ .rect = rect, .comp1 = &levelTo02, .comp2 = &levelTo04, .comp3 = &levelTo06, .comp4 = &levelTo08 });
@@ -170,6 +211,7 @@ void GuiComponentLevel::layoutComponentRow(juce::Rectangle<int>& rect) {
 
 void GuiComponentLevel::setVisible(bool visible) {
     levelSlider.setVisible(visible);
+    stepSelector.setVisibleWithLabel(visible);
     levelPM1.setVisible(visible);
     levelPM01.setVisible(visible);
     levelPM001.setVisible(visible);
@@ -184,16 +226,17 @@ void GuiComponentLevel::setVisible(bool visible) {
     levelTo04.setVisible(visible);
     levelTo06.setVisible(visible);
     levelTo08.setVisible(visible);
-	levelTo0125.setVisible(visible);
-	levelTo0142.setVisible(visible);
+    levelTo0125.setVisible(visible);
+    levelTo0142.setVisible(visible);
     levelTo016.setVisible(visible);
     levelTo033.setVisible(visible);
-	levelTo067.setVisible(visible);
+    levelTo067.setVisible(visible);
     levelTo083.setVisible(visible);
 }
 
 void GuiComponentLevel::setEnable(bool enabled) {
     levelSlider.setEnabled(enabled);
+    stepSelector.setEnabledWithLabel(enabled);
     levelPM1.setEnabled(enabled);
     levelPM01.setEnabled(enabled);
     levelPM001.setEnabled(enabled);
@@ -217,9 +260,22 @@ void GuiComponentLevel::setEnable(bool enabled) {
 }
 
 float GuiComponentLevel::getLevel() {
-	return levelSlider.getValue();
+    return levelSlider.getValue();
 }
 
 void GuiComponentLevel::setLevel(float level) {
-	levelSlider.setValue(level, juce::dontSendNotification);
+    levelSlider.setValue(level, juce::dontSendNotification);
+    applyStepSnap();
+}
+
+void GuiComponentLevel::setImportingParams(juce::StringArray& lines, int& index) {
+    levelSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentLevel::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(levelSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
 }

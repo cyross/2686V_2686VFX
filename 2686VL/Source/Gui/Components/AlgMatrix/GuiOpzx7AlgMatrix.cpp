@@ -420,10 +420,45 @@ AlgMatrixState GuiOpzx7AlgMatrix::getState() const {
 void GuiOpzx7AlgMatrix::setState(const AlgMatrixState& s) {
     for (int i = 0; i < Opzx7PrValue::ops; ++i) {
         carrierBtns[i]->setToggleState(s.isCarrier[i], juce::dontSendNotification);
-        for (int j = 0; j < 8; ++j) {
+        for (int j = 0; j < Opzx7PrValue::ops; ++j) {
             modBtns[i][j]->setToggleState(s.mod[i][j], juce::dontSendNotification);
             fbBtns[i][j]->setToggleState(s.fbMod[i][j], juce::dontSendNotification);
         }
     }
     updateValidity();
+}
+
+void GuiOpzx7AlgMatrix::setImportingParams(juce::StringArray& lines, int& index) {
+    AlgMatrixState s; // 一時的な状態オブジェクト
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        // 安全のため、行が存在するかチェックしてから読み込む
+        if (index < lines.size()) s.isCarrier[i] = (lines[index++].getIntValue() == 1);
+
+        for (int j = 0; j < Opzx7PrValue::ops; ++j) {
+            if (index < lines.size()) s.mod[i][j] = (lines[index++].getIntValue() == 1);
+            if (index < lines.size()) s.fbMod[i][j] = (lines[index++].getIntValue() == 1);
+        }
+    }
+
+    // 既存の setState() に任せることで、
+    // 全ボタンのトグル切り替え、updateValidity()、DSPへの通知が自動で走る
+    setState(s);
+}
+
+juce::String GuiOpzx7AlgMatrix::getExportedParams() {
+    juce::String content = "";
+
+    // 現在の GUI の状態を取得
+    AlgMatrixState s = getState();
+
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        content += juce::String(s.isCarrier[i] ? 1 : 0) + "\n";
+        for (int j = 0; j < Opzx7PrValue::ops; ++j) {
+            content += juce::String(s.mod[i][j] ? 1 : 0) + "\n";
+            content += juce::String(s.fbMod[i][j] ? 1 : 0) + "\n";
+        }
+    }
+
+    return content;
 }

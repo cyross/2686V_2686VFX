@@ -87,6 +87,10 @@ void GuiBeep::setup() {
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     setupGraph();
     updateGraph();
 }
@@ -160,6 +164,7 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -182,6 +187,8 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -376,9 +383,75 @@ void GuiBeep::exportSsgSwPEnv11Param() {
 }
 
 void GuiBeep::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::beepParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfoComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+            }
+        });
 }
 
 void GuiBeep::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::beepParam), Io::ExtensionGlob::beepParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfoComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                file.replaceWithText(content);
+            }
+        });
 
 }

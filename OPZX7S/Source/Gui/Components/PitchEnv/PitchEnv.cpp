@@ -268,3 +268,29 @@ void GuiComponentPitchEnv::exportParams() {
 			}
 		});
 }
+
+void GuiComponentPitchEnv::setImportingParams(juce::StringArray& lines, int& index) {
+	flag.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	attack.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	decay.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	release.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	startLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	attackLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	sustainLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	releaseLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentPitchEnv::getExportedParams() {
+	juce::String content = "";
+
+	content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
+	content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(attackLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(sustainLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(releaseLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+
+	return content;
+}

@@ -66,6 +66,8 @@ class GuiBeep : public GuiBase {
     GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieChParam;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
     GuiToggleButton graphBtnAmp;
@@ -108,6 +110,7 @@ public:
         ieSsgSwPEnv11(context),
         ieDetune(context),
         ieUnison(context),
+		ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

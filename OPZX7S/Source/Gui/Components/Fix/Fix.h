@@ -113,4 +113,6 @@ public:
     void setEnables(bool enabled);
     void copyParams(CopyFix& copyObj);
     void pasteParams(CopyFix& copyObj);
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

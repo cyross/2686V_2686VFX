@@ -230,6 +230,10 @@ void GuiAdpcm::setup()
     iePcmPlay.onClickImport = [this] { importPcmPlayParam(); };
     iePcmPlay.onClickExport = [this] { exportPcmPlayParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     setupGraph();
     updateGraph();
 }
@@ -361,6 +365,7 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -389,6 +394,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         iePcmPlay.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -818,9 +825,129 @@ void GuiAdpcm::exportSsgSwPEnv11Param() {
 }
 
 void GuiAdpcm::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::adpcmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form
+                if (fileNameLabel.getText() != lines[index]) {
+                    ctx.audioProcessor.unloadAdpcmFile();
+                }
+
+                fileNameLabel.setText(lines[index++], juce::dontSendNotification);
+
+                if (fileNameLabel.getText().isNotEmpty()) {
+                    ctx.audioProcessor.loadAdpcmFile(fileNameLabel.getText());
+                }
+
+                // Optional
+                loopButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+                // Tone/Noise
+                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Pan
+                panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // PCM Play
+                pcmOffsetSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                pcmRatioSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                loopPointStartSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEndSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfoComponent.setImportingParams(lines, index);
+                qualityPcmComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+            }
+        });
 }
 
 void GuiAdpcm::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::adpcmParam), Io::ExtensionGlob::adpcmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form
+                content += fileNameLabel.getText() + "\n";
+
+                // Optional
+                content += juce::String(loopButton.getToggleState() ? 1 : 0) + "\n";
+
+                // Tone/Noise
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Pan
+                content += juce::String(panSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // PCM Play
+                content += juce::String(pcmOffsetSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pcmRatioSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(loopPointStartSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEndSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfoComponent.getExportedParams();
+                content += qualityPcmComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                file.replaceWithText(content);
+            }
+        });
 
 }

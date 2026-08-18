@@ -524,7 +524,6 @@ void GuiSettings::setup()
                     wallpaperModeSelector.setSelectedId(ctx.audioProcessor.wallpaperMode + 1);
                     sampleDirPathLabel.setText(ctx.audioProcessor.defaultSampleDir, juce::dontSendNotification);
                     presetDirPathLabel.setText(ctx.audioProcessor.defaultPresetDir, juce::dontSendNotification);
-                    wavetableDirLabel.setText(ctx.audioProcessor.defaultWavetableDir, juce::dontSendNotification);
                     fxOrderDirLabel.setText(ctx.audioProcessor.defaultFxOrderDir, juce::dontSendNotification);
                     fxParamDirLabel.setText(ctx.audioProcessor.defaultFxParamDir, juce::dontSendNotification);
                     lfoParamDirLabel.setText(ctx.audioProcessor.defaultLfoParamDir, juce::dontSendNotification);
@@ -671,12 +670,6 @@ void GuiSettings::layout(juce::Rectangle<int> content)
 
     sRect.removeFromTop(SettingsGuiValue::Settings::PaddingHeight);
 
-    // 6. Wavetable Dir
-    auto rowWavetableDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
-    wavetableDirLabel.setBounds(rowWavetableDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
-    wavetableDirBrowseBtn.setBounds(rowWavetableDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
-    wavetableDirPathLabel.setBounds(rowWavetableDir);
-
     // 7. FX Order Dir
     auto rowFxOrderDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     fxOrderDirLabel.setBounds(rowFxOrderDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
@@ -805,7 +798,6 @@ void GuiSettings::setSettings(
     wallpaperPathLabel.setText(wallpaperPath, juce::dontSendNotification);
     sampleDirPathLabel.setText(sampleDirPath, juce::dontSendNotification);
     presetDirPathLabel.setText(presetDirPath, juce::dontSendNotification);
-	wavetableDirLabel.setText(wavetableDirPath, juce::dontSendNotification);
     fxOrderDirLabel.setText(fxOrderDirPath, juce::dontSendNotification);
     fxParamDirLabel.setText(fxParamDirPath, juce::dontSendNotification);
     lfoParamDirLabel.setText(lfoParamDirPath, juce::dontSendNotification);

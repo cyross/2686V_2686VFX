@@ -624,8 +624,39 @@ void GuiCurve::importCurveParam() {
                 file.readLines(lines);
 
                 int size = lines.size();
+                int index = 0;
 
-                // ここにインポートコードを入れる
+                int p = position.getSelectedItemIndex();
+                int t = target.getSelectedItemIndex();
+                int vpLen = paramLengthes[t];
+
+                // 現在表示中の Position と Target に該当するパラメータ群のみ復元
+                for (int vp = 0; vp < vpLen; vp++) {
+                    if (index < size) {
+                        int logicVal = lines[index++].getIntValue();
+                        ctx.audioProcessor.prCurve.setLogic(p, t, vp, logicVal);
+                    }
+                    if (index < size) {
+                        float kVal = lines[index++].getFloatValue();
+                        ctx.audioProcessor.prCurve.setK(p, t, vp, kVal);
+                    }
+
+                    // Value配列は使われていない分も含め、常に最大要素数(16)分を安全に読み込む
+                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+                        if (index < size) {
+                            float val = lines[index++].getFloatValue();
+                            ctx.audioProcessor.prCurve.setValue(p, t, vp, vv, val);
+                        }
+                    }
+                }
+
+                // プロセッサ側でカーブ計算を再実行し、コアに反映
+                ctx.audioProcessor.bakeCurves();
+                ctx.audioProcessor.getCurveCore()->setParameters(ctx.audioProcessor.prCurve.m_curveParams);
+
+                // GUIのコンポーネント（スライダーや表示状態）を最新値に更新
+                updateVisible();
+                ctx.editor.resized();
             }
         });
 }
@@ -655,7 +686,19 @@ void GuiCurve::exportCurveParam() {
 
                 juce::String content = "";
 
-                // ここにエクスポートコードを入れる
+                int p = position.getSelectedItemIndex();
+                int t = target.getSelectedItemIndex();
+                int vpLen = paramLengthes[t];
+
+                // 現在表示中の Position と Target に該当するパラメータ群のみ保存
+                for (int vp = 0; vp < vpLen; vp++) {
+                    content += juce::String(ctx.audioProcessor.prCurve.getLogic(p, t, vp)) + "\n";
+                    content += juce::String(ctx.audioProcessor.prCurve.getK(p, t, vp), Global::floatDecimalPlaces) + "\n";
+
+                    for (int vv = 0; vv < CurvePrValue::values; vv++) {
+                        content += juce::String(ctx.audioProcessor.prCurve.getValue(p, t, vp, vv), Global::floatDecimalPlaces) + "\n";
+                    }
+                }
 
                 file.replaceWithText(content);
             }

@@ -99,3 +99,19 @@ void QualityPcm::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
     }
 }
+
+void QualityPcm::setImportingParams(juce::StringArray& lines, int& index) {
+    modeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    interpSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+}
+
+juce::String QualityPcm::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+
+    return content;
+}

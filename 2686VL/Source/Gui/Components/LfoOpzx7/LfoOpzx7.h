@@ -82,4 +82,6 @@ public:
     void pasteParams(CopyLfoOpzx7& copyObj);
     void importParams();
     void exportParams();
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

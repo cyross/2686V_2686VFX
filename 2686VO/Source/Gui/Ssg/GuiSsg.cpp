@@ -156,6 +156,10 @@ void GuiSsg::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::ssgWaveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
@@ -494,6 +498,7 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
@@ -518,6 +523,8 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -813,9 +820,130 @@ void GuiSsg::exportSsgSwPEnv11Param() {
 }
 
 void GuiSsg::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::ssgParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form / Tone / Noise
+                waveSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseOnNoteButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Duty
+                dutyModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                dutyPresetSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                dutyVarSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                dutyInvertButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                dutyFcButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                dutyFcFlucSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Triangle
+                triKeyTrackButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                triFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                triPeakSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // HW Env
+                envEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                shapeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                periodSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+            }
+        });
 
 }
 
 void GuiSsg::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::ssgParam), Io::ExtensionGlob::ssgParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form / Tone / Noise
+                content += juce::String(waveSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseOnNoteButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Duty
+                content += juce::String(dutyModeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(dutyPresetSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(dutyVarSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dutyInvertButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(dutyFcButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(dutyFcFlucSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Triangle
+                content += juce::String(triKeyTrackButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(triFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(triPeakSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // HW Env
+                content += juce::String(envEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(shapeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(periodSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                file.replaceWithText(content);
+            }
+        });
 
 }

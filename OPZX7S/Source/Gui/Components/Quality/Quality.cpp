@@ -79,3 +79,17 @@ void Quality::layoutComponentRow(juce::Rectangle<int>& rect) {
         layoutRow({ .rowRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
     }
 }
+
+void Quality::setImportingParams(juce::StringArray& lines, int& index) {
+    bitSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+    rateSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+}
+
+juce::String Quality::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
+    content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+
+    return content;
+}

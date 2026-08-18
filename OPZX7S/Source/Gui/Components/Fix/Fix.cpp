@@ -495,3 +495,17 @@ void GuiComponentFix::pasteParams(CopyFix& copyObj) {
     enable.setToggleState(copyObj.fixedMode, juce::sendNotification);
     freq.setValue(copyObj.fixedFreq, juce::sendNotification);
 }
+
+void GuiComponentFix::setImportingParams(juce::StringArray& lines, int& index) {
+    enable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    freq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentFix::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(enable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(freq.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
+}

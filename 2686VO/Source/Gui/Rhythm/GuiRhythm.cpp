@@ -749,6 +749,126 @@ void RhythmPadGui::exportQualityParam() {
         });
 }
 
+void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& index) {
+    // linesの終端を超えていたら（Originなどの6パッドなど、パッド数が8未満の場合）、初期値でリセットして処理を抜ける
+    if (index >= lines.size()) {
+        ctx.audioProcessor.unloadRhythmFile(p);
+        fileNameLabel.setText(Io::empty, juce::dontSendNotification);
+
+        // 基本パラメータ初期値
+        volSlider.setValue(0.0, juce::sendNotification);
+        panSlider.setValue(0.5, juce::sendNotification);
+        oneShotButton.setToggleState(false, juce::sendNotification);
+        noteSlider.setValue(60, juce::sendNotification);
+
+        // PCM Play
+        pcmOffsetSlider.setValue(0.0, juce::sendNotification);
+        pcmRatioSlider.setValue(1.0, juce::sendNotification);
+        loopPointEnableButton.setToggleState(false, juce::sendNotification);
+        loopPointStartSlider.setValue(0.0, juce::sendNotification);
+        loopPointEndSlider.setValue(1.0, juce::sendNotification);
+
+        // Tone/Noise
+        toneSlider.setValue(1.0, juce::sendNotification);
+        noiseSlider.setValue(0.0, juce::sendNotification);
+        noiseFreqSlider.setValue(0.0, juce::sendNotification);
+        mixSlider.setValue(0.0, juce::sendNotification);
+
+        juce::StringArray emptyLines;
+        int dummyIndex = 0;
+        fixComponent.setImportingParams(emptyLines, dummyIndex);
+        ampEnvComponent.setImportingParams(emptyLines, dummyIndex);
+        pitchEnvComponent.setImportingParams(emptyLines, dummyIndex);
+        ssgSwEnvComponent.setImportingParams(emptyLines, dummyIndex);
+        ssgSwEnv11Component.setImportingParams(emptyLines, dummyIndex);
+        ssgSwPEnv11Component.setImportingParams(emptyLines, dummyIndex);
+        mulDetuneComponent.setImportingParams(emptyLines, dummyIndex);
+        lfoComponent.setImportingParams(emptyLines, dummyIndex);
+        qualityPcmComponent.setImportingParams(emptyLines, dummyIndex);
+
+        return;
+    }
+
+    // Form
+    if (fileNameLabel.getText() != lines[index]) {
+        ctx.audioProcessor.unloadRhythmFile(p);
+    }
+
+    fileNameLabel.setText(lines[index++], juce::dontSendNotification);
+
+    if (fileNameLabel.getText().isNotEmpty()) {
+        ctx.audioProcessor.loadRhythmFile(fileNameLabel.getText(), p);
+    }
+
+    volSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    oneShotButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    noteSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
+
+    // Tone/Noise
+    toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // PCM Play
+    pcmOffsetSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pcmRatioSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    loopPointStartSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    loopPointEndSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Components
+    fixComponent.setImportingParams(lines, index);
+    ampEnvComponent.setImportingParams(lines, index);
+    pitchEnvComponent.setImportingParams(lines, index);
+    ssgSwEnvComponent.setImportingParams(lines, index);
+    ssgSwEnv11Component.setImportingParams(lines, index);
+    ssgSwPEnv11Component.setImportingParams(lines, index);
+    mulDetuneComponent.setImportingParams(lines, index);
+    lfoComponent.setImportingParams(lines, index);
+    qualityPcmComponent.setImportingParams(lines, index);
+}
+
+juce::String RhythmPadGui::getExportedParams() {
+    juce::String content = "";
+
+    // Form
+    content += fileNameLabel.getText() + "\n";
+
+    // Optional
+    content += juce::String(volSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(panSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(oneShotButton.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(noteSlider.getValue()) + "\n";
+
+    // Tone/Noise
+    content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // PCM Play
+    content += juce::String(pcmOffsetSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pcmRatioSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(loopPointEnableButton.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(loopPointStartSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(loopPointEndSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Components
+    content += fixComponent.getExportedParams();
+    content += ampEnvComponent.getExportedParams();
+    content += pitchEnvComponent.getExportedParams();
+    content += ssgSwEnvComponent.getExportedParams();
+    content += ssgSwEnv11Component.getExportedParams();
+    content += ssgSwPEnv11Component.getExportedParams();
+    content += mulDetuneComponent.getExportedParams();
+    content += lfoComponent.getExportedParams();
+    content += qualityPcmComponent.getExportedParams();
+
+    return content;
+}
+
 GuiRhythm::GuiRhythm(const GuiContext& context) :
     GuiBase(context),
     mainGroup(context),
@@ -774,9 +894,11 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieDetune(context),
     ieQuality(context),
     iePcmPlay(context),
+	ieChPadParam(context),
     targerPadSlider(context),
     uSep003(context),
     ieUnison(context),
+	ieChParam(context),
     pads{ { {context}, {context}, {context}, {context}, {context}, {context} } }
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -893,6 +1015,10 @@ void GuiRhythm::setup()
     iePcmPlay.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPcmPlayParam(padIndex); };
     iePcmPlay.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPcmPlayParam(padIndex); };
 
+    ieChPadParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "Pad Params");
+    ieChPadParam.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPadChParam(padIndex); };
+    ieChPadParam.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPadChParam(padIndex); };
+
     targerPadSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Pad", .isReset = false });
     targerPadSlider.setRange(1.0, 8.0, 1.0);
     targerPadSlider.setNumDecimalPlacesToDisplay(0);
@@ -905,6 +1031,10 @@ void GuiRhythm::setup()
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
+
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
 
     viewModeComp.setupComponent(*this, tabOrder);
     viewModeComp.onChangeViewMode = [this] (GuiComponentViewModes mode) {
@@ -1044,9 +1174,11 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
+    ieChPadParam.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
+    ieChParam.setVisible(visible);
     targerPadSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
 
@@ -1082,11 +1214,15 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         iePcmPlay.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieChPadParam.layoutComponent(rect);
+        rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerPadSlider.label, .component = &targerPadSlider });
 
         uSep003.layoutComponent(rect);
 
         ieUnison.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -1266,17 +1402,127 @@ void GuiRhythm::exportSsgSwPEnv11Param(int p) {
 }
 
 void GuiRhythm::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::rhythmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Components
+                unisonComponent.setImportingParams(lines, index);
+
+                for (int i = 0; i < RhythmPrValue::pads; i++) {
+                    getImportingPadParams(i, lines, index);
+                }
+            }
+        });
 
 }
 
 void GuiRhythm::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::rhythmParam), Io::ExtensionGlob::rhythmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Components
+                content += unisonComponent.getExportedParams();
+
+                for (int i = 0; i < RhythmPrValue::pads; i++) {
+                    content += setExportedPadParams(i);
+                }
+
+                file.replaceWithText(content);
+            }
+        });
 
 }
 
 void GuiRhythm::importPadChParam(int p) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::rhythmPadParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this, p](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                getImportingPadParams(p, lines, index);
+            }
+        });
 
 }
 
 void GuiRhythm::exportPadChParam(int p) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::rhythmPadParam), Io::ExtensionGlob::rhythmPadParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this, p](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += setExportedPadParams(p);
+
+                file.replaceWithText(content);
+            }
+        });
+
+}
+
+void GuiRhythm::getImportingPadParams(int p, juce::StringArray& lines, int& index) {
+    pads[p].setImportingParams(p, lines, index);
+}
+
+juce::String GuiRhythm::setExportedPadParams(int p) {
+    return pads[p].getExportedParams();
 }

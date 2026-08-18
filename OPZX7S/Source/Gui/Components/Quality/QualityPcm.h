@@ -56,4 +56,6 @@ public:
 		rateSelector.setEnabled(enabled);
 		interpSelector.setEnabled(enabled);
 	}
+	void setImportingParams(juce::StringArray& lines, int& index);
+	juce::String getExportedParams();
 };

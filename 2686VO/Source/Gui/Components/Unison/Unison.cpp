@@ -116,3 +116,19 @@ void GuiComponentUnison::exportParams() {
             }
         });
 }
+
+void GuiComponentUnison::setImportingParams(juce::StringArray& lines, int& index) {
+    voices.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    detune.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    spread.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentUnison::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(voices.getValue()) + "\n";
+    content += juce::String(detune.getValue()) + "\n";
+    content += juce::String(spread.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
+}

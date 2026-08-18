@@ -47,4 +47,6 @@ public:
         bitSelector.setEnabled(enabled);
         rateSelector.setEnabled(enabled);
     }
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

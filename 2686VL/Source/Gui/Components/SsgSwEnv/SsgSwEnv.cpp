@@ -515,3 +515,49 @@ void GuiComponentSsgSwEnv::exportParams() {
             }
         });
 }
+
+void GuiComponentSsgSwEnv::setImportingParams(juce::StringArray& lines, int& index) {
+    flag.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    steps.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loop.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    loopTo.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    loopCount.setValue(lines[index++].getIntValue(), juce::sendNotification);
+    startLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r1.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l1.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r2.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l2.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r3.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l3.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r4.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l4.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r5.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l5.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    r6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    l6.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentSsgSwEnv::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(flag.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(steps.getValue()) + "\n";
+    content += juce::String(loop.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(loopTo.getValue()) + "\n";
+    content += juce::String(loopCount.getValue()) + "\n";
+    content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r1.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l1.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r2.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l2.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r3.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l3.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r4.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l4.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r5.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l5.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(r6.getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(l6.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
+}

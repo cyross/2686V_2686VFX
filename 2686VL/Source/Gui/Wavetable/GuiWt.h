@@ -157,6 +157,7 @@ class GuiWt : public GuiBase
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
+    GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiComponentMidi midiComponent;
@@ -215,6 +216,7 @@ public:
         ieDetune(context),
         ieUnison(context),
         ieQuality(context),
+        ieChParam(context),
         sizeSelector(context),
         stepsSelector(context),
         waveSelector(context),

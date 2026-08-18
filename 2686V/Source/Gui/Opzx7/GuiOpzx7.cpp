@@ -2495,11 +2495,65 @@ void GuiOpzx7::exportQualityParam() {
 }
 
 void GuiOpzx7::importOpPcmPlayParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultPcmPlayParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importPcmPlayParamFile, defaultDir, Io::ExtensionGlob::PcmPlayParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                if (size < 5) return;
+
+                pcmOffset[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                pcmRatio[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEnable[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                loopPointStart[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEnd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+            }
+        });
 
 }
 
 void GuiOpzx7::exportOpPcmPlayParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultPcmPlayParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
 
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportPcmPlayParamFile, defaultDir.getChildFile("default.pcmPlay"), Io::ExtensionGlob::PcmPlayParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultPcmPlayParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += juce::String(pcmOffset[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pcmRatio[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEnable[opIndex].getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(loopPointStart[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEnd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+
+                file.replaceWithText(content);
+            }
+        });
 }
 
 void GuiOpzx7::importSsgSwEnv11Param(int opIndex) {

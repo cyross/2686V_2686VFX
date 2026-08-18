@@ -219,3 +219,27 @@ void GuiComponentAmpEnv::exportParams() {
 			}
 		});
 }
+
+void GuiComponentAmpEnv::setImportingParams(juce::StringArray& lines, int& index) {
+	bypass.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+	startLevel.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	attack.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	decay.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	sustain.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	release.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+	kor.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+}
+
+juce::String GuiComponentAmpEnv::getExportedParams() {
+	juce::String content = "";
+
+	content += juce::String(bypass.getToggleState() ? 1 : 0) + "\n";
+	content += juce::String(startLevel.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(attack.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(decay.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(sustain.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(release.getValue(), Global::floatDecimalPlaces) + "\n";
+	content += juce::String(kor.getToggleState() ? 1 : 0) + "\n";
+
+	return content;
+}

@@ -110,6 +110,7 @@ class GuiAdpcm : public GuiBase
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
     GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
@@ -182,6 +183,7 @@ public:
         ieQuality(context),
         iePcmPlay(context),
         ieUnison(context),
+		ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

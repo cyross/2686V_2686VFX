@@ -101,4 +101,6 @@ public:
     int getDt3();
     void setVisibles(bool visible);
     void setEnables(bool enable);
+    void setImportingParams(juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };

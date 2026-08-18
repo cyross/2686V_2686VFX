@@ -32,6 +32,7 @@ namespace Io
 		static inline const juce::String fxOrder = "*.fxo";
 		static inline const juce::String fxParam = "*.2fx";
 		static inline const juce::String opzx7sParam = "*.param.opzx7s";
+		static inline const juce::String opzx7sOpParam = "*.param.opzx7s.op";
 		static inline const juce::String curveParam = "*.curve_";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
