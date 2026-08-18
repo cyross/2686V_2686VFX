@@ -10,6 +10,9 @@
 
 class GuiComponentLevel : public GuiBase {
     GuiSlider levelSlider;
+
+    GuiComboBox stepSelector;
+
     GuiTextButton levelPM1;
     GuiTextButton levelTo1;
     GuiTextButton levelP1;
@@ -30,10 +33,23 @@ class GuiComponentLevel : public GuiBase {
     GuiTextButton levelTo075;
     GuiTextButton levelTo08;
     GuiTextButton levelTo083;
+
+    std::vector<SelectItem> stepItems = {
+            { "1: Free", 1 },
+            { "2: 16 Steps", 2 },
+            { "3: 32 Steps", 3 },
+            { "4: 64 Steps", 4 },
+            { "5: 128 Steps", 5 },
+            { "6: 256 Steps", 6 }
+    };
+
+    // 内部でスナップ処理を行うための関数
+    void applyStepSnap();
 public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
         levelSlider(context),
+		stepSelector(context),
         levelTo1(context),
         levelPM1(context),
         levelP1(context),
