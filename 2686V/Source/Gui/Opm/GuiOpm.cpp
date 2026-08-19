@@ -1163,7 +1163,7 @@ void GuiOpm::layoutOpKsCat(int opIndex, juce::Rectangle<int>& rect) {
 
     ksMode[opIndex].setVisibleWithLabel(visible);
     ks[opIndex].setVisibleWithLabel(visible && mode == FmRgAdddrKeyScaleMode::OPM);
-    ksrOPP[opIndex].setVisible(visible && mode == FmRgAdddrKeyScaleMode::OPP);
+    ksrOPP[opIndex].setVisibleWithLabel(visible && mode == FmRgAdddrKeyScaleMode::OPP);
     kslOPP[opIndex].setVisibleWithLabel(visible && mode == FmRgAdddrKeyScaleMode::OPP);
 
     if (visible) {
@@ -1191,6 +1191,7 @@ void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
     mulRatioTo001[opIndex].setVisible(visible);
     mulRatioTo005[opIndex].setVisible(visible);
     mulRatioTo1[opIndex].setVisible(visible);
+    mulRatioTo10[opIndex].setVisible(visible);
     mulRatioTo2757[opIndex].setVisible(visible);
     mulRatioTo02[opIndex].setVisible(visible);
     mulRatioTo025[opIndex].setVisible(visible);
