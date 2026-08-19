@@ -3,7 +3,7 @@
 #include "../../Core/Synth/SynthHelpers.h"
 
 // ============================================================================
-// マトリクスを簡単に構築するためのヘルパー関数 (6オペ完全対応・拡張フィードバック)
+// マトリクスを簡単に構築するためのヘルパー関数 (全オペ完全対応・拡張フィードバック)
 // ============================================================================
 OplCore::AlgRouting makeAlgOpl(
     std::initializer_list<int> carriers,
@@ -34,7 +34,7 @@ OplCore::AlgRouting makeAlgOpl(
 }
 
 // ============================================================================
-// アルゴリズムの定義 (例: 32種類と仮定)
+// アルゴリズムの定義
 // ============================================================================
 const std::array<OplCore::AlgRouting, OplPrValue::algorithms> OplCore::routings = { {
     makeAlgOpl({1}, {{0, 1}}, {{0, 0}}), // 00
@@ -69,10 +69,10 @@ void OplCore::setSampleRate(double sampleRate) {
 void OplCore::setParameters(const SynthParams& params) {
     m_level = params.opl.level;
 
-    m_algorithm = params.opl.algorithm; // 0:Serial(FM), 1:Parallel(AM)
+    m_algorithm = params.opl.algFb.algorithm; // 0:Serial(FM), 1:Parallel(AM)
 
-    if (m_rateIndex != params.opl.fmRateIndex) {
-        m_rateIndex = params.opl.fmRateIndex;
+    if (m_rateIndex != params.opl.quality.rate) {
+        m_rateIndex = params.opl.quality.rate;
 
 		double target = getTargetRate(m_rateIndex);
 
@@ -81,10 +81,10 @@ void OplCore::setParameters(const SynthParams& params) {
         m_operators[1].setSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opl.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opl.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opl.op[0], params.opl.feedback);
+    m_operators[0].setParameters(params.opl.op[0], params.opl.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opl.op[0].mask;
@@ -92,6 +92,9 @@ void OplCore::setParameters(const SynthParams& params) {
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opl.op[1].mask;
+
+    // アルゴリズムに基づくルーティングのキャッシュを更新
+    updateRoutingCache();
 }
 
 void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -179,9 +182,11 @@ void OplCore::setModulationWheel(int wheelValue)
 
 float OplCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-
     double stepSize = targetRate / m_hostSampleRate;
+
     m_rateAccumulator += stepSize;
+
+    float currentOut[OplPrValue::ops];
 
     while (m_rateAccumulator >= 1.0)
     {
@@ -192,58 +197,25 @@ float OplCore::getSample() {
         m_operators[0].processLfo();
         m_operators[1].processLfo();
 
-        std::array<float, OplPrValue::ops> currentOut = { 0.0f };
+        currentOut[0] = 0.0f;
+        currentOut[1] = 0.0f;
+
         float finalOut = 0.0f;
 
-        int algIndex = std::clamp(m_algorithm, 0, OplPrValue::algorithms - 1);
-        const auto& r = routings[algIndex];
-
         // =================================================================
-        // オペレータの評価 (OP1 -> OP6 の正順で計算)
+        // オペレータの評価 (OP1からの正順で計算)
+        // テンプレートを用いたループ展開 (Loop Unrolling) によりさらに高速化
         // =================================================================
-        for (int i = 0; i < OplPrValue::ops; ++i) { // 0 から 5 へ
-            float modulator = 0.0f;
-            float fbModulator = 0.0f;
-
-            // 1. 通常の変調入力 (mod)
-            for (int src = 0; src < OplPrValue::ops; ++src) {
-                if (r.mod[i][src] > 0.0f) {
-                    // src が i より「小さい」なら既に計算済み(currentOut)、
-                    // 大きいなら未計算なので1サンプル前の history1 を使う
-                    float srcVal = (src < i) ? currentOut[src] : m_history1[src];
-
-                    modulator += srcVal * r.mod[i][src];
-                }
-            }
-
-            // 2. フィードバック変調入力 (fbMod)
-            for (int src = 0; src < OplPrValue::ops; ++src) {
-                if (r.fbMod[i][src] > 0.0f) {
-                    // フィードバックは常に「過去2サンプルの平均」
-                    float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
-
-                    fbModulator += averageFb * r.fbMod[i][src];
-                }
-            }
-
-            // 3. オペレータを計算
-            m_operators[i].getSample(currentOut[i], modulator, fbModulator);
-
-            if (m_opMask[i]) currentOut[i] = 0.0f;
-        }
+        processAllOperators(std::make_index_sequence<OplPrValue::ops>{}, currentOut, finalOut);
 
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
         m_history2 = m_history1;
-        m_history1 = currentOut;
 
-        // =================================================================
-        // Final Output (各OPからマスターアウトへの加算)
-        // =================================================================
-        for (int i = 0; i < OplPrValue::ops; ++i) {
-            finalOut += currentOut[i] * r.out[i];
-        }
+        // 生配列から std::array へのコピー
+        m_history1[0] = currentOut[0];
+        m_history1[1] = currentOut[1];
 
         finalOut *= 2.0f; // ゲイン補正
 
@@ -284,4 +256,69 @@ void OplCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     outR[startSample + sampleIdx] += sample * basePanR;
 
     isActive = isPlaying();
+}
+
+void OplCore::updateRoutingCache()
+{
+    if (m_algorithm == m_cachedAlgorithm) return;
+
+    m_cachedAlgorithm = m_algorithm;
+    int algIndex = std::clamp(m_algorithm, 0, OplPrValue::algorithms - 1);
+    const auto& r = routings[algIndex];
+
+    for (int i = 0; i < OplPrValue::ops; ++i) {
+        m_activeRoutings[i].modCount = 0;
+        m_activeRoutings[i].fbModCount = 0;
+        m_activeRoutings[i].outLevel = r.out[i];
+
+        // 通常変調の登録
+        for (int src = 0; src < OplPrValue::ops; ++src) {
+            if (r.mod[i][src] > 0.0f) {
+                auto& conn = m_activeRoutings[i].mods[m_activeRoutings[i].modCount++];
+                conn.srcOp = src;
+                conn.amount = r.mod[i][src];
+                conn.isForward = (src < i);
+            }
+        }
+
+        // フィードバック変調の登録
+        for (int src = 0; src < OplPrValue::ops; ++src) {
+            if (r.fbMod[i][src] > 0.0f) {
+                auto& conn = m_activeRoutings[i].fbMods[m_activeRoutings[i].fbModCount++];
+                conn.srcOp = src;
+                conn.amount = r.fbMod[i][src];
+                conn.isForward = false;
+            }
+        }
+    }
+}
+
+template<size_t I>
+inline void OplCore::processSingleOperator(float* currentOut, float& finalOut)
+{
+    float modulator = 0.0f;
+    float fbModulator = 0.0f;
+    const auto& routing = m_activeRoutings[I];
+
+    // 1. 通常の変調入力 (接続されているもの"だけ"を処理)
+    for (int m = 0; m < routing.modCount; ++m) {
+        const auto& conn = routing.mods[m];
+        float srcVal = conn.isForward ? currentOut[conn.srcOp] : m_history1[conn.srcOp];
+        modulator += srcVal * conn.amount;
+    }
+
+    // 2. フィードバック変調入力
+    for (int f = 0; f < routing.fbModCount; ++f) {
+        const auto& conn = routing.fbMods[f];
+        float averageFb = m_operators[conn.srcOp].getFeedbackAverage();
+        fbModulator += averageFb * conn.amount;
+    }
+
+    // 3. オペレータを計算
+    m_operators[I].getSample(currentOut[I], modulator, fbModulator);
+
+    if (m_opMask[I]) currentOut[I] = 0.0f;
+
+    // 4. そのまま FinalOutput へ加算
+    finalOut += currentOut[I] * routing.outLevel;
 }

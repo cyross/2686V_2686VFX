@@ -19,6 +19,11 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -57,13 +62,13 @@ class GuiOpn : public GuiBase
 
     GuiComponentLevel levelComponent;
 
-    GuiCategoryLabel qualityCat;
+    Quality qualityComponent;
+
     GuiCategoryLabel algFbCat;
 
     GuiComboBox algSelector;
+    NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
-    GuiComboBox bitSelector;
-    GuiComboBox rateSelector;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -81,26 +86,32 @@ class GuiOpn : public GuiBase
     GuiSlider lfoPmdSlider;
     GuiSlider lfoPmsSlider;
     GuiSlider lfoAmdSlider;
+    NormalSeparator lfoSep1;
+    NormalSeparator lfoSep2;
 
     GuiComponentMidi midiComponent;
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton copyParamsToOpnaBtn;
     GuiTextButton copyParamsToOpmBtn;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiTextButton copyOpParamBtn;
     GuiSlider copyOpFromSlider;
     GuiSlider copyOpToSlider;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiComponentImportExport ieOpPitchEnv;
     GuiComponentImportExport ieOpSsgSwEnv;
+    GuiComponentImportExport ieOpSsgSwEnv11;
+    GuiComponentImportExport ieOpSsgSwPEnv11;
+    GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
-    GuiSeparator uSep004;
+    NormalSeparator uSep004;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
+    GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -120,6 +131,9 @@ class GuiOpn : public GuiBase
     // SSG SW Env
     std::array<GuiComponentSsgSwEnv, OpnPrValue::ops> ssgSwEnv;
 
+    std::array<GuiComponentSsgSwEnv11, OpnPrValue::ops> ssgSwEnv11;
+    std::array<GuiComponentSsgSwPEnv11, OpnPrValue::ops> ssgSwPEnv11;
+
     std::array<GuiCategoryLabel, OpnPrValue::ops> catShape;
     std::array<GuiComboBox, OpnPrValue::ops> se; // SSG-EG Shape Selector
     std::array<GuiSlider, OpnPrValue::ops> seFreq;
@@ -128,7 +142,7 @@ class GuiOpn : public GuiBase
     std::array<GuiSlider, OpnPrValue::ops> n88Ams;
     std::array<GuiCategoryLabel, OpnPrValue::ops> catMask;
     std::array<GuiToggleButton, OpnPrValue::ops> mask; // Mask
-    std::array<GuiSeparator, OpnPrValue::ops> mmlSeparator;
+    std::array<NormalSeparator, OpnPrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, OpnPrValue::ops> mml;
 
     std::array<GuiSlider, OpnPrValue::ops> rgAr;
@@ -148,13 +162,17 @@ class GuiOpn : public GuiBase
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnAmp;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnPitch;
     std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg;
-    std::array<GuiSeparator, OpnPrValue::ops> graphSeparator;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsg11;
+    std::array<GuiToggleButton, OpnPrValue::ops> graphBtnSsgP11;
+    std::array<NormalSeparator, OpnPrValue::ops> graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     std::array<GraphMode, OpnPrValue::ops> currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
+
+    bool isUpdatingGraph = false;
 
     void updateOpGraph(int opIndex);
     void setGraphMode(int opIndex, GraphMode mode);
@@ -163,13 +181,12 @@ public:
         GuiBase(context),
         mainGroup(context),
         presetName(context),
-        qualityCat(context),
         algFbCat(context),
         levelComponent(context),
+        qualityComponent(context),
         algSelector(context),
+        algFbSep(context),
         feedbackSlider(context),
-        bitSelector(context),
-        rateSelector(context),
         unisonComponent(context),
         lfoCat(context),
         lfoFreqSlider(context),
@@ -183,6 +200,8 @@ public:
         lfoPmdSlider(context),
         lfoPmsSlider(context),
         lfoAmdSlider(context),
+        lfoSep1(context),
+        lfoSep2(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
@@ -195,11 +214,15 @@ public:
         uSep003(context),
         ieOpPitchEnv(context),
         ieOpSsgSwEnv(context),
+        ieOpSsgSwEnv11(context),
+        ieOpSsgSwPEnv11(context),
+        ieOpChParam(context),
         targerOpSlider(context),
         uSep004(context),
         ieLfo(context),
         ieUnison(context),
         ieQuality(context),
+        ieChParam(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -209,6 +232,8 @@ public:
         ks{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         pitchEnv{ GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context), GuiComponentPitchEnv(context) },
         ssgSwEnv{ GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context), GuiComponentSsgSwEnv(context) },
+        ssgSwEnv11{ GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context), GuiComponentSsgSwEnv11(context) },
+        ssgSwPEnv11{ GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context), GuiComponentSsgSwPEnv11(context) },
         catShape{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         se{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
         seFreq{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -217,7 +242,7 @@ public:
         n88Ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         mask{ GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context),GuiToggleButton(context) },
         catMask{ GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context), GuiCategoryLabel(context) },
-        mmlSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) },
+        mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         rgAr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
         rgDr{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
@@ -233,7 +258,9 @@ public:
         graphBtnAmp{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnPitch{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
         graphBtnSsg{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
-        graphSeparator{ GuiSeparator(context), GuiSeparator(context), GuiSeparator(context), GuiSeparator(context) }
+        graphBtnSsg11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphBtnSsgP11{ GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context), GuiToggleButton(context) },
+        graphSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) }
     {
         currentGraphMode.fill(GraphMode::Amp); // 初期状態はすべてAmp
         setFocusContainerType(FocusContainerType::keyboardFocusContainer);
@@ -278,10 +305,20 @@ public:
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
     void exportSsgSwEnvParam(int opIndex);
+    void importSsgSwEnv11Param(int opIndex);
+    void exportSsgSwEnv11Param(int opIndex);
+    void importSsgSwPEnv11Param(int opIndex);
+    void exportSsgSwPEnv11Param(int opIndex);
     void importLfoParam();
     void exportLfoParam();
     void importUnisonParam();
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importChParam();
+    void exportChParam();
+    void importOpChParam(int opIndex);
+    void exportOpChParam(int opIndex);
+    void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
+    juce::String setExportedOpParams(int opIndex);
 };

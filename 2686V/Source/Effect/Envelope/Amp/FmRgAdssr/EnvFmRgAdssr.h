@@ -76,4 +76,5 @@ public:
 	void updateIncrementsWithKeyScale(int noteNumber);
 	float updateEnvelopeState(float currentLevel);
 	void setParamMax(int ar, int dr, int sr, int sl, int rr, int tl);
+	void bypassedReleasedProcess();
 };

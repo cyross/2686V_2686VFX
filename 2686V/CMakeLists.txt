@@ -43,6 +43,8 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthVoice.cpp"
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
+    "Source/Core/Synth/UnisonParams.h"
+    "Source/Core/Synth/CommonParams.h"
 )
 
 set(FM_FIX_FILES
@@ -52,11 +54,13 @@ set(FM_FIX_FILES
 )
 
 set(LFSR_NOISE_GEN_FILES
+    "Source/Generator/Noise/Lfsr/GenNoiseLfsrParams.h"
     "Source/Generator/Noise/Lfsr/GenNoiseLfsr.h"
     "Source/Generator/Noise/Lfsr/GenNoiseLfsr.cpp"
 )
 
 set(SSG_NOISE_GEN_FILES
+    "Source/Generator/Noise/Ssg/GenNoiseSsgParams.h"
     "Source/Generator/Noise/Ssg/GenNoiseSsg.h"
     "Source/Generator/Noise/Ssg/GenNoiseSsg.cpp"
 )
@@ -72,7 +76,6 @@ set(PCM_GENERATOR_FILES
 
 set(FM_FILES
     "Source/Core/Fm/FmCore.h"
-    "Source/Core/Fm/FmCore.cpp"
     "Source/Core/Fm/FmOperator.h"
     "Source/Core/Fm/FmOperator.cpp"
     "Source/Core/Fm/FmOpParams.h"
@@ -107,7 +110,8 @@ set(PROCESSOR_FILES
     "Source/Core/Processor/ProcessorNames.h"
     "Source/Core/Processor/ProcessorValues.h"
     "Source/Core/Processor/ProcessorBase.h"
-    "Source/Core/Processor/ProcessorBase.cpp"
+    "Source/Core/Processor/ProcessorStructs.h"
+    "Source/Core/Processor/ProcessorHelper.h"
     "Source/Core/Processor/PluginProcessor.h"
     "Source/Core/Processor/PluginProcessor.cpp"
     "Source/Core/Processor/PluginProcessorStateKey.h"
@@ -143,12 +147,18 @@ set(AMP_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSwParams.h"
     "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
     "Source/Effect/Envelope/Amp/SsgSw/EnvSsgSw.cpp"
+    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
+    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+    "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
 )
 
 set(PITCH_ENVELOPE_FILES
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsrParams.h"
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
     "Source/Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.cpp"
+    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+    "Source/Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.cpp"
 )
 
 set(KEY_SCALE_FILES
@@ -173,30 +183,40 @@ set(KEY_SCALE_FILES
 )
 
 set(DETUNE_FILES
+    "Source/Effect/Detune/Opl/DetuneOplParams.h"
     "Source/Effect/Detune/Opl/DetuneOpl.h"
     "Source/Effect/Detune/Opl/DetuneOpl.cpp"
+    "Source/Effect/Detune/Opn/DetuneOpnParams.h"
     "Source/Effect/Detune/Opn/DetuneOpn.h"
     "Source/Effect/Detune/Opn/DetuneOpn.cpp"
+    "Source/Effect/Detune/Opm/DetuneOpmParams.h"
     "Source/Effect/Detune/Opm/DetuneOpm.h"
     "Source/Effect/Detune/Opm/DetuneOpm.cpp"
+    "Source/Effect/Detune/Opzx7/DetuneOpzx7Params.h"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.h"
     "Source/Effect/Detune/Opzx7/DetuneOpzx7.cpp"
 )
 
 set(FEEDBACK_FILES
+    "Source/Effect/Feedback/FeedbackParams.h"
     "Source/Effect/Feedback/Feedback.h"
     "Source/Effect/Feedback/Feedback.cpp"
 )
 
 set(LFO_FILES
+    "Source/Effect/Lfo/N88/LfoN88Params.h"
     "Source/Effect/Lfo/N88/LfoN88.h"
     "Source/Effect/Lfo/N88/LfoN88.cpp"
+    "Source/Effect/Lfo/Opna/LfoOpnaParams.h"
     "Source/Effect/Lfo/Opna/LfoOpna.h"
     "Source/Effect/Lfo/Opna/LfoOpna.cpp"
+    "Source/Effect/Lfo/Opl/LfoOplParams.h"
     "Source/Effect/Lfo/Opl/LfoOpl.h"
     "Source/Effect/Lfo/Opl/LfoOpl.cpp"
+    "Source/Effect/Lfo/Opm/LfoOpmParams.h"
     "Source/Effect/Lfo/Opm/LfoOpm.h"
     "Source/Effect/Lfo/Opm/LfoOpm.cpp"
+    "Source/Effect/Lfo/Opzx7/LfoOpzx7Params.h"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.h"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7.cpp"
     "Source/Effect/Lfo/Opzx7/LfoOpzx7Unit.h"
@@ -583,9 +603,24 @@ set(GUI_COMPONENT_SSGSWENV_FILES
     "Source/Gui/Components/SsgSwEnv/SsgSwEnv.cpp"
 )
 
+set(GUI_COMPONENT_SSGSWENV11_FILES
+    "Source/Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+    "Source/Gui/Components/SsgSwEnv11/SsgSwEnv11.cpp"
+)
+
+set(GUI_COMPONENT_SSGSWPENV11_FILES
+    "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+    "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
+)
+
 set(GUI_COMPONENT_PITCHBUTTONS_FILES
     "Source/Gui/Components/PitchButtons/PitchButtons.h"
     "Source/Gui/Components/PitchButtons/PitchButtons.cpp"
+)
+
+set(GUI_COMPONENT_SSGSWBUTTONS_FILES
+    "Source/Gui/Components/SsgSwButtons/SsgSwButtons.h"
+    "Source/Gui/Components/SsgSwButtons/SsgSwButtons.cpp"
 )
 
 set(GUI_COMPONENT_MIDI_FILES
@@ -616,6 +651,26 @@ set(GUI_COMPONENT_IMPORT_EXPORT_FILES
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
+)
+
+set(GUI_COMPONENT_SEPARATOR_FILES
+    "Source/Gui/Components/Separator/NormalSeparator.h"
+    "Source/Gui/Components/Separator/NormalSeparator.cpp"
+    "Source/Gui/Components/Separator/ShortSeparator.h"
+    "Source/Gui/Components/Separator/ShortSeparator.cpp"
+)
+
+set(GUI_COMPONENT_QUALITY_FILES
+    "Source/Gui/Components/Quality/Quality.h"
+    "Source/Gui/Components/Quality/Quality.cpp"
+    "Source/Gui/Components/Quality/QualityPcm.h"
+    "Source/Gui/Components/Quality/QualityPcm.cpp"
+)
+
+set(GUI_COMPONENT_ALG_MATRIX_FILES
+    "Source/Gui/Components/AlgMatrix/AlgMatrixState.h"
+    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.h"
+    "Source/Gui/Components/AlgMatrix/GuiOpzx7AlgMatrix.cpp"
 )
 
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
@@ -675,10 +730,16 @@ source_group("2686V\\Gui\\Components\\SsgSwEnv" FILES ${GUI_COMPONENT_SSGSWENV_F
 source_group("2686V\\Gui\\Components\\Lfo\\Opzx7" FILES ${GUI_COMPONENT_LFO_OPZX7_FILES})
 source_group("2686V\\Gui\\Components\\Midi" FILES ${GUI_COMPONENT_MIDI_FILES})
 source_group("2686V\\Gui\\Components\\PitchButtons" FILES ${GUI_COMPONENT_PITCHBUTTONS_FILES})
+source_group("2686V\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSWBUTTONS_FILES})
 source_group("2686V\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
 source_group("2686V\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686V\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
 source_group("2686V\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
+source_group("2686V\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
+source_group("2686V\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
+source_group("2686V\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
+source_group("2686V\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("2686V\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("2686V\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686V\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686V\\Gui\\Tab\\Opn" FILES ${OPN_GUI_FILES})

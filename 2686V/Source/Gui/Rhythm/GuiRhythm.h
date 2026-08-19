@@ -22,6 +22,11 @@
 #include "../../Gui/Components/ViewMode/ViewMode.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/QualityPcm.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -36,6 +41,8 @@ class RhythmPadGui: public GuiBase
     GuiTextButton loadButton;
     GuiTextButton clearButton;
 
+    NormalSeparator formSeparator;
+
     GuiCategoryLabel formCat;
     GuiCategoryLabel optionalCat;
 
@@ -45,15 +52,11 @@ class RhythmPadGui: public GuiBase
     GuiSlider loopPointStartSlider;
     GuiSlider loopPointEndSlider;
 
-    GuiCategoryLabel qualityCat;
+    QualityPcm qualityPcmComponent;
+
     GuiCategoryLabel panCat;
-    GuiComboBox interpSelector;
 
     GuiSlider noteSlider;
-
-    GuiComboBox modeSelector;
-
-    GuiComboBox rateSelector;
 
     GuiSlider panSlider;
 
@@ -83,6 +86,9 @@ class RhythmPadGui: public GuiBase
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnvComponent;
 
+    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
 
@@ -93,13 +99,17 @@ class RhythmPadGui: public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiSeparator graphSeparator;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+    NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
+
+    bool isUpdatingGraph = false;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -110,6 +120,7 @@ public:
         fileNameLabel(context),
         loadButton(context),
         clearButton(context),
+        formSeparator(context),
         formCat(context),
         optionalCat(context),
         pcmOffsetSlider(context),
@@ -117,12 +128,9 @@ public:
         loopPointEnableButton(context),
         loopPointStartSlider(context),
         loopPointEndSlider(context),
-        qualityCat(context),
-        interpSelector(context),
+		qualityPcmComponent(context),
         panCat(context),
         noteSlider(context),
-        modeSelector(context),
-        rateSelector(context),
         panSlider(context),
         panToLBtn(context),
         panToCBtn(context),
@@ -140,11 +148,15 @@ public:
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
+        ssgSwEnv11Component(context),
+        ssgSwPEnv11Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
@@ -174,12 +186,18 @@ public:
     void exportPitchEnvParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
+    void importSsgSwEnv11Param();
+    void exportSsgSwEnv11Param();
+    void importSsgSwPEnv11Param();
+    void exportSsgSwPEnv11Param();
     void importDetuneParam();
     void exportDetuneParam();
     void importQualityParam();
     void exportQualityParam();
     void importPcmPlayParam();
     void exportPcmPlayParam();
+    void setImportingParams(int p, juce::StringArray& lines, int& index);
+    juce::String getExportedParams();
 };
 
 class GuiRhythm : public GuiBase
@@ -200,22 +218,27 @@ class GuiRhythm : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiTextButton copyPadParamBtn;
     GuiSlider copyPadFromSlider;
     GuiSlider copyPadToSlider;
-    GuiSeparator uSep002;
+    NormalSeparator uSep002;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport iePcmPlay;
+    GuiComponentImportExport ieChPadParam;
     GuiSlider targerPadSlider;
-    GuiSeparator uSep003;
+    NormalSeparator uSep003;
     GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieChParam;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     // 8 Pads
     std::array<RhythmPadGui, RhythmPrValue::pads> pads;
@@ -246,6 +269,10 @@ public:
     void exportPitchEnvParam(int p);
     void importSsgSwEnvParam(int p);
     void exportSsgSwEnvParam(int p);
+    void importSsgSwEnv11Param(int p);
+    void exportSsgSwEnv11Param(int p);
+    void importSsgSwPEnv11Param(int p);
+    void exportSsgSwPEnv11Param(int p);
     void importDetuneParam(int p);
     void exportDetuneParam(int p);
     void importQualityParam(int p);
@@ -254,4 +281,10 @@ public:
     void exportPcmPlayParam(int p);
     void importUnisonParam();
     void exportUnisonParam();
+    void importChParam();
+    void exportChParam();
+    void importPadChParam(int p);
+    void exportPadChParam(int p);
+    void getImportingPadParams(int p, juce::StringArray& lines, int& index);
+    juce::String setExportedPadParams(int p);
 };

@@ -1,8 +1,10 @@
 ﻿#include "./Fix.h"
 
 #include "../../../Core/Processor/PluginProcessor.h"
+#include "../../../Core/Processor/ProcessorKeys.h"
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Gui/GuiStructs.h"
+#include "../../../Core/Const/ConstGlobal.h"
 
 std::array<juce::String, 128> GuiComponentFix::noteLabelText{
     "C-2", "C#-2", "D-2", "D#-2", "E-2", "F-2", "F#-2", "G-2", "G#-2", "A-2", "A#-2", "B-2",
@@ -37,18 +39,17 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
             });
     }
 
-    enable.setup({ .parent = parent, .id = code + "_FIX", .title = "Enable", .isReset = true });
+    enable.setup({ .parent = parent, .id = code + CPK::fix, .title = "Enable", .isReset = true });
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setup({ .parent = parent, .id = code + "_FREQ", .title = "FQ", .isReset = true});
+    freq.setup({ .parent = parent, .id = code + CPK::fixFreq, .title = "FQ", .isReset = true});
     freq.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setWantsKeyboardFocus(true);
     freq.setExplicitFocusOrder(++tabOrder);
     freq.setValue(toValue);
 
-    parent.addAndMakeVisible(freqToSeparator);
-    freqToSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+	freqToSeparator.setupComponent(parent);
 
     freqTo.setup({ .parent = parent, .title = toLabel, .isReset = false, .isResized = false });
     freqTo.setWantsKeyboardFocus(true);
@@ -74,9 +75,6 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     freqTo2.setWantsKeyboardFocus(true);
     freqTo2.setExplicitFocusOrder(++tabOrder);
     freqTo2.onClick = [this] { freq.setValue(2, juce::sendNotification); };
-
-    parent.addAndMakeVisible(freqAddSeparator);
-    freqAddSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
 
     freqM05.setup(GuiTextButton::Config{ .parent = parent, .title = "-0.5", .isReset = false, .isResized = false });
     freqM05.setWantsKeyboardFocus(true);
@@ -208,8 +206,7 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     freqP1000.setExplicitFocusOrder(++tabOrder);
     freqP1000.onClick = [this] { freq.setValue(freq.getValue() + 1000.0f, juce::sendNotification); };
 
-    parent.addAndMakeVisible(freqNoteSeparator);
-    freqNoteSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    freqNoteSeparator.setupComponent(parent);
 
     freqNote.setup({ .parent = parent, .title = "Note", .isReset = false });
     freqNote.setWantsKeyboardFocus(true);
@@ -253,7 +250,6 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
     freqTo05.setVisible(visible);
     freqTo1.setVisible(visible);
     freqTo2.setVisible(visible);
-    freqAddSeparator.setVisible(visible);
     freqM05.setVisible(visible);
     freqM02.setVisible(visible);
     freqM01.setVisible(visible);
@@ -281,18 +277,21 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
     freqM1000.setVisible(visible);
     freqP1000.setVisible(visible);
     freqNoteSeparator.setVisible(visible);
-    freqNote.setVisible(visible);
+    freqNote.setVisibleWithLabel(visible);
     note.setVisible(visible);
     applyNote.setVisible(visible);
+    applyToC3.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &enable });
+
+        freqToSeparator.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .label = &freq.label, .component = &freq });
-        layoutMain({ .mainRect = rect, .component = &freqToSeparator });
-		layoutMain({ .mainRect = rect, .component = &freqTo });
+        layoutMain({ .mainRect = rect, .component = &freqTo });
         layoutMainFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
-        layoutMain({ .mainRect = rect, .component = &freqAddSeparator });
+
         layoutMainSixComps({
             .rect = rect,
             .comp1 = &freqM05,
@@ -334,7 +333,9 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
             .comp1 = &freqM1000,
             .comp2 = &freqP1000,
             });
-        layoutMain({ .mainRect = rect, .component = &freqNoteSeparator });
+
+        freqNoteSeparator.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutMainThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
     }
@@ -354,7 +355,6 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
     freqTo05.setVisible(visible);
     freqTo1.setVisible(visible);
     freqTo2.setVisible(visible);
-    freqAddSeparator.setVisible(visible);
     freqM05.setVisible(visible);
     freqM02.setVisible(visible);
     freqM01.setVisible(visible);
@@ -382,18 +382,21 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
     freqM1000.setVisible(visible);
     freqP1000.setVisible(visible);
     freqNoteSeparator.setVisible(visible);
-    freqNote.setVisible(visible);
+    freqNote.setVisibleWithLabel(visible);
     note.setVisible(visible);
     applyNote.setVisible(visible);
+    applyToC3.setVisible(visible);
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &enable });
+
+        freqToSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .label = &freq.label, .component = &freq });
-        layoutRow({ .rowRect = rect, .component = &freqToSeparator });
         layoutRow({ .rowRect = rect, .component = &freqTo });
         layoutRowFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
-        layoutRow({ .rowRect = rect, .component = &freqAddSeparator });
+
         layoutRowSixComps({
             .rect = rect,
             .comp1 = &freqM05, 
@@ -435,7 +438,9 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
             .comp1 = &freqM1000,
             .comp2 = &freqP1000,
             });
-        layoutRow({ .rowRect = rect, .component = &freqNoteSeparator });
+
+        freqNoteSeparator.layoutComponent(rect);
+
         layoutRow({ .rowRect = rect, .label = &freqNote.label, .component = &freqNote });
         layoutRowThreeComps({ .rect = rect, .comp1 = &note, .comp2 = &applyNote, .comp3 = &applyToC3 });
     }
@@ -445,7 +450,7 @@ void GuiComponentFix::setEnables(bool enabled)
 {
     cat.setEnabled(enabled);
     enable.setEnabled(enabled);
-    freq.setEnabled(enabled);
+    freq.setEnabledWithLabel(enabled);
     freqTo.setEnabled(enabled);
     freqToZero.setEnabled(enabled);
     freqTo05.setEnabled(enabled);
@@ -477,7 +482,7 @@ void GuiComponentFix::setEnables(bool enabled)
     freqP500.setEnabled(enabled);
     freqM1000.setEnabled(enabled);
     freqP1000.setEnabled(enabled);
-    freqNote.setEnabled(enabled);
+    freqNote.setEnabledWithLabel(enabled);
     note.setEnabled(enabled);
     applyNote.setEnabled(enabled);
 }
@@ -490,4 +495,18 @@ void GuiComponentFix::copyParams(CopyFix& copyObj) {
 void GuiComponentFix::pasteParams(CopyFix& copyObj) {
     enable.setToggleState(copyObj.fixedMode, juce::sendNotification);
     freq.setValue(copyObj.fixedFreq, juce::sendNotification);
+}
+
+void GuiComponentFix::setImportingParams(juce::StringArray& lines, int& index) {
+    enable.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    freq.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+}
+
+juce::String GuiComponentFix::getExportedParams() {
+    juce::String content = "";
+
+    content += juce::String(enable.getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(freq.getValue(), Global::floatDecimalPlaces) + "\n";
+
+    return content;
 }

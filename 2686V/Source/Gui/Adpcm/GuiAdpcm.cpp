@@ -3,6 +3,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmKeys.h"
 #include "../../Processor/Adpcm/ProcessorAdpcmValues.h"
 
@@ -11,53 +13,6 @@
 #include "./GuiAdpcmText.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiAdpcmHelpers.h"
-
-// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
-static std::vector<SelectItem> qualityItems = {
-    {.name = " 1: Raw (32bit)", .value =  1 },
-    {.name = " 2: 24-bit PCM",  .value =  2 },
-    {.name = " 3: 20-bit PCM",  .value =  3 },
-    {.name = " 4: 16-bit PCM",  .value =  4 },
-    {.name = " 5: 12-bit PCM",  .value =  5 },
-    {.name = " 6: 10-bit PCM",  .value =  6 },
-    {.name = " 7: 9-bit PCM",   .value =  7 },
-    {.name = " 8: 8-bit PCM",   .value =  8 },
-    {.name = " 9: 7-bit PCM",   .value =  9 },
-    {.name = "10: 6-bit PCM",   .value = 10 },
-    {.name = "11: 5-bit PCM",   .value = 11 },
-    {.name = "12: 4-bit PCM",   .value = 12 },
-    {.name = "13: 4-bit ADPCM", .value = 13 },
-    {.name = "14: 1-bit DPCM",  .value = 14 },
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value =  1 },
-    {.name = " 2: 55.5kHz",  .value =  2 },
-    {.name = " 3: 49.7kHz",  .value =  3 },
-    {.name = " 4: 48kHz",    .value =  4 },
-    {.name = " 5: 44.1kHz",  .value =  5 },
-    {.name = " 6: 33.08kHz", .value =  6 },
-    {.name = " 7: 32kHz",    .value =  7 },
-    {.name = " 8: 22.05kHz", .value =  8 },
-    {.name = " 9: 16kHz",    .value =  9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
-
-static std::vector<SelectItem> interpItems = {
-    {.name = juce::String("") + "1: 補完なし (Nearest)", .value = 1 },
-    {.name = juce::String("") + "2: 線形補間 (Linear)", .value = 2 },
-    {.name = juce::String("") + "3: ガウス補完 (Gaussian)", .value = 3 },
-    {.name = juce::String("") + "4: ZOH (Zero-Order Hold)", .value = 4 },
-    {.name = juce::String("") + "5: コサイン補間 (Cosine)", .value = 5 },
-    {.name = juce::String("") + "6: B-スプライン補間 (B-Spline)", .value = 6 },
-    {.name = juce::String("") + "7: ラグランジュ補間 (Lagrange)", .value = 7 }
-};
 
 void GuiAdpcm::setup()
 {
@@ -80,34 +35,27 @@ void GuiAdpcm::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleForm, .invisibleTitle = AdpcmGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleQuality, .invisibleTitle = AdpcmGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleForm, .invisibleTitle = AdpcmGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
 
-    modeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mode, .title = AdpcmGuiText::Adpcm::quality, .items = qualityItems, .isReset = true });
-    modeSelector.setWantsKeyboardFocus(true);
-    modeSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::rate, .title = AdpcmGuiText::Adpcm::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+	qualityPcmComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 出力レベル
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::tone, .title = AdpcmGuiText::Adpcm::tone, .isReset = true });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::noise, .title = AdpcmGuiText::Adpcm::noise, .isReset = true });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::noiseFreq, .title = AdpcmGuiText::Adpcm::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::freq, .title = AdpcmGuiText::Adpcm::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     // 初期状態反映
-    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::mix , .title = AdpcmGuiText::Adpcm::mix, .isReset = true });
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::mix , .title = AdpcmGuiText::Adpcm::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -126,41 +74,37 @@ void GuiAdpcm::setup()
     mixSetNoise.setExplicitFocusOrder(++tabOrder);
     mixSetNoise.onClick = [this] { mixSlider.setValue(1.0, juce::sendNotification); };
 
-    interpSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::interp, .title = AdpcmGuiText::Adpcm::interp, .items = interpItems, .isReset = true });
-    interpSelector.setWantsKeyboardFocus(true);
-    interpSelector.setExplicitFocusOrder(++tabOrder);
-
     optionalCat.setupSwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visibleOptional, .invisibleTitle = AdpcmGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
     // ループトグルボタン
-    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
+    loopButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::loop, .title = AdpcmGuiText::Adpcm::loop, .isReset = true });
     loopButton.setWantsKeyboardFocus(true);
     loopButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointEnable, .title = AdpcmGuiText::Adpcm::loopPointEnable, .isReset = true });
+    loopPointEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::lpEnable, .title = AdpcmGuiText::Adpcm::loopPointEnable, .isReset = true });
     loopPointEnableButton.setWantsKeyboardFocus(true);
     loopPointEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointStart, .title = AdpcmGuiText::Adpcm::loopPointStart, .isReset = true });
+    loopPointStartSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::lpStart, .title = AdpcmGuiText::Adpcm::loopPointStart, .isReset = true });
     loopPointStartSlider.setWantsKeyboardFocus(true);
     loopPointStartSlider.setExplicitFocusOrder(++tabOrder);
 
-    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::loopPointEnd, .title = AdpcmGuiText::Adpcm::loopPointEnd, .isReset = true });
+    loopPointEndSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::lpEnd, .title = AdpcmGuiText::Adpcm::loopPointEnd, .isReset = true });
     loopPointEndSlider.setWantsKeyboardFocus(true);
     loopPointEndSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
+    pcmOffsetSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmOffset, .title = AdpcmGuiText::Adpcm::pcmOffset, .isReset = true });
     pcmOffsetSlider.setWantsKeyboardFocus(true);
     pcmOffsetSlider.setExplicitFocusOrder(++tabOrder);
 
-    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
+    pcmRatioSlider.setup(GuiSlider::Config{ .parent = mainGroup.contentCanvas, .id = code + CPK::pcmRatio, .title = AdpcmGuiText::Adpcm::pcmRatio, .isReset = true });
     pcmRatioSlider.setWantsKeyboardFocus(true);
     pcmRatioSlider.setExplicitFocusOrder(++tabOrder);
 
     // パンポット設定
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::Category::visiblePan, .invisibleTitle = AdpcmGuiText::Category::invisiblePan, .enableChangeDetailVisible = true });
 
-    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + AdpcmPrKey::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
+    panSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::pan, .title = AdpcmGuiText::Adpcm::pan, .isReset = true });
     panSlider.setRange(0.0f, 1.0f);
     panSlider.setWantsKeyboardFocus(true);
     panSlider.setExplicitFocusOrder(++tabOrder);
@@ -188,9 +132,13 @@ void GuiAdpcm::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::pitchAdsr + AdpcmPrKey::bypass, AdpcmGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, AdpcmGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, AdpcmPrKey::ssgSwEnv + AdpcmPrKey::bypass, AdpcmGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, AdpcmGuiText::SsgSwEnv::bypass);
+
+	ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, AdpcmGuiText::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, AdpcmGuiText::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -212,7 +160,7 @@ void GuiAdpcm::setup()
     fileNameLabel.setColour(juce::Label::outlineColourId, juce::Colours::white.withAlpha(0.3f));
 
     // 音声ファイルのアンロード
-    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::clear, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
+    clearButton.setup({ .parent = mainGroup.contentCanvas, .title = AdpcmGuiText::File::clear, .textColor = juce::Colours::white, .bgColor = juce::Colours::darkred.withAlpha(0.7f), .isReset = false });
     clearButton.setWantsKeyboardFocus(true);
     clearButton.setExplicitFocusOrder(++tabOrder);
     clearButton.onClick = [this]
@@ -223,6 +171,8 @@ void GuiAdpcm::setup()
             // 2. ラベル表示をクリア
             fileNameLabel.setText(Io::empty, juce::dontSendNotification);
         };
+
+    formSeparator.setupComponent(mainGroup.contentCanvas);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
@@ -237,8 +187,7 @@ void GuiAdpcm::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -264,6 +213,14 @@ void GuiAdpcm::setup()
     ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
     ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
+    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
+    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
@@ -275,6 +232,10 @@ void GuiAdpcm::setup()
     iePcmPlay.setupComponent(mainGroup.contentCanvas, tabOrder, "PCM Play");
     iePcmPlay.onClickImport = [this] { importPcmPlayParam(); };
     iePcmPlay.onClickExport = [this] { exportPcmPlayParam(); };
+
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
 
     setupGraph();
     updateGraph();
@@ -311,17 +272,21 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
 
     layoutPanCat(mRect);
 
-    fixComponent.layoutComponent(mRect);
-
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgSwEnvComponent.layoutComponent(mRect);
+
+    ssgSwEnv11Component.layoutComponent(mRect);
 
     pitchEnvComponent.layoutComponent(mRect);
 
-    ssgSwEnvComponent.layoutComponent(mRect);
+    ssgSwPEnv11Component.layoutComponent(mRect);
 
     mulDetuneComponent.layoutComponent(mRect);
     
     lfoComponent.layoutComponent(mRect);
+
+    fixComponent.layoutComponent(mRect);
 
     unisonComponent.layoutComponent(mRect);
 
@@ -398,15 +363,19 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     iePcmPlay.setVisible(visible);
+	ieChParam.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+
+        uSep001.layoutComponent(rect);
+
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
@@ -417,6 +386,10 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -424,6 +397,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         iePcmPlay.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -435,6 +410,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
     loadButton.setVisible(visible);
     fileNameLabel.setVisible(visible);
     clearButton.setVisible(visible);
+    formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
@@ -446,6 +422,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutMainPcm({ .rect = rect, .loadPcmBtn = &loadButton, .pcmFileNameLabel = &fileNameLabel, .clearPcmBtn = &clearButton });
+        formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
@@ -455,20 +432,7 @@ void GuiAdpcm::layoutFormCat(Rectangle<int>& rect) {
 }
 
 void GuiAdpcm::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    modeSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-    interpSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &modeSelector.label, .component = &modeSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-        layoutMain({ .mainRect = rect, .label = &interpSelector.label, .component = &interpSelector, });
-    }
+    qualityPcmComponent.layoutComponent(rect);
 }
 
 void GuiAdpcm::layoutPanCat(juce::Rectangle<int>& rect)
@@ -515,17 +479,29 @@ void GuiAdpcm::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
-    auto repaintGraph = [this]() { updateGraph(); };
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
+
+        this->isUpdatingGraph = true;
+        this->updateGraph();
+        this->isUpdatingGraph = false;
+        };
 
     ampEnvComponent.setupGraph(repaintGraph);
 
@@ -533,8 +509,11 @@ void GuiAdpcm::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
+
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiAdpcm::setGraphMode(GraphMode mode)
@@ -545,6 +524,8 @@ void GuiAdpcm::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -552,20 +533,19 @@ void GuiAdpcm::setGraphMode(GraphMode mode)
 
 void GuiAdpcm::layoutGraph(juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(AdpcmGuiValue::MainGroup::Graph::height + AdpcmGuiValue::MainGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(AdpcmGuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(AdpcmGuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(AdpcmGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -590,6 +570,18 @@ void GuiAdpcm::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -730,9 +722,9 @@ void GuiAdpcm::importQualityParam() {
 
                 if (size < 3) return;
 
-                modeSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
-                interpSelector.setSelectedItemIndex(lines[2].getIntValue(), juce::sendNotification);
+				qualityPcmComponent.setMode(lines[0].getIntValue());
+                qualityPcmComponent.setRate(lines[1].getIntValue());
+                qualityPcmComponent.setInterp(lines[2].getIntValue());
             }
         });
 }
@@ -754,9 +746,9 @@ void GuiAdpcm::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(modeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(interpSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityPcmComponent.getMode()) + "\n";
+                content += juce::String(qualityPcmComponent.getRate()) + "\n";
+                content += juce::String(qualityPcmComponent.getInterp()) + "\n";
 
                 file.replaceWithText(content);
             }
@@ -820,4 +812,148 @@ void GuiAdpcm::exportPcmPlayParam() {
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiAdpcm::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void GuiAdpcm::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void GuiAdpcm::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void GuiAdpcm::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
+}
+
+void GuiAdpcm::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::adpcmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+				levelComponent.setImportingParams(lines, index);
+
+                // Form
+				if (fileNameLabel.getText() != lines[index]) {
+					ctx.audioProcessor.unloadAdpcmFile();
+				}
+
+				fileNameLabel.setText(lines[index++], juce::dontSendNotification);
+
+				if (fileNameLabel.getText().isNotEmpty()) {
+					ctx.audioProcessor.loadAdpcmFile(fileNameLabel.getText());
+				}
+
+                // Optional
+				loopButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+                // Tone/Noise
+                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Pan
+				panSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // PCM Play
+                pcmOffsetSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                pcmRatioSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                loopPointStartSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                loopPointEndSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+				fixComponent.setImportingParams(lines, index);
+				ampEnvComponent.setImportingParams(lines, index);
+				pitchEnvComponent.setImportingParams(lines, index);
+				ssgSwEnvComponent.setImportingParams(lines, index);
+				ssgSwEnv11Component.setImportingParams(lines, index);
+				ssgSwPEnv11Component.setImportingParams(lines, index);
+				mulDetuneComponent.setImportingParams(lines, index);
+				lfoComponent.setImportingParams(lines, index);
+				qualityPcmComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+            }
+        });
+}
+
+void GuiAdpcm::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::adpcmParam), Io::ExtensionGlob::adpcmParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form
+				content += fileNameLabel.getText() + "\n";
+
+                // Optional
+				content += juce::String(loopButton.getToggleState() ? 1 : 0) + "\n";
+
+                // Tone/Noise
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+				// Pan
+				content += juce::String(panSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // PCM Play
+                content += juce::String(pcmOffsetSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(pcmRatioSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(loopPointStartSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(loopPointEndSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                
+                // Components
+				content += fixComponent.getExportedParams();
+				content += ampEnvComponent.getExportedParams();
+				content += pitchEnvComponent.getExportedParams();
+				content += ssgSwEnvComponent.getExportedParams();
+				content += ssgSwEnv11Component.getExportedParams();
+				content += ssgSwPEnv11Component.getExportedParams();
+				content += mulDetuneComponent.getExportedParams();
+				content += lfoComponent.getExportedParams();
+                content += qualityPcmComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                file.replaceWithText(content);
+            }
+        });
+
 }

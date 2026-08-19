@@ -4,7 +4,7 @@
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
 
 // ============================================================================
-// マトリクスを簡単に構築するためのヘルパー関数 (6オペ完全対応・拡張フィードバック)
+// マトリクスを簡単に構築するためのヘルパー関数 (全オペ完全対応・拡張フィードバック)
 // ============================================================================
 Opzx7Core::AlgRouting makeAlgOpzx7(
     std::initializer_list<int> carriers,
@@ -35,7 +35,7 @@ Opzx7Core::AlgRouting makeAlgOpzx7(
 }
 
 // ============================================================================
-// アルゴリズムの定義 (例: 32種類と仮定)
+// アルゴリズムの定義
 // ============================================================================
 const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::routings = { {
         makeAlgOpzx7({3}, {{0, 1}, {1, 2}, {2, 3}}, {{0, 0}}), // 00
@@ -151,6 +151,23 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlgOpzx7({ 1, 2, 3, 4 }, { {0,1},{0,2},{0,3} }, { {0,0} }), // 110
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0} }), // 111
         makeAlgOpzx7({ 0, 1, 2, 3, 4 }, {}, { {0,0}, {1,1}, {2,2}, {3,3}, {4,4} }), // 112
+        makeAlgOpzx7({ 0, 1 }, { {0, 1}, {0, 2} }, { {0,0} }), // 113
+        makeAlgOpzx7({ 1, 2, 3 }, { {0, 1}, {0, 2} }, { {0,0} }), // 114
+        makeAlgOpzx7({ 6 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6} }, { {0,0} }), // 115
+        makeAlgOpzx7({ 3, 6 }, { {0,1},{1,2},{2,3},{4,5},{5,6} }, { {0,0} }), // 116
+        makeAlgOpzx7({ 3, 6 }, { {0,1},{1,3},{2,3},{4,6},{5,6} }, { {0,0} }), // 117
+        makeAlgOpzx7({ 2, 4, 6 }, { {0,1},{1,2},{3,4},{5,6} }, { {0,0} }), // 118
+        makeAlgOpzx7({ 2, 4, 6 }, { {0,1},{0,3},{1,2},{3,4},{5,6}}, {{0,0}}), // 119
+        makeAlgOpzx7({ 1, 3, 5, 6 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 120
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6 }, {}, { {0,0} }), // 121
+        makeAlgOpzx7({ 7 }, { {0,1},{1,2},{2,3},{3,4},{4,5},{5,6},{6,7} }, { {0,0} }), // 122
+        makeAlgOpzx7({ 3, 7 }, { {0,1},{1,2},{2,3},{4,5},{5,6},{6,7} }, { {0,0} }), // 123
+        makeAlgOpzx7({ 3, 7 }, { {0,1},{0,2},{2,3},{4,6},{5,6},{6,7} }, { {0,0} }), // 124
+        makeAlgOpzx7({ 2, 5, 7 }, { {0,1},{1,2},{3,4},{4,5},{6,7} }, { {0,0} }), // 125
+        makeAlgOpzx7({ 2, 5, 7 }, { {0,2},{1,2},{3,5},{4,5},{6,7} }, { {0,0} }), // 126
+        makeAlgOpzx7({ 1, 3, 5, 7 }, { {0,1},{2,3},{4,5},{6,7} }, { {0,0} }), // 127
+        makeAlgOpzx7({ 1, 3, 5, 6, 7 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 128
+        makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 129
     } };
 
 void Opzx7Core::prepare(double sampleRate) {
@@ -165,6 +182,8 @@ void Opzx7Core::prepare(double sampleRate) {
     m_operators[3].prepare(4, target);
     m_operators[4].prepare(5, target);
     m_operators[5].prepare(6, target);
+    m_operators[6].prepare(7, target);
+    m_operators[7].prepare(8, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
@@ -182,6 +201,8 @@ void Opzx7Core::setCurveCore(CurveCore* p_curveCore)
     m_operators[3].setCurveCore(p_curveCore);
     m_operators[4].setCurveCore(p_curveCore);
     m_operators[5].setCurveCore(p_curveCore);
+    m_operators[6].setCurveCore(p_curveCore);
+    m_operators[7].setCurveCore(p_curveCore);
 }
 
 void Opzx7Core::setSampleRate(double sampleRate) {
@@ -193,30 +214,17 @@ void Opzx7Core::setSampleRate(double sampleRate) {
 void Opzx7Core::setParameters(const SynthParams& params) {
     m_level = params.opzx7.level;
 
-    m_algorithm = params.opzx7.algorithm; // Range: 0-27
+    m_algorithm = params.opzx7.algFb.algorithm; // Range: 0-27
     m_algorithmCodeBase = m_algorithm << m_algorithmCodeShift; // x16
+    m_algMatrix = params.opzx7.algFb.matrix;
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
-    m_lfo.setParameters(
-        params.opzx7.lfoPmSyncDelay,
-        params.opzx7.lfoAmSyncDelay,
-        params.opzx7.pmEnable,
-        params.opzx7.amEnable,
-        params.opzx7.lfoPmFreq,
-        params.opzx7.lfoAmFreq,
-        params.opzx7.pgLfoWave,
-        params.opzx7.egLfoWave,
-        params.opzx7.lfoPms,
-        params.opzx7.lfoPmd,
-        params.opzx7.lfoAms,
-        params.opzx7.lfoAmd,
-        params.opzx7.lfoAmSmRt
-    );
+    m_lfo.setParameters(params.opzx7.glLfo);
 
-    m_panpot = params.opzx7.panpot;
-    m_panpot_enable = params.opzx7.panpot_enable;
+    m_panpot = params.opzx7.panpot.pan;
+    m_panpot_enable = params.opzx7.panpot.enable;
 
     if (m_panpot_enable) {
         float pan = (float)(m_panpot + 1) / 33.0f;
@@ -229,8 +237,8 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_panpot_r_rate = 1.0f;
     }
 
-    if (m_rateIndex != params.opzx7.fmRateIndex) {
-        m_rateIndex = params.opzx7.fmRateIndex;
+    if (m_rateIndex != params.opzx7.quality.rate) {
+        m_rateIndex = params.opzx7.quality.rate;
 
         double target = getTargetRate(m_rateIndex);
 
@@ -241,37 +249,50 @@ void Opzx7Core::setParameters(const SynthParams& params) {
         m_operators[3].setSampleRate(target);
         m_operators[4].setSampleRate(target);
         m_operators[5].setSampleRate(target);
+        m_operators[6].setSampleRate(target);
+        m_operators[7].setSampleRate(target);
 
         m_lfo.updateTargetSampleRate(target);
     }
 
-    m_quantizeSteps = getTargetBitDepth(params.opzx7.fmBitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.opzx7.quality.bit);
 
     // 高速化のためのループアンローリング
-    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.feedback);
+    m_operators[0].setParameters(params.opzx7.op[0], params.opzx7.algFb.feedback);
     m_operators[0].setMonoMode(m_isMonoMode);
     m_operators[0].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[0] = params.opzx7.op[0].mask;
-    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.feedback);
+    m_operators[1].setParameters(params.opzx7.op[1], params.opzx7.algFb.feedback);
     m_operators[1].setMonoMode(m_isMonoMode);
     m_operators[1].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[1] = params.opzx7.op[1].mask;
-    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.feedback);
+    m_operators[2].setParameters(params.opzx7.op[2], params.opzx7.algFb.feedback);
     m_operators[2].setMonoMode(m_isMonoMode);
     m_operators[2].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[2] = params.opzx7.op[2].mask;
-    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.feedback);
+    m_operators[3].setParameters(params.opzx7.op[3], params.opzx7.algFb.feedback);
     m_operators[3].setMonoMode(m_isMonoMode);
     m_operators[3].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[3] = params.opzx7.op[3].mask;
-    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.feedback);
+    m_operators[4].setParameters(params.opzx7.op[4], params.opzx7.algFb.feedback);
     m_operators[4].setMonoMode(m_isMonoMode);
     m_operators[4].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[4] = params.opzx7.op[4].mask;
-    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.feedback);
+    m_operators[5].setParameters(params.opzx7.op[5], params.opzx7.algFb.feedback);
     m_operators[5].setMonoMode(m_isMonoMode);
     m_operators[5].m_pitchResetOnLegato = params.pitchResetOnLegato;
     m_opMask[5] = params.opzx7.op[5].mask;
+    m_operators[6].setParameters(params.opzx7.op[6], params.opzx7.algFb.feedback);
+    m_operators[6].setMonoMode(m_isMonoMode);
+    m_operators[6].m_pitchResetOnLegato = params.pitchResetOnLegato;
+    m_opMask[6] = params.opzx7.op[6].mask;
+    m_operators[7].setParameters(params.opzx7.op[7], params.opzx7.algFb.feedback);
+    m_operators[7].setMonoMode(m_isMonoMode);
+    m_operators[7].m_pitchResetOnLegato = params.pitchResetOnLegato;
+    m_opMask[7] = params.opzx7.op[7].mask;
+
+    // アルゴリズムに基づくルーティングのキャッシュを更新
+    updateRoutingCache();
 }
 
 void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -310,6 +331,8 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[3].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[4].setUnisonPhaseOffset(phaseOffsetNorm);
     m_operators[5].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[6].setUnisonPhaseOffset(phaseOffsetNorm);
+    m_operators[7].setUnisonPhaseOffset(phaseOffsetNorm);
 
     m_operators[0].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[1].noteOn(finalFreq, gain, noteNum, isLegato);
@@ -317,15 +340,13 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[4].noteOn(finalFreq, gain, noteNum, isLegato);
     m_operators[5].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[6].noteOn(finalFreq, gain, noteNum, isLegato);
+    m_operators[7].noteOn(finalFreq, gain, noteNum, isLegato);
 
-    if (!isLegato) {
-        // 新規ノートオン時に履歴を完全にクリアする
-        m_history1.fill(0.0f);
-        m_history2.fill(0.0f);
-        m_lfoPhase = 0.0;
-        m_rateAccumulator = 0.0;
-        m_lfo.noteOn();
-    }
+    m_lfoPhase = 0.0;
+    m_rateAccumulator = 0.0;
+ 
+    m_lfo.noteOn();
 }
 
 void Opzx7Core::noteOff()
@@ -336,6 +357,8 @@ void Opzx7Core::noteOff()
     m_operators[3].noteOff();
     m_operators[4].noteOff();
     m_operators[5].noteOff();
+    m_operators[6].noteOff();
+    m_operators[7].noteOff();
 }
 
 bool Opzx7Core::isPlaying() const
@@ -346,6 +369,8 @@ bool Opzx7Core::isPlaying() const
     if (m_operators[3].isPlaying()) return true;
     if (m_operators[4].isPlaying()) return true;
     if (m_operators[5].isPlaying()) return true;
+    if (m_operators[6].isPlaying()) return true;
+    if (m_operators[7].isPlaying()) return true;
 
     return false;
 }
@@ -362,6 +387,8 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
     m_operators[3].setPitchBendRatio(ratio);
     m_operators[4].setPitchBendRatio(ratio);
     m_operators[5].setPitchBendRatio(ratio);
+    m_operators[6].setPitchBendRatio(ratio);
+    m_operators[7].setPitchBendRatio(ratio);
 }
 
 void Opzx7Core::setModulationWheel(int wheelValue)
@@ -371,9 +398,11 @@ void Opzx7Core::setModulationWheel(int wheelValue)
 
 float Opzx7Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
-
     double stepSize = targetRate / m_hostSampleRate;
+
     m_rateAccumulator += stepSize;
+
+    float currentOut[Opzx7PrValue::ops];
 
     while (m_rateAccumulator >= 1.0)
     {
@@ -383,58 +412,37 @@ float Opzx7Core::getSample() {
 
         m_lfo.getSample();
 
-        std::array<float, Opzx7PrValue::ops> currentOut = { 0.0f };
+        currentOut[0] = 0.0f;
+        currentOut[1] = 0.0f;
+        currentOut[2] = 0.0f;
+        currentOut[3] = 0.0f;
+        currentOut[4] = 0.0f;
+        currentOut[5] = 0.0f;
+        currentOut[6] = 0.0f;
+        currentOut[7] = 0.0f;
+
         float finalOut = 0.0f;
 
-        int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
-        const auto& r = routings[algIndex];
-
         // =================================================================
-        // オペレータの評価 (OP1 -> OP6 の正順で計算)
+        // オペレータの評価 (OP1からの正順で計算)
+        // テンプレートを用いたループ展開 (Loop Unrolling) によりさらに高速化
         // =================================================================
-        for (int i = 0; i < Opzx7PrValue::ops; ++i) { // 0 から 5 へ
-            float modulator = 0.0f;
-            float fbModulator = 0.0f;
-
-            // 1. 通常の変調入力 (mod)
-            for (int src = 0; src < Opzx7PrValue::ops; ++src) {
-                if (r.mod[i][src] > 0.0f) {
-                    // src が i より「小さい」なら既に計算済み(currentOut)、
-                    // 大きいなら未計算なので1サンプル前の history1 を使う
-                    float srcVal = (src < i) ? currentOut[src] : m_history1[src];
-
-                    modulator += srcVal * r.mod[i][src];
-                }
-            }
-
-            // 2. フィードバック変調入力 (fbMod)
-            for (int src = 0; src < Opzx7PrValue::ops; ++src) {
-                if (r.fbMod[i][src] > 0.0f) {
-                    // フィードバックは常に「過去2サンプルの平均」
-                    float averageFb = (m_history1[src] + m_history2[src]) * 0.5f;
-
-                    fbModulator += averageFb * r.fbMod[i][src];
-                }
-            }
-
-            // 3. オペレータを計算
-            m_operators[i].getSample(currentOut[i], modulator, fbModulator, m_lfo, m_modWheel);
-
-            if (m_opMask[i]) currentOut[i] = 0.0f;
-        }
+        processAllOperators(std::make_index_sequence<Opzx7PrValue::ops>{}, currentOut, finalOut);
 
         // =================================================================
         // 履歴 (History) のシフト
         // =================================================================
         m_history2 = m_history1;
-        m_history1 = currentOut;
 
-        // =================================================================
-        // Final Output (各OPからマスターアウトへの加算)
-        // =================================================================
-        for (int i = 0; i < Opzx7PrValue::ops; ++i) {
-            finalOut += currentOut[i] * r.out[i];
-        }
+        // 生配列から std::array へのコピー
+        m_history1[0] = currentOut[0];
+        m_history1[1] = currentOut[1];
+        m_history1[2] = currentOut[2];
+        m_history1[3] = currentOut[3];
+        m_history1[4] = currentOut[4];
+        m_history1[5] = currentOut[5];
+        m_history1[6] = currentOut[6];
+        m_history1[7] = currentOut[7];
 
         finalOut *= 2.0f; // ゲイン補正
 
@@ -445,7 +453,7 @@ float Opzx7Core::getSample() {
 
     if (fraction > 1.0f) fraction = 1.0f;
 
-    return m_prevSample + (m_lastSample - m_prevSample) * m_level * fraction;
+    return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }
 
 void Opzx7Core::setPcmBuffer(int opIndex, std::vector<float>* pcmData)
@@ -514,4 +522,105 @@ void Opzx7Core::clearWt2Buffer(int opIndex) {
     if (opIndex >= 0 && opIndex < Opzx7PrValue::ops) {
         m_operators[opIndex].clearWt2Buffer();
     }
+}
+
+void Opzx7Core::updateRoutingCache()
+{
+    if (m_algMatrix.mode == 1) {
+        Opzx7Core::AlgRouting customRouting;
+        customRouting.out.fill(0.0f);
+        for (auto& row : customRouting.mod) row.fill(0.0f);
+        for (auto& row : customRouting.fbMod) row.fill(0.0f);
+
+        // キャリアの設定
+        for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+            if (m_algMatrix.isCarrier[i]) {
+                customRouting.out[i] = 1.0f;
+            }
+        }
+
+        // モジュレータの設定 (順方向)
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            for (int dest = src + 1; dest < Opzx7PrValue::ops; ++dest) {
+                if (m_algMatrix.mod[src][dest]) {
+                    customRouting.mod[dest][src] = 1.0f;
+                }
+            }
+        }
+
+        // フィードバックの設定 (逆方向・自身)
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            for (int dest = 0; dest <= src; ++dest) {
+                if (m_algMatrix.fbMod[src][dest]) {
+                    customRouting.fbMod[dest][src] = 1.0f;
+                }
+            }
+        }
+
+        // キャッシュへ適用する関数（既存のロジックを別関数化したもの）
+        applyRoutingToCache(customRouting);
+    }
+    else {
+        if (m_algorithm == m_cachedAlgorithm) return;
+
+        m_cachedAlgorithm = m_algorithm;
+
+        int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
+
+        applyRoutingToCache(routings[algIndex]);
+    }
+}
+
+void Opzx7Core::applyRoutingToCache(const AlgRouting& r)
+{
+    for (int i = 0; i < Opzx7PrValue::ops; ++i) {
+        m_activeRoutings[i].modCount = 0;
+        m_activeRoutings[i].fbModCount = 0;
+        m_activeRoutings[i].outLevel = r.out[i];
+
+        // 順方向
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            if (r.mod[i][src] > 0.0f) {
+                auto& conn = m_activeRoutings[i].mods[m_activeRoutings[i].modCount++];
+                conn.srcOp = src; conn.amount = r.mod[i][src]; conn.isForward = true;
+            }
+        }
+        // 逆方向(FB)
+        for (int src = 0; src < Opzx7PrValue::ops; ++src) {
+            if (r.fbMod[i][src] > 0.0f) {
+                auto& conn = m_activeRoutings[i].fbMods[m_activeRoutings[i].fbModCount++];
+                conn.srcOp = src; conn.amount = r.fbMod[i][src]; conn.isForward = false;
+            }
+        }
+    }
+}
+
+template<size_t I>
+inline void Opzx7Core::processSingleOperator(float* currentOut, float& finalOut)
+{
+    float modulator = 0.0f;
+    float fbModulator = 0.0f;
+    const auto& routing = m_activeRoutings[I];
+
+    // 1. 通常の変調入力 (接続されているもの"だけ"を処理)
+    for (int m = 0; m < routing.modCount; ++m) {
+        const auto& conn = routing.mods[m];
+        float srcVal = conn.isForward ? currentOut[conn.srcOp] : m_history1[conn.srcOp];
+        modulator += srcVal * conn.amount;
+    }
+
+    // 2. フィードバック変調入力
+    for (int f = 0; f < routing.fbModCount; ++f) {
+        const auto& conn = routing.fbMods[f];
+        float averageFb = m_operators[conn.srcOp].getFeedbackAverage();
+        fbModulator += averageFb * conn.amount;
+    }
+
+    // 3. オペレータを計算
+    m_operators[I].getSample(currentOut[I], modulator, fbModulator, m_lfo, m_modWheel);
+
+    if (m_opMask[I]) currentOut[I] = 0.0f;
+
+    // 4. そのまま FinalOutput へ加算
+    finalOut += currentOut[I] * routing.outLevel;
 }

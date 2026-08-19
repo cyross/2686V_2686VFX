@@ -44,14 +44,44 @@ public:
         std::array<std::array<float, OplPrValue::ops>, OplPrValue::ops> mod; // mod[dest][src]: srcからdestへの通常の変調割合
         std::array<std::array<float, OplPrValue::ops>, OplPrValue::ops> fbMod; // fbMod[dest][src]: srcからdestへのフィードバック変調割合
     };
+
+    struct ModConnection {
+        int srcOp;
+        float amount;
+        bool isForward;
+    };
+
+    struct OpRoutingConfig {
+        std::array<ModConnection, OplPrValue::ops> mods;
+        int modCount = 0;
+
+        std::array<ModConnection, OplPrValue::ops> fbMods;
+        int fbModCount = 0;
+
+        float outLevel = 0.0f;
+    };
+
+    // =========================================================================
+    // テンプレートによる強制ループ展開 (Loop Unrolling)
+    // =========================================================================
+    template<size_t I>
+    inline void processSingleOperator(float* currentOut, float& finalOut);
+
+    template<size_t... Is>
+    inline void processAllOperators(std::index_sequence<Is...>, float* currentOut, float& finalOut) {
+        // Fold Expression を用いて関数呼び出しをベタ書き展開する
+        (processSingleOperator<Is>(currentOut, finalOut), ...);
+    }
 private:
+    static const std::array<AlgRouting, OplPrValue::algorithms> routings;
+    std::array<OpRoutingConfig, OplPrValue::ops> m_activeRoutings;
     std::array<OplOperator, OplPrValue::ops> m_operators;
     std::array<bool, OplPrValue::ops> m_opMask{ false };
-
-    static const std::array<AlgRouting, OplPrValue::algorithms> routings;
-
     std::array<float, OplPrValue::ops> m_history1 = { 0.0f };
     std::array<float, OplPrValue::ops> m_history2 = { 0.0f };
+
+    int m_cachedAlgorithm = -1;
+    void updateRoutingCache();
 
     float m_level = 1.0f;
 

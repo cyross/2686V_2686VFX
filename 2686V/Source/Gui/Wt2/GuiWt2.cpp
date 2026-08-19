@@ -5,6 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Wt2/ProcessorWt2Keys.h"
 #include "../../Processor/Wt2/ProcessorWt2Values.h"
 #include "../../Core/Const/ConstFileValues.h"
@@ -14,41 +16,6 @@
 #include "./GuiWt2Text.h"
 #include "../../Core/Gui/GuiStructs.h"
 #include "./GuiWt2Helpers.h"
-
-// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
-static std::vector<SelectItem> bdItems = {
-    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
-    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
-    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
-    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
-    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
-    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
-    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
-    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
-    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
-    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
-    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
-    {.name = "12: Raw",                     .value = 12 }
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
 
 static std::vector<SelectItem> wtWsItems = {
     {.name = "0: Sine",          .value = 1 },
@@ -434,16 +401,9 @@ void GuiWt2::setup()
 
     presetName.setupComponent(*this, tabOrder, ctx.audioProcessor.presetName);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleForm, .invisibleTitle = Wt2GuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleQuality, .invisibleTitle = Wt2GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleForm, .invisibleTitle = Wt2GuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::bit, .title = Wt2GuiText::bit, .items = bdItems, .isReset = true });
-    bitSelector.setWantsKeyboardFocus(true);
-    bitSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::rate, .title = Wt2GuiText::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
@@ -452,20 +412,22 @@ void GuiWt2::setup()
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
     // Waveform
-    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::wave, .title = Wt2GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
+    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt2::wave, .title = Wt2GuiText::Wt::form, .items = wtWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
     waveSelector.onChange = [this] {
         ctx.editor.resized();
         };
 
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
     // Custom Wave Size
-    sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::sampleSize, .title = Wt2GuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
+    sizeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt2::sampleSize, .title = Wt2GuiText::Wt::size, .items = wtTsItems, .isReset = true, .isResized = true });
     sizeSelector.setWantsKeyboardFocus(true);
     sizeSelector.setExplicitFocusOrder(++tabOrder);
 
     // Resolution
-    resoSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::resolution, .title = Wt2GuiText::Wt::resolution, .items = wtRsItems, .isReset = true, .isResized = true });
+    resoSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Wt2::resolution, .title = Wt2GuiText::Wt::resolution, .items = wtRsItems, .isReset = true, .isResized = true });
     resoSelector.setWantsKeyboardFocus(true);
     resoSelector.setExplicitFocusOrder(++tabOrder);
     resoSelector.onChange = [this, applyCenter] {
@@ -477,23 +439,27 @@ void GuiWt2::setup()
     modCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleMod, .invisibleTitle = Wt2GuiText::Category::invisibileMod, .enableChangeDetailVisible = true });
 
     // Modulation
-    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::Mod::enable, .title = Wt2GuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
+    modEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::enable, .title = Wt2GuiText::Wt::Mod::enable, .isReset = true, .isResized = true });
     modEnableButton.setWantsKeyboardFocus(true);
     modEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::Mod::depth, .title = Wt2GuiText::Wt::Mod::depth, .isReset = true });
+    modDepthSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::depth, .title = Wt2GuiText::Wt::Mod::depth, .isReset = true });
     modDepthSlider.setWantsKeyboardFocus(true);
     modDepthSlider.setExplicitFocusOrder(++tabOrder);
 
-    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Wt2PrKey::Mod::speed, .title = Wt2GuiText::Wt::Mod::speed, .isReset = true });
+    modSpeedSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::WtMod::speed, .title = Wt2GuiText::Wt::Mod::speed, .isReset = true });
     modSpeedSlider.setWantsKeyboardFocus(true);
     modSpeedSlider.setExplicitFocusOrder(++tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, Wt2PrKey::pitchAdsr + Wt2PrKey::bypass, Wt2GuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, Wt2GuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, Wt2PrKey::ssgSwEnv + Wt2PrKey::bypass, Wt2GuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, Wt2GuiText::SsgSwEnv::bypass);
+
+    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, Wt2GuiText::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, Wt2GuiText::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -516,8 +482,7 @@ void GuiWt2::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     customWaveImportBtn.setup({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Wt::fileImport, .bgColor = juce::Colours::darkgrey, .isReset = false, .isResized = false });
     customWaveImportBtn.setWantsKeyboardFocus(true);
@@ -529,8 +494,7 @@ void GuiWt2::setup()
     customWaveExportBtn.setExplicitFocusOrder(++tabOrder);
     customWaveExportBtn.onClick = [this] { exportWavetable(); };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
     ieLfo.onClickImport = [this] { importLfoParam(); };
@@ -552,6 +516,14 @@ void GuiWt2::setup()
     ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
     ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
+    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
+    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
@@ -560,16 +532,20 @@ void GuiWt2::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     // Custom Wave Group
     customWaveGroup.setup(*this, Wt2GuiText::Group::wtCustom);
 
     // Custom Wave Sliders
-    customSliders32.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + Wt2PrKey::custom32 });
-    customSliders64.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + Wt2PrKey::custom64 });
-    customSliders128.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + Wt2PrKey::custom128 });
-    customSliders256.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + Wt2PrKey::custom256 });
+    customSliders32.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + CPK::custom32 });
+    customSliders64.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + CPK::custom64 });
+    customSliders128.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + CPK::custom128 });
+    customSliders256.setup({ .parent = customWaveGroup.contentCanvas, .idPrefix = code + CPK::custom256 });
 
-    customWaveResetToCenterBtn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::toCenter, .bgColor = GuiColor::Waveform2Container::ResetBtn::ToCenter, .isReset = false, .isResized = false });
+    customWaveResetToCenterBtn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::toCenter, .font = labelFont, .bgColor = GuiColor::Waveform2Container::ResetBtn::ToCenter, .isReset = false, .isResized = false });
     customWaveResetToCenterBtn.setWantsKeyboardFocus(true);
     customWaveResetToCenterBtn.setExplicitFocusOrder(++tabOrder);
     customWaveResetToCenterBtn.onClick = [this] {
@@ -580,7 +556,7 @@ void GuiWt2::setup()
         ctx.editor.resized(); // 変更通知
         };
 
-    customWaveResetToMaxBtn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::toMax, .bgColor = GuiColor::Waveform2Container::ResetBtn::ToMax, .isReset = false, .isResized = false });
+    customWaveResetToMaxBtn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::toMax, .font = labelFont, .bgColor = GuiColor::Waveform2Container::ResetBtn::ToMax, .isReset = false, .isResized = false });
     customWaveResetToMaxBtn.setWantsKeyboardFocus(true);
     customWaveResetToMaxBtn.setExplicitFocusOrder(++tabOrder);
     customWaveResetToMaxBtn.onClick = [this] {
@@ -591,7 +567,7 @@ void GuiWt2::setup()
         ctx.editor.resized();
         };
 
-    customWaveResetTo0Btn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::to0, .bgColor = GuiColor::Waveform2Container::ResetBtn::To0, .isReset = false, .isResized = false });
+    customWaveResetTo0Btn.setup({ .parent = customWaveGroup.contentCanvas, .title = Wt2GuiText::Wt::Custom::to0, .font = labelFont, .bgColor = GuiColor::Waveform2Container::ResetBtn::To0, .isReset = false, .isResized = false });
     customWaveResetTo0Btn.setWantsKeyboardFocus(true);
     customWaveResetTo0Btn.setExplicitFocusOrder(++tabOrder);
     customWaveResetTo0Btn.onClick = [this] {
@@ -635,15 +611,19 @@ void GuiWt2::layout(juce::Rectangle<int> content)
 
     layoutFormCat(mRect);
 
-    layoutModulationCat(mRect);
-
     ampEnvComponent.layoutComponent(mRect);
-
-    pitchEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
+    ssgSwEnv11Component.layoutComponent(mRect);
+
+    pitchEnvComponent.layoutComponent(mRect);
+
+    ssgSwPEnv11Component.layoutComponent(mRect);
+
     mulDetuneComponent.layoutComponent(mRect);
+
+    layoutModulationCat(mRect);
 
     lfo.layoutComponent(mRect);
 
@@ -902,6 +882,7 @@ void GuiWt2::layoutFormCat(Rectangle<int>& rect) {
     bool visibleCustom = index == 9; // custom
 
     waveSelector.setVisibleWithLabel(visible);
+    formSeparator.setVisible(visible && visibleCustom);
     sizeSelector.setVisibleWithLabel(visible && visibleCustom);
     resoSelector.setVisibleWithLabel(visible && visibleCustom);
 
@@ -911,6 +892,7 @@ void GuiWt2::layoutFormCat(Rectangle<int>& rect) {
 
         if (visibleCustom)
         {
+            formSeparator.layoutComponent(rect);
             layoutMain({ .mainRect = rect, .label = &sizeSelector.label, .component = &sizeSelector, });
             layoutMain({ .mainRect = rect, .label = &resoSelector.label, .component = &resoSelector, });
         }
@@ -918,18 +900,7 @@ void GuiWt2::layoutFormCat(Rectangle<int>& rect) {
 }
 
 void GuiWt2::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    bitSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
+    qualityComponent.layoutComponent(rect);
 }
 
 void GuiWt2::layoutModulationCat(juce::Rectangle<int>& rect)
@@ -966,17 +937,18 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+        uSep001.layoutComponent(rect);
         layoutMainTwoComps({ .rect = rect, .comp1 = &customWaveImportBtn, .comp2 = &customWaveExportBtn });
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+        uSep002.layoutComponent(rect);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieAmpEnv.layoutComponent(rect);
@@ -985,11 +957,17 @@ void GuiWt2::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -997,17 +975,29 @@ void GuiWt2::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
-    auto repaintGraph = [this]() { updateGraph(); };
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
+
+        this->isUpdatingGraph = true;
+        this->updateGraph();
+        this->isUpdatingGraph = false;
+        };
 
     ampEnvComponent.setupGraph(repaintGraph);
 
@@ -1015,8 +1005,11 @@ void GuiWt2::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
+
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiWt2::setGraphMode(GraphMode mode)
@@ -1027,6 +1020,8 @@ void GuiWt2::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -1036,18 +1031,17 @@ void GuiWt2::layoutGraph(juce::Rectangle<int>& rect)
 {
     auto mainArea = rect.removeFromTop(Wt2GuiValue::MainGroup::Graph::height + Wt2GuiValue::MainGroup::Separator::height);
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(Wt2GuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(Wt2GuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -1072,6 +1066,18 @@ void GuiWt2::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -1155,8 +1161,8 @@ void GuiWt2::importQualityParam() {
 
                 if (size < 2) return;
 
-                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                qualityComponent.setBit(lines[0].getIntValue());
+                qualityComponent.setRate(lines[1].getIntValue());
             }
         });
 }
@@ -1178,10 +1184,172 @@ void GuiWt2::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityComponent.getBit()) + "\n";
+                content += juce::String(qualityComponent.getRate()) + "\n";
 
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiWt2::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void GuiWt2::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void GuiWt2::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void GuiWt2::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
+}
+
+void GuiWt2::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::wt2Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form
+                int selectedSizeIdx = lines[index++].getIntValue();
+                int selectedResoIdx = lines[index++].getIntValue();
+                int selectedWaveIdx = lines[index++].getIntValue();
+
+                sizeSelector.setSelectedItemIndex(selectedSizeIdx, juce::sendNotification);
+                resoSelector.setSelectedItemIndex(selectedResoIdx, juce::sendNotification);
+                waveSelector.setSelectedItemIndex(selectedWaveIdx, juce::sendNotification);
+
+                // Moduration
+                modEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                modDepthSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                modSpeedSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                if (selectedWaveIdx == 8)
+                {
+                    // sizeSelectorの戻り値インデックス(0: 32, 1: 64, 2: 128, 3: 256)に依存してステップ数を変更
+                    int sampleCount = 32;
+                    if (selectedSizeIdx == 1)      sampleCount = 64;
+                    else if (selectedSizeIdx == 2) sampleCount = 128;
+                    else if (selectedSizeIdx == 3) sampleCount = 256;
+
+                    // 現在の解像度(resolution)の範囲に合わせて安全にクランプするための最大値上限を計算
+                    int currentReso = 16 << selectedResoIdx;
+
+                    std::vector<int> customValues(sampleCount, currentReso >> 1);
+                    for (int i = 0; i < sampleCount; ++i)
+                    {
+                        if (index < lines.size()) {
+                            int val = lines[index++].getIntValue();
+                            customValues[i] = std::clamp(val, 0, currentReso - 1);
+                        }
+                    }
+
+                    // 適切なWaveform2Containerへ整数配列を一括反映
+                    if (sampleCount == 32)       customSliders32.setValues(customValues);
+                    else if (sampleCount == 64)  customSliders64.setValues(customValues);
+                    else if (sampleCount == 128) customSliders128.setValues(customValues);
+                    else if (sampleCount == 256) customSliders256.setValues(customValues);
+                }
+            }
+        });
+
+}
+
+void GuiWt2::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::wt2Param), Io::ExtensionGlob::wt2Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form
+                int selectedSizeIdx = sizeSelector.getSelectedItemIndex();
+                int selectedWaveIdx = waveSelector.getSelectedItemIndex();
+
+                content += juce::String(selectedSizeIdx) + "\n";
+                content += juce::String(resoSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(selectedWaveIdx) + "\n";
+
+                // Moduration
+                content += juce::String(modEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(modDepthSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(modSpeedSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                if (selectedWaveIdx == 8)
+                {
+                    std::vector<int> customValues;
+                    // sizeSelectorの戻り値インデックス(0: 32, 1: 64, 2: 128, 3: 256)に依存して取得コンテナを変更
+                    if (selectedSizeIdx == 0)      customValues = customSliders32.getValues();
+                    else if (selectedSizeIdx == 1) customValues = customSliders64.getValues();
+                    else if (selectedSizeIdx == 2) customValues = customSliders128.getValues();
+                    else if (selectedSizeIdx == 3) customValues = customSliders256.getValues();
+
+                    for (int val : customValues)
+                    {
+                        content += juce::String(val) + "\n";
+                    }
+                }
+
+                file.replaceWithText(content);
+            }
+        });
+
 }

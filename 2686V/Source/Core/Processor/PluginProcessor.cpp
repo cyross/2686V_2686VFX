@@ -1,6 +1,7 @@
 ﻿#include "PluginProcessor.h"
 
 #include "../Processor/ProcessorNames.h"
+#include "../Processor/ProcessorHelper.h"
 #include "../../Gui/Settings/SettingsKeys.h"
 #include "../../Gui/Settings/SettingsValues.h"
 
@@ -32,11 +33,11 @@ AudioPlugin2686V::AudioPlugin2686V()
     prMap[OscMode::ADPCM] = &prAdpcm;
     prMap[OscMode::BEEP] = &prBeep;
 
-    pMode = apvts.getRawParameterValue(CorePrKey::mode);
-    pMonoMode = apvts.getRawParameterValue(CorePrKey::monoMode);
-    pUseVelocity = apvts.getRawParameterValue(CorePrKey::useVelocity);
-    pPitchResetOnLegato = apvts.getRawParameterValue(CorePrKey::pitchResetOnLegato);
-    pFixedVelocity = apvts.getRawParameterValue(CorePrKey::fixedVelocity);
+    pMode = apvts.getRawParameterValue(CPK::mode);
+    pMonoMode = apvts.getRawParameterValue(CPK::Midi::monoMode);
+    pUseVelocity = apvts.getRawParameterValue(CPK::Midi::useVelocity);
+    pPitchResetOnLegato = apvts.getRawParameterValue(CPK::Midi::pitchResetOnLegato);
+    pFixedVelocity = apvts.getRawParameterValue(CPK::Midi::fixedVelocity);
 
     prOpna.init(apvts);
     prOpn.init(apvts);
@@ -94,7 +95,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     // Mode: 0:OPNA, 1:OPN, 2:OPL, 3:OPLL, 4:OPL3, 5:OPM, 6: OPZX7 7:SSG, 8:WAVETABLE 9:WT2 10:RHYTHM, 11:ADPCM. 12:FX, 13:PRESET, 14:SETTING, 15:ABOUT
-    layout.add(std::make_unique<juce::AudioParameterInt>(CorePrKey::mode, CorePrName::mode, 0, CoreGuiValue::TabNumber, 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(CPK::mode, CPN::mode, 0, CoreGuiValue::TabNumber, 0));
 
     prOpna.createLayout(layout);
 	prOpn.createLayout(layout);
@@ -112,29 +113,29 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPlugin2686V::createPara
 	prCurve.createLayout(layout);
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::monoMode,
-        CorePrName::monoMode,
-        CorePrValue::MonoMode::initial
+        CPK::Midi::monoMode,
+        CPN::Midi::monoMode,
+        CPV::Midi::MonoMode::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::useVelocity,
-        CorePrName::useVelocity,
-        CorePrValue::UseVelocity::initial
+        CPK::Midi::useVelocity,
+        CPN::Midi::useVelocity,
+        CPV::Midi::UseVelocity::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
-        CorePrKey::pitchResetOnLegato,
-        CorePrName::pitchResetOnLegato,
-        CorePrValue::PitchResetOnLegato::initial
+        CPK::Midi::pitchResetOnLegato,
+        CPN::Midi::pitchResetOnLegato,
+        CPV::Midi::PitchResetOnLegato::initial
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        CorePrKey::fixedVelocity,
-        CorePrName::fixedVelocity,
-        CorePrValue::FixedVelocity::min,
-        CorePrValue::FixedVelocity::max,
-        CorePrValue::FixedVelocity::initial
+        CPK::Midi::fixedVelocity,
+        CPN::Midi::fixedVelocity,
+        CPV::Midi::FixedVelocity::min,
+        CPV::Midi::FixedVelocity::max,
+        CPV::Midi::FixedVelocity::initial
     ));
 
     return layout;
@@ -192,30 +193,47 @@ void AudioPlugin2686V::processBlock(juce::AudioBuffer<float>& buffer, juce::Midi
     buffer.clear();
 
     // --- Global ---
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
     m_currentParams.mode = (OscMode)m; // 0, 1, 2(RHYTHM)
 
     prMap[m_currentParams.mode]->processBlock(m_currentParams, apvts);
 
+    if (m_currentParams.mode == OscMode::OPZX7)
+    {
+        // プラグインプロセッサから直接最新のマトリックス情報を引っ張ってくる
+        m_currentParams.opzx7.algFb.matrix.mode = getOpzx7AlgMode();
+
+        // DSP用に定義した AlgMatrixParams へ移し替える
+        AlgMatrixState guiState = getOpzx7AlgMatrix();
+        for (int i = 0; i < 8; ++i) {
+            m_currentParams.opzx7.algFb.matrix.isCarrier[i] = guiState.isCarrier[i];
+            for (int j = 0; j < 8; ++j) {
+                // UIで設定した値をそのままDSPの配列にマッピングする
+                m_currentParams.opzx7.algFb.matrix.mod[i][j] = guiState.mod[i][j];
+                m_currentParams.opzx7.algFb.matrix.fbMod[i][j] = guiState.fbMod[i][j];
+            }
+        }
+    }
+
 	// エンベロープカーブの処理は、シンセモードに関わらず常に行う
 	prCurve.processBlock(m_currentParams, apvts);
 
-    bool isMono = (pMonoMode->load(std::memory_order_relaxed) > 0.5f);
+    bool isMono = PrHelper::getBool(pMonoMode);
 
     m_synth.isMonoMode = isMono;
     m_currentParams.monoMode = isMono;
 
-    bool useVelo = (pUseVelocity->load(std::memory_order_relaxed) > 0.5f);
+    bool useVelo = PrHelper::getBool(pUseVelocity);
 
     m_synth.useVelocity = useVelo;
     m_currentParams.useVelocity = useVelo;
 
-    bool ptResetOnLegato = (pPitchResetOnLegato->load(std::memory_order_relaxed) > 0.5f);
+    bool ptResetOnLegato = PrHelper::getBool(pPitchResetOnLegato);
 
     m_synth.pitchResetOnLegato = ptResetOnLegato;
     m_currentParams.pitchResetOnLegato = ptResetOnLegato;
 
-    float fixedVelocity = pFixedVelocity->load(std::memory_order_relaxed);
+    float fixedVelocity = PrHelper::getFloat(pFixedVelocity);
 
     m_synth.fixedVelocity = fixedVelocity;
     m_currentParams.fixedVelocity = fixedVelocity;
@@ -368,7 +386,7 @@ void AudioPlugin2686V::changeProgramName(int index, const juce::String& newName)
 void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
 {
     // セーブ時にAPVTSから現在のModeを確実に取得して同期させる
-    int currentMode = (int)pMode->load(std::memory_order_relaxed);
+    int currentMode = PrHelper::getInt(pMode);
 
     if (currentMode >= 0 && currentMode <= (int)OscMode::BEEP) {
         lastActiveSynthMode = (OscMode)currentMode;
@@ -404,6 +422,8 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
         sa.add(juce::String(fxId));
 
     xml->setAttribute(SettingsKey::fxOrder, sa.joinIntoString(" "));
+
+    prCurve.saveToXml(xml.get());
 };
 
 void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState)
@@ -483,6 +503,7 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
         }
 
         prFx.updateOrder(loadedFxOrder);
+        prCurve.loadFromXml(xmlState.get());
     }
 };
 
@@ -550,6 +571,8 @@ void AudioPlugin2686V::setStateInformation(const void* data, int sizeInBytes) {
         // ここでは何もしないか、デバッグログを出す程度に留めることでクラッシュを防ぎます。
         DBG("setStateInformation: Failed to parse XML state.");
     }
+
+    updateAlgMatrixCacheFromState();
 }
 
 void AudioPlugin2686V::savePreset(const juce::File& file)
@@ -583,6 +606,8 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultWavetableDir, defaultWavetableDir);
     xml.setAttribute(SettingsKey::defaultFxOrderDir, defaultFxOrderDir);
     xml.setAttribute(SettingsKey::defaultFxParamDir, defaultFxParamDir);
+    xml.setAttribute(SettingsKey::defaultChannelParamDir, defaultChannelParamDir);
+    xml.setAttribute(SettingsKey::defaultCurveParamDir, defaultCurveParamDir);
     xml.setAttribute(SettingsKey::defaultLfoParamDir, defaultLfoParamDir);
     xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
     xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
@@ -616,6 +641,8 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
 		defaultWavetableDir = xml->getStringAttribute(SettingsKey::defaultWavetableDir);
         defaultFxOrderDir = xml->getStringAttribute(SettingsKey::defaultFxOrderDir);
         defaultFxParamDir = xml->getStringAttribute(SettingsKey::defaultFxParamDir);
+        defaultChannelParamDir = xml->getStringAttribute(SettingsKey::defaultChannelParamDir);
+        defaultCurveParamDir = xml->getStringAttribute(SettingsKey::defaultCurveParamDir);
         defaultLfoParamDir = xml->getStringAttribute(SettingsKey::defaultLfoParamDir);
         defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
         defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
@@ -731,6 +758,30 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultFxParamDir = newFxParamDir.getFullPathName();
+    }
+
+    if (defaultChannelParamDir.isEmpty() || !juce::File(defaultChannelParamDir).isDirectory())
+    {
+        auto newChannelParamDir = pluginDir.getChildFile(Io::Folder::channelParam);
+
+        // 存在していなければ作成
+        if (!newChannelParamDir.exists()) {
+            newChannelParamDir.createDirectory();
+        }
+
+        defaultChannelParamDir = newChannelParamDir.getFullPathName();
+    }
+
+    if (defaultCurveParamDir.isEmpty() || !juce::File(defaultCurveParamDir).isDirectory())
+    {
+        auto newCurveParamDir = pluginDir.getChildFile(Io::Folder::curveParam);
+
+        // 存在していなければ作成
+        if (!newCurveParamDir.exists()) {
+            newCurveParamDir.createDirectory();
+        }
+
+        defaultCurveParamDir = newCurveParamDir.getFullPathName();
     }
 
     if (defaultLfoParamDir.isEmpty() || !juce::File(defaultLfoParamDir).isDirectory())
@@ -1141,7 +1192,7 @@ void AudioPlugin2686V::unloadOpzx7PcmFile(int opIndex)
 void AudioPlugin2686V::generatePreviewWaveform(std::vector<float>* destBuffer)
 {
     // 1. パラメータの取得と設定
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
     m_previewParams.mode = (OscMode)m;
 
     switch (m_previewParams.mode) {
@@ -1399,7 +1450,90 @@ bool AudioPlugin2686V::isMidiProcessing() {
 
 OscMode AudioPlugin2686V::getCurrentMode()
 {
-    int m = (int)pMode->load(std::memory_order_relaxed);
+    int m = PrHelper::getInt(pMode);
 
     return (OscMode)m;
+}
+
+// ==============================================================================
+// OPZX7S アルゴリズムマトリックス処理
+// ==============================================================================
+
+void AudioPlugin2686V::setOpzx7AlgMode(int mode)
+{
+    m_opzx7AlgMode.store(mode);
+    // DAWの保存データに含めるため、APVTSのプロパティとして保存
+    apvts.state.setProperty("OPZX7_ALG_MODE", mode, nullptr);
+}
+
+int AudioPlugin2686V::getOpzx7AlgMode() const
+{
+    return m_opzx7AlgMode.load();
+}
+
+void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
+{
+    {
+        // DSPスレッドと競合しないようにロックしてキャッシュを更新
+        juce::ScopedLock lock(m_matrixLock);
+        m_opzx7AlgMatrixState = state;
+    }
+
+    // 状態を 1 と 0 の文字列にシリアライズしてAPVTSに保存
+    // 例: キャリア "10000000" / モジュレータ "010000000010..."
+    juce::String cStr;
+    for (int i = 0; i < 8; ++i) {
+        cStr += state.isCarrier[i] ? "1" : "0";
+    }
+
+    juce::String mStr;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            mStr += state.mod[i][j] ? "1" : "0";
+        }
+    }
+
+    juce::String fStr;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            fStr += state.fbMod[i][j] ? "1" : "0";
+        }
+    }
+
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_C", cStr, nullptr);
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_M", mStr, nullptr);
+    apvts.state.setProperty("OPZX7_ALG_MATRIX_F", fStr, nullptr);
+}
+
+AlgMatrixState AudioPlugin2686V::getOpzx7AlgMatrix()
+{
+    juce::ScopedLock lock(m_matrixLock);
+    return m_opzx7AlgMatrixState;
+}
+
+void AudioPlugin2686V::updateAlgMatrixCacheFromState()
+{
+    // プロジェクトのロード時やプリセット読み込み時に呼ばれる想定
+    if (apvts.state.hasProperty("OPZX7_ALG_MODE")) {
+        m_opzx7AlgMode.store((int)apvts.state.getProperty("OPZX7_ALG_MODE"));
+    }
+
+    juce::String cStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_C", "00000000").toString();
+    juce::String mStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_M", "0000000000000000000000000000000000000000000000000000000000000000").toString();
+    juce::String fStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_F", "0000000000000000000000000000000000000000000000000000000000000000").toString();
+
+    juce::ScopedLock lock(m_matrixLock);
+
+    // 文字列から構造体へ復元
+    for (int i = 0; i < 8 && i < cStr.length(); ++i) {
+        m_opzx7AlgMatrixState.isCarrier[i] = (cStr[i] == '1');
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            int index = i * 8 + j;
+            if (index < mStr.length()) m_opzx7AlgMatrixState.mod[i][j] = (mStr[index] == '1');
+            if (index < fStr.length()) m_opzx7AlgMatrixState.fbMod[i][j] = (fStr[index] == '1');
+        }
+    }
 }

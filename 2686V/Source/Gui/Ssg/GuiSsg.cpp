@@ -5,6 +5,9 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
+#include "../../Core/Processor/ProcessorHelper.h"
 #include "../../Processor/Ssg/ProcessorSsgKeys.h"
 #include "../../Processor/Ssg/ProcessorSsgValues.h"
 
@@ -12,41 +15,6 @@
 #include "./GuiSsgValues.h"
 #include "./GuiSsgText.h"
 #include "../../Core/Gui/GuiStructs.h"
-
-// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
-static std::vector<SelectItem> bdItems = {
-    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
-    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
-    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
-    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
-    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
-    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
-    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
-    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
-    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
-    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
-    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
-    {.name = "12: Raw",                     .value = 12 }
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
 
 static std::vector<SelectItem> ssgEnvItems = {
     {.name = "0: Saw Down",                    .value = 1 },
@@ -94,16 +62,9 @@ void GuiSsg::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleForm, .invisibleTitle = SsgGuiText::Category::invisibleForm, .enableChangeDetailVisible = true });
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleQuality, .invisibleTitle = SsgGuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
+    formCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleForm, .invisibleTitle = SsgGuiText::Category::invisibleForm, .detailVisible = true, .enableChangeDetailVisible = true });
 
-    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::bit, .title = SsgGuiText::bit, .items = bdItems, .isReset = true });
-    bitSelector.setWantsKeyboardFocus(true);
-    bitSelector.setExplicitFocusOrder(++tabOrder);
-
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::rate, .title = SsgGuiText::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
@@ -111,23 +72,29 @@ void GuiSsg::setup()
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
-    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, SsgPrKey::pitchAdsr + SsgPrKey::bypass, SsgGuiText::PitchAdsr::bypass);
+    pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, SsgGuiText::PitchAdsr::bypass);
 
-    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, SsgPrKey::ssgSwEnv + SsgPrKey::bypass, SsgGuiText::SsgSwEnv::bypass);
+    ssgSwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv + CPK::bypass, SsgGuiText::SsgSwEnv::bypass);
+
+    ssgSwEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, SsgGuiText::SsgSwEnv11::bypass);
+
+    ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, SsgGuiText::SsgSwPEnv11::bypass);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     hwEnvCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
 
-    envEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
+    envEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
     envEnableButton.setWantsKeyboardFocus(true);
     envEnableButton.setExplicitFocusOrder(++tabOrder);
 
-    shapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
+	hwEnvSeparator.setupComponent(mainGroup.contentCanvas);
+
+    shapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
     shapeSelector.setWantsKeyboardFocus(true);
     shapeSelector.setExplicitFocusOrder(++tabOrder);
 
-    periodSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::HwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
+    periodSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
     periodSlider.setWantsKeyboardFocus(true);
     periodSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -150,8 +117,7 @@ void GuiSsg::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     ieToneNoise.setupComponent(mainGroup.contentCanvas, tabOrder, "Tone/Noise");
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
@@ -177,6 +143,14 @@ void GuiSsg::setup()
     ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
     ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
 
+    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
+    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+
+    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
+    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+
     ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
     ieUnison.onClickImport = [this] { importUnisonParam(); };
     ieUnison.onClickExport = [this] { exportUnisonParam(); };
@@ -185,28 +159,34 @@ void GuiSsg::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
-    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::wveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
+    waveSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::ssgWaveform, .title = SsgGuiText::Ssg::Voice::form, .items = ssgWsItems, .isReset = true, .isResized = true });
     waveSelector.setWantsKeyboardFocus(true);
     waveSelector.setExplicitFocusOrder(++tabOrder);
 
-    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
+    formSeparator.setupComponent(mainGroup.contentCanvas);
+
+    toneSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::tone, .title = SsgGuiText::Ssg::Voice::tone, .isReset = true, .regType = RegisterType::SsgVol });
     toneSlider.setWantsKeyboardFocus(true);
     toneSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
+    noiseSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::noise, .title = SsgGuiText::Ssg::Voice::noise, .isReset = true, .regType = RegisterType::SsgVol });
     noiseSlider.setWantsKeyboardFocus(true);
     noiseSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseFreq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
+    noiseFreqSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::freq, .title = SsgGuiText::Ssg::Voice::noiseFreq, .isReset = true });
     noiseFreqSlider.setWantsKeyboardFocus(true);
     noiseFreqSlider.setExplicitFocusOrder(++tabOrder);
 
-    noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::noiseOnNote, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
+    noiseOnNoteButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::nON, .title = SsgGuiText::Ssg::Voice::noiseOnNote, .isReset = true });
     noiseOnNoteButton.setWantsKeyboardFocus(true);
     noiseOnNoteButton.setExplicitFocusOrder(++tabOrder);
 
     // 初期状態反映
-    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + SsgPrKey::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
+    mixSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Tn::mix , .title = SsgGuiText::Ssg::Voice::mix, .isReset = true });
     mixSlider.setWantsKeyboardFocus(true);
     mixSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -228,45 +208,45 @@ void GuiSsg::setup()
     // Duty Controls Setup
     dutyGroup.setup(*this, SsgGuiText::Group::ssgDuty);
 
-    dutyModeSelector.setup({ .parent = *this, .id = code + SsgPrKey::Duty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
+    dutyModeSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::mode, .title = SsgGuiText::Ssg::Duty::mode, .items = ssgDmItems, .isReset = true, .isResized = true });
     dutyModeSelector.setWantsKeyboardFocus(true);
     dutyModeSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyPresetSelector.setup({ .parent = *this, .id = code + SsgPrKey::Duty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
+    dutyPresetSelector.setup({ .parent = *this, .id = code + CPK::SsgDuty::preset, .title = SsgGuiText::Ssg::Duty::preset, .items = ssgPrItems, .isReset = true, .isResized = true });
     dutyPresetSelector.setWantsKeyboardFocus(true);
     dutyPresetSelector.setExplicitFocusOrder(++tabOrder);
 
-    dutyVarSlider.setup({ .parent = *this, .id = code + SsgPrKey::Duty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
+    dutyVarSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::var, .title = SsgGuiText::Ssg::Duty::var, .isReset = true });
     dutyVarSlider.setWantsKeyboardFocus(true);
     dutyVarSlider.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
+    dutyFcButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::fc, .title = SsgGuiText::Ssg::Duty::fc, .isReset = true });
     dutyFcButton.setWantsKeyboardFocus(true);
     dutyFcButton.setExplicitFocusOrder(++tabOrder);
 
-    dutyFcFlucSlider.setup({ .parent = *this, .id = code + SsgPrKey::Duty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
+    dutyFcFlucSlider.setup({ .parent = *this, .id = code + CPK::SsgDuty::fcFluc, .title = SsgGuiText::Ssg::Duty::fcFluc, .isReset = true });
     dutyFcFlucSlider.setWantsKeyboardFocus(true);
     dutyFcFlucSlider.setExplicitFocusOrder(++tabOrder);
 
     pulseInvCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::invert });
 
-    dutyInvertButton.setup({ .parent = *this, .id = code + SsgPrKey::Duty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
+    dutyInvertButton.setup({ .parent = *this, .id = code + CPK::SsgDuty::inv, .title = SsgGuiText::Ssg::Duty::invert, .isReset = true });
     dutyInvertButton.setWantsKeyboardFocus(true);
     dutyInvertButton.setExplicitFocusOrder(++tabOrder);
 
     triGroup.setup(*this, SsgGuiText::Group::ssgTri);
 
-    triKeyTrackButton.setup({ .parent = *this, .id = code + SsgPrKey::Tri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
+    triKeyTrackButton.setup({ .parent = *this, .id = code + CPK::SsgTri::keyTrk, .title = SsgGuiText::Ssg::Tri::keyTrack, .isReset = true, .isResized = true });
     triKeyTrackButton.setWantsKeyboardFocus(true);
     triKeyTrackButton.setExplicitFocusOrder(++tabOrder);
 
-    triFreqSlider.setup({ .parent = *this, .id = code + SsgPrKey::Tri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
+    triFreqSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::freq, .title = SsgGuiText::Ssg::Tri::manualFreq, .isReset = true });
     triFreqSlider.setWantsKeyboardFocus(true);
     triFreqSlider.setExplicitFocusOrder(++tabOrder);
 
     triPeakCat.setupSwCategory({ .parent = *this, .title = SsgGuiText::Category::peak });
 
-    triPeakSlider.setup({ .parent = *this, .id = code + SsgPrKey::Tri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
+    triPeakSlider.setup({ .parent = *this, .id = code + CPK::SsgTri::peak, .title = SsgGuiText::Ssg::Tri::peak, .isReset = true });
     triPeakSlider.setWantsKeyboardFocus(true);
     triPeakSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -319,13 +299,17 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     ampEnvComponent.layoutComponent(mRect);
 
-    pitchEnvComponent.layoutComponent(mRect);
-
-    mulDetuneComponent.layoutComponent(mRect);
-
     layoutHwEnvCat(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
+
+    ssgSwEnv11Component.layoutComponent(mRect);
+
+    pitchEnvComponent.layoutComponent(mRect);
+
+    ssgSwPEnv11Component.layoutComponent(mRect);
+
+    mulDetuneComponent.layoutComponent(mRect);
 
     lfo.layoutComponent(mRect);
 
@@ -347,8 +331,8 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     auto paramArea = pageArea.removeFromLeft(SsgGuiValue::ParamGroup::width);
 
     // Wave Group
-    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::wveform);
-    int waveMode = (waveParam > SsgPrValue::boolThread) ? 1 : 0;
+    float waveParam = *ctx.audioProcessor.apvts.getRawParameterValue(code + CPK::ssgWaveform);
+    int waveMode = PrHelper::floatToBoolToInt(waveParam);
     auto waveArea = paramArea.removeFromTop(140);
 
     if (waveMode == 0) // Pulse
@@ -376,7 +360,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
         layoutRow({ .rowRect = dRect, .label = &dutyModeSelector.label, .component = &dutyModeSelector });
 
-        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + SsgPrKey::Duty::mode);
+        float dutyModeVal = *ctx.audioProcessor.apvts.getRawParameterValue(code + CPK::SsgDuty::mode);
         if (dutyModeVal < 0.5f) {
             dutyPresetSelector.setVisibleWithLabel(true);
             dutyVarSlider.setVisibleWithLabel(false);
@@ -451,6 +435,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
     bool visible = formCat.isDetailVisible();
 
     waveSelector.setVisibleWithLabel(visible);
+    formSeparator.setVisible(visible);
     toneSlider.setVisibleWithLabel(visible);
     noiseSlider.setVisibleWithLabel(visible);
     noiseFreqSlider.setVisibleWithLabel(visible);
@@ -463,6 +448,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &waveSelector.label, .component = &waveSelector, });
+        formSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &toneSlider.label, .component = &toneSlider, });
         layoutMain({ .mainRect = rect, .label = &noiseSlider.label, .component = &noiseSlider });
         layoutMain({ .mainRect = rect, .label = &noiseFreqSlider.label, .component = &noiseFreqSlider });
@@ -473,18 +459,7 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
 }
 
 void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    bitSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
+    qualityComponent.layoutComponent(rect);
 }
 
 void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
@@ -494,12 +469,14 @@ void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
     bool visible = hwEnvCat.isDetailVisible();
 
     envEnableButton.setVisible(visible);
+	hwEnvSeparator.setVisible(visible);
     shapeSelector.setVisibleWithLabel(visible);
     periodSlider.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &envEnableButton });
+        hwEnvSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
     }
@@ -520,14 +497,16 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
+    ieSsgSwPEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+        uSep001.layoutComponent(rect);
         ieToneNoise.layoutComponent(rect);
         rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
@@ -538,11 +517,17 @@ void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwPEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieDetune.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -550,17 +535,29 @@ void GuiSsg::setupGraph()
 {
     addAndMakeVisible(&graph); // グラフを追加
 
-    graphBtnAmp.setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp.setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp.setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp.onClick = [this] { setGraphMode(GraphMode::Amp); };
 
-    graphBtnPitch.setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch.setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch.onClick = [this] { setGraphMode(GraphMode::Pitch); };
 
-    graphBtnSsg.setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg.setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg.onClick = [this] { setGraphMode(GraphMode::SsgSw); };
 
-    auto repaintGraph = [this]() { updateGraph(); };
+    graphBtnSsg11.setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11.onClick = [this] { setGraphMode(GraphMode::SsgSw11); };
+
+    graphBtnSsgP11.setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11.onClick = [this] { setGraphMode(GraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this]() {
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
+
+        this->isUpdatingGraph = true;
+        this->updateGraph();
+        this->isUpdatingGraph = false;
+        };
 
     ampEnvComponent.setupGraph(repaintGraph);
 
@@ -568,8 +565,11 @@ void GuiSsg::setupGraph()
 
     ssgSwEnvComponent.setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator);
-    graphSeparator.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    ssgSwEnv11Component.setupGraph(repaintGraph);
+
+    ssgSwPEnv11Component.setupGraph(repaintGraph);
+
+    graphSeparator.setupComponent(*this);
 }
 
 void GuiSsg::setGraphMode(GraphMode mode)
@@ -580,6 +580,8 @@ void GuiSsg::setGraphMode(GraphMode mode)
     graphBtnAmp.setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch.setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg.setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11.setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11.setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateGraph();
@@ -587,20 +589,19 @@ void GuiSsg::setGraphMode(GraphMode mode)
 
 void GuiSsg::layoutGraph(juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(SsgGuiValue::MainGroup::Graph::height + SsgGuiValue::MainGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(SsgGuiValue::MainGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Separator::height);
-
-    graphSeparator.setBounds(separatorArea);
+    graphSeparator.layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(SsgGuiValue::MainGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp.setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch.setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg.setBounds(btnArea);
+    graphBtnSsg.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11.setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11.setBounds(btnArea);
 
     // 残りをグラフエリアにする
     graph.setBounds(mainArea);
@@ -625,6 +626,18 @@ void GuiSsg::updateGraph()
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnvComponent.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11Component.updateGraph(graph, p_curveCore, isCurveMode, 0);
     }
     // =============================================================
     // Amp Env
@@ -765,8 +778,8 @@ void GuiSsg::importQualityParam() {
 
                 if (size < 2) return;
 
-                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                qualityComponent.setBit(lines[0].getIntValue());
+                qualityComponent.setRate(lines[1].getIntValue());
             }
         });
 }
@@ -788,10 +801,155 @@ void GuiSsg::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityComponent.getBit()) + "\n";
+                content += juce::String(qualityComponent.getRate()) + "\n";
 
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiSsg::importSsgSwEnv11Param() {
+    ssgSwEnv11Component.importParams();
+}
+
+void GuiSsg::exportSsgSwEnv11Param() {
+    ssgSwEnv11Component.exportParams();
+}
+
+void GuiSsg::importSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.importParams();
+}
+
+void GuiSsg::exportSsgSwPEnv11Param() {
+    ssgSwPEnv11Component.exportParams();
+}
+
+void GuiSsg::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::ssgParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Form / Tone / Noise
+                waveSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                toneSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                noiseOnNoteButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                mixSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Duty
+                dutyModeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                dutyPresetSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                dutyVarSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                dutyInvertButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                dutyFcButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                dutyFcFlucSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Triangle
+                triKeyTrackButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                triFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                triPeakSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // HW Env
+                envEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                shapeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
+                periodSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components
+                fixComponent.setImportingParams(lines, index);
+                ampEnvComponent.setImportingParams(lines, index);
+                pitchEnvComponent.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgSwEnv11Component.setImportingParams(lines, index);
+                ssgSwPEnv11Component.setImportingParams(lines, index);
+                mulDetuneComponent.setImportingParams(lines, index);
+                lfo.setImportingParams(lines, index);
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+            }
+        });
+
+}
+
+void GuiSsg::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::ssgParam), Io::ExtensionGlob::ssgParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Form / Tone / Noise
+                content += juce::String(waveSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(toneSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(noiseOnNoteButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(mixSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Duty
+                content += juce::String(dutyModeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(dutyPresetSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(dutyVarSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(dutyInvertButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(dutyFcButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(dutyFcFlucSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Triangle
+                content += juce::String(triKeyTrackButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(triFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+                content += juce::String(triPeakSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // HW Env
+                content += juce::String(envEnableButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(shapeSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(periodSlider.getValue(), Global::floatDecimalPlaces) + "\n";
+
+                // Components
+                content += fixComponent.getExportedParams();
+                content += ampEnvComponent.getExportedParams();
+                content += pitchEnvComponent.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
+                content += ssgSwEnv11Component.getExportedParams();
+                content += ssgSwPEnv11Component.getExportedParams();
+                content += mulDetuneComponent.getExportedParams();
+                content += lfo.getExportedParams();
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                file.replaceWithText(content);
+            }
+        });
+
 }

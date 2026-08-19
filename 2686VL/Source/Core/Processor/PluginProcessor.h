@@ -1,0 +1,656 @@
+﻿#pragma once
+#include <JuceHeader.h>
+#include <algorithm>
+
+#include "../Synth/SynthVoice.h"
+
+#include "../../Processor/Opna/ProcessorOpna.h"
+#include "../../Processor/Opn/ProcessorOpn.h"
+#include "../../Processor/Opl/ProcessorOpl.h"
+#include "../../Processor/Opl3/ProcessorOpl3.h"
+#include "../../Processor/Opm/ProcessorOpm.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7.h"
+#include "../../Processor/Ssg/ProcessorSsg.h"
+#include "../../Processor/Wavetable/ProcessorWt.h"
+#include "../../Processor/Wt2/ProcessorWt2.h"
+#include "../../Processor/Rhythm/ProcessorRhythm.h"
+#include "../../Processor/Adpcm/ProcessorAdpcm.h"
+#include "../../Processor/Beep/ProcessorBeep.h"
+#include "../../Processor/Fx/ProcessorFx.h"
+
+#include "../Const/ConstGlobal.h"
+#include "../Processor/ProcessorKeys.h"
+#include "../Processor/ProcessorValues.h"
+#include "../Const/ConstFileValues.h"
+#include "../../Gui/Preset/PresetKeys.h"
+#include "../../Gui/Preset/PresetValues.h"
+
+#include "../Editor/PluginEditor.h"
+
+#include "../../Processor/Rhythm/ProcessorRhythmValues.h"
+#include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Processor/Wt2/ProcessorWt2Values.h"
+
+#include "./PluginProcessorStateKey.h"
+
+#include "../../Gui/Components/AlgMatrix/AlgMatrixState.h"
+
+class RetroSynthesiser : public juce::Synthesiser
+{
+private:
+    // モノフォニック用の「押されているキーの履歴（スタック）」
+    juce::Array<int> heldNotes;
+public:
+    RetroSynthesiser() : juce::Synthesiser() {
+    }
+
+    bool isMonoMode = false;
+    bool useVelocity = false;
+    bool pitchResetOnLegato = false;
+    float fixedVelocity = 1.0f;
+    bool isMidiProcessing = false;
+
+    SynthParams* currentParams = nullptr;
+
+    void voiceUnison(int voices, int detune, float spread, int midiChannel, int midiNoteNumber, float velocity, bool isLegato)
+    {
+        int uVoices = voices; // (※モードに応じて切り替えるように後で調整)
+
+        if (!isMonoMode && uVoices <= 1) {
+            if (auto* voice = dynamic_cast<SynthVoice*>(findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true))) {
+                voice->setUnisonParams(0, 1, 0.0f, 0.0f);
+                startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
+            }
+            return;
+        }
+
+        for (int i = 0; i < uVoices; ++i)
+        {
+            if (isMonoMode) {
+                // モノフォニック時は、ユニゾン数ぶんの専用ボイス(0番目から順)を使用する
+                if (auto* voice = dynamic_cast<SynthVoice*>(getVoice(i))) {
+                    voice->setUnisonParams(i, uVoices, detune, spread);
+
+                    // 真のレガート処理: JUCEの startVoice は呼ばず、直接コアを叩く！
+                    // これにより、波形が強制キルされず、位相や音量が完全に引き継がれます。
+                    if (voice->isVoiceActive()) {
+                        auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+                        voice->coreMap[currentParams->mode]->noteOn(cyclesPerSecond, velocity, midiNoteNumber, isLegato);
+                    }
+                    else {
+                        // 完全に音が消えている時だけ、通常の startVoice でボイスを起こす
+                        startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
+                    }
+                }
+            }
+            else {
+                // ポリフォニック時 (既存のまま)
+                juce::SynthesiserVoice* rawVoice = findFreeVoice(getSound(0).get(), midiChannel, midiNoteNumber, true);
+                if (auto* voice = dynamic_cast<SynthVoice*>(rawVoice)) {
+                    voice->setUnisonParams(i, uVoices, detune, spread);
+                    startVoice(voice, getSound(0).get(), midiChannel, midiNoteNumber, velocity);
+                }
+            }
+        }
+    }
+
+    // ユニゾン・ハーモニー向けにオーバーライド
+    // 鍵盤を押した時の挙動をハックする
+    void noteOn(int midiChannel, int midiNoteNumber, float velocity) override
+    {
+        isMidiProcessing = true;
+
+        if (currentParams == nullptr) {
+            juce::Synthesiser::noteOn(midiChannel, midiNoteNumber, velocity);
+            return;
+        }
+
+        float targetVelocity = useVelocity ? velocity : fixedVelocity;
+        bool isLegato = false;
+
+        if (isMonoMode) {
+            // 前のキーが押されたままならレガート（シングル・トリガー）と判定！
+            if (heldNotes.size() > 0) {
+                isLegato = true;
+            }
+
+            // 履歴から一旦削除して末尾に追加 (最新のキーを一番後ろにする)
+            heldNotes.removeAllInstancesOf(midiNoteNumber);
+            heldNotes.add(midiNoteNumber);
+        }
+
+		switch (currentParams->mode) {
+		case OscMode::OPNA:
+            voiceUnison(
+                currentParams->opna.unison.voices,
+                currentParams->opna.unison.detuneCents,
+                currentParams->opna.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::OPN:
+            voiceUnison(
+                currentParams->opn.unison.voices,
+                currentParams->opn.unison.detuneCents,
+                currentParams->opn.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::OPL:
+            voiceUnison(
+                currentParams->opl.unison.voices,
+                currentParams->opl.unison.detuneCents,
+                currentParams->opl.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::OPL3:
+            voiceUnison(
+                currentParams->opl3.unison.voices,
+                currentParams->opl3.unison.detuneCents,
+                currentParams->opl3.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::OPM:
+            voiceUnison(
+                currentParams->opm.unison.voices,
+                currentParams->opm.unison.detuneCents,
+                currentParams->opm.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::OPZX7:
+            voiceUnison(
+                currentParams->opzx7.unison.voices,
+                currentParams->opzx7.unison.detuneCents,
+                currentParams->opzx7.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::SSG:
+            voiceUnison(
+                currentParams->ssg.unison.voices,
+                currentParams->ssg.unison.detuneCents,
+                currentParams->ssg.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::WAVETABLE:
+            voiceUnison(
+                currentParams->wt.unison.voices,
+                currentParams->wt.unison.detuneCents,
+                currentParams->wt.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+        case OscMode::WT2:
+            voiceUnison(
+                currentParams->wt2.unison.voices,
+                currentParams->wt2.unison.detuneCents,
+                currentParams->wt2.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+        case OscMode::RHYTHM:
+            voiceUnison(
+                currentParams->rhythm.unison.voices,
+                currentParams->rhythm.unison.detuneCents,
+                currentParams->rhythm.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::ADPCM:
+            voiceUnison(
+                currentParams->adpcm.unison.voices,
+                currentParams->adpcm.unison.detuneCents,
+                currentParams->adpcm.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+		case OscMode::BEEP:
+            voiceUnison(
+                currentParams->beep.unison.voices,
+                currentParams->beep.unison.detuneCents,
+                currentParams->beep.unison.spread,
+                midiChannel,
+                midiNoteNumber,
+                targetVelocity,
+                isLegato
+            );
+            break;
+        };
+    }
+
+    // ユニゾン・ハーモニー向けにオーバーライド
+    // 鍵盤を離した時の挙動をハックする
+    void noteOff(int midiChannel, int midiNoteNumber, float velocity, bool allowTailOff) override
+    {
+        isMidiProcessing = false;
+
+        float targetVelocity = useVelocity ? velocity : fixedVelocity;
+
+        if (isMonoMode)
+        {
+            // 離されたキーを履歴から削除
+            heldNotes.removeAllInstancesOf(midiNoteNumber);
+
+            // まだ押されているキーが残っているか？
+            if (heldNotes.isEmpty()) {
+                // もう何も押されていないので、全ボイス(ユニゾン含む)を停止して音を消す
+                for (int i = 0; i < getNumVoices(); ++i) {
+                    if (auto* voice = getVoice(i)) {
+                        if (voice->isVoiceActive()) {
+                            voice->stopNote(targetVelocity, allowTailOff);
+                        }
+                    }
+                }
+            }
+            else {
+                // まだ別のキーが押されている！
+                // 最新のキー(スタックの末尾)の音程に、レガートで戻して鳴らし続ける
+                int previousNote = heldNotes.getLast();
+                // ※ベロシティは再トリガー時のもの（ここでは便宜上 velocity を渡しますが、
+                // 実機感を出したい場合は記録しておいた当時のベロシティを使うこともあります）
+                switch (currentParams->mode) {
+                case OscMode::OPNA:
+                    voiceUnison(
+                        currentParams->opna.unison.voices,
+                        currentParams->opna.unison.detuneCents,
+                        currentParams->opna.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::OPN:
+                    voiceUnison(
+                        currentParams->opn.unison.voices,
+                        currentParams->opn.unison.detuneCents,
+                        currentParams->opn.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::OPL:
+                    voiceUnison(
+                        currentParams->opl.unison.voices,
+                        currentParams->opl.unison.detuneCents,
+                        currentParams->opl.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::OPL3:
+                    voiceUnison(
+                        currentParams->opl3.unison.voices,
+                        currentParams->opl3.unison.detuneCents,
+                        currentParams->opl3.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::OPM:
+                    voiceUnison(
+                        currentParams->opm.unison.voices,
+                        currentParams->opm.unison.detuneCents,
+                        currentParams->opm.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::OPZX7:
+                    voiceUnison(
+                        currentParams->opzx7.unison.voices,
+                        currentParams->opzx7.unison.detuneCents,
+                        currentParams->opzx7.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::SSG:
+                    voiceUnison(
+                        currentParams->ssg.unison.voices,
+                        currentParams->ssg.unison.detuneCents,
+                        currentParams->ssg.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::WAVETABLE:
+                    voiceUnison(
+                        currentParams->wt.unison.voices,
+                        currentParams->wt.unison.detuneCents,
+                        currentParams->wt.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::WT2:
+                    voiceUnison(
+                        currentParams->wt2.unison.voices,
+                        currentParams->wt2.unison.detuneCents,
+                        currentParams->wt2.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::RHYTHM:
+                    voiceUnison(
+                        currentParams->rhythm.unison.voices,
+                        currentParams->rhythm.unison.detuneCents,
+                        currentParams->rhythm.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::ADPCM:
+                    voiceUnison(
+                        currentParams->adpcm.unison.voices,
+                        currentParams->adpcm.unison.detuneCents,
+                        currentParams->adpcm.unison.spread,
+                        midiChannel,
+                        previousNote,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                case OscMode::BEEP:
+                    voiceUnison(
+                        currentParams->beep.unison.voices,
+                        currentParams->beep.unison.detuneCents,
+                        currentParams->beep.unison.spread,
+                        midiChannel,
+                        midiNoteNumber,
+                        targetVelocity,
+                        true
+                    );
+                    break;
+                };
+            }
+        }
+        else
+        {
+            juce::Synthesiser::noteOff(midiChannel, midiNoteNumber, targetVelocity, allowTailOff);
+        }
+    }
+
+    // 新しい音が鳴る時、どのボイス(回路)を使うかを決める関数をハックする
+    juce::SynthesiserVoice* findFreeVoice(juce::SynthesiserSound* soundToPlay,
+        int midiChannel,
+        int midiNoteNumber,
+        bool stealIfNoneAvailable) const override
+    {
+        if (isMonoMode)
+        {
+            // モノフォニック時は、和音が弾かれても「強制的にVoice 0（最初の回路）」だけを返す
+            if (auto* voice = getVoice(0))
+            {
+                return voice; // 現在鳴っていても、容赦なく奪い取る(Steal)
+            }
+        }
+        // ポリフォニック時(OFF)は、通常のJUCEの和音割り当て機能を使う
+        return juce::Synthesiser::findFreeVoice(soundToPlay, midiChannel, midiNoteNumber, stealIfNoneAvailable);
+    }
+};
+
+class AudioPlugin2686V : public juce::AudioProcessor
+{
+private:
+    OpnaProcessor prOpna;
+    OpnProcessor prOpn;
+    OplProcessor prOpl;
+    Opl3Processor prOpl3;
+    OpmProcessor prOpm;
+    Opzx7Processor prOpzx7;
+    SsgProcessor prSsg;
+    WtProcessor prWt;
+    Wt2Processor prWt2;
+    RhythmProcessor prRhythm;
+    AdpcmProcessor prAdpcm;
+    BeepProcessor prBeep;
+    FxProcessor prFx;
+
+    SynthParams m_currentParams;
+    SynthParams m_previewParams;
+
+    std::atomic<float>* pMode = nullptr;
+    std::atomic<float>* pMonoMode = nullptr;
+    std::atomic<float>* pUseVelocity = nullptr;
+    std::atomic<float>* pPitchResetOnLegato = nullptr;
+    std::atomic<float>* pFixedVelocity = nullptr;
+
+    std::map<OscMode, PrBase*> prMap;
+
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    RetroSynthesiser m_synth;
+
+    // 波形プレビュー用
+    juce::Synthesiser previewSynth;
+    std::unique_ptr<SynthSound> previewSound;
+    FxProcessor previewFx;
+
+    void loadStartupSettings(); // 設定の自動読み込み用関数
+    void setPresetToXml(std::unique_ptr<juce::XmlElement>& xml);
+    void getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlState);
+public:
+    AudioPlugin2686V();
+    ~AudioPlugin2686V() override;
+
+    static inline constexpr int previewBufferSize = 200;
+
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void releaseResources() override;
+    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override;
+
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override;
+
+    const juce::String getName() const override;
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+    bool isMidiEffect() const override;
+    double getTailLengthSeconds() const override;
+
+    int getNumPrograms() override;
+    int getCurrentProgram() override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
+    // Function to load ADPCM file (Global/Voice)
+    void loadAdpcmFile(const juce::File& file);
+    void unloadAdpcmFile();
+    // Function to load Rhythm sample file (Specific Pad)
+    void loadRhythmFile(const juce::File& file, int padIndex);
+    void unloadRhythmFile(int padIndex);
+
+    juce::AudioFormatManager formatManager;
+    juce::File lastSampleDirectory{ juce::File::getSpecialLocation(juce::File::userHomeDirectory) };
+
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+    juce::UndoManager undoManager;
+    juce::AudioProcessorValueTreeState apvts;
+
+    // --- Metadata ---
+    juce::String presetName = PresetValue::MetaData::Initial::name;
+    juce::String presetAuthor = PresetValue::MetaData::Initial::author;
+    juce::String presetVersion = PresetValue::MetaData::Initial::version;
+    juce::String presetComment = PresetValue::MetaData::Initial::comment;
+    juce::String presetGenre = PresetValue::MetaData::Initial::genre;
+    juce::String presetFilePath = "";
+    juce::String presetPluginVersion = Global::Plugin::version;
+
+    OscMode lastActiveSynthMode = OscMode::OPNA;
+
+    // --- File Paths (To restore samples) ---
+    juce::String adpcmFilePath;
+    std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
+
+    // --- Preset I/O ---
+    void savePreset(const juce::File& file);
+    void loadPreset(const juce::File& file);
+    void initPreset();
+
+    void initParams(const juce::String& code);
+
+    // --- OPZX7 PCM File ---
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7PcmBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7PcmFilePaths;
+
+    void loadOpzx7PcmFile(int opIndex, const juce::File& file);
+    void unloadOpzx7PcmFile(int opIndex);
+
+    // --- OPZX7 Wavetable ---
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7WtBuffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7WtFilePaths;
+
+    void loadOpzx7WtFile(int opIndex, const juce::File& file);
+    void unloadOpzx7WtFile(int opIndex);
+
+    // --- OPZX7 WT2 ---
+    std::array<std::vector<float>, Opzx7PrValue::ops> opzx7Wt2Buffers;
+    std::array<juce::String, Opzx7PrValue::ops> opzx7Wt2FilePaths;
+
+    void loadOpzx7Wt2File(int opIndex, const juce::File& file);
+    void unloadOpzx7Wt2File(int opIndex);
+
+    // --- Preview(Static) ---
+    void generatePreviewWaveform(std::vector<float>* destBuffer);
+
+    // --- 仮想キーボード ---
+    juce::MidiKeyboardState keyboardState;
+
+    // --- Preview ---
+    bool previewVisiblity = true; // Editorとの同期用
+
+    // L, Mono, R の3チャンネル分のバッファを用意
+    // 余裕を持たせたリングバッファ (ただのfloat配列でOK)
+    static inline constexpr int ringBufferSize = 2048;
+    float realTimeBufferL[ringBufferSize] = { 0.0f };
+    float realTimeBufferMono[ringBufferSize] = { 0.0f };
+    float realTimeBufferR[ringBufferSize] = { 0.0f };
+
+    // 現在の書き込み位置だけをスレッドセーフに管理
+    std::atomic<int> realTimeWritePos{ 0 };
+
+    // --- Settings Data ---
+    int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
+    juce::String wallpaperPath;
+    int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
+    juce::String defaultSampleDir;  // For ADPCM & Rhythm
+    juce::String defaultPresetDir; // For Presets
+	juce::String defaultWavetableDir; // For Wavetables
+    juce::String defaultFxOrderDir; // For FX Order
+    juce::String defaultFxParamDir;
+    juce::String defaultChannelParamDir;
+    juce::String defaultCurveParamDir;
+    juce::String defaultLfoParamDir;
+    juce::String defaultAmpEnvParamDir;
+    juce::String defaultPitchEnvParamDir;
+    juce::String defaultSsgSwEnvParamDir;
+    juce::String defaultDetuneParamDir;
+    juce::String defaultUnisonParamDir;
+    juce::String defaultQualityParamDir;
+    juce::String defaultPcmPlayParamDir;
+    juce::String defaultToneNoiseParamDir;
+    bool showTooltips = true; // For show Parameter Range Tooltop
+    bool useHeadroom = true; // ヘッドルーム適応
+    float headroomGain = 0.25; // ヘッドルーム圧縮値
+    bool showVirtualKeyboard = true; // 仮想キーボードの表示フラグ（デフォルトON）
+
+    void saveEnvironment(const juce::File& file);
+    void loadEnvironment(const juce::File& file); 
+
+    void panic();
+
+    juce::String makePathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolvePath(const juce::String& pathStr); // 相対ディレクトリからの展開
+    juce::String makeWtPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolveWtPath(const juce::String& pathStr); // 相対ディレクトリからの展開
+    juce::String makeFxOrderPathRelative(const juce::File& targetFile); // 相対ディレクトリへ変換
+    juce::File resolveFxOrderPath(const juce::String& pathStr); // 相対ディレクトリからの展開
+
+    juce::String getDefaultPresetDir();
+    static juce::String sanitizeString(const juce::String& input, int length);
+
+    void resetMidiSettings();
+    std::vector<int> getFxOrder();
+    void updateFxOrder(std::vector<int> newOrder);
+    bool isPlaying();
+    bool isMidiProcessing();
+    OscMode getCurrentMode();
+public:
+    // =========================================================================
+    // OPZX7S アルゴリズムマトリックス用インターフェース
+    // =========================================================================
+    void setOpzx7AlgMode(int mode);
+    int getOpzx7AlgMode() const;
+
+    void setOpzx7AlgMatrix(const AlgMatrixState& state);
+    AlgMatrixState getOpzx7AlgMatrix();
+
+    // プリセットロード時などにAPVTSからキャッシュを復元するための関数
+    void updateAlgMatrixCacheFromState();
+
+private:
+    // オーディオスレッドから安全に読み取るためのキャッシュ
+    std::atomic<int> m_opzx7AlgMode{ 0 };
+    AlgMatrixState m_opzx7AlgMatrixState;
+    juce::CriticalSection m_matrixLock; // マトリックス配列読み書き時のスレッドセーフ用
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
+};

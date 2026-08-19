@@ -5,6 +5,8 @@
 #include "../../Core/Processor/PluginProcessor.h"
 #include "../../Core/Editor/PluginEditor.h"
 
+#include "../../Core/Processor/ProcessorKeys.h"
+#include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opl3/ProcessorOpl3Keys.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
 #include "../../Core/Const/ConstMmlKeys.h"
@@ -18,41 +20,6 @@
 #include "./GuiOpl3Values.h"
 #include "./GuiOpl3Text.h"
 #include "../../Core/Gui/GuiStructs.h"
-
-// 1:4bit, 2:5bit, 3:6bit, 4:7bit, 5:8bit, 6:9bit, 7:10bit, 8:12bit, 9:16bit, 10:20bit, 11:24bit, 12:raw(32bit)
-static std::vector<SelectItem> bdItems = {
-    {.name = " 1:  4-bit (16 steps)",       .value = 1 },
-    {.name = " 2:  5-bit (32 steps)",       .value = 2 },
-    {.name = " 3:  6-bit (64 steps)",       .value = 3 },
-    {.name = " 4:  7-bit (128 steps)",      .value = 4 },
-    {.name = " 5:  8-bit (256 steps)",      .value = 5 },
-    {.name = " 6:  9-bit (512 steps)",      .value = 6 },
-    {.name = " 7: 10-bit (1024 steps)",     .value = 7 },
-    {.name = " 8: 12-bit (4096 steps)",     .value = 8 },
-    {.name = " 9: 16-bit (32768 steps)",    .value = 9 },
-    {.name = "10: 20-bit (1048576 steps)",  .value = 10 },
-    {.name = "11: 24-bit (16777216 steps)", .value = 11 },
-    {.name = "12: Raw",                     .value = 12 }
-};
-
-// 1:96k, 2:55.5k, 3: 49.7k 4: 48k, 5: 44.1k, 6: 33.08k, 7: 32k 8: 22.05k, 9: 16k, 10: 12k, 11: 11k 12: 8k 13: 5.5k 14: 4k 15: 2k
-static std::vector<SelectItem> rateItems = {
-    {.name = " 1: 96kHz",    .value = 1 },
-    {.name = " 2: 55.5kHz",  .value = 2 },
-    {.name = " 3: 49.7kHz",  .value = 3 },
-    {.name = " 4: 48kHz",    .value = 4 },
-    {.name = " 5: 44.1kHz",  .value = 5 },
-    {.name = " 6: 33.08kHz", .value = 6 },
-    {.name = " 7: 32kHz",    .value = 7 },
-    {.name = " 8: 22.05kHz", .value = 8 },
-    {.name = " 9: 16kHz",    .value = 9 },
-    {.name = "10: 12kHz",    .value = 10 },
-    {.name = "11: 11kHz",    .value = 11 },
-    {.name = "12: 8kHz",     .value = 12 },
-    {.name = "12: 5.5kHz",   .value = 13 },
-    {.name = "13: 4kHz",     .value = 14 },
-    {.name = "15: 2kHz",     .value = 15 },
-};
 
 static std::vector<SelectItem> opl3AlgItems = {
     {.name = "00: <OPL3(OP4)-00>", .value = 1 },
@@ -121,22 +88,19 @@ void GuiOpl3::setup()
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
 
-    qualityCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::visibleQuality, .invisibleTitle = Opl3GuiText::Category::invisibleQuality, .enableChangeDetailVisible = true });
-    bitSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Opl3PrKey::bit, .title = Opl3GuiText::bit, .items = bdItems, .isReset = true });
-    bitSelector.setWantsKeyboardFocus(true);
-    bitSelector.setExplicitFocusOrder(++tabOrder);
-    rateSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Opl3PrKey::rate, .title = Opl3GuiText::rate, .items = rateItems, .isReset = true });
-    rateSelector.setWantsKeyboardFocus(true);
-    rateSelector.setExplicitFocusOrder(++tabOrder);
+    qualityComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     algFbCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Category::algFb });
-    algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + Opl3PrKey::alg, .title = Opl3GuiText::Fm::alg, .items = opl3AlgItems, .isReset = true });
+    algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = Opl3GuiText::Fm::alg, .items = opl3AlgItems, .isReset = true });
     algSelector.setWantsKeyboardFocus(true);
     algSelector.setExplicitFocusOrder(++tabOrder);
     algSelector.onChange = [this] {
         updateAlgorithmDisplay();
         };
-    feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + Opl3PrKey::fb, .title = Opl3GuiText::Fm::fb, .isReset = true });
+
+    algFbSep.setupComponent(mainGroup.contentCanvas);
+
+    feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb, .title = Opl3GuiText::Fm::fb, .isReset = true });
     feedbackSlider.setWantsKeyboardFocus(true);
     feedbackSlider.setExplicitFocusOrder(++tabOrder);
 
@@ -155,8 +119,7 @@ void GuiOpl3::setup()
         ctx.editor.breadcastLevel(level);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep001);
-    uSep001.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep001.setupComponent(mainGroup.contentCanvas);
 
     initLfoToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = Opl3GuiText::Fm::initLfoToOpl });
     initLfoToOplBtn.setWantsKeyboardFocus(true);
@@ -185,8 +148,7 @@ void GuiOpl3::setup()
         }
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep002);
-    uSep002.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep002.setupComponent(mainGroup.contentCanvas);
 
     copyOpParamToOplBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Params (OP 1/2) -> OPL", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamToOplBtn.setWantsKeyboardFocus(true);
@@ -209,8 +171,7 @@ void GuiOpl3::setup()
         ctx.editor.copyOpl334ParamsToOpl();
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep003);
-    uSep003.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep003.setupComponent(mainGroup.contentCanvas);
 
     copyOpParamBtn.setup({ .parent = mainGroup.contentCanvas, .title = "Copy Op Params", .bgColor = juce::Colours::turquoise.darker(0.5f) });
     copyOpParamBtn.setWantsKeyboardFocus(true);
@@ -248,8 +209,7 @@ void GuiOpl3::setup()
         copyOpParamBtn.setEnabled(from != to);
         };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep004);
-    uSep004.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    uSep004.setupComponent(mainGroup.contentCanvas);
 
     ieOpLfo.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP LFO");
     ieOpLfo.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importLfoParam(opIndex); };
@@ -263,8 +223,19 @@ void GuiOpl3::setup()
     ieOpSsgSwEnv.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnvParam(opIndex); };
     ieOpSsgSwEnv.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnvParam(opIndex); };
 
-    mainGroup.contentCanvas.addAndMakeVisible(uSep005);
-    uSep005.setup({ .lineThick = 2.0f, .lineColour = juce::Colours::white });
+    ieOpSsgSwEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
+    ieOpSsgSwEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwEnv11Param(opIndex); };
+    ieOpSsgSwEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwEnv11Param(opIndex); };
+
+    ieOpSsgSwPEnv11.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
+    ieOpSsgSwPEnv11.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importSsgSwPEnv11Param(opIndex); };
+    ieOpSsgSwPEnv11.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportSsgSwPEnv11Param(opIndex); };
+
+    ieOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OP Params");
+    ieOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpChParam(opIndex); };
+    ieOpChParam.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpChParam(opIndex); };
+
+    uSep005.setupComponent(mainGroup.contentCanvas);
 
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
     targerOpSlider.setRange(1.0, 4.0, 1.0);
@@ -281,6 +252,10 @@ void GuiOpl3::setup()
     ieQuality.onClickImport = [this] { importQualityParam(); };
     ieQuality.onClickExport = [this] { exportQualityParam(); };
 
+    ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
+    ieChParam.onClickImport = [this] { importChParam(); };
+    ieChParam.onClickExport = [this] { exportChParam(); };
+
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     for (int i = 0; i < Opl3PrValue::algorithms; ++i)
@@ -296,7 +271,7 @@ void GuiOpl3::setup()
     // 画像コンポーネントを画面に追加
     mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
 
-    const juce::String opCode = code + Opl3PrKey::op;
+    const juce::String opCode = code + CPK::op;
 
     for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
@@ -305,77 +280,81 @@ void GuiOpl3::setup()
         juce::String paramPrefix = opCode + juce::String(i);
 
         catDet[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleDetune, .invisibleTitle = Opl3GuiText::Category::invisibleDetune, .enableChangeDetailVisible = true });
-        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleAmpEnv, .invisibleTitle = Opl3GuiText::Category::invisibleAmpEnv, .enableChangeDetailVisible = true });
+        catAmp[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleAmpEnv, .invisibleTitle = Opl3GuiText::Category::invisibleAmpEnv, .detailVisible = true, .enableChangeDetailVisible = true });
 
-        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::mul, .title = Opl3GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
+        mul[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mul, .title = Opl3GuiText::Fm::Op::Mul, .items = multems, .isReset = true, .regType = RegisterType::FmMul });
         mul[i].setWantsKeyboardFocus(true);
         mul[i].setExplicitFocusOrder(++tabOrder);
 
-        rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::rgAr, .title = Opl3GuiText::Fm::Op::Ar, .isReset = true });
+        rgAr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgAr, .title = Opl3GuiText::Fm::Op::Ar, .isReset = true });
         rgAr[i].setWantsKeyboardFocus(true);
         rgAr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgDr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::rgDr, .title = Opl3GuiText::Fm::Op::Dr, .isReset = true });
+        rgDr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgDr, .title = Opl3GuiText::Fm::Op::Dr, .isReset = true });
         rgDr[i].setWantsKeyboardFocus(true);
         rgDr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgSl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::rgSl, .title = Opl3GuiText::Fm::Op::Sl, .isReset = true });
+        rgSl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgSl, .title = Opl3GuiText::Fm::Op::Sl, .isReset = true });
         rgSl[i].setWantsKeyboardFocus(true);
         rgSl[i].setExplicitFocusOrder(++tabOrder);
 
-        rgRr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::rgRr, .title = Opl3GuiText::Fm::Op::Rr, .isReset = true });
+        rgRr[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgRr, .title = Opl3GuiText::Fm::Op::Rr, .isReset = true });
         rgRr[i].setWantsKeyboardFocus(true);
         rgRr[i].setExplicitFocusOrder(++tabOrder);
 
-        rgTl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::rgTl, .title = Opl3GuiText::Fm::Op::Tl, .isReset = true });
+        rgTl[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::rgTl, .title = Opl3GuiText::Fm::Op::Tl, .isReset = true });
         rgTl[i].setWantsKeyboardFocus(true);
         rgTl[i].setExplicitFocusOrder(++tabOrder);
 
-        egType[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::egType, .title = Opl3GuiText::Fm::Op::EgType, .isReset = true });
+        egType[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::egType, .title = Opl3GuiText::Fm::Op::EgType, .isReset = true });
         egType[i].setWantsKeyboardFocus(true);
         egType[i].setExplicitFocusOrder(++tabOrder);
 
         ksCat[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleKs, .invisibleTitle = Opl3GuiText::Category::invisibleKs, .enableChangeDetailVisible = true });
 
-        ksr[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::ksr, .title = Opl3GuiText::Fm::Op::Ksr, .isReset = true });
+        ksr[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksr, .title = Opl3GuiText::Fm::Op::Ksr, .isReset = true });
         ksr[i].setWantsKeyboardFocus(true);
         ksr[i].setExplicitFocusOrder(++tabOrder);
 
-        ksl[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::ksl, .title = Opl3GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
+        ksl[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ksl, .title = Opl3GuiText::Fm::Op::Ksl, .items = kslItems, .isReset = true });
         ksl[i].setWantsKeyboardFocus(true);
         ksl[i].setExplicitFocusOrder(++tabOrder);
 
         catOptional[i].setupSwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleOptional, .invisibleTitle = Opl3GuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
 
-        xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::xof, .title = Opl3GuiText::Fm::Op::xof, .isReset = true });
+        xof[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::xof, .title = Opl3GuiText::Fm::Op::xof, .isReset = true });
         xof[i].setWantsKeyboardFocus(true);
         xof[i].setExplicitFocusOrder(++tabOrder);
 
-        kor[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::kor, .title = Opl3GuiText::Fm::Op::kor, .isReset = true });
+        kor[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::kor, .title = Opl3GuiText::Fm::Op::kor, .isReset = true });
         kor[i].setWantsKeyboardFocus(true);
         kor[i].setExplicitFocusOrder(++tabOrder);
 
-        bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::ampBypass, .title = Opl3GuiText::Fm::Op::bypass, .isReset = true });
+        bypass[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::bypass, .title = Opl3GuiText::Fm::Op::bypass, .isReset = true });
         bypass[i].setWantsKeyboardFocus(true);
         bypass[i].setExplicitFocusOrder(++tabOrder);
 
-        pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, Opl3PrKey::PitchAdsr::enable, Opl3GuiText::PitchAdsr::enable, true);
+        pitchEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::PitchAdsr::enable, Opl3GuiText::PitchAdsr::enable, true);
 
-        ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, Opl3PrKey::SsgSwEnv::enable, Opl3GuiText::SsgSwEnv::enable, true);
+        ssgSwEnv[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv::enable, Opl3GuiText::SsgSwEnv::enable, true);
+
+        ssgSwEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwEnv11::enable, Opl3GuiText::SsgSwEnv11::enable, true);
+
+        ssgSwPEnv11[i].setupComponent(opGroups[i].contentCanvas, paramPrefix, tabOrder, CPK::SsgSwPEnv11::enable, Opl3GuiText::SsgSwPEnv11::enable, true);
 
         catShape[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleEg, .invisibleTitle = Opl3GuiText::Category::invisibleEg, .enableChangeDetailVisible = true });
 
-        eg[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::eg, .title = Opl3GuiText::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
+        eg[i].setup(GuiComboBox::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::eg, .title = Opl3GuiText::Fm::Op::Eg, .items = opl3EgItems, .isReset = true });
         eg[i].setWantsKeyboardFocus(true);
         eg[i].setExplicitFocusOrder(++tabOrder);
 
         catLfo[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleLfo, .invisibleTitle = Opl3GuiText::Category::invisibleLfo, .enableChangeDetailVisible = true });
 
-        am[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::am, .title = Opl3GuiText::Fm::Op::Am, .isReset = true });
+        am[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::am, .title = Opl3GuiText::Fm::Op::Am, .isReset = true });
         am[i].setWantsKeyboardFocus(true);
         am[i].setExplicitFocusOrder(++tabOrder);
 
-        ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::ams, .title = Opl3GuiText::Fm::Op::Ams, .isReset = true });
+        ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ams, .title = Opl3GuiText::Fm::Op::Ams, .isReset = true });
         ams[i].setWantsKeyboardFocus(true);
         ams[i].setExplicitFocusOrder(++tabOrder);
 
@@ -384,7 +363,7 @@ void GuiOpl3::setup()
         amsTo37[i].setExplicitFocusOrder(++tabOrder);
         amsTo37[i].onClick = [this, index = i] { ams[index].setValue(3.7, juce::sendNotification); };
 
-        amd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::amd, .title = Opl3GuiText::Fm::Op::Amd, .isReset = true });
+        amd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::amd, .title = Opl3GuiText::Fm::Op::Amd, .isReset = true });
         amd[i].setWantsKeyboardFocus(true);
         amd[i].setExplicitFocusOrder(++tabOrder);
 
@@ -398,11 +377,11 @@ void GuiOpl3::setup()
         amdTo48[i].setExplicitFocusOrder(++tabOrder);
         amdTo48[i].onClick = [this, index = i] { amd[index].setValue(4.8, juce::sendNotification); };
 
-        vib[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::vib, .title = Opl3GuiText::Fm::Op::Vib, .isReset = true });
+        vib[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::vib, .title = Opl3GuiText::Fm::Op::Vib, .isReset = true });
         vib[i].setWantsKeyboardFocus(true);
         vib[i].setExplicitFocusOrder(++tabOrder);
 
-        pms[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::pms, .title = Opl3GuiText::Fm::Op::Pms, .isReset = true });
+        pms[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::pms, .title = Opl3GuiText::Fm::Op::Pms, .isReset = true });
         pms[i].setWantsKeyboardFocus(true);
         pms[i].setExplicitFocusOrder(++tabOrder);
 
@@ -411,7 +390,7 @@ void GuiOpl3::setup()
         pmsTo64[i].setExplicitFocusOrder(++tabOrder);
         pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
 
-        pmd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::pmd, .title = Opl3GuiText::Fm::Op::Pmd, .isReset = true });
+        pmd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::pmd, .title = Opl3GuiText::Fm::Op::Pmd, .isReset = true });
         pmd[i].setWantsKeyboardFocus(true);
         pmd[i].setExplicitFocusOrder(++tabOrder);
 
@@ -425,14 +404,15 @@ void GuiOpl3::setup()
         pmdTo14[i].setExplicitFocusOrder(++tabOrder);
         pmdTo14[i].onClick = [this, index = i] { pmd[index].setValue(14.0, juce::sendNotification); };
 
+        lfoSep[i].setupComponent(opGroups[i].contentCanvas);
+
         catMask[i].setupHwCategory({ .parent = opGroups[i].contentCanvas, .title = Opl3GuiText::Category::visibleMask, .invisibleTitle = Opl3GuiText::Category::invisibleMask, .enableChangeDetailVisible = true });
 
-        mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + Opl3PrKey::mask, .title = Opl3GuiText::Fm::Op::Mask, .isReset = true });
+        mask[i].setup(GuiToggleButton::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::mask, .title = Opl3GuiText::Fm::Op::Mask, .isReset = true });
         mask[i].setWantsKeyboardFocus(true);
         mask[i].setExplicitFocusOrder(++tabOrder);
 
-        opGroups[i].contentCanvas.addAndMakeVisible(mmlSeparator[i]);
-        mmlSeparator[i].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+        mmlSeparator[i].setupComponent(opGroups[i].contentCanvas);
 
         mml[i].setup({ .parent = opGroups[i].contentCanvas, .title = juce::String("") + "MML風入力", .isReset = false, .isResized = false });
         mml[i].setWantsKeyboardFocus(true);
@@ -477,7 +457,7 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
     auto imgArea = mRect.removeFromTop(120);
     algImageComp.setBounds(imgArea);
 
-    mRect.removeFromTop(Opl3GuiValue::Category::paddingTop);
+    algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
@@ -491,12 +471,14 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
 
     int usedHeight = 2000 - mRect.getHeight();
 
+    int opWidth = pageArea.getWidth() / 4;
+
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
     // --- Operators Section ---
     for (int i = 0; i < Opl3PrValue::ops; ++i)
     {
-        auto opArea = pageArea.removeFromLeft(Opl3GuiValue::Fm::Op::width);
+        auto opArea = pageArea.removeFromLeft(opWidth);
         opGroups[i].setBounds(opArea);
 
         auto iinnerRect = opArea.reduced(Opl3GuiValue::Fm::Op::Padding::width, Opl3GuiValue::Fm::Op::Padding::height);
@@ -513,29 +495,31 @@ void GuiOpl3::layout(juce::Rectangle<int> content)
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
         juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
 
-        layoutOpDetCat(i, innerRect);
-
         updateRgDisplayAsOp(i, true);
 
         layoutOpAmpCat(i, innerRect);
 
-        layoutOpEgCat(i, innerRect);
-
-        layoutOpKsCat(i, innerRect);
-
         layoutOpOptionalCat(i, innerRect);
+
+        ssgSwEnv[i].layoutComponentRow(innerRect);
+
+        ssgSwEnv11[i].layoutComponentRow(innerRect);
 
         pitchEnv[i].layoutComponentRow(innerRect);
 
-        ssgSwEnv[i].layoutComponentRow(innerRect);
+        ssgSwPEnv11[i].layoutComponentRow(innerRect);
+
+        layoutOpEgCat(i, innerRect);
+
+        layoutOpDetCat(i, innerRect);
+
+        layoutOpKsCat(i, innerRect);
 
         layoutOpLfoCat(i, innerRect);
 
         layoutOpMaskCat(i, innerRect);
 
-        // 区切り線エリアを確保
-        auto mmlSeparatorArea = innerRect.removeFromTop(Opl3GuiValue::ParamGroup::Separator::height);
-        mmlSeparator[i].setBounds(mmlSeparatorArea);
+        mmlSeparator[i].layoutComponent(innerRect);
 
         layoutRow({ .rowRect = innerRect, .component = &mml[i], .paddingBottom = 0 });
 
@@ -815,42 +799,59 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpLfo.setVisible(visible);
     ieOpPitchEnv.setVisible(visible);
     ieOpSsgSwEnv.setVisible(visible);
+    ieOpSsgSwEnv11.setVisible(visible);
+    ieOpSsgSwPEnv11.setVisible(visible);
+    ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep005.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
+    ieChParam.setVisible(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &broadcastLevelButton });
-        auto uSep001Area = rect.removeFromTop(4);
-        uSep001.setBounds(uSep001Area);
+
+        uSep001.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &initLfoToOplBtn });
         layoutMain({ .mainRect = rect, .component = &initLfoToOpllBtn });
-        auto uSep002Area = rect.removeFromTop(4);
-        uSep002.setBounds(uSep002Area);
+
+        uSep002.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOplBtn });
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl12Btn });
         layoutMain({ .mainRect = rect, .component = &copyOpParamToOpl34Btn });
-        auto uSep003Area = rect.removeFromTop(4);
-        uSep003.setBounds(uSep003Area);
+
+        uSep003.layoutComponent(rect);
+
         layoutMain({ .mainRect = rect, .component = &copyOpParamBtn });
         layoutMain({ .mainRect = rect, .label = &copyOpFromSlider.label, .component = &copyOpFromSlider });
         layoutMain({ .mainRect = rect, .label = &copyOpToSlider.label, .component = &copyOpToSlider });
-        auto uSep004Area = rect.removeFromTop(4);
-        uSep004.setBounds(uSep004Area);
+
+        uSep004.layoutComponent(rect);
+
         ieOpLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpPitchEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieOpSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
+        ieOpSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpSsgSwPEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieOpChParam.layoutComponent(rect);
+        rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
-        auto uSep005Area = rect.removeFromTop(4);
-        uSep005.setBounds(uSep005Area);
+
+        uSep005.layoutComponent(rect);
+
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieChParam.layoutComponent(rect);
     }
 }
 
@@ -868,18 +869,7 @@ void GuiOpl3::layoutOpMaskCat(int opIndex, juce::Rectangle<int>& rect) {
 }
 
 void GuiOpl3::layoutQualityCat(juce::Rectangle<int>& rect) {
-    layoutMainCategory({ .mainRect = rect, .component = &qualityCat });
-
-    bool visibleQuality = qualityCat.isDetailVisible();
-
-    bitSelector.setVisibleWithLabel(visibleQuality);
-    rateSelector.setVisibleWithLabel(visibleQuality);
-
-    if (visibleQuality)
-    {
-        layoutMain({ .mainRect = rect, .label = &bitSelector.label, .component = &bitSelector });
-        layoutMain({ .mainRect = rect, .label = &rateSelector.label, .component = &rateSelector, });
-    }
+    qualityComponent.layoutComponent(rect);
 }
 
 void GuiOpl3::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
@@ -894,6 +884,7 @@ void GuiOpl3::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
     amd[opIndex].setVisibleWithLabel(visible);
     amdTo1[opIndex].setVisible(visible);
     amdTo48[opIndex].setVisible(visible);
+    lfoSep[opIndex].setVisible(visible);
     vib[opIndex].setVisible(visible);
     pms[opIndex].setVisibleWithLabel(visible);
     pmsTo64[opIndex].setVisible(visible);
@@ -908,6 +899,7 @@ void GuiOpl3::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .component = &amsTo37[opIndex] });
         layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
         layoutRowTwoComps({ .rect = rect, .comp1 = &amdTo1[opIndex], .comp2 = &amdTo48[opIndex] });
+        lfoSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &vib[opIndex] });
         layoutRow({ .rowRect = rect, .label = &pms[opIndex].label, .component = &pms[opIndex] });
         layoutRow({ .rowRect = rect, .component = &pmsTo64[opIndex] });
@@ -980,17 +972,29 @@ void GuiOpl3::setupGraph(int opIndex)
 {
     addAndMakeVisible(&opGraphs[opIndex]); // グラフを追加
 
-    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "Amp", .isReset = false, .isResized = false });
+    graphBtnAmp[opIndex].setup({ .parent = *this, .title = "AMP", .isReset = false, .isResized = false });
     graphBtnAmp[opIndex].setToggleState(true, juce::dontSendNotification); // デフォルトON
     graphBtnAmp[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Amp); };
 
-    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "Pitch", .isReset = false, .isResized = false });
+    graphBtnPitch[opIndex].setup({ .parent = *this, .title = "PIT", .isReset = false, .isResized = false });
     graphBtnPitch[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::Pitch); };
 
-    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG SW", .isReset = false, .isResized = false });
+    graphBtnSsg[opIndex].setup({ .parent = *this, .title = "SSG", .isReset = false, .isResized = false });
     graphBtnSsg[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw); };
 
-    auto repaintGraph = [this, opIndex]() { updateOpGraph(opIndex); };
+    graphBtnSsg11[opIndex].setup({ .parent = *this, .title = "S11", .isReset = false, .isResized = false });
+    graphBtnSsg11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSw11); };
+
+    graphBtnSsgP11[opIndex].setup({ .parent = *this, .title = "P11", .isReset = false, .isResized = false });
+    graphBtnSsgP11[opIndex].onClick = [this, opIndex] { setGraphMode(opIndex, GraphMode::SsgSwP11); };
+
+    auto repaintGraph = [this, opIndex]() {
+        if (this->isUpdatingGraph) return; // 既に更新中なら無視
+
+        this->isUpdatingGraph = true;
+        this->updateOpGraph(opIndex);
+        this->isUpdatingGraph = false;
+        };
 
     bypass[opIndex].onStateChange = repaintGraph;
     xof[opIndex].onStateChange = repaintGraph;
@@ -1004,9 +1008,10 @@ void GuiOpl3::setupGraph(int opIndex)
 
     pitchEnv[opIndex].setupGraph(repaintGraph);
     ssgSwEnv[opIndex].setupGraph(repaintGraph);
+    ssgSwEnv11[opIndex].setupGraph(repaintGraph);
+    ssgSwPEnv11[opIndex].setupGraph(repaintGraph);
 
-    addAndMakeVisible(graphSeparator[opIndex]);
-    graphSeparator[opIndex].setup({ .lineThick = 2.0f, .lineColour = juce::Colours::grey });
+    graphSeparator[opIndex].setupComponent(*this);
 }
 
 void GuiOpl3::setGraphMode(int opIndex, GraphMode mode)
@@ -1017,6 +1022,8 @@ void GuiOpl3::setGraphMode(int opIndex, GraphMode mode)
     graphBtnAmp[opIndex].setToggleState(mode == GraphMode::Amp, juce::dontSendNotification);
     graphBtnPitch[opIndex].setToggleState(mode == GraphMode::Pitch, juce::dontSendNotification);
     graphBtnSsg[opIndex].setToggleState(mode == GraphMode::SsgSw, juce::dontSendNotification);
+    graphBtnSsg11[opIndex].setToggleState(mode == GraphMode::SsgSw11, juce::dontSendNotification);
+    graphBtnSsgP11[opIndex].setToggleState(mode == GraphMode::SsgSwP11, juce::dontSendNotification);
 
     // モードが変わったらグラフを描画し直す
     updateOpGraph(opIndex);
@@ -1024,20 +1031,19 @@ void GuiOpl3::setGraphMode(int opIndex, GraphMode mode)
 
 void GuiOpl3::layoutOpGraph(int opIndex, juce::Rectangle<int>& rect)
 {
-    auto mainArea = rect.removeFromTop(Opl3GuiValue::ParamGroup::Graph::height + Opl3GuiValue::ParamGroup::Separator::height);
+    auto mainArea = rect.removeFromTop(Opl3GuiValue::ParamGroup::Graph::height + NormalSeparator::getHeight());
 
-    // 区切り線エリアを確保
-    auto separatorArea = mainArea.removeFromBottom(Opl3GuiValue::ParamGroup::Separator::height);
-
-    graphSeparator[opIndex].setBounds(separatorArea);
+    graphSeparator[opIndex].layoutComponentBottom(mainArea);
 
     // そのうち下部20pxをボタンエリアにする
     auto btnArea = mainArea.removeFromBottom(Opl3GuiValue::ParamGroup::Graph::ButtonHeight);
-    int btnWidth = btnArea.getWidth() / 3;
+    int btnWidth = btnArea.getWidth() / 5;
 
     graphBtnAmp[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
     graphBtnPitch[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
-    graphBtnSsg[opIndex].setBounds(btnArea);
+    graphBtnSsg[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsg11[opIndex].setBounds(btnArea.removeFromLeft(btnWidth));
+    graphBtnSsgP11[opIndex].setBounds(btnArea);
 
     // 残りをグラフエリアにする
     opGraphs[opIndex].setBounds(mainArea);
@@ -1055,8 +1061,12 @@ void GuiOpl3::updateOpGraph(int opIndex)
     // Helper: 幅の計算 (Amp 用)
     // -------------------------------------------------------------
     auto rateToWidth = [](float rateValue, float maxRate, float maxWidth = 150.0f) {
+        if (maxRate <= 0.0001f) return maxWidth;
+
         if (rateValue <= 0.0f) return maxWidth;
+
         float norm = 1.0f - (rateValue / maxRate);
+
         return maxWidth * norm;
         };
 
@@ -1083,6 +1093,18 @@ void GuiOpl3::updateOpGraph(int opIndex)
     // =============================================================
     else if (mode == GraphMode::SsgSw) {
         ssgSwEnv[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+    }
+    // =============================================================
+    // SSG SW Env 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSw11) {
+        ssgSwEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
+    }
+    // =============================================================
+    // SSG SW PEnv 11
+    // =============================================================
+    else if (mode == GraphMode::SsgSwP11) {
+        ssgSwPEnv11[opIndex].updateGraph(opGraphs[opIndex], p_curveCore, isCurveMode, posIdx);
     }
     // =============================================================
     // Amp Env
@@ -1209,8 +1231,8 @@ void GuiOpl3::setLevel(float level) {
 }
 
 void GuiOpl3::copyParams(CopyOpl3& copyObj) {
-    copyObj.quality.depth = bitSelector.getSelectedId();
-    copyObj.quality.rate = rateSelector.getSelectedId();
+    copyObj.quality.depth = qualityComponent.getBit();
+    copyObj.quality.rate = qualityComponent.getRate();
     copyObj.fmBase.level = levelComponent.getLevel();
     copyObj.fmBase.algorithm = algSelector.getSelectedId();
     copyObj.fmBase.feedback = feedbackSlider.getValue();
@@ -1247,8 +1269,8 @@ void GuiOpl3::copyOpParams(int p, CopyOpl3Op& copyObj) {
 }
 
 void GuiOpl3::pasteParams(CopyOpl3& copyObj) {
-    bitSelector.setSelectedId(copyObj.quality.depth, juce::sendNotification);
-    rateSelector.setSelectedId(copyObj.quality.rate, juce::sendNotification);
+    qualityComponent.setBit(copyObj.quality.depth);
+    qualityComponent.setRate(copyObj.quality.rate);
     levelComponent.setLevel(copyObj.fmBase.level);
     algSelector.setSelectedId(copyObj.fmBase.algorithm, juce::sendNotification);
     feedbackSlider.setValue(copyObj.fmBase.feedback, juce::sendNotification);
@@ -1390,8 +1412,8 @@ void GuiOpl3::importQualityParam() {
 
                 if (size < 2) return;
 
-                bitSelector.setSelectedItemIndex(lines[0].getIntValue(), juce::sendNotification);
-                rateSelector.setSelectedItemIndex(lines[1].getIntValue(), juce::sendNotification);
+                qualityComponent.setBit(lines[0].getIntValue());
+                qualityComponent.setRate(lines[1].getIntValue());
             }
         });
 }
@@ -1413,10 +1435,241 @@ void GuiOpl3::exportQualityParam() {
 
                 juce::String content = "";
 
-                content += juce::String(bitSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(rateSelector.getSelectedItemIndex()) + "\n";
+                content += juce::String(qualityComponent.getBit()) + "\n";
+                content += juce::String(qualityComponent.getRate()) + "\n";
 
                 file.replaceWithText(content);
             }
         });
+}
+
+void GuiOpl3::importSsgSwEnv11Param(int opIndex) {
+    ssgSwEnv11[opIndex].importParams();
+}
+
+void GuiOpl3::exportSsgSwEnv11Param(int opIndex) {
+    ssgSwEnv11[opIndex].exportParams();
+}
+
+void GuiOpl3::importSsgSwPEnv11Param(int opIndex) {
+    ssgSwPEnv11[opIndex].importParams();
+}
+
+void GuiOpl3::exportSsgSwPEnv11Param(int opIndex) {
+    ssgSwPEnv11[opIndex].exportParams();
+}
+
+void GuiOpl3::importChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opl3Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Algorithm & Feedback
+                algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+                feedbackSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
+
+                updateAlgorithmDisplay();
+
+                // Components
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                for (int i = 0; i < Opl3PrValue::ops; i++) {
+                    getImportingOpParams(i, lines, index);
+                }
+            }
+        });
+
+}
+
+void GuiOpl3::exportChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opl3Param), Io::ExtensionGlob::opl3Param);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                // Level
+                content += levelComponent.getExportedParams();
+
+                // Algorithm & Feedback
+                content += juce::String(algSelector.getSelectedId()) + "\n";
+                content += juce::String(feedbackSlider.getValue(), 0) + "\n";
+
+                // Components
+                content += qualityComponent.getExportedParams();
+                content += unisonComponent.getExportedParams();
+
+                for (int i = 0; i < Opl3PrValue::ops; i++) {
+                    content += setExportedOpParams(i);
+                }
+
+                file.replaceWithText(content);
+            }
+        });
+
+}
+
+void GuiOpl3::importOpChParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opl3OpParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+
+                updateAlgorithmDisplay();
+
+                getImportingOpParams(opIndex, lines, index);
+            }
+        });
+
+}
+
+void GuiOpl3::exportOpChParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::exportChannelParamFile, defaultDir.getChildFile("default." + Io::Extension::opl3OpParam), Io::ExtensionGlob::opl3OpParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::String content = "";
+
+                content += setExportedOpParams(opIndex);
+
+                file.replaceWithText(content);
+            }
+        });
+}
+
+void GuiOpl3::getImportingOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Mul
+    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // Env
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgDr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale & EG Type
+    ksr[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    ksl[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    egType[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Optional / Mask
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Wave Shape
+    eg[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // LFO (AM / VIB)
+    am[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    amd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    ams[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    vib[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    pmd[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    pms[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Components
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
+}
+
+juce::String GuiOpl3::setExportedOpParams(int opIndex) {
+    juce::String content = "";
+    // Mul
+    content += juce::String(mul[opIndex].getSelectedId()) + "\n";
+
+    // Env
+    content += juce::String(rgAr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgDr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgSl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgRr[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(rgTl[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Key Scale & EG Type
+    content += juce::String(ksr[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(ksl[opIndex].getSelectedId()) + "\n";
+    content += juce::String(egType[opIndex].getToggleState() ? 1 : 0) + "\n";
+
+    // Optional / Mask
+    content += juce::String(bypass[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(kor[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(xof[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(mask[opIndex].getToggleState() ? 1 : 0) + "\n";
+
+    // Wave Shape
+    content += juce::String(eg[opIndex].getSelectedId()) + "\n";
+
+    // LFO (AM / VIB)
+    content += juce::String(am[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(amd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(ams[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(vib[opIndex].getToggleState() ? 1 : 0) + "\n";
+    content += juce::String(pmd[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+    content += juce::String(pms[opIndex].getValue(), Global::floatDecimalPlaces) + "\n";
+
+    // Components
+    content += pitchEnv[opIndex].getExportedParams();
+    content += ssgSwEnv[opIndex].getExportedParams();
+    content += ssgSwEnv11[opIndex].getExportedParams();
+    content += ssgSwPEnv11[opIndex].getExportedParams();
+
+    return content;
 }

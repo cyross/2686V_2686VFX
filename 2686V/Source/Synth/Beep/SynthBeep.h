@@ -7,6 +7,8 @@
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
@@ -62,6 +64,8 @@ private:
     SsgSwEnv m_ssgSwEnv;
     Opzx7Detune m_detune;
     Opzx7LfoCore m_lfo;
+    SsgSwEnv11 m_ssgSwEnv11;
+    SsgSwPEnv11 m_ssgSwPenv11;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

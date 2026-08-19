@@ -521,3 +521,7 @@ void FmRgAdddr::setParamMax(int ar, int d1r, int d2r, int d1l, int rr, int tl) {
     rrMax = rr;
     tlMax = tl;
 }
+
+void FmRgAdddr::bypassedReleasedProcess() {
+    this->state = State::Idle;
+}

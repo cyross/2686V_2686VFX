@@ -34,6 +34,8 @@
 
 #include "./PluginProcessorStateKey.h"
 
+#include "../../Gui/Components/AlgMatrix/AlgMatrixState.h"
+
 class RetroSynthesiser : public juce::Synthesiser
 {
 private:
@@ -121,9 +123,9 @@ public:
 		switch (currentParams->mode) {
 		case OscMode::OPNA:
             voiceUnison(
-                currentParams->opna.unisonVoices,
-                currentParams->opna.unisonDetuneCents,
-                currentParams->opna.unisonSpread,
+                currentParams->opna.unison.voices,
+                currentParams->opna.unison.detuneCents,
+                currentParams->opna.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -132,9 +134,9 @@ public:
             break;
 		case OscMode::OPN:
             voiceUnison(
-                currentParams->opn.unisonVoices,
-                currentParams->opn.unisonDetuneCents,
-                currentParams->opn.unisonSpread,
+                currentParams->opn.unison.voices,
+                currentParams->opn.unison.detuneCents,
+                currentParams->opn.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -143,9 +145,9 @@ public:
             break;
 		case OscMode::OPL:
             voiceUnison(
-                currentParams->opl.unisonVoices,
-                currentParams->opl.unisonDetuneCents,
-                currentParams->opl.unisonSpread,
+                currentParams->opl.unison.voices,
+                currentParams->opl.unison.detuneCents,
+                currentParams->opl.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -154,9 +156,9 @@ public:
             break;
 		case OscMode::OPL3:
             voiceUnison(
-                currentParams->opl3.unisonVoices,
-                currentParams->opl3.unisonDetuneCents,
-                currentParams->opl3.unisonSpread,
+                currentParams->opl3.unison.voices,
+                currentParams->opl3.unison.detuneCents,
+                currentParams->opl3.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -165,9 +167,9 @@ public:
             break;
 		case OscMode::OPM:
             voiceUnison(
-                currentParams->opm.unisonVoices,
-                currentParams->opm.unisonDetuneCents,
-                currentParams->opm.unisonSpread,
+                currentParams->opm.unison.voices,
+                currentParams->opm.unison.detuneCents,
+                currentParams->opm.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -176,9 +178,9 @@ public:
             break;
 		case OscMode::OPZX7:
             voiceUnison(
-                currentParams->opzx7.unisonVoices,
-                currentParams->opzx7.unisonDetuneCents,
-                currentParams->opzx7.unisonSpread,
+                currentParams->opzx7.unison.voices,
+                currentParams->opzx7.unison.detuneCents,
+                currentParams->opzx7.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -187,9 +189,9 @@ public:
             break;
 		case OscMode::SSG:
             voiceUnison(
-                currentParams->ssg.unisonVoices,
-                currentParams->ssg.unisonDetuneCents,
-                currentParams->ssg.unisonSpread,
+                currentParams->ssg.unison.voices,
+                currentParams->ssg.unison.detuneCents,
+                currentParams->ssg.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -198,9 +200,9 @@ public:
             break;
 		case OscMode::WAVETABLE:
             voiceUnison(
-                currentParams->wt.unisonVoices,
-                currentParams->wt.unisonDetuneCents,
-                currentParams->wt.unisonSpread,
+                currentParams->wt.unison.voices,
+                currentParams->wt.unison.detuneCents,
+                currentParams->wt.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -209,9 +211,9 @@ public:
             break;
         case OscMode::WT2:
             voiceUnison(
-                currentParams->wt2.unisonVoices,
-                currentParams->wt2.unisonDetuneCents,
-                currentParams->wt2.unisonSpread,
+                currentParams->wt2.unison.voices,
+                currentParams->wt2.unison.detuneCents,
+                currentParams->wt2.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -220,9 +222,9 @@ public:
             break;
         case OscMode::RHYTHM:
             voiceUnison(
-                currentParams->rhythm.unisonVoices,
-                currentParams->rhythm.unisonDetuneCents,
-                currentParams->rhythm.unisonSpread,
+                currentParams->rhythm.unison.voices,
+                currentParams->rhythm.unison.detuneCents,
+                currentParams->rhythm.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -231,9 +233,9 @@ public:
             break;
 		case OscMode::ADPCM:
             voiceUnison(
-                currentParams->adpcm.unisonVoices,
-                currentParams->adpcm.unisonDetuneCents,
-                currentParams->adpcm.unisonSpread,
+                currentParams->adpcm.unison.voices,
+                currentParams->adpcm.unison.detuneCents,
+                currentParams->adpcm.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -242,9 +244,9 @@ public:
             break;
 		case OscMode::BEEP:
             voiceUnison(
-                currentParams->beep.unisonVoices,
-                currentParams->beep.unisonDetuneCents,
-                currentParams->beep.unisonSpread,
+                currentParams->beep.unison.voices,
+                currentParams->beep.unison.detuneCents,
+                currentParams->beep.unison.spread,
                 midiChannel,
                 midiNoteNumber,
                 targetVelocity,
@@ -287,9 +289,9 @@ public:
                 switch (currentParams->mode) {
                 case OscMode::OPNA:
                     voiceUnison(
-                        currentParams->opna.unisonVoices,
-                        currentParams->opna.unisonDetuneCents,
-                        currentParams->opna.unisonSpread,
+                        currentParams->opna.unison.voices,
+                        currentParams->opna.unison.detuneCents,
+                        currentParams->opna.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -298,9 +300,9 @@ public:
                     break;
                 case OscMode::OPN:
                     voiceUnison(
-                        currentParams->opn.unisonVoices,
-                        currentParams->opn.unisonDetuneCents,
-                        currentParams->opn.unisonSpread,
+                        currentParams->opn.unison.voices,
+                        currentParams->opn.unison.detuneCents,
+                        currentParams->opn.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -309,9 +311,9 @@ public:
                     break;
                 case OscMode::OPL:
                     voiceUnison(
-                        currentParams->opl.unisonVoices,
-                        currentParams->opl.unisonDetuneCents,
-                        currentParams->opl.unisonSpread,
+                        currentParams->opl.unison.voices,
+                        currentParams->opl.unison.detuneCents,
+                        currentParams->opl.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -320,9 +322,9 @@ public:
                     break;
                 case OscMode::OPL3:
                     voiceUnison(
-                        currentParams->opl3.unisonVoices,
-                        currentParams->opl3.unisonDetuneCents,
-                        currentParams->opl3.unisonSpread,
+                        currentParams->opl3.unison.voices,
+                        currentParams->opl3.unison.detuneCents,
+                        currentParams->opl3.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -331,9 +333,9 @@ public:
                     break;
                 case OscMode::OPM:
                     voiceUnison(
-                        currentParams->opm.unisonVoices,
-                        currentParams->opm.unisonDetuneCents,
-                        currentParams->opm.unisonSpread,
+                        currentParams->opm.unison.voices,
+                        currentParams->opm.unison.detuneCents,
+                        currentParams->opm.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -342,9 +344,9 @@ public:
                     break;
                 case OscMode::OPZX7:
                     voiceUnison(
-                        currentParams->opzx7.unisonVoices,
-                        currentParams->opzx7.unisonDetuneCents,
-                        currentParams->opzx7.unisonSpread,
+                        currentParams->opzx7.unison.voices,
+                        currentParams->opzx7.unison.detuneCents,
+                        currentParams->opzx7.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -353,9 +355,9 @@ public:
                     break;
                 case OscMode::SSG:
                     voiceUnison(
-                        currentParams->ssg.unisonVoices,
-                        currentParams->ssg.unisonDetuneCents,
-                        currentParams->ssg.unisonSpread,
+                        currentParams->ssg.unison.voices,
+                        currentParams->ssg.unison.detuneCents,
+                        currentParams->ssg.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -364,9 +366,9 @@ public:
                     break;
                 case OscMode::WAVETABLE:
                     voiceUnison(
-                        currentParams->wt.unisonVoices,
-                        currentParams->wt.unisonDetuneCents,
-                        currentParams->wt.unisonSpread,
+                        currentParams->wt.unison.voices,
+                        currentParams->wt.unison.detuneCents,
+                        currentParams->wt.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -375,9 +377,9 @@ public:
                     break;
                 case OscMode::WT2:
                     voiceUnison(
-                        currentParams->wt2.unisonVoices,
-                        currentParams->wt2.unisonDetuneCents,
-                        currentParams->wt2.unisonSpread,
+                        currentParams->wt2.unison.voices,
+                        currentParams->wt2.unison.detuneCents,
+                        currentParams->wt2.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -386,9 +388,9 @@ public:
                     break;
                 case OscMode::RHYTHM:
                     voiceUnison(
-                        currentParams->rhythm.unisonVoices,
-                        currentParams->rhythm.unisonDetuneCents,
-                        currentParams->rhythm.unisonSpread,
+                        currentParams->rhythm.unison.voices,
+                        currentParams->rhythm.unison.detuneCents,
+                        currentParams->rhythm.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -397,9 +399,9 @@ public:
                     break;
                 case OscMode::ADPCM:
                     voiceUnison(
-                        currentParams->adpcm.unisonVoices,
-                        currentParams->adpcm.unisonDetuneCents,
-                        currentParams->adpcm.unisonSpread,
+                        currentParams->adpcm.unison.voices,
+                        currentParams->adpcm.unison.detuneCents,
+                        currentParams->adpcm.unison.spread,
                         midiChannel,
                         previousNote,
                         targetVelocity,
@@ -408,9 +410,9 @@ public:
                     break;
                 case OscMode::BEEP:
                     voiceUnison(
-                        currentParams->beep.unisonVoices,
-                        currentParams->beep.unisonDetuneCents,
-                        currentParams->beep.unisonSpread,
+                        currentParams->beep.unison.voices,
+                        currentParams->beep.unison.detuneCents,
+                        currentParams->beep.unison.spread,
                         midiChannel,
                         midiNoteNumber,
                         targetVelocity,
@@ -461,7 +463,6 @@ private:
     AdpcmProcessor prAdpcm;
     BeepProcessor prBeep;
     FxProcessor prFx;
-    CurveProcessor prCurve;
 
     CurveCore m_curveCore;
 
@@ -491,6 +492,8 @@ private:
 public:
     AudioPlugin2686V();
     ~AudioPlugin2686V() override;
+
+    CurveProcessor prCurve;
 
     static inline constexpr int previewBufferSize = 200;
 
@@ -598,6 +601,8 @@ public:
 	juce::String defaultWavetableDir; // For Wavetables
     juce::String defaultFxOrderDir; // For FX Order
     juce::String defaultFxParamDir;
+    juce::String defaultChannelParamDir;
+    juce::String defaultCurveParamDir;
     juce::String defaultLfoParamDir;
     juce::String defaultAmpEnvParamDir;
     juce::String defaultPitchEnvParamDir;
@@ -636,6 +641,24 @@ public:
     bool isPlaying();
     bool isMidiProcessing();
     OscMode getCurrentMode();
+public:
+    // =========================================================================
+    // OPZX7S アルゴリズムマトリックス用インターフェース
+    // =========================================================================
+    void setOpzx7AlgMode(int mode);
+    int getOpzx7AlgMode() const;
+
+    void setOpzx7AlgMatrix(const AlgMatrixState& state);
+    AlgMatrixState getOpzx7AlgMatrix();
+
+    // プリセットロード時などにAPVTSからキャッシュを復元するための関数
+    void updateAlgMatrixCacheFromState();
+
+private:
+    // オーディオスレッドから安全に読み取るためのキャッシュ
+    std::atomic<int> m_opzx7AlgMode{ 0 };
+    AlgMatrixState m_opzx7AlgMatrixState;
+    juce::CriticalSection m_matrixLock; // マトリックス配列読み書き時のスレッドセーフ用
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
 };

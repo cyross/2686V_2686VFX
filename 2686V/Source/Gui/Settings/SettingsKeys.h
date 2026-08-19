@@ -13,6 +13,8 @@ namespace SettingsKey
 	static inline const juce::String defaultWavetableDir = "defaultWavetableDir";
 	static inline const juce::String defaultFxOrderDir = "defaultFxOrderDir";
 	static inline const juce::String defaultFxParamDir = "defaultFxParamDir";
+	static inline const juce::String defaultChannelParamDir = "defaultChannelParamDir";
+	static inline const juce::String defaultCurveParamDir = "defaultCurveParamDir";
 	static inline const juce::String defaultLfoParamDir = "defaultLfoParamDir";
 	static inline const juce::String defaultAmpEnvParamDir = "defaultAmpEnvParamDir";
 	static inline const juce::String defaultPitchEnvParamDir = "defaultPitchEnvParamDir";

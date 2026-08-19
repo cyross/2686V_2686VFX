@@ -8,6 +8,7 @@ Wt2Core::Wt2Core() : SynthCore()
     m_sourceWave.resize(256);
     m_tableSizes = { 32, 64, 128, 256 };
     m_customWaves = { m_customWaveCache32.data(), m_customWaveCache64.data(), m_customWaveCache128.data(), m_customWaveCache256.data() };
+
     generateWaveform(0); // Default Sine
 }
 
@@ -16,6 +17,8 @@ void Wt2Core::setCurveCore(CurveCore* p_curveCore)
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void Wt2Core::prepare(double sampleRate)
@@ -25,6 +28,8 @@ void Wt2Core::prepare(double sampleRate)
     m_adsr.prepare(m_sampleRate);
     m_pitchAdsr.prepare(0, m_sampleRate);
     m_ssgSwEnv.prepare(0, m_sampleRate);
+    m_ssgSwEnv11.prepare(0, m_sampleRate);
+    m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_targetRate = getTargetRate(m_rateIndex);
 
     m_lfo.prepare(m_targetRate);
@@ -39,6 +44,8 @@ void Wt2Core::setSampleRate(double sampleRate)
     m_adsr.updateSampleRate(m_sampleRate);
 	m_pitchAdsr.updateSampleRate(m_sampleRate);
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -47,7 +54,7 @@ void Wt2Core::setParameters(const SynthParams& params)
 {
     m_level = params.wt2.level;
 
-    m_fixMode.setParameters(params.wt2.fixedMode, params.wt2.fixedFreq);
+    m_fixMode.setParameters(params.wt2.fix);
 
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
@@ -55,28 +62,16 @@ void Wt2Core::setParameters(const SynthParams& params)
     m_adsr.setParameters(params.wt2.adsr);
     m_pitchAdsr.setParameters(params.wt2.pitchAdsr);
 	m_ssgSwEnv.setParameters(params.wt2.ssgSwEnv);
-	m_detune.setParameters(params.wt2.detune, params.wt2.detune2, params.wt2.detune3, params.wt2.multiple, params.wt2.multipleRatio);
-    m_lfo.setParameters(
-        params.wt2.lfoPmSyncDelay,
-        params.wt2.lfoAmSyncDelay,
-        params.wt2.lfoPmEnable,
-        params.wt2.lfoAmEnable,
-        params.wt2.lfoPmFreq,
-        params.wt2.lfoAmFreq,
-        params.wt2.lfoPmWave,
-        params.wt2.lfoAmWave,
-        params.wt2.lfoPms,
-        params.wt2.lfoPmd,
-        params.wt2.lfoAms,
-        params.wt2.lfoAmd,
-        params.wt2.lfoAmSmRt
-    );
+    m_ssgSwEnv11.setParameters(params.wt2.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.wt2.ssgSwPEnv11);
+    m_detune.setParameters(params.wt2.detune);
+    m_lfo.setParameters(params.wt2.lfo);
 
     // Bit Depth & Table Size
-    m_quantizeSteps = getTargetBitDepth(params.wt2.bitDepth);
+    m_quantizeSteps = getTargetBitDepth(params.wt2.quality.bit);
 
-    if (m_rateIndex != params.wt2.rateIndex) {
-        m_rateIndex = params.wt2.rateIndex;
+    if (m_rateIndex != params.wt2.quality.rate) {
+        m_rateIndex = params.wt2.quality.rate;
 
         m_targetRate = getTargetRate(m_rateIndex);
 
@@ -114,9 +109,9 @@ void Wt2Core::setParameters(const SynthParams& params)
         generateWaveform(m_waveform);
     }
 
-    m_modEnable = params.wt2.modEnable;
-    m_modDepth = params.wt2.modDepth;
-    m_modSpeed = params.wt2.modSpeed;
+    m_modEnable = params.wt2.mod.enable;
+    m_modDepth = params.wt2.mod.depth;
+    m_modSpeed = params.wt2.mod.speed;
 
     m_pitchResetOnLegato = params.pitchResetOnLegato;
 
@@ -192,10 +187,22 @@ void Wt2Core::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            m_ssgSwEnv11.noteOn();
+        }
+
+        if (!m_ssgSwPenv11.isBypass()) {
+            m_ssgSwPenv11.noteOn();
+        }
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 }
 
@@ -209,11 +216,19 @@ void Wt2Core::noteOff()
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (!m_ssgSwEnv11.isBypass()) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (!m_ssgSwPenv11.isBypass()) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
 bool Wt2Core::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying();
 }
 
 // ピッチベンド (0 - 16383, Center=8192)
@@ -246,43 +261,66 @@ void Wt2Core::setPitchBendRatio(float ratio)
 
 float Wt2Core::getSample()
 {
-    if (!isPlaying() && !m_adsr.isBypass()) {
-        if (m_pitchAdsr.isBypass()) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    // すべてのアンプエンベロープがバイパスされているかどうかを判定
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
-        if (m_ssgSwEnv.isBypass()) {
+    if (isAllAmpBypassed) {
+        // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
+        // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
             m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_pitchAdsr.bypassedReleasedProcess();
+            m_ssgSwPenv11.bypassedReleasedProcess();
+            return 0.0f;
         }
-
+    }
+    else if (!isPlaying()) {
+        // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
+        // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
+        m_pitchAdsr.bypassedReleasedProcess();
+        m_ssgSwPenv11.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
-    // --- ADSR & SwEnv Gate Logic ---
-    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypass()) {
-        m_currentLevel = m_adsr.process(m_currentLevel);
-        finalEnv *= m_currentLevel; // 掛け算
-    }
-    else {
-        if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-        else {
+    if (!isAllAmpBypassed) {
+        // 1. ADSR処理
+        if (!m_adsr.isBypass()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
-            finalEnv *= m_currentLevel; // 掛け算
+            finalEnv *= m_currentLevel;
+        }
+        else {
+            if (m_adsr.isRelease()) {
+                m_adsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_adsr.process(m_currentLevel);
+                finalEnv *= m_currentLevel;
+            }
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypass()) {
+            finalEnv *= m_ssgSwEnv.process();
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (!m_ssgSwEnv11.isBypass()) {
+            finalEnv *= m_ssgSwEnv11.process();
+        }
+        else {
+            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
         }
     }
 
-    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypass()) {
-        finalEnv *= m_ssgSwEnv.process(); // 掛け算
-    }
-    else {
-        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
-    }
-
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+    newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
     // --- Sample Rate Emulation ---
     double targetRate = getTargetRate(m_rateIndex);

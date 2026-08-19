@@ -1,18 +1,20 @@
 ﻿#include "./SynthOpmOp.h"
-#include "../../../Processor/Opm/ProcessorOpmValues.h"
+#include "../../../Core/Processor/ProcessorValues.h"
 
 void OpmOperator::prepare(int opIndex, double sampleRate) {
     m_ampAdsr.prepare(opIndex, sampleRate);
     m_pitchAdsr.prepare(opIndex, sampleRate);
     m_ssgSwEnv.prepare(opIndex, sampleRate);
+    m_ssgSwEnv11.prepare(opIndex, sampleRate);
+    m_ssgSwPenv11.prepare(opIndex, sampleRate);
 
     m_ampAdsr.setParamMax(
-        OpmPrValue::Op::RgAdsr::Ar::max,
-        OpmPrValue::Op::RgAdsr::D1r::max,
-        OpmPrValue::Op::RgAdsr::D2r::max,
-        OpmPrValue::Op::RgAdsr::D1l::max,
-        OpmPrValue::Op::RgAdsr::Rr::max,
-        OpmPrValue::Op::RgAdsr::Tl::max
+        CPV::OpmRg::Ar::max,
+        CPV::OpmRg::D1r::max,
+        CPV::OpmRg::D2r::max,
+        CPV::OpmRg::D1l::max,
+        CPV::OpmRg::Rr::max,
+        CPV::OpmRg::Tl::max
     );
 }
 
@@ -21,20 +23,24 @@ void OpmOperator::setCurveCore(CurveCore* p_curveCore)
     m_ampAdsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void OpmOperator::setParameters(const OpmOpParams& params, int feedback)
 {
     m_params = params;
     m_feedback = feedback;
-    m_ssgEgFreq = 1.0f;
-    m_params.ssgEg = 0;
+    m_params.se = params.se;
+    m_params.se.freq = 1.0f;
     m_params.waveSelect = 0;
     m_ampAdsr.setParameters(params.m_adsrParams);
     m_pitchAdsr.setParameters(params.pitchAdsr);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_detune.setParameters(params.detune, params.detune2, params.multiple, params.multipleRatio);
-	m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_detune.setParameters(params.detune);
+	m_fixMode.setParameters(params.fix);
 }
 
 void OpmOperator::setSampleRate(double sampleRate)
@@ -44,6 +50,8 @@ void OpmOperator::setSampleRate(double sampleRate)
     m_ampAdsr.updateTargetSampleRate(sampleRate);
     m_pitchAdsr.updateSampleRate(sampleRate);
     m_ssgSwEnv.updateTargetSampleRate(sampleRate);
+    m_ssgSwEnv11.updateSampleRate(sampleRate);
+    m_ssgSwPenv11.updateSampleRate(sampleRate);
 }
 
 void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -88,17 +96,29 @@ void OpmOperator::noteOn(float frequency, float velocity, int noteNumber, bool i
             m_targetLevel = velocity;
         }
 
-        if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
+        if (m_params.pitchEnvEnable && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
 
         if (m_params.ssgEnvEnable) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (m_params.ssgEnv11Enable && !m_pitchResetOnLegato) {
+            m_ssgSwPenv11.noteOn();
+        }
+
+        if (m_params.ssgEnv11Enable) {
+            m_ssgSwEnv11.noteOn();
+        }
     }
 
-    if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
+    if (m_params.pitchEnvEnable && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (m_params.ssgPEnv11Enable && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 
     // KeyScale はピッチ(音程)に依存するため、レガート時も必ず更新する
@@ -120,34 +140,86 @@ void OpmOperator::noteOff()
     if (m_params.ssgEnvEnable) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (m_params.ssgEnv11Enable) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (m_params.ssgPEnv11Enable) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
 void OpmOperator::getSample(float& output, float modulator, float feedbackModulator, const OpmLfoCore& hwLfo, float modWheel)
 {
-    if (!isPlaying() && !m_ampAdsr.isBypass()) {
-        if (m_params.pitchEnvEnable) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    bool allAmpBypassed = isAllAmpBypassed();
 
-        if (m_params.ssgEnvEnable) {
-            m_ssgSwEnv.bypassedReleasedProcess();
+    if (allAmpBypassed) {
+        // すべてのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作。
+        // リリース状態になったら即座にミュートして終了する。
+        if (m_ampAdsr.isRelease() || (m_params.ssgEnvEnable && m_ssgSwEnv.isRelease()) || (m_params.ssgEnv11Enable && m_ssgSwEnv11.isRelease())) {
+            m_ampAdsr.bypassedReleasedProcess();
+            if (m_params.ssgEnvEnable) m_ssgSwEnv.bypassedReleasedProcess();
+            if (m_params.ssgEnv11Enable) m_ssgSwEnv11.bypassedReleasedProcess();
+
+            if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
+            if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
+
+            output = 0.0f;
+            m_fb1 = 0.0f;
+            m_fb2 = 0.0f;
+            return;
         }
+    }
+    else if (!isPlaying()) {
+        // 有効なエンベロープがあり、かつ全て再生終了（音が減衰しきった）時は、
+        // ピッチエンベロープなども状態をクリアして安全に停止させる
+        if (m_params.pitchEnvEnable) m_pitchAdsr.bypassedReleasedProcess();
+        if (m_params.ssgPEnv11Enable) m_ssgSwPenv11.bypassedReleasedProcess();
 
         output = 0.0f;
-        // 念のためフィードバックバッファもクリアしておく
         m_fb1 = 0.0f;
         m_fb2 = 0.0f;
-
         return;
     }
 
-    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
-    float envVal = m_currentLevel;
+    float envVal = 1.0f;
 
-    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (m_params.ssgEnvEnable) {
-        envVal *= m_ssgSwEnv.process(); // 掛け算
+    if (!allAmpBypassed) {
+        // 1. ADSR処理
+        if (!m_ampAdsr.isBypass()) {
+            m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+            envVal *= m_currentLevel;
+        }
+        else {
+            if (m_ampAdsr.isRelease()) {
+                m_ampAdsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_ampAdsr.updateEnvelopeState(m_currentLevel);
+                envVal *= m_currentLevel;
+            }
+        }
+
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (m_params.ssgEnvEnable) {
+            if (!m_ssgSwEnv.isBypass()) {
+                envVal *= m_ssgSwEnv.process();
+            }
+            else if (m_ssgSwEnv.isRelease()) {
+                m_ssgSwEnv.bypassedReleasedProcess();
+            }
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (m_params.ssgEnv11Enable) {
+            if (!m_ssgSwEnv11.isBypass()) {
+                envVal *= m_ssgSwEnv11.process();
+            }
+            else if (m_ssgSwEnv11.isRelease()) {
+                m_ssgSwEnv11.bypassedReleasedProcess();
+            }
+        }
     }
 
     // ========================================================
@@ -158,7 +230,7 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     // ① グローバルAM (G-AMスイッチがONの時のみ受け取る)
     if (hwLfo.amEnable)
     {
-        totalAmDepth += (m_params.amsEnable ? hwLfo.ams : 1.0f) * hwLfo.depthDb;
+        totalAmDepth += (m_params.lfo.amsEnable ? hwLfo.ams : 1.0f) * hwLfo.depthDb;
     }
 
     // 上限を1.0(100%)でクリップ
@@ -195,6 +267,7 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     // ========================================================
     float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;
     float currentPhaseDelta = m_params.pitchEnvEnable ? m_pitchAdsr.process(basePhaseDelta) : basePhaseDelta;
+    currentPhaseDelta = m_params.ssgPEnv11Enable ? m_ssgSwPenv11.process(currentPhaseDelta) : currentPhaseDelta;
 
     // 位相の変調
     float feedbackPhaseOffset = 0.0f;
@@ -215,11 +288,8 @@ void OpmOperator::getSample(float& output, float modulator, float feedbackModula
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
-    // フィードバックバッファには「エンベロープ適用前」の純粋な値を保存する！
-    if (!m_isExternalFeedback) {
-        m_fb2 = m_fb1;
-        m_fb1 = rawWave; // outputではなくrawWaveを保存！
-    }
+    m_fb2 = m_fb1;
+    m_fb1 = rawWave; // outputではなくrawWaveを保存！
 
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;

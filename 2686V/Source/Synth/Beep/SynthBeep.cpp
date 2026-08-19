@@ -8,7 +8,9 @@ void BeepCore::prepare(double sampleRate) {
 	m_adsr.prepare(44100.0);
     m_pitchAdsr.prepare(0, 44100.0);
     m_ssgSwEnv.prepare(0, 44100.0);
-    m_fixMode.setParameters(false, 2000.0f);
+    m_ssgSwEnv11.prepare(0, 44100.0);
+    m_ssgSwPenv11.prepare(0, 44100.0);
+    m_fixMode.setParameters({ .enable = false, .freq = 2000.0f });
     m_lfo.prepare(44100.0);
 }
 
@@ -17,6 +19,8 @@ void BeepCore::setCurveCore(CurveCore* p_curveCore)
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
     m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void BeepCore::setSampleRate(double sampleRate) {
@@ -25,6 +29,8 @@ void BeepCore::setSampleRate(double sampleRate) {
     m_adsr.updateSampleRate(sampleRate);
 	m_pitchAdsr.updateSampleRate(sampleRate);
 	m_ssgSwEnv.updateSampleRate(sampleRate);
+    m_ssgSwEnv11.updateSampleRate(sampleRate);
+    m_ssgSwPenv11.updateSampleRate(sampleRate);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
@@ -38,24 +44,11 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_adsr.setParameters(params.beep.adsr);
     m_pitchAdsr.setParameters(params.beep.pitchAdsr);
     m_ssgSwEnv.setParameters(params.beep.ssgSwEnv);
-    m_detune.setParameters(params.beep.detune, params.beep.detune2, params.beep.detune3, params.beep.multiple, params.beep.multipleRatio);
-
-	m_fixMode.setParameters(params.beep.fixedMode, params.beep.fixedFreq);
-    m_lfo.setParameters(
-        params.beep.lfoPmSyncDelay,
-        params.beep.lfoAmSyncDelay,
-        params.beep.lfoPmEnable,
-        params.beep.lfoAmEnable,
-        params.beep.lfoPmFreq,
-        params.beep.lfoAmFreq,
-        params.beep.lfoPmWave,
-        params.beep.lfoAmWave,
-        params.beep.lfoPms,
-        params.beep.lfoPmd,
-        params.beep.lfoAms,
-        params.beep.lfoAmd,
-        params.beep.lfoAmSmRt
-    );
+    m_ssgSwEnv11.setParameters(params.beep.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.beep.ssgSwPEnv11);
+    m_detune.setParameters(params.beep.detune);
+    m_fixMode.setParameters(params.beep.fix);
+    m_lfo.setParameters(params.beep.lfo);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -117,11 +110,24 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         if (!m_ssgSwEnv.isBypass()) {
             m_ssgSwEnv.noteOn();
         }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            m_ssgSwEnv11.noteOn();
+        }
+
+        if (!m_ssgSwPenv11.isBypass()) {
+            m_ssgSwPenv11.noteOn();
+        }
+
         m_lfo.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 }
 
@@ -134,9 +140,17 @@ void BeepCore::noteOff() {
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (!m_ssgSwEnv11.isBypass()) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (!m_ssgSwPenv11.isBypass()) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
-bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
+bool BeepCore::isPlaying() const { return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying(); }
 
 void BeepCore::setPitchBend(int pitchWheelValue) {
     float norm = (float)(pitchWheelValue - 8192) / 8192.0f;
@@ -147,46 +161,69 @@ void BeepCore::setPitchBend(int pitchWheelValue) {
 }
 
 float BeepCore::getSample() {
-    if (!isPlaying() && !m_adsr.isBypass()) {
-        if (m_pitchAdsr.isBypass()) {
-            m_pitchAdsr.bypassedReleasedProcess();
-        }
+    // すべてのアンプエンベロープがバイパスされているかどうかを判定
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
-        if (m_ssgSwEnv.isBypass()) {
+    if (isAllAmpBypassed) {
+        // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
+        // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
             m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_pitchAdsr.bypassedReleasedProcess();
+            m_ssgSwPenv11.bypassedReleasedProcess();
+            return 0.0f;
         }
-
+    }
+    else if (!isPlaying()) {
+        // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
+        // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
+        m_pitchAdsr.bypassedReleasedProcess();
+        m_ssgSwPenv11.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
-    // --- ADSR & SwEnv Gate Logic ---
-    // 1. 従来のADSR処理 (内部の m_currentLevel はADSR専用として維持する)
-    if (!m_adsr.isBypass()) {
-        m_currentLevel = m_adsr.process(m_currentLevel);
-        finalEnv *= m_currentLevel; // 掛け算
-    }
-    else {
-        if (m_adsr.isRelease()) m_adsr.bypassedReleasedProcess();
-        else {
+    if (!isAllAmpBypassed) {
+        // 1. ADSR処理
+        if (!m_adsr.isBypass()) {
             m_currentLevel = m_adsr.process(m_currentLevel);
-            finalEnv *= m_currentLevel; // 掛け算
+            finalEnv *= m_currentLevel;
         }
-    }
+        else {
+            if (m_adsr.isRelease()) {
+                m_adsr.bypassedReleasedProcess();
+            }
+            else {
+                m_currentLevel = m_adsr.process(m_currentLevel);
+                finalEnv *= m_currentLevel;
+            }
+        }
 
-    // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
-    if (!m_ssgSwEnv.isBypass()) {
-        finalEnv *= m_ssgSwEnv.process(); // 掛け算
-    }
-    else {
-        if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        // 2. SSGソフトウェアエンベロープ(SsgSwEnv)処理
+        if (!m_ssgSwEnv.isBypass()) {
+            finalEnv *= m_ssgSwEnv.process();
+        }
+        else {
+            if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        // 3. SSG Sw Env 11 処理
+        if (!m_ssgSwEnv11.isBypass()) {
+            finalEnv *= m_ssgSwEnv11.process();
+        }
+        else {
+            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
+        }
     }
 
     // 究極にシンプルな1-bit矩形波（50% Duty）
     float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
 
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
+    newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)

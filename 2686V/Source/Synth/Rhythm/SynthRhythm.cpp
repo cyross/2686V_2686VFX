@@ -11,6 +11,8 @@ void RhythmPad::prepare(double hostSampleRate)
 	m_adsr.prepare(m_sampleRate);
 	m_pitchAdsr.prepare(0, m_sampleRate);
     m_ssgSwEnv.prepare(0, m_sampleRate);
+    m_ssgSwEnv11.prepare(0, m_sampleRate);
+    m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
 }
@@ -19,6 +21,9 @@ void RhythmPad::setCurveCore(CurveCore* p_curveCore)
 {
     m_adsr.setCurveCore(p_curveCore);
     m_pitchAdsr.setCurveCore(p_curveCore);
+    m_ssgSwEnv.setCurveCore(p_curveCore);
+    m_ssgSwEnv11.setCurveCore(p_curveCore);
+    m_ssgSwPenv11.setCurveCore(p_curveCore);
 }
 
 void RhythmPad::setSampleRate(double sampleRate)
@@ -27,6 +32,8 @@ void RhythmPad::setSampleRate(double sampleRate)
     m_adsr.updateTargetSampleRate(m_sampleRate);
     m_pitchAdsr.updateTargetSampleRate(m_sampleRate);
     m_ssgSwEnv.updateSampleRate(m_sampleRate);
+    m_ssgSwEnv11.updateSampleRate(m_sampleRate);
+    m_ssgSwPenv11.updateSampleRate(m_sampleRate);
     m_noiseGen.updateTargetRate(m_sampleRate);
     m_lfo.updateTargetSampleRate(m_sampleRate);
 }
@@ -44,8 +51,8 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
 {
     m_noteNumber = params.noteNumber;
     m_level = params.level;
-    m_tone = params.tone;
-    m_mix = params.mix;
+    m_tone = params.tn.tone;
+    m_mix = params.tn.mix;
     m_pan = params.pan;
 
     if (m_pan == 0.5f) {
@@ -61,45 +68,33 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_isOneShot = params.isOneShot;
     if (!m_isOneShot) m_hasFinished = false;
 
-    m_pcmOffset = params.pcmOffset;
-    m_pcmRatio = params.pcmRatio;
+    m_pcmOffset = params.pcm.offset;
+    m_pcmRatio = params.pcm.ratio;
 
     m_adsr.setParameters(params.adsr);
     m_pitchAdsr.setParameters(params.pitchAdsr);
-    m_fixMode.setParameters(params.fixedMode, params.fixedFreq);
+    m_fixMode.setParameters(params.fix);
     m_ssgSwEnv.setParameters(params.ssgSwEnv);
-    m_detune.setParameters(params.detune, params.detune2, params.detune3, params.multiple, params.multipleRatio);
-    m_lfo.setParameters(
-        params.lfoPmSyncDelay,
-        params.lfoAmSyncDelay,
-        params.lfoPmEnable,
-        params.lfoAmEnable,
-        params.lfoPmFreq,
-        params.lfoAmFreq,
-        params.lfoPmWave,
-        params.lfoAmWave,
-        params.lfoPms,
-        params.lfoPmd,
-        params.lfoAms,
-        params.lfoAmd,
-        params.lfoAmSmRt
-    );
-    m_noiseGen.setParameters(params.noiseLevel, params.noiseFreq, false);
+    m_ssgSwEnv11.setParameters(params.ssgSwEnv11);
+    m_ssgSwPenv11.setParameters(params.ssgSwPEnv11);
+    m_detune.setParameters(params.detune);
+    m_lfo.setParameters(params.lfo);
+    m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
 
     bool needRefresh = false;
-    if (m_qualityMode != params.qualityMode) {
-        m_qualityMode = params.qualityMode;
+    if (m_qualityMode != params.quality.mode) {
+        m_qualityMode = params.quality.mode;
         needRefresh = true; // ADPCM <-> DPCM <-> PCMの切り替えで再生成が必要
     }
-    if (m_rateIndex != params.rateIndex) {
-        m_rateIndex = params.rateIndex;
+    if (m_rateIndex != params.quality.rate) {
+        m_rateIndex = params.quality.rate;
         needRefresh = true;
     }
+    m_interpolationMode = params.quality.interp;
 
-    m_interpolationMode = params.interpolationMode;
-    m_loopPointEnable = params.loopPointEnable;
-    m_loopPointStart = std::clamp(params.loopPointStart, 0.0f, 0.999999f);
-    m_loopPointEnd = std::clamp(params.loopPointEnd, m_loopPointStart + 0.000001f, 1.0f);
+    m_loopPointEnable = params.lp.enable;
+    m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
+    m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
 
     if (needRefresh) refreshPcmBuffer();
 }
@@ -168,10 +163,26 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         if (!m_pitchAdsr.isBypass() && !m_pitchResetOnLegato) {
             m_pitchAdsr.noteOn();
         }
+
+        if (!m_ssgSwEnv.isBypass()) {
+            m_ssgSwEnv.noteOn();
+        }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            m_ssgSwEnv11.noteOn();
+        }
+
+        if (!m_ssgSwPenv11.isBypass()) {
+            m_ssgSwPenv11.noteOn();
+        }
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
         m_pitchAdsr.noteOn();
+    }
+
+    if (!m_ssgSwPenv11.isBypass() && m_pitchResetOnLegato) {
+        m_ssgSwPenv11.noteOn();
     }
 }
 
@@ -188,32 +199,56 @@ void RhythmPad::stop()
     if (!m_ssgSwEnv.isBypass()) {
         m_ssgSwEnv.noteOff();
     }
+
+    if (!m_ssgSwEnv11.isBypass()) {
+        m_ssgSwEnv11.noteOff();
+    }
+
+    if (!m_ssgSwPenv11.isBypass()) {
+        m_ssgSwPenv11.noteOff();
+    }
 }
 
 bool RhythmPad::isPlaying() const
 {
-    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying();
+    return m_adsr.isPlaying() || m_ssgSwEnv.isPlaying() || m_ssgSwEnv11.isPlaying();
 }
 
 float RhythmPad::getSample()
 {
-    if (!isPlaying()) {
-        // ADSRとSwEnvの両方がバイパスの時は、完全な矩形波（Gate）動作
-        // ピッチエンベロープは強制的に終了させる（そうしないと、次のノートオンでピッチが変になったりする）
-        m_pitchAdsr.bypassedReleasedProcess();
+    // すべてのアンプエンベロープがバイパスされているかどうかを判定
+    bool isAllAmpBypassed = m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass();
 
+    if (isAllAmpBypassed) {
+        // 全てのアンプエンベロープがバイパスの時は、完全な矩形波（Gate）動作
+        // どれかが Release 状態（noteOffが呼ばれた直後）なら、即座に音を消す
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
+            m_adsr.bypassedReleasedProcess();
+            m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
+            m_pitchAdsr.bypassedReleasedProcess();
+            m_ssgSwPenv11.bypassedReleasedProcess();
+            return 0.0f;
+        }
+    }
+    else if (!isPlaying()) {
+        // いずれかのアンプエンベロープが有効で、全ての再生が終了（音が減衰しきった）時
+        // ピッチエンベロープも強制終了させる（次のノートオンでピッチが変になるのを防ぐ）
+        m_pitchAdsr.bypassedReleasedProcess();
+        m_ssgSwPenv11.bypassedReleasedProcess();
         return 0.0f;
     }
 
     float finalEnv = 1.0f;
 
     // --- ADSR & SwEnv Gate Logic ---
-    if (m_adsr.isBypass() && m_ssgSwEnv.isBypass())
+    if (m_adsr.isBypass() && m_ssgSwEnv.isBypass() && m_ssgSwEnv11.isBypass())
     {
         // どちらもバイパスの時は完全な矩形波（Gate）動作
-        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease()) {
+        if (m_adsr.isRelease() || m_ssgSwEnv.isRelease() || m_ssgSwEnv11.isRelease()) {
             m_adsr.bypassedReleasedProcess();
             m_ssgSwEnv.bypassedReleasedProcess();
+            m_ssgSwEnv11.bypassedReleasedProcess();
             finalEnv = 1.0f;
         }
     }
@@ -234,6 +269,13 @@ float RhythmPad::getSample()
         }
         else {
             if (m_ssgSwEnv.isRelease()) m_ssgSwEnv.bypassedReleasedProcess();
+        }
+
+        if (!m_ssgSwEnv11.isBypass()) {
+            finalEnv *= m_ssgSwEnv11.process(); // 掛け算
+        }
+        else {
+            if (m_ssgSwEnv11.isRelease()) m_ssgSwEnv11.bypassedReleasedProcess();
         }
     }
 
@@ -588,6 +630,7 @@ float RhythmPad::getSample()
     float opzx7PitchMod = std::pow(2.0f, pitchModCents / 1200.0f);
     float mwPitchMod = 1.0f + (m_lfo.value.pm * (m_modWheel * 0.03f));
     double currentIncrement = m_pitchAdsr.process(m_pitchRatio * m_pitchBendRatio * mwPitchMod);
+    currentIncrement = m_ssgSwPenv11.process(currentIncrement);
 
     // ==========================================
     // 周波数倍率の決定
@@ -623,6 +666,13 @@ void RhythmPad::refreshPcmBuffer()
 
     if (targetRate > m_sourceRate) targetRate = m_sourceRate;
     m_bufferSampleRate = targetRate;
+
+    m_adsr.prepare(m_bufferSampleRate);
+    m_pitchAdsr.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv.prepare(0, m_bufferSampleRate);
+    m_ssgSwEnv11.prepare(0, m_bufferSampleRate);
+    m_ssgSwPenv11.prepare(0, m_bufferSampleRate);
+    m_noiseGen.prepare(m_bufferSampleRate);
 
     double step = m_sourceRate / targetRate;
 

@@ -9,6 +9,8 @@
 #include "../../../Effect/Envelope/Amp/FmRgAdssr/EnvFmRgAdssr.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Feedback/Feedback.h"
 #include "../SynthOpnaParams.h"
 
@@ -23,13 +25,31 @@ public:
 
 	void prepare(int opIndex, double sampleRate);
 	void setSampleRate(double sampleRate) override;
-	void setParameters(const OpnaOpParams& params, int feedback, float amSmoothRate);
+	void setParameters(const OpnaOpParams& params, int feedback);
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
-	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
+
+	// 全アンプエンベロープがバイパスされているか
+	bool isAllAmpBypassed() const {
+		return m_ampAdsr.isBypass() &&
+			(!m_params.ssgEnvEnable || m_ssgSwEnv.isBypass()) &&
+			(!m_params.ssgEnv11Enable || m_ssgSwEnv11.isBypass());
+	}
+
+	// アンプエンベロープのどれかが現在鳴っているか
+	bool isPlaying() const {
+		return m_ampAdsr.isPlaying() ||
+			(m_params.ssgEnvEnable && m_ssgSwEnv.isPlaying()) ||
+			(m_params.ssgEnv11Enable && m_ssgSwEnv11.isPlaying());
+	}
+
 	void processLfo();
 	void getSample(float& output, float modulator, float feedbackModulator, const N88LfoCore& n88Lfo, float modWheel = 0.0f);
 	void setCurveCore(CurveCore* p_curveCore);
+
+	float getFeedbackAverage() const {
+		return (m_fb1 + m_fb2) * 0.5f;
+	}
 
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数
@@ -42,6 +62,9 @@ private:
 	FmRgAdssr m_ampAdsr;
 	PitchAdsrEnv m_pitchAdsr;
 	SsgSwEnv m_ssgSwEnv;
+	SsgSwEnv11 m_ssgSwEnv11;
+	SsgSwPEnv11 m_ssgSwPenv11;
+
 	float maxAmDepthDb = 11.8f;
 	float m_ams = 1.0f;
 	bool m_zeroDecay = false;

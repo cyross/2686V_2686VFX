@@ -55,7 +55,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     tabs.getTabbedButtonBar().addChangeListener(this);
 
-    audioProcessor.apvts.addParameterListener(CorePrKey::mode, this);
+    audioProcessor.apvts.addParameterListener(CPK::mode, this);
 
     setupLogo();
     setupMiniLogo();
@@ -87,7 +87,7 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     setupTabs(tabs);
 
-    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CorePrKey::mode);
+    int currentMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     tabs.setCurrentTabIndex(currentMode);
 
     // 1. 全スライダーにツールチップ(範囲)を自動割り当て
@@ -344,7 +344,7 @@ AudioPlugin2686VEditor::~AudioPlugin2686VEditor()
 
     rhythmGui->removeLoadButtonListener(this);
 
-    audioProcessor.apvts.removeParameterListener(CorePrKey::mode, this);
+    audioProcessor.apvts.removeParameterListener(CPK::mode, this);
 
     audioProcessor.undoManager.removeChangeListener(this);
 
@@ -398,7 +398,7 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
             // イベント発火に依存せず、タブが切り替わった瞬間に同期させる
             audioProcessor.lastActiveSynthMode = (OscMode)targetMode;
 
-            auto* param = audioProcessor.apvts.getParameter(CorePrKey::mode);
+            auto* param = audioProcessor.apvts.getParameter(CPK::mode);
             if (param != nullptr)
             {
                 float normalizedValue = param->getNormalisableRange().convertTo0to1((float)targetMode);
@@ -900,7 +900,7 @@ void AudioPlugin2686VEditor::loadPresetFile(const juce::File& file)
     updateOpzx7WtFileNames("Reload");
 
     // ロードされたプリセットのModeを読み取り、対応するタブへ強制移動させる
-    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CorePrKey::mode);
+    int loadedMode = (int)*audioProcessor.apvts.getRawParameterValue(CPK::mode);
     if (loadedMode >= 0 && loadedMode <= (int)OscMode::BEEP) {
         audioProcessor.lastActiveSynthMode = (OscMode)loadedMode;
         tabs.setCurrentTabIndex(loadedMode);
@@ -1426,7 +1426,7 @@ void AudioPlugin2686VEditor::updatePreviewVisibilityToProcessor()
 
 void AudioPlugin2686VEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    if (parameterID == CorePrKey::mode)
+    if (parameterID == CPK::mode)
     {
         int idx = (int)newValue;
 

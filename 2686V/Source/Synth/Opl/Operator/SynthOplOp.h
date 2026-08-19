@@ -7,6 +7,8 @@
 #include "../../../Effect/Envelope/Amp/OplAdsr/EnvOplAdsr.h"
 #include "../../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
+#include "../../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
+#include "../../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
 #include "../../../Effect/Detune/Opl/DetuneOpl.h"
 #include "../../../Effect/Feedback/Feedback.h"
 #include "../../../Core/Fm/FmOperator.h"
@@ -28,11 +30,29 @@ public:
 	void noteOn(float frequency, float velocity, int noteNumber, bool isLegato = false) override;
 	void noteOff() override;
 	void getSample(float& output, float modulator, float feedbackModulator);
-	bool isPlaying() const override { return m_ampAdsr.isPlaying() || m_ssgSwEnv.isPlaying(); }
+
+	// 全アンプエンベロープがバイパスされているか
+	bool isAllAmpBypassed() const {
+		return m_ampAdsr.isBypass() &&
+			(!m_params.ssgEnvEnable || m_ssgSwEnv.isBypass()) &&
+			(!m_params.ssgEnv11Enable || m_ssgSwEnv11.isBypass());
+	}
+
+	// アンプエンベロープのどれかが現在鳴っているか
+	bool isPlaying() const {
+		return m_ampAdsr.isPlaying() ||
+			(m_params.ssgEnvEnable && m_ssgSwEnv.isPlaying()) ||
+			(m_params.ssgEnv11Enable && m_ssgSwEnv11.isPlaying());
+	}
+
 	void processLfo();
 	float calcWaveform(double phase, int wave) override;
 	void setModWheel(float modWheel){ this->m_lfo.setModWheel(modWheel); };
 	void setCurveCore(CurveCore* p_curveCore);
+
+	float getFeedbackAverage() const {
+		return (m_fb1 + m_fb2) * 0.5f;
+	}
 
 	// ユニゾン・ハーモニー用
 	// ユニゾン時の位相オフセットを受け取る関数
@@ -44,6 +64,8 @@ private:
 	OplDetune m_detune;
 	PitchAdsrEnv m_pitchAdsr;
 	SsgSwEnv m_ssgSwEnv;
+	SsgSwEnv11 m_ssgSwEnv11;
+	SsgSwPEnv11 m_ssgSwPenv11;
 
 	std::array<float, 8> fVector = { 0.0f };
 

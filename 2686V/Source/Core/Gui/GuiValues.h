@@ -6,7 +6,7 @@
 
 namespace CoreGuiValue
 {
-	static inline constexpr int TabNumber = 14;
+	static inline constexpr int TabNumber = 15;
 
 	namespace MVol
 	{
@@ -71,7 +71,7 @@ namespace CoreGuiValue
 
 	namespace MainGroup
 	{
-		static inline constexpr int width = 260;
+		static inline constexpr int width = 280;
 
 		namespace Row
 		{
@@ -228,7 +228,7 @@ namespace CoreGuiValue
 	{
 		namespace Row
 		{
-			static inline constexpr int width = 226;
+			static inline constexpr int width = 246;
 			static inline constexpr int height = 14;
 			static inline constexpr int paddingTop = 3;
 			static inline constexpr int paddingBottom = 0;

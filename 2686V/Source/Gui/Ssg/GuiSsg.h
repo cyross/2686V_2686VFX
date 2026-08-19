@@ -20,6 +20,11 @@
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
 #include "../../Gui/Components/Level/Level.h"
+#include "../../Gui/Components/Separator/NormalSeparator.h"
+#include "../../Gui/Components/Separator/ShortSeparator.h"
+#include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
+#include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -33,13 +38,14 @@ class GuiSsg : public GuiBase
 
     GuiComponentPresetName presetName;
 
-    GuiCategoryLabel qualityCat;
     GuiCategoryLabel formCat;
     GuiCategoryLabel pulseInvCat;
     GuiCategoryLabel triPeakCat;
     GuiCategoryLabel hwEnvCat;
 
     GuiComponentLevel levelComponent;
+
+    Quality qualityComponent;
 
     GuiSlider toneSlider;
 
@@ -59,9 +65,7 @@ class GuiSsg : public GuiBase
 
     GuiComboBox waveSelector;
 
-    GuiComboBox bitSelector;
-
-    GuiComboBox rateSelector;
+    NormalSeparator formSeparator;
 
     GuiComponentFix fixComponent;
 
@@ -76,6 +80,9 @@ class GuiSsg : public GuiBase
 
     // SSG SW Env
     GuiComponentSsgSwEnv ssgSwEnvComponent;
+
+    GuiComponentSsgSwEnv11 ssgSwEnv11Component;
+    GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -101,6 +108,7 @@ class GuiSsg : public GuiBase
 
     // HW Env
     GuiToggleButton envEnableButton;
+	NormalSeparator hwEnvSeparator;
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
 
@@ -108,15 +116,18 @@ class GuiSsg : public GuiBase
 
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
-    GuiSeparator uSep001;
+    NormalSeparator uSep001;
     GuiComponentImportExport ieToneNoise;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
     GuiComponentImportExport ieSsgSwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
+    GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
+    GuiComponentImportExport ieChParam;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -124,13 +135,17 @@ class GuiSsg : public GuiBase
     GuiToggleButton graphBtnAmp;
     GuiToggleButton graphBtnPitch;
     GuiToggleButton graphBtnSsg;
-    GuiSeparator graphSeparator;
+    GuiToggleButton graphBtnSsg11;
+    GuiToggleButton graphBtnSsgP11;
+    NormalSeparator graphSeparator;
 
-    enum class GraphMode { Amp, Pitch, SsgSw };
+    enum class GraphMode { Amp, Pitch, SsgSw, SsgSw11, SsgSwP11 };
     GraphMode currentGraphMode;
 
     CurveCore* p_curveCore = nullptr;
     GuiCurve* p_guiCurve = nullptr;
+
+    bool isUpdatingGraph = false;
 
     void updateGraph();
     void setGraphMode(GraphMode mode);
@@ -141,12 +156,12 @@ public:
         presetName(context),
         dutyGroup(context),
         triGroup(context),
-        qualityCat(context),
         formCat(context),
         pulseInvCat(context),
         triPeakCat(context),
         hwEnvCat(context),
         levelComponent(context),
+        qualityComponent(context),
         toneSlider(context),
         noiseSlider(context),
         noiseFreqSlider(context),
@@ -156,14 +171,15 @@ public:
         mixSetMix(context),
         mixSetNoise(context),
         waveSelector(context),
-        bitSelector(context),
-        rateSelector(context),
+        formSeparator(context),
         fixComponent(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
-		mulDetuneComponent(context),
+        ssgSwEnv11Component(context),
+        ssgSwPEnv11Component(context),
+        mulDetuneComponent(context),
         lfo(context),
         dutyModeSelector(context),
         dutyPresetSelector(context),
@@ -178,6 +194,7 @@ public:
         triSetTri(context),
         triSetSawUp(context),
         envEnableButton(context),
+		hwEnvSeparator(context),
         shapeSelector(context),
         periodSlider(context),
         midiComponent(context),
@@ -189,12 +206,17 @@ public:
         ieAmpEnv(context),
         iePitchEnv(context),
         ieSsgSwEnv(context),
+        ieSsgSwEnv11(context),
+        ieSsgSwPEnv11(context),
         ieDetune(context),
         ieUnison(context),
         ieQuality(context),
+        ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),
+        graphBtnSsg11(context),
+        graphBtnSsgP11(context),
         graphSeparator(context)
     {
         currentGraphMode = GraphMode::Amp; // 初期状態はAmp
@@ -222,10 +244,16 @@ public:
     void exportPitchEnvParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
+    void importSsgSwEnv11Param();
+    void exportSsgSwEnv11Param();
+    void importSsgSwPEnv11Param();
+    void exportSsgSwPEnv11Param();
     void importDetuneParam();
     void exportDetuneParam();
     void importUnisonParam();
     void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
+    void importChParam();
+    void exportChParam();
 };
