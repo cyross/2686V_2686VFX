@@ -35,12 +35,21 @@ class GuiComponentLevel : public GuiBase {
     GuiTextButton levelTo083;
 
     std::vector<SelectItem> stepItems = {
-            { "1: Free", 1 },
-            { "2: 16 Steps", 2 },
-            { "3: 32 Steps", 3 },
-            { "4: 64 Steps", 4 },
-            { "5: 128 Steps", 5 },
-            { "6: 256 Steps", 6 }
+        { juce::String("") + " 1: 自由設定", 1 },
+        { juce::String("") + " 2: 1 刻み", 2 },
+        { juce::String("") + " 3: 1 / 2 刻み", 3 },
+        { juce::String("") + " 4: 1 / 4 刻み", 4 },
+        { juce::String("") + " 5: 1 / 8 刻み", 5 },
+        { juce::String("") + " 6: 1 / 16 刻み", 6 },
+        { juce::String("") + " 7: 1 / 32 刻み", 7 },
+        { juce::String("") + " 8: 1 / 64 刻み", 8 },
+        { juce::String("") + " 9: 1 / 128 刻み", 9 },
+        { juce::String("") + "10: 1 / 256 刻み", 10 },
+        { juce::String("") + "11: 1 / 3 刻み", 11 },
+        { juce::String("") + "12: 1 / 6 刻み", 12 },
+        { juce::String("") + "13: 1 / 7 刻み", 13 },
+        { juce::String("") + "14: 1 / 10 刻み", 14 },
+        { juce::String("") + "15: 1 / 100 刻み", 15 }
     };
 
     // 内部でスナップ処理を行うための関数

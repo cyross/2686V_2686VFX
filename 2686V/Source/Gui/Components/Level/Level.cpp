@@ -4,25 +4,37 @@
 #include "../../../Core/Gui/GuiHelpers.h"
 #include "../../../Core/Const/ConstGlobal.h"
 
+static const double roundingPrecisionBase = std::pow(10, Global::floatDecimalPlaces); // 小数点以下の丸め精度を決定するための基準値
+
 void GuiComponentLevel::applyStepSnap()
 {
     int index = stepSelector.getSelectedItemIndex();
     if (index <= 0) return; // 0 (Free) の場合は何もしない
 
-    float stepAmount = 1.0f;
+    double numSteps = 1.0;
     switch (index) {
-    case 1: stepAmount = 1.0f / 16.0f; break;
-    case 2: stepAmount = 1.0f / 32.0f; break;
-    case 3: stepAmount = 1.0f / 64.0f; break;
-    case 4: stepAmount = 1.0f / 128.0f; break;
-    case 5: stepAmount = 1.0f / 256.0f; break;
+    case 1: numSteps = 1.0; break;
+    case 2: numSteps = 2.0; break;
+    case 3: numSteps = 4.0; break;
+    case 4: numSteps = 8.0; break;
+    case 5: numSteps = 16.0; break;
+    case 6: numSteps = 32.0; break;
+    case 7: numSteps = 64.0; break;
+    case 8: numSteps = 128.0; break;
+    case 9: numSteps = 256.0; break;
+	case 10: numSteps = 3.0; break;
+	case 11: numSteps = 6.0; break;
+    case 12: numSteps = 7.0; break;
+    case 13: numSteps = 10.0; break;
+	case 14: numSteps = 100.0; break;
     default: return;
     }
 
-    float currentVal = (float)levelSlider.getValue();
+    double currentVal = (double)levelSlider.getValue();
 
-    // 1/n 単位で丸める
-    float snappedVal = std::round(currentVal / stepAmount) * stepAmount;
+	// C++では小数点以下の丸め精度を決定するために、まず基準値を掛けて整数化し、丸めた後に元のスケールに戻す
+    double baseVal = (double)(std::round(currentVal * numSteps)) * roundingPrecisionBase;
+    float snappedVal = (float)(std::round(baseVal / numSteps) / roundingPrecisionBase);
 
     // スライダーの最小・最大値の範囲内にクランプする
     snappedVal = std::clamp(snappedVal, (float)levelSlider.getMinimum(), (float)levelSlider.getMaximum());
