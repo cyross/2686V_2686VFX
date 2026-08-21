@@ -184,35 +184,6 @@ AudioPlugin2686VEditor::AudioPlugin2686VEditor(AudioPlugin2686V& p)
 
     updateUndoRedoButtons();
 
-    // パラメーターコピーボタン
-    addAndMakeVisible(copyParamsButton);
-    copyParamsButton.setVisible(true);
-    copyParamsButton.setButtonText(EditorGuiText::Copy::title);
-    copyParamsButton.setTooltip(EditorGuiText::Copy::tooltip);
-    copyParamsButton.setLookAndFeel(&copyParamsButtonLF);
-    copyParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    copyParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
-    copyParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
-    copyParamsButton.onClick = [this] {
-        copyFmParamsToString();
-        copyFmParamsToObject();
-        };
-
-    // パラメーターペーストボタン
-    addAndMakeVisible(pasteParamsButton);
-    pasteParamsButton.setVisible(true);
-    pasteParamsButton.setButtonText(EditorGuiText::Paste::title);
-    pasteParamsButton.setTooltip(EditorGuiText::Paste::tooltip);
-    pasteParamsButton.setLookAndFeel(&pasteParamsButtonLF);
-    pasteParamsButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
-    pasteParamsButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black.brighter(0.5f));
-    pasteParamsButton.setColour(juce::TextButton::buttonColourId, juce::Colours::yellow);
-    pasteParamsButton.onClick = [this] {
-        pasteFmParamsFromObject();
-        };
-
-    updateParameterCopyPasteButtons();
-
     // パラメーター初期化ボタン
     addAndMakeVisible(initParamsButton);
     initParamsButton.setVisible(true);
@@ -385,7 +356,6 @@ void AudioPlugin2686VEditor::changeListenerCallback(juce::ChangeBroadcaster* sou
         }
 
         updateTimerState(true);
-        updateParameterCopyPasteButtons();
         updateParameterInitializeButtons();
     }
 
@@ -465,13 +435,10 @@ void AudioPlugin2686VEditor::resized()
 
     // Full View 専用のコンポーネント
     tabs.setVisible(isFull);
-    logoLabel.setVisible(isFull);
     mainIconImage.setVisible(isFull);
     fxGui->setVisible(isFull);
     undoButton.setVisible(isFull);
     redoButton.setVisible(isFull);
-    copyParamsButton.setVisible(isFull);
-    pasteParamsButton.setVisible(isFull);
     initParamsButton.setVisible(isFull);
     togglePreviewBtn.setVisible(isFull);
 
@@ -480,7 +447,6 @@ void AudioPlugin2686VEditor::resized()
     }
 
     // Mini / Minimum 共通のコンポーネント
-    miniLogoLabel.setVisible(isMini || isMin);
     miniIconImage.setVisible(isMini || isMin);
     miniPresetLabel.setVisible(isMini || isMin);
     miniModeLabel.setVisible(isMini || isMin);
@@ -555,16 +521,11 @@ void AudioPlugin2686VEditor::resized()
             lbx += EditorGuiValue::MiniPreview::presetLabelWidth + EditorGuiValue::MiniPreview::paddingInnerX;
             miniModeLabel.setBounds(lbx, EditorGuiValue::MiniPreview::paddingTop, EditorGuiValue::MiniPreview::modeLabelWidth, EditorGuiValue::MiniPreview::modeLabelHeight);
 
-            int lgx = width - EditorGuiValue::MiniPreview::paddingRight - EditorGuiValue::MiniPreview::logoWidth;
-            int lgy = height - EditorGuiValue::MiniPreview::paddingBottom - EditorGuiValue::MiniPreview::logoHeight;
-            miniLogoLabel.setBounds(lgx, lgy, EditorGuiValue::MiniPreview::logoWidth, EditorGuiValue::MiniPreview::logoHeight);
-
-            textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
-            textHeight = (int)miniLogoLabel.getFont().getHeight();
-            iconSize = textHeight - 12;
-            iconX = width - EditorGuiValue::MiniPreview::paddingInnerX - textWidth - iconSize - 8;
-            iconY = lgy + (textHeight / 2) - 6;
-            miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
+            int iconWidth = EditorGuiValue::MiniPreview::logoWidth;
+            int iconHeight = EditorGuiValue::MiniPreview::logoHeight;
+            int iconX = width - EditorGuiValue::MiniPreview::paddingRight - iconWidth;
+            int iconY = height - EditorGuiValue::MiniPreview::paddingBottom - iconHeight;
+            miniIconImage.setBounds(iconX, iconY, iconWidth, iconHeight);
 
             int x = EditorGuiValue::MiniPreview::paddingLeft;
             int y = EditorGuiValue::MiniPreview::paddingTop + EditorGuiValue::MiniPreview::presetLabelHeight + EditorGuiValue::MiniPreview::paddingInnerY;
@@ -587,16 +548,11 @@ void AudioPlugin2686VEditor::resized()
             lbx += EditorGuiValue::MinimumPreview::presetLabelWidth + EditorGuiValue::MinimumPreview::paddingInnerX;
             miniModeLabel.setBounds(lbx, EditorGuiValue::MinimumPreview::paddingTop, EditorGuiValue::MinimumPreview::modeLabelWidth, EditorGuiValue::MinimumPreview::modeLabelHeight);
 
-            int lgx = width - EditorGuiValue::MinimumPreview::paddingRight - EditorGuiValue::MinimumPreview::logoWidth;
-            int lgy = height - EditorGuiValue::MinimumPreview::paddingBottom - EditorGuiValue::MinimumPreview::logoHeight;
-            miniLogoLabel.setBounds(lgx, lgy, EditorGuiValue::MinimumPreview::logoWidth, EditorGuiValue::MinimumPreview::logoHeight);
-
-            textWidth = (int)juce::GlyphArrangement::getStringWidth(miniLogoLabel.getFont(), juce::StringRef(miniLogoLabel.getText()));
-            textHeight = (int)miniLogoLabel.getFont().getHeight();
-            iconSize = textHeight - 12;
-            iconX = width - EditorGuiValue::MinimumPreview::paddingInnerX - textWidth - iconSize - 8;
-            iconY = lgy + (textHeight / 2) - 6;
-            miniIconImage.setBounds(iconX, iconY, iconSize, iconSize);
+            int iconWidth = EditorGuiValue::MinimumPreview::logoWidth;
+            int iconHeight = EditorGuiValue::MinimumPreview::logoHeight;
+            int iconX = width - EditorGuiValue::MinimumPreview::paddingRight - iconWidth;
+            int iconY = height - EditorGuiValue::MinimumPreview::paddingBottom - iconHeight;
+            miniIconImage.setBounds(iconX, iconY, iconWidth, iconHeight);
         }
 
         // Mini / Minimum モードでのランプの配置
@@ -659,12 +615,6 @@ void AudioPlugin2686VEditor::resized()
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
     undoButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
-    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
-    copyParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
-
-    x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::buttonWidth;
-    pasteParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::buttonWidth, EditorGuiValue::SystemBtns::buttonHeight);
-
     x -= EditorGuiValue::SystemBtns::paddingInnerX + EditorGuiValue::SystemBtns::initButtonWidth;
     initParamsButton.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::initButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
@@ -672,14 +622,11 @@ void AudioPlugin2686VEditor::resized()
     toggleMiniBtn.setBounds(x, EditorGuiValue::SystemBtns::paddingTop, EditorGuiValue::SystemBtns::miniButtonWidth, EditorGuiValue::SystemBtns::buttonHeight);
 
     auto reducedArea = area.reduced(EditorGuiValue::Group::Padding::width, EditorGuiValue::Group::Padding::height);
-    logoLabel.setBounds(reducedArea);
-
-    int mainTextWidth = (int)juce::GlyphArrangement::getStringWidth(logoLabel.getFont(), juce::StringRef(logoLabel.getText()));
-    int mainTextHeight = (int)logoLabel.getFont().getHeight();
-    int mainIconSize = mainTextHeight - 44;
-    int mainIconX = reducedArea.getRight() - mainTextWidth - mainIconSize - 15;
-    int mainIconY = reducedArea.getBottom() - ((mainTextHeight + mainIconSize) / 2);
-    mainIconImage.setBounds(mainIconX, mainIconY, mainIconSize, mainIconSize);
+    int mainIconWidth = EditorGuiValue::Preview::logoWidth;
+    int mainIconHeight = EditorGuiValue::Preview::logoHeight;
+    int mainIconX = reducedArea.getRight() - mainIconWidth;
+    int mainIconY = reducedArea.getBottom() - mainIconHeight;
+    mainIconImage.setBounds(mainIconX, mainIconY, mainIconWidth, mainIconHeight);
 
     tabs.setBounds(area);
 
@@ -702,7 +649,7 @@ void AudioPlugin2686VEditor::resized()
     if (isChannel) {
         playingState.setBounds(
             EditorGuiValue::StateBtns::paddingLeft,
-            getHeight() - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
+            EditorGuiValue::Window::height - EditorGuiValue::StateBtns::paddingBottom - EditorGuiValue::StateBtns::height,
             EditorGuiValue::StateBtns::width,
             EditorGuiValue::StateBtns::height
         );
@@ -768,19 +715,6 @@ void AudioPlugin2686VEditor::drawBg(juce::Graphics& g)
 
 void AudioPlugin2686VEditor::setupLogo()
 {
-    logoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-    logoLabel.setFont(juce::Font(
-        juce::FontOptions(
-            EditorGuiValue::WaterMarkLogo::fontFamily,
-            EditorGuiValue::WaterMarkLogo::fontSize,
-            juce::Font::bold | juce::Font::italic
-        )
-    ));
-    logoLabel.setJustificationType(juce::Justification::bottomRight);
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
-    addAndMakeVisible(logoLabel);
-    logoLabel.toBack();
-
     auto iconImg = juce::ImageCache::getFromMemory(
         AppIconAboutForAboutData::icon_png,
         AppIconAboutForAboutData::icon_pngSize
@@ -794,21 +728,6 @@ void AudioPlugin2686VEditor::setupLogo()
 
 void AudioPlugin2686VEditor::setupMiniLogo()
 {
-    miniLogoLabel.setText(Global::Plugin::name, juce::dontSendNotification);
-    miniLogoLabel.setFont(
-        juce::Font(
-            juce::FontOptions(
-                EditorGuiValue::WaterMarkLogo::fontFamily,
-                40.0f,
-                juce::Font::bold | juce::Font::italic
-            )
-        )
-    );
-    miniLogoLabel.setJustificationType(juce::Justification::bottomRight);
-    miniLogoLabel.setColour(juce::Label::textColourId, juce::Colours::white.withAlpha(EditorGuiValue::WaterMarkLogo::fontAlpha));
-    addChildComponent(miniLogoLabel);
-    miniLogoLabel.toBack();
-
     auto iconImg = juce::ImageCache::getFromMemory(
         AppIconAboutForAboutData::icon_png,
         AppIconAboutForAboutData::icon_pngSize
@@ -1305,25 +1224,13 @@ bool AudioPlugin2686VEditor::keyPressed(const juce::KeyPress& key)
             return true; // イベントを消費
         }
 
-        // Ctrl + C (Copy)
+        // Ctrl + C (FM Parameter Copy)
         if (key.getKeyCode() == 'C' || key.getKeyCode() == 'c')
         {
             copyFmParamsToString();
-            copyFmParamsToObject();
 
             return true; // イベントを消費
         }
-
-        // 今後やる
-#if false
-        // Ctrl + V (Paste)
-        if (key.getKeyCode() == 'V' || key.getKeyCode() == 'v')
-        {
-            copyFmParamsToObject();
-
-            return true; // イベントを消費
-        }
-#endif
 
         // Ctrl + I (Initialize
         if (key.getKeyCode() == 'I' || key.getKeyCode() == 'i')
@@ -1355,17 +1262,6 @@ void AudioPlugin2686VEditor::updateUndoRedoButtons()
     redoButton.setTooltip(getRedoTooltipText());
 }
 
-void AudioPlugin2686VEditor::updateParameterCopyPasteButtons()
-{
-    // 表示しているタブがFM音源のタブか
-    // 0:OPNA, 1:OPN, 2:OPL, ...
-    int targetMode = tabs.getCurrentTabIndex();
-    bool isFmTab = targetMode >= 0 && targetMode <= (int)OscMode::OPZX7;
-
-    copyParamsButton.setEnabled(isFmTab);
-    pasteParamsButton.setEnabled(isFmTab);
-}
-
 void AudioPlugin2686VEditor::updateParameterInitializeButtons()
 {
     // 表示しているタブが音源のタブか
@@ -1384,30 +1280,6 @@ void AudioPlugin2686VEditor::copyFmParamsToString()
     {
     case OscMode::OPZX7:
         opzx7Gui->copyFmParamsToString();
-        break;
-    };
-}
-
-void AudioPlugin2686VEditor::copyFmParamsToObject()
-{
-    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
-
-    switch (targetMode)
-    {
-    case OscMode::OPZX7:
-        opzx7Gui->copyFmParamsToObject();
-        break;
-    };
-}
-
-void AudioPlugin2686VEditor::pasteFmParamsFromObject()
-{
-    OscMode targetMode = (OscMode)tabs.getCurrentTabIndex();
-
-    switch (targetMode)
-    {
-    case OscMode::OPZX7:
-        opzx7Gui->pasteFmParamsFromObject();
         break;
     };
 }
