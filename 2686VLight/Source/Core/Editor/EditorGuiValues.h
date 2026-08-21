@@ -27,13 +27,17 @@ namespace EditorGuiValue
 	namespace Preview
 	{
 		static inline constexpr int paddingLeft = 24;
+		static inline constexpr int paddingRight = 24;
 		static inline constexpr int paddingTop = 50;
+		static inline constexpr int paddingBottom = 50;
 		static inline constexpr int paddingInnerY = 20;
 		static inline constexpr int paddingDrawSpaceY = 5;
 		static inline constexpr int extraWidth = 248;
 		static inline constexpr int drawWidth = 200;
 		static inline constexpr int drawHeight = 100;
 		static inline constexpr int labelHeight = 30;
+		static inline constexpr int logoWidth = 96;
+		static inline constexpr int logoHeight = 96;
 	}
 
 	namespace MiniPreview
@@ -53,7 +57,7 @@ namespace EditorGuiValue
 		static inline constexpr int drawWidth = 200;
 		static inline constexpr int drawHeight = 100;
 		static inline constexpr int labelHeight = 20;
-		static inline constexpr int logoWidth = 200;
+		static inline constexpr int logoWidth = 48;
 		static inline constexpr int logoHeight = 48;
 	}
 
@@ -71,7 +75,7 @@ namespace EditorGuiValue
 		static inline constexpr int modeLabelHeight = 40;
 		static inline constexpr int presetPaddingRight = 10;
 		static inline constexpr int labelHeight = 30;
-		static inline constexpr int logoWidth = 200;
+		static inline constexpr int logoWidth = 48;
 		static inline constexpr int logoHeight = 48;
 	}
 

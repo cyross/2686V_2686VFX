@@ -143,7 +143,6 @@ private:
 
     CustomTabLookAndFeel customTabLF;
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop };
-	juce::Label logoLabel;
 
     SystemButtonLF panicButtonLF;
     juce::TextButton panicButton;
@@ -153,12 +152,6 @@ private:
 
     SystemButtonLF redoButtonLF;
     juce::TextButton redoButton;
-
-    SystemButtonLF copyParamsButtonLF;
-    juce::TextButton copyParamsButton;
-
-    SystemButtonLF pasteParamsButtonLF;
-    juce::TextButton pasteParamsButton;
 
     SystemButtonLF initParamsButtonLF;
     juce::TextButton initParamsButton;
@@ -199,7 +192,6 @@ private:
     juce::Label miniModeLabel;
     SystemButtonLF miniToggleBtnLF;
     juce::TextButton toggleMiniBtn;
-    juce::Label miniLogoLabel;
     juce::ImageComponent mainIconImage;
     juce::ImageComponent miniIconImage;
 
@@ -211,12 +203,9 @@ private:
     juce::Image blurredBackgroundImage; // ぼかし背景用のキャッシュ
 
     void updateUndoRedoButtons(); // アンドゥ・リドゥボタンの状態を更新する専用の関数
-    void updateParameterCopyPasteButtons(); // パラメーターコピー・ペーストボタンの状態を更新する専用の関数
     void updateParameterInitializeButtons(); // パラメーター初期化ボタンの状態を更新する専用の関数
 
     void copyFmParamsToString();
-    void copyFmParamsToObject();
-    void pasteFmParamsFromObject();
     void initParams();
 
     void showFullView();

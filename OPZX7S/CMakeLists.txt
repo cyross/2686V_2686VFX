@@ -7,7 +7,7 @@ set(CY_MANUFACTURER_CODE "CYRS") # 例: あなたのメーカーID (4文字)
 set(CY_COMPANY_NAME "CYROSS")  # 会社名・作者名
 
 # VSTロゴの登録
-juce_add_binary_data(VstLogoForAbout
+juce_add_binary_data(VstLogoForAbout_OPZX7S
     HEADER_NAME "VstLogoForAbout.h"
     NAMESPACE VstLogoForAboutData
     SOURCES
@@ -15,7 +15,7 @@ juce_add_binary_data(VstLogoForAbout
 )
 
 # アイコンの登録
-juce_add_binary_data(AppIconForAbout
+juce_add_binary_data(AppIconForAbout_OPZX7S
     HEADER_NAME "AppIconForAbout.h"
     NAMESPACE AppIconAboutForAboutData
     SOURCES
@@ -422,66 +422,4 @@ source_group("OPZX7S\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("OPZX7S\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
 
-# ==============================================================================
-# プラグイン生成関数 (関数化して使い回す)
-# ==============================================================================
-function(create_cyross_plugin TARGET_NAME)
-    set(CY_PLUGIN_CODE "ZX7S")
-
-    juce_add_plugin(${TARGET_NAME}
-        COMPANY_NAME ${CY_COMPANY_NAME}
-        IS_SYNTH TRUE
-        NEEDS_MIDI_INPUT TRUE
-        NEEDS_MIDI_OUTPUT FALSE
-        IS_MIDI_EFFECT FALSE
-        EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-        COPY_PLUGIN_AFTER_BUILD FALSE
-        PLUGIN_MANUFACTURER_CODE ${CY_MANUFACTURER_CODE}
-        PLUGIN_CODE ${CY_PLUGIN_CODE}
-        FORMATS VST3 Standalone
-        ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
-        PRODUCT_NAME ${TARGET_NAME}
-        VST3_AUTO_MANIFEST FALSE
-    )
-
-    if(MSVC)
-        target_compile_options(${TARGET_NAME} PRIVATE /utf-8 /FS)
-    endif()
-
-    target_sources(${TARGET_NAME} PRIVATE ${ALL_SOURCES})
-
-    if(UNIX AND NOT APPLE)
-        target_link_libraries(${TARGET_NAME} PRIVATE
-            freetype
-            fontconfig
-            X11
-            Xcursor
-            Xinerama
-            Xrandr
-            Xcomposite
-            asound
-            GL
-        )
-    endif()
-
-    target_link_libraries(${TARGET_NAME} PRIVATE
-        AppIconForAbout
-        VstLogoForAbout
-        juce::juce_audio_utils
-        juce::juce_recommended_config_flags
-        juce::juce_dsp
-    )
-
-    target_compile_definitions(${TARGET_NAME} PRIVATE
-        JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_USE_CAMERA=0
-        JUCE_USE_CDREADER=0
-        JUCE_USE_CDBURNER=0
-    )
-
-    juce_generate_juce_header(${TARGET_NAME})
-endfunction()
-
-create_cyross_plugin("OPZX7S")
+create_cyross_plugin("OPZX7S" "ZX7S")
