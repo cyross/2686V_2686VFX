@@ -914,7 +914,7 @@ void GuiRhythm::setup()
     int tabOrder = 1;
 
     // パッド名定義
-    const std::array<juce::String, RhythmPrValue::pads> padNames = { "BD", "SD", "HH Cl", "HH Op", "Tom L", "Tom H", "Crash", "Ride" };
+    const std::array<juce::String, RhythmPrValue::pads> padNames = { "BD", "SD", "RIM", "TOM", "CYMBAL", "HI-HAT", "PERC1", "PERC2" };
 
     mainGroup.setup(*this, RhythmGuiText::Group::mainGroup);
 
