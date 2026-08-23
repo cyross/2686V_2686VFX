@@ -9,6 +9,7 @@
 #include "../../Core/Processor/ProcessorValues.h"
 #include "../../Processor/Opn/ProcessorOpnKeys.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
+#include "../../Processor/Opna/ProcessorOpnaValues.h"
 #include "../../Core/Const/ConstMmlKeys.h"
 #include "../../Core/Const/ConstMmlValues.h"
 #include "../../Core/Const/ConstGlobal.h"
@@ -262,6 +263,9 @@ void GuiOpn::setup()
     ieOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpChParam(opIndex); };
     ieOpChParam.onClickExport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; exportOpChParam(opIndex); };
 
+    imOpnaOpChParam.setupComponentOp(mainGroup.contentCanvas, tabOrder, "OPNA OP Params");
+    imOpnaOpChParam.onClickImport = [this] { int opIndex = (int)targerOpSlider.getValue() - 1; importOpnaOpChParam(opIndex); };
+
     targerOpSlider.setup({ .parent = mainGroup.contentCanvas, .title = "Op", .isReset = false });
     targerOpSlider.setRange(1.0, 4.0, 1.0);
     targerOpSlider.setNumDecimalPlacesToDisplay(0);
@@ -286,6 +290,9 @@ void GuiOpn::setup()
     ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
     ieChParam.onClickImport = [this] { importChParam(); };
     ieChParam.onClickExport = [this] { exportChParam(); };
+
+    imOpnaChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "OPNA CH Params");
+    imOpnaChParam.onClickImport = [this] { importOpnaChParam(); };
 
     auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
@@ -774,12 +781,14 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpSsgSwEnv11.setVisible(visible);
     ieOpSsgSwPEnv11.setVisible(visible);
     ieOpChParam.setVisible(visible);
+    imOpnaOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     ieChParam.setVisible(visible);
+    imOpnaChParam.setVisible(visible);
 
     if (visible)
     {
@@ -808,6 +817,8 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
         rect.removeFromTop(4);
         ieOpChParam.layoutComponent(rect);
         rect.removeFromTop(4);
+        imOpnaOpChParam.layoutComponent(rect);
+        rect.removeFromTop(4);
         layoutMain({ .mainRect = rect, .label = &targerOpSlider.label, .component = &targerOpSlider });
 
         uSep004.layoutComponent(rect);
@@ -819,6 +830,8 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieQuality.layoutComponent(rect);
         rect.removeFromTop(4);
         ieChParam.layoutComponent(rect);
+        rect.removeFromTop(4);
+        imOpnaChParam.layoutComponent(rect);
     }
 }
 
@@ -1807,4 +1820,132 @@ juce::String GuiOpn::setExportedOpParams(int opIndex) {
     content += ssgSwPEnv11[opIndex].getExportedParams();
 
     return content;
+}
+
+void GuiOpn::importOpnaChParam() {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opnaParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                // Level
+                levelComponent.setImportingParams(lines, index);
+
+                // Algorithm & Feedback
+                algSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+                feedbackSlider.setValue(lines[index++].getIntValue(), juce::sendNotification);
+
+                updateAlgorithmDisplay();
+
+                // Pan
+                index++; // skip pan
+
+                // N88 LFO
+                lfoFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                lfoShapeSelector.setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+                lfoAmSmRtSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                lfoSyncDelaySlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                lfoPmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                lfoPmsSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                lfoPmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+                lfoAmToggle.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                lfoAmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+                // Components (Global)
+                qualityComponent.setImportingParams(lines, index);
+                unisonComponent.setImportingParams(lines, index);
+
+                for (int i = 0; i < OpnaPrValue::ops; i++) {
+                    getImportingOpnaOpParams(i, lines, index);
+                }
+            }
+        });
+}
+
+void GuiOpn::importOpnaOpChParam(int opIndex) {
+    juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
+    if (!defaultDir.isDirectory()) {
+        defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+    }
+
+    fileChooser = std::make_unique<juce::FileChooser>(Io::Dialog::Title::importChannelParamFile, defaultDir, Io::ExtensionGlob::opnaOpParam);
+    fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [this, opIndex](const juce::FileChooser& fc) {
+            auto file = fc.getResult();
+            if (file.existsAsFile()) {
+
+                // 次回のダイアログ用にディレクトリを保存
+                ctx.audioProcessor.defaultChannelParamDir = file.getParentDirectory().getFullPathName();
+
+                juce::StringArray lines;
+                file.readLines(lines);
+
+                int size = lines.size();
+                int index = 0;
+
+                updateAlgorithmDisplay();
+
+                getImportingOpnaOpParams(opIndex, lines, index);
+            }
+        });
+}
+
+void GuiOpn::getImportingOpnaOpParams(int opIndex, juce::StringArray& lines, int& index) {
+    // Mul / Dt
+    mul[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+    dt[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // Env
+    rgAr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgDr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgSr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgRr[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+    rgTl[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // Key Scale
+    ks[opIndex].setSelectedId(lines[index++].getIntValue(), juce::sendNotification);
+
+    // HW LFO
+    index++; // skip freqs
+    index++; // skip syncDelay
+    index++; // skip pm
+    index++; // skip pms
+    index++; // skip am
+    index++; // skip ams
+
+    // N88 AMS
+    n88Ams[opIndex].setValue(lines[index++].getFloatValue(), juce::sendNotification);
+
+    // SSG Env
+    index++; // skip se
+    index++; // skip seFreq
+
+    // Optional / Mask
+    bypass[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    xof[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    kor[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+    mask[opIndex].setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+
+    // Components
+    fix[opIndex].setImportingParams(lines, index);
+    pitchEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv[opIndex].setImportingParams(lines, index);
+    ssgSwEnv11[opIndex].setImportingParams(lines, index);
+    ssgSwPEnv11[opIndex].setImportingParams(lines, index);
 }

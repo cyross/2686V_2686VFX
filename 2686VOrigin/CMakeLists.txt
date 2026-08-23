@@ -264,6 +264,7 @@ set(OPNA_GUI_FILES
     "Source/Gui/Opna/GuiOpnaValues.h"
     "Source/Gui/Opna/GuiOpna.h"
     "Source/Gui/Opna/GuiOpna.cpp"
+    "Source/Gui/Opna/ProcessorOpnValues.h"
 )
 
 set(SSG_GUI_FILES
@@ -400,6 +401,11 @@ set(GUI_COMPONENT_IMPORT_EXPORT_FILES
     "Source/Gui/Components/ImportExport/ImportExport.cpp"
 )
 
+set(GUI_COMPONENT_IMPORT_FILES
+    "Source/Gui/Components/Import/Import.h"
+    "Source/Gui/Components/Import/Import.cpp"
+)
+
 set(GUI_COMPONENT_LEVEL_FILES
     "Source/Gui/Components/Level/Level.h"
     "Source/Gui/Components/Level/Level.cpp"
@@ -462,6 +468,7 @@ source_group("2686VO\\Gui\\Components\\SsgSwButtons" FILES ${GUI_COMPONENT_SSGSW
 source_group("2686VO\\Gui\\Components\\PresetName" FILES ${GUI_COMPONENT_PRESET_NAME_FILES})
 source_group("2686VO\\Gui\\Components\\ViewMode" FILES ${GUI_COMPONENT_VIEW_MODE_FILES})
 source_group("2686VO\\Gui\\Components\\ImportExport" FILES ${GUI_COMPONENT_IMPORT_EXPORT_FILES})
+source_group("2686VO\\Gui\\Components\\Import" FILES ${GUI_COMPONENT_IMPORT_FILES})
 source_group("2686VO\\Gui\\Components\\Level" FILES ${GUI_COMPONENT_LEVEL_FILES})
 source_group("2686VO\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATOR_FILES})
 source_group("2686VO\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})

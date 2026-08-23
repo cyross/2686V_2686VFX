@@ -18,6 +18,7 @@
 #include "../../Processor/Opn/ProcessorOpnValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
@@ -106,12 +107,14 @@ class GuiOpn : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpChParam;
+    GuiComponentImport imOpnaOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep004;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport ieChParam;
+    GuiComponentImport imOpnaChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -217,12 +220,14 @@ public:
         ieOpSsgSwEnv11(context),
         ieOpSsgSwPEnv11(context),
         ieOpChParam(context),
+		imOpnaOpChParam(context),
         targerOpSlider(context),
         uSep004(context),
         ieLfo(context),
         ieUnison(context),
         ieQuality(context),
         ieChParam(context),
+		imOpnaChParam(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context), GuiScrollGroup(context) },
         catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
@@ -321,4 +326,7 @@ public:
     void exportOpChParam(int opIndex);
     void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
     juce::String setExportedOpParams(int opIndex);
+    void importOpnaChParam();
+    void importOpnaOpChParam(int opIndex);
+    void getImportingOpnaOpParams(int opIndex, juce::StringArray& lines, int& index);
 };

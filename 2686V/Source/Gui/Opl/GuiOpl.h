@@ -18,6 +18,7 @@
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Gui/Components/PresetName/PresetName.h"
 #include "../../Gui/Components/ImportExport/ImportExport.h"
+#include "../../Gui/Components/Import/Import.h"
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
@@ -89,11 +90,13 @@ class GuiOpl : public GuiBase
     GuiComponentImportExport ieOpSsgSwEnv11;
     GuiComponentImportExport ieOpSsgSwPEnv11;
     GuiComponentImportExport ieOpChParam;
+    GuiComponentImport imOpl3OpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport ieChParam;
+    GuiComponentImport imOpl3ChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     juce::ImageComponent algImageComp;
@@ -206,11 +209,13 @@ public:
         ieOpSsgSwEnv11(context),
         ieOpSsgSwPEnv11(context),
 		ieOpChParam(context),
+		imOpl3OpChParam(context),
         targerOpSlider(context),
         uSep005(context),
         ieUnison(context),
         ieQuality(context),
         ieChParam(context),
+        imOpl3ChParam(context),
         opGroups{ GuiScrollGroup(context), GuiScrollGroup(context) },
         catLfo{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
         catDet{ GuiCategoryLabel(context), GuiCategoryLabel(context) },
@@ -316,4 +321,7 @@ public:
     void exportOpChParam(int opIndex);
     void getImportingOpParams(int opIndex, juce::StringArray& lines, int& index);
     juce::String setExportedOpParams(int opIndex);
+    void importOpl3ChParam();
+    void importOpl3OpChParam(int opIndex);
+    void getImportingOpl3OpParams(int opIndex, juce::StringArray& lines, int& index);
 };
