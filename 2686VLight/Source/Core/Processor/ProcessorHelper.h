@@ -18,6 +18,7 @@
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11Params.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Detune/Opl/DetuneOplParams.h"
 #include "../../Effect/Detune/Opm/DetuneOpmParams.h"
 #include "../../Effect/Detune/Opn/DetuneOpnParams.h"
@@ -464,10 +465,12 @@ namespace PrHelper {
 		ptPtrs.freq = apvts.getRawParameterValue(prefix + CPK::SsgTri::freq);
 	}
 
-	static inline void setupSsgHwEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwEnv& ptPtrs){
+	static inline void setupSsgHwEnv(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsSsgHwEnv& ptPtrs) {
 		ptPtrs.enable = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::enable);
 		ptPtrs.shape = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::shape);
 		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::period);
+		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
+		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -1023,10 +1026,12 @@ namespace PrHelper {
 		params.freq = getFloat(ptPtrs.freq);
 	}
 
-	static inline void applySsgHwEnv(PrPtrsSsgHwEnv& ptPtrs, SsgHwEnvParams& params){
+	static inline void applySsgHwEnv(PrPtrsSsgHwEnv& ptPtrs, SsgHwEnvParams& params) {
 		params.enable = getBool(ptPtrs.enable);
 		params.shape = getInt(ptPtrs.shape);
 		params.period = getFloat(ptPtrs.period);
+		params.min = getFloat(ptPtrs.min);
+		params.max = getFloat(ptPtrs.max);
 	}
 
 	static inline void applyPanpot(PrPtrsPanpot& ptPtrs, PanpotParams& params){
@@ -3306,5 +3311,17 @@ namespace PrHelper {
 			prefixName + CPN::SsgHwEnv::period, 
 			CPV::SsgHwEnv::Period::min, CPV::SsgHwEnv::Period::max, CPV::SsgHwEnv::Period::initial
 		); // Period: ここでは周波数(Hz)として扱います (0.1Hz ~ 200Hz)
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwEnv::min,
+			prefixName + CPN::SsgHwEnv::min,
+			CPV::SsgHwEnv::Min::min, CPV::SsgHwEnv::Min::max, CPV::SsgHwEnv::Min::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::SsgHwEnv::max,
+			prefixName + CPN::SsgHwEnv::max,
+			CPV::SsgHwEnv::Max::min, CPV::SsgHwEnv::Max::max, CPV::SsgHwEnv::Max::initial
+		);
 	}
 }

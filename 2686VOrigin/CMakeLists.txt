@@ -141,6 +141,9 @@ set(AMP_ENVELOPE_FILES
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
     "Source/Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.cpp"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+    "Source/Effect/Envelope/Amp/SsgHw/EnvSsgHw.cpp"
 )
 
 set(PITCH_ENVELOPE_FILES
@@ -361,6 +364,11 @@ set(GUI_COMPONENT_SSGSWENV11_FILES
     "Source/Gui/Components/SsgSwEnv11/SsgSwEnv11.cpp"
 )
 
+set(GUI_COMPONENT_SSGHWENV_FILES
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.h"
+    "Source/Gui/Components/SsgHwEnv/SsgHwEnv.cpp"
+)
+
 set(GUI_COMPONENT_SSGSWPENV11_FILES
     "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
     "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
@@ -480,6 +488,7 @@ source_group("2686VO\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATO
 source_group("2686VO\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("2686VO\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("2686VO\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("2686VO\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
 source_group("2686VO\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("2686VO\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686VO\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})

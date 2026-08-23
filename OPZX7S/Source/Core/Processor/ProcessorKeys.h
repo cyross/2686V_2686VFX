@@ -405,9 +405,10 @@ namespace CPK
 
 	namespace SsgHwEnv
 	{
-		static inline const juce::String enable = "_ENV_ENABLE";
-		static inline const juce::String shape = "_ENV_SHAPE";
-		static inline const juce::String period = "_ENV_PERIOD";
+		static inline const juce::String enable = "_SSGHWENV_ENABLE";
+		static inline const juce::String shape = "_SSGHWENV_SHAPE";
+		static inline const juce::String period = "_SSGHWENV_PERIOD";
+		static inline const juce::String min = "_SSGHWENV_MIN";
+		static inline const juce::String max = "_SSGHWENV_MAX";
 	};
 };
-

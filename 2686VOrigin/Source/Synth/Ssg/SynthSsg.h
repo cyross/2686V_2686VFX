@@ -11,6 +11,7 @@
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
@@ -64,12 +65,7 @@ private:
     FixMode m_fixMode;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
-
-    // HW Env Params
-    bool m_useHwEnv = false;
-    int m_envShape = 0;
-    float m_envFreq = 1.0f;
-    double m_hwEnvPhase = 0.0;
+    SsgHwEnv m_ssgHwEnv;
 
     // Duty Params
     int m_dutyMode = 0;

@@ -1641,6 +1641,20 @@ namespace CPV
 			inline constexpr float max = 200.0f;
 			inline constexpr float initial = 1.0f;
 		}
+
+		namespace Min
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		namespace Max
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 1.0f;
+		}
 	}
 
 	namespace OplEg {

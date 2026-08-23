@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -81,6 +82,7 @@ class GuiSsg : public GuiBase
 
     GuiComponentSsgSwEnv11 ssgSwEnv11Component;
     GuiComponentSsgSwPEnv11 ssgSwPEnv11Component;
+    GuiComponentSsgHwEnv ssgHwEnvComponent;
 
     // Detune
     GuiComponentMulDetune mulDetuneComponent;
@@ -103,12 +105,6 @@ class GuiSsg : public GuiBase
     GuiTextButton triSetSawDown; // 0.0
     GuiTextButton triSetTri;     // 0.5
     GuiTextButton triSetSawUp;   // 1.0
-
-    // HW Env
-    GuiToggleButton envEnableButton;
-	NormalSeparator hwEnvSeparator;
-    GuiComboBox shapeSelector;
-    GuiSlider periodSlider;
 
     GuiComponentMidi midiComponent;
 
@@ -174,6 +170,7 @@ public:
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),
         ssgSwPEnv11Component(context),
+        ssgHwEnvComponent(context),
         mulDetuneComponent(context),
         lfo(context),
         dutyModeSelector(context),
@@ -188,10 +185,6 @@ public:
         triSetSawDown(context),
         triSetTri(context),
         triSetSawUp(context),
-        envEnableButton(context),
-		hwEnvSeparator(context),
-        shapeSelector(context),
-        periodSlider(context),
         midiComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
@@ -224,7 +217,6 @@ public:
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutHwEnvCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

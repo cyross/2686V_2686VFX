@@ -40,6 +40,7 @@ namespace Io
 		static inline const juce::String OplLfoParam = "lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "ampEnv";
+		static inline const juce::String SsgHwEnvParam = "ssgHwEnv";
 		static inline const juce::String SsgSwEnvParam = "ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "pitchEnv";
 		static inline const juce::String DetuneParam = "detune";
@@ -82,6 +83,7 @@ namespace Io
 		static inline const juce::String OplLfoParam = "*.lfoOpl";
 		static inline const juce::String Opzx7LfoParam = "*.lfoOpzx7";
 		static inline const juce::String AmpEnvParam = "*.ampEnv";
+		static inline const juce::String SsgHwEnvParam = "*.ssgHwEnv";
 		static inline const juce::String SsgSwEnvParam = "*.ssgSwEnv";
 		static inline const juce::String PitchEnvParam = "*.pitchEnv";
 		static inline const juce::String SsgSwEnvParam11 = "*.ssgSwEnv11";
@@ -108,6 +110,7 @@ namespace Io
 		static inline const juce::String lfoParam = "LfoParams";
 		static inline const juce::String ampEnvParam = "AmpEnvParams";
 		static inline const juce::String pitchEnvParam = "PitchEnvParams";
+		static inline const juce::String ssgHwEnvParam = "SsgHwEnvParams";
 		static inline const juce::String ssgSwEnvParam = "SsgSwEnvParams";
 		static inline const juce::String detuneParam = "DetuneParams";
 		static inline const juce::String unisonParam = "UnisonParams";
@@ -137,6 +140,8 @@ namespace Io
 			static inline const juce::String exportAmpEnvParamFile = "Export Amp Env Param";
 			static inline const juce::String importPitchEnvParamFile = "Import Pitch Env Param";
 			static inline const juce::String exportPitchEnvParamFile = "Export Pitch Env Param";
+			static inline const juce::String importSsgHwEnvParamFile = "Import SSG HW Env Param";
+			static inline const juce::String exportSsgHwEnvParamFile = "Export SSG HW Env Param";
 			static inline const juce::String importSsgSwEnvParamFile = "Import SSG SW Env Param";
 			static inline const juce::String exportSsgSwEnvParamFile = "Export SSG SW Env Param";
 			static inline const juce::String importDetuneParamFile = "Import Detune Param";

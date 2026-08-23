@@ -398,5 +398,7 @@ namespace CPN
 		static inline const juce::String enable = " Hardware Env Enable";
 		static inline const juce::String shape = " Hardware Env Shape";
 		static inline const juce::String period = " Hardware Env Period";
+		static inline const juce::String min = " Hardware Env Min";
+		static inline const juce::String max = " Hardware Env Max";
 	}
 }

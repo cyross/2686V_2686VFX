@@ -22,6 +22,7 @@ void SsgCore::prepare(double sampleRate) {
 
     m_lfo.prepare(m_targetRate);
     m_noiseGen.prepare(m_targetRate);
+    m_ssgHwEnv.prepare(m_targetRate);
     m_phaseDelta = m_currentFrequency / m_targetRate;
 }
 
@@ -52,14 +53,11 @@ void SsgCore::setParameters(const SynthParams& params)
     m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
     m_lfo.setParameters(params.ssg.lfo);
+    m_ssgHwEnv.setParameters(params.ssg.env);
 
     m_fixMode.setParameters(params.ssg.fix);
 
     m_waveform = params.ssg.waveform;
-
-    m_useHwEnv = params.ssg.env.enable;
-    m_envShape = params.ssg.env.shape;
-    m_envFreq = params.ssg.env.period;
 
     m_dutyMode = params.ssg.duty.mode;
     m_dutyPreset = params.ssg.duty.preset;
@@ -81,6 +79,7 @@ void SsgCore::setParameters(const SynthParams& params)
 
         m_noiseGen.updateTargetRate(m_targetRate);
         m_lfo.updateTargetSampleRate(m_targetRate);
+        m_ssgHwEnv.updateTargetSampleRate(m_targetRate);
         m_phaseDelta = m_currentFrequency / m_targetRate;
     }
 
@@ -147,8 +146,8 @@ void SsgCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
             m_lfo.noteOn();
         }
 
+        m_ssgHwEnv.noteOn();
         m_rateAccumulator = 0.0;
-        m_hwEnvPhase = 0.0f;
         m_lastSample = 0.0f;
     }
 
@@ -353,51 +352,7 @@ float SsgCore::getSample()
         // ==========================================
         // 1. Hardware Envelope Update
         // ==========================================
-        float hwEnvDelta = m_envFreq / (float)m_targetRate;
-        m_hwEnvPhase += hwEnvDelta;
-
-        // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
-        if (m_hwEnvPhase >= 2.0) {
-            if (m_envShape % 2 == 0) m_hwEnvPhase -= 2.0;
-            else m_hwEnvPhase = 2.0;
-        }
-
-        float hwEnvGain = 1.0f;
-        if (m_useHwEnv)
-        {
-            double p = m_hwEnvPhase;
-            bool isEvenCycle = ((int)p % 2 == 0);
-            float phaseNorm = (float)(p - std::floor(p));
-
-            switch (m_envShape) {
-            case 0:
-                hwEnvGain = 1.0f - phaseNorm;
-                break;
-            case 1:
-                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
-                break;
-            case 2:
-                hwEnvGain = isEvenCycle ? (1.0f - phaseNorm) : phaseNorm;
-                break;
-            case 3:
-                hwEnvGain = (p < 1.0) ? (1.0f - phaseNorm) : 0.0f;
-                break;
-            case 4:
-                hwEnvGain = phaseNorm;
-                break;
-            case 5:
-                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
-                break;
-            case 6:
-                hwEnvGain = (p < 1.0) ? phaseNorm : 1.0f;
-                break;
-            case 7:
-                hwEnvGain = isEvenCycle ? phaseNorm : (1.0f - phaseNorm);
-                break;
-            default:
-                hwEnvGain = phaseNorm;
-            }
-        }
+        float hwEnvGain = m_ssgHwEnv.process();
 
         // ==========================================
         // 2. Waveform Generation

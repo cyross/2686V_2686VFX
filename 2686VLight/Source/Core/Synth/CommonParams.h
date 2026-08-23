@@ -125,14 +125,3 @@ struct SsgTriParams {
     // Triangle Manual Spped Freq
     float freq = 440.0f;
 };
-
-struct SsgHwEnvParams {
-    // Hardware Envelope Enable Switch
-    bool enable = false;
-
-    // Hardware Envelope Shape Index
-    int shape = 0;
-
-    // Hardware Envelope Period Freq
-    float period = 1.0f;
-};

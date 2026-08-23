@@ -16,17 +16,6 @@
 #include "./GuiSsgText.h"
 #include "../../Core/Gui/GuiStructs.h"
 
-static std::vector<SelectItem> ssgEnvItems = {
-    {.name = "0: Saw Down",                    .value = 1 },
-    {.name = "1: Saw Down & Hold",             .value = 2 },
-    {.name = "2: Triangle",                    .value = 3 },
-    {.name = "3: Alternative Saw Down & Hold", .value = 4 },
-    {.name = "4: Saw Up",                      .value = 5 },
-    {.name = "5: Saw Up & Hold",               .value = 6 },
-    {.name = "6: Triangle Invert",             .value = 7 },
-    {.name = "7: Alternative Saw Up & Hold",   .value = 8 },
-};
-
 static std::vector<SelectItem> ssgPrItems = {
     {.name = "0: 1:1 (50%)",     .value = 1 },
     {.name = "1: 3:5 (37.5%)",   .value = 2 },
@@ -77,23 +66,11 @@ void GuiSsg::setup()
 
     ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, SsgGuiText::SsgSwPEnv11::bypass);
 
+    ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     hwEnvCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = SsgGuiText::Category::visibleHwEnv, .invisibleTitle = SsgGuiText::Category::invisibleHwEnv, .enableChangeDetailVisible = true });
-
-    envEnableButton.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::enable, .title = SsgGuiText::Ssg::HwEnv::enable, .isReset = true });
-    envEnableButton.setWantsKeyboardFocus(true);
-    envEnableButton.setExplicitFocusOrder(++tabOrder);
-
-	hwEnvSeparator.setupComponent(mainGroup.contentCanvas);
-
-    shapeSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::shape, .title = SsgGuiText::Ssg::HwEnv::shape, .items = ssgEnvItems, .isReset = true });
-    shapeSelector.setWantsKeyboardFocus(true);
-    shapeSelector.setExplicitFocusOrder(++tabOrder);
-
-    periodSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::SsgHwEnv::period, .title = SsgGuiText::Ssg::HwEnv::speed, .isReset = true, .regType = RegisterType::SsgEnv });
-    periodSlider.setWantsKeyboardFocus(true);
-    periodSlider.setExplicitFocusOrder(++tabOrder);
 
     lfo.setupComponent(
         mainGroup.contentCanvas,
@@ -296,7 +273,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
 
     ampEnvComponent.layoutComponent(mRect);
 
-    layoutHwEnvCat(mRect);
+    ssgHwEnvComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -457,26 +434,6 @@ void GuiSsg::layoutFormCat(Rectangle<int>& rect) {
 
 void GuiSsg::layoutQualityCat(juce::Rectangle<int>& rect) {
     qualityComponent.layoutComponent(rect);
-}
-
-void GuiSsg::layoutHwEnvCat(juce::Rectangle<int>& rect)
-{
-    layoutMainCategory({ .mainRect = rect, .label = &hwEnvCat });
-
-    bool visible = hwEnvCat.isDetailVisible();
-
-    envEnableButton.setVisible(visible);
-	hwEnvSeparator.setVisible(visible);
-    shapeSelector.setVisibleWithLabel(visible);
-    periodSlider.setVisibleWithLabel(visible);
-
-    if (visible)
-    {
-        layoutMain({ .mainRect = rect, .component = &envEnableButton });
-        hwEnvSeparator.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector });
-        layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .paddingBottom = 0 });
-    }
 }
 
 void GuiSsg::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -864,12 +821,8 @@ void GuiSsg::importChParam() {
                 triFreqSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
                 triPeakSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
-                // HW Env
-                envEnableButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
-                shapeSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
-                periodSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
-
                 // Components
+                ssgHwEnvComponent.setImportingParams(lines, index);
                 fixComponent.setImportingParams(lines, index);
                 ampEnvComponent.setImportingParams(lines, index);
                 pitchEnvComponent.setImportingParams(lines, index);
@@ -925,12 +878,8 @@ void GuiSsg::exportChParam() {
                 content += juce::String(triFreqSlider.getValue(), Global::floatDecimalPlaces) + "\n";
                 content += juce::String(triPeakSlider.getValue(), Global::floatDecimalPlaces) + "\n";
 
-                // HW Env
-                content += juce::String(envEnableButton.getToggleState() ? 1 : 0) + "\n";
-                content += juce::String(shapeSelector.getSelectedItemIndex()) + "\n";
-                content += juce::String(periodSlider.getValue(), Global::floatDecimalPlaces) + "\n";
-
                 // Components
+                content += ssgHwEnvComponent.getExportedParams();
                 content += fixComponent.getExportedParams();
                 content += ampEnvComponent.getExportedParams();
                 content += pitchEnvComponent.getExportedParams();

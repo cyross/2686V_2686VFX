@@ -137,6 +137,14 @@ struct CopyEnvOpzx7Adddr {
 	bool bypass;
 };
 
+struct CopyEnvSsgHw {
+	bool enable;
+	int shape;
+	float period;
+	float min;
+	float max;
+};
+
 struct CopyEnvSsgSw {
 	bool flag;
 
