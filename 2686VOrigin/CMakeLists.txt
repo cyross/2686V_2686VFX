@@ -425,6 +425,12 @@ set(GUI_COMPONENT_QUALITY_FILES
     "Source/Gui/Components/Quality/QualityPcm.cpp"
 )
 
+set(GUI_COMPONENT_ALG_MATRIX_FILES
+    "Source/Gui/Components/AlgMatrix/FmAlgState.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+    "Source/Gui/Components/AlgMatrix/GuiFmAlgRouting.cpp"
+)
+
 set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 
 # ソースグループの設定
@@ -474,6 +480,7 @@ source_group("2686VO\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATO
 source_group("2686VO\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("2686VO\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("2686VO\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("2686VO\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})
 source_group("2686VO\\Gui\\Editor" FILES ${EDITOR_FILES})
 source_group("2686VO\\Gui\\Tab\\Opna" FILES ${OPNA_GUI_FILES})
 source_group("2686VO\\Gui\\Tab\\Ssg" FILES ${SSG_GUI_FILES})

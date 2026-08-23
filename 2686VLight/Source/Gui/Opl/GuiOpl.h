@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -31,24 +32,6 @@ class AudioPlugin2686VEditor;
 
 class GuiOpl : public GuiBase
 {
-    /*
-     * アルゴリズムのオペレータ表記凡例
-     * 2026.3.7 CYROSS
-     *
-     * [C] : キャリアー(出力はオーディオ出力)
-     * [M->n] : n番オペレータへ出力するモジュレーター
-     * [C:FB] : 自身へフィードバックもするキャリアー
-     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
-     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
-     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
-     */
-    static inline const std::array<std::array<juce::String, OplPrValue::ops>, OplPrValue::algorithms> algOpPrefix = { {
-        {{"([M:FB->2])", "([C])"}}, // 00
-        {{"([C:FB])", "([C])"}}     // 01
-    } };
-
     GuiScrollGroup mainGroup;
 
     GuiComponentPresetName presetName;
@@ -60,6 +43,8 @@ class GuiOpl : public GuiBase
     Quality qualityComponent;
 
     GuiComboBox algSelector;
+    // 従来のアルゴリズム図用のグラフコンポーネント (画像から置き換え)
+    GuiFmAlgGraph algStaticGraphComp;
     NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
 
@@ -96,9 +81,6 @@ class GuiOpl : public GuiBase
     GuiComponentImportExport ieChParam;
     GuiComponentImport imOpl3ChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
-
-    juce::ImageComponent algImageComp;
-    std::array<juce::Image, OplPrValue::algorithms> algImages;
 
     std::array<GuiScrollGroup, OplPrValue::ops> opGroups;
 

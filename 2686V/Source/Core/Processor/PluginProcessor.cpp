@@ -1471,7 +1471,7 @@ int AudioPlugin2686V::getOpzx7AlgMode() const
     return m_opzx7AlgMode.load();
 }
 
-void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
+void AudioPlugin2686V::setOpzx7AlgMatrix(const FmAlgState& state)
 {
     {
         // DSPスレッドと競合しないようにロックしてキャッシュを更新
@@ -1505,7 +1505,7 @@ void AudioPlugin2686V::setOpzx7AlgMatrix(const AlgMatrixState& state)
     apvts.state.setProperty("OPZX7_ALG_MATRIX_F", fStr, nullptr);
 }
 
-AlgMatrixState AudioPlugin2686V::getOpzx7AlgMatrix()
+FmAlgState AudioPlugin2686V::getOpzx7AlgMatrix()
 {
     juce::ScopedLock lock(m_matrixLock);
     return m_opzx7AlgMatrixState;
@@ -1523,6 +1523,9 @@ void AudioPlugin2686V::updateAlgMatrixCacheFromState()
     juce::String fStr = apvts.state.getProperty("OPZX7_ALG_MATRIX_F", "0000000000000000000000000000000000000000000000000000000000000000").toString();
 
     juce::ScopedLock lock(m_matrixLock);
+
+    // メンバ変数の初期化サイズを設定
+    m_opzx7AlgMatrixState.numOps = Opzx7PrValue::ops; // OPZX7S用なので一旦8固定
 
     // 文字列から構造体へ復元
     for (int i = 0; i < 8 && i < cStr.length(); ++i) {

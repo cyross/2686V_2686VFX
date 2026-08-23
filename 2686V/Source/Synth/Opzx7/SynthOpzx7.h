@@ -94,10 +94,10 @@ public:
         // Fold Expression を用いて関数呼び出しをベタ書き展開する
         (processSingleOperator<Is>(currentOut, finalOut), ...);
     }
-private:
 
     static const std::array<AlgRouting, Opzx7PrValue::algorithms> routings;
     std::array<OpRoutingConfig, Opzx7PrValue::ops> m_activeRoutings;
+private:
     std::array<Opzx7Operator, Opzx7PrValue::ops> m_operators;
     std::array<bool, Opzx7PrValue::ops> m_opMask{ false };
     std::array<float, Opzx7PrValue::ops> m_history1 = { 0.0f };
@@ -106,6 +106,7 @@ private:
     Opzx7LfoCore m_lfo;
 
     int m_cachedAlgorithm = -1;
+    int m_cachedAlgMode = -1;
     void updateRoutingCache();
     void applyRoutingToCache(const AlgRouting& r);
 

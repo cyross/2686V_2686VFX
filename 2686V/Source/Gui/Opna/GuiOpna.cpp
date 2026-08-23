@@ -195,6 +195,8 @@ void GuiOpna::setup()
         updateAlgorithmDisplay();
     };
 
+    mainGroup.contentCanvas.addAndMakeVisible(&algStaticGraphComp);
+
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb, .title = OpnaGuiText::Fm::fb, .isReset = true });
@@ -454,22 +456,6 @@ void GuiOpna::setup()
     imOpnChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "OPN CH Params");
     imOpnChParam.onClickImport = [this] { importOpnChParam(); };
 
-    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-
-    for (int i = 0; i < OpnaPrValue::algorithms; ++i)
-    {
-        // "%02d" で i が 0〜7 のときに "00" 〜 "07" という文字列を作ります
-        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPNA_OPN_OPM_%02d.png", i);
-        auto imgFile = docDir.getChildFile(fileName);
-
-        if (imgFile.existsAsFile()) {
-            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
-        }
-    }
-
-    // 画像コンポーネントを画面に追加
-    mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
-
     const juce::String opCode = code + CPK::op;
 
     for (int i = 0; i < OpnaPrValue::ops; ++i)
@@ -649,8 +635,8 @@ void GuiOpna::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OpnaGuiValue::Category::paddingTop);
 
-    auto imgArea = mRect.removeFromTop(120);
-    algImageComp.setBounds(imgArea);
+    auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+    algStaticGraphComp.setBounds(graphArea.reduced(10));
 
     algFbSep.layoutComponent(mRect);
 
@@ -827,26 +813,29 @@ void GuiOpna::updateAlgorithmDisplay()
 
     if (algIndex < 0 || algIndex > OpnaPrValue::Alg::max) return;
 
-    // 1. 文字列の更新（既存）
-    for (int i = 0; i < OpnaPrValue::ops; ++i)
-    {
-        juce::String newTitle = OpnaGuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
-        opGroups[i].setText(newTitle);
+    // Coreのルーティング情報から FmAlgState を生成
+    const auto& routing = OpnaCore::routings[algIndex];
+    FmAlgState s;
+    s.numOps = OpnaPrValue::ops;
+
+    for (int i = 0; i < s.numOps; ++i) { // i = src
+        s.isCarrier[i] = (routing.out[i] > 0.0f);
+        for (int j = 0; j < s.numOps; ++j) { // j = dest
+            s.mod[i][j] = (routing.mod[j][i] > 0.0f);
+            s.fbMod[i][j] = (routing.fbMod[j][i] > 0.0f);
+        }
     }
 
-    // ==========================================================
-    // 画像の切り替え
-    // ==========================================================
-    if (algImages[algIndex].isValid())
+    // 生成したステートでグラフを描画
+    algStaticGraphComp.updateState(s);
+
+    // AlgRouting から出力に到達可能なオペレータを動的に判定
+    auto activeOps = s.getActiveOperators();
+
+    for (int i = 0; i < OpnaPrValue::ops; ++i)
     {
-        // 読み込めている場合はその画像をセット
-        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
-        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
-    }
-    else
-    {
-        // 画像がない場合（ファイルが見つからなかった時など）はクリア
-        algImageComp.setImage(juce::Image());
+        // 配列を使わず、到達可能性から判定したフラグをセット
+        updateOpEnable(i, activeOps[i]);
     }
 }
 

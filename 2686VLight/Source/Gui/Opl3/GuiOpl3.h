@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -31,29 +32,6 @@ class AudioPlugin2686VEditor;
 
 class GuiOpl3 : public GuiBase
 {
-    /*
-     * アルゴリズムのオペレータ表記凡例
-     * 2026.3.7 CYROSS
-     *
-     * [C] : キャリアー(出力はオーディオ出力)
-     * [M->n] : n番オペレータへ出力するモジュレーター
-     * [C:FB] : 自身へフィードバックもするキャリアー
-     * [M:FB->n] : 自身へフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * [C:FBm] : m番オペレータへフィードバックもするキャリア―
-     * [M:FBm->n] : m番オペレータへフィードバックもする、n番オペレーターへ出力するモジュレーター
-     * /を挟んでnが複数ある場合: それぞれのオペレータに出力する
-     * 複数のnが存在する場合 : 各オペレーターからの出力を足し合わせて、n番のオペレータへ出力
-     */
-    static inline const std::array<std::array<juce::String, Opl3PrValue::ops>, Opl3PrValue::algorithms> algOpPrefix = { {
-        { {"([M:FB->2])", "([M->3])", "([M->4])", "([C])"} },   // 00
-        { {"([C:FB])", "([M->3])", "([M->4])", "([C])"} },      // 01
-        { {"([M:FB->2])", "([C])", "([M->4])", "([C])"} },      // 02
-        { {"([C:FB])", "([M->3])", "([C])", "([C])"} },         // 03
-        { { "([C:FB])", "([C])", "([C])", "([C])" } },          // 04
-        { { "([M:FB->2])", "([C])", "([M:FB->4])", "([C])" } }, // 05
-        { { "([C:FB])", "([C])", "([C:FB])", "([C])" } }        // 06
-    } };
-
     GuiScrollGroup mainGroup;
 
     GuiComponentPresetName presetName;
@@ -65,6 +43,8 @@ class GuiOpl3 : public GuiBase
     Quality qualityComponent;
 
     GuiComboBox algSelector;
+    // 従来のアルゴリズム図用のグラフコンポーネント (画像から置き換え)
+    GuiFmAlgGraph algStaticGraphComp;
     NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
 
@@ -102,9 +82,6 @@ class GuiOpl3 : public GuiBase
     GuiComponentImport imOplChParam;
     GuiComponentImport imOplChAllOpParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
-
-    juce::ImageComponent algImageComp;
-    std::array<juce::Image, Opl3PrValue::algorithms> algImages;
 
     std::array<GuiScrollGroup, Opl3PrValue::ops> opGroups;
     std::array<GuiCategoryLabel, Opl3PrValue::ops> catDet;

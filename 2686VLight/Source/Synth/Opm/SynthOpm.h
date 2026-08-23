@@ -69,9 +69,10 @@ public:
         // Fold Expression を用いて関数呼び出しをベタ書き展開する
         (processSingleOperator<Is>(currentOut, finalOut), ...);
     }
-private:
+
     static const std::array<AlgRouting, OpmPrValue::algorithms> routings;
     std::array<OpRoutingConfig, OpmPrValue::ops> m_activeRoutings;
+private:
     std::array<OpmOperator, OpmPrValue::ops> m_operators;
     std::array<bool, OpmPrValue::ops> m_opMask{ false };
     std::array<float, OpmPrValue::ops> m_history1 = { 0.0f };

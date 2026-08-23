@@ -168,7 +168,7 @@ const std::array<Opzx7Core::AlgRouting, Opzx7PrValue::algorithms> Opzx7Core::rou
         makeAlgOpzx7({ 1, 3, 5, 7 }, { {0,1},{2,3},{4,5},{6,7} }, { {0,0} }), // 127
         makeAlgOpzx7({ 1, 3, 5, 6, 7 }, { {0,1},{2,3},{4,5} }, { {0,0} }), // 128
         makeAlgOpzx7({ 0, 1, 2, 3, 4, 5, 6, 7 }, {}, { {0,0} }), // 129
-    } };
+} };
 
 void Opzx7Core::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_hostSampleRate = sampleRate;
@@ -513,6 +513,9 @@ void Opzx7Core::clearWt2Buffer(int opIndex) {
 
 void Opzx7Core::updateRoutingCache()
 {
+    bool modeChanged = (m_algMatrix.mode != m_cachedAlgMode);
+    bool algChanged = (m_algorithm != m_cachedAlgorithm);
+
     if (m_algMatrix.mode == 1) {
         Opzx7Core::AlgRouting customRouting;
         customRouting.out.fill(0.0f);
@@ -544,16 +547,17 @@ void Opzx7Core::updateRoutingCache()
             }
         }
 
-        // キャッシュへ適用する関数（既存のロジックを別関数化したもの）
         applyRoutingToCache(customRouting);
+        m_cachedAlgMode = 1;
     }
     else {
-        if (m_algorithm == m_cachedAlgorithm) return;
+        // マトリックスモードから戻ってきたか、アルゴリズムが変わった場合のみ更新
+        if (!modeChanged && !algChanged) return;
 
+        m_cachedAlgMode = 0;
         m_cachedAlgorithm = m_algorithm;
 
         int algIndex = std::clamp(m_algorithm, 0, Opzx7PrValue::algorithms - 1);
-
         applyRoutingToCache(routings[algIndex]);
     }
 }

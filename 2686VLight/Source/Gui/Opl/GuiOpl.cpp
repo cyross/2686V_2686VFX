@@ -84,6 +84,8 @@ void GuiOpl::setup()
         updateAlgorithmDisplay();
         };
 
+    mainGroup.contentCanvas.addAndMakeVisible(&algStaticGraphComp);
+
 	algFbSep.setupComponent(mainGroup.contentCanvas);
 
     feedbackSlider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb, .title = OplGuiText::Fm::fb, .isReset = true });
@@ -247,21 +249,6 @@ void GuiOpl::setup()
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
-
-    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-
-    for (int i = 0; i < OplPrValue::algorithms; ++i)
-    {
-        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPL_%02d.png", i);
-        auto imgFile = docDir.getChildFile(fileName);
-
-        if (imgFile.existsAsFile()) {
-            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
-        }
-    }
-
-    // 画像コンポーネントを画面に追加
-    mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
 
     const juce::String opCode = code + CPK::op;
 
@@ -466,8 +453,8 @@ void GuiOpl::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OplGuiValue::Category::paddingTop);
 
-    auto imgArea = mRect.removeFromTop(120);
-    algImageComp.setBounds(imgArea);
+    auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+    algStaticGraphComp.setBounds(graphArea.reduced(10));
 
 	algFbSep.layoutComponent(mRect);
 
@@ -634,26 +621,29 @@ void GuiOpl::updateAlgorithmDisplay()
 
     if (algIndex < 0 || algIndex > OplPrValue::Alg::max) return;
 
+    // Coreのルーティング情報から FmAlgState を生成
+    const auto& routing = OplCore::routings[algIndex];
+    FmAlgState s;
+    s.numOps = OplPrValue::ops;
+
+    for (int i = 0; i < s.numOps; ++i) { // i = src
+        s.isCarrier[i] = (routing.out[i] > 0.0f);
+        for (int j = 0; j < s.numOps; ++j) { // j = dest
+            s.mod[i][j] = (routing.mod[j][i] > 0.0f);
+            s.fbMod[i][j] = (routing.fbMod[j][i] > 0.0f);
+        }
+    }
+
+    // 生成したステートでグラフを描画
+    algStaticGraphComp.updateState(s);
+
+    // AlgRouting から出力に到達可能なオペレータを動的に判定
+    auto activeOps = s.getActiveOperators();
+
     for (int i = 0; i < OplPrValue::ops; ++i)
     {
-        juce::String newTitle = OplGuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
-
-        opGroups[i].setText(newTitle);
-    }
-
-    // ==========================================================
-    // 画像の切り替え
-    // ==========================================================
-    if (algImages[algIndex].isValid())
-    {
-        // 読み込めている場合はその画像をセット
-        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
-        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
-    }
-    else
-    {
-        // 画像がない場合（ファイルが見つからなかった時など）はクリア
-        algImageComp.setImage(juce::Image());
+        // 配列を使わず、到達可能性から判定したフラグをセット
+        updateOpEnable(i, activeOps[i]);
     }
 }
 

@@ -314,7 +314,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     viewModeComp(context),
     algFbCat(context),
     algModeSelector(context),
-    algMatrixComp(context),
+    algMatrixComp(context, Opzx7PrValue::ops), // 引数でオペレータ数を渡す
     levelComponent(context),
     qualityComponent(context),
     algSelector(context),
@@ -472,6 +472,7 @@ void GuiOpzx7::setup()
 
     mainGroup.contentCanvas.addAndMakeVisible(&algMatrixComp);
     mainGroup.contentCanvas.addAndMakeVisible(&algGraphComp);
+    mainGroup.contentCanvas.addAndMakeVisible(&algStaticGraphComp);
 
     AlgMatrixState initialState = ctx.audioProcessor.getOpzx7AlgMatrix();
     algMatrixComp.setState(initialState);
@@ -481,6 +482,8 @@ void GuiOpzx7::setup()
         algGraphComp.updateState(state);
 
         ctx.audioProcessor.setOpzx7AlgMatrix(state);
+
+        updateAlgorithmMatrixDisplay();
         };
 
     algSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::alg, .title = Opzx7GuiText::Fm::alg, .items = opzx7AlgItems, .isReset = true });
@@ -655,21 +658,6 @@ void GuiOpzx7::setup()
         ctx.audioProcessor.apvts.state.setProperty(ProcessorStateKey::opzx7ViewMode, (int)viewMode, nullptr);
         ctx.editor.resized();
         };
-
-    auto docDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
-
-    for (int i = 0; i < Opzx7PrValue::algorithms; ++i)
-    {
-        juce::String fileName = juce::String::formatted(Io::Folder::asset + "/" + Io::Folder::resource + "/ALG_OPZX7_%03d.png", i);
-        auto imgFile = docDir.getChildFile(fileName);
-
-        if (imgFile.existsAsFile()) {
-            algImages[i] = juce::ImageFileFormat::loadFrom(imgFile);
-        }
-    }
-
-    // 画像コンポーネントを画面に追加
-    mainGroup.contentCanvas.addAndMakeVisible(algImageComp);
 
     // Operators
     const juce::String opCode = code + CPK::op;
@@ -1038,17 +1026,17 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
         algMatrixComp.setVisible(false);
         algGraphComp.setVisible(false);
         algSelector.setVisibleWithLabel(true);
-        algImageComp.setVisible(true);
+        algStaticGraphComp.setVisible(true);
 
         layoutMain({ .mainRect = mRect, .label = &algSelector.label, .component = &algSelector });
         mRect.removeFromTop(Opzx7GuiValue::Category::paddingTop);
-        auto imgArea = mRect.removeFromTop(120);
-        algImageComp.setBounds(imgArea);
+        auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+        algStaticGraphComp.setBounds(graphArea.reduced(10));
     }
     else {
         // マトリックスモード
         algSelector.setVisibleWithLabel(false);
-        algImageComp.setVisible(false);
+        algStaticGraphComp.setVisible(false);
         algMatrixComp.setVisible(true);
         algGraphComp.setVisible(true);
 
@@ -1530,44 +1518,40 @@ void GuiOpzx7::updateAlgorithmDisplay()
     if (algIndex < 0 || algIndex > Opzx7PrValue::Alg::max)
         return;
 
+    // Coreのルーティング情報から FmAlgState を生成
+    const auto& routing = Opzx7Core::routings[algIndex];
+    FmAlgState s;
+    s.numOps = Opzx7PrValue::ops;
+
+    for (int i = 0; i < s.numOps; ++i) { // i = src
+        s.isCarrier[i] = (routing.out[i] > 0.0f);
+        for (int j = 0; j < s.numOps; ++j) { // j = dest
+            s.mod[i][j] = (routing.mod[j][i] > 0.0f);
+            s.fbMod[i][j] = (routing.fbMod[j][i] > 0.0f);
+        }
+    }
+
+    // 生成したステートでグラフを描画
+    algStaticGraphComp.updateState(s);
+
+    // AlgRouting から出力に到達可能なオペレータを動的に判定
+    auto activeOps = s.getActiveOperators();
+
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
-        juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algOpPrefix[algIndex][i];
-
-        opGroups[i].setText(newTitle);
-
-        bool enable = opEnableOnAlg[algIndex][i];
-
-        updateOpEnable(i, enable);
-    }
-
-    // ==========================================================
-    // 画像の切り替え
-    // ==========================================================
-    if (algImages[algIndex].isValid())
-    {
-        // 読み込めている場合はその画像をセット
-        // centred | onlyReduceInSize を指定すると、アスペクト比を保ったまま綺麗に収まります
-        algImageComp.setImage(algImages[algIndex], juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize);
-    }
-    else
-    {
-        // 画像がない場合（ファイルが見つからなかった時など）はクリア
-        algImageComp.setImage(juce::Image());
+        // 配列を使わず、到達可能性から判定したフラグをセット
+        updateOpEnable(i, activeOps[i]);
     }
 }
 
 void GuiOpzx7::updateAlgorithmMatrixDisplay()
 {
+    FmAlgState s = algMatrixComp.getState();
+    auto activeOps = s.getActiveOperators();
+
     for (int i = 0; i < Opzx7PrValue::ops; ++i)
     {
-        juce::String newTitle = Opzx7GuiText::Group::opPrefix + juce::String(i + 1) + algMatrixOpPrefix[i];
-
-        opGroups[i].setText(newTitle);
-
-        bool enable = opEnableOnAlgMatrix[i];
-
-        updateOpEnable(i, enable);
+        updateOpEnable(i, activeOps[i]);
     }
 }
 

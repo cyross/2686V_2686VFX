@@ -34,7 +34,7 @@
 
 #include "./PluginProcessorStateKey.h"
 
-#include "../../Gui/Components/AlgMatrix/AlgMatrixState.h"
+#include "../../Gui/Components/AlgMatrix/FmAlgState.h"
 
 class RetroSynthesiser : public juce::Synthesiser
 {
@@ -648,16 +648,15 @@ public:
     void setOpzx7AlgMode(int mode);
     int getOpzx7AlgMode() const;
 
-    void setOpzx7AlgMatrix(const AlgMatrixState& state);
-    AlgMatrixState getOpzx7AlgMatrix();
+    void setOpzx7AlgMatrix(const FmAlgState& state);
+    FmAlgState getOpzx7AlgMatrix();
 
     // プリセットロード時などにAPVTSからキャッシュを復元するための関数
     void updateAlgMatrixCacheFromState();
-
 private:
     // オーディオスレッドから安全に読み取るためのキャッシュ
     std::atomic<int> m_opzx7AlgMode{ 0 };
-    AlgMatrixState m_opzx7AlgMatrixState;
+    FmAlgState m_opzx7AlgMatrixState;
     juce::CriticalSection m_matrixLock; // マトリックス配列読み書き時のスレッドセーフ用
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlugin2686V)
