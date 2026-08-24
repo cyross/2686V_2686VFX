@@ -425,7 +425,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
 
     mRect.removeFromTop(OpnGuiValue::Category::paddingTop);
 
-    auto graphArea = mRect.removeFromTop(260); // 描画領域確保
+    auto graphArea = mRect.removeFromTop(150); // 描画領域確保
     algStaticGraphComp.setBounds(graphArea.reduced(10));
 
     algFbSep.layoutComponent(mRect);
