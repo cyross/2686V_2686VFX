@@ -13,14 +13,15 @@
 #include "../../Core/Gui/GuiStructs.h"
 
 static std::vector<SelectItem> positionItems = {
-    {.name = "Op1",    .value = 1 },
-    {.name = "Op2",    .value = 2 },
-    {.name = "Op3",    .value = 3 },
-    {.name = "Op4",    .value = 4 },
-    {.name = "Op5",    .value = 5 },
-    {.name = "Op6",    .value = 6 },
-    {.name = "Op7",    .value = 7 },
-    {.name = "Op8",    .value = 8 }
+    {.name = "Common",    .value = 1 },
+    {.name = "Op1",       .value = 2 },
+    {.name = "Op2",       .value = 3 },
+    {.name = "Op3",       .value = 4 },
+    {.name = "Op4",       .value = 5 },
+    {.name = "Op5",       .value = 6 },
+    {.name = "Op6",       .value = 7 },
+    {.name = "Op7",       .value = 8 },
+    {.name = "Op8",       .value = 9 }
 };
 
 static std::vector<SelectItem> targetItems = {
@@ -603,7 +604,9 @@ void GuiCurve::importCurveParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    juce::String posExt = "op";
+    int posIndex = position.getSelectedItemIndex();
+
+    juce::String posExt = posIndex == 0 ? "common" : "op";
 
     int targetIndex = target.getSelectedItemIndex();
 
@@ -667,7 +670,9 @@ void GuiCurve::exportCurveParam() {
         defaultDir = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
     }
 
-    juce::String posExt = "op";
+    int posIndex = position.getSelectedItemIndex();
+
+    juce::String posExt = posIndex == 0 ? "common" : "op";
 
     int targetIndex = target.getSelectedItemIndex();
 

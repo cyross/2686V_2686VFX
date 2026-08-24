@@ -6,7 +6,7 @@ namespace CurvePrValue
 {
 	inline constexpr float boolThread = CPV::boolThread;
 
-	inline constexpr int positions = 8;
+	inline constexpr int positions = 9;
 	inline constexpr int targets = 6;
 	inline constexpr int params = 16;
 	inline constexpr int logics = 31;

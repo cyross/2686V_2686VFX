@@ -176,14 +176,14 @@ void Opzx7Core::prepare(double sampleRate) {
     double target = getTargetRate(m_rateIndex);
 
     // 高速化のためのループアンローリング
-    m_operators[0].prepare(0, target);
-    m_operators[1].prepare(1, target);
-    m_operators[2].prepare(2, target);
-    m_operators[3].prepare(3, target);
-    m_operators[4].prepare(4, target);
-    m_operators[5].prepare(5, target);
-    m_operators[6].prepare(6, target);
-    m_operators[7].prepare(7, target);
+    m_operators[0].prepare(1, target);
+    m_operators[1].prepare(2, target);
+    m_operators[2].prepare(3, target);
+    m_operators[3].prepare(4, target);
+    m_operators[4].prepare(5, target);
+    m_operators[5].prepare(6, target);
+    m_operators[6].prepare(7, target);
+    m_operators[7].prepare(8, target);
 
     m_lfoPhase = 0.0;
     m_rateAccumulator = 1.0;
