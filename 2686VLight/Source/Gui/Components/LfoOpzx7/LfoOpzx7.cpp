@@ -7,14 +7,19 @@
 #include "../../../Core/Const/ConstGlobal.h"
 
 static std::vector<SelectItem> lfoShapeItems = {
-    {.name = "0: Sine",                .value = 1 },
-    {.name = "1: Saw Up",              .value = 2 },
-    {.name = "2: Saw Down",            .value = 3 },
-    {.name = "3: Square",              .value = 4 },
-    {.name = "4: Triangle",            .value = 5 },
-    {.name = "5: Sample & Hold",       .value = 6 },
-    {.name = "6: Saw Down & One Shot", .value = 7 },
-    {.name = "7: Triangle & One Shot", .value = 8 },
+    {.name = " 0: Sine",                .value = 1 },
+    {.name = " 1: Saw Up",              .value = 2 },
+    {.name = " 2: Saw Down",            .value = 3 },
+    {.name = " 3: Square",              .value = 4 },
+    {.name = " 4: Triangle",            .value = 5 },
+    {.name = " 5: Sample & Hold",       .value = 6 },
+    {.name = " 6: Saw Down & One Shot", .value = 7 },
+    {.name = " 7: Triangle & One Shot", .value = 8 },
+    {.name = " 8: Sample & Hold  4",    .value = 9 },
+    {.name = " 9: Sample & Hold  8",    .value = 10 },
+    {.name = "10: Sample & Hold 16",    .value = 11 },
+    {.name = "11: Sample & Hold 32",    .value = 12 },
+    {.name = "12: Sample & Hold 64",    .value = 13 },
 };
 
 void GuiComponentLfoOpzx7::setupComponent(

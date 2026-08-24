@@ -31,7 +31,7 @@ void Opzx7LfoCoreUnit::setParameters(int syncDelay, bool enable, float freq, int
 
     this->enable = enable;
     this->m_freq = freq;
-    this->m_waveIndex = std::clamp(index, 0, 7);
+    this->m_waveIndex = std::clamp(index, 0, 12);
     this->m_isOneshot = this->m_waveIndex == 6 || this->m_waveIndex == 7;
 
     this->ms = ms;
@@ -73,6 +73,7 @@ void Opzx7LfoCoreUnit::noteOn()
     }
 
     this->m_sdCycleCount = 0;
+    this->m_sdPhaseCount = 0;
 }
 
 float Opzx7LfoCoreUnit::getSample()
@@ -138,10 +139,47 @@ float Opzx7LfoCoreUnit::getSample()
                 if (this->m_phase < 0.25)      val = (float)(this->m_phase * 4.0);
                 else if (this->m_phase < 0.5)  val = (float)(1.0 - (this->m_phase - 0.25) * 4.0);
                 else                           val = 0.0;
+            case 8:
+                if (this->m_sdPhaseCount % 4 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 9:
+                if (this->m_sdPhaseCount % 8 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 10:
+                if (this->m_sdPhaseCount % 16 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 11:
+                if (this->m_sdPhaseCount % 32 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
+            case 12:
+                if (this->m_sdPhaseCount % 64 == 0) {
+                    this->m_currentHoldingSample = this->m_currentNoiseSample;
+                }
+                val = this->m_currentHoldingSample;
+
+                break;
             }
 
             // ワンショット波形 (6, 7) のミュート処理
             if (this->m_isOneshot && this->m_sdCycleCount > 0) val = 0.0f;
+
+            this->m_sdPhaseCount++;
         }
     }
 
