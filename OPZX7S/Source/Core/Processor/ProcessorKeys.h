@@ -87,6 +87,14 @@ namespace CPK
 	{
 		static inline const juce::String alg = "_ALG";
 		static inline const juce::String fb = "_FB1";
+		static inline const juce::String fb1 = "_FB1";
+		static inline const juce::String fb2 = "_FB2";
+		static inline const juce::String fb3 = "_FB3";
+		static inline const juce::String fb4 = "_FB4";
+		static inline const juce::String fb5 = "_FB5";
+		static inline const juce::String fb6 = "_FB6";
+		static inline const juce::String fb7 = "_FB7";
+		static inline const juce::String fb8 = "_FB8";
 
 		static inline const juce::String tl = "_TL";
 

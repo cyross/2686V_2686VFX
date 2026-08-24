@@ -13,7 +13,7 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     const juce::String prefixName = Opzx7PrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
-    PrHelper::addAlgFbParameters(layout, prefix, prefixName, Opzx7PrValue::Alg::max, Opzx7PrValue::Alg::initial);
+    PrHelper::addOpzx7AlgFbParameters(layout, prefix, prefixName, Opzx7PrValue::Alg::max, Opzx7PrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7PanpotParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
@@ -46,7 +46,7 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
 
     PrHelper::setupOpzx7BasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
-    PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
+    PrHelper::setupOpzx7AlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupPanpot(apvts, prefix, pPanpot);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
@@ -76,7 +76,7 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
 {
     PrHelper::applyOpzx7Basic(pBasic, params.opzx7);
     PrHelper::applyQuality(pQuality, params.opzx7.quality);
-    PrHelper::applyAlgFb(pAlgFb, params.opzx7.algFb);
+    PrHelper::applyOpzx7AlgFb(pAlgFb, params.opzx7.algFb);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.opzx7.glLfo);
     PrHelper::applyPanpot(pPanpot, params.opzx7.panpot);
     PrHelper::applyUnison(pUnison, params.opzx7.unison);

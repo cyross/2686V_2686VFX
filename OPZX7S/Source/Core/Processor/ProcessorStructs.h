@@ -5,6 +5,18 @@ struct PrPtrsAlgFb {
     std::atomic<float>* fb = nullptr;
 };
 
+struct PrPtrsOpzx7AlgFb {
+    std::atomic<float>* alg = nullptr;
+    std::atomic<float>* fb1 = nullptr;
+    std::atomic<float>* fb2 = nullptr;
+    std::atomic<float>* fb3 = nullptr;
+    std::atomic<float>* fb4 = nullptr;
+    std::atomic<float>* fb5 = nullptr;
+    std::atomic<float>* fb6 = nullptr;
+    std::atomic<float>* fb7 = nullptr;
+    std::atomic<float>* fb8 = nullptr;
+};
+
 struct PrPtrsQuality {
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* rate = nullptr;

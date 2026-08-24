@@ -11,7 +11,7 @@ struct Opzx7Params
 {
     float level = 1.0f;
 
-    AlgFbParams algFb;
+    Opzx7AlgFbParams algFb;
     LfoOpzx7Params glLfo;
     QualityParams quality;
     UnisonParams unison;

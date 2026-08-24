@@ -62,7 +62,14 @@ class GuiOpzx7 : public GuiBase
     // Global
     GuiComboBox algSelector;
     NormalSeparator algFbSep;
-    GuiFbSlider feedbackSlider;
+    GuiSlider feedback1Slider;
+    GuiSlider feedback2Slider;
+    GuiSlider feedback3Slider;
+    GuiSlider feedback4Slider;
+    GuiSlider feedback5Slider;
+    GuiSlider feedback6Slider;
+    GuiSlider feedback7Slider;
+    GuiSlider feedback8Slider;
 
     GuiCategoryLabel panCat;
     GuiToggleButton panpotEnableToggle;

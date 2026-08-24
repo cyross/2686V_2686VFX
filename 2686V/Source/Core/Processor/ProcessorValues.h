@@ -328,6 +328,13 @@ namespace CPV
 		inline constexpr int initial = 0;
 	}
 
+	namespace Opzx7Fb
+	{
+		inline constexpr float min = -8.0f;
+		inline constexpr float max = 8.0f;
+		inline constexpr float initial = 0.0f;
+	}
+
 	namespace Unison
 	{
 		namespace Voices

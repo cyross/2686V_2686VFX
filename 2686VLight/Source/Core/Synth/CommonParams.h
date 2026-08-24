@@ -50,6 +50,22 @@ struct AlgFbParams {
 	AlgMatrixParams matrix; // マトリックスモードのパラメータ
 };
 
+struct Opzx7AlgFbParams {
+    // --- Algorithm ---
+    int algorithm = 0;
+    // --- Feedback ---
+    float feedback1 = 0.0f;
+    float feedback2 = 0.0f;
+    float feedback3 = 0.0f;
+    float feedback4 = 0.0f;
+    float feedback5 = 0.0f;
+    float feedback6 = 0.0f;
+    float feedback7 = 0.0f;
+    float feedback8 = 0.0f;
+
+    AlgMatrixParams matrix; // マトリックスモードのパラメータ
+};
+
 struct WtModParams {
     bool enable = false;
     float depth = 0.0f;

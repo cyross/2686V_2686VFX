@@ -78,6 +78,14 @@ namespace CPN
 	{
 		static inline const juce::String alg = " Algorithm";
 		static inline const juce::String fb = " Feedback";
+		static inline const juce::String fb1 = " Feedback1";
+		static inline const juce::String fb2 = " Feedback2";
+		static inline const juce::String fb3 = " Feedback3";
+		static inline const juce::String fb4 = " Feedback4";
+		static inline const juce::String fb5 = " Feedback5";
+		static inline const juce::String fb6 = " Feedback6";
+		static inline const juce::String fb7 = " Feedback7";
+		static inline const juce::String fb8 = " Feedback8";
 
 		static inline const juce::String ar = " AR";
 		static inline const juce::String dr = " DR";

@@ -16,6 +16,19 @@ struct CopyFmBase {
 	int feedback;
 };
 
+struct CopyOpzx7Base {
+	float level;
+	int algorithm;
+	float feedback1;
+	float feedback2;
+	float feedback3;
+	float feedback4;
+	float feedback5;
+	float feedback6;
+	float feedback7;
+	float feedback8;
+};
+
 struct CopyKSOpn {
 	int ks;
 };
@@ -484,7 +497,7 @@ struct CopyOpnaOpnOpmOp {
 };
 
 struct CopyOpzx7 {
-	CopyFmBase fmBase;
+	CopyOpzx7Base fmBase;
 	CopyPanpot panpot;
 	CopyLfoOpzx7 lfo;
 	CopyQuality quality;

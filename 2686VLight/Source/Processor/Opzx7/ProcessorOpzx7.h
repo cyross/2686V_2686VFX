@@ -11,7 +11,7 @@
 class Opzx7Processor : public PrBase
 {
     PrPtrsOpzx7Basic pBasic;
-    PrPtrsAlgFb pAlgFb;
+    PrPtrsOpzx7AlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsPanpot pPanpot;

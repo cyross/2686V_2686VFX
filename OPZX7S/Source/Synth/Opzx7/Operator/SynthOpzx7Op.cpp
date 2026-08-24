@@ -38,10 +38,9 @@ void Opzx7Operator::setSampleRate(double sampleRate) {
     m_ssgSwPenv11.updateSampleRate(sampleRate);
 }
 
-void Opzx7Operator::setParameters(const Opzx7OpParams& params, int feedback)
+void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
 {
     m_params = params;
-    m_feedback = feedback;
     m_ssgEgFreq = params.se.freq;
     m_params.waveSelect = params.waveSelect;
 
@@ -56,6 +55,17 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, int feedback)
     m_loopPointEnable = params.lp.enable;
     m_loopPointStart = std::clamp(params.lp.start, 0.0f, 0.999999f);
     m_loopPointEnd = std::clamp(params.lp.end, m_loopPointStart + 0.000001f, 1.0f);
+
+    m_fbx = feedback;
+
+    // -8.0 ～ 8.0 の実数値に基づく指数的フィードバックスケール計算
+    // 従来のベクタ計算 ( 2^(fb - 5.0) ) を pow() を使って直接行う
+    float absFb = std::abs(m_fbx);
+    float fbs = std::pow(2.0f, absFb - 5.0f);
+    // マイナス値の場合は逆相（マイナス）のフィードバックにする
+    float sign = (m_fbx >= 0.0f) ? 1.0f : -1.0f;
+
+    m_fbScale = sign * fbs * juce::MathConstants<float>::pi * 2.0f;
 }
 
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -386,9 +396,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // 3. 位相と波形の生成
     // ========================================================
     float feedbackPhaseOffset = 0.0f;
-    if (m_feedback > 0 && feedbackModulator != 0.0f) {
-        // コアから渡された「過去2サンプルの平均値 (feedbackModulator)」にスケールを掛けるだけ
-        feedbackPhaseOffset = feedbackModulator * fVector[m_feedback] * juce::MathConstants<float>::pi * 2.0f;
+    if (m_fbx != 0.0f && feedbackModulator != 0.0f) {
+        feedbackPhaseOffset = feedbackModulator * m_fbScale;
     }
 
 	float basePhaseDelta = m_phaseDelta * m_pitchBendRatio * lfoPitchMod;

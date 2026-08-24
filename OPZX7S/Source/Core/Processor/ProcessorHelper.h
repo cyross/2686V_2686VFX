@@ -110,6 +110,18 @@ namespace PrHelper {
 		ptPtrs.fb = apvts.getRawParameterValue(prefix + CPK::Fm::fb);
 	}
 
+	static inline void setupOpzx7AlgFbPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsOpzx7AlgFb& ptPtrs) {
+		ptPtrs.alg = apvts.getRawParameterValue(prefix + CPK::Fm::alg);
+		ptPtrs.fb1 = apvts.getRawParameterValue(prefix + CPK::Fm::fb1);
+		ptPtrs.fb2 = apvts.getRawParameterValue(prefix + CPK::Fm::fb2);
+		ptPtrs.fb3 = apvts.getRawParameterValue(prefix + CPK::Fm::fb3);
+		ptPtrs.fb4 = apvts.getRawParameterValue(prefix + CPK::Fm::fb4);
+		ptPtrs.fb5 = apvts.getRawParameterValue(prefix + CPK::Fm::fb5);
+		ptPtrs.fb6 = apvts.getRawParameterValue(prefix + CPK::Fm::fb6);
+		ptPtrs.fb7 = apvts.getRawParameterValue(prefix + CPK::Fm::fb7);
+		ptPtrs.fb8 = apvts.getRawParameterValue(prefix + CPK::Fm::fb8);
+	}
+
 	static inline void setupAdsrAmpEnvPtrs(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsAdsrAmpEnv& ptPtrs){
 		ptPtrs.bypass = apvts.getRawParameterValue(prefix + CPK::adsr + CPK::bypass);
 		ptPtrs.stl = apvts.getRawParameterValue(prefix + CPK::Adsr::stl);
@@ -658,6 +670,18 @@ namespace PrHelper {
 	static inline void applyAlgFb(PrPtrsAlgFb& ptPtrs, AlgFbParams& params){
 		params.algorithm = getInt(ptPtrs.alg);
 		params.feedback = getInt(ptPtrs.fb);
+	}
+
+	static inline void applyOpzx7AlgFb(PrPtrsOpzx7AlgFb& ptPtrs, Opzx7AlgFbParams& params) {
+		params.algorithm = getInt(ptPtrs.alg);
+		params.feedback1 = getInt(ptPtrs.fb1);
+		params.feedback2 = getInt(ptPtrs.fb2);
+		params.feedback3 = getInt(ptPtrs.fb3);
+		params.feedback4 = getInt(ptPtrs.fb4);
+		params.feedback5 = getInt(ptPtrs.fb5);
+		params.feedback6 = getInt(ptPtrs.fb6);
+		params.feedback7 = getInt(ptPtrs.fb7);
+		params.feedback8 = getInt(ptPtrs.fb8);
 	}
 
 	static inline void applySsgSwEnv(PrPtrsSsgSwEnv& ptPtrs, SsgSwEnvParams& params){
@@ -2588,6 +2612,63 @@ namespace PrHelper {
 			prefix + CPK::Fm::fb, 
 			prefixName + CPN::Fm::fb, 
 			CPV::Fb::min, CPV::Fb::max, CPV::Fb::initial
+		);
+	}
+
+	static inline void addOpzx7AlgFbParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName, int maxAlg, int initAlg) {
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::Fm::alg,
+			prefixName + CPN::Fm::alg,
+			CPV::Alg::min, maxAlg, initAlg
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb1,
+			prefixName + CPN::Fm::fb1,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb2,
+			prefixName + CPN::Fm::fb2,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb3,
+			prefixName + CPN::Fm::fb3,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb4,
+			prefixName + CPN::Fm::fb4,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb5,
+			prefixName + CPN::Fm::fb5,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb6,
+			prefixName + CPN::Fm::fb6,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb7,
+			prefixName + CPN::Fm::fb7,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
+		);
+		PrHelper::addFloat(
+			layout,
+			prefix + CPK::Fm::fb8,
+			prefixName + CPN::Fm::fb8,
+			CPV::Opzx7Fb::min, CPV::Opzx7Fb::max, CPV::Opzx7Fb::initial
 		);
 	}
 
