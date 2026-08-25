@@ -184,6 +184,8 @@ public:
     void exportAmpEnvParam();
     void importPitchEnvParam();
     void exportPitchEnvParam();
+    void importSsgHwEnvParam();
+    void exportSsgHwEnvParam();
     void importSsgSwEnvParam();
     void exportSsgSwEnvParam();
     void importSsgSwEnv11Param();
@@ -227,6 +229,7 @@ class GuiRhythm : public GuiBase
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -279,8 +282,6 @@ public:
     void exportQualityParam(int p);
     void importPcmPlayParam(int p);
     void exportPcmPlayParam(int p);
-    void importUnisonParam();
-    void exportUnisonParam();
     void importChParam();
     void exportChParam();
     void importPadChParam(int p);

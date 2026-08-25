@@ -281,9 +281,11 @@ void GuiOpn::setup()
     ieLfo.onClickImport = [this] { importLfoParam(); };
     ieLfo.onClickExport = [this] { exportLfoParam(); };
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -777,6 +779,8 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
     imOpnaOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep004.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -816,6 +820,10 @@ void GuiOpn::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep004.layoutComponent(rect);
 
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -1498,14 +1506,6 @@ void GuiOpn::exportLfoParam() {
         });
 }
 
-void GuiOpn::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiOpn::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiOpn::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
@@ -1617,6 +1617,8 @@ void GuiOpn::importChParam() {
                 lfoAmdSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
                 // Components (Global)
+                ssgHwEnv.setImportingParams(lines, index);
+                ssgSwEnv11g.setImportingParams(lines, index);
                 qualityComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
 
@@ -1662,6 +1664,8 @@ void GuiOpn::exportChParam() {
                 content += juce::String(lfoAmdSlider.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 // Components (Global)
+                content += ssgHwEnv.getExportedParams();
+                content += ssgSwEnv11g.getExportedParams();
                 content += qualityComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
 

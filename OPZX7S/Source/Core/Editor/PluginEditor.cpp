@@ -795,6 +795,7 @@ void AudioPlugin2686VEditor::loadSettingsFile()
                     audioProcessor.defaultAmpEnvParamDir,
                     audioProcessor.defaultPitchEnvParamDir,
                     audioProcessor.defaultSsgSwEnvParamDir,
+                    audioProcessor.defaultSsgHwEnvParamDir,
                     audioProcessor.defaultDetuneParamDir,
                     audioProcessor.defaultUnisonParamDir,
                     audioProcessor.defaultQualityParamDir,

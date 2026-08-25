@@ -109,6 +109,8 @@ class GuiOpzx7 : public GuiBase
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep003;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -278,8 +280,6 @@ public:
     void pasteOpParams(int p, CopyOpzx7Op& copyObj);
     void importOpLfoParam(int opIndex);
     void exportOpLfoParam(int opIndex);
-    void importLfoParam();
-    void exportLfoParam();
     void importPitchEnvParam(int opIndex);
     void exportPitchEnvParam(int opIndex);
     void importSsgSwEnvParam(int opIndex);
@@ -290,8 +290,6 @@ public:
     void exportSsgSwPEnv11Param(int opIndex);
     void importDetuneParam(int opIndex);
     void exportDetuneParam(int opIndex);
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
     void importOpPcmPlayParam(int opIndex);

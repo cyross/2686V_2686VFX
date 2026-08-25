@@ -72,6 +72,10 @@ class GuiSettings : public GuiBase
     GuiLabel ssgSwEnvParamDirPathLabel;
     GuiTextButton ssgSwEnvParamDirBrowseBtn;
 
+    GuiLabel ssgHwEnvParamDirLabel;
+    GuiLabel ssgHwEnvParamDirPathLabel;
+    GuiTextButton ssgHwEnvParamDirBrowseBtn;
+
     GuiLabel detuneParamDirLabel;
     GuiLabel detuneParamDirPathLabel;
     GuiTextButton detuneParamDirBrowseBtn;
@@ -158,6 +162,9 @@ public:
         ssgSwEnvParamDirLabel(context),
         ssgSwEnvParamDirPathLabel(context),
         ssgSwEnvParamDirBrowseBtn(context),
+        ssgHwEnvParamDirLabel(context),
+        ssgHwEnvParamDirPathLabel(context),
+        ssgHwEnvParamDirBrowseBtn(context),
         detuneParamDirLabel(context),
         detuneParamDirPathLabel(context),
         detuneParamDirBrowseBtn(context),
@@ -204,6 +211,7 @@ public:
         const juce::String& ampEnvParamDirPath,
         const juce::String& pitchEnvParamDirPath,
         const juce::String& ssgSwEnvParamDirPath,
+        const juce::String& ssgHwEnvParamDirPath,
         const juce::String& detuneParamDirPath,
         const juce::String& unisonParamDirPath,
         const juce::String& qualityParamDirPath,

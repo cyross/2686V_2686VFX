@@ -527,6 +527,7 @@ void AudioPlugin2686V::saveEnvironment(const juce::File& file)
     xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, defaultAmpEnvParamDir);
     xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, defaultPitchEnvParamDir);
     xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, defaultSsgSwEnvParamDir);
+    xml.setAttribute(SettingsKey::defaultSsgHwEnvParamDir, defaultSsgHwEnvParamDir);
     xml.setAttribute(SettingsKey::defaultDetuneParamDir, defaultDetuneParamDir);
     xml.setAttribute(SettingsKey::defaultUnisonParamDir, defaultUnisonParamDir);
     xml.setAttribute(SettingsKey::defaultQualityParamDir, defaultQualityParamDir);
@@ -560,6 +561,7 @@ void AudioPlugin2686V::loadEnvironment(const juce::File& file)
         defaultAmpEnvParamDir = xml->getStringAttribute(SettingsKey::defaultAmpEnvParamDir);
         defaultPitchEnvParamDir = xml->getStringAttribute(SettingsKey::defaultPitchEnvParamDir);
         defaultSsgSwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgSwEnvParamDir);
+        defaultSsgHwEnvParamDir = xml->getStringAttribute(SettingsKey::defaultSsgHwEnvParamDir);
         defaultDetuneParamDir = xml->getStringAttribute(SettingsKey::defaultDetuneParamDir);
         defaultQualityParamDir = xml->getStringAttribute(SettingsKey::defaultQualityParamDir);
         defaultPcmPlayParamDir = xml->getStringAttribute(SettingsKey::defaultPcmPlayParamDir);
@@ -719,6 +721,18 @@ void AudioPlugin2686V::loadStartupSettings()
         }
 
         defaultSsgSwEnvParamDir = newSsgSwEnvParamDir.getFullPathName();
+    }
+
+    if (defaultSsgHwEnvParamDir.isEmpty() || !juce::File(defaultSsgHwEnvParamDir).isDirectory())
+    {
+        auto newSsgHwEnvParamDir = pluginDir.getChildFile(Io::Folder::ssgHwEnvParam);
+
+        // 存在していなければ作成
+        if (!newSsgHwEnvParamDir.exists()) {
+            newSsgHwEnvParamDir.createDirectory();
+        }
+
+        defaultSsgHwEnvParamDir = newSsgHwEnvParamDir.getFullPathName();
     }
 
     if (defaultDetuneParamDir.isEmpty() || !juce::File(defaultDetuneParamDir).isDirectory())

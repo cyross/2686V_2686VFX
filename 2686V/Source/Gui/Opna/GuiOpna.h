@@ -106,6 +106,8 @@ class GuiOpna : public GuiBase
     GuiComponentImport imOpnOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -238,6 +240,8 @@ public:
 		imOpnOpChParam(context),
         targerOpSlider(context),
         uSep005(context),
+        ieSsgHwEnv(context),
+        ieSsgSwEnv11(context),
         ieLfo(context),
         ieUnison(context),
         ieQuality(context),
@@ -345,8 +349,6 @@ public:
     void exportSsgSwPEnv11Param(int opIndex);
     void importLfoParam();
     void exportLfoParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
     void importChParam();

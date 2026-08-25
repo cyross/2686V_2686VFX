@@ -195,37 +195,23 @@ void GuiAdpcm::setup()
     ieToneNoise.onClickImport = [this] { importToneNoiseParam(); };
     ieToneNoise.onClickExport = [this] { exportToneNoiseParam(); };
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", lfoComponent);
 
-    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] { importDetuneParam(); };
-    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+    ieDetune.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Detune", mulDetuneComponent);
 
-    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
-    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+    ieAmpEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
 
-    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
-    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+    iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
-    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
-    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
-    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
-    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+    ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
-    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -366,6 +352,7 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -387,6 +374,8 @@ void GuiAdpcm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -656,54 +645,6 @@ void GuiAdpcm::exportToneNoiseParam() {
         });
 }
 
-void GuiAdpcm::importLfoParam() {
-    lfoComponent.importParams();
-}
-
-void GuiAdpcm::exportLfoParam() {
-    lfoComponent.exportParams();
-}
-
-void GuiAdpcm::importAmpEnvParam() {
-    ampEnvComponent.importParams();
-}
-
-void GuiAdpcm::exportAmpEnvParam() {
-    ampEnvComponent.exportParams();
-}
-
-void GuiAdpcm::importPitchEnvParam() {
-    pitchEnvComponent.importParams();
-}
-
-void GuiAdpcm::exportPitchEnvParam() {
-    pitchEnvComponent.exportParams();
-}
-
-void GuiAdpcm::importSsgSwEnvParam() {
-    ssgSwEnvComponent.importParams();
-}
-
-void GuiAdpcm::exportSsgSwEnvParam() {
-    ssgSwEnvComponent.exportParams();
-}
-
-void GuiAdpcm::importDetuneParam() {
-    mulDetuneComponent.importParams();
-}
-
-void GuiAdpcm::exportDetuneParam() {
-    mulDetuneComponent.exportParams();
-}
-
-void GuiAdpcm::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiAdpcm::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiAdpcm::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
@@ -818,22 +759,6 @@ void GuiAdpcm::exportPcmPlayParam() {
         });
 }
 
-void GuiAdpcm::importSsgSwEnv11Param() {
-    ssgSwEnv11Component.importParams();
-}
-
-void GuiAdpcm::exportSsgSwEnv11Param() {
-    ssgSwEnv11Component.exportParams();
-}
-
-void GuiAdpcm::importSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.importParams();
-}
-
-void GuiAdpcm::exportSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.exportParams();
-}
-
 void GuiAdpcm::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -892,7 +817,8 @@ void GuiAdpcm::importChParam() {
 				fixComponent.setImportingParams(lines, index);
 				ampEnvComponent.setImportingParams(lines, index);
 				pitchEnvComponent.setImportingParams(lines, index);
-				ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgHwEnv.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
 				ssgSwEnv11Component.setImportingParams(lines, index);
 				ssgSwPEnv11Component.setImportingParams(lines, index);
 				mulDetuneComponent.setImportingParams(lines, index);
@@ -948,7 +874,8 @@ void GuiAdpcm::exportChParam() {
 				content += fixComponent.getExportedParams();
 				content += ampEnvComponent.getExportedParams();
 				content += pitchEnvComponent.getExportedParams();
-				content += ssgSwEnvComponent.getExportedParams();
+                content += ssgHwEnv.getExportedParams();
+                content += ssgSwEnvComponent.getExportedParams();
 				content += ssgSwEnv11Component.getExportedParams();
 				content += ssgSwPEnv11Component.getExportedParams();
 				content += mulDetuneComponent.getExportedParams();

@@ -253,9 +253,11 @@ void GuiOpl3::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
+
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -811,6 +813,8 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
     imOplOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep005.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
     ieChParam.setVisible(visible);
@@ -858,6 +862,10 @@ void GuiOpl3::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep005.layoutComponent(rect);
 
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
         rect.removeFromTop(4);
         ieQuality.layoutComponent(rect);
@@ -1397,14 +1405,6 @@ void GuiOpl3::exportSsgSwEnvParam(int opIndex) {
     ssgSwEnv[opIndex].exportParams();
 }
 
-void GuiOpl3::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiOpl3::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiOpl3::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
@@ -1505,6 +1505,8 @@ void GuiOpl3::importChParam() {
                 updateAlgorithmDisplay();
 
                 // Components
+                ssgHwEnv.setImportingParams(lines, index);
+                ssgSwEnv11g.setImportingParams(lines, index);
                 qualityComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
 
@@ -1540,6 +1542,8 @@ void GuiOpl3::exportChParam() {
                 content += juce::String(feedbackSlider.getValue(), 0) + "\n";
 
                 // Components
+                content += ssgHwEnv.getExportedParams();
+                content += ssgSwEnv11g.getExportedParams();
                 content += qualityComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
 

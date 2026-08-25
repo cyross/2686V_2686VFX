@@ -354,6 +354,8 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
 	ieOpChParam(context),
     targerOpSlider(context),
     uSep003(context),
+    ieSsgHwEnv(context),
+    ieSsgSwEnv11(context),
     ieLfo(context),
     ieUnison(context),
     ieQuality(context),
@@ -679,13 +681,13 @@ void GuiOpzx7::setup()
     targerOpSlider.setWantsKeyboardFocus(true);
     targerOpSlider.setExplicitFocusOrder(++tabOrder);
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11g);
+
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", glLfo);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieQuality.setupComponent(mainGroup.contentCanvas, tabOrder, "Quality");
     ieQuality.onClickImport = [this] { importQualityParam(); };
@@ -1740,6 +1742,8 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieOpChParam.setVisible(visible);
     targerOpSlider.setVisibleWithLabel(visible);
     uSep003.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
+    ieSsgSwEnv11.setVisible(visible);
     ieLfo.setVisible(visible);
     ieUnison.setVisible(visible);
     ieQuality.setVisible(visible);
@@ -1777,6 +1781,10 @@ void GuiOpzx7::layoutUtilityCat(juce::Rectangle<int>& rect)
 
         uSep003.layoutComponent(rect);
 
+        ieSsgHwEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgSwEnv11.layoutComponent(rect);
+        rect.removeFromTop(4);
         ieLfo.layoutComponent(rect);
         rect.removeFromTop(4);
         ieUnison.layoutComponent(rect);
@@ -2473,22 +2481,6 @@ void GuiOpzx7::exportSsgSwEnvParam(int opIndex) {
     ssgSwEnv[opIndex].exportParams();
 }
 
-void GuiOpzx7::importLfoParam() {
-    glLfo.importParams();
-}
-
-void GuiOpzx7::exportLfoParam() {
-    glLfo.exportParams();
-}
-
-void GuiOpzx7::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiOpzx7::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
 void GuiOpzx7::importQualityParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultQualityParamDir);
     if (!defaultDir.isDirectory()) {
@@ -2671,6 +2663,8 @@ void GuiOpzx7::importChParam() {
                 panpotSlider.setValue(lines[index++].getFloatValue(), juce::sendNotification);
 
                 // Components (Global)
+                ssgHwEnv.setImportingParams(lines, index);
+                ssgSwEnv11g.setImportingParams(lines, index);
                 glLfo.setImportingParams(lines, index);
                 qualityComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
@@ -2720,6 +2714,8 @@ void GuiOpzx7::exportChParam() {
                 content += juce::String(panpotSlider.getValue(), Global::floatDecimalPlaces) + "\n";
 
                 // Components (Global)
+                content += ssgHwEnv.getExportedParams();
+                content += ssgSwEnv11g.getExportedParams();
                 content += glLfo.getExportedParams();
                 content += qualityComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();

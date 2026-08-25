@@ -102,6 +102,8 @@ class GuiOpm : public GuiBase
     GuiComponentImportExport ieOpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep004;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
@@ -242,6 +244,8 @@ public:
 		ieOpChParam(context),
         targerOpSlider(context),
         uSep004(context),
+        ieSsgHwEnv(context),
+        ieSsgSwEnv11(context),
         ieLfo(context),
         ieUnison(context),
         ieQuality(context),
@@ -358,8 +362,6 @@ public:
     void exportSsgSwPEnv11Param(int opIndex);
     void importLfoParam();
     void exportLfoParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
     void importChParam();

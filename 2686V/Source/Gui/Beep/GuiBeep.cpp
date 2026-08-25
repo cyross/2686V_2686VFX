@@ -60,37 +60,23 @@ void GuiBeep::setup() {
 
     uSep001.setupComponent(mainGroup.contentCanvas);
 
-    ieLfo.setupComponent(mainGroup.contentCanvas, tabOrder, "LFO");
-    ieLfo.onClickImport = [this] { importLfoParam(); };
-    ieLfo.onClickExport = [this] { exportLfoParam(); };
+    ieLfo.setupComponentFor(mainGroup.contentCanvas, tabOrder, "LFO", lfoComponent);
 
-    ieDetune.setupComponent(mainGroup.contentCanvas, tabOrder, "Detune");
-    ieDetune.onClickImport = [this] { importDetuneParam(); };
-    ieDetune.onClickExport = [this] { exportDetuneParam(); };
+    ieDetune.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Detune", mulDetuneComponent);
 
-    ieAmpEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Amp Env");
-    ieAmpEnv.onClickImport = [this] { importAmpEnvParam(); };
-    ieAmpEnv.onClickExport = [this] { exportAmpEnvParam(); };
+    ieAmpEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Amp Env", ampEnvComponent);
 
-    iePitchEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "Pitch Env");
-    iePitchEnv.onClickImport = [this] { importPitchEnvParam(); };
-    iePitchEnv.onClickExport = [this] { exportPitchEnvParam(); };
+    iePitchEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Pitch Env", pitchEnvComponent);
 
-    ieSsgSwEnv.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
-    ieSsgSwEnv.onClickImport = [this] { importSsgSwEnvParam(); };
-    ieSsgSwEnv.onClickExport = [this] { exportSsgSwEnvParam(); };
+    ieSsgHwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG HW Env", ssgHwEnv);
 
-    ieSsgSwEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW E11");
-    ieSsgSwEnv11.onClickImport = [this] { importSsgSwEnv11Param(); };
-    ieSsgSwEnv11.onClickExport = [this] { exportSsgSwEnv11Param(); };
+    ieSsgSwEnv.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW Env", ssgSwEnvComponent);
 
-    ieSsgSwPEnv11.setupComponent(mainGroup.contentCanvas, tabOrder, "SSG SW P11");
-    ieSsgSwPEnv11.onClickImport = [this] { importSsgSwPEnv11Param(); };
-    ieSsgSwPEnv11.onClickExport = [this] { exportSsgSwPEnv11Param(); };
+    ieSsgSwEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW E11", ssgSwEnv11Component);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieSsgSwPEnv11.setupComponentFor(mainGroup.contentCanvas, tabOrder, "SSG SW P11", ssgSwPEnv11Component);
+
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
     ieChParam.onClickImport = [this] { importChParam(); };
@@ -167,6 +153,7 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -184,6 +171,8 @@ void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -329,69 +318,6 @@ void GuiBeep::setLevel(float level) {
     levelComponent.setLevel(level);
 }
 
-void GuiBeep::importLfoParam() {
-    lfoComponent.importParams();
-}
-void GuiBeep::exportLfoParam() {
-    lfoComponent.exportParams();
-}
-
-void GuiBeep::importAmpEnvParam() {
-    ampEnvComponent.importParams();
-}
-
-void GuiBeep::exportAmpEnvParam() {
-    ampEnvComponent.exportParams();
-}
-
-void GuiBeep::importPitchEnvParam() {
-    pitchEnvComponent.importParams();
-}
-
-void GuiBeep::exportPitchEnvParam() {
-    pitchEnvComponent.exportParams();
-}
-
-void GuiBeep::importSsgSwEnvParam() {
-    ssgSwEnvComponent.importParams();
-}
-
-void GuiBeep::exportSsgSwEnvParam() {
-    ssgSwEnvComponent.exportParams();
-}
-
-void GuiBeep::importDetuneParam() {
-    mulDetuneComponent.importParams();
-}
-
-void GuiBeep::exportDetuneParam() {
-    mulDetuneComponent.exportParams();
-}
-
-void GuiBeep::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiBeep::exportUnisonParam() {
-    unisonComponent.exportParams();
-}
-
-void GuiBeep::importSsgSwEnv11Param() {
-    ssgSwEnv11Component.importParams();
-}
-
-void GuiBeep::exportSsgSwEnv11Param() {
-    ssgSwEnv11Component.exportParams();
-}
-
-void GuiBeep::importSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.importParams();
-}
-
-void GuiBeep::exportSsgSwPEnv11Param() {
-    ssgSwPEnv11Component.exportParams();
-}
-
 void GuiBeep::importChParam() {
     juce::File defaultDir(ctx.audioProcessor.defaultChannelParamDir);
     if (!defaultDir.isDirectory()) {
@@ -420,7 +346,8 @@ void GuiBeep::importChParam() {
 				fixComponent.setImportingParams(lines, index);
 				ampEnvComponent.setImportingParams(lines, index);
 				pitchEnvComponent.setImportingParams(lines, index);
-				ssgSwEnvComponent.setImportingParams(lines, index);
+                ssgHwEnv.setImportingParams(lines, index);
+                ssgSwEnvComponent.setImportingParams(lines, index);
 				ssgSwEnv11Component.setImportingParams(lines, index);
 				ssgSwPEnv11Component.setImportingParams(lines, index);
 				mulDetuneComponent.setImportingParams(lines, index);
@@ -453,6 +380,7 @@ void GuiBeep::exportChParam() {
                 content += fixComponent.getExportedParams();
                 content += ampEnvComponent.getExportedParams();
                 content += pitchEnvComponent.getExportedParams();
+                content += ssgHwEnv.getExportedParams();
                 content += ssgSwEnvComponent.getExportedParams();
                 content += ssgSwEnv11Component.getExportedParams();
                 content += ssgSwPEnv11Component.getExportedParams();

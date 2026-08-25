@@ -19,6 +19,7 @@ namespace SettingsKey
 	static inline const juce::String defaultAmpEnvParamDir = "defaultAmpEnvParamDir";
 	static inline const juce::String defaultPitchEnvParamDir = "defaultPitchEnvParamDir";
 	static inline const juce::String defaultSsgSwEnvParamDir = "defaultSsgSwEnvParamDir";
+	static inline const juce::String defaultSsgHwEnvParamDir = "defaultSsgHwEnvParamDir";
 	static inline const juce::String defaultDetuneParamDir = "defaultDetuneParamDir";
 	static inline const juce::String defaultUnisonParamDir = "defaultUnisonParamDir";
 	static inline const juce::String defaultQualityParamDir = "defaultQualityParamDir";

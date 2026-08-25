@@ -107,6 +107,7 @@ class GuiAdpcm : public GuiBase
     GuiComponentImportExport ieLfo;
     GuiComponentImportExport ieAmpEnv;
     GuiComponentImportExport iePitchEnv;
+    GuiComponentImportExport ieSsgHwEnv;
     GuiComponentImportExport ieSsgSwEnv;
     GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieSsgSwPEnv11;
@@ -181,6 +182,7 @@ public:
         ieLfo(context),
         ieAmpEnv(context),
         iePitchEnv(context),
+        ieSsgHwEnv(context),
         ieSsgSwEnv(context),
         ieSsgSwEnv11(context),
         ieSsgSwPEnv11(context),
@@ -221,22 +223,6 @@ public:
     void setLevel(float level);
     void importToneNoiseParam();
     void exportToneNoiseParam();
-    void importLfoParam();
-    void exportLfoParam();
-    void importAmpEnvParam();
-    void exportAmpEnvParam();
-    void importPitchEnvParam();
-    void exportPitchEnvParam();
-    void importSsgSwEnvParam();
-    void exportSsgSwEnvParam();
-    void importSsgSwEnv11Param();
-    void exportSsgSwEnv11Param();
-    void importSsgSwPEnv11Param();
-    void exportSsgSwPEnv11Param();
-    void importDetuneParam();
-    void exportDetuneParam();
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
     void importPcmPlayParam();

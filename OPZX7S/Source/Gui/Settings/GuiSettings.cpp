@@ -370,6 +370,27 @@ void GuiSettings::setup()
         );
         };
 
+    // --- SSG HW Env Param Dir ---
+    setupFolderRow(ssgHwEnvParamDirLabel, juce::String("") + "SSG HW ENVファイルディレクトリ:", ssgHwEnvParamDirPathLabel, ssgHwEnvParamDirBrowseBtn);
+    ssgHwEnvParamDirPathLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
+    ssgHwEnvParamDirPathLabel.setWantsKeyboardFocus(false);
+
+    ssgHwEnvParamDirBrowseBtn.setWantsKeyboardFocus(true);
+    ssgHwEnvParamDirBrowseBtn.setExplicitFocusOrder(++tabOrder);
+    ssgHwEnvParamDirBrowseBtn.onClick = [this] {
+        ctx.editor.openFileChooser(
+            juce::String("") + "SSG HW ENVファイルディレクトリを選択してください",
+            ctx.audioProcessor.defaultSsgHwEnvParamDir.isEmpty() ? juce::File::getSpecialLocation(juce::File::userDocumentsDirectory) : juce::File(ctx.audioProcessor.defaultSsgHwEnvParamDir),
+            [this](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file.isDirectory()) {
+                    ctx.audioProcessor.defaultSsgHwEnvParamDir = file.getFullPathName();
+                    ssgHwEnvParamDirPathLabel.setText(file.getFullPathName(), juce::dontSendNotification);
+                }
+            }
+        );
+        };
+
     // --- Detune Param Dir ---
     setupFolderRow(detuneParamDirLabel, juce::String("") + "DETUNE ファイルディレクトリ:", detuneParamDirPathLabel, detuneParamDirBrowseBtn);
     detuneParamDirPathLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
@@ -573,6 +594,7 @@ void GuiSettings::setup()
                     ampEnvParamDirLabel.setText(ctx.audioProcessor.defaultAmpEnvParamDir, juce::dontSendNotification);
                     pitchEnvParamDirLabel.setText(ctx.audioProcessor.defaultPitchEnvParamDir, juce::dontSendNotification);
                     ssgSwEnvParamDirLabel.setText(ctx.audioProcessor.defaultSsgSwEnvParamDir, juce::dontSendNotification);
+                    ssgHwEnvParamDirLabel.setText(ctx.audioProcessor.defaultSsgHwEnvParamDir, juce::dontSendNotification);
                     detuneParamDirLabel.setText(ctx.audioProcessor.defaultDetuneParamDir, juce::dontSendNotification);
                     unisonParamDirLabel.setText(ctx.audioProcessor.defaultUnisonParamDir, juce::dontSendNotification);
 
@@ -623,6 +645,7 @@ void GuiSettings::setup()
             xml.setAttribute(SettingsKey::defaultAmpEnvParamDir, ctx.audioProcessor.defaultAmpEnvParamDir);
             xml.setAttribute(SettingsKey::defaultPitchEnvParamDir, ctx.audioProcessor.defaultPitchEnvParamDir);
             xml.setAttribute(SettingsKey::defaultSsgSwEnvParamDir, ctx.audioProcessor.defaultSsgSwEnvParamDir);
+            xml.setAttribute(SettingsKey::defaultSsgHwEnvParamDir, ctx.audioProcessor.defaultSsgHwEnvParamDir);
             xml.setAttribute(SettingsKey::defaultDetuneParamDir, ctx.audioProcessor.defaultDetuneParamDir);
             xml.setAttribute(SettingsKey::defaultUnisonParamDir, ctx.audioProcessor.defaultUnisonParamDir);
             xml.setAttribute(SettingsKey::showTooltips, ctx.audioProcessor.showTooltips);
@@ -749,11 +772,17 @@ void GuiSettings::layout(juce::Rectangle<int> content)
     pitchEnvParamDirBrowseBtn.setBounds(rowPitchEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     pitchEnvParamDirPathLabel.setBounds(rowPitchEnvParamDir);
 
-    // 7. Amp Env Param Dir
+    // 7. Ssg Sw Env Param Dir
     auto rowSsgSwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
     ssgSwEnvParamDirLabel.setBounds(rowSsgSwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
     ssgSwEnvParamDirBrowseBtn.setBounds(rowSsgSwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
     ssgSwEnvParamDirPathLabel.setBounds(rowSsgSwEnvParamDir);
+
+    // 7. Ssg Hw Env Param Dir
+    auto rowSsgHwEnvParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
+    ssgHwEnvParamDirLabel.setBounds(rowSsgHwEnvParamDir.removeFromLeft(SettingsGuiValue::Settings::LabelWidth));
+    ssgHwEnvParamDirBrowseBtn.setBounds(rowSsgHwEnvParamDir.removeFromRight(SettingsGuiValue::Settings::BrowseButtonWidth));
+    ssgHwEnvParamDirPathLabel.setBounds(rowSsgHwEnvParamDir);
 
     // 7. Detune Param Dir
     auto rowDetuneParamDir = sRect.removeFromTop(SettingsGuiValue::Settings::RowHeight);
@@ -836,6 +865,7 @@ void GuiSettings::setSettings(
     const juce::String& ampEnvParamDirPath,
     const juce::String& pitchEnvParamDirPath,
     const juce::String& ssgSwEnvParamDirPath,
+    const juce::String& ssgHwEnvParamDirPath,
     const juce::String& detuneParamDirPath,
     const juce::String& unisonParamDirPath,
     const juce::String& qualityParamDirPath,

@@ -84,6 +84,8 @@ class GuiOpl : public GuiBase
     GuiComponentImport imOpl3OpChParam;
     GuiSlider targerOpSlider;
     NormalSeparator uSep005;
+    GuiComponentImportExport ieSsgHwEnv;
+    GuiComponentImportExport ieSsgSwEnv11;
     GuiComponentImportExport ieUnison;
     GuiComponentImportExport ieQuality;
     GuiComponentImportExport ieChParam;
@@ -202,6 +204,8 @@ public:
 		imOpl3OpChParam(context),
         targerOpSlider(context),
         uSep005(context),
+        ieSsgHwEnv(context),
+        ieSsgSwEnv11(context),
         ieUnison(context),
         ieQuality(context),
         ieChParam(context),
@@ -301,8 +305,6 @@ public:
     void exportSsgSwEnv11Param(int opIndex);
     void importSsgSwPEnv11Param(int opIndex);
     void exportSsgSwPEnv11Param(int opIndex);
-    void importUnisonParam();
-    void exportUnisonParam();
     void importQualityParam();
     void exportQualityParam();
     void importChParam();

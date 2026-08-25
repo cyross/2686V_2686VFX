@@ -617,6 +617,14 @@ void RhythmPadGui::exportPitchEnvParam() {
     pitchEnvComponent.exportParams();
 }
 
+void RhythmPadGui::importSsgHwEnvParam() {
+    ssgHwEnv.importParams();
+}
+
+void RhythmPadGui::exportSsgHwEnvParam() {
+    ssgHwEnv.exportParams();
+}
+
 void RhythmPadGui::importSsgSwEnvParam() {
     ssgSwEnvComponent.importParams();
 }
@@ -789,6 +797,7 @@ void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& inde
         fixComponent.setImportingParams(emptyLines, dummyIndex);
         ampEnvComponent.setImportingParams(emptyLines, dummyIndex);
         pitchEnvComponent.setImportingParams(emptyLines, dummyIndex);
+        ssgHwEnv.setImportingParams(emptyLines, dummyIndex);
         ssgSwEnvComponent.setImportingParams(emptyLines, dummyIndex);
         ssgSwEnv11Component.setImportingParams(emptyLines, dummyIndex);
         ssgSwPEnv11Component.setImportingParams(emptyLines, dummyIndex);
@@ -832,6 +841,7 @@ void RhythmPadGui::setImportingParams(int p, juce::StringArray& lines, int& inde
     fixComponent.setImportingParams(lines, index);
     ampEnvComponent.setImportingParams(lines, index);
     pitchEnvComponent.setImportingParams(lines, index);
+    ssgHwEnv.setImportingParams(lines, index);
     ssgSwEnvComponent.setImportingParams(lines, index);
     ssgSwEnv11Component.setImportingParams(lines, index);
     ssgSwPEnv11Component.setImportingParams(lines, index);
@@ -869,6 +879,7 @@ juce::String RhythmPadGui::getExportedParams() {
     content += fixComponent.getExportedParams();
     content += ampEnvComponent.getExportedParams();
     content += pitchEnvComponent.getExportedParams();
+    content += ssgHwEnv.getExportedParams();
     content += ssgSwEnvComponent.getExportedParams();
     content += ssgSwEnv11Component.getExportedParams();
     content += ssgSwPEnv11Component.getExportedParams();
@@ -898,6 +909,7 @@ GuiRhythm::GuiRhythm(const GuiContext& context) :
     ieLfo(context),
     ieAmpEnv(context),
     iePitchEnv(context),
+    ieSsgHwEnv(context),
     ieSsgSwEnv(context),
     ieSsgSwEnv11(context),
     ieSsgSwPEnv11(context),
@@ -1005,6 +1017,10 @@ void GuiRhythm::setup()
     iePitchEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importPitchEnvParam(padIndex); };
     iePitchEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportPitchEnvParam(padIndex); };
 
+    ieSsgHwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG HW Env");
+    ieSsgHwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].importSsgHwEnvParam(); };
+    ieSsgHwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; pads[padIndex].exportSsgHwEnvParam(); };
+
     ieSsgSwEnv.setupComponentOp(mainGroup.contentCanvas, tabOrder, "SSG SW Env");
     ieSsgSwEnv.onClickImport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; importSsgSwEnvParam(padIndex); };
     ieSsgSwEnv.onClickExport = [this] { int padIndex = (int)targerPadSlider.getValue() - 1; exportSsgSwEnvParam(padIndex); };
@@ -1038,9 +1054,7 @@ void GuiRhythm::setup()
 
     uSep003.setupComponent(mainGroup.contentCanvas);
 
-    ieUnison.setupComponent(mainGroup.contentCanvas, tabOrder, "Unison");
-    ieUnison.onClickImport = [this] { importUnisonParam(); };
-    ieUnison.onClickExport = [this] { exportUnisonParam(); };
+    ieUnison.setupComponentFor(mainGroup.contentCanvas, tabOrder, "Unison", unisonComponent);
 
     ieChParam.setupComponent(mainGroup.contentCanvas, tabOrder, "CH Params");
     ieChParam.onClickImport = [this] { importChParam(); };
@@ -1181,6 +1195,7 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
     ieDetune.setVisible(visible);
     ieAmpEnv.setVisible(visible);
     iePitchEnv.setVisible(visible);
+    ieSsgHwEnv.setVisible(visible);
     ieSsgSwEnv.setVisible(visible);
     ieSsgSwEnv11.setVisible(visible);
     ieSsgSwPEnv11.setVisible(visible);
@@ -1211,6 +1226,8 @@ void GuiRhythm::layoutUtilityCat(juce::Rectangle<int>& rect)
         ieAmpEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         iePitchEnv.layoutComponent(rect);
+        rect.removeFromTop(4);
+        ieSsgHwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
         ieSsgSwEnv.layoutComponent(rect);
         rect.removeFromTop(4);
@@ -1385,14 +1402,6 @@ void GuiRhythm::importPcmPlayParam(int p) {
 
 void GuiRhythm::exportPcmPlayParam(int p) {
     pads[p].exportPcmPlayParam();
-}
-
-void GuiRhythm::importUnisonParam() {
-    unisonComponent.importParams();
-}
-
-void GuiRhythm::exportUnisonParam() {
-    unisonComponent.exportParams();
 }
 
 void GuiRhythm::importSsgSwEnv11Param(int p) {
