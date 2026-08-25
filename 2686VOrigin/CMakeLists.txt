@@ -501,4 +501,4 @@ source_group("2686VO\\Gui\\Dialog\\Preset" FILES ${PRESET_GUI_FILES})
 source_group("2686VO\\Gui\\Dialog\\Settings" FILES ${SETTINGS_GUI_FILES})
 source_group("2686VO\\Gui\\Dialog\\About" FILES ${ABOUT_GUI_FILES})
 
-create_cyross_plugin("2686VOrigin" "28VO")
+create_cyross_plugin("2686VOrigin" "28VO" "86V")

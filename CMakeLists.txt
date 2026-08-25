@@ -14,7 +14,16 @@ add_subdirectory(external/JUCE)
 # ==============================================================================
 # プラグイン生成共通関数
 # ==============================================================================
+# 第3引数で出力名(PRODUCT_NAME)を指定できます。省略するとターゲット名がそのまま使われます。
+# VST3の識別子はメーカーコードとプラグインコードから生成されるため、
+# 出力名を変えても既存プロジェクトのプラグイン解決には影響しません。
 function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
+    if(ARGC GREATER 2)
+        set(CY_PRODUCT_NAME ${ARGV2})
+    else()
+        set(CY_PRODUCT_NAME ${TARGET_NAME})
+    endif()
+
     juce_add_plugin(${TARGET_NAME}
         COMPANY_NAME "CYROSS"
         IS_SYNTH TRUE
@@ -27,7 +36,7 @@ function(create_cyross_plugin TARGET_NAME CY_PLUGIN_CODE)
         PLUGIN_CODE ${CY_PLUGIN_CODE}
         FORMATS VST3 Standalone
         ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon.png"
-        PRODUCT_NAME ${TARGET_NAME}
+        PRODUCT_NAME ${CY_PRODUCT_NAME}
         VST3_AUTO_MANIFEST FALSE
     )
 
