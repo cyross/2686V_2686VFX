@@ -41,6 +41,8 @@ void GuiBeep::setup() {
 
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -124,6 +126,8 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     levelComponent.layoutComponent(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 

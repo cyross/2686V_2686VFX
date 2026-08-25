@@ -62,6 +62,8 @@ void OpmCore::prepare(double sampleRate) {
 
 	m_noiseGen.prepare(target);
     m_lfo.prepare(target);
+    m_ssgSwEnv11g.prepare(0, target);
+    m_ssgHwEnv.prepare(target);
 }
 
 void OpmCore::setCurveCore(CurveCore* p_curveCore)
@@ -88,6 +90,8 @@ void OpmCore::setParameters(const SynthParams& params) {
     m_isMonoMode = params.monoMode;
 
     m_lfo.setParameters(params.opm.glLfo);
+    m_ssgSwEnv11g.setParameters(params.opm.ssgSwEnv11g);
+    m_ssgHwEnv.setParameters(params.opm.ssgHwEnv);
 
     m_pan = params.opm.pan;
 
@@ -113,6 +117,8 @@ void OpmCore::setParameters(const SynthParams& params) {
 
         m_noiseGen.updateDelta(target);
         m_lfo.updateTargetSampleRate(target);
+        m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opm.quality.bit);
@@ -182,12 +188,24 @@ void OpmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_rateAccumulator = 0.0; // レートの余りもリセット
 
     m_lfo.noteOn();
+    m_ssgHwEnv.noteOn();
+
+    if (!isLegato) {
+        if (!m_ssgSwEnv11g.isBypass()) {
+            m_ssgSwEnv11g.noteOn();
+        }
+    }
 }
+
 void OpmCore::noteOff() {
     m_operators[0].noteOff();
     m_operators[1].noteOff();
     m_operators[2].noteOff();
     m_operators[3].noteOff();
+
+    if (!m_ssgSwEnv11g.isBypass()) {
+        m_ssgSwEnv11g.noteOff();
+    }
 }
 
 bool OpmCore::isPlaying() const {
@@ -195,6 +213,7 @@ bool OpmCore::isPlaying() const {
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+    if (m_ssgSwEnv11g.isPlaying()) return true;
 
     return false;
 }
@@ -265,6 +284,17 @@ float OpmCore::getSample() {
         m_history1[1] = currentOut[1];
         m_history1[2] = currentOut[2];
         m_history1[3] = currentOut[3];
+
+        // SSGハードウェアエンベロープ(SsgHwEnv)処理
+        finalOut *= m_ssgHwEnv.process();
+
+        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
+        if (!m_ssgSwEnv11g.isBypass()) {
+            finalOut *= m_ssgSwEnv11g.process();
+        }
+        else {
+            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+        }
 
         finalOut *= 2.0f; // ゲイン補正
 

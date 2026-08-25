@@ -13,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 class BeepCore : public SynthCore
 {
@@ -66,6 +67,7 @@ private:
     Opzx7LfoCore m_lfo;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
+    SsgHwEnv m_ssgHwEnv;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

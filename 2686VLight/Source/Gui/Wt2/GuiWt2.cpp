@@ -466,6 +466,8 @@ void GuiWt2::setup()
         tabOrder
     );
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
 
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = Wt2GuiText::Category::visibleUtil, .invisibleTitle = Wt2GuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
@@ -609,6 +611,8 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 

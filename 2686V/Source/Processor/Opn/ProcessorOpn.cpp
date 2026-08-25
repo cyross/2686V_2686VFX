@@ -16,7 +16,10 @@ void OpnProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLay
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, OpnPrValue::Alg::max, OpnPrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addN88LfoParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {
@@ -43,6 +46,8 @@ void OpnProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupN88LfoPtrs(apvts, prefix, pN88Lfo);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
@@ -69,6 +74,8 @@ void OpnProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueTr
     PrHelper::applyAlgFb(pAlgFb, params.opn.algFb);
     PrHelper::applyN88Lfo(pN88Lfo, params.opn.glLfo);
     PrHelper::applyUnison(pUnison, params.opn.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opn.ssgHwEnv);
+    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opn.ssgSwEnv11g);
 
     for (int op = 0; op < OpnPrValue::ops; ++op)
     {

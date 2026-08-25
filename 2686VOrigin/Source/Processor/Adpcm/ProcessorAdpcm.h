@@ -21,6 +21,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsToneNoise pToneNoise;
     PrPtrsPcm pPcm;
     PrPtrsLp pLp;
+    PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

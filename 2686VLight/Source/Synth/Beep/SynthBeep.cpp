@@ -12,6 +12,7 @@ void BeepCore::prepare(double sampleRate) {
     m_ssgSwPenv11.prepare(0, 44100.0);
     m_fixMode.setParameters({ .enable = false, .freq = 2000.0f });
     m_lfo.prepare(44100.0);
+    m_ssgHwEnv.prepare(44100.0);
 }
 
 void BeepCore::setSampleRate(double sampleRate) {
@@ -22,6 +23,7 @@ void BeepCore::setSampleRate(double sampleRate) {
 	m_ssgSwEnv.updateSampleRate(sampleRate);
     m_ssgSwEnv11.updateSampleRate(sampleRate);
     m_ssgSwPenv11.updateSampleRate(sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
 }
 
 void BeepCore::setParameters(const SynthParams& params) {
@@ -40,6 +42,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_detune.setParameters(params.beep.detune);
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
+    m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -111,6 +114,7 @@ void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
         }
 
         m_lfo.noteOn();
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -213,6 +217,9 @@ float BeepCore::getSample() {
     // 究極にシンプルな1-bit矩形波（50% Duty）
     float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
 
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
     float newPhaseDelta = m_pitchAdsr.process(m_phaseDelta);
     newPhaseDelta = m_ssgSwPenv11.process(newPhaseDelta);
 
@@ -259,7 +266,7 @@ float BeepCore::getSample() {
     if (m_phase >= 1.0f) m_phase -= 1.0f;
 
     // 音量に変換
-    return output * finalEnv * m_baseLevel * m_level * amMultiplier;
+    return output * finalEnv * m_baseLevel * m_level * amMultiplier * sshHwEnvVal;
 }
 
 // モジュレーションホイール (0 - 127)

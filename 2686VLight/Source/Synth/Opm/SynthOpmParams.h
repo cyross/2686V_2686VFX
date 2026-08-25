@@ -6,6 +6,8 @@
 #include "../../Processor/Opm/ProcessorOpmValues.h"
 #include "../../Effect/Lfo/Opm/LfoOpmParams.h"
 #include "../../Core/Synth/UnisonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
 
 struct OpmParams
 {
@@ -15,6 +17,8 @@ struct OpmParams
     LfoOpmParams glLfo;
     QualityParams quality;
     UnisonParams unison;
+    SsgHwEnvParams ssgHwEnv;
+    SsgSwEnv11Params ssgSwEnv11g;
 
     int pan = 0;
 

@@ -22,6 +22,7 @@
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -32,6 +33,9 @@ class GuiBeep : public GuiBase {
     GuiComponentPresetName presetName;
 
     GuiComponentLevel levelComponent;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
 
 	GuiComponentFix fixComponent;
 
@@ -95,6 +99,7 @@ public:
         presetName(context),
         levelComponent(context),
         fixComponent(context),
+        ssgHwEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),

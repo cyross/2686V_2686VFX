@@ -24,6 +24,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -47,6 +48,11 @@ class GuiOpn : public GuiBase
     GuiFmAlgGraph algStaticGraphComp;
     NormalSeparator algFbSep;
     GuiFbSlider feedbackSlider;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+    // SSG Sw Env
+    GuiComponentSsgSwEnv11 ssgSwEnv11g;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -161,6 +167,8 @@ public:
         algSelector(context),
         algFbSep(context),
         feedbackSlider(context),
+        ssgHwEnv(context),
+        ssgSwEnv11g(context),
         unisonComponent(context),
         lfoCat(context),
         lfoFreqSlider(context),

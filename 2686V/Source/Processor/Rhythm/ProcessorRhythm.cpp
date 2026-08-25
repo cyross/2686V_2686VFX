@@ -37,6 +37,7 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addFixParameters(layout, padPrefix, padPrefixName);
         PrHelper::addOpzx7DetuneParameters(layout, padPrefix, padPrefixName);
         PrHelper::addQualityPcmParameters(layout, padPrefix, padPrefixName);
+        PrHelper::addSsgHwEnvParameters(layout, padPrefix, prefixName);
     }
 }
 
@@ -62,6 +63,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         PrHelper::setupPcm(apvts, padPrefix, pPcm[i]);
         PrHelper::setupLp(apvts, padPrefix, pLp[i]);
         PrHelper::setupToneNoise(apvts, padPrefix, pToneNoise[i]);
+        PrHelper::setupSsgHwEnv(apvts, padPrefix, pSsgHwEnv[i]);
     }
 }
 
@@ -86,5 +88,6 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         PrHelper::applyPcm(pPcm[i], pad.pcm);
         PrHelper::applyLp(pLp[i], pad.lp);
         PrHelper::applyFix(pFix[i], pad.fix);
+        PrHelper::applySsgHwEnv(pSsgHwEnv[i], pad.ssgHwEnv);
     }
 }

@@ -334,6 +334,8 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     panToCBtn(context),
     panToRBtn(context),
     glLfo(context),
+    ssgHwEnv(context),
+    ssgSwEnv11g(context),
     unisonComponent(context),
     utilityCat(context),
     broadcastLevelButton(context),
@@ -569,6 +571,9 @@ void GuiOpzx7::setup()
         };
 
     glLfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -1094,6 +1099,9 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &feedback6Slider.label, .component = &feedback6Slider });
     layoutMain({ .mainRect = mRect, .label = &feedback7Slider.label, .component = &feedback7Slider });
     layoutMain({ .mainRect = mRect, .label = &feedback8Slider.label, .component = &feedback8Slider });
+
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.layoutComponent(mRect);
 
     layoutPanpotCat(mRect);
 

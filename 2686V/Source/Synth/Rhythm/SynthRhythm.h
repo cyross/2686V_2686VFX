@@ -16,6 +16,7 @@
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 // Class representing a single drum pad
 class RhythmPad
@@ -88,6 +89,7 @@ private:
     SsgNoiseGen m_noiseGen;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
+    SsgHwEnv m_ssgHwEnv;
 
     float m_phase = 0.0f;
     float m_currentFrequency = 440.0f;

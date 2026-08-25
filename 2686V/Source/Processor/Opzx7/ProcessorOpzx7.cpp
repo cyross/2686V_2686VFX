@@ -18,6 +18,9 @@ void Opzx7Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     PrHelper::addOpzx7PanpotParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
     {
@@ -49,6 +52,8 @@ void Opzx7Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpzx7AlgFbPtrs(apvts, prefix, pAlgFb);
     PrHelper::setupPanpot(apvts, prefix, pPanpot);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
@@ -80,6 +85,8 @@ void Opzx7Processor::processBlock(SynthParams& params, juce::AudioProcessorValue
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.opzx7.glLfo);
     PrHelper::applyPanpot(pPanpot, params.opzx7.panpot);
     PrHelper::applyUnison(pUnison, params.opzx7.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opzx7.ssgHwEnv);
+    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opzx7.ssgSwEnv11g);
 
     for (int op = 0; op < Opzx7PrValue::ops; ++op)
     {

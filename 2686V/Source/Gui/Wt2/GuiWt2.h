@@ -26,6 +26,7 @@
 #include "../../Gui/Components/Quality/Quality.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -128,6 +129,9 @@ class GuiWt2 : public GuiBase
     // LFO
     GuiComponentLfoOpzx7 lfo;
 
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+
     GuiComboBox sizeSelector;
     GuiComboBox resoSelector;
 
@@ -198,6 +202,7 @@ public:
         formCat(context),
         modCat(context),
         fixComponent(context),
+        ssgHwEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
         pitchEnvComponent(context),

@@ -12,6 +12,7 @@
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 
 struct WtParams
 {
@@ -28,6 +29,7 @@ struct WtParams
     WtModParams mod;
     QualityParams quality;
     UnisonParams unison;
+    SsgHwEnvParams ssgHwEnv;
 
     int tableSize = 0; // 0:32, 1:64
     int steps = 0;     // Steps : 0:Free, 1:16(+), 2:32(+), 3:64(+), 4:128(+), 5:256(+), 6:16(-), 7:32(-), 8:64(-), 9:128(-), 10:256(-)

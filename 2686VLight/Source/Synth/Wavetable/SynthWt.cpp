@@ -21,6 +21,8 @@ void WtCore::prepare(double sampleRate)
     m_ssgSwEnv.prepare(0, m_sampleRate);
     m_ssgSwEnv11.prepare(0, m_sampleRate);
     m_ssgSwPenv11.prepare(0, m_sampleRate);
+    m_ssgHwEnv.prepare(m_sampleRate);
+
     m_targetRate = getTargetRate(m_rateIndex);
 
     m_lfo.prepare(m_targetRate);
@@ -37,6 +39,7 @@ void WtCore::setSampleRate(double sampleRate)
 	m_ssgSwEnv.updateSampleRate(m_sampleRate);
     m_ssgSwEnv11.updateSampleRate(m_sampleRate);
     m_ssgSwPenv11.updateSampleRate(m_sampleRate);
+    m_ssgHwEnv.updateSampleRate(m_sampleRate);
 
     updatePhaseDelta();
 }
@@ -57,6 +60,7 @@ void WtCore::setParameters(const SynthParams& params)
     m_ssgSwPenv11.setParameters(params.wt.ssgSwPEnv11);
     m_detune.setParameters(params.wt.detune);
     m_lfo.setParameters(params.wt.lfo);
+    m_ssgHwEnv.setParameters(params.wt.ssgHwEnv);
 
     // Bit Depth & Table Size
     m_quantizeSteps = getTargetBitDepth(params.wt.quality.bit);
@@ -184,6 +188,8 @@ void WtCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         if (!m_ssgSwPenv11.isBypass()) {
             m_ssgSwPenv11.noteOn();
         }
+
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -438,7 +444,10 @@ float WtCore::getSample()
         if (m_phase >= 1.0f) m_phase -= 1.0f;
     }
 
-    return m_lastSample * finalEnv * m_level * m_baseLevel * 8.0f;
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
+    return m_lastSample * finalEnv * sshHwEnvVal * m_level * m_baseLevel * 8.0f;
  }
 
 // 波形データ生成

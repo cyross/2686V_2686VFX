@@ -12,6 +12,7 @@
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 
 struct BeepParams
 {
@@ -26,4 +27,5 @@ struct BeepParams
     LfoOpzx7Params lfo;
     FixModeParams fix;
     UnisonParams unison;
+    SsgHwEnvParams ssgHwEnv;
 };

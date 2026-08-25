@@ -15,6 +15,7 @@ void RhythmPad::prepare(double hostSampleRate)
     m_ssgSwPenv11.prepare(0, m_sampleRate);
     m_lfo.prepare(m_sampleRate);
     m_noiseGen.prepare(m_sampleRate);
+    m_ssgHwEnv.prepare(m_sampleRate);
 }
 
 void RhythmPad::setCurveCore(CurveCore* p_curveCore)
@@ -80,6 +81,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_detune.setParameters(params.detune);
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
+    m_ssgHwEnv.setParameters(params.ssgHwEnv);
 
     bool needRefresh = false;
     if (m_qualityMode != params.quality.mode) {
@@ -175,6 +177,8 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
         if (!m_ssgSwPenv11.isBypass()) {
             m_ssgSwPenv11.noteOn();
         }
+
+        m_ssgHwEnv.noteOn();
     }
 
     if (!m_pitchAdsr.isBypass() && m_pitchResetOnLegato) {
@@ -604,6 +608,9 @@ float RhythmPad::getSample()
         output = GenPcmHelper::bitReduction(output, m_qualityMode);
     }
 
+    // SSGハードウェアエンベロープ(SsgHwEnv)処理
+    float sshHwEnvVal = m_ssgHwEnv.process();
+
     // ==========================================
     // Opzx7 LFO の計算 (AM / PM)
     // ==========================================
@@ -653,7 +660,7 @@ float RhythmPad::getSample()
     float noiseGain = m_mix;
     float rawMixed = (output * m_tone * toneGain * 4.0f) + m_noiseGen.generateSample(noiseGain) * 0.4f;
 
-    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier;
+    return rawMixed * m_level * finalEnv * m_baseLevel * amMultiplier * sshHwEnvVal;
 }
 
 void RhythmPad::refreshPcmBuffer()

@@ -7,6 +7,8 @@
 #include "../../Effect/Lfo/Opm/LfoOpm.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opm/ProcessorOpmValues.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpmOp.h"
 
@@ -82,6 +84,9 @@ private:
 
     LfsrNoiseGen m_noiseGen;
     OpmLfoCore m_lfo;
+
+    SsgHwEnv m_ssgHwEnv;
+    SsgSwEnv11 m_ssgSwEnv11g;
 
     int m_cachedAlgorithm = -1;
     void updateRoutingCache();

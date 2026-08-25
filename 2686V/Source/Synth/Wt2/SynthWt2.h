@@ -16,6 +16,7 @@
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 class Wt2Core : public SynthCore
 {
@@ -60,6 +61,7 @@ private:
     FixMode m_fixMode;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
+    SsgHwEnv m_ssgHwEnv;
 
     float m_level = 1.0f;
 

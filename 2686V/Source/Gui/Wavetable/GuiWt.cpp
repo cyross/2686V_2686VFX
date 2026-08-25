@@ -565,6 +565,8 @@ void GuiWt::setup()
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     levelComponent.setupComponent(mainGroup.contentCanvas, tabOrder, code);
@@ -826,6 +828,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 

@@ -16,6 +16,7 @@ class BeepProcessor : public PrBase {
     PrPtrsOpzx7Detune pOpzx7Detune;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsFix pFix;
+    PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsUnison pUnison;
 public:
     void createLayout(juce::AudioProcessorValueTreeState::ParameterLayout& layout) override;

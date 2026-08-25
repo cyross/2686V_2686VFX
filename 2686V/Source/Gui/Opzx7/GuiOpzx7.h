@@ -30,6 +30,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -80,6 +81,11 @@ class GuiOpzx7 : public GuiBase
 
     // LFO
     GuiComponentLfoOpzx7 glLfo;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+    // SSG Sw Env
+    GuiComponentSsgSwEnv11 ssgSwEnv11g;
 
     // UNISON/HARMONY
 	GuiComponentUnison unisonComponent;

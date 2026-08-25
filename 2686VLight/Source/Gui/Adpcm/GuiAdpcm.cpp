@@ -143,6 +143,8 @@ void GuiAdpcm::setup()
 
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     // 音声ファイル読み込みボタン
@@ -270,6 +272,8 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     layoutPanCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 

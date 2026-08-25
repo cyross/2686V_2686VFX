@@ -668,6 +668,8 @@ void GuiWt::setup()
         tabOrder
     );
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+
     utilityCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Category::visibleUtil, .invisibleTitle = WtGuiText::Category::invisibleUtil, .enableChangeDetailVisible = true });
 
     broadcastLevelButton.setup({ .parent = mainGroup.contentCanvas, .title = WtGuiText::Utility::bcLevel });
@@ -823,6 +825,8 @@ void GuiWt::layout(juce::Rectangle<int> content)
     layoutFormCat(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+
+    ssgHwEnv.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 

@@ -10,6 +10,8 @@
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opzx7/ProcessorOpzx7Values.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpzx7Op.h"
 
@@ -104,6 +106,9 @@ private:
     std::array<float, Opzx7PrValue::ops> m_history2 = { 0.0f };
 
     Opzx7LfoCore m_lfo;
+
+    SsgHwEnv m_ssgHwEnv;
+    SsgSwEnv11 m_ssgSwEnv11g;
 
     int m_cachedAlgorithm = -1;
     int m_cachedAlgMode = -1;

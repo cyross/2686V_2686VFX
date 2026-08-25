@@ -5,6 +5,8 @@
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpnOp.h"
 
@@ -85,6 +87,9 @@ private:
 
     LfsrNoiseGen m_noiseGen;
     N88LfoCore m_n88Lfo;
+
+    SsgHwEnv m_ssgHwEnv;
+    SsgSwEnv11 m_ssgSwEnv11g;
 
     int m_cachedAlgorithm = -1;
     void updateRoutingCache();

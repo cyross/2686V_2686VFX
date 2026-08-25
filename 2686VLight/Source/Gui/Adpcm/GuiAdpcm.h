@@ -23,6 +23,7 @@
 #include "../../Gui/Components/Quality/QualityPcm.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -71,6 +72,9 @@ class GuiAdpcm : public GuiBase
     GuiSlider loopPointEndSlider;
 
     GuiComponentFix fixComponent;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
 
     // UNISON/HARMONY
     GuiComponentUnison unisonComponent;
@@ -159,6 +163,7 @@ public:
         loopPointStartSlider(context),
         loopPointEndSlider(context),
         fixComponent(context),
+        ssgHwEnv(context),
         unisonComponent(context),
         panCat(context),
         ampEnvComponent(context),

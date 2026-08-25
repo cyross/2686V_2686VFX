@@ -15,6 +15,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;
     PrPtrsSsgSwPEnv11 pSsgSwPEnv11;
+    PrPtrsSsgHwEnv pSsgHwEnv;
     PrPtrsOpzx7Detune pOpzx7Detune;
     PrPtrsOpzx7Lfo pOpzx7Lfo;
     PrPtrsFix pFix;

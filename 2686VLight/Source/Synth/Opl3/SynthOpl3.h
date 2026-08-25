@@ -2,6 +2,8 @@
 
 #include "../../Core/Fm/FmCore.h"
 #include "../../Processor/Opl3/ProcessorOpl3Values.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
+#include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 
 #include "./Operator/SynthOpl3Op.h"
 
@@ -78,6 +80,9 @@ private:
     std::array<bool, Opl3PrValue::ops> m_opMask{ false };
     std::array<float, Opl3PrValue::ops> m_history1 = { 0.0f };
     std::array<float, Opl3PrValue::ops> m_history2 = { 0.0f };
+
+    SsgHwEnv m_ssgHwEnv;
+    SsgSwEnv11 m_ssgSwEnv11g;
 
     int m_cachedAlgorithm = -1;
     void updateRoutingCache();

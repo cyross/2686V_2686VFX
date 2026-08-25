@@ -2678,6 +2678,15 @@ namespace PrHelper {
 		);
 	}
 
+	static inline void addSsgSwEnv11BypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::ssgSwEnv11 + CPK::bypass,
+			prefixName + CPN::SsgSwEnv11::bypass,
+			CPV::SsgSwEnv11::Bypass::initial
+		);
+	}
+
 	static inline void addOpEnvEnableParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& namePrefix) {
 		PrHelper::addBool(
 			layout, 

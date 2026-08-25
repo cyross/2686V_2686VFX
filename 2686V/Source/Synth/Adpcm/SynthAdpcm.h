@@ -14,6 +14,7 @@
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 // --- Core Class ---
 
@@ -88,6 +89,7 @@ private:
     SsgNoiseGen m_noiseGen;
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
+    SsgHwEnv m_ssgHwEnv;
 
     float m_tone = 1.0f;
     float m_noiseLevel = 0.0f; // Noise

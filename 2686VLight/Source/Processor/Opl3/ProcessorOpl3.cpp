@@ -16,6 +16,9 @@ void Opl3Processor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addAlgFbParameters(layout, prefix, prefixName, Opl3PrValue::Alg::max, Opl3PrValue::Alg::initial);
     PrHelper::addQualityParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11Parameters(layout, prefix, prefixName);
+    PrHelper::addSsgSwEnv11BypassParameters(layout, prefix, prefixName);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
     {
@@ -41,6 +44,8 @@ void Opl3Processor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpl3BasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPtrs(apvts, prefix, pQuality);
     PrHelper::setupAlgFbPtrs(apvts, prefix, pAlgFb);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
+    PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11g);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
@@ -66,6 +71,8 @@ void Opl3Processor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applyQuality(pQuality, params.opl3.quality);
     PrHelper::applyAlgFb(pAlgFb, params.opl3.algFb);
     PrHelper::applyUnison(pUnison, params.opl3.unison);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.opl3.ssgHwEnv);
+    PrHelper::applySsgSwEnv11(pSsgSwEnv11g, params.opl3.ssgSwEnv11g);
 
     for (int op = 0; op < Opl3PrValue::ops; ++op)
     {

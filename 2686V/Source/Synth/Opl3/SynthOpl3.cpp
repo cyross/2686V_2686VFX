@@ -59,6 +59,9 @@ void Opl3Core::prepare(double sampleRate) {
     m_operators[3].prepare(4, target);
 
     m_rateAccumulator = 1.0;
+
+    m_ssgSwEnv11g.prepare(0, target);
+    m_ssgHwEnv.prepare(target);
 }
 
 void Opl3Core::setCurveCore(CurveCore* p_curveCore)
@@ -83,6 +86,9 @@ void Opl3Core::setParameters(const SynthParams& params) {
 
     m_algorithm = params.opl3.algFb.algorithm;
 
+    m_ssgSwEnv11g.setParameters(params.opl3.ssgSwEnv11g);
+    m_ssgHwEnv.setParameters(params.opl3.ssgHwEnv);
+
     // ユニゾン・ハーモニー用
     m_isMonoMode = params.monoMode;
 
@@ -96,6 +102,9 @@ void Opl3Core::setParameters(const SynthParams& params) {
 		m_operators[1].setSampleRate(target);
 		m_operators[2].setSampleRate(target);
 		m_operators[3].setSampleRate(target);
+
+        m_ssgSwEnv11g.updateTargetSampleRate(target);
+        m_ssgHwEnv.updateTargetSampleRate(target);
     }
 
     m_quantizeSteps = getTargetBitDepth(params.opl3.quality.bit);
@@ -165,21 +174,37 @@ void Opl3Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_operators[3].noteOn(finalFreq, gain, noteNum, isLegato);
 
     m_rateAccumulator = 0.0; // レートの余りもリセット
+
+    m_ssgHwEnv.noteOn();
+
+    if (!isLegato) {
+        if (!m_ssgSwEnv11g.isBypass()) {
+            m_ssgSwEnv11g.noteOn();
+        }
+    }
 }
+
 void Opl3Core::noteOff() {
     m_operators[0].noteOff();
     m_operators[1].noteOff();
     m_operators[2].noteOff();
     m_operators[3].noteOff();
+
+    if (!m_ssgSwEnv11g.isBypass()) {
+        m_ssgSwEnv11g.noteOff();
+    }
 }
+
 bool Opl3Core::isPlaying() const {
     if (m_operators[0].isPlaying()) return true;
     if (m_operators[1].isPlaying()) return true;
     if (m_operators[2].isPlaying()) return true;
     if (m_operators[3].isPlaying()) return true;
+    if (m_ssgSwEnv11g.isPlaying()) return true;
 
     return false;
 }
+
 // ピッチベンド (0 - 16383, Center=8192)
 void Opl3Core::setPitchBend(int pitchWheelValue)
 {
@@ -255,6 +280,17 @@ float Opl3Core::getSample() {
         m_history1[1] = currentOut[1];
         m_history1[2] = currentOut[2];
         m_history1[3] = currentOut[3];
+
+        // SSGハードウェアエンベロープ(SsgHwEnv)処理
+        finalOut *= m_ssgHwEnv.process();
+
+        // SSGソフトウェアエンベロープ(SsgSwEnv11)処理
+        if (!m_ssgSwEnv11g.isBypass()) {
+            finalOut *= m_ssgSwEnv11g.process();
+        }
+        else {
+            if (m_ssgSwEnv11g.isRelease()) m_ssgSwEnv11g.bypassedReleasedProcess();
+        }
 
         finalOut *= 2.0f; // ゲイン補正
 

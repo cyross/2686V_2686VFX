@@ -13,6 +13,8 @@ class OpnProcessor : public PrBase
     PrPtrsAlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsN88Lfo pN88Lfo;
+    PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsUnison pUnison;
 
     std::array<PrPtrsOpnDetune, OpnPrValue::ops> pOpDetune;

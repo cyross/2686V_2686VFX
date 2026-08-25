@@ -25,6 +25,7 @@
 #include "../../Gui/Components/Quality/QualityPcm.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
+#include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -91,6 +92,10 @@ class RhythmPadGui: public GuiBase
     GuiComponentMulDetune mulDetuneComponent;
 
     GuiComponentLfoOpzx7 lfoComponent;
+
+    // SSG Hw Env
+    GuiComponentSsgHwEnv ssgHwEnv;
+
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     GuiEnvelopeGraph graph;
@@ -147,6 +152,7 @@ public:
         ssgSwPEnv11Component(context),
         mulDetuneComponent(context),
         lfoComponent(context),
+        ssgHwEnv(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
         graphBtnSsg(context),

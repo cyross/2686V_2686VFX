@@ -23,6 +23,7 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addOpzx7LfoParameters(layout, prefix, prefixName);
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
+    PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
@@ -38,6 +39,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupOpzx7DetunePtrs(apvts, prefix, pOpzx7Detune);
     PrHelper::setupOpzx7LfoPtrs(apvts, prefix, pOpzx7Lfo);
     PrHelper::setupFixPtrs(apvts, prefix, pFix);
+    PrHelper::setupSsgHwEnv(apvts, prefix, pSsgHwEnv);
     PrHelper::setupUnisonPtrs(apvts, prefix, pUnison);
 }
 
@@ -52,5 +54,6 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
     PrHelper::applyOpzx7Detune(pOpzx7Detune, params.beep.detune);
     PrHelper::applyOpzx7Lfo(pOpzx7Lfo, params.beep.lfo);
     PrHelper::applyFix(pFix, params.beep.fix);
+    PrHelper::applySsgHwEnv(pSsgHwEnv, params.beep.ssgHwEnv);
     PrHelper::applyUnison(pUnison, params.beep.unison);
 }

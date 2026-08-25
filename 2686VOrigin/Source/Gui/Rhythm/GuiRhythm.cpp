@@ -192,6 +192,8 @@ void RhythmPadGui::setup(juce::Component &parent, int index, juce::String padNam
 
     lfoComponent.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, padPrefix, tabOrder);
+
     setupGraph();
     updateGraph();
 }
@@ -224,6 +226,8 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     layoutPanCat(padRect);
 
     ampEnvComponent.layoutComponent(padRect);
+
+    ssgHwEnv.layoutComponent(padRect);
 
     ssgSwEnvComponent.layoutComponent(padRect);
 

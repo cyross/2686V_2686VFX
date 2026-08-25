@@ -246,6 +246,9 @@ void GuiOpm::setup()
 	lfoSep1.setupComponent(mainGroup.contentCanvas);
     lfoSep2.setupComponent(mainGroup.contentCanvas);
 
+    ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
+
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     midiComponent.setupComponent(mainGroup.contentCanvas, tabOrder);
@@ -666,6 +669,9 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     algFbSep.layoutComponent(mRect);
 
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
+
+    ssgHwEnv.layoutComponent(mRect);
+    ssgSwEnv11g.layoutComponent(mRect);
 
     layoutPanCat(mRect);
 

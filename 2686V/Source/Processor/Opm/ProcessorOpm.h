@@ -13,6 +13,8 @@ class OpmProcessor : public PrBase
     PrPtrsAlgFb pAlgFb;
     PrPtrsQuality pQuality;
     PrPtrsOpmLfo pGlLfo;
+    PrPtrsSsgHwEnv pSsgHwEnv;
+    PrPtrsSsgSwEnv11 pSsgSwEnv11g;
     PrPtrsUnison pUnison;
 
     std::array<PrPtrsOpmDetune, OpmPrValue::ops> pOpDetune;

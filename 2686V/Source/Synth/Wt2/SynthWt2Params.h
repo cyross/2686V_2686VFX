@@ -12,6 +12,7 @@
 #include "../../Core/Synth/UnisonParams.h"
 #include "../../Generator/Fm/Fix/FmFixParams.h"
 #include "../../Core/Synth/CommonParams.h"
+#include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 
 struct Wt2Params
 {
@@ -28,6 +29,7 @@ struct Wt2Params
     WtModParams mod;
     QualityParams quality;
     UnisonParams unison;
+    SsgHwEnvParams ssgHwEnv;
 
     int tableSize = 0; // 0:32, 1:64
     int waveform = 8;  // Waveform Select 0:Sine, 1:Tri, 2:SawUp, 3:SawDown, 4:Square, 5:Pulse25, 6:Pulse12, 7:Noise, 8:Custom
