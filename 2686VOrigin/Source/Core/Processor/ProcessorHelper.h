@@ -374,6 +374,16 @@ namespace PrHelper {
 		ptPtrs.voices = apvts.getRawParameterValue(prefix + CPK::Unison::voices);
 		ptPtrs.detuneCents = apvts.getRawParameterValue(prefix + CPK::Unison::detune);
 		ptPtrs.spread = apvts.getRawParameterValue(prefix + CPK::Unison::spread);
+		ptPtrs.arpEnable = apvts.getRawParameterValue(prefix + CPK::Unison::arpEnable);
+		ptPtrs.arpFreq = apvts.getRawParameterValue(prefix + CPK::Unison::arpFreq);
+		ptPtrs.arpSmooth = apvts.getRawParameterValue(prefix + CPK::Unison::arpSmooth);
+
+		// ボイス単位の設定 (キー末尾は 1〜7 のボイス番号)
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			const juce::String no = juce::String(i + 1);
+			ptPtrs.paraDistance[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDistance + no);
+			ptPtrs.paraDetune[i] = apvts.getRawParameterValue(prefix + CPK::Unison::paraDetune + no);
+		}
 	}
 
 	static inline void setupToneNoise(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsToneNoise& ptPtrs){
@@ -757,6 +767,14 @@ namespace PrHelper {
 		params.voices = getInt(ptPtrs.voices);
 		params.detuneCents = getInt(ptPtrs.detuneCents);
 		params.spread = getFloat(ptPtrs.spread);
+		params.arpEnable = getBool(ptPtrs.arpEnable);
+		params.arpFreq = getInt(ptPtrs.arpFreq);
+		params.arpSmooth = getBool(ptPtrs.arpSmooth);
+
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			params.paraDistance[i] = getFloat(ptPtrs.paraDistance[i]);
+			params.paraDetune[i] = getInt(ptPtrs.paraDetune[i]);
+		}
 	}
 
 	static inline void applyToneNoise(PrPtrsToneNoise& ptPtrs, ToneNoiseParams& params){
@@ -1685,6 +1703,41 @@ namespace PrHelper {
 			prefixName + CPN::Unison::spread, 
 			CPV::Unison::Spread::min, CPV::Unison::Spread::max, CPV::Unison::Spread::initial
 		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Unison::arpEnable,
+			prefixName + CPN::Unison::arpEnable,
+			CPV::Unison::ArpEnable::initial
+		);
+		PrHelper::addInt(
+			layout,
+			prefix + CPK::Unison::arpFreq,
+			prefixName + CPN::Unison::arpFreq,
+			CPV::Unison::ArpFreq::min, CPV::Unison::ArpFreq::max, CPV::Unison::ArpFreq::initial
+		);
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::Unison::arpSmooth,
+			prefixName + CPN::Unison::arpSmooth,
+			CPV::Unison::ArpSmooth::initial
+		);
+
+		// ボイス単位の設定 (ボイス0はメインなので 1〜7 のみ)
+		for (int i = 0; i < Global::unisonParaVoices; ++i) {
+			const juce::String no = juce::String(i + 1);
+			PrHelper::addFloat(
+				layout,
+				prefix + CPK::Unison::paraDistance + no,
+				prefixName + CPN::Unison::paraDistance + no,
+				CPV::Unison::ParaDistance::min, CPV::Unison::ParaDistance::max, CPV::Unison::ParaDistance::initial
+			);
+			PrHelper::addInt(
+				layout,
+				prefix + CPK::Unison::paraDetune + no,
+				prefixName + CPN::Unison::paraDetune + no,
+				CPV::Unison::ParaDetune::min, CPV::Unison::ParaDetune::max, CPV::Unison::ParaDetune::initial
+			);
+		}
 	}
 
 	static inline void addEnvBypassParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, const juce::String& prefix, const juce::String& prefixName) {

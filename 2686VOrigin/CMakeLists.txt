@@ -44,6 +44,7 @@ set(SYNTH_FILES
     "Source/Core/Synth/SynthHelpers.h"
     "Source/Core/Synth/SynthHelpers.cpp"
     "Source/Core/Synth/UnisonParams.h"
+    "Source/Core/Synth/UnisonState.h"
     "Source/Core/Synth/CommonParams.h"
 )
 

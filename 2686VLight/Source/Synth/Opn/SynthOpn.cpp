@@ -139,27 +139,8 @@ void OpnCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
-    float finalFreq = freq;
-
-    // ユニゾン時の位相のズレ(0.0〜1.0)を算出
-    float phaseOffsetNorm = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        // 現在のボイスが全体のどこに配置されるかを -1.0(一番下) 〜 1.0(一番上) で算出
-        // 例(3ボイス): -1.0,  0.0,  1.0
-        // 例(4ボイス): -1.0, -0.33, 0.33, 1.0
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-
-        // 最大デチューン幅に位置を掛け合わせて、このボイスのズレ量(セント)を決定
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-
-        // セント値(Cents) を周波数倍率(Ratio)に変換する
-        // (1200セント ＝ 1オクターブ ＝ 周波数2倍)
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ボイスインデックスに応じて位相を均等に散らす (例: 3ボイスなら 0.0, 0.33, 0.66)
-        phaseOffsetNorm = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
+    const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     // ユニゾン・ハーモニー向けに変更
     // 計算した位相のズレをオペレータに渡す
@@ -307,20 +288,8 @@ void OpnCore::renderNextBlock(float* outR, float* outL, int startSample, int sam
     float basePanL = 1.0f;
     float basePanR = 1.0f;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

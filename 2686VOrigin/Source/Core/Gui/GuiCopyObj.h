@@ -3,6 +3,8 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "../Const/ConstGlobal.h"
+
 struct CopyBase {
 	float level;
 };
@@ -234,6 +236,11 @@ struct CopyUnison {
 	int voices;
 	int detune;
 	float spread;
+	bool arpEnable;
+	int arpFreq;
+	bool arpSmooth;
+	std::array<float, Global::unisonParaVoices> paraDistance;
+	std::array<int, Global::unisonParaVoices> paraDetune;
 };
 
 struct CopyQuality {

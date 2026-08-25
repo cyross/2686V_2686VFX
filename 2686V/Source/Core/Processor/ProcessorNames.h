@@ -194,6 +194,11 @@ namespace CPN
 		static inline const juce::String voices = " Unison Voices";
 		static inline const juce::String detune = " Unison Detune";
 		static inline const juce::String spread = " Unison Spread";
+		static inline const juce::String arpEnable = " Unison Arpeggio";
+		static inline const juce::String arpFreq = " Unison Arpeggio Freq";
+		static inline const juce::String arpSmooth = " Unison Arpeggio Smooth";
+		static inline const juce::String paraDistance = " Unison Para Distance ";
+		static inline const juce::String paraDetune = " Unison Para Detune ";
 	}
 
 	namespace Adsr

@@ -199,6 +199,12 @@ namespace CPK
 		static inline const juce::String voices = "_UNI_VOICES";
 		static inline const juce::String detune = "_UNI_DETUNE";
 		static inline const juce::String spread = "_UNI_SPREAD";
+		static inline const juce::String arpEnable = "_UNI_ARP";
+		static inline const juce::String arpFreq = "_UNI_ARPFREQ";
+		static inline const juce::String arpSmooth = "_UNI_ARPSMTH";
+		// ボイス単位の設定 (末尾に 1〜7 のボイス番号が付く)
+		static inline const juce::String paraDistance = "_UNI_PDIST";
+		static inline const juce::String paraDetune = "_UNI_PDET";
 	}
 
 	namespace Adsr

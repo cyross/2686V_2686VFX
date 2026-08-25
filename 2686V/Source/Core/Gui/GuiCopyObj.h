@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <array>
 
+#include "../Const/ConstGlobal.h"
 #include "../../Effect/Envelope/Amp/FmRgAdddr/EnvFmRgAdddrParams.h"
 #include "../../Effect/Envelope/Amp/Opzx7Adddr/EnvOpzx7AdddrParams.h"
 
@@ -304,6 +305,11 @@ struct CopyUnison {
 	int voices;
 	int detune;
 	float spread;
+	bool arpEnable;
+	int arpFreq;
+	bool arpSmooth;
+	std::array<float, Global::unisonParaVoices> paraDistance;
+	std::array<int, Global::unisonParaVoices> paraDetune;
 };
 
 struct CopyQuality {

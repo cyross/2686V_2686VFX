@@ -38,16 +38,7 @@ public:
     void clearBuffer();
 
     // ユニゾン・ハーモニー用
-    void setUnisonParams(int index, int total, float detune, float spread) {
-        m_unisonIndex = index;
-        m_unisonTotal = total;
-        m_unisonDetuneAmt = detune;
-        m_unisonSpreadAmt = spread;
-
-        // ユニゾンのインデックスに応じて位相を均等にずらす (0.0 〜 1.0)
-        // (例: 3ボイスなら 0.0, 0.33, 0.66)
-        m_unisonPhaseOffset = (total > 1) ? ((float)index / (float)total) : 0.0f;
-    }
+    // ユニゾン・ハーモニーは SynthCore::m_unison に集約
 private:
     double m_sampleRate = 44100.0; // DAW Host Sample Rate
     double m_sourceRate = 44100.0;
@@ -110,9 +101,4 @@ private:
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
-    int m_unisonIndex = 0;
-    int m_unisonTotal = 1;
-    float m_unisonDetuneAmt = 0.0f;
-    float m_unisonSpreadAmt = 0.0f;
-    float m_unisonPhaseOffset = 0.0f;
 };

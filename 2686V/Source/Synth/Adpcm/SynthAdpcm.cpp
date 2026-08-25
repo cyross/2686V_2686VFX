@@ -203,18 +203,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
     bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
     double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
-    float finalFreq = freq;
-
-    m_unisonPhaseOffset = 0.0f;
-
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f;
-        float centOffset = spreadPos * (float)m_unisonDetuneAmt;
-        finalFreq = freq * std::pow(2.0f, centOffset / 1200.0f);
-
-        // ADPCMでは直接波形の位相としては使いませんが、計算自体は残しておきます
-        m_unisonPhaseOffset = (float)m_unisonIndex / (float)m_unisonTotal;
-    }
+    float finalFreq = m_unison.applyDetune(freq);
 
     // ホストDAWのレートとの比率を加味した再生速度レシオの更新
     double rateRatio = currentBufferRate / m_sampleRate;
@@ -235,7 +224,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
         m_position = (m_pcmOffset / 1000.0) * currentBufferRate;
         m_hasFinished = false;
         m_isReleased = false;
-        m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+        m_phase = (m_unison.getPhaseOffset() * juce::MathConstants<float>::twoPi);
 
         // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
         while (m_phase >= juce::MathConstants<float>::twoPi) {
@@ -830,20 +819,8 @@ void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int s
     float basePanL = m_panL;
     float basePanR = m_panR;
 
-    if (m_unisonTotal > 1) {
-        float spreadPos = ((float)m_unisonIndex / (float)(m_unisonTotal - 1)) * 2.0f - 1.0f; // -1.0 to 1.0
-
-        // spreadPosが -1(L) の時、Right側の音量を下げる。逆も然り。
-        float panOffset = spreadPos * m_unisonSpreadAmt * 0.5f; // 最大で ±0.5 動く
-
-        basePanL = std::clamp(basePanL - panOffset, 0.0f, 1.0f);
-        basePanR = std::clamp(basePanR + panOffset, 0.0f, 1.0f);
-
-        // 音量補正 (ボイス数が増えると爆音になるため下げる)
-        // ルートを取るか、単純に割るかは好みですが、単純割りの方が安全です
-        float gainComp = 1.0f / std::sqrt((float)m_unisonTotal);
-        sample *= gainComp;
-    }
+    m_unison.applyPan(basePanL, basePanR);
+    sample *= m_unison.getGainComp();
 
     outL[startSample + sampleIdx] += sample * basePanL;
     outR[startSample + sampleIdx] += sample * basePanR;

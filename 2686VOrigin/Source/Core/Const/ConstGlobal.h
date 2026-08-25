@@ -7,6 +7,9 @@
 namespace Global
 {
 	static inline const int unisonVoices = 8; // ユニゾン発音数
+	// Para-Distance / Para-Detune の設定対象数。
+	// ボイス0はメイン(素の音程・定位)なので対象外となり、ボイス数-1 になる。
+	static inline const int unisonParaVoices = unisonVoices - 1;
 	static inline const int voices = 10; // 最大同時発音数
 	static inline const int totalVoices = voices * unisonVoices; // 最大同時発音数 * ユニゾン発音数
 	static inline constexpr int floatDecimalPlaces = 6; // パラメータ書き出し時の小数点以下の桁数

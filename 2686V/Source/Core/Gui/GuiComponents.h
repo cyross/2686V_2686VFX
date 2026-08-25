@@ -194,6 +194,19 @@ protected:
 public:
     GuiSlider(const GuiContext& context) : GuiBaseComponent(context), label(context) {}
 
+    // 束縛先のパラメータを差し替える。
+    // 1組のスライダーで複数パラメータを切り替えて編集する用途で使う
+    // (例: UNISON の対象ボイス切り替え)。
+    void rebind(const juce::String& id)
+    {
+        // 必ず古い束縛を先に破棄すること。
+        // unique_ptr::reset(p) は「新しいポインタを格納してから古い方を破棄」するため、
+        // reset(new ...) と書くと新アタッチメントの初期値反映が
+        // まだ生きている古いアタッチメント経由で切り替え前のパラメータへ書き戻されてしまう。
+        att.reset();
+        att.reset(new SliderAttachment(ctx.apvts, id, *this));
+    }
+
     GuiLabel label;
 
     struct Config {

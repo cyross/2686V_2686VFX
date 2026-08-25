@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+#include <array>
+#include <atomic>
+
+#include "../Const/ConstGlobal.h"
+
 struct PrPtrsAlgFb {
     std::atomic<float>* alg = nullptr;
     std::atomic<float>* fb = nullptr;
@@ -327,6 +332,11 @@ struct PrPtrsUnison {
     std::atomic<float>* voices = nullptr;
     std::atomic<float>* detuneCents = nullptr;
     std::atomic<float>* spread = nullptr;
+    std::atomic<float>* arpEnable = nullptr;
+    std::atomic<float>* arpFreq = nullptr;
+    std::atomic<float>* arpSmooth = nullptr;
+    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDistance{};
+    std::array<std::atomic<float>*, Global::unisonParaVoices> paraDetune{};
 };
 
 struct PrPtrsToneNoise {

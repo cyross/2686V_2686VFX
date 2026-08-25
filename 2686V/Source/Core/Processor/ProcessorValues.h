@@ -357,6 +357,41 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 0.5f;
 		}
+
+		namespace ArpEnable
+		{
+			inline constexpr bool initial = false;
+		}
+
+		// 疑似高速アルペジオの切り替え速度 (Hz)
+		namespace ArpFreq
+		{
+			inline constexpr int min = 1;
+			inline constexpr int max = 4000;
+			inline constexpr int initial = 60;
+		}
+
+		// 低速時のクリック対策ランプ (OFF ならハードゲート)
+		namespace ArpSmooth
+		{
+			inline constexpr bool initial = true;
+		}
+
+		// ボイス単位の定位オフセット (Distance に加算)
+		namespace ParaDistance
+		{
+			inline constexpr float min = 0.0f;
+			inline constexpr float max = 1.0f;
+			inline constexpr float initial = 0.0f;
+		}
+
+		// ボイス単位のデチューン (従来のデチューンに加算)
+		namespace ParaDetune
+		{
+			inline constexpr int min = -4800;
+			inline constexpr int max = 4800;
+			inline constexpr int initial = 0;
+		}
 	}
 
 	namespace Adsr
