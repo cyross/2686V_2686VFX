@@ -335,6 +335,7 @@ struct PrPtrsSsgHwEnv {
     std::atomic<float>* period = nullptr;
     std::atomic<float>* min = nullptr;
     std::atomic<float>* max = nullptr;
+    std::atomic<float>* smooth = nullptr;
 };
 
 struct PrPtrsPanpot {

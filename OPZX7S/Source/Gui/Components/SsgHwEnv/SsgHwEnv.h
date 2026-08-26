@@ -23,6 +23,7 @@ class GuiComponentSsgHwEnv : public GuiBase {
     // SSG SW ENV
     GuiCategoryLabel cat;
     GuiToggleButton envEnableButton;
+    GuiToggleButton smoothEnableButton;
     NormalSeparator hwEnvSeparator;
     GuiComboBox shapeSelector;
     GuiSlider periodSlider;
@@ -35,6 +36,7 @@ public:
         GuiBase(context),
         cat(context),
         envEnableButton(context),
+        smoothEnableButton(context),
         hwEnvSeparator(context),
         shapeSelector(context),
         periodSlider(context),

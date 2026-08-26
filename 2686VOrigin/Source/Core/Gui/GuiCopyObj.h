@@ -88,6 +88,7 @@ struct CopyEnvSsgHw {
 	float period;
 	float min;
 	float max;
+	bool smooth;
 };
 
 struct CopyEnvSsgSw {

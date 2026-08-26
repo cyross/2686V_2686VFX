@@ -424,6 +424,7 @@ namespace CPK
 		static inline const juce::String period = "_SSGHWENV_PERIOD";
 		static inline const juce::String min = "_SSGHWENV_MIN";
 		static inline const juce::String max = "_SSGHWENV_MAX";
+		static inline const juce::String smooth = "_SSGHWENV_SMOOTH";
 	};
 };
 

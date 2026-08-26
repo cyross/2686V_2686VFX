@@ -426,6 +426,7 @@ namespace PrHelper {
 		ptPtrs.period = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::period);
 		ptPtrs.min = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::min);
 		ptPtrs.max = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::max);
+		ptPtrs.smooth = apvts.getRawParameterValue(prefix + CPK::SsgHwEnv::smooth);
 	}
 
 	static inline void setupPanpot(juce::AudioProcessorValueTreeState& apvts, const juce::String& prefix, PrPtrsPanpot& ptPtrs){
@@ -817,6 +818,7 @@ namespace PrHelper {
 		params.period = getFloat(ptPtrs.period);
 		params.min = getFloat(ptPtrs.min);
 		params.max = getFloat(ptPtrs.max);
+		params.smooth = getBool(ptPtrs.smooth);
 	}
 
 	static inline void applyPanpot(PrPtrsPanpot& ptPtrs, PanpotParams& params){
@@ -2250,6 +2252,13 @@ namespace PrHelper {
 			prefix + CPK::SsgHwEnv::max,
 			prefixName + CPN::SsgHwEnv::max,
 			CPV::SsgHwEnv::Max::min, CPV::SsgHwEnv::Max::max, CPV::SsgHwEnv::Max::initial
+		);
+		// Period を大きくしたときのブツブツ音を和らげるスムース処理の ON/OFF
+		PrHelper::addBool(
+			layout,
+			prefix + CPK::SsgHwEnv::smooth,
+			prefixName + CPN::SsgHwEnv::smooth,
+			CPV::SsgHwEnv::Smooth::initial
 		);
 	}
 }

@@ -1690,6 +1690,11 @@ namespace CPV
 			inline constexpr float max = 1.0f;
 			inline constexpr float initial = 1.0f;
 		}
+
+		namespace Smooth
+		{
+			inline constexpr bool initial = false;
+		}
 	}
 
 	namespace OplEg {

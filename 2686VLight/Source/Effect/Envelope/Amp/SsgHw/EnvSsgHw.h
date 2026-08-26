@@ -6,6 +6,11 @@ class SsgHwEnv {
 public:
 	SsgHwEnv();
 
+	// スムース処理の時定数(秒)。
+	// 波形の段差を鈍らせてブツブツ音を抑えるのが目的なので、
+	// 音色そのものが変わらない程度に短くしてある。
+	static inline constexpr float smoothTimeSec = 0.002f;
+
 	// HW Env Params
 	bool m_useHwEnv = false;
 	int m_envShape = 0;
@@ -13,6 +18,11 @@ public:
 	double m_hwEnvPhase = 0.0;
 	float m_min = 0.0f;
 	float m_max = 1.0f;
+
+	// スムース処理
+	bool m_smooth = false;
+	float m_smoothedGain = 1.0f;
+	float m_smoothCoeff = 1.0f;
 
 	float m_currentRate = 0.0f;
 	double sampleRate = 44100.0; // DAW Host Sample Rate
@@ -25,4 +35,8 @@ public:
 	void noteOn();
 	void noteOff();
 	float process();
+
+private:
+	// サンプリングレートが変わったら 1 次ローパスの係数を計算し直す
+	void updateSmoothCoeff();
 };

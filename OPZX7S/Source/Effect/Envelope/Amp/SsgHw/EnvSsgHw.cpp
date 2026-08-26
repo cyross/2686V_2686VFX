@@ -4,6 +4,7 @@
 #include "./EnvSsgHw.h"
 
 SsgHwEnv::SsgHwEnv() {
+    updateSmoothCoeff();
 }
 
 void SsgHwEnv::prepare(double sampleRate) {
@@ -12,7 +13,8 @@ void SsgHwEnv::prepare(double sampleRate) {
 
 void SsgHwEnv::updateTargetSampleRate(double newSampleRate)
 {
-    this->sampleRate = sampleRate;
+    this->sampleRate = newSampleRate;
+    updateSmoothCoeff();
 }
 
 void SsgHwEnv::setParameters(const SsgHwEnvParams& params) {
@@ -21,10 +23,24 @@ void SsgHwEnv::setParameters(const SsgHwEnvParams& params) {
     this->m_envFreq = params.period;
     this->m_min = params.min;
     this->m_max = params.max;
+    this->m_smooth = params.smooth;
 }
 
 void SsgHwEnv::updateSampleRate(double newSampleRate) {
     this->sampleRate = newSampleRate;
+    updateSmoothCoeff();
+}
+
+void SsgHwEnv::updateSmoothCoeff() {
+    // 1 次ローパス y += (x - y) * coeff の係数。
+    // coeff = 1 - exp(-1 / (時定数 * サンプリングレート))
+    if (sampleRate <= 0.0) {
+        m_smoothCoeff = 1.0f;
+        return;
+    }
+
+    m_smoothCoeff = 1.0f - std::exp(-1.0f / (smoothTimeSec * (float)sampleRate));
+    m_smoothCoeff = std::clamp(m_smoothCoeff, 0.0f, 1.0f);
 }
 
 void SsgHwEnv::noteOn() {
@@ -90,5 +106,19 @@ float SsgHwEnv::process() {
         }
     }
 
-    return hwEnvGain;
+    // ==========================================
+    // 2. Smoothing
+    // ==========================================
+    // 波形の折り返しで生じる段差がブツブツ音の原因なので、
+    // 1 次ローパスで角を鈍らせる。
+    if (!m_smooth) {
+        // OFF のときも値だけは追従させておき、
+        // ON に切り替えた瞬間に飛ばないようにする
+        m_smoothedGain = hwEnvGain;
+        return hwEnvGain;
+    }
+
+    m_smoothedGain += (hwEnvGain - m_smoothedGain) * m_smoothCoeff;
+
+    return m_smoothedGain;
 }
