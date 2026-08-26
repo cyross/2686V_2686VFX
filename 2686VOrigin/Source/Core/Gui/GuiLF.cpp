@@ -51,13 +51,13 @@ juce::Colour CustomTabLookAndFeel::getTabHeaderColor(int tabIndex)
     // お好みの色を指定してください（アルファ値で濃さを調整すると綺麗です）
     switch (tabIndex)
     {
-    case 0: return juce::Colours::darkgreen;      // OPNA
-    case 1: return juce::Colours::darkcyan;       // SSG
-    case 2: return juce::Colours::darkcyan;       // RHYTHM
-    case 3: return juce::Colours::darkcyan;       // ADPCM
+    case 0: return juce::Colours::darkgreen;     // OPNA
+    case 1: return juce::Colours::darkcyan;      // SSG
+    case 2: return juce::Colours::rebeccapurple; // RHYTHM
+    case 3: return juce::Colours::rebeccapurple; // ADPCM
     case 4: return juce::Colours::darkgoldenrod; // PRESET
     case 5: return juce::Colours::darkgoldenrod; // SETTINGS
     case 6: return juce::Colours::darkgoldenrod; // ABOUT
-    default: return juce::Colours::darkgrey;      // OTHER
+    default: return juce::Colours::darkgrey;     // OTHER
     }
 }
