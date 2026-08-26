@@ -2,6 +2,28 @@
 
 #include "./SynthBeep.h"
 
+// PolyBLEP (Polynomial Band-Limited Step)
+// 不連続点の前後 1 サンプルだけ多項式で段差を補正し、
+// 折り返しノイズを目立たなくする。
+// t  : 不連続点からの正規化位相 (0.0〜1.0)
+// dt : 1 サンプルあたりの位相の進み
+static inline float polyBlep(float t, float dt)
+{
+    if (t < dt) {
+        // 立ち上がり直後
+        t /= dt;
+        return t + t - t * t - 1.0f;
+    }
+
+    if (t > 1.0f - dt) {
+        // 次の不連続点の直前
+        t = (t - 1.0f) / dt;
+        return t * t + t + t + 1.0f;
+    }
+
+    return 0.0f;
+}
+
 void BeepCore::prepare(double sampleRate) {
     if (sampleRate > 0.0) m_sampleRate = sampleRate;
 
@@ -43,6 +65,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
     m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
+    m_antiAlias = params.beep.antiAlias;
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -194,8 +217,6 @@ float BeepCore::getSample() {
         }
     }
 
-    // 究極にシンプルな1-bit矩形波（50% Duty）
-    float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
 
     // SSGハードウェアエンベロープ(SsgHwEnv)処理
     float sshHwEnvVal = m_ssgHwEnv.process();
@@ -241,9 +262,26 @@ float BeepCore::getSample() {
 
     phaseInc = newPhaseDelta * freqMult;
 
+    // ==========================================
+    // 波形生成 (50% Duty の矩形波)
+    // ==========================================
+    // 素の矩形波は帯域無制限なので、高音ではナイキストを超えた倍音が
+    // 折り返してエイリアスノイズになる。PolyBLEP は不連続点の前後 1 サンプルを
+    // 多項式で補正して段差をなまし、これを抑える。
+    float output = (m_phase < 0.5f) ? 1.0f : -1.0f;
+
+    if (m_antiAlias && phaseInc > 0.0f && phaseInc < 0.5f) {
+        // 位相 0 の立ち上がりと、位相 0.5 の立ち下がりの 2 箇所を補正する
+        output += polyBlep(m_phase, phaseInc);
+        output -= polyBlep(std::fmod(m_phase + 0.5f, 1.0f), phaseInc);
+    }
+
     m_phase += phaseInc;
 
-    if (m_phase >= 1.0f) m_phase -= 1.0f;
+    // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
+    // 破綻しないよう while で回す
+    while (m_phase >= 1.0f) m_phase -= 1.0f;
+    while (m_phase < 0.0f) m_phase += 1.0f;
 
     // 音量に変換
     return output * finalEnv * m_baseLevel * m_level * amMultiplier * sshHwEnvVal;

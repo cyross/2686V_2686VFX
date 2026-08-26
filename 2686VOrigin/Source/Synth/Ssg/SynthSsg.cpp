@@ -380,7 +380,10 @@ float SsgCore::getSample()
         }
 
         m_phase += phaseInc;
-        if (m_phase >= 1.0f) m_phase -= 1.0f;
+        // ピッチエンベロープや PM で 1 サンプルの進みが 1.0 を超えても
+        // 破綻しないよう while で回す
+        while (m_phase >= 1.0f) m_phase -= 1.0f;
+        while (m_phase < 0.0f) m_phase += 1.0f;
 
         // ==========================================
         // 3. Noise Generator
@@ -406,9 +409,9 @@ float SsgCore::getSample()
             if (rawMixed < -1.0f) rawMixed = -1.0f;
 
             // ディザ(dither)を削除し、実機DACと同じ純粋な四捨五入にする(プレビューのゴミ解消)
-            float norm = (rawMixed + 1.0f) * 0.5f;
-            float quantized = std::round(norm * m_quantizeSteps) / m_quantizeSteps;
-            finalOut = (quantized * 2.0f) - 1.0f;
+            // 0〜1 に詰め替えてから丸めると 0.0 が中央ステップから外れて
+            // 直流オフセットになるため、バイポーラのまま量子化する
+            finalOut = quantizeSample(rawMixed, m_quantizeSteps);
         }
         else {
             finalOut = rawMixed;
@@ -418,8 +421,10 @@ float SsgCore::getSample()
     }
 
     // 線形補間を適用して波形を滑らかに出力する
-    float fraction = (float)(m_rateAccumulator / stepSize);
-    if (fraction > 1.0f) fraction = 1.0f;
+    // m_rateAccumulator は直近に生成したサンプルからの進み具合を
+    // ソースサンプル単位 (0.0〜1.0) で保持しているので、そのまま補間係数になる。
+    // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
+    float fraction = (float)m_rateAccumulator;
 
     float interpolatedSample = m_prevSample + (m_lastSample - m_prevSample) * fraction;
 

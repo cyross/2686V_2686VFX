@@ -23,8 +23,10 @@ float LfsrNoiseGen::generate() {
 	this->lfsr >>= 1;
 	if (nextBit) this->lfsr |= (1 << 16);
 
-	// ノイズサンプルの生成 (例: -1.0f 〜 +1.0f)
-	this->currentSample = ((this->lfsr % 1000) / 500.0f) - 1.0f;
+	// ノイズサンプルの生成。
+	// LFSR は 1 サンプルで 1 ビットしか進まないため、レジスタの値そのものを
+	// 使うと相関の強い偏った系列になる。実機と同じく出力ビットだけを見る。
+	this->currentSample = (this->lfsr & 1) ? 1.0f : -1.0f;
 
 	return this->currentSample;
 }

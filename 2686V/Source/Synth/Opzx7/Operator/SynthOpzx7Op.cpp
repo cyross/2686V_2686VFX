@@ -65,7 +65,8 @@ void Opzx7Operator::setParameters(const Opzx7OpParams& params, float feedback)
     // マイナス値の場合は逆相（マイナス）のフィードバックにする
     float sign = (m_fbx >= 0.0f) ? 1.0f : -1.0f;
 
-    m_fbScale = sign * fbs * juce::MathConstants<float>::pi * 2.0f;
+    // フィードバック量もサイクル単位
+    m_fbScale = sign * fbs;
 }
 
 void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool isLegato)
@@ -80,11 +81,11 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
         if (!m_isMonoMode) {
             // ユニゾン・ハーモニー向け対応
             // m_unisonPhaseOffset (0.0~1.0) に 2π を掛けてラジアンにしてから足す！
-            m_phase = (m_unisonPhaseOffset * juce::MathConstants<float>::twoPi);
+            m_phase = m_unisonPhaseOffset;
 
             // 位相が 2π を超えた場合は安全にラップアラウンド（折り返し）させる
-            while (m_phase >= juce::MathConstants<float>::twoPi) {
-                m_phase -= juce::MathConstants<float>::twoPi;
+            while (m_phase >= 1.0) {
+                m_phase -= 1.0;
             }
 
             m_currentLevel = 0.0f;
@@ -128,7 +129,8 @@ void Opzx7Operator::noteOn(float frequency, float velocity, int noteNumber, bool
     // 基本周波数にデチューン成分を加算
     float finalFreq = m_detune.noteOn(baseFreq);
 
-    m_phaseDelta = (finalFreq * 2.0 * juce::MathConstants<float>::pi) / m_sampleRate;
+    // 1 サンプルあたり何周進むか (サイクル単位)
+    m_phaseDelta = finalFreq / m_sampleRate;
 
     if (!isLegato) {
         if (!m_ampAdsr.isBypass()) {
@@ -409,7 +411,8 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     // --------------------------------------------------------
     // Modulator からの入力 (変調インデックスは実機では通常 4π ではなく 2π〜8πの範囲ですが、
     // ここは既存のシステムに合わせておきます)
-    float fmModIndex = 4.0f * juce::MathConstants<float>::pi;
+    // 変調指数。従来の 4π ラジアンは 2 サイクルに相当する
+    float fmModIndex = 2.0f;
 
     if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_pcmBuffer != nullptr && !m_pcmBuffer->empty())
     {
@@ -428,47 +431,48 @@ void Opzx7Operator::getSample(float& output, float modulator, float feedbackModu
     }
 
     // 位相の変調
-    float modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
+    double modulatedPhase = m_phase + (modulator * fmModIndex) + feedbackPhaseOffset;
 
     // エンベロープが「掛かる前」の生の波形を取得
     float rawWave = calcWaveform(modulatedPhase, m_params.waveSelect);
 
-    m_fb2 = m_fb1;
-    m_fb1 = rawWave; // outputではなくrawWaveを保存！
-
     // 最後にエンベロープを掛けて出力とする
     output = rawWave * envVal * m_targetLevel;
+
+    // 実機はエンベロープ適用後の出力をフィードバックに戻すため、
+    // 音が減衰するとフィードバックも弱まり、倍音が落ち着いていく
+    m_fb2 = m_fb1;
+    m_fb1 = output;
 
     // m_phase の更新とラップアラウンドもラジアンで行う
     m_phase += currentPhaseDelta;
 
     if (m_params.waveSelect == Opzx7PrValue::pcmIndex && m_loopPointEnable && !m_isReleased) {
-        float loopStartRad = m_loopPointStart * 2.0f * juce::MathConstants<float>::pi;
-        float loopEndRad = m_loopPointEnd * 2.0f * juce::MathConstants<float>::pi;
-        float loopLenRad = loopEndRad - loopStartRad;
+        // ループポイントは 0.0〜1.0 なので、そのままサイクル単位で扱える
+        double loopStart = m_loopPointStart;
+        double loopEnd = m_loopPointEnd;
+        double loopLen = loopEnd - loopStart;
 
-        if (loopLenRad > 0.0f) {
+        if (loopLen > 0.0) {
             // ループ終端を超えたら、超えた分をStartに足してループ内に収める
-            if (m_phase >= loopEndRad) {
-                m_phase = loopStartRad + std::fmod(m_phase - loopEndRad, loopLenRad);
+            if (m_phase >= loopEnd) {
+                m_phase = loopStart + std::fmod(m_phase - loopEnd, loopLen);
             }
         }
 
-        while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+        while (m_phase < 0.0) m_phase += 1.0;
     }
     else {
         // 通常のオシレータのループ、またはリリース後のPCM再生
-        while (m_phase >= 2.0f * juce::MathConstants<float>::pi) m_phase -= 2.0f * juce::MathConstants<float>::pi;
-        while (m_phase < 0.0f) m_phase += 2.0f * juce::MathConstants<float>::pi;
+        while (m_phase >= 1.0) m_phase -= 1.0;
+        while (m_phase < 0.0) m_phase += 1.0;
     }
 }
 
 float Opzx7Operator::calcWaveform(double phase, int wave)
 {
-    // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
-    float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
-
-    if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
+    // phase はサイクル単位 (1.0 で 1 周)。0.0 ～ 1.0 に丸めてからラジアンへ直す
+    float p = (float)((phase - std::floor(phase)) * juce::MathConstants<double>::twoPi);
 
     // サイン波と正規化位相を計算
     float s = std::sin(p);

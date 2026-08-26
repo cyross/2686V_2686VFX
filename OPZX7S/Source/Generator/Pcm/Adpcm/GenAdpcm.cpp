@@ -20,6 +20,11 @@ uint8_t Ym2608AdpcmCodec::encode(int16_t pcmSample) {
         diff = -diff;
     }
 
+    // デコーダ側は必ず step>>3 を下駄として足すため、
+    // その分を先に引いておかないと再構成値が常に行き過ぎる
+    diff -= step >> 3;
+    if (diff < 0) diff = 0;
+
     int tempStep = step;
     if (diff >= tempStep) {
         nibble |= 4;

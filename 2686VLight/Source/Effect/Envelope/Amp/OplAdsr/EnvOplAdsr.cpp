@@ -171,6 +171,9 @@ void OplAdsr::updateIncrementsWithKeyScale(int noteNumber)
 
 float OplAdsr::updateEnvelopeState(float currentLevel)
 {
+    // 返すのは 0.0〜1.0 の包絡線。
+    // 音量 (velocity / TL / KSL) はオペレータ側が m_targetLevel を掛けて反映するので、
+    // ここで掛けると二重になる (FmRgAdssr / FmRgAdddr と同じ扱い)。
     if (this->bypass) {
         return 1.0f;
     }
@@ -181,26 +184,26 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
     case State::Idle:
         return currentLevel;
     case State::Attack:
-        currentLevel += attackInc * this->m_targetLevel;
+        currentLevel += attackInc * 1.0f;
 
-        if (currentLevel >= this->m_targetLevel) {
-            currentLevel = this->m_targetLevel;
+        if (currentLevel >= 1.0f) {
+            currentLevel = 1.0f;
             state = State::Decay;
         }
 
         return currentLevel;
     case State::Decay:
-        limitLevel = this->m_sustain * this->m_targetLevel;
+        limitLevel = this->m_sustain * 1.0f;
 
         // DR(Decay Rate)が0の時は、減衰せずに1.0を永遠に維持する
         if (this->m_zeroDecay) {
-            currentLevel = this->m_targetLevel;
+            currentLevel = 1.0f;
             this->state = State::Sustain;
         }
         else if (currentLevel > limitLevel) {
             if (this->decayDec > 0.0f) {
                 // 減衰量も targetLevel 基準にする
-                currentLevel -= this->decayDec * this->m_targetLevel;
+                currentLevel -= this->decayDec * 1.0f;
                 if (currentLevel <= limitLevel) {
                     currentLevel = limitLevel;
                     this->state = State::Sustain;
@@ -220,7 +223,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
             // 何もしない
         }
         else { // EG-TYPE = 0 (減衰音／パーカッシブ・タイプ)
-            currentLevel -= this->releaseDec * this->m_targetLevel;
+            currentLevel -= this->releaseDec * 1.0f;
             if (currentLevel <= 0.001f) {
                 currentLevel = 0.0f;
                 this->state = State::Idle;
@@ -239,7 +242,7 @@ float OplAdsr::updateEnvelopeState(float currentLevel)
             return 0.0f;
         }
 
-        currentLevel -= this->releaseDec * this->m_targetLevel;
+        currentLevel -= this->releaseDec * 1.0f;
 
         if (currentLevel <= 0.001f) {
             currentLevel = 0.0f;

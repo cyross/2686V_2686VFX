@@ -61,6 +61,8 @@ class GuiBeep : public GuiBase {
 
     GuiComponentMidi midiComponent;
 
+    GuiCategoryLabel optionalCat;
+    GuiToggleButton antiAliasButton;
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
@@ -110,6 +112,8 @@ public:
         mulDetuneComponent(context),
         lfoComponent(context),
         midiComponent(context),
+        optionalCat(context),
+        antiAliasButton(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
@@ -138,6 +142,7 @@ public:
     void updatePresetName(const juce::String& name);
     void initParams();
     void setupGraph();
+    void layoutOptionalCat(Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);

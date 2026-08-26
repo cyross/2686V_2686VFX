@@ -27,6 +27,12 @@ void GuiBeep::setup() {
 
 	fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 2K", 2000);
 
+    optionalCat.setupOtherCategory({ .parent = mainGroup.contentCanvas, .title = BeepGuiText::Category::visibleOptional, .invisibleTitle = BeepGuiText::Category::invisibleOptional, .enableChangeDetailVisible = true });
+
+    antiAliasButton.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::antiAlias, .title = "Anti-Alias", .isReset = true });
+    antiAliasButton.setWantsKeyboardFocus(true);
+    antiAliasButton.setExplicitFocusOrder(++tabOrder);
+
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     pitchEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::pitchAdsr + CPK::bypass, BeepGuiText::PitchAdsr::bypass);
@@ -111,6 +117,8 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     levelComponent.layoutComponent(mRect);
 
+    layoutOptionalCat(mRect);
+
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
@@ -139,6 +147,20 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
 
     // 下部の余白を足して、キャンバスの最終的な高さをセット
     mainGroup.setContentHeight(usedHeight + 20);
+}
+
+void GuiBeep::layoutOptionalCat(juce::Rectangle<int>& rect)
+{
+    layoutMainCategory({ .mainRect = rect, .label = &optionalCat });
+
+    bool visible = optionalCat.isDetailVisible();
+
+    antiAliasButton.setVisible(visible);
+
+    if (visible)
+    {
+        layoutMain({ .mainRect = rect, .component = &antiAliasButton });
+    }
 }
 
 void GuiBeep::layoutUtilityCat(juce::Rectangle<int>& rect)
@@ -353,6 +375,9 @@ void GuiBeep::importChParam() {
 				mulDetuneComponent.setImportingParams(lines, index);
 				lfoComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
+
+                // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
+                antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
             }
         });
 }
@@ -387,6 +412,9 @@ void GuiBeep::exportChParam() {
                 content += mulDetuneComponent.getExportedParams();
                 content += lfoComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
+
+                // 末尾に追加した項目
+                content += juce::String(antiAliasButton.getToggleState() ? 1 : 0) + "\n";
 
                 file.replaceWithText(content);
             }

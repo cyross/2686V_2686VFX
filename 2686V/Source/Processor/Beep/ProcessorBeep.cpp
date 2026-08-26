@@ -14,6 +14,12 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     const juce::String prefixName = BeepPrName::prefix;
 
     PrHelper::addLevelParameters(layout, prefix, prefixName);
+    PrHelper::addBool(
+        layout,
+        prefix + BeepPrKey::antiAlias,
+        prefixName + BeepPrName::antiAlias,
+        BeepPrValue::AntiAlias::initial
+    );
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
@@ -31,6 +37,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     const juce::String prefix = BeepPrKey::prefix;
 
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);
+    pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);

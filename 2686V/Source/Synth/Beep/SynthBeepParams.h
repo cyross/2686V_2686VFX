@@ -18,6 +18,9 @@ struct BeepParams
 {
     float level = 1.0f;
 
+    // 帯域制限 (PolyBLEP) でエイリアスノイズを抑えるかどうか
+    bool antiAlias = false;
+
     AmpAdsrParams adsr;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;

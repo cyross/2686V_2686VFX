@@ -282,12 +282,16 @@ float OpnaCore::getSample() {
 
         finalOut *= 2.0f; // ゲイン補正
 
+        // 量子化 (BIT)。Raw のときは quantizeSample が素通しする
+        finalOut = quantizeSample(finalOut, m_quantizeSteps);
+
         m_lastSample = finalOut;
     }
 
-    float fraction = (float)(m_rateAccumulator / stepSize);
-
-    if (fraction > 1.0f) fraction = 1.0f;
+    // m_rateAccumulator は直近に生成したサンプルからの進み具合を
+    // ソースサンプル単位 (0.0〜1.0) で保持しているので、そのまま補間係数になる。
+    // prev→last を補間する形なので、出力はソース 1 サンプル分だけ遅れる。
+    float fraction = (float)m_rateAccumulator;
 
     return (m_prevSample + (m_lastSample - m_prevSample) * fraction) * m_level;
 }

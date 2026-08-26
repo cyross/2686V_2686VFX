@@ -20,9 +20,8 @@ void FmOperator::noteOff()
 
 float FmOperator::calcWaveform(double phase, int wave)
 {
-    // 1. まず phase を 0.0 ～ 2π の範囲に丸め込む (ラジアン)
-    float p = std::fmod((float)phase, 2.0f * juce::MathConstants<float>::pi);
-    if (p < 0.0f) p += 2.0f * juce::MathConstants<float>::pi;
+    // phase はサイクル単位 (1.0 で 1 周)。0.0 ～ 1.0 に丸めてからラジアンへ直す
+    float p = (float)((phase - std::floor(phase)) * juce::MathConstants<double>::twoPi);
 
     // サイン波はラジアンで計算
     float s = std::sin(p);

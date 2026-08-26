@@ -38,8 +38,10 @@ protected:
     enum class State { Idle, Attack, Decay, Sustain, Release };
     State m_state = State::Idle;
     double m_sampleRate = 44100.0;
-    float m_phase = 0.0f;
-    float m_phaseDelta = 0.0f;
+    // 位相はサイクル単位 (1.0 で 1 周)。
+    // 高域でも位相のずれが溜まりにくいよう double で持つ。
+    double m_phase = 0.0;
+    double m_phaseDelta = 0.0;
     double m_ssgPhase = 0.0;
     float m_ssgEgFreq = 1.0f;
     int m_noteNumber = 60;

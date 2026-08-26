@@ -60,6 +60,8 @@ private:
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
 
+    bool m_antiAlias = false;
+
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
 };
