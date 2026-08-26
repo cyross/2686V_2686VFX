@@ -9,6 +9,16 @@ void Ym2608AdpcmCodec::reset()
     stepIndex = 0;
 }
 
+void Ym2608AdpcmCodec::process(std::vector<int16_t>& samples)
+{
+    Ym2608AdpcmCodec codec;
+    codec.reset();
+
+    for (auto& s : samples) {
+        s = codec.decode(codec.encode(s));
+    }
+}
+
 // Encode: 16bit PCM -> 4bit ADPCM
 uint8_t Ym2608AdpcmCodec::encode(int16_t pcmSample) {
     int step = OpnaAdpcm::StepSizeTable[stepIndex];
@@ -20,11 +30,9 @@ uint8_t Ym2608AdpcmCodec::encode(int16_t pcmSample) {
         diff = -diff;
     }
 
-    // デコーダ側は必ず step>>3 を下駄として足すため、
-    // その分を先に引いておかないと再構成値が常に行き過ぎる
-    diff -= step >> 3;
-    if (diff < 0) diff = 0;
-
+    // step / step2 / step4 との貪欲比較は、デコーダの再構成値
+    // (2c+1) * step/8 に対する最適な量子化になっている。
+    // デコーダが足す step>>3 を先に引くと 1 段ずつ下振れするので触らないこと。
     int tempStep = step;
     if (diff >= tempStep) {
         nibble |= 4;
@@ -40,7 +48,8 @@ uint8_t Ym2608AdpcmCodec::encode(int16_t pcmSample) {
         nibble |= 1;
     }
 
-    decodeAndUpdateState(nibble); // Update internal state
+    // 状態(予測値とステップ)の更新は decode() 側で 1 回だけ行う。
+    // ここで更新すると decode(encode(x)) で二重に適用されてしまう。
     return nibble;
 }
 

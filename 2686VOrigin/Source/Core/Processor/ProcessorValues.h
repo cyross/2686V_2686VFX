@@ -255,7 +255,7 @@ namespace CPV
 		{
 			// 1:32bit, 2:24bit, 3:20bit, 4:16bit, 5:12bit, 6:10bit, 7:9bit, 8:8bit, 9:7bit, 10:6bit, 11:5bit, 12:4bit PCM, 13: 4bit ADPCM, 14: 1bit DPCM
 			inline constexpr int min = 1; // Raw (32bit)
-			inline constexpr int max = 14; // 1-bit DPCM
+			inline constexpr int max = 21; // K054539
 			inline constexpr int initial = 12; // 4-bit PCM
 		}
 

@@ -130,7 +130,7 @@ void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, 
     m_unisonTotal = uTotal;
 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
     float finalFreq = freq;
     float oldBaseLevel = m_baseLevel;
@@ -284,7 +284,7 @@ float RhythmPad::getSample()
     }
 
     float output = 0.0f;
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
@@ -683,37 +683,8 @@ void RhythmPad::refreshPcmBuffer()
 
     double step = m_sourceRate / targetRate;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
-
-    double pos = 0;
-
-    if (m_qualityMode == dpcmMode) {
-        DpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-            if (index >= m_rawBuffer.size()) break;
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-            pos += step;
-        }
-    }
-    else { // adpcmMode
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-            if (index >= m_rawBuffer.size()) break;
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void RhythmPad::clearBuffer() {

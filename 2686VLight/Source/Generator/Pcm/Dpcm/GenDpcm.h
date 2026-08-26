@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include <vector>
 #include <cmath>
 
 class DpcmCodec {
@@ -11,6 +12,9 @@ private:
 
 public:
     void reset();
+
+    // int16 列をまとめてエンコード → デコードして上書きする
+    static void process(std::vector<int16_t>& samples);
     // 16bit PCMを入力し、1bit(0 または 1)のDPCMデータを出力する
     uint8_t encode(int16_t pcmSample);
     // 1bitのDPCMデータを入力し、16bit PCMとしてデコードする

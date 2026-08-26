@@ -144,46 +144,8 @@ void AdpcmCore::setSampleData(const std::vector<float>& sourceData, double sourc
 
     double step = sourceRate / targetRate;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(sourceData.size() / step));
-
-    double pos = 0;
-
-    // --- ロード時もDPCM/ADPCM設定に従ってエンコードする ---
-    if (m_qualityMode == dpcmMode)
-    {
-        DpcmCodec codec;
-        codec.reset();
-        while (pos < sourceData.size()) {
-            int index = (int)pos;
-
-            if (index >= sourceData.size()) break;
-
-            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-    else
-    {
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-        while (pos < sourceData.size()) {
-            int index = (int)pos;
-
-            if (index >= sourceData.size()) break;
-
-            int16_t input = (int16_t)(sourceData[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
@@ -201,7 +163,7 @@ void AdpcmCore::noteOn(float freq, float velocity, int midiNote, bool isLegato)
     float rootFreq = (float)juce::MidiMessage::getMidiNoteInHertz(m_rootNote);
 
     // ADPCMモードとDPCMモードを共通で「エンコードバッファ使用モード」として判定
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = isEncodedMode ? m_bufferSampleRate : m_sourceRate;
     float finalFreq = m_unison.applyDetune(freq);
 
@@ -385,7 +347,7 @@ float AdpcmCore::getSample()
     }
 
     float output = 0.0f;
-    bool isEncodedMode = (m_qualityMode == adpcmMode || m_qualityMode == dpcmMode);
+    bool isEncodedMode = GenPcmHelper::isEncodedMode(m_qualityMode);
     double currentBufferRate = m_sampleRate;
 
     // ノイズを出すために、バッファが空でも最後まで通す
@@ -766,48 +728,8 @@ void AdpcmCore::refreshPcmBuffer()
     double step = m_sourceRate / targetRate;
     if (step <= 0.0) step = 1.0;
 
-    m_pcmBuffer.clear();
-    m_pcmBuffer.reserve((size_t)(m_rawBuffer.size() / step) + 1);
-
-    double pos = 0;
-
-    // --- DPCMとADPCMの分岐エンコード ---
-    if (m_qualityMode == dpcmMode)
-    {
-        DpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-
-            if (index >= m_rawBuffer.size()) break;
-
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-    else
-    {
-        Ym2608AdpcmCodec codec;
-        codec.reset();
-
-        while (pos < m_rawBuffer.size()) {
-            int index = (int)pos;
-
-            if (index >= m_rawBuffer.size()) break;
-
-            int16_t input = (int16_t)(m_rawBuffer[index] * 32767.0f);
-
-            m_pcmBuffer.push_back(codec.decode(codec.encode(input)));
-
-            pos += step;
-        }
-    }
-
-    GenPcmHelper::lowPassFilter(m_pcmBuffer);
+    // 圧縮の種類ごとの処理は GenPcmHelper に集約している
+    GenPcmHelper::encodeBuffer(m_rawBuffer, step, m_qualityMode, m_pcmBuffer);
 }
 
 void AdpcmCore::renderNextBlock(float* outR, float* outL, int startSample, int sampleIdx, bool& isActive)
