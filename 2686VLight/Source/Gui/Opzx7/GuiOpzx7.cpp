@@ -320,13 +320,21 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     algSelector(context),
     algFbSep(context),
     feedback1Slider(context),
+    feedback1Nudge(context),
     feedback2Slider(context),
+    feedback2Nudge(context),
     feedback3Slider(context),
+    feedback3Nudge(context),
     feedback4Slider(context),
+    feedback4Nudge(context),
     feedback5Slider(context),
+    feedback5Nudge(context),
     feedback6Slider(context),
+    feedback6Nudge(context),
     feedback7Slider(context),
+    feedback7Nudge(context),
     feedback8Slider(context),
+    feedback8Nudge(context),
     panCat(context),
     panpotEnableToggle(context),
     panpotSlider(context),
@@ -506,37 +514,37 @@ void GuiOpzx7::setup()
 
     algFbSep.setupComponent(mainGroup.contentCanvas);
 
-    feedback1Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb1, .title = Opzx7GuiText::Fm::fb + "1", .isReset = true });
-    feedback1Slider.setWantsKeyboardFocus(true);
-    feedback1Slider.setExplicitFocusOrder(++tabOrder);
+    feedback1Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb1, Opzx7GuiText::Fm::fb + "1", tabOrder, std::nullopt);
 
-    feedback2Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb2, .title = Opzx7GuiText::Fm::fb + "2", .isReset = true });
-    feedback2Slider.setWantsKeyboardFocus(true);
-    feedback2Slider.setExplicitFocusOrder(++tabOrder);
+    feedback1Nudge.setupComponent(mainGroup.contentCanvas, feedback1Slider.getSlider(), tabOrder);
 
-    feedback3Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb3, .title = Opzx7GuiText::Fm::fb + "3", .isReset = true });
-    feedback3Slider.setWantsKeyboardFocus(true);
-    feedback3Slider.setExplicitFocusOrder(++tabOrder);
+    feedback2Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb2, Opzx7GuiText::Fm::fb + "2", tabOrder, std::nullopt);
 
-    feedback4Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb4, .title = Opzx7GuiText::Fm::fb + "4", .isReset = true });
-    feedback4Slider.setWantsKeyboardFocus(true);
-    feedback4Slider.setExplicitFocusOrder(++tabOrder);
+    feedback2Nudge.setupComponent(mainGroup.contentCanvas, feedback2Slider.getSlider(), tabOrder);
 
-    feedback5Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb5, .title = Opzx7GuiText::Fm::fb + "5", .isReset = true });
-    feedback5Slider.setWantsKeyboardFocus(true);
-    feedback5Slider.setExplicitFocusOrder(++tabOrder);
+    feedback3Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb3, Opzx7GuiText::Fm::fb + "3", tabOrder, std::nullopt);
 
-    feedback6Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb6, .title = Opzx7GuiText::Fm::fb + "6", .isReset = true });
-    feedback6Slider.setWantsKeyboardFocus(true);
-    feedback6Slider.setExplicitFocusOrder(++tabOrder);
+    feedback3Nudge.setupComponent(mainGroup.contentCanvas, feedback3Slider.getSlider(), tabOrder);
 
-    feedback7Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb7, .title = Opzx7GuiText::Fm::fb + "7", .isReset = true });
-    feedback7Slider.setWantsKeyboardFocus(true);
-    feedback7Slider.setExplicitFocusOrder(++tabOrder);
+    feedback4Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb4, Opzx7GuiText::Fm::fb + "4", tabOrder, std::nullopt);
 
-    feedback8Slider.setup({ .parent = mainGroup.contentCanvas, .id = code + CPK::Fm::fb8, .title = Opzx7GuiText::Fm::fb + "8", .isReset = true });
-    feedback8Slider.setWantsKeyboardFocus(true);
-    feedback8Slider.setExplicitFocusOrder(++tabOrder);
+    feedback4Nudge.setupComponent(mainGroup.contentCanvas, feedback4Slider.getSlider(), tabOrder);
+
+    feedback5Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb5, Opzx7GuiText::Fm::fb + "5", tabOrder, std::nullopt);
+
+    feedback5Nudge.setupComponent(mainGroup.contentCanvas, feedback5Slider.getSlider(), tabOrder);
+
+    feedback6Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb6, Opzx7GuiText::Fm::fb + "6", tabOrder, std::nullopt);
+
+    feedback6Nudge.setupComponent(mainGroup.contentCanvas, feedback6Slider.getSlider(), tabOrder);
+
+    feedback7Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb7, Opzx7GuiText::Fm::fb + "7", tabOrder, std::nullopt);
+
+    feedback7Nudge.setupComponent(mainGroup.contentCanvas, feedback7Slider.getSlider(), tabOrder);
+
+    feedback8Slider.setupComponent(mainGroup.contentCanvas, code + CPK::Fm::fb8, Opzx7GuiText::Fm::fb + "8", tabOrder, std::nullopt);
+
+    feedback8Nudge.setupComponent(mainGroup.contentCanvas, feedback8Slider.getSlider(), tabOrder);
 
     panCat.setupHwCategory({ .parent = mainGroup.contentCanvas, .title = Opzx7GuiText::Category::visiblePanpot, .invisibleTitle = Opzx7GuiText::Category::invisiblePanpot , .enableChangeDetailVisible = true });
 
@@ -1053,7 +1061,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
@@ -1093,14 +1101,30 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
 
     algFbSep.layoutComponent(mRect);
 
-    layoutMain({ .mainRect = mRect, .label = &feedback1Slider.label, .component = &feedback1Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback2Slider.label, .component = &feedback2Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback3Slider.label, .component = &feedback3Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback4Slider.label, .component = &feedback4Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback5Slider.label, .component = &feedback5Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback6Slider.label, .component = &feedback6Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback7Slider.label, .component = &feedback7Slider });
-    layoutMain({ .mainRect = mRect, .label = &feedback8Slider.label, .component = &feedback8Slider });
+    feedback1Slider.layoutComponent(mRect);
+    feedback1Nudge.setVisibles(feedback1Slider.isVisibleNudge());
+    if (feedback1Slider.isVisibleNudge()) feedback1Nudge.layoutComponent(mRect);
+    feedback2Slider.layoutComponent(mRect);
+    feedback2Nudge.setVisibles(feedback2Slider.isVisibleNudge());
+    if (feedback2Slider.isVisibleNudge()) feedback2Nudge.layoutComponent(mRect);
+    feedback3Slider.layoutComponent(mRect);
+    feedback3Nudge.setVisibles(feedback3Slider.isVisibleNudge());
+    if (feedback3Slider.isVisibleNudge()) feedback3Nudge.layoutComponent(mRect);
+    feedback4Slider.layoutComponent(mRect);
+    feedback4Nudge.setVisibles(feedback4Slider.isVisibleNudge());
+    if (feedback4Slider.isVisibleNudge()) feedback4Nudge.layoutComponent(mRect);
+    feedback5Slider.layoutComponent(mRect);
+    feedback5Nudge.setVisibles(feedback5Slider.isVisibleNudge());
+    if (feedback5Slider.isVisibleNudge()) feedback5Nudge.layoutComponent(mRect);
+    feedback6Slider.layoutComponent(mRect);
+    feedback6Nudge.setVisibles(feedback6Slider.isVisibleNudge());
+    if (feedback6Slider.isVisibleNudge()) feedback6Nudge.layoutComponent(mRect);
+    feedback7Slider.layoutComponent(mRect);
+    feedback7Nudge.setVisibles(feedback7Slider.isVisibleNudge());
+    if (feedback7Slider.isVisibleNudge()) feedback7Nudge.layoutComponent(mRect);
+    feedback8Slider.layoutComponent(mRect);
+    feedback8Nudge.setVisibles(feedback8Slider.isVisibleNudge());
+    if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
@@ -1202,7 +1226,7 @@ void GuiOpzx7::layoutOp(int opIndex, int width, juce::Rectangle<int>& rect) {
     opGroups[opIndex].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> innerRect(0, 0, opGroups[opIndex].getContentWidth(), 2000);
 
     bool rgMode = rgEn[opIndex].getToggleState();
     int selectedWs = ws[opIndex].getSelectedItemIndex();

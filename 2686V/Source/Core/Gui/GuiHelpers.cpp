@@ -318,7 +318,7 @@ void layoutMainOneComp(const MainConfigOneComp& c)
 }
 
 // パラメータグループに7つのコンポーネントを均等に貼り付け
-void layoutRowSievenComps(const RowConfigSevenComps& c)
+void layoutRowSevenComps(const RowConfigSevenComps& c)
 {
     auto area = c.rect.removeFromTop(c.rowHeight);
 

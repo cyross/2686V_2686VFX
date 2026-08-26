@@ -96,6 +96,10 @@ public:
         // Viewportの設定
         viewport.setScrollBarsShown(true, false); // 縦スクロールのみON, 横はOFF
         viewport.setOpaque(false);
+        // スクロールバーを常に表示させ、常に幅を占有させる
+        // (表示・非表示が切り替わるたびにレイアウト可能幅が変動し、中身が見切れるのを防ぐ)
+        viewport.getVerticalScrollBar().setAutoHide(false);
+        viewport.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, GuiColor::ScrollBar::Thumb);
         viewport.setViewedComponent(&contentCanvas, false); // キャンバスをセット(所有権は持たせない)
     }
 
@@ -130,13 +134,19 @@ public:
         }
     }
 
+    // レイアウトにもキャンバス幅にも使う「中身の幅」
+    // スクロールバーの現在の表示状態に依存しないので、レイアウト結果が毎回同じになる
+    int getContentWidth() const
+    {
+        return juce::jmax(0, viewport.getWidth() - viewport.getScrollBarThickness());
+    }
+
     // 中身のキャンバスの「本当の高さ」をセットする関数
-    // (これを呼ばないとスクロールバーが出ません)
+    // (これを呼ばないとスクロール範囲が設定されません)
     void setContentHeight(int totalHeight)
     {
         // 幅はViewportと同じにする（スクロールバーの幅を考慮）
-        int contentWidth = viewport.getMaximumVisibleWidth();
-        contentCanvas.setSize(contentWidth, totalHeight);
+        contentCanvas.setSize(getContentWidth(), totalHeight);
     }
 };
 

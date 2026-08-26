@@ -16,6 +16,8 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
+#include "../NudgeButtons/NudgeButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -33,41 +35,52 @@ class GuiComponentSsgSwEnv11 : public GuiBase {
     GuiSlider loopTo;
     GuiSlider loopCount;
 	NormalSeparator loopSeparator;
-    GuiSlider r1;
-    GuiSlider r2;
-    GuiSlider r3;
-    GuiSlider r4;
-    GuiSlider r5;
-    GuiSlider r6;
-    GuiSlider r7;
-    GuiSlider r8;
-    GuiSlider r9;
-    GuiSlider r10;
-    GuiSlider r11;
+    GuiComponentNudgeSliderFloat r1;
+    GuiComponentNudgeButtons r1Nudge;
+    GuiComponentNudgeSliderFloat r2;
+    GuiComponentNudgeButtons r2Nudge;
+    GuiComponentNudgeSliderFloat r3;
+    GuiComponentNudgeButtons r3Nudge;
+    GuiComponentNudgeSliderFloat r4;
+    GuiComponentNudgeButtons r4Nudge;
+    GuiComponentNudgeSliderFloat r5;
+    GuiComponentNudgeButtons r5Nudge;
+    GuiComponentNudgeSliderFloat r6;
+    GuiComponentNudgeButtons r6Nudge;
+    GuiComponentNudgeSliderFloat r7;
+    GuiComponentNudgeButtons r7Nudge;
+    GuiComponentNudgeSliderFloat r8;
+    GuiComponentNudgeButtons r8Nudge;
+    GuiComponentNudgeSliderFloat r9;
+    GuiComponentNudgeButtons r9Nudge;
+    GuiComponentNudgeSliderFloat r10;
+    GuiComponentNudgeButtons r10Nudge;
+    GuiComponentNudgeSliderFloat r11;
+    GuiComponentNudgeButtons r11Nudge;
     NormalSeparator rateSeparator;
-    GuiSlider startLevel;
+    GuiComponentNudgeSliderFloat startLevel;
     GuiComponentSsgSwButtons stlBtns;
-    GuiSlider l1;
+    GuiComponentNudgeSliderFloat l1;
     GuiComponentSsgSwButtons l1Btns;
-    GuiSlider l2;
+    GuiComponentNudgeSliderFloat l2;
     GuiComponentSsgSwButtons l2Btns;
-    GuiSlider l3;
+    GuiComponentNudgeSliderFloat l3;
     GuiComponentSsgSwButtons l3Btns;
-    GuiSlider l4;
+    GuiComponentNudgeSliderFloat l4;
     GuiComponentSsgSwButtons l4Btns;
-    GuiSlider l5;
+    GuiComponentNudgeSliderFloat l5;
     GuiComponentSsgSwButtons l5Btns;
-    GuiSlider l6;
+    GuiComponentNudgeSliderFloat l6;
     GuiComponentSsgSwButtons l6Btns;
-    GuiSlider l7;
+    GuiComponentNudgeSliderFloat l7;
     GuiComponentSsgSwButtons l7Btns;
-    GuiSlider l8;
+    GuiComponentNudgeSliderFloat l8;
     GuiComponentSsgSwButtons l8Btns;
-    GuiSlider l9;
+    GuiComponentNudgeSliderFloat l9;
     GuiComponentSsgSwButtons l9Btns;
-    GuiSlider l10;
+    GuiComponentNudgeSliderFloat l10;
     GuiComponentSsgSwButtons l10Btns;
-    GuiSlider l11;
+    GuiComponentNudgeSliderFloat l11;
     GuiComponentSsgSwButtons l11Btns;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -85,16 +98,27 @@ public:
 		loopCount(context),
 		loopSeparator(context),
         r1(context),
+        r1Nudge(context),
         r2(context),
+        r2Nudge(context),
         r3(context),
+        r3Nudge(context),
         r4(context),
+        r4Nudge(context),
         r5(context),
+        r5Nudge(context),
         r6(context),
+        r6Nudge(context),
 		r7(context),
+		r7Nudge(context),
 		r8(context),
+		r8Nudge(context),
 		r9(context),
+		r9Nudge(context),
 		r10(context),
+		r10Nudge(context),
 		r11(context),
+		r11Nudge(context),
 		rateSeparator(context),
         startLevel(context),
         stlBtns(context),

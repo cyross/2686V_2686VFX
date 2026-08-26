@@ -27,6 +27,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -121,10 +122,10 @@ class GuiOpl : public GuiBase
     std::array<NormalSeparator, OplPrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, OplPrValue::ops> mml;
 	std::array<NormalSeparator, OplPrValue::ops> lfoSep;
-    std::array<GuiSlider, OplPrValue::ops> ams;
-    std::array<GuiSlider, OplPrValue::ops> amd;
-    std::array<GuiSlider, OplPrValue::ops> pms;
-    std::array<GuiSlider, OplPrValue::ops> pmd;
+    std::array<GuiComponentNudgeSliderFloat, OplPrValue::ops> ams;
+    std::array<GuiComponentNudgeSliderFloat, OplPrValue::ops> amd;
+    std::array<GuiComponentNudgeSliderFloat, OplPrValue::ops> pms;
+    std::array<GuiComponentNudgeSliderFloat, OplPrValue::ops> pmd;
     std::array<GuiTextButton, OplPrValue::ops> amsTo37;
     std::array<GuiTextButton, OplPrValue::ops> amsTo606;
     std::array<GuiTextButton, OplPrValue::ops> amdTo1;
@@ -232,10 +233,10 @@ public:
         mmlSeparator{ NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context) },
         lfoSep{ NormalSeparator(context), NormalSeparator(context) },
-        ams{ GuiSlider(context), GuiSlider(context) },
-        amd{ GuiSlider(context), GuiSlider(context) },
-        pms{ GuiSlider(context), GuiSlider(context) },
-        pmd{ GuiSlider(context), GuiSlider(context) },
+        ams{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        amd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pms{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pmd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
         amsTo37{ GuiTextButton(context), GuiTextButton(context) },
         amsTo606{ GuiTextButton(context), GuiTextButton(context) },
         amdTo1{ GuiTextButton(context), GuiTextButton(context) },

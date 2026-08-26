@@ -8,8 +8,10 @@
 #include "../../../Core/Gui/GuiBase.h"
 #include "../../../Core/Gui/GuiContext.h"
 
+#include "../NudgeSlider/NudgeSliderFloat.h"
+
 class GuiComponentLevel : public GuiBase {
-    GuiSlider levelSlider;
+    GuiComponentNudgeSliderFloat levelSlider;
 
     GuiComboBox stepSelector;
 
@@ -58,7 +60,7 @@ public:
     GuiComponentLevel(const GuiContext& context) :
         GuiBase(context),
         levelSlider(context),
-        stepSelector(context),
+		stepSelector(context),
         levelTo1(context),
         levelPM1(context),
         levelP1(context),

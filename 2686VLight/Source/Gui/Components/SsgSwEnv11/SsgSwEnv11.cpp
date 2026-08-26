@@ -92,123 +92,99 @@ void GuiComponentSsgSwEnv11::setupComponent(juce::Component& parent, const juce:
 
     loopSeparator.setupComponent(parent);
 
-    r1.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r1, .title = "R1", .isReset = true, .labelFont = labelFont });
-    r1.setWantsKeyboardFocus(true);
-    r1.setExplicitFocusOrder(++tabOrder);
+    r1.setupComponent(parent, code + CPK::SsgSwEnv11::r1, "R1", tabOrder, std::nullopt, labelFont);
 
-    r2.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r2, .title = "R2", .isReset = true, .labelFont = labelFont });
-    r2.setWantsKeyboardFocus(true);
-    r2.setExplicitFocusOrder(++tabOrder);
+    r1Nudge.setupComponent(parent, r1.getSlider(), tabOrder);
 
-    r3.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r3, .title = "R3", .isReset = true, .labelFont = labelFont });
-    r3.setWantsKeyboardFocus(true);
-    r3.setExplicitFocusOrder(++tabOrder);
+    r2.setupComponent(parent, code + CPK::SsgSwEnv11::r2, "R2", tabOrder, std::nullopt, labelFont);
 
-    r4.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r4, .title = "R4", .isReset = true, .labelFont = labelFont });
-    r4.setWantsKeyboardFocus(true);
-    r4.setExplicitFocusOrder(++tabOrder);
+    r2Nudge.setupComponent(parent, r2.getSlider(), tabOrder);
 
-    r5.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r5, .title = "R5", .isReset = true, .labelFont = labelFont });
-    r5.setWantsKeyboardFocus(true);
-    r5.setExplicitFocusOrder(++tabOrder);
+    r3.setupComponent(parent, code + CPK::SsgSwEnv11::r3, "R3", tabOrder, std::nullopt, labelFont);
 
-    r6.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r6, .title = "R6", .isReset = true, .labelFont = labelFont });
-    r6.setWantsKeyboardFocus(true);
-    r6.setExplicitFocusOrder(++tabOrder);
+    r3Nudge.setupComponent(parent, r3.getSlider(), tabOrder);
 
-    r7.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r7, .title = "R7", .isReset = true, .labelFont = labelFont });
-    r7.setWantsKeyboardFocus(true);
-    r7.setExplicitFocusOrder(++tabOrder);
+    r4.setupComponent(parent, code + CPK::SsgSwEnv11::r4, "R4", tabOrder, std::nullopt, labelFont);
 
-    r8.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r8, .title = "R8", .isReset = true, .labelFont = labelFont });
-    r8.setWantsKeyboardFocus(true);
-    r8.setExplicitFocusOrder(++tabOrder);
+    r4Nudge.setupComponent(parent, r4.getSlider(), tabOrder);
 
-    r9.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r9, .title = "R9", .isReset = true, .labelFont = labelFont });
-    r9.setWantsKeyboardFocus(true);
-    r9.setExplicitFocusOrder(++tabOrder);
+    r5.setupComponent(parent, code + CPK::SsgSwEnv11::r5, "R5", tabOrder, std::nullopt, labelFont);
 
-    r10.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r10, .title = "R10", .isReset = true, .labelFont = labelFont });
-    r10.setWantsKeyboardFocus(true);
-    r10.setExplicitFocusOrder(++tabOrder);
+    r5Nudge.setupComponent(parent, r5.getSlider(), tabOrder);
 
-    r11.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::r11, .title = "R11", .isReset = true, .labelFont = labelFont });
-    r11.setWantsKeyboardFocus(true);
-    r11.setExplicitFocusOrder(++tabOrder);
+    r6.setupComponent(parent, code + CPK::SsgSwEnv11::r6, "R6", tabOrder, std::nullopt, labelFont);
+
+    r6Nudge.setupComponent(parent, r6.getSlider(), tabOrder);
+
+    r7.setupComponent(parent, code + CPK::SsgSwEnv11::r7, "R7", tabOrder, std::nullopt, labelFont);
+
+    r7Nudge.setupComponent(parent, r7.getSlider(), tabOrder);
+
+    r8.setupComponent(parent, code + CPK::SsgSwEnv11::r8, "R8", tabOrder, std::nullopt, labelFont);
+
+    r8Nudge.setupComponent(parent, r8.getSlider(), tabOrder);
+
+    r9.setupComponent(parent, code + CPK::SsgSwEnv11::r9, "R9", tabOrder, std::nullopt, labelFont);
+
+    r9Nudge.setupComponent(parent, r9.getSlider(), tabOrder);
+
+    r10.setupComponent(parent, code + CPK::SsgSwEnv11::r10, "R10", tabOrder, std::nullopt, labelFont);
+
+    r10Nudge.setupComponent(parent, r10.getSlider(), tabOrder);
+
+    r11.setupComponent(parent, code + CPK::SsgSwEnv11::r11, "R11", tabOrder, std::nullopt, labelFont);
+
+    r11Nudge.setupComponent(parent, r11.getSlider(), tabOrder);
 
     rateSeparator.setupComponent(parent);
 
-    startLevel.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::stl, .title = "STL", .isReset = true, .labelFont = labelFont });
-    startLevel.setWantsKeyboardFocus(true);
-    startLevel.setExplicitFocusOrder(++tabOrder);
+    startLevel.setupComponent(parent, code + CPK::SsgSwEnv11::stl, "STL", tabOrder, std::nullopt, labelFont);
 
-    stlBtns.setupComponent(parent, startLevel, tabOrder, labelFont);
+    stlBtns.setupComponent(parent, startLevel.getSlider(), tabOrder, labelFont);
 
-    l1.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l1, .title = "L1", .isReset = true, .labelFont = labelFont });
-    l1.setWantsKeyboardFocus(true);
-    l1.setExplicitFocusOrder(++tabOrder);
+    l1.setupComponent(parent, code + CPK::SsgSwEnv11::l1, "L1", tabOrder, std::nullopt, labelFont);
 
-    l1Btns.setupComponent(parent, l1, tabOrder, labelFont);
+    l1Btns.setupComponent(parent, l1.getSlider(), tabOrder, labelFont);
 
-    l2.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l2, .title = "L2", .isReset = true, .labelFont = labelFont });
-    l2.setWantsKeyboardFocus(true);
-    l2.setExplicitFocusOrder(++tabOrder);
+    l2.setupComponent(parent, code + CPK::SsgSwEnv11::l2, "L2", tabOrder, std::nullopt, labelFont);
 
-    l2Btns.setupComponent(parent, l2, tabOrder, labelFont);
+    l2Btns.setupComponent(parent, l2.getSlider(), tabOrder, labelFont);
 
-    l3.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l3, .title = "L3", .isReset = true, .labelFont = labelFont });
-    l3.setWantsKeyboardFocus(true);
-    l3.setExplicitFocusOrder(++tabOrder);
+    l3.setupComponent(parent, code + CPK::SsgSwEnv11::l3, "L3", tabOrder, std::nullopt, labelFont);
 
-    l3Btns.setupComponent(parent, l3, tabOrder, labelFont);
+    l3Btns.setupComponent(parent, l3.getSlider(), tabOrder, labelFont);
 
-    l4.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l4, .title = "L4", .isReset = true, .labelFont = labelFont });
-    l4.setWantsKeyboardFocus(true);
-    l4.setExplicitFocusOrder(++tabOrder);
+    l4.setupComponent(parent, code + CPK::SsgSwEnv11::l4, "L4", tabOrder, std::nullopt, labelFont);
 
-    l4Btns.setupComponent(parent, l4, tabOrder, labelFont);
+    l4Btns.setupComponent(parent, l4.getSlider(), tabOrder, labelFont);
 
-    l5.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l5, .title = "L5", .isReset = true, .labelFont = labelFont });
-    l5.setWantsKeyboardFocus(true);
-    l5.setExplicitFocusOrder(++tabOrder);
+    l5.setupComponent(parent, code + CPK::SsgSwEnv11::l5, "L5", tabOrder, std::nullopt, labelFont);
 
-    l5Btns.setupComponent(parent, l5, tabOrder, labelFont);
+    l5Btns.setupComponent(parent, l5.getSlider(), tabOrder, labelFont);
 
-    l6.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l6, .title = "L6", .isReset = true, .labelFont = labelFont });
-    l6.setWantsKeyboardFocus(true);
-    l6.setExplicitFocusOrder(++tabOrder);
+    l6.setupComponent(parent, code + CPK::SsgSwEnv11::l6, "L6", tabOrder, std::nullopt, labelFont);
 
-    l6Btns.setupComponent(parent, l6, tabOrder, labelFont);
+    l6Btns.setupComponent(parent, l6.getSlider(), tabOrder, labelFont);
 
-    l7.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l7, .title = "L7", .isReset = true, .labelFont = labelFont });
-    l7.setWantsKeyboardFocus(true);
-    l7.setExplicitFocusOrder(++tabOrder);
+    l7.setupComponent(parent, code + CPK::SsgSwEnv11::l7, "L7", tabOrder, std::nullopt, labelFont);
 
-    l7Btns.setupComponent(parent, l7, tabOrder, labelFont);
+    l7Btns.setupComponent(parent, l7.getSlider(), tabOrder, labelFont);
 
-    l8.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l8, .title = "L8", .isReset = true, .labelFont = labelFont });
-    l8.setWantsKeyboardFocus(true);
-    l8.setExplicitFocusOrder(++tabOrder);
+    l8.setupComponent(parent, code + CPK::SsgSwEnv11::l8, "L8", tabOrder, std::nullopt, labelFont);
 
-    l8Btns.setupComponent(parent, l8, tabOrder, labelFont);
+    l8Btns.setupComponent(parent, l8.getSlider(), tabOrder, labelFont);
 
-    l9.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l9, .title = "L9", .isReset = true, .labelFont = labelFont });
-    l9.setWantsKeyboardFocus(true);
-    l9.setExplicitFocusOrder(++tabOrder);
+    l9.setupComponent(parent, code + CPK::SsgSwEnv11::l9, "L9", tabOrder, std::nullopt, labelFont);
 
-    l9Btns.setupComponent(parent, l9, tabOrder, labelFont);
+    l9Btns.setupComponent(parent, l9.getSlider(), tabOrder, labelFont);
 
-    l10.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l10, .title = "L10", .isReset = true, .labelFont = labelFont });
-    l10.setWantsKeyboardFocus(true);
-    l10.setExplicitFocusOrder(++tabOrder);
+    l10.setupComponent(parent, code + CPK::SsgSwEnv11::l10, "L10", tabOrder, std::nullopt, labelFont);
 
-    l10Btns.setupComponent(parent, l10, tabOrder, labelFont);
+    l10Btns.setupComponent(parent, l10.getSlider(), tabOrder, labelFont);
 
-    l11.setup({ .parent = parent, .id = code + CPK::SsgSwEnv11::l11, .title = "L11", .isReset = true, .labelFont = labelFont });
-    l11.setWantsKeyboardFocus(true);
-    l11.setExplicitFocusOrder(++tabOrder);
+    l11.setupComponent(parent, code + CPK::SsgSwEnv11::l11, "L11", tabOrder, std::nullopt, labelFont);
 
-    l11Btns.setupComponent(parent, l11, tabOrder, labelFont);
+    l11Btns.setupComponent(parent, l11.getSlider(), tabOrder, labelFont);
 }
 
 void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
@@ -226,41 +202,52 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
     loopCount.setVisibleWithLabel(visible);
 	loopSeparator.setVisible(visible);
     r1.setVisibleWithLabel(visible);
+    r1Nudge.setVisibles(visible && r1.isVisibleNudge());
     r2.setVisibleWithLabel(visible);
+    r2Nudge.setVisibles(visible && r2.isVisibleNudge());
     r3.setVisibleWithLabel(visible);
+    r3Nudge.setVisibles(visible && r3.isVisibleNudge());
     r4.setVisibleWithLabel(visible);
+    r4Nudge.setVisibles(visible && r4.isVisibleNudge());
     r5.setVisibleWithLabel(visible);
+    r5Nudge.setVisibles(visible && r5.isVisibleNudge());
     r6.setVisibleWithLabel(visible);
+    r6Nudge.setVisibles(visible && r6.isVisibleNudge());
 	r7.setVisibleWithLabel(visible);
+	r7Nudge.setVisibles(visible && r7.isVisibleNudge());
 	r8.setVisibleWithLabel(visible);
+	r8Nudge.setVisibles(visible && r8.isVisibleNudge());
 	r9.setVisibleWithLabel(visible);
+	r9Nudge.setVisibles(visible && r9.isVisibleNudge());
 	r10.setVisibleWithLabel(visible);
+	r10Nudge.setVisibles(visible && r10.isVisibleNudge());
 	r11.setVisibleWithLabel(visible);
+	r11Nudge.setVisibles(visible && r11.isVisibleNudge());
 	rateSeparator.setVisible(visible);
     startLevel.setVisibleWithLabel(visible);
-    stlBtns.setVisibles(visible);
+    stlBtns.setVisibles(visible && startLevel.isVisibleNudge());
     l1.setVisibleWithLabel(visible);
-    l1Btns.setVisibles(visible);
+    l1Btns.setVisibles(visible && l1.isVisibleNudge());
     l2.setVisibleWithLabel(visible);
-    l2Btns.setVisibles(visible);
+    l2Btns.setVisibles(visible && l2.isVisibleNudge());
     l3.setVisibleWithLabel(visible);
-    l3Btns.setVisibles(visible);
+    l3Btns.setVisibles(visible && l3.isVisibleNudge());
     l4.setVisibleWithLabel(visible);
-    l4Btns.setVisibles(visible);
+    l4Btns.setVisibles(visible && l4.isVisibleNudge());
     l5.setVisibleWithLabel(visible);
-    l5Btns.setVisibles(visible);
+    l5Btns.setVisibles(visible && l5.isVisibleNudge());
     l6.setVisibleWithLabel(visible);
-    l6Btns.setVisibles(visible);
+    l6Btns.setVisibles(visible && l6.isVisibleNudge());
     l7.setVisibleWithLabel(visible);
-    l7Btns.setVisibles(visible);
+    l7Btns.setVisibles(visible && l7.isVisibleNudge());
     l8.setVisibleWithLabel(visible);
-    l8Btns.setVisibles(visible);
+    l8Btns.setVisibles(visible && l8.isVisibleNudge());
     l9.setVisibleWithLabel(visible);
-    l9Btns.setVisibles(visible);
+    l9Btns.setVisibles(visible && l9.isVisibleNudge());
     l10.setVisibleWithLabel(visible);
-    l10Btns.setVisibles(visible);
+    l10Btns.setVisibles(visible && l10.isVisibleNudge());
     l11.setVisibleWithLabel(visible);
-    l11Btns.setVisibles(visible);
+    l11Btns.setVisibles(visible && l11.isVisibleNudge());
 
     if (visible)
     {
@@ -272,42 +259,53 @@ void GuiComponentSsgSwEnv11::layoutComponent(juce::Rectangle<int>& rect)
         layoutMain({ .mainRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 13 });
         loopSeparator.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r7.label, .component = &r7, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r8.label, .component = &r8, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r9.label, .component = &r9, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r10.label, .component = &r10, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &r11.label, .component = &r11, .rowHeight = 13 });
+        r1.layoutComponent(rect, 13);
+        if (r1.isVisibleNudge()) r1Nudge.layoutComponent(rect, 13);
+        r2.layoutComponent(rect, 13);
+        if (r2.isVisibleNudge()) r2Nudge.layoutComponent(rect, 13);
+        r3.layoutComponent(rect, 13);
+        if (r3.isVisibleNudge()) r3Nudge.layoutComponent(rect, 13);
+        r4.layoutComponent(rect, 13);
+        if (r4.isVisibleNudge()) r4Nudge.layoutComponent(rect, 13);
+        r5.layoutComponent(rect, 13);
+        if (r5.isVisibleNudge()) r5Nudge.layoutComponent(rect, 13);
+        r6.layoutComponent(rect, 13);
+        if (r6.isVisibleNudge()) r6Nudge.layoutComponent(rect, 13);
+        r7.layoutComponent(rect, 13);
+        if (r7.isVisibleNudge()) r7Nudge.layoutComponent(rect, 13);
+        r8.layoutComponent(rect, 13);
+        if (r8.isVisibleNudge()) r8Nudge.layoutComponent(rect, 13);
+        r9.layoutComponent(rect, 13);
+        if (r9.isVisibleNudge()) r9Nudge.layoutComponent(rect, 13);
+        r10.layoutComponent(rect, 13);
+        if (r10.isVisibleNudge()) r10Nudge.layoutComponent(rect, 13);
+        r11.layoutComponent(rect, 13);
+        if (r11.isVisibleNudge()) r11Nudge.layoutComponent(rect, 13);
         rateSeparator.layoutComponent(rect);
-        layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
-        stlBtns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 13 });
-        l1Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 13 });
-        l2Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 13 });
-        l3Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 13 });
-        l4Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 13 });
-        l5Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 13 });
-        l6Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l7.label, .component = &l7, .rowHeight = 13 });
-        l7Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l8.label, .component = &l8, .rowHeight = 13 });
-        l8Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l9.label, .component = &l9, .rowHeight = 13 });
-        l9Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l10.label, .component = &l10, .rowHeight = 13 });
-        l10Btns.layoutComponent(rect, 13);
-        layoutMain({ .mainRect = rect, .label = &l11.label, .component = &l11, .rowHeight = 13 });
-        l11Btns.layoutComponent(rect, 13);
+        startLevel.layoutComponent(rect, 13);
+        if (startLevel.isVisibleNudge()) stlBtns.layoutComponent(rect, 13);
+        l1.layoutComponent(rect, 13);
+        if (l1.isVisibleNudge()) l1Btns.layoutComponent(rect, 13);
+        l2.layoutComponent(rect, 13);
+        if (l2.isVisibleNudge()) l2Btns.layoutComponent(rect, 13);
+        l3.layoutComponent(rect, 13);
+        if (l3.isVisibleNudge()) l3Btns.layoutComponent(rect, 13);
+        l4.layoutComponent(rect, 13);
+        if (l4.isVisibleNudge()) l4Btns.layoutComponent(rect, 13);
+        l5.layoutComponent(rect, 13);
+        if (l5.isVisibleNudge()) l5Btns.layoutComponent(rect, 13);
+        l6.layoutComponent(rect, 13);
+        if (l6.isVisibleNudge()) l6Btns.layoutComponent(rect, 13);
+        l7.layoutComponent(rect, 13);
+        if (l7.isVisibleNudge()) l7Btns.layoutComponent(rect, 13);
+        l8.layoutComponent(rect, 13);
+        if (l8.isVisibleNudge()) l8Btns.layoutComponent(rect, 13);
+        l9.layoutComponent(rect, 13);
+        if (l9.isVisibleNudge()) l9Btns.layoutComponent(rect, 13);
+        l10.layoutComponent(rect, 13);
+        if (l10.isVisibleNudge()) l10Btns.layoutComponent(rect, 13);
+        l11.layoutComponent(rect, 13);
+        if (l11.isVisibleNudge()) l11Btns.layoutComponent(rect, 13);
     }
 }
 
@@ -326,41 +324,52 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
     loopCount.setVisibleWithLabel(visible);
     loopSeparator.setVisible(visible);
     r1.setVisibleWithLabel(visible);
+    r1Nudge.setVisibles(visible && r1.isVisibleNudge());
     r2.setVisibleWithLabel(visible);
+    r2Nudge.setVisibles(visible && r2.isVisibleNudge());
     r3.setVisibleWithLabel(visible);
+    r3Nudge.setVisibles(visible && r3.isVisibleNudge());
     r4.setVisibleWithLabel(visible);
+    r4Nudge.setVisibles(visible && r4.isVisibleNudge());
     r5.setVisibleWithLabel(visible);
+    r5Nudge.setVisibles(visible && r5.isVisibleNudge());
     r6.setVisibleWithLabel(visible);
+    r6Nudge.setVisibles(visible && r6.isVisibleNudge());
     r7.setVisibleWithLabel(visible);
+    r7Nudge.setVisibles(visible && r7.isVisibleNudge());
     r8.setVisibleWithLabel(visible);
+    r8Nudge.setVisibles(visible && r8.isVisibleNudge());
     r9.setVisibleWithLabel(visible);
+    r9Nudge.setVisibles(visible && r9.isVisibleNudge());
     r10.setVisibleWithLabel(visible);
+    r10Nudge.setVisibles(visible && r10.isVisibleNudge());
     r11.setVisibleWithLabel(visible);
+    r11Nudge.setVisibles(visible && r11.isVisibleNudge());
     rateSeparator.setVisible(visible);
     startLevel.setVisibleWithLabel(visible);
-    stlBtns.setVisibles(visible);
+    stlBtns.setVisibles(visible && startLevel.isVisibleNudge());
     l1.setVisibleWithLabel(visible);
-    l1Btns.setVisibles(visible);
+    l1Btns.setVisibles(visible && l1.isVisibleNudge());
     l2.setVisibleWithLabel(visible);
-    l2Btns.setVisibles(visible);
+    l2Btns.setVisibles(visible && l2.isVisibleNudge());
     l3.setVisibleWithLabel(visible);
-    l3Btns.setVisibles(visible);
+    l3Btns.setVisibles(visible && l3.isVisibleNudge());
     l4.setVisibleWithLabel(visible);
-    l4Btns.setVisibles(visible);
+    l4Btns.setVisibles(visible && l4.isVisibleNudge());
     l5.setVisibleWithLabel(visible);
-    l5Btns.setVisibles(visible);
+    l5Btns.setVisibles(visible && l5.isVisibleNudge());
     l6.setVisibleWithLabel(visible);
-    l6Btns.setVisibles(visible);
+    l6Btns.setVisibles(visible && l6.isVisibleNudge());
     l7.setVisibleWithLabel(visible);
-    l7Btns.setVisibles(visible);
+    l7Btns.setVisibles(visible && l7.isVisibleNudge());
     l8.setVisibleWithLabel(visible);
-    l8Btns.setVisibles(visible);
+    l8Btns.setVisibles(visible && l8.isVisibleNudge());
     l9.setVisibleWithLabel(visible);
-    l9Btns.setVisibles(visible);
+    l9Btns.setVisibles(visible && l9.isVisibleNudge());
     l10.setVisibleWithLabel(visible);
-    l10Btns.setVisibles(visible);
+    l10Btns.setVisibles(visible && l10.isVisibleNudge());
     l11.setVisibleWithLabel(visible);
-    l11Btns.setVisibles(visible);
+    l11Btns.setVisibles(visible && l11.isVisibleNudge());
 
     if (visible)
     {
@@ -372,42 +381,53 @@ void GuiComponentSsgSwEnv11::layoutComponentRow(juce::Rectangle<int>& rect)
         layoutRow({ .rowRect = rect, .label = &loopTo.label, .component = &loopTo, .rowHeight = 12 });
         layoutRow({ .rowRect = rect, .label = &loopCount.label, .component = &loopCount, .rowHeight = 12 });
         loopSeparator.layoutComponent(rect);
-        layoutRow({ .rowRect = rect, .label = &r1.label, .component = &r1, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r2.label, .component = &r2, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r3.label, .component = &r3, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r4.label, .component = &r4, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r5.label, .component = &r5, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r6.label, .component = &r6, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r7.label, .component = &r7, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r8.label, .component = &r8, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r9.label, .component = &r9, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r10.label, .component = &r10, .rowHeight = 12 });
-        layoutRow({ .rowRect = rect, .label = &r11.label, .component = &r11, .rowHeight = 12 });
+        r1.layoutComponentRow(rect, 12);
+        if (r1.isVisibleNudge()) r1Nudge.layoutComponentRow(rect, 12);
+        r2.layoutComponentRow(rect, 12);
+        if (r2.isVisibleNudge()) r2Nudge.layoutComponentRow(rect, 12);
+        r3.layoutComponentRow(rect, 12);
+        if (r3.isVisibleNudge()) r3Nudge.layoutComponentRow(rect, 12);
+        r4.layoutComponentRow(rect, 12);
+        if (r4.isVisibleNudge()) r4Nudge.layoutComponentRow(rect, 12);
+        r5.layoutComponentRow(rect, 12);
+        if (r5.isVisibleNudge()) r5Nudge.layoutComponentRow(rect, 12);
+        r6.layoutComponentRow(rect, 12);
+        if (r6.isVisibleNudge()) r6Nudge.layoutComponentRow(rect, 12);
+        r7.layoutComponentRow(rect, 12);
+        if (r7.isVisibleNudge()) r7Nudge.layoutComponentRow(rect, 12);
+        r8.layoutComponentRow(rect, 12);
+        if (r8.isVisibleNudge()) r8Nudge.layoutComponentRow(rect, 12);
+        r9.layoutComponentRow(rect, 12);
+        if (r9.isVisibleNudge()) r9Nudge.layoutComponentRow(rect, 12);
+        r10.layoutComponentRow(rect, 12);
+        if (r10.isVisibleNudge()) r10Nudge.layoutComponentRow(rect, 12);
+        r11.layoutComponentRow(rect, 12);
+        if (r11.isVisibleNudge()) r11Nudge.layoutComponentRow(rect, 12);
         rateSeparator.layoutComponent(rect);
-        layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
-        stlBtns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l1.label, .component = &l1, .rowHeight = 12 });
-        l1Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l2.label, .component = &l2, .rowHeight = 12 });
-        l2Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l3.label, .component = &l3, .rowHeight = 12 });
-        l3Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l4.label, .component = &l4, .rowHeight = 12 });
-        l4Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l5.label, .component = &l5, .rowHeight = 12 });
-        l5Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l6.label, .component = &l6, .rowHeight = 12 });
-        l6Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l7.label, .component = &l7, .rowHeight = 12 });
-        l7Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l8.label, .component = &l8, .rowHeight = 12 });
-        l8Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l9.label, .component = &l9, .rowHeight = 12 });
-        l9Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l10.label, .component = &l10, .rowHeight = 12 });
-        l10Btns.layoutComponentRow(rect, 12);
-        layoutRow({ .rowRect = rect, .label = &l11.label, .component = &l11, .rowHeight = 12 });
-        l11Btns.layoutComponentRow(rect, 12);
+        startLevel.layoutComponentRow(rect, 12);
+        if (startLevel.isVisibleNudge()) stlBtns.layoutComponentRow(rect, 12);
+        l1.layoutComponentRow(rect, 12);
+        if (l1.isVisibleNudge()) l1Btns.layoutComponentRow(rect, 12);
+        l2.layoutComponentRow(rect, 12);
+        if (l2.isVisibleNudge()) l2Btns.layoutComponentRow(rect, 12);
+        l3.layoutComponentRow(rect, 12);
+        if (l3.isVisibleNudge()) l3Btns.layoutComponentRow(rect, 12);
+        l4.layoutComponentRow(rect, 12);
+        if (l4.isVisibleNudge()) l4Btns.layoutComponentRow(rect, 12);
+        l5.layoutComponentRow(rect, 12);
+        if (l5.isVisibleNudge()) l5Btns.layoutComponentRow(rect, 12);
+        l6.layoutComponentRow(rect, 12);
+        if (l6.isVisibleNudge()) l6Btns.layoutComponentRow(rect, 12);
+        l7.layoutComponentRow(rect, 12);
+        if (l7.isVisibleNudge()) l7Btns.layoutComponentRow(rect, 12);
+        l8.layoutComponentRow(rect, 12);
+        if (l8.isVisibleNudge()) l8Btns.layoutComponentRow(rect, 12);
+        l9.layoutComponentRow(rect, 12);
+        if (l9.isVisibleNudge()) l9Btns.layoutComponentRow(rect, 12);
+        l10.layoutComponentRow(rect, 12);
+        if (l10.isVisibleNudge()) l10Btns.layoutComponentRow(rect, 12);
+        l11.layoutComponentRow(rect, 12);
+        if (l11.isVisibleNudge()) l11Btns.layoutComponentRow(rect, 12);
     }
 }
 
@@ -435,30 +455,30 @@ void GuiComponentSsgSwEnv11::setupGraph(std::function<void()> repaintGraph) {
         repaintGraph();
         };
 
-    r1.onValueChange = repaintGraph;
-    r2.onValueChange = repaintGraph;
-    r3.onValueChange = repaintGraph;
-    r4.onValueChange = repaintGraph;
-    r5.onValueChange = repaintGraph;
-    r6.onValueChange = repaintGraph;
-    r7.onValueChange = repaintGraph;
-    r8.onValueChange = repaintGraph;
-    r9.onValueChange = repaintGraph;
-    r10.onValueChange = repaintGraph;
-    r11.onValueChange = repaintGraph;
+    r1.getSlider().onValueChange = repaintGraph;
+    r2.getSlider().onValueChange = repaintGraph;
+    r3.getSlider().onValueChange = repaintGraph;
+    r4.getSlider().onValueChange = repaintGraph;
+    r5.getSlider().onValueChange = repaintGraph;
+    r6.getSlider().onValueChange = repaintGraph;
+    r7.getSlider().onValueChange = repaintGraph;
+    r8.getSlider().onValueChange = repaintGraph;
+    r9.getSlider().onValueChange = repaintGraph;
+    r10.getSlider().onValueChange = repaintGraph;
+    r11.getSlider().onValueChange = repaintGraph;
 
-    startLevel.onValueChange = repaintGraph;
-    l1.onValueChange = repaintGraph;
-    l2.onValueChange = repaintGraph;
-    l3.onValueChange = repaintGraph;
-    l4.onValueChange = repaintGraph;
-    l5.onValueChange = repaintGraph;
-    l6.onValueChange = repaintGraph;
-    l7.onValueChange = repaintGraph;
-    l8.onValueChange = repaintGraph;
-    l9.onValueChange = repaintGraph;
-    l10.onValueChange = repaintGraph;
-    l11.onValueChange = repaintGraph;
+    startLevel.getSlider().onValueChange = repaintGraph;
+    l1.getSlider().onValueChange = repaintGraph;
+    l2.getSlider().onValueChange = repaintGraph;
+    l3.getSlider().onValueChange = repaintGraph;
+    l4.getSlider().onValueChange = repaintGraph;
+    l5.getSlider().onValueChange = repaintGraph;
+    l6.getSlider().onValueChange = repaintGraph;
+    l7.getSlider().onValueChange = repaintGraph;
+    l8.getSlider().onValueChange = repaintGraph;
+    l9.getSlider().onValueChange = repaintGraph;
+    l10.getSlider().onValueChange = repaintGraph;
+    l11.getSlider().onValueChange = repaintGraph;
 }
 
 void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
@@ -469,8 +489,8 @@ void GuiComponentSsgSwEnv11::updateGraph(GuiEnvelopeGraph& graph) {
         loop,
         loopTo,
         loopCount,
-        { nullptr, &r1, &r2, &r3, &r4, &r5, &r6, &r7, &r8, &r9, &r10, &r11 },
-        { &startLevel, &l1, &l2, &l3, &l4, &l5, &l6, &l7, &l8, &l9, &l10, &l11 }
+        { nullptr, &r1.getSlider(), &r2.getSlider(), &r3.getSlider(), &r4.getSlider(), &r5.getSlider(), &r6.getSlider(), &r7.getSlider(), &r8.getSlider(), &r9.getSlider(), &r10.getSlider(), &r11.getSlider() },
+        { &startLevel.getSlider(), &l1.getSlider(), &l2.getSlider(), &l3.getSlider(), &l4.getSlider(), &l5.getSlider(), &l6.getSlider(), &l7.getSlider(), &l8.getSlider(), &l9.getSlider(), &l10.getSlider(), &l11.getSlider() }
     );
 }
 
@@ -490,36 +510,47 @@ void GuiComponentSsgSwEnv11::setEnabled(bool enabled) {
     startLevel.setEnabled(enabled);
     stlBtns.setEnables(enabled);
     r1.setEnabled(enabled);
+    r1Nudge.setEnables(enabled);
     l1.setEnabled(enabled);
     l1Btns.setEnables(enabled);
     r2.setEnabled(enabled);
+    r2Nudge.setEnables(enabled);
     l2.setEnabled(enabled);
     l3Btns.setEnables(enabled);
     r3.setEnabled(enabled);
+    r3Nudge.setEnables(enabled);
     l3.setEnabled(enabled);
     l3Btns.setEnables(enabled);
     r4.setEnabled(enabled);
+    r4Nudge.setEnables(enabled);
     l4.setEnabled(enabled);
     l4Btns.setEnables(enabled);
     r5.setEnabled(enabled);
+    r5Nudge.setEnables(enabled);
     l5.setEnabled(enabled);
     l5Btns.setEnables(enabled);
     r6.setEnabled(enabled);
+    r6Nudge.setEnables(enabled);
     l6.setEnabled(enabled);
     l6Btns.setEnables(enabled);
     r7.setEnabled(enabled);
+    r7Nudge.setEnables(enabled);
     l7.setEnabled(enabled);
     l7Btns.setEnables(enabled);
     r8.setEnabled(enabled);
+    r8Nudge.setEnables(enabled);
     l8.setEnabled(enabled);
     l8Btns.setEnables(enabled);
     r9.setEnabled(enabled);
+    r9Nudge.setEnables(enabled);
     l9.setEnabled(enabled);
     l9Btns.setEnables(enabled);
     r10.setEnabled(enabled);
+    r10Nudge.setEnables(enabled);
     l10.setEnabled(enabled);
     l10Btns.setEnables(enabled);
     r11.setEnabled(enabled);
+    r11Nudge.setEnables(enabled);
     l11.setEnabled(enabled);
     l11Btns.setEnables(enabled);
 }

@@ -23,43 +23,35 @@ void GuiComponentPitchEnv::setupComponent(juce::Component& parent, const juce::S
 
 	flagSeparator.setupComponent(parent);
 
-	attack.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ar, .title = "AR", .isReset = true, .labelFont = labelFont });
-	attack.setWantsKeyboardFocus(true);
-	attack.setExplicitFocusOrder(++tabOrder);
+	attack.setupComponent(parent, code + CPK::PitchAdsr::ar, "AR", tabOrder, std::nullopt, labelFont);
 
-	decay.setup({ .parent = parent, .id = code + CPK::PitchAdsr::dr, .title = "DR", .isReset = true, .labelFont = labelFont });
-	decay.setWantsKeyboardFocus(true);
-	decay.setExplicitFocusOrder(++tabOrder);
+	attackNudge.setupComponent(parent, attack.getSlider(), tabOrder);
 
-	release.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rr, .title = "RR", .isReset = true, .labelFont = labelFont });
-	release.setWantsKeyboardFocus(true);
-	release.setExplicitFocusOrder(++tabOrder);
+	decay.setupComponent(parent, code + CPK::PitchAdsr::dr, "DR", tabOrder, std::nullopt, labelFont);
+
+	decayNudge.setupComponent(parent, decay.getSlider(), tabOrder);
+
+	release.setupComponent(parent, code + CPK::PitchAdsr::rr, "RR", tabOrder, std::nullopt, labelFont);
+
+	releaseNudge.setupComponent(parent, release.getSlider(), tabOrder);
 
 	rateSeparator.setupComponent(parent);
 
-	startLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::stl, .title = "STL", .isReset = true, .labelFont = labelFont });
-	startLevel.setWantsKeyboardFocus(true);
-	startLevel.setExplicitFocusOrder(++tabOrder);
+	startLevel.setupComponent(parent, code + CPK::PitchAdsr::stl, "STL", tabOrder, std::nullopt, labelFont);
 
-	startLevelButtons.setupComponent(parent, startLevel, tabOrder, labelFont);
+	startLevelButtons.setupComponent(parent, startLevel.getSlider(), tabOrder, labelFont);
 
-	attackLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::atl, .title = "ATL", .isReset = true, .labelFont = labelFont });
-	attackLevel.setWantsKeyboardFocus(true);
-	attackLevel.setExplicitFocusOrder(++tabOrder);
+	attackLevel.setupComponent(parent, code + CPK::PitchAdsr::atl, "ATL", tabOrder, std::nullopt, labelFont);
 
-	attackLevelButtons.setupComponent(parent, attackLevel, tabOrder, labelFont);
+	attackLevelButtons.setupComponent(parent, attackLevel.getSlider(), tabOrder, labelFont);
 
-	sustainLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::ssl, .title = "SSL", .isReset = true, .labelFont = labelFont });
-	sustainLevel.setWantsKeyboardFocus(true);
-	sustainLevel.setExplicitFocusOrder(++tabOrder);
+	sustainLevel.setupComponent(parent, code + CPK::PitchAdsr::ssl, "SSL", tabOrder, std::nullopt, labelFont);
 
-	sustainLevelButtons.setupComponent(parent, sustainLevel, tabOrder, labelFont);
+	sustainLevelButtons.setupComponent(parent, sustainLevel.getSlider(), tabOrder, labelFont);
 
-	releaseLevel.setup({ .parent = parent, .id = code + CPK::PitchAdsr::rll, .title = "RLL", .isReset = true, .labelFont = labelFont });
-	releaseLevel.setWantsKeyboardFocus(true);
-	releaseLevel.setExplicitFocusOrder(++tabOrder);
+	releaseLevel.setupComponent(parent, code + CPK::PitchAdsr::rll, "RLL", tabOrder, std::nullopt, labelFont);
 
-	releaseLevelButtons.setupComponent(parent, releaseLevel, tabOrder, labelFont);
+	releaseLevelButtons.setupComponent(parent, releaseLevel.getSlider(), tabOrder, labelFont);
 }
 
 void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
@@ -71,34 +63,40 @@ void GuiComponentPitchEnv::layoutComponent(juce::Rectangle<int>& rect)
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
+	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
+	decayNudge.setVisibles(visible && decay.isVisibleNudge());
 	release.setVisibleWithLabel(visible);
+	releaseNudge.setVisibles(visible && release.isVisibleNudge());
 	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
-	startLevelButtons.setVisibles(visible);
+	startLevelButtons.setVisibles(visible && startLevel.isVisibleNudge());
 	attackLevel.setVisibleWithLabel(visible);
-	attackLevelButtons.setVisibles(visible);
+	attackLevelButtons.setVisibles(visible && attackLevel.isVisibleNudge());
 	sustainLevel.setVisibleWithLabel(visible);
-	sustainLevelButtons.setVisibles(visible);
+	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
-	releaseLevelButtons.setVisibles(visible);
+	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
 
     if (visible)
     {
 		layoutMain({ .mainRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
-		layoutMain({ .mainRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 13 });
-        layoutMain({ .mainRect = rect, .label = &release.label, .component = &release, .rowHeight = 13 });
+		attack.layoutComponent(rect, 13);
+		if (attack.isVisibleNudge()) attackNudge.layoutComponent(rect, 13);
+        decay.layoutComponent(rect, 13);
+        if (decay.isVisibleNudge()) decayNudge.layoutComponent(rect, 13);
+        release.layoutComponent(rect, 13);
+        if (release.isVisibleNudge()) releaseNudge.layoutComponent(rect, 13);
 		rateSeparator.layoutComponent(rect);
-		layoutMain({ .mainRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 13 });
-		startLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 13 });
-		attackLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &sustainLevel.label, .component = &sustainLevel, .rowHeight = 13 });
-		sustainLevelButtons.layoutComponent(rect, 13);
-		layoutMain({ .mainRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = 13 });
-		releaseLevelButtons.layoutComponent(rect, 13);
+		startLevel.layoutComponent(rect, 13);
+		if (startLevel.isVisibleNudge()) startLevelButtons.layoutComponent(rect, 13);
+		attackLevel.layoutComponent(rect, 13);
+		if (attackLevel.isVisibleNudge()) attackLevelButtons.layoutComponent(rect, 13);
+		sustainLevel.layoutComponent(rect, 13);
+		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponent(rect, 13);
+		releaseLevel.layoutComponent(rect, 13);
+		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponent(rect, 13);
 	}
 }
 
@@ -111,59 +109,65 @@ void GuiComponentPitchEnv::layoutComponentRow(juce::Rectangle<int>& rect)
 	flag.setVisible(visible);
 	flagSeparator.setVisible(visible);
 	attack.setVisibleWithLabel(visible);
+	attackNudge.setVisibles(visible && attack.isVisibleNudge());
 	decay.setVisibleWithLabel(visible);
+	decayNudge.setVisibles(visible && decay.isVisibleNudge());
 	release.setVisibleWithLabel(visible);
+	releaseNudge.setVisibles(visible && release.isVisibleNudge());
 	rateSeparator.setVisible(visible);
 	startLevel.setVisibleWithLabel(visible);
-	startLevelButtons.setVisibles(visible);
+	startLevelButtons.setVisibles(visible && startLevel.isVisibleNudge());
 	attackLevel.setVisibleWithLabel(visible);
-	attackLevelButtons.setVisibles(visible);
+	attackLevelButtons.setVisibles(visible && attackLevel.isVisibleNudge());
 	sustainLevel.setVisibleWithLabel(visible);
-	sustainLevelButtons.setVisibles(visible);
+	sustainLevelButtons.setVisibles(visible && sustainLevel.isVisibleNudge());
 	releaseLevel.setVisibleWithLabel(visible);
-	releaseLevelButtons.setVisibles(visible);
+	releaseLevelButtons.setVisibles(visible && releaseLevel.isVisibleNudge());
 
 	if (visible)
 	{
 		layoutRow({ .rowRect = rect, .component = &flag });
 		flagSeparator.layoutComponent(rect);
-		layoutRow({ .rowRect = rect, .label = &attack.label, .component = &attack, .rowHeight = 12 });
-		layoutRow({ .rowRect = rect, .label = &decay.label, .component = &decay, .rowHeight = 12 });
-		layoutRow({ .rowRect = rect, .label = &release.label, .component = &release, .rowHeight = 12 });
+		attack.layoutComponentRow(rect, 12);
+		if (attack.isVisibleNudge()) attackNudge.layoutComponentRow(rect, 12);
+		decay.layoutComponentRow(rect, 12);
+		if (decay.isVisibleNudge()) decayNudge.layoutComponentRow(rect, 12);
+		release.layoutComponentRow(rect, 12);
+		if (release.isVisibleNudge()) releaseNudge.layoutComponentRow(rect, 12);
 		rateSeparator.layoutComponent(rect);
-		layoutRow({ .rowRect = rect, .label = &startLevel.label, .component = &startLevel, .rowHeight = 12 });
-		startLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &attackLevel.label, .component = &attackLevel, .rowHeight = 12 });
-		attackLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &sustainLevel.label, .component = &sustainLevel, .rowHeight = 12 });
-		sustainLevelButtons.layoutComponentRow(rect, 12);
-		layoutRow({ .rowRect = rect, .label = &releaseLevel.label, .component = &releaseLevel, .rowHeight = 12 });
-		releaseLevelButtons.layoutComponentRow(rect, 12);
+		startLevel.layoutComponentRow(rect, 12);
+		if (startLevel.isVisibleNudge()) startLevelButtons.layoutComponentRow(rect, 12);
+		attackLevel.layoutComponentRow(rect, 12);
+		if (attackLevel.isVisibleNudge()) attackLevelButtons.layoutComponentRow(rect, 12);
+		sustainLevel.layoutComponentRow(rect, 12);
+		if (sustainLevel.isVisibleNudge()) sustainLevelButtons.layoutComponentRow(rect, 12);
+		releaseLevel.layoutComponentRow(rect, 12);
+		if (releaseLevel.isVisibleNudge()) releaseLevelButtons.layoutComponentRow(rect, 12);
 	}
 }
 
 void GuiComponentPitchEnv::setupGraph(std::function<void()> repaintGraph) {
 	flag.onStateChange = repaintGraph;
-	attack.onValueChange = repaintGraph;
-	decay.onValueChange = repaintGraph;
-	release.onValueChange = repaintGraph;
-	startLevel.onValueChange = repaintGraph;
-	attackLevel.onValueChange = repaintGraph;
-	sustainLevel.onValueChange = repaintGraph;
-	releaseLevel.onValueChange = repaintGraph;
+	attack.getSlider().onValueChange = repaintGraph;
+	decay.getSlider().onValueChange = repaintGraph;
+	release.getSlider().onValueChange = repaintGraph;
+	startLevel.getSlider().onValueChange = repaintGraph;
+	attackLevel.getSlider().onValueChange = repaintGraph;
+	sustainLevel.getSlider().onValueChange = repaintGraph;
+	releaseLevel.getSlider().onValueChange = repaintGraph;
 }
 
 void GuiComponentPitchEnv::updateGraph(GuiEnvelopeGraph& graph) {
 	graph.updateBypass(this->isEnable ? !flag.getToggleState() : flag.getToggleState());
 
 	graph.updatePitchEnv(
-		attack,
-		decay,
-		release,
-		startLevel,
-		attackLevel,
-		sustainLevel,
-		releaseLevel
+		attack.getSlider(),
+		decay.getSlider(),
+		release.getSlider(),
+		startLevel.getSlider(),
+		attackLevel.getSlider(),
+		sustainLevel.getSlider(),
+		releaseLevel.getSlider()
 	);
 }
 

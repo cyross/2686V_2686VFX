@@ -43,10 +43,8 @@ void GuiComponentFix::setupComponent(juce::Component& parent, const juce::String
     enable.setWantsKeyboardFocus(true);
     enable.setExplicitFocusOrder(++tabOrder);
 
-    freq.setup({ .parent = parent, .id = code + CPK::fixFreq, .title = "FQ", .isReset = true});
-    freq.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
-    freq.setWantsKeyboardFocus(true);
-    freq.setExplicitFocusOrder(++tabOrder);
+    freq.setupComponent(parent, code + CPK::fixFreq, "FQ", tabOrder, std::nullopt);
+    freq.getSlider().setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     freq.setValue(toValue);
 
 	freqToSeparator.setupComponent(parent);
@@ -245,37 +243,37 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
 	enable.setVisible(visible);
     freq.setVisibleWithLabel(visible);
     freqToSeparator.setVisible(visible);
-	freqTo.setVisible(visible);
-    freqToZero.setVisible(visible);
-    freqTo05.setVisible(visible);
-    freqTo1.setVisible(visible);
-    freqTo2.setVisible(visible);
-    freqM05.setVisible(visible);
-    freqM02.setVisible(visible);
-    freqM01.setVisible(visible);
-    freqP01.setVisible(visible);
-    freqP02.setVisible(visible);
-    freqP05.setVisible(visible);
-    freqM5.setVisible(visible);
-    freqM2.setVisible(visible);
-    freqM1.setVisible(visible);
-    freqP1.setVisible(visible);
-    freqP2.setVisible(visible);
-    freqP5.setVisible(visible);
-    freqM50.setVisible(visible);
-    freqM20.setVisible(visible);
-    freqM10.setVisible(visible);
-    freqP10.setVisible(visible);
-    freqP20.setVisible(visible);
-    freqP50.setVisible(visible);
-    freqM500.setVisible(visible);
-    freqM200.setVisible(visible);
-    freqM100.setVisible(visible);
-    freqP100.setVisible(visible);
-    freqP200.setVisible(visible);
-    freqP500.setVisible(visible);
-    freqM1000.setVisible(visible);
-    freqP1000.setVisible(visible);
+	freqTo.setVisible(visible && freq.isVisibleNudge());
+    freqToZero.setVisible(visible && freq.isVisibleNudge());
+    freqTo05.setVisible(visible && freq.isVisibleNudge());
+    freqTo1.setVisible(visible && freq.isVisibleNudge());
+    freqTo2.setVisible(visible && freq.isVisibleNudge());
+    freqM05.setVisible(visible && freq.isVisibleNudge());
+    freqM02.setVisible(visible && freq.isVisibleNudge());
+    freqM01.setVisible(visible && freq.isVisibleNudge());
+    freqP01.setVisible(visible && freq.isVisibleNudge());
+    freqP02.setVisible(visible && freq.isVisibleNudge());
+    freqP05.setVisible(visible && freq.isVisibleNudge());
+    freqM5.setVisible(visible && freq.isVisibleNudge());
+    freqM2.setVisible(visible && freq.isVisibleNudge());
+    freqM1.setVisible(visible && freq.isVisibleNudge());
+    freqP1.setVisible(visible && freq.isVisibleNudge());
+    freqP2.setVisible(visible && freq.isVisibleNudge());
+    freqP5.setVisible(visible && freq.isVisibleNudge());
+    freqM50.setVisible(visible && freq.isVisibleNudge());
+    freqM20.setVisible(visible && freq.isVisibleNudge());
+    freqM10.setVisible(visible && freq.isVisibleNudge());
+    freqP10.setVisible(visible && freq.isVisibleNudge());
+    freqP20.setVisible(visible && freq.isVisibleNudge());
+    freqP50.setVisible(visible && freq.isVisibleNudge());
+    freqM500.setVisible(visible && freq.isVisibleNudge());
+    freqM200.setVisible(visible && freq.isVisibleNudge());
+    freqM100.setVisible(visible && freq.isVisibleNudge());
+    freqP100.setVisible(visible && freq.isVisibleNudge());
+    freqP200.setVisible(visible && freq.isVisibleNudge());
+    freqP500.setVisible(visible && freq.isVisibleNudge());
+    freqM1000.setVisible(visible && freq.isVisibleNudge());
+    freqP1000.setVisible(visible && freq.isVisibleNudge());
     freqNoteSeparator.setVisible(visible);
     freqNote.setVisibleWithLabel(visible);
     note.setVisible(visible);
@@ -288,51 +286,54 @@ void GuiComponentFix::layoutComponent(juce::Rectangle<int>& rect)
 
         freqToSeparator.layoutComponent(rect);
 
-        layoutMain({ .mainRect = rect, .label = &freq.label, .component = &freq });
-        layoutMain({ .mainRect = rect, .component = &freqTo });
-        layoutMainFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
+        freq.layoutComponent(rect);
+        if (freq.isVisibleNudge())
+        {
+            layoutMain({ .mainRect = rect, .component = &freqTo });
+            layoutMainFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
 
-        layoutMainSixComps({
-            .rect = rect,
-            .comp1 = &freqM05,
-            .comp2 = &freqM02,
-            .comp3 = &freqM01,
-            .comp4 = &freqP01,
-            .comp5 = &freqP02,
-            .comp6 = &freqP05
-            });
-        layoutMainSixComps({
-            .rect = rect,
-            .comp1 = &freqM5,
-            .comp2 = &freqM2,
-            .comp3 = &freqM1,
-            .comp4 = &freqP1,
-            .comp5 = &freqP2,
-            .comp6 = &freqP5
-            });
-        layoutMainSixComps({
-            .rect = rect,
-            .comp1 = &freqM50,
-            .comp2 = &freqM20,
-            .comp3 = &freqM10,
-            .comp4 = &freqP10,
-            .comp5 = &freqP20,
-            .comp6 = &freqP50
-            });
-        layoutMainSixComps({
-            .rect = rect,
-            .comp1 = &freqM500,
-            .comp2 = &freqM200,
-            .comp3 = &freqM100,
-            .comp4 = &freqP100,
-            .comp5 = &freqP200,
-            .comp6 = &freqP500
-            });
-        layoutMainTwoComps({
-            .rect = rect,
-            .comp1 = &freqM1000,
-            .comp2 = &freqP1000,
-            });
+            layoutMainSixComps({
+                .rect = rect,
+                .comp1 = &freqM05,
+                .comp2 = &freqM02,
+                .comp3 = &freqM01,
+                .comp4 = &freqP01,
+                .comp5 = &freqP02,
+                .comp6 = &freqP05
+                });
+            layoutMainSixComps({
+                .rect = rect,
+                .comp1 = &freqM5,
+                .comp2 = &freqM2,
+                .comp3 = &freqM1,
+                .comp4 = &freqP1,
+                .comp5 = &freqP2,
+                .comp6 = &freqP5
+                });
+            layoutMainSixComps({
+                .rect = rect,
+                .comp1 = &freqM50,
+                .comp2 = &freqM20,
+                .comp3 = &freqM10,
+                .comp4 = &freqP10,
+                .comp5 = &freqP20,
+                .comp6 = &freqP50
+                });
+            layoutMainSixComps({
+                .rect = rect,
+                .comp1 = &freqM500,
+                .comp2 = &freqM200,
+                .comp3 = &freqM100,
+                .comp4 = &freqP100,
+                .comp5 = &freqP200,
+                .comp6 = &freqP500
+                });
+            layoutMainTwoComps({
+                .rect = rect,
+                .comp1 = &freqM1000,
+                .comp2 = &freqP1000,
+                });
+        }
 
         freqNoteSeparator.layoutComponent(rect);
 
@@ -350,37 +351,37 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
     enable.setVisible(visible);
     freq.setVisibleWithLabel(visible);
     freqToSeparator.setVisible(visible);
-    freqTo.setVisible(visible);
-    freqToZero.setVisible(visible);
-    freqTo05.setVisible(visible);
-    freqTo1.setVisible(visible);
-    freqTo2.setVisible(visible);
-    freqM05.setVisible(visible);
-    freqM02.setVisible(visible);
-    freqM01.setVisible(visible);
-    freqP01.setVisible(visible);
-    freqP02.setVisible(visible);
-    freqP05.setVisible(visible);
-    freqM5.setVisible(visible);
-    freqM2.setVisible(visible);
-    freqM1.setVisible(visible);
-    freqP1.setVisible(visible);
-    freqP2.setVisible(visible);
-    freqP5.setVisible(visible);
-    freqM50.setVisible(visible);
-    freqM20.setVisible(visible);
-    freqM10.setVisible(visible);
-    freqP10.setVisible(visible);
-    freqP20.setVisible(visible);
-    freqP50.setVisible(visible);
-    freqM500.setVisible(visible);
-    freqM200.setVisible(visible);
-    freqM100.setVisible(visible);
-    freqP100.setVisible(visible);
-    freqP200.setVisible(visible);
-    freqP500.setVisible(visible);
-    freqM1000.setVisible(visible);
-    freqP1000.setVisible(visible);
+    freqTo.setVisible(visible && freq.isVisibleNudge());
+    freqToZero.setVisible(visible && freq.isVisibleNudge());
+    freqTo05.setVisible(visible && freq.isVisibleNudge());
+    freqTo1.setVisible(visible && freq.isVisibleNudge());
+    freqTo2.setVisible(visible && freq.isVisibleNudge());
+    freqM05.setVisible(visible && freq.isVisibleNudge());
+    freqM02.setVisible(visible && freq.isVisibleNudge());
+    freqM01.setVisible(visible && freq.isVisibleNudge());
+    freqP01.setVisible(visible && freq.isVisibleNudge());
+    freqP02.setVisible(visible && freq.isVisibleNudge());
+    freqP05.setVisible(visible && freq.isVisibleNudge());
+    freqM5.setVisible(visible && freq.isVisibleNudge());
+    freqM2.setVisible(visible && freq.isVisibleNudge());
+    freqM1.setVisible(visible && freq.isVisibleNudge());
+    freqP1.setVisible(visible && freq.isVisibleNudge());
+    freqP2.setVisible(visible && freq.isVisibleNudge());
+    freqP5.setVisible(visible && freq.isVisibleNudge());
+    freqM50.setVisible(visible && freq.isVisibleNudge());
+    freqM20.setVisible(visible && freq.isVisibleNudge());
+    freqM10.setVisible(visible && freq.isVisibleNudge());
+    freqP10.setVisible(visible && freq.isVisibleNudge());
+    freqP20.setVisible(visible && freq.isVisibleNudge());
+    freqP50.setVisible(visible && freq.isVisibleNudge());
+    freqM500.setVisible(visible && freq.isVisibleNudge());
+    freqM200.setVisible(visible && freq.isVisibleNudge());
+    freqM100.setVisible(visible && freq.isVisibleNudge());
+    freqP100.setVisible(visible && freq.isVisibleNudge());
+    freqP200.setVisible(visible && freq.isVisibleNudge());
+    freqP500.setVisible(visible && freq.isVisibleNudge());
+    freqM1000.setVisible(visible && freq.isVisibleNudge());
+    freqP1000.setVisible(visible && freq.isVisibleNudge());
     freqNoteSeparator.setVisible(visible);
     freqNote.setVisibleWithLabel(visible);
     note.setVisible(visible);
@@ -393,51 +394,54 @@ void GuiComponentFix::layoutComponentRow(juce::Rectangle<int>& rect)
 
         freqToSeparator.layoutComponent(rect);
 
-        layoutRow({ .rowRect = rect, .label = &freq.label, .component = &freq });
-        layoutRow({ .rowRect = rect, .component = &freqTo });
-        layoutRowFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
+        freq.layoutComponentRow(rect);
+        if (freq.isVisibleNudge())
+        {
+            layoutRow({ .rowRect = rect, .component = &freqTo });
+            layoutRowFourComps({ .rect = rect, .comp1 = &freqToZero, .comp2 = &freqTo05, .comp3 = &freqTo1, .comp4 = &freqTo2 });
 
-        layoutRowSixComps({
-            .rect = rect,
-            .comp1 = &freqM05, 
-            .comp2 = &freqM02,
-            .comp3 = &freqM01,
-            .comp4 = &freqP01,
-            .comp5 = &freqP02,
-            .comp6 = &freqP05
-            });
-        layoutRowSixComps({
-            .rect = rect,
-            .comp1 = &freqM5,
-            .comp2 = &freqM2,
-            .comp3 = &freqM1,
-            .comp4 = &freqP1,
-            .comp5 = &freqP2,
-            .comp6 = &freqP5
-            });
-        layoutRowSixComps({
-            .rect = rect,
-            .comp1 = &freqM50,
-            .comp2 = &freqM20,
-            .comp3 = &freqM10,
-            .comp4 = &freqP10,
-            .comp5 = &freqP20,
-            .comp6 = &freqP50
-            });
-        layoutRowSixComps({
-            .rect = rect,
-            .comp1 = &freqM500,
-            .comp2 = &freqM200,
-            .comp3 = &freqM100,
-            .comp4 = &freqP100,
-            .comp5 = &freqP200,
-            .comp6 = &freqP500
-            });
-        layoutRowTwoComps({
-            .rect = rect,
-            .comp1 = &freqM1000,
-            .comp2 = &freqP1000,
-            });
+            layoutRowSixComps({
+                .rect = rect,
+                .comp1 = &freqM05, 
+                .comp2 = &freqM02,
+                .comp3 = &freqM01,
+                .comp4 = &freqP01,
+                .comp5 = &freqP02,
+                .comp6 = &freqP05
+                });
+            layoutRowSixComps({
+                .rect = rect,
+                .comp1 = &freqM5,
+                .comp2 = &freqM2,
+                .comp3 = &freqM1,
+                .comp4 = &freqP1,
+                .comp5 = &freqP2,
+                .comp6 = &freqP5
+                });
+            layoutRowSixComps({
+                .rect = rect,
+                .comp1 = &freqM50,
+                .comp2 = &freqM20,
+                .comp3 = &freqM10,
+                .comp4 = &freqP10,
+                .comp5 = &freqP20,
+                .comp6 = &freqP50
+                });
+            layoutRowSixComps({
+                .rect = rect,
+                .comp1 = &freqM500,
+                .comp2 = &freqM200,
+                .comp3 = &freqM100,
+                .comp4 = &freqP100,
+                .comp5 = &freqP200,
+                .comp6 = &freqP500
+                });
+            layoutRowTwoComps({
+                .rect = rect,
+                .comp1 = &freqM1000,
+                .comp2 = &freqP1000,
+                });
+        }
 
         freqNoteSeparator.layoutComponent(rect);
 

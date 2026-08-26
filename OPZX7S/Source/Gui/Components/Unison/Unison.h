@@ -13,6 +13,7 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../Separator/NormalSeparator.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
@@ -21,7 +22,7 @@ class GuiComponentUnison : public GuiBase {
     // UNISON/HARMONY
     GuiCategoryLabel cat;
     GuiSlider voices;
-    GuiSlider detune;
+    GuiComponentNudgeSliderFloat detune;
     GuiComponentPitchButtons detuneButtons;
     GuiSlider spread;
     NormalSeparator arpSeparator;
@@ -33,7 +34,7 @@ class GuiComponentUnison : public GuiBase {
     // ボイス単位の設定。1組のスライダーを targetVoice で切り替えて使う
     GuiSlider targetVoice;
     GuiSlider paraDistance;
-    GuiSlider paraDetune;
+    GuiComponentNudgeSliderFloat paraDetune;
     GuiComponentPitchButtons paraDetuneButtons;
     juce::String paramCode;
 

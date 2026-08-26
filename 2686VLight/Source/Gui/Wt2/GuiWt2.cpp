@@ -590,7 +590,7 @@ void GuiWt2::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 

@@ -12,6 +12,7 @@
 #include "../../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -21,7 +22,7 @@ class GuiComponentFix : public GuiBase {
     // UNISON/HARMONY
     GuiCategoryLabel cat;
     GuiToggleButton enable;
-    GuiSlider freq;
+    GuiComponentNudgeSliderFloat freq;
     NormalSeparator freqToSeparator;
     GuiTextButton freqTo;
     GuiTextButton freqToZero;

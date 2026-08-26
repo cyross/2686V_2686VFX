@@ -421,7 +421,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
@@ -478,7 +478,7 @@ void GuiOpn::layout(juce::Rectangle<int> content)
         opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
 
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
+        juce::Rectangle<int> innerRect(0, 0, opGroups[i].getContentWidth(), 2000);
 
         updateRgDisplayAsOp(i, true);
 

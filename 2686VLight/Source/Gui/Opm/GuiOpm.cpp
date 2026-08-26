@@ -119,8 +119,7 @@ void GuiOpm::setup()
         int mulIndex = mul[idx].getSelectedId() - 1;
         bool enableMulRatio = mulIndex == 16; // mul = Ratio
 
-        mulRatio[idx].setEnabled(enableMulRatio);
-        mulRatio[idx].label.setEnabled(enableMulRatio);
+        mulRatio[idx].setEnabledWithLabel(enableMulRatio);
         };
 
     // このタブ(Component)がキーボードフォーカスを受け取れるようにする
@@ -386,9 +385,7 @@ void GuiOpm::setup()
             updateMulRatioEnable(i);
             };
 
-        mulRatio[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::mulRatio, .title = OpmGuiText::Fm::Op::MulRatio, .isReset = true });
-        mulRatio[i].setWantsKeyboardFocus(true);
-        mulRatio[i].setExplicitFocusOrder(++tabOrder);
+        mulRatio[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::mulRatio, OpmGuiText::Fm::Op::MulRatio, tabOrder, std::nullopt);
 
         mulRatioTo001[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .id = "", .title = "0.01", .bgColor = juce::Colours::lightseagreen.brighter(0.3f), .isReset = false });
 		mulRatioTo001[i].setWantsKeyboardFocus(true);
@@ -656,7 +653,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
 
@@ -715,7 +712,7 @@ void GuiOpm::layout(juce::Rectangle<int> content)
         opGroups[i].setViewportCustomBounds(iinnerRect.translated(-opArea.getX(), -opArea.getY()));
 
         // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-        juce::Rectangle<int> innerRect(0, 0, opGroups[i].viewport.getMaximumVisibleWidth(), 2000);
+        juce::Rectangle<int> innerRect(0, 0, opGroups[i].getContentWidth(), 2000);
 
         updateRgDisplayAsOp(i, true);
 
@@ -1189,38 +1186,41 @@ void GuiOpm::layoutOpDetCat(int opIndex, juce::Rectangle<int>& rect) {
 
     mul[opIndex].setVisibleWithLabel(visible);
     mulRatio[opIndex].setVisibleWithLabel(visible);
-    mulRatioTo001[opIndex].setVisible(visible);
-    mulRatioTo005[opIndex].setVisible(visible);
-    mulRatioTo1[opIndex].setVisible(visible);
-	mulRatioTo10[opIndex].setVisible(visible);
-    mulRatioTo2757[opIndex].setVisible(visible);
-    mulRatioTo02[opIndex].setVisible(visible);
-    mulRatioTo025[opIndex].setVisible(visible);
-    mulRatioTo04[opIndex].setVisible(visible);
-    mulRatioTo05[opIndex].setVisible(visible);
-    mulRatioTo06[opIndex].setVisible(visible);
-    mulRatioTo075[opIndex].setVisible(visible);
-    mulRatioTo08[opIndex].setVisible(visible);
-    mulRatioPM10[opIndex].setVisible(visible);
-    mulRatioP10[opIndex].setVisible(visible);
-    mulRatioPM1[opIndex].setVisible(visible);
-    mulRatioP1[opIndex].setVisible(visible);
-    mulRatioPM01[opIndex].setVisible(visible);
-    mulRatioP01[opIndex].setVisible(visible);
-    mulRatioPM001[opIndex].setVisible(visible);
-    mulRatioP001[opIndex].setVisible(visible);
+    mulRatioTo001[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo005[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo1[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+	mulRatioTo10[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo2757[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo02[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo025[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo04[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo05[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo06[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo075[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioTo08[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioPM10[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioP10[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioPM1[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioP1[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioPM01[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioP01[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioPM001[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
+    mulRatioP001[opIndex].setVisible(visible && mulRatio[opIndex].isVisibleNudge());
     mulDetSep[opIndex].setVisible(visible);
     dt1[opIndex].setVisibleWithLabel(visible);
     dt2[opIndex].setVisibleWithLabel(visible);
 
     if (visible) {
         layoutRow({ .rowRect = rect, .label = &mul[opIndex].label, .component = &mul[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &mulRatio[opIndex].label, .component = &mulRatio[opIndex] });
-		layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001[opIndex], .comp2 = &mulRatioTo005[opIndex], .comp3 = &mulRatioTo1[opIndex], .comp4 = &mulRatioTo10[opIndex], .comp5 = &mulRatioTo2757[opIndex] });
-		layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025[opIndex], .comp2 = &mulRatioTo05[opIndex], .comp3 = &mulRatioTo075[opIndex] });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02[opIndex], .comp2 = &mulRatioTo04[opIndex], .comp3 = &mulRatioTo06[opIndex], .comp4 = &mulRatioTo08[opIndex] });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10[opIndex], .comp2 = &mulRatioPM1[opIndex], .comp3 = &mulRatioP1[opIndex], .comp4 = &mulRatioP10[opIndex] });
-        layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001[opIndex], .comp2 = &mulRatioPM01[opIndex], .comp3 = &mulRatioP01[opIndex], .comp4 = &mulRatioP001[opIndex] });
+        mulRatio[opIndex].layoutComponentRow(rect);
+		if (mulRatio[opIndex].isVisibleNudge())
+		{
+    		layoutRowFiveComps({ .rect = rect, .comp1 = &mulRatioTo001[opIndex], .comp2 = &mulRatioTo005[opIndex], .comp3 = &mulRatioTo1[opIndex], .comp4 = &mulRatioTo10[opIndex], .comp5 = &mulRatioTo2757[opIndex] });
+    		layoutRowThreeComps({ .rect = rect, .comp1 = &mulRatioTo025[opIndex], .comp2 = &mulRatioTo05[opIndex], .comp3 = &mulRatioTo075[opIndex] });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioTo02[opIndex], .comp2 = &mulRatioTo04[opIndex], .comp3 = &mulRatioTo06[opIndex], .comp4 = &mulRatioTo08[opIndex] });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM10[opIndex], .comp2 = &mulRatioPM1[opIndex], .comp3 = &mulRatioP1[opIndex], .comp4 = &mulRatioP10[opIndex] });
+            layoutRowFourComps({ .rect = rect, .comp1 = &mulRatioPM001[opIndex], .comp2 = &mulRatioPM01[opIndex], .comp3 = &mulRatioP01[opIndex], .comp4 = &mulRatioP001[opIndex] });
+		}
         mulDetSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &dt1[opIndex].label, .component = &dt1[opIndex] });
         layoutRow({ .rowRect = rect, .label = &dt2[opIndex].label, .component = &dt2[opIndex] });

@@ -15,6 +15,9 @@ namespace GuiColor {
 		static inline const juce::Colour Bg = juce::Colours::black.withAlpha(0.4f);
 		static inline const juce::Colour Border = defaultFgColor;
 	};
+	namespace ScrollBar {
+		static inline const juce::Colour Thumb = juce::Colours::darkgrey;
+	};
 	namespace Label {
 		static inline const juce::Colour Text = defaultFgColor;
 		static inline const juce::Colour CategoryText = juce::Colours::yellow;

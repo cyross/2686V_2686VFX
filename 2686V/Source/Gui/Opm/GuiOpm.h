@@ -27,6 +27,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -119,7 +120,7 @@ class GuiOpm : public GuiBase
     std::array<GuiCategoryLabel, OpmPrValue::ops> catDet;
     std::array<GuiCategoryLabel, OpmPrValue::ops> catAmp;
     std::array<GuiComboBox, OpmPrValue::ops> mul;
-    std::array<GuiSlider, OpmPrValue::ops> mulRatio;
+    std::array<GuiComponentNudgeSliderFloat, OpmPrValue::ops> mulRatio;
     std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo001;
     std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo005;
     std::array<GuiTextButton, OpmPrValue::ops> mulRatioTo1;
@@ -259,7 +260,7 @@ public:
         catDet{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         catAmp{ GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context),GuiCategoryLabel(context) },
         mul{ GuiComboBox(context), GuiComboBox(context), GuiComboBox(context), GuiComboBox(context) },
-        mulRatio{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        mulRatio{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
         mulRatioTo001{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         mulRatioTo005{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },
         mulRatioTo1{ GuiTextButton(context),GuiTextButton(context),GuiTextButton(context),GuiTextButton(context) },

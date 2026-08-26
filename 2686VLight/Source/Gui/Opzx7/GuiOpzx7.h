@@ -29,6 +29,8 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/NudgeButtons/NudgeButtons.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -61,14 +63,22 @@ class GuiOpzx7 : public GuiBase
     // Global
     GuiComboBox algSelector;
     NormalSeparator algFbSep;
-    GuiSlider feedback1Slider;
-    GuiSlider feedback2Slider;
-    GuiSlider feedback3Slider;
-    GuiSlider feedback4Slider;
-    GuiSlider feedback5Slider;
-    GuiSlider feedback6Slider;
-    GuiSlider feedback7Slider;
-    GuiSlider feedback8Slider;
+    GuiComponentNudgeSliderFloat feedback1Slider;
+    GuiComponentNudgeButtons feedback1Nudge;
+    GuiComponentNudgeSliderFloat feedback2Slider;
+    GuiComponentNudgeButtons feedback2Nudge;
+    GuiComponentNudgeSliderFloat feedback3Slider;
+    GuiComponentNudgeButtons feedback3Nudge;
+    GuiComponentNudgeSliderFloat feedback4Slider;
+    GuiComponentNudgeButtons feedback4Nudge;
+    GuiComponentNudgeSliderFloat feedback5Slider;
+    GuiComponentNudgeButtons feedback5Nudge;
+    GuiComponentNudgeSliderFloat feedback6Slider;
+    GuiComponentNudgeButtons feedback6Nudge;
+    GuiComponentNudgeSliderFloat feedback7Slider;
+    GuiComponentNudgeButtons feedback7Nudge;
+    GuiComponentNudgeSliderFloat feedback8Slider;
+    GuiComponentNudgeButtons feedback8Nudge;
 
     GuiCategoryLabel panCat;
     GuiToggleButton panpotEnableToggle;

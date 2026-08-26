@@ -14,6 +14,8 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../../Gui/Components/SsgSwButtons/SsgSwButtons.h"
+#include "../NudgeButtons/NudgeButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -31,26 +33,32 @@ class GuiComponentSsgSwEnv : public GuiBase {
     GuiSlider loopTo;
     GuiSlider loopCount;
 	NormalSeparator loopSeparator;
-    GuiSlider r1;
-    GuiSlider r2;
-    GuiSlider r3;
-    GuiSlider r4;
-    GuiSlider r5;
-    GuiSlider r6;
+    GuiComponentNudgeSliderFloat r1;
+    GuiComponentNudgeButtons r1Nudge;
+    GuiComponentNudgeSliderFloat r2;
+    GuiComponentNudgeButtons r2Nudge;
+    GuiComponentNudgeSliderFloat r3;
+    GuiComponentNudgeButtons r3Nudge;
+    GuiComponentNudgeSliderFloat r4;
+    GuiComponentNudgeButtons r4Nudge;
+    GuiComponentNudgeSliderFloat r5;
+    GuiComponentNudgeButtons r5Nudge;
+    GuiComponentNudgeSliderFloat r6;
+    GuiComponentNudgeButtons r6Nudge;
     NormalSeparator rateSeparator;
-    GuiSlider startLevel;
+    GuiComponentNudgeSliderFloat startLevel;
     GuiComponentSsgSwButtons stlBtns;
-    GuiSlider l1;
+    GuiComponentNudgeSliderFloat l1;
     GuiComponentSsgSwButtons l1Btns;
-    GuiSlider l2;
+    GuiComponentNudgeSliderFloat l2;
     GuiComponentSsgSwButtons l2Btns;
-    GuiSlider l3;
+    GuiComponentNudgeSliderFloat l3;
     GuiComponentSsgSwButtons l3Btns;
-    GuiSlider l4;
+    GuiComponentNudgeSliderFloat l4;
     GuiComponentSsgSwButtons l4Btns;
-    GuiSlider l5;
+    GuiComponentNudgeSliderFloat l5;
     GuiComponentSsgSwButtons l5Btns;
-    GuiSlider l6;
+    GuiComponentNudgeSliderFloat l6;
     GuiComponentSsgSwButtons l6Btns;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -68,11 +76,17 @@ public:
 		loopCount(context),
 		loopSeparator(context),
         r1(context),
+        r1Nudge(context),
         r2(context),
+        r2Nudge(context),
         r3(context),
+        r3Nudge(context),
         r4(context),
+        r4Nudge(context),
         r5(context),
+        r5Nudge(context),
         r6(context),
+        r6Nudge(context),
 		rateSeparator(context),
         startLevel(context),
         stlBtns(context),

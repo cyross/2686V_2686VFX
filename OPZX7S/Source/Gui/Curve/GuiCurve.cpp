@@ -526,7 +526,7 @@ void GuiCurve::layout(juce::Rectangle<int> content)
 
     curveGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
-    juce::Rectangle<int> mRect(0, 0, curveGroup.viewport.getMaximumVisibleWidth(), scrollHeight);
+    juce::Rectangle<int> mRect(0, 0, curveGroup.getContentWidth(), scrollHeight);
 
     auto layoutValue = [this, titleWidth, valueWidth, lw, px, py](juce::Rectangle<int>& valueArea, int valNum, int vp, int vv) {
         auto vvRect = valueArea.removeFromTop(CurveGuiValue::CurveGroup::Row::height);

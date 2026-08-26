@@ -19,11 +19,9 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     voices.setWantsKeyboardFocus(true);
     voices.setExplicitFocusOrder(++tabOrder);
 
-    detune.setup({ .parent = parent, .id = code + CPK::Unison::detune, .title = "DT", .isReset = true });
-    detune.setWantsKeyboardFocus(true);
-    detune.setExplicitFocusOrder(++tabOrder);
+    detune.setupComponent(parent, code + CPK::Unison::detune, "DT", tabOrder, std::nullopt);
 
-    detuneButtons.setupComponent(parent, detune, tabOrder);
+    detuneButtons.setupComponent(parent, detune.getSlider(), tabOrder);
 
     spread.setup({ .parent = parent, .id = code + CPK::Unison::spread, .title = "SPR", .isReset = true });
     spread.setWantsKeyboardFocus(true);
@@ -60,13 +58,11 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     paraDistance.setWantsKeyboardFocus(true);
     paraDistance.setExplicitFocusOrder(++tabOrder);
 
-    paraDetune.setup({ .parent = parent, .title = "P-DT", .isReset = false });
-    paraDetune.setWantsKeyboardFocus(true);
-    paraDetune.setExplicitFocusOrder(++tabOrder);
+    paraDetune.setupComponent(parent, "", "P-DT", tabOrder, std::nullopt, std::nullopt, false);
 
     // DT と同じ補正ボタン群。スライダー参照経由で値を動かすので、
     // 対象ボイスを切り替えても常に現在の束縛先へ反映される。
-    paraDetuneButtons.setupComponent(parent, paraDetune, tabOrder);
+    paraDetuneButtons.setupComponent(parent, paraDetune.getSlider(), tabOrder);
 
     targetVoice.onValueChange = [this] { rebindParaSliders(); };
     targetVoice.setValue(1, juce::sendNotification);
@@ -80,7 +76,7 @@ void GuiComponentUnison::rebindParaSliders()
     const juce::String no = juce::String((int)targetVoice.getValue());
 
     paraDistance.rebind(paramCode + CPK::Unison::paraDistance + no);
-    paraDetune.rebind(paramCode + CPK::Unison::paraDetune + no);
+    paraDetune.getSlider().rebind(paramCode + CPK::Unison::paraDetune + no);
 }
 
 // ボイス単位の設定はスライダーに1組しか束縛されていないため、
@@ -107,7 +103,7 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
 
     voices.setVisibleWithLabel(visible);
     detune.setVisibleWithLabel(visible);
-    detuneButtons.setVisibles(visible);
+    detuneButtons.setVisibles(visible && detune.isVisibleNudge());
     spread.setVisibleWithLabel(visible);
     arpSeparator.setVisible(visible);
     arpEnable.setVisible(visible);
@@ -117,14 +113,14 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
     targetVoice.setVisibleWithLabel(visible);
     paraDistance.setVisibleWithLabel(visible);
     paraDetune.setVisibleWithLabel(visible);
-    paraDetuneButtons.setVisibles(visible);
+    paraDetuneButtons.setVisibles(visible && paraDetune.isVisibleNudge());
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .label = &voices.label, .component = &voices });
         layoutMain({ .mainRect = rect, .label = &spread.label, .component = &spread });
-        layoutMain({ .mainRect = rect, .label = &detune.label, .component = &detune });
-        detuneButtons.layoutComponent(rect);
+        detune.layoutComponent(rect);
+        if (detune.isVisibleNudge()) detuneButtons.layoutComponent(rect);
         arpSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .component = &arpEnable });
         layoutMain({ .mainRect = rect, .label = &arpFreq.label, .component = &arpFreq });
@@ -132,8 +128,8 @@ void GuiComponentUnison::layoutComponent(juce::Rectangle<int>& rect)
         paraSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &targetVoice.label, .component = &targetVoice });
         layoutMain({ .mainRect = rect, .label = &paraDistance.label, .component = &paraDistance });
-        layoutMain({ .mainRect = rect, .label = &paraDetune.label, .component = &paraDetune });
-        paraDetuneButtons.layoutComponent(rect);
+        paraDetune.layoutComponent(rect);
+        if (paraDetune.isVisibleNudge()) paraDetuneButtons.layoutComponent(rect);
     }
 }
 void GuiComponentUnison::copyParams(CopyUnison& copyObj) {

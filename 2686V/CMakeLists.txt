@@ -21,7 +21,7 @@ juce_add_binary_data(AppIconForAbout_2686V
 )
 
 # 定義
-file(GLOB_RECURSE ALL_SOURCES 
+file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
 )

@@ -14,6 +14,8 @@
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeButtons/NudgeButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../../Core/Gui/GuiCopyObj.h"
 
@@ -25,17 +27,20 @@ class GuiComponentPitchEnv : public GuiBase {
     GuiCategoryLabel cat;
     GuiToggleButton flag; // Bypass or Enable
     NormalSeparator flagSeparator;
-    GuiSlider attack;
-    GuiSlider decay;
-    GuiSlider release;
+    GuiComponentNudgeSliderFloat attack;
+    GuiComponentNudgeButtons attackNudge;
+    GuiComponentNudgeSliderFloat decay;
+    GuiComponentNudgeButtons decayNudge;
+    GuiComponentNudgeSliderFloat release;
+    GuiComponentNudgeButtons releaseNudge;
     NormalSeparator rateSeparator;
-    GuiSlider startLevel;
+    GuiComponentNudgeSliderFloat startLevel;
     GuiComponentPitchButtons startLevelButtons;
-    GuiSlider attackLevel;
+    GuiComponentNudgeSliderFloat attackLevel;
     GuiComponentPitchButtons attackLevelButtons;
-    GuiSlider sustainLevel;
+    GuiComponentNudgeSliderFloat sustainLevel;
     GuiComponentPitchButtons sustainLevelButtons;
-    GuiSlider releaseLevel;
+    GuiComponentNudgeSliderFloat releaseLevel;
     GuiComponentPitchButtons releaseLevelButtons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -46,8 +51,11 @@ public:
         flag(context),
         flagSeparator(context),
         attack(context),
+        attackNudge(context),
         decay(context),
+        decayNudge(context),
         release(context),
+        releaseNudge(context),
 		rateSeparator(context),
         startLevel(context),
         startLevelButtons(context),

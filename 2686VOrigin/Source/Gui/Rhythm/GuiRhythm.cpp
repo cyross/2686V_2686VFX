@@ -215,7 +215,7 @@ void RhythmPadGui::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(ppadRect.translated(-content.getX(), -content.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> padRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> padRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     layoutRow({ .rowRect = padRect, .label = &volSlider.label, .component = &volSlider });
 
@@ -1090,7 +1090,7 @@ void GuiRhythm::layout(juce::Rectangle<int> content)
     mainGroup.setViewportCustomBounds(mmRect.translated(-mainArea.getX(), -mainArea.getY()));
 
     // キャンバスの中身のレイアウトは常に Y=0 からスタートさせる
-    juce::Rectangle<int> mRect(0, 0, mainGroup.viewport.getMaximumVisibleWidth(), 2000);
+    juce::Rectangle<int> mRect(0, 0, mainGroup.getContentWidth(), 2000);
 
     levelComponent.layoutComponent(mRect);
     

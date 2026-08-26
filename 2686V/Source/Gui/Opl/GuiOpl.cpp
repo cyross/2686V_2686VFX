@@ -343,7 +343,7 @@ void GuiOpl::setup()
         am[i].setWantsKeyboardFocus(true);
         am[i].setExplicitFocusOrder(++tabOrder);
 
-        ams[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::ams, .title = OplGuiText::Fm::Op::Ams, .isReset = true });
+        ams[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::Fm::ams, OplGuiText::Fm::Op::Ams, tabOrder, std::nullopt);
 
         amsTo37[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .title = "->3.7Hz", .isReset = false, .isResized = false });
         amsTo37[i].setWantsKeyboardFocus(true);
@@ -355,9 +355,7 @@ void GuiOpl::setup()
         amsTo606[i].setExplicitFocusOrder(++tabOrder);
         amsTo606[i].onClick = [this, index = i] { ams[index].setValue(6.06, juce::sendNotification); };
 
-        amd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::amd, .title = OplGuiText::Fm::Op::Amd, .isReset = true });
-        amd[i].setWantsKeyboardFocus(true);
-        amd[i].setExplicitFocusOrder(++tabOrder);
+        amd[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::Fm::amd, OplGuiText::Fm::Op::Amd, tabOrder, std::nullopt);
 
         amdTo1[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .title = "->1dB", .isReset = false, .isResized = false });
         amdTo1[i].setWantsKeyboardFocus(true);
@@ -378,9 +376,7 @@ void GuiOpl::setup()
         vib[i].setWantsKeyboardFocus(true);
         vib[i].setExplicitFocusOrder(++tabOrder);
 
-        pms[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::pms, .title = OplGuiText::Fm::Op::Pms, .isReset = true });
-        pms[i].setWantsKeyboardFocus(true);
-        pms[i].setExplicitFocusOrder(++tabOrder);
+        pms[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::Fm::pms, OplGuiText::Fm::Op::Pms, tabOrder, std::nullopt);
 
         pmsTo606[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .title = "->6.06Hz", .isReset = false, .isResized = false });
         pmsTo606[i].setWantsKeyboardFocus(true);
@@ -392,9 +388,7 @@ void GuiOpl::setup()
         pmsTo64[i].setExplicitFocusOrder(++tabOrder);
         pmsTo64[i].onClick = [this, index = i] { pms[index].setValue(6.4, juce::sendNotification); };
 
-        pmd[i].setup(GuiSlider::Config{ .parent = opGroups[i].contentCanvas, .id = paramPrefix + CPK::Fm::pmd, .title = OplGuiText::Fm::Op::Pmd, .isReset = true });
-        pmd[i].setWantsKeyboardFocus(true);
-        pmd[i].setExplicitFocusOrder(++tabOrder);
+        pmd[i].setupComponent(opGroups[i].contentCanvas, paramPrefix + CPK::Fm::pmd, OplGuiText::Fm::Op::Pmd, tabOrder, std::nullopt);
 
         pmdTo7[i].setup(GuiTextButton::Config{ .parent = opGroups[i].contentCanvas, .title = "->7cent", .isReset = false, .isResized = false});
         pmdTo7[i].setWantsKeyboardFocus(true);
@@ -902,35 +896,35 @@ void GuiOpl::layoutOpLfoCat(int opIndex, juce::Rectangle<int>& rect)
 
     am[opIndex].setVisible(visible);
     ams[opIndex].setVisibleWithLabel(visible);
-    amsTo37[opIndex].setVisible(visible);
-    amsTo606[opIndex].setVisible(visible);
+    amsTo37[opIndex].setVisible(visible && ams[opIndex].isVisibleNudge());
+    amsTo606[opIndex].setVisible(visible && ams[opIndex].isVisibleNudge());
     amd[opIndex].setVisibleWithLabel(visible);
-    amdTo1[opIndex].setVisible(visible);
-    amdTo12[opIndex].setVisible(visible);
-    amdTo48[opIndex].setVisible(visible);
+    amdTo1[opIndex].setVisible(visible && amd[opIndex].isVisibleNudge());
+    amdTo12[opIndex].setVisible(visible && amd[opIndex].isVisibleNudge());
+    amdTo48[opIndex].setVisible(visible && amd[opIndex].isVisibleNudge());
 	lfoSep[opIndex].setVisible(visible);
     vib[opIndex].setVisible(visible);
     pms[opIndex].setVisibleWithLabel(visible);
-    pmsTo606[opIndex].setVisible(visible);
-    pmsTo64[opIndex].setVisible(visible);
+    pmsTo606[opIndex].setVisible(visible && pms[opIndex].isVisibleNudge());
+    pmsTo64[opIndex].setVisible(visible && pms[opIndex].isVisibleNudge());
     pmd[opIndex].setVisibleWithLabel(visible);
-    pmdTo137[opIndex].setVisible(visible);
-    pmdTo14[opIndex].setVisible(visible);
-    pmdTo7[opIndex].setVisible(visible);
+    pmdTo137[opIndex].setVisible(visible && pmd[opIndex].isVisibleNudge());
+    pmdTo14[opIndex].setVisible(visible && pmd[opIndex].isVisibleNudge());
+    pmdTo7[opIndex].setVisible(visible && pmd[opIndex].isVisibleNudge());
 
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &am[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &ams[opIndex].label, .component = &ams[opIndex] });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &amsTo37[opIndex], .comp2 = &amsTo606[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &amd[opIndex].label, .component = &amd[opIndex] });
-        layoutRowThreeComps({ .rect = rect, .comp1 = &amdTo1[opIndex], .comp2 = &amdTo12[opIndex], .comp3 = &amdTo48[opIndex] });
+        ams[opIndex].layoutComponentRow(rect);
+        if (ams[opIndex].isVisibleNudge()) layoutRowTwoComps({ .rect = rect, .comp1 = &amsTo37[opIndex], .comp2 = &amsTo606[opIndex] });
+        amd[opIndex].layoutComponentRow(rect);
+        if (amd[opIndex].isVisibleNudge()) layoutRowThreeComps({ .rect = rect, .comp1 = &amdTo1[opIndex], .comp2 = &amdTo12[opIndex], .comp3 = &amdTo48[opIndex] });
 		lfoSep[opIndex].layoutComponent(rect);
         layoutRow({ .rowRect = rect, .component = &vib[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pms[opIndex].label, .component = &pms[opIndex] });
-        layoutRowTwoComps({ .rect = rect, .comp1 = &pmsTo606[opIndex], .comp2 = &pmsTo64[opIndex] });
-        layoutRow({ .rowRect = rect, .label = &pmd[opIndex].label, .component = &pmd[opIndex] });
-        layoutRowThreeComps({ .rect = rect, .comp1 = &pmdTo7[opIndex], .comp2 = &pmdTo137[opIndex], .comp3 = &pmdTo14[opIndex] });
+        pms[opIndex].layoutComponentRow(rect);
+        if (pms[opIndex].isVisibleNudge()) layoutRowTwoComps({ .rect = rect, .comp1 = &pmsTo606[opIndex], .comp2 = &pmsTo64[opIndex] });
+        pmd[opIndex].layoutComponentRow(rect);
+        if (pmd[opIndex].isVisibleNudge()) layoutRowThreeComps({ .rect = rect, .comp1 = &pmdTo7[opIndex], .comp2 = &pmdTo137[opIndex], .comp3 = &pmdTo14[opIndex] });
     }
 }
 

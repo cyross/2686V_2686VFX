@@ -27,6 +27,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -121,10 +122,10 @@ class GuiOpl3 : public GuiBase
     std::array<NormalSeparator, Opl3PrValue::ops> mmlSeparator;
     std::array<GuiMmlButton, Opl3PrValue::ops> mml;
     std::array<NormalSeparator, Opl3PrValue::ops> lfoSep;
-    std::array<GuiSlider, Opl3PrValue::ops> ams;
-    std::array<GuiSlider, Opl3PrValue::ops> amd;
-    std::array<GuiSlider, Opl3PrValue::ops> pms;
-    std::array<GuiSlider, Opl3PrValue::ops> pmd;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> ams;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> amd;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> pms;
+    std::array<GuiComponentNudgeSliderFloat, Opl3PrValue::ops> pmd;
     std::array<GuiTextButton, Opl3PrValue::ops> amsTo37;
     std::array<GuiTextButton, Opl3PrValue::ops> amdTo1;
     std::array<GuiTextButton, Opl3PrValue::ops> amdTo48;
@@ -228,10 +229,10 @@ public:
         mmlSeparator{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
         mml{ GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context),GuiMmlButton(context) },
         lfoSep{ NormalSeparator(context), NormalSeparator(context), NormalSeparator(context), NormalSeparator(context) },
-        ams{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        amd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pms{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
-        pmd{ GuiSlider(context), GuiSlider(context), GuiSlider(context), GuiSlider(context) },
+        ams{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        amd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pms{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
+        pmd{ GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context), GuiComponentNudgeSliderFloat(context) },
         amsTo37{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         amdTo1{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },
         amdTo48{ GuiTextButton(context), GuiTextButton(context), GuiTextButton(context), GuiTextButton(context) },

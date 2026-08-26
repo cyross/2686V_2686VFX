@@ -13,6 +13,7 @@
 #include "../../../Gui/Curve/GuiCurve.h"
 #include "../../../Advanced/Curve/AdvancedCurve.h"
 #include "../PitchButtons/PitchButtons.h"
+#include "../NudgeSlider/NudgeSliderFloat.h"
 #include "../../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../../Gui/Components/Separator/ShortSeparator.h"
 
@@ -22,7 +23,7 @@ class GuiComponentMulDetune : public GuiBase {
     // MULTIPLE/DETUNE
     GuiCategoryLabel cat;
     GuiComboBox mul;
-    GuiSlider mulRatio;
+    GuiComponentNudgeSliderFloat mulRatio;
     GuiTextButton mulRatioTo001;
     GuiTextButton mulRatioTo005;
     GuiTextButton mulRatioTo1;
@@ -46,7 +47,7 @@ class GuiComponentMulDetune : public GuiBase {
     NormalSeparator mulDetSep;
     GuiComboBox dt1;
     GuiSlider dt2;
-    GuiSlider dt3;
+    GuiComponentNudgeSliderFloat dt3;
     GuiComponentPitchButtons dt3Buttons;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
