@@ -183,6 +183,14 @@ namespace CoreGuiValue
 				static inline constexpr int paddingInner = 1;
 				static inline constexpr int paddingRight = 0;
 			}
+
+			namespace Seven
+			{
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
+			}
 		}
 	}
 
@@ -277,6 +285,14 @@ namespace CoreGuiValue
 			}
 
 			namespace Six
+			{
+				static inline constexpr int width = 0;
+				static inline constexpr int paddingLeft = 0;
+				static inline constexpr int paddingInner = 1;
+				static inline constexpr int paddingRight = 0;
+			}
+
+			namespace Seven
 			{
 				static inline constexpr int width = 0;
 				static inline constexpr int paddingLeft = 0;
