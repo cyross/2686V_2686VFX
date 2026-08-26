@@ -303,7 +303,7 @@ static std::vector<SelectItem> ksCurveItems = {
 };
 
 static std::vector<SelectItem> algModeItems = {
-    {.name = juce::String("") + "0: 従来のアルゴリズム", .value = 1 },
+    {.name = juce::String("") + "0: 組み込みアルゴリズム", .value = 1 },
     {.name = juce::String("") + "1: アルゴリズムマトリックス", .value = 2 }
 };
 
