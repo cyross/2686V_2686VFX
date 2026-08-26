@@ -89,12 +89,12 @@ void GuiComponentSsgHwEnv::layoutComponent(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &envEnableButton });
-        layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
         hwEnvSeparator.layoutComponent(rect);
         layoutMain({ .mainRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutMain({ .mainRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
+        layoutMain({ .mainRect = rect, .component = &smoothEnableButton });
     }
 }
 
@@ -115,12 +115,12 @@ void GuiComponentSsgHwEnv::layoutComponentRow(juce::Rectangle<int>& rect)
     if (visible)
     {
         layoutRow({ .rowRect = rect, .component = &envEnableButton });
-        layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
         hwEnvSeparator.layoutComponent(rect);
         layoutRow({ .rowRect = rect, .label = &shapeSelector.label, .component = &shapeSelector, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &periodSlider.label, .component = &periodSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &minSlider.label, .component = &minSlider, .rowHeight = 13 });
         layoutRow({ .rowRect = rect, .label = &maxSlider.label, .component = &maxSlider, .rowHeight = 13 });
+        layoutRow({ .rowRect = rect, .component = &smoothEnableButton });
     }
 }
 
