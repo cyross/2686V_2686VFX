@@ -20,6 +20,12 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
         prefixName + BeepPrName::antiAlias,
         BeepPrValue::AntiAlias::initial
     );
+    PrHelper::addInt(
+        layout,
+        prefix + BeepPrKey::timerClock,
+        prefixName + BeepPrName::timerClock,
+        BeepPrValue::TimerClock::min, BeepPrValue::TimerClock::max, BeepPrValue::TimerClock::initial
+    );
     PrHelper::addEnvBypassParameters(layout, prefix, prefixName);
     PrHelper::addEnvParameters(layout, prefix, prefixName);
     PrHelper::addPitchEnvParameters(layout, prefix, prefixName);
@@ -38,6 +44,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
 
     PrHelper::setupBeepBasicPtrs(apvts, prefix, pBasic);
     pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
+    pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);

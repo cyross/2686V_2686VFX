@@ -60,6 +60,9 @@ private:
 
     bool m_antiAlias = false;
 
+    // タイマの基準クロック(Hz)。0.0 なら分周せず連続値のまま鳴らす
+    double m_timerClock = 0.0;
+
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;
 };

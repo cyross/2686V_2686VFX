@@ -1092,6 +1092,7 @@ namespace PrHelper {
 	static inline void applyBeepBasic(PrPtrsBeepBasic& ptPtrs, BeepParams& params){
 		params.level = PrHelper::getFloat(ptPtrs.level);
 		params.antiAlias = PrHelper::getBool(ptPtrs.antiAlias);
+		params.timerClock = PrHelper::getInt(ptPtrs.timerClock);
 	}
 
 	static inline void applyOplBasic(PrPtrsOplBasic& ptPtrs, OplParams& params){

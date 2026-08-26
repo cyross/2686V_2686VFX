@@ -2,6 +2,18 @@
 
 #include "./SynthBeep.h"
 
+// タイマの基準クロック(Hz)。実機はこれを整数で分周して矩形波を作る。
+static inline double getBeepTimerClock(int index)
+{
+    switch (index) {
+    case 2: return 1193182.0;  // IBM PC / PC-AT  (14.31818MHz / 12)
+    case 3: return 1996800.0;  // PC-9801 8MHz系  (7.9872MHz / 4)
+    case 4: return 2457600.0;  // PC-9801 5MHz系  (9.8304MHz / 4)
+    }
+
+    return 0.0; // 1: Free (分周しない)
+}
+
 // PolyBLEP (Polynomial Band-Limited Step)
 // 不連続点の前後 1 サンプルだけ多項式で段差を補正し、
 // 折り返しノイズを目立たなくする。
@@ -75,6 +87,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_lfo.setParameters(params.beep.lfo);
     m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
     m_antiAlias = params.beep.antiAlias;
+    m_timerClock = getBeepTimerClock(params.beep.timerClock);
 }
 
 void BeepCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
@@ -270,6 +283,23 @@ float BeepCore::getSample() {
     float phaseInc = 0.0f;
 
     phaseInc = newPhaseDelta * freqMult;
+
+    // ==========================================
+    // タイマの整数分周による音程のスナップ
+    // ==========================================
+    // 実機は 基準クロック / 整数 でしか周波数を作れないため、
+    // 高音ほど出せる音程が飛び飛びになる。
+    if (m_timerClock > 0.0 && phaseInc > 0.0f) {
+        // phaseInc = 周波数 / サンプリングレート なので、いったん周波数に戻す
+        double freq = (double)phaseInc * m_sampleRate;
+        double divisor = std::floor(m_timerClock / freq + 0.5);
+
+        // 分周値は 16bit カウンタの範囲に収める
+        if (divisor < 1.0) divisor = 1.0;
+        if (divisor > 65535.0) divisor = 65535.0;
+
+        phaseInc = (float)((m_timerClock / divisor) / m_sampleRate);
+    }
 
     // ==========================================
     // 波形生成 (50% Duty の矩形波)

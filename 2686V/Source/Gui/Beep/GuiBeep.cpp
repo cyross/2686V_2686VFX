@@ -12,6 +12,14 @@
 #include "./GuiBeepValues.h"
 #include "./GuiBeepText.h"
 
+// 実機のタイマ基準クロック。Free は分周せず連続した音程で鳴らす。
+static std::vector<SelectItem> beepTimerClockItems = {
+    {.name = "1: Free",                  .value = 1 },
+    {.name = "2: IBM PC 1.1932MHz",      .value = 2 },
+    {.name = "3: PC-9801 1.9968MHz",     .value = 3 },
+    {.name = "4: PC-9801 2.4576MHz",     .value = 4 },
+};
+
 void GuiBeep::setup() {
     juce::String code = BeepPrKey::prefix;
     int tabOrder = 1;
@@ -32,6 +40,10 @@ void GuiBeep::setup() {
     antiAliasButton.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::antiAlias, .title = "Anti-Alias", .isReset = true });
     antiAliasButton.setWantsKeyboardFocus(true);
     antiAliasButton.setExplicitFocusOrder(++tabOrder);
+
+    timerClockSelector.setup({ .parent = mainGroup.contentCanvas, .id = code + BeepPrKey::timerClock, .title = "CLK", .items = beepTimerClockItems, .isReset = true });
+    timerClockSelector.setWantsKeyboardFocus(true);
+    timerClockSelector.setExplicitFocusOrder(++tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -156,10 +168,12 @@ void GuiBeep::layoutOptionalCat(juce::Rectangle<int>& rect)
     bool visible = optionalCat.isDetailVisible();
 
     antiAliasButton.setVisible(visible);
+    timerClockSelector.setVisibleWithLabel(visible);
 
     if (visible)
     {
         layoutMain({ .mainRect = rect, .component = &antiAliasButton });
+        layoutMain({ .mainRect = rect, .label = &timerClockSelector.label, .component = &timerClockSelector, .rowHeight = 13 });
     }
 }
 
@@ -378,6 +392,7 @@ void GuiBeep::importChParam() {
 
                 // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
                 antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
+                timerClockSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
             }
         });
 }
@@ -415,6 +430,7 @@ void GuiBeep::exportChParam() {
 
                 // 末尾に追加した項目
                 content += juce::String(antiAliasButton.getToggleState() ? 1 : 0) + "\n";
+                content += juce::String(timerClockSelector.getSelectedItemIndex()) + "\n";
 
                 file.replaceWithText(content);
             }

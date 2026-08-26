@@ -21,6 +21,9 @@ struct BeepParams
     // 帯域制限 (PolyBLEP) でエイリアスノイズを抑えるかどうか
     bool antiAlias = false;
 
+    // タイマの基準クロック選択 (1 = Free)
+    int timerClock = 1;
+
     AmpAdsrParams adsr;
     SsgSwEnvParams ssgSwEnv;
     SsgSwEnv11Params ssgSwEnv11;

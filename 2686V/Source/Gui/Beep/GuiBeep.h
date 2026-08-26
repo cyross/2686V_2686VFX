@@ -63,6 +63,7 @@ class GuiBeep : public GuiBase {
 
     GuiCategoryLabel optionalCat;
     GuiToggleButton antiAliasButton;
+    GuiComboBox timerClockSelector;
     GuiCategoryLabel utilityCat;
     GuiTextButton broadcastLevelButton;
     NormalSeparator uSep001;
@@ -114,6 +115,7 @@ public:
         midiComponent(context),
         optionalCat(context),
         antiAliasButton(context),
+        timerClockSelector(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),

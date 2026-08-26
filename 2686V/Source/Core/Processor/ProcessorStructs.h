@@ -423,6 +423,7 @@ struct PrPtrsAdpcmBasic {
 struct PrPtrsBeepBasic {
     std::atomic<float>* level = nullptr;
     std::atomic<float>* antiAlias = nullptr;
+    std::atomic<float>* timerClock = nullptr;
 };
 
 struct PrPtrsOplBasic {
