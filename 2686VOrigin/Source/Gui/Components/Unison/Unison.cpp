@@ -30,15 +30,15 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     // 疑似高速アルペジオ
     arpSeparator.setupComponent(parent);
 
-    arpEnable.setup({ .parent = parent, .id = code + CPK::Unison::arpEnable, .title = "ARP", .isReset = true });
+    arpEnable.setup({ .parent = parent, .id = code + CPK::Unison::arpEnable, .title = "Arpeggio", .isReset = true });
     arpEnable.setWantsKeyboardFocus(true);
     arpEnable.setExplicitFocusOrder(++tabOrder);
 
-    arpFreq.setup({ .parent = parent, .id = code + CPK::Unison::arpFreq, .title = "AFQ", .isReset = true });
+    arpFreq.setup({ .parent = parent, .id = code + CPK::Unison::arpFreq, .title = "ARFQ", .isReset = true });
     arpFreq.setWantsKeyboardFocus(true);
     arpFreq.setExplicitFocusOrder(++tabOrder);
 
-    arpSmooth.setup({ .parent = parent, .id = code + CPK::Unison::arpSmooth, .title = "ASM", .isReset = true });
+    arpSmooth.setup({ .parent = parent, .id = code + CPK::Unison::arpSmooth, .title = "Arp Smooth", .isReset = true });
     arpSmooth.setWantsKeyboardFocus(true);
     arpSmooth.setExplicitFocusOrder(++tabOrder);
 
@@ -54,7 +54,7 @@ void GuiComponentUnison::setupComponent(juce::Component& parent, const juce::Str
     targetVoice.setWantsKeyboardFocus(true);
     targetVoice.setExplicitFocusOrder(++tabOrder);
 
-    paraDistance.setup({ .parent = parent, .title = "P-SPR", .isReset = false });
+    paraDistance.setup({ .parent = parent, .title = "P-SP", .isReset = false });
     paraDistance.setWantsKeyboardFocus(true);
     paraDistance.setExplicitFocusOrder(++tabOrder);
 
