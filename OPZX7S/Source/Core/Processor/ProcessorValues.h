@@ -1670,10 +1670,12 @@ namespace CPV
 			inline constexpr bool initial = false;
 		}
 
+		// 0〜7 は実機 AY-3-8910 の shape 8〜15、8 以降はオリジナル波形。
+		// 実体は SsgHwShape (EnvSsgHwParams.h) を参照。
 		namespace Shape
 		{
 			inline constexpr int min = 0;
-			inline constexpr int max = 7;
+			inline constexpr int max = 43;
 			inline constexpr int initial = 0;
 		}
 

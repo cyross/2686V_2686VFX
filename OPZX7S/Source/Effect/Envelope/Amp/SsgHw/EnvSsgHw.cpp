@@ -43,8 +43,21 @@ void SsgHwEnv::updateSmoothCoeff() {
     m_smoothCoeff = std::clamp(m_smoothCoeff, 0.0f, 1.0f);
 }
 
+float SsgHwEnv::nextRandom() {
+    // xorshift32
+    m_rngState ^= m_rngState << 13;
+    m_rngState ^= m_rngState >> 17;
+    m_rngState ^= m_rngState << 5;
+
+    return (float)(m_rngState & 0x00FFFFFFu) / (float)0x01000000u;
+}
+
 void SsgHwEnv::noteOn() {
     this->m_hwEnvPhase = 0.0f;
+
+    this->m_prevCycle = 0;
+    this->m_cycleCount = 0;
+    this->m_holdLevel = nextRandom();
 }
 
 void SsgHwEnv::noteOff() {
@@ -58,15 +71,46 @@ float SsgHwEnv::process() {
     float hwEnvDelta = m_envFreq / (float)sampleRate;
     m_hwEnvPhase += hwEnvDelta;
 
-    // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド。
-    // 繰り返し形(スロット 0/2/4/6)は 2周期でラップし、
-    // 保持形(スロット 1/3/5/7)は 1周期を走り終えた位置で止める。
+    // 実機由来のスロット 0〜7 のうち、保持形(1/3/5/7)だけが 1周期で止まる。
+    // 繰り返し形(0/2/4/6)とオリジナル波形(8 以降)はすべて繰り返す。
+    const bool isHolding =
+        (m_envShape < (int)SsgHwShape::Square75) && ((m_envShape % 2) != 0);
+
+    // 位相が無限増大して小数の精度が落ちるのを防ぐラップアラウンド
     if (m_hwEnvPhase >= 2.0) {
-        if (m_envShape % 2 == 0) {
-            while (m_hwEnvPhase >= 2.0) m_hwEnvPhase -= 2.0;
+        if (isHolding) {
+            m_hwEnvPhase = 2.0;
         }
         else {
-            m_hwEnvPhase = 2.0;
+            while (m_hwEnvPhase >= 2.0) m_hwEnvPhase -= 2.0;
+        }
+    }
+
+    // ==========================================
+    // 2. Sample & Hold 用のサイクル検出
+    // ==========================================
+    {
+        int cycle = (int)m_hwEnvPhase;
+
+        if (cycle != m_prevCycle) {
+            m_prevCycle = cycle;
+            m_cycleCount++;
+
+            int holdCycles = 0;
+
+            switch ((SsgHwShape)m_envShape) {
+            case SsgHwShape::SampleHold:   holdCycles = 1;  break;
+            case SsgHwShape::SampleHold4:  holdCycles = 4;  break;
+            case SsgHwShape::SampleHold8:  holdCycles = 8;  break;
+            case SsgHwShape::SampleHold16: holdCycles = 16; break;
+            case SsgHwShape::SampleHold32: holdCycles = 32; break;
+            case SsgHwShape::SampleHold64: holdCycles = 64; break;
+            default: break;
+            }
+
+            if (holdCycles > 0 && (m_cycleCount % (uint32_t)holdCycles) == 0) {
+                m_holdLevel = nextRandom();
+            }
         }
     }
 
@@ -82,41 +126,121 @@ float SsgHwEnv::process() {
         bool isEvenCycle = ((int)p % 2 == 0);
         float phaseNorm = (float)(p - std::floor(p));
 
-        // 1周期を走り終えたか (保持形の判定)。
-        // 以前は位相 p を出力レベル m_max と直接比べていたため、
-        // Max を 1.0 未満にすると保持に入るのが早まっていた。
+        // 1周期を走り終えたか (保持形の判定)
         bool held = (p >= 1.0);
 
         // 下降・上昇はどちらも hi と lo の全域を使う
         auto down = [&](float x) { return hi - x * (hi - lo); };
         auto up = [&](float x) { return lo + x * (hi - lo); };
 
-        // 実機 AY-3-8910 / YM2149 のエンベロープ形状 (shape 8〜15) に対応する
-        switch (m_envShape) {
-        case 0: // Saw Down            : 実機 shape 8  (下降を繰り返す)
-            hwEnvGain = down(phaseNorm);
+        // 最大値から始まる矩形波 / 最小値から始まる矩形波
+        auto squareHigh = [&](float duty) { return (phaseNorm < duty) ? hi : lo; };
+        auto squareLow = [&](float duty) { return (phaseNorm < duty) ? lo : hi; };
+
+        // n 段の階段。レベルは i / (n - 1) で 0.0〜1.0 を等分する。
+        auto stepIndex = [&](int total) {
+            return std::min((int)(phaseNorm * (float)total), total - 1);
+            };
+
+        // 山形・谷形は 1周期で上って下る (下って上る) ので 2n-2 段になる
+        auto foldIndex = [&](int n) {
+            int total = n * 2 - 2;
+            int i = stepIndex(total);
+
+            return (i < n) ? i : (total - i);
+            };
+
+        auto stepUp = [&](int n) { return up((float)stepIndex(n) / (float)(n - 1)); };
+        auto stepDown = [&](int n) { return down((float)stepIndex(n) / (float)(n - 1)); };
+        auto stepPeak = [&](int n) { return up((float)foldIndex(n) / (float)(n - 1)); };
+        auto stepValley = [&](int n) { return down((float)foldIndex(n) / (float)(n - 1)); };
+
+        // 指数減衰。x=0 で 1.0、x=1 で 0.0 になるよう正規化してある。
+        auto expCurve = [](float x) {
+            constexpr float k = 5.0f;
+            const float e0 = std::exp(-k);
+
+            return (std::exp(-k * x) - e0) / (1.0f - e0);
+            };
+
+        switch ((SsgHwShape)m_envShape) {
+        // ---------------- 実機準拠 (AY-3-8910 shape 8〜15) ----------------
+        case SsgHwShape::SawDown:        hwEnvGain = down(phaseNorm); break;
+        case SsgHwShape::SawDownHold:    hwEnvGain = held ? lo : down(phaseNorm); break;
+        case SsgHwShape::Triangle:       hwEnvGain = isEvenCycle ? down(phaseNorm) : up(phaseNorm); break;
+        case SsgHwShape::AltSawDownHold: hwEnvGain = held ? hi : down(phaseNorm); break;
+        case SsgHwShape::SawUp:          hwEnvGain = up(phaseNorm); break;
+        case SsgHwShape::SawUpHold:      hwEnvGain = held ? hi : up(phaseNorm); break;
+        case SsgHwShape::TriangleInvert: hwEnvGain = isEvenCycle ? up(phaseNorm) : down(phaseNorm); break;
+        case SsgHwShape::AltSawUpHold:   hwEnvGain = held ? lo : up(phaseNorm); break;
+
+        // ---------------- 矩形波 ----------------
+        case SsgHwShape::Square75:     hwEnvGain = squareHigh(0.75f); break;
+        case SsgHwShape::Square50:     hwEnvGain = squareHigh(0.5f); break;
+        case SsgHwShape::Square25:     hwEnvGain = squareHigh(0.25f); break;
+        case SsgHwShape::Square125:    hwEnvGain = squareHigh(0.125f); break;
+        case SsgHwShape::SquareInv75:  hwEnvGain = squareLow(0.75f); break;
+        case SsgHwShape::SquareInv50:  hwEnvGain = squareLow(0.5f); break;
+        case SsgHwShape::SquareInv25:  hwEnvGain = squareLow(0.25f); break;
+        case SsgHwShape::SquareInv125: hwEnvGain = squareLow(0.125f); break;
+
+        // ---------------- 階段 ----------------
+        case SsgHwShape::StepUp4:      hwEnvGain = stepUp(4); break;
+        case SsgHwShape::StepUp5:      hwEnvGain = stepUp(5); break;
+        case SsgHwShape::StepUp6:      hwEnvGain = stepUp(6); break;
+        case SsgHwShape::StepUp11:     hwEnvGain = stepUp(11); break;
+        case SsgHwShape::StepDown4:    hwEnvGain = stepDown(4); break;
+        case SsgHwShape::StepDown5:    hwEnvGain = stepDown(5); break;
+        case SsgHwShape::StepDown6:    hwEnvGain = stepDown(6); break;
+        case SsgHwShape::StepDown11:   hwEnvGain = stepDown(11); break;
+        case SsgHwShape::StepPeak4:    hwEnvGain = stepPeak(4); break;
+        case SsgHwShape::StepPeak5:    hwEnvGain = stepPeak(5); break;
+        case SsgHwShape::StepPeak6:    hwEnvGain = stepPeak(6); break;
+        case SsgHwShape::StepPeak11:   hwEnvGain = stepPeak(11); break;
+        case SsgHwShape::StepValley4:  hwEnvGain = stepValley(4); break;
+        case SsgHwShape::StepValley5:  hwEnvGain = stepValley(5); break;
+        case SsgHwShape::StepValley6:  hwEnvGain = stepValley(6); break;
+        case SsgHwShape::StepValley11: hwEnvGain = stepValley(11); break;
+
+        // ---------------- Sample & Hold ----------------
+        case SsgHwShape::SampleHold:
+        case SsgHwShape::SampleHold4:
+        case SsgHwShape::SampleHold8:
+        case SsgHwShape::SampleHold16:
+        case SsgHwShape::SampleHold32:
+        case SsgHwShape::SampleHold64:
+            hwEnvGain = up(m_holdLevel);
             break;
-        case 1: // Saw Down & Hold     : 実機 shape 9  (1回下降して最小値で保持)
-            hwEnvGain = held ? lo : down(phaseNorm);
+
+        // ---------------- 追加提案分 ----------------
+        case SsgHwShape::ExpDecay:
+            hwEnvGain = up(expCurve(phaseNorm));
             break;
-        case 2: // Triangle            : 実機 shape 10 (下降と上昇を繰り返す)
-            hwEnvGain = isEvenCycle ? down(phaseNorm) : up(phaseNorm);
+        case SsgHwShape::ExpAttack:
+            // 減衰カーブを時間反転すると、ゆっくり立ち上がって最後に一気に開く
+            hwEnvGain = up(expCurve(1.0f - phaseNorm));
             break;
-        case 3: // Alt Saw Down & Hold : 実機 shape 11 (1回下降して最大値で保持)
-            hwEnvGain = held ? hi : down(phaseNorm);
+        case SsgHwShape::Sine:
+            // 最小値から始まり、中央で最大値になって戻る
+            hwEnvGain = up(0.5f * (1.0f - std::cos(phaseNorm * 6.283185307179586f)));
             break;
-        case 4: // Saw Up              : 実機 shape 12 (上昇を繰り返す)
-            hwEnvGain = up(phaseNorm);
+        case SsgHwShape::AttackDecay:
+        {
+            constexpr float attack = 0.125f;
+
+            hwEnvGain = (phaseNorm < attack)
+                ? up(phaseNorm / attack)
+                : up(expCurve((phaseNorm - attack) / (1.0f - attack)));
             break;
-        case 5: // Saw Up & Hold       : 実機 shape 13 (1回上昇して最大値で保持)
-            hwEnvGain = held ? hi : up(phaseNorm);
+        }
+        case SsgHwShape::DoublePulse:
+            // 1周期を 4 等分し、交互に最大 / 最小へ振る
+            hwEnvGain = (((int)(phaseNorm * 4.0f) % 2) == 0) ? hi : lo;
             break;
-        case 6: // Triangle Invert     : 実機 shape 14 (上昇と下降を繰り返す)
-            hwEnvGain = isEvenCycle ? up(phaseNorm) : down(phaseNorm);
+        case SsgHwShape::Random:
+            hwEnvGain = up(nextRandom());
             break;
-        case 7: // Alt Saw Up & Hold   : 実機 shape 15 (1回上昇して最小値で保持)
-            hwEnvGain = held ? lo : up(phaseNorm);
-            break;
+
         default:
             hwEnvGain = up(phaseNorm);
             break;
@@ -126,7 +250,7 @@ float SsgHwEnv::process() {
     }
 
     // ==========================================
-    // 2. Smoothing
+    // 3. Smoothing
     // ==========================================
     // 波形の折り返しで生じる段差がブツブツ音の原因なので、
     // 1 次ローパスで角を鈍らせる。

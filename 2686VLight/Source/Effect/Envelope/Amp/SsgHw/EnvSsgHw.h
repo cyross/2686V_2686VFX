@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <cstdint>
+
 #include "./EnvSsgHwParams.h"
 
 class SsgHwEnv {
@@ -39,4 +41,16 @@ public:
 private:
 	// サンプリングレートが変わったら 1 次ローパスの係数を計算し直す
 	void updateSmoothCoeff();
+
+	// Sample & Hold / Random 用の乱数。
+	// ノイズ用の LFSR は 1 サンプルにつき 1 ビットしか進まず、
+	// 周期単位で拾うと値がかたよるので独立した xorshift を持たせる。
+	float nextRandom();
+
+	uint32_t m_rngState = 0x2686FDu;
+
+	// Sample & Hold 用のサイクル管理
+	int m_prevCycle = 0;
+	uint32_t m_cycleCount = 0;
+	float m_holdLevel = 1.0f;
 };
