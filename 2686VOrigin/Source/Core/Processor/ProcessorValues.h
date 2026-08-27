@@ -1591,6 +1591,44 @@ namespace CPV
 			inline constexpr float max = 10.0f;
 			inline constexpr float initial = 1.0f;
 		}
+
+		// 変調方式
+		//   0    : 正弦波 (FDS の簡易版)
+		//   1〜4 : FDS(2C33) の 32ステップ階段テーブル
+		//          (1:Triangle / 2:Saw / 3:Reset / 4:Pulse)
+		//   5, 6 : WonderSwan ch3 のハードウェアスイープ (上昇 / 下降)
+		//   7    : PC Engine HuC6280 の LFO (32サンプルの波形メモリで変調)
+		//   8    : FDS(2C33) の 32ステップ階段テーブル (ユーザー編集)
+		namespace Shape
+		{
+			inline constexpr int min = 0;
+			inline constexpr int max = 8;
+			inline constexpr int initial = 0;
+		}
+
+		// FDS(2C33) の変調テーブル。32 エントリ・各 3bit の増減値で、
+		// 0 = +0 / 1 = +1 / 2 = +2 / 3 = +4 / 4 = カウンタをリセット /
+		// 5 = -4 / 6 = -2 / 7 = -1 を表す。初期値は対称三角のテーブル。
+		namespace FdsTable
+		{
+			inline constexpr int size = 32;
+			inline constexpr int min = 0;
+			inline constexpr int max = 7;
+		}
+
+		// HuC6280 の波形メモリは 32 サンプル。変調用の波形もそれに合わせる。
+		namespace WaveSize
+		{
+			inline constexpr int size = 32;
+		}
+
+		// 64/128/256 点の波形を 32 点へ落とすときの方法。
+		// ON  : 区間平均してから元のピークへ正規化する (折り返しが減る)
+		// OFF : 単純間引き (元波形の値をそのまま拾う)
+		namespace WaveSmooth
+		{
+			inline constexpr bool initial = true;
+		}
 	}
 
 	namespace SsgDuty

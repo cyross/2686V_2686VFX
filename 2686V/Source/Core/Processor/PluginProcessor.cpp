@@ -423,6 +423,12 @@ void AudioPlugin2686V::setPresetToXml(std::unique_ptr<juce::XmlElement>& xml)
     xml->setAttribute(PresetKey::wt2ModWavePath, makeWtPathRelative(juce::File(wt2ModWavePath)));
     xml->setAttribute(PresetKey::wtPlusModWavePath, makeWtPathRelative(juce::File(wtPlusModWavePath)));
 
+
+    // チャンネルごとの MODULATION 変調波形パス
+    for (const auto& kv : modWavePaths) {
+        xml->setAttribute(PresetKey::modWavePathPrefix + kv.first, makeWtPathRelative(juce::File(kv.second)));
+    }
+
     // サンプルパス保存 (RHYTHM)
     for (int i = 0; i < RhythmPrValue::pads; ++i) {
         xml->setAttribute(PresetKey::rhythmPathPrefix + juce::String(i), makePathRelative(juce::File(rhythmFilePaths[i])));
@@ -488,6 +494,22 @@ void AudioPlugin2686V::getPresetFromXml(std::unique_ptr<juce::XmlElement>& xmlSt
             juce::String storedWtPlusMod = xmlState->getStringAttribute(PresetKey::wtPlusModWavePath);
 
             wtPlusModWavePath = storedWtPlusMod.isEmpty() ? juce::String() : resolveWtPath(storedWtPlusMod).getFullPathName();
+        }
+
+
+        // チャンネルごとの MODULATION 変調波形パス。
+        // エディタが開いていないと map は空なので、属性側から拾って作る。
+        modWavePaths.clear();
+
+        for (int i = 0; i < xmlState->getNumAttributes(); ++i) {
+            const juce::String& name = xmlState->getAttributeName(i);
+
+            if (!name.startsWith(PresetKey::modWavePathPrefix)) continue;
+
+            juce::String stored = xmlState->getAttributeValue(i);
+
+            modWavePaths[name.substring(PresetKey::modWavePathPrefix.length())] =
+                stored.isEmpty() ? juce::String() : resolveWtPath(stored).getFullPathName();
         }
 
         // サンプル復帰 (ADPCM)

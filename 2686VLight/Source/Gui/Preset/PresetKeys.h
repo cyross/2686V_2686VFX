@@ -67,6 +67,8 @@ namespace PresetKey
 	static inline const juce::String rhythmPathPrefix = "rhythmPath";
 	static inline const juce::String opzx7PathPrefix = "opzx7PcmPath";
 	static inline const juce::String opzx7WtPathPrefix = "opzx7WtPath";
+	// チャンネルごとの MODULATION 変調波形パス。キーは APVTS のプレフィックス。
+	static inline const juce::String modWavePathPrefix = "modWavePath_";
 	static inline const juce::String wtModWavePath = "wtModWavePath";
 	static inline const juce::String wtPlusWavePathPrefix = "wtPlusWavePath";
 	static inline const juce::String wt2ModWavePath = "wt2ModWavePath";

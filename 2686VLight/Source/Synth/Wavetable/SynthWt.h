@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "../../Core/Synth/SynthCore.h"
-#include "../../Generator/Fds/GenFdsModTable.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Core/Synth/SynthParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Pitch/Adsr/EnvPirchAdsr.h"
@@ -80,17 +80,8 @@ private:
     float m_currentFrequency = 440.0f;
 
     // Modulation
-    bool m_modEnable = false;
-    float m_modDepth = 0.0f;
-    float m_modSpeed = 1.0f;
-    int m_modShape = 0; // WtModShape を参照
-    std::array<float, 32> m_modWave = { 0.0f }; // HuC6280 モード用の変調波形
-
-    // FdsUser モード用。レジスタ値のテーブルと、それを積算した階段波。
-    // 積算はテーブルが変わったときだけ行う。
-    std::array<int, 32> m_modFdsTable = { 0 };
-    std::array<float, 32> m_modFdsSteps = { 0.0f };
-    float m_modPhase = 0.0f;
+    // 変調計算は WtModulator へまとめてある
+    WtModulator m_wtMod;
 
     float m_phase = 0.0f;
     float m_phaseDelta = 0.0f;
@@ -98,7 +89,6 @@ private:
     float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
-    float m_modWheel = 0.0f;
 
     // ユニゾン・ハーモニー用
     bool m_isMonoMode = false;

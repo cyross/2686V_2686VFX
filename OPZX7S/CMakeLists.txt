@@ -284,6 +284,24 @@ set(CURVE_GUI_FILES
     "Source/Gui/Curve/GuiCurve.cpp"
 )
 
+set(GENERATOR_WTMOD_FILES
+    "Source/Generator/WtMod/GenWtModulator.h"
+)
+
+set(GENERATOR_FDS_FILES
+    "Source/Generator/Fds/GenFdsModTable.h"
+)
+
+set(GUI_COMPONENT_PARAMBAREDITOR_FILES
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
+)
+
+set(GUI_COMPONENT_WTMOD_FILES
+    "Source/Gui/Components/WtMod/WtMod.h"
+    "Source/Gui/Components/WtMod/WtMod.cpp"
+)
+
 set(GUI_COMPONENT_UNISON_FILES
     "Source/Gui/Components/Unison/Unison.h"
     "Source/Gui/Components/Unison/Unison.cpp"
@@ -412,6 +430,10 @@ source_group("OPZX7S\\Processor\\Core" FILES ${PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Opzx7" FILES ${OPZX7_PROCESSOR_FILES})
 source_group("OPZX7S\\Processor\\Curve" FILES ${CURVE_PROCESSOR_FILES})
 source_group("OPZX7S\\Gui\\Core" FILES ${GUI_FILES})
+source_group("OPZX7S\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
+source_group("OPZX7S\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
+source_group("OPZX7S\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("OPZX7S\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("OPZX7S\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("OPZX7S\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
 source_group("OPZX7S\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})

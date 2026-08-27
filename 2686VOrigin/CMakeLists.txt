@@ -330,6 +330,24 @@ set(ABOUT_GUI_FILES
     "Source/Gui/About/GuiAbout.cpp"
 )
 
+set(GENERATOR_WTMOD_FILES
+    "Source/Generator/WtMod/GenWtModulator.h"
+)
+
+set(GENERATOR_FDS_FILES
+    "Source/Generator/Fds/GenFdsModTable.h"
+)
+
+set(GUI_COMPONENT_PARAMBAREDITOR_FILES
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
+)
+
+set(GUI_COMPONENT_WTMOD_FILES
+    "Source/Gui/Components/WtMod/WtMod.h"
+    "Source/Gui/Components/WtMod/WtMod.cpp"
+)
+
 set(GUI_COMPONENT_UNISON_FILES
     "Source/Gui/Components/Unison/Unison.h"
     "Source/Gui/Components/Unison/Unison.cpp"
@@ -470,6 +488,10 @@ source_group("2686VO\\Processor\\Rhythm" FILES ${RHYTHM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Adpcm" FILES ${ADPCM_PROCESSOR_FILES})
 source_group("2686VO\\Processor\\Fx" FILES ${FX_PROCESSOR_FILES})
 source_group("2686VO\\Gui\\Core" FILES ${GUI_FILES})
+source_group("2686VO\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
+source_group("2686VO\\Generator\\Fds" FILES ${GENERATOR_FDS_FILES})
+source_group("2686VO\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
+source_group("2686VO\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("2686VO\\Gui\\Components\\Unison" FILES ${GUI_COMPONENT_UNISON_FILES})
 source_group("2686VO\\Gui\\Components\\Fix" FILES ${GUI_COMPONENT_FIX_FILES})
 source_group("2686VO\\Gui\\Components\\MulDetune" FILES ${GUI_COMPONENT_MULDETUNE_FILES})

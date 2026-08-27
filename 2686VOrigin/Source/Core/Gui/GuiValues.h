@@ -111,6 +111,23 @@ namespace CoreGuiValue
 			}
 		}
 
+		namespace WtFiles
+		{
+			namespace LoadBtn
+			{
+				static constexpr int width = 25;
+			}
+
+			namespace FileLabel
+			{
+				static constexpr int width = 155;
+			}
+
+			namespace ClearBtn
+			{
+				static constexpr int width = 35;
+			}
+		}
 		namespace LastRow
 		{
 			namespace Padding

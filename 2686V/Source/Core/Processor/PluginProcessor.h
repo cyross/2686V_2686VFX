@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <map>
 #include <JuceHeader.h>
 #include <algorithm>
 
@@ -537,6 +538,10 @@ public:
     // MODULATION の変調波形として読み込んだファイルのパス。
     // 波形データ自体は 32 個のパラメータ側に入っているので、
     // ここはファイル名表示のためだけに保持している。
+    // チャンネルごとの MODULATION 変調波形ファイルのパス。
+    // キーは APVTS のプレフィックス (OPL / SSG / WT など)。
+    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
+    std::map<juce::String, juce::String> modWavePaths;
     juce::String wtModWavePath;
     juce::String wt2ModWavePath;
     juce::String wtPlusModWavePath;

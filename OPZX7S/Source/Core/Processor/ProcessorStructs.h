@@ -362,6 +362,9 @@ struct PrPtrsWtMod {
     std::atomic<float>* enable = nullptr;
     std::atomic<float>* depth = nullptr;
     std::atomic<float>* speed = nullptr;
+    std::atomic<float>* shape = nullptr;
+    std::array<std::atomic<float>*, 32> wave = { nullptr };
+    std::array<std::atomic<float>*, 32> fdsTable = { nullptr };
 };
 
 struct PrPtrsSsgDuty {

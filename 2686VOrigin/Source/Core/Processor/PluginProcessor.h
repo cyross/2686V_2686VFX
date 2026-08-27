@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <map>
 #include <JuceHeader.h>
 #include <algorithm>
 
@@ -343,6 +344,10 @@ public:
     OscMode lastActiveSynthMode = OscMode::OPNA;
 
     // --- File Paths (To restore samples) ---
+    // チャンネルごとの MODULATION 変調波形ファイルのパス。
+    // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
+    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
+    std::map<juce::String, juce::String> modWavePaths;
     juce::String adpcmFilePath;
     std::array<juce::String, RhythmPrValue::pads> rhythmFilePaths;
 

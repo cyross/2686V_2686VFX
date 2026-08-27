@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <map>
 #include <JuceHeader.h>
 #include <algorithm>
 
@@ -330,6 +331,10 @@ public:
 
     // --- Settings Data ---
     int uiScaleIndex = 7; // 高解像度対応(0ベース、初期値: 80%)
+    // チャンネルごとの MODULATION 変調波形ファイルのパス。
+    // キーは APVTS のプレフィックス (OPNA / SSG / OPZX7 など)。
+    // 波形そのものは 32 個のパラメータ側に入っているので、ここは表示用。
+    std::map<juce::String, juce::String> modWavePaths;
     juce::String wallpaperPath;
     int wallpaperMode = 0; // 0=Stretch, 1=Fill, 2=Fit, 3=Original
     juce::String defaultSampleDir;  // For ADPCM & Rhythm

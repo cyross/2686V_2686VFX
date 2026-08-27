@@ -64,6 +64,10 @@ set(SSG_NOISE_GEN_FILES
     "Source/Generator/Noise/Ssg/GenNoiseSsg.cpp"
 )
 
+set(GENERATOR_WTMOD_FILES
+    "Source/Generator/WtMod/GenWtModulator.h"
+)
+
 set(PCM_GENERATOR_FILES
     "Source/Generator/Pcm/Adpcm/GenAdpcm.h"
     "Source/Generator/Pcm/Adpcm/GenAdpcm.cpp"
@@ -677,6 +681,7 @@ set(DOCUMENT_FILES "../readme.md" "../readme.en.md")
 # ソースグループの設定
 source_group("2686VL\\Constants" FILES ${CONST_FILES})
 source_group("2686VL\\Documents" FILES ${DOCUMENT_FILES})
+source_group("2686VL\\Generator\\WtMod" FILES ${GENERATOR_WTMOD_FILES})
 source_group("2686VL\\Generator\\Pcm" FILES ${PCM_GENERATOR_FILES})
 source_group("2686VL\\Generator\\Noise\\Lfsr" FILES ${LFSR_NOISE_GEN_FILES})
 source_group("2686VL\\Generator\\Noise\\Ssg" FILES ${SSG_NOISE_GEN_FILES})
