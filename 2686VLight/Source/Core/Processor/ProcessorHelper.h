@@ -738,6 +738,7 @@ namespace PrHelper {
 
 	static inline void applyAdsrAmpEnv(PrPtrsAdsrAmpEnv& ptPtrs, AmpAdsrParams& params){
 		params.bypass = getBool(ptPtrs.bypass);
+		params.stl = getFloat(ptPtrs.stl);
 		params.ar = getFloat(ptPtrs.ar);
 		params.dr = getFloat(ptPtrs.dr);
 		params.sl = getFloat(ptPtrs.sl);
