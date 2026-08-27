@@ -106,6 +106,7 @@ class GuiWtPlus : public GuiBase {
     GuiComponentImportExport ieSsgSwPEnv11;
     GuiComponentImportExport ieDetune;
     GuiComponentImportExport ieUnison;
+    GuiComponentImportExport ieQuality;
     GuiComponentImportExport ieChParam;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
@@ -204,6 +205,7 @@ public:
         ieSsgSwPEnv11(context),
         ieDetune(context),
         ieUnison(context),
+        ieQuality(context),
         ieChParam(context),
         graphBtnAmp(context),
         graphBtnPitch(context),
@@ -227,6 +229,8 @@ public:
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
+    void importQualityParam();
+    void exportQualityParam();
     void importChParam();
     void exportChParam();
 
