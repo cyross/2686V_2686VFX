@@ -70,6 +70,7 @@ void GuiSsg::setup()
     ssgSwPEnv11Component.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, SsgGuiText::SsgSwPEnv11::bypass);
 
     ssgHwEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
 
     mulDetuneComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -263,6 +264,7 @@ void GuiSsg::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnvComponent.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -764,6 +766,13 @@ void GuiSsg::importChParam() {
                 lfo.setImportingParams(lines, index);
                 qualityComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
+
+                // MODULATION は後から足したので、旧フォーマットとの互換のため
+                // 行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    modComponent.setImportingBaseParams(lines, index);
+                    modComponent.setImportingShapeParam(lines, index);
+                }
             }
         });
 
@@ -821,6 +830,10 @@ void GuiSsg::exportChParam() {
                 content += lfo.getExportedParams();
                 content += qualityComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
+
+                // MODULATION (旧フォーマットと互換を保つため末尾に置く)
+                content += modComponent.getExportedBaseParams();
+                content += modComponent.getExportedShapeParam();
 
                 file.replaceWithText(content);
             }

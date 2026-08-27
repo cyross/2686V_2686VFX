@@ -285,6 +285,7 @@ void GuiOpna::setup()
     lfoSep2.setupComponent(mainGroup.contentCanvas);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
@@ -649,6 +650,7 @@ void GuiOpna::layout(juce::Rectangle<int> content)
     layoutMain({ .mainRect = mRect, .label = &feedbackSlider.label, .component = &feedbackSlider });
 
     ampEnvComponent.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
     ssgSwPEnv11g.layoutComponent(mRect);
@@ -2025,6 +2027,11 @@ void GuiOpna::importChParam() {
                 if (index < lines.size()) {
                     ssgSwPEnv11g.setImportingParams(lines, index);
                 }
+
+                if (index < lines.size()) {
+                    modComponent.setImportingBaseParams(lines, index);
+                    modComponent.setImportingShapeParam(lines, index);
+                }
             }
         });
 }
@@ -2079,6 +2086,8 @@ void GuiOpna::exportChParam() {
                 // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
                 content += ampEnvComponent.getExportedParams();
                 content += ssgSwPEnv11g.getExportedParams();
+                content += modComponent.getExportedBaseParams();
+                content += modComponent.getExportedShapeParam();
 
                 file.replaceWithText(content);
             }

@@ -86,6 +86,7 @@ void BeepCore::setParameters(const SynthParams& params) {
     m_fixMode.setParameters(params.beep.fix);
     m_lfo.setParameters(params.beep.lfo);
     m_ssgHwEnv.setParameters(params.beep.ssgHwEnv);
+    m_wtMod.setParameters(params.beep.wtMod);
     m_antiAlias = params.beep.antiAlias;
     m_timerClock = getBeepTimerClock(params.beep.timerClock);
 }
@@ -278,7 +279,8 @@ float BeepCore::getSample() {
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
 
     float phaseInc = 0.0f;
 
@@ -331,6 +333,8 @@ void BeepCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 void BeepCore::setPitchBendRatio(float ratio)

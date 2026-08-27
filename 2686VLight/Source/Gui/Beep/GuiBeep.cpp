@@ -57,6 +57,7 @@ void GuiBeep::setup() {
     lfoComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -131,6 +132,7 @@ void GuiBeep::layout(juce::Rectangle<int> content) {
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -384,6 +386,13 @@ void GuiBeep::importChParam() {
                 lfoComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
 
+                // MODULATION は後から足したので、旧フォーマットとの互換のため
+                // 行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    modComponent.setImportingBaseParams(lines, index);
+                    modComponent.setImportingShapeParam(lines, index);
+                }
+
                 // 末尾に追加した項目。古いプリセットには無いので、その場合は OFF になる
                 antiAliasButton.setToggleState(lines[index++].getIntValue() == 1, juce::sendNotification);
                 timerClockSelector.setSelectedItemIndex(lines[index++].getIntValue(), juce::sendNotification);
@@ -421,6 +430,10 @@ void GuiBeep::exportChParam() {
                 content += mulDetuneComponent.getExportedParams();
                 content += lfoComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
+
+                // MODULATION (旧フォーマットと互換を保つため末尾に置く)
+                content += modComponent.getExportedBaseParams();
+                content += modComponent.getExportedShapeParam();
 
                 // 末尾に追加した項目
                 content += juce::String(antiAliasButton.getToggleState() ? 1 : 0) + "\n";

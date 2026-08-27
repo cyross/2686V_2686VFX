@@ -13,6 +13,7 @@
 #include "../../Generator/Fm/Fix/FmFix.h"
 #include "../../Advanced/Curve/AdvancedCurve.h"
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 class BeepCore : public SynthCore
@@ -41,6 +42,9 @@ private:
     float m_phaseDelta = 0.0f;
     float m_baseFreq = 440.0f;
     float m_pitchBendRatio = 1.0f;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    WtModulator m_wtMod;
+
     float m_modWheel = 0.0f;
 
     float m_currentLevel = 0.0f;

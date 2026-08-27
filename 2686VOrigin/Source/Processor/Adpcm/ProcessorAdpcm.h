@@ -11,6 +11,7 @@ class AdpcmProcessor : public PrBase
     PrPtrsAdpcmBasic pBasic;
     PrPtrsQualityPcm pQuality;
     PrPtrsAdsrAmpEnv pAmpEnv;
+    PrPtrsWtMod pWtMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;

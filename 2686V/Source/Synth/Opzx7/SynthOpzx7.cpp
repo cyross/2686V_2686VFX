@@ -236,6 +236,7 @@ void Opzx7Core::setParameters(const SynthParams& params) {
     m_ssgSwEnv11g.setParameters(params.opzx7.ssgSwEnv11g);
     m_ssgSwPEnv11g.setParameters(params.opzx7.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opzx7.ampEnvG);
+    m_wtMod.setParameters(params.opzx7.wtMod);
     m_ssgHwEnv.setParameters(params.opzx7.ssgHwEnv);
 
     m_panpot = params.opzx7.panpot.pan;
@@ -321,6 +322,8 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
     float finalFreq = m_unison.applyDetune(freq);
+
+    m_noteFreq = finalFreq;
     const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     // ユニゾン・ハーモニー向けに変更
@@ -350,6 +353,8 @@ void Opzx7Core::noteOn(float freq, float velocity, int midiNote, bool isLegato) 
     m_ssgHwEnv.noteOn();
 
     if (!isLegato) {
+        m_wtMod.reset();
+
         if (!m_ampEnvG.isBypass()) {
             m_ampEnvGLevel = m_ampEnvG.noteOn();
         }
@@ -424,10 +429,15 @@ void Opzx7Core::setPitchBend(int pitchWheelValue)
 void Opzx7Core::setModulationWheel(int wheelValue)
 {
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float Opzx7Core::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
+
+    // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
+    float notePhaseDelta = (float)(m_noteFreq / targetRate);
     double stepSize = targetRate / m_hostSampleRate;
 
     m_rateAccumulator += stepSize;
@@ -441,7 +451,7 @@ float Opzx7Core::getSample() {
         m_prevSample = m_lastSample;
 
         // オペレータより先にチップ全体のピッチ倍率を確定させる
-        updateGlobalPitchRatio();
+        updateGlobalPitchRatio(notePhaseDelta);
 
         m_lfo.getSample();
 

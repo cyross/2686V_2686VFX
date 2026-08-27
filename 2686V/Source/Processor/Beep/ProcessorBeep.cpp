@@ -36,6 +36,7 @@ void BeepProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterLa
     PrHelper::addOpzx7DetuneParameters(layout, prefix, prefixName);
     PrHelper::addFixParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
@@ -46,6 +47,7 @@ void BeepProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     pBasic.antiAlias = apvts.getRawParameterValue(prefix + BeepPrKey::antiAlias);
     pBasic.timerClock = apvts.getRawParameterValue(prefix + BeepPrKey::timerClock);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
@@ -61,6 +63,7 @@ void BeepProcessor::processBlock(SynthParams& params, juce::AudioProcessorValueT
 {
     PrHelper::applyBeepBasic(pBasic, params.beep);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.beep.adsr);
+    PrHelper::applyWtMod(pWtMod, params.beep.wtMod);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.beep.ssgSwEnv);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.beep.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.beep.pitchAdsr);

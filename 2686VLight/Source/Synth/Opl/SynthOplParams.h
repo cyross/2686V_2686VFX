@@ -5,6 +5,7 @@
 #include "./Operator/SynthOplOpParams.h"
 #include "../../Processor/Opl/ProcessorOplValues.h"
 #include "../../Core/Synth/UnisonParams.h"
+#include "../../Core/Synth/CommonParams.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsrParams.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHwParams.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11Params.h"
@@ -18,6 +19,7 @@ struct OplParams
     QualityParams quality;
     UnisonParams unison;
     AmpAdsrParams ampEnvG;
+    WtModParams wtMod;
     SsgHwEnvParams ssgHwEnv;
     SsgSwEnv11Params ssgSwEnv11g;
     SsgSwPEnv11Params ssgSwPEnv11g;

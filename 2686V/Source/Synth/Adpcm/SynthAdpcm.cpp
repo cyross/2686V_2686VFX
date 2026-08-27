@@ -98,6 +98,7 @@ void AdpcmCore::setParameters(const SynthParams& params)
     m_lfo.setParameters(params.adpcm.lfo);
     m_noiseGen.setParameters({ .level = params.adpcm.tn.noiseLevel, .noiseOnNote = false, .baseFreq = params.adpcm.tn.noiseFreq });
     m_ssgHwEnv.setParameters(params.adpcm.ssgHwEnv);
+    m_wtMod.setParameters(params.adpcm.wtMod);
 
     m_rootNote = params.adpcm.rootNote;
 
@@ -274,6 +275,8 @@ void AdpcmCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 float AdpcmCore::getCurrentPan() const
@@ -686,7 +689,8 @@ float AdpcmCore::getSample()
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod * m_wtMod.process(m_phaseDelta);
 
     // Advance position
     m_position += currentIncrement * freqMult;

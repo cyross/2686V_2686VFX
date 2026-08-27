@@ -53,6 +53,7 @@ void SsgCore::setParameters(const SynthParams& params)
     m_ssgSwEnv11.setParameters(params.ssg.ssgSwEnv11);
     m_ssgSwPenv11.setParameters(params.ssg.ssgSwPEnv11);
     m_ssgHwEnv.setParameters(params.ssg.env);
+    m_wtMod.setParameters(params.ssg.wtMod);
     m_lfo.setParameters(params.ssg.lfo);
 
     m_fixMode.setParameters(params.ssg.fix);
@@ -204,6 +205,8 @@ void SsgCore::setModulationWheel(int wheelValue)
 {
     // 0.0 ～ 1.0 に正規化
     m_modWheel = (float)wheelValue / 127.0f;
+
+    m_wtMod.setModWheel(m_modWheel);
 }
 
 void SsgCore::setPitchBendRatio(float ratio)
@@ -319,7 +322,8 @@ float SsgCore::getSample()
         // 周波数倍率の決定
         // (PitchBend × Opzx7のPM × ModWheelのPM)
         // ==========================================
-        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod;
+        // MODULATION は搬送波の周波数比として掛ける
+        float freqMult = m_pitchBendRatio * opzx7PitchMod * mwPitchMod * m_wtMod.process(newPhaseDelta);
 
         float phaseInc = 0.0f;
         if (m_waveform == 1 && !m_triKeyTrack) {

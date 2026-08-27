@@ -77,6 +77,7 @@ void OplCore::setParameters(const SynthParams& params) {
     m_ssgSwEnv11g.setParameters(params.opl.ssgSwEnv11g);
     m_ssgSwPEnv11g.setParameters(params.opl.ssgSwPEnv11g);
     m_ampEnvG.setParameters(params.opl.ampEnvG);
+    m_wtMod.setParameters(params.opl.wtMod);
     m_ssgHwEnv.setParameters(params.opl.ssgHwEnv);
 
     if (m_rateIndex != params.opl.quality.rate) {
@@ -119,6 +120,8 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     // ユニゾン・ハーモニー用
     // ユニゾンデチューンの計算
     float finalFreq = m_unison.applyDetune(freq);
+
+    m_noteFreq = finalFreq;
     const float phaseOffsetNorm = m_unison.getPhaseOffset();
 
     // ユニゾン・ハーモニー向けに変更
@@ -132,6 +135,8 @@ void OplCore::noteOn(float freq, float velocity, int midiNote, bool isLegato) {
     m_ssgHwEnv.noteOn();
 
     if (!isLegato) {
+        m_wtMod.reset();
+
         if (!m_ampEnvG.isBypass()) {
             m_ampEnvGLevel = m_ampEnvG.noteOn();
         }
@@ -202,10 +207,15 @@ void OplCore::setModulationWheel(int wheelValue)
     // 高速化のためのループアンローリング
     m_operators[0].setModWheel(modWheel);
     m_operators[1].setModWheel(modWheel);
+
+    m_wtMod.setModWheel((float)wheelValue / 127.0f);
 }
 
 float OplCore::getSample() {
     double targetRate = getTargetRate(m_rateIndex);
+
+    // MODULATION の速度は搬送波に対する比なので、ノートの位相増分を渡す
+    float notePhaseDelta = (float)(m_noteFreq / targetRate);
     double stepSize = targetRate / m_hostSampleRate;
 
     m_rateAccumulator += stepSize;
@@ -219,7 +229,7 @@ float OplCore::getSample() {
         m_prevSample = m_lastSample;
 
         // オペレータより先にチップ全体のピッチ倍率を確定させる
-        updateGlobalPitchRatio();
+        updateGlobalPitchRatio(notePhaseDelta);
 
         m_operators[0].processLfo();
         m_operators[1].processLfo();

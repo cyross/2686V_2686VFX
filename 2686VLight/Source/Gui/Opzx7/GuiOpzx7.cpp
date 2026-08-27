@@ -343,6 +343,7 @@ GuiOpzx7::GuiOpzx7(const GuiContext& context) :
     panToRBtn(context),
     glLfo(context),
     ampEnvComponent(context),
+    modComponent(context),
     ssgHwEnv(context),
     ssgSwEnv11g(context),
     ssgSwPEnv11g(context),
@@ -587,6 +588,7 @@ void GuiOpzx7::setup()
     glLfo.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
     ampEnvComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
     ssgSwEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwEnv11 + CPK::bypass, "Bypass");
     ssgSwPEnv11g.setupComponent(mainGroup.contentCanvas, code, tabOrder, CPK::ssgSwPEnv11 + CPK::bypass, "Bypass");
@@ -1135,6 +1137,7 @@ void GuiOpzx7::layout(juce::Rectangle<int> content)
     if (feedback8Slider.isVisibleNudge()) feedback8Nudge.layoutComponent(mRect);
 
     ampEnvComponent.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
     ssgHwEnv.layoutComponent(mRect);
     ssgSwEnv11g.layoutComponent(mRect);
     ssgSwPEnv11g.layoutComponent(mRect);
@@ -2702,6 +2705,11 @@ void GuiOpzx7::importChParam() {
                 if (index < lines.size()) {
                     ssgSwPEnv11g.setImportingParams(lines, index);
                 }
+
+                if (index < lines.size()) {
+                    modComponent.setImportingBaseParams(lines, index);
+                    modComponent.setImportingShapeParam(lines, index);
+                }
             }
         });
 
@@ -2757,6 +2765,8 @@ void GuiOpzx7::exportChParam() {
                 // AMP ENV (旧フォーマットと互換を保つため末尾に置く)
                 content += ampEnvComponent.getExportedParams();
                 content += ssgSwPEnv11g.getExportedParams();
+                content += modComponent.getExportedBaseParams();
+                content += modComponent.getExportedShapeParam();
 
                 file.replaceWithText(content);
             }

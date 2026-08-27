@@ -38,6 +38,7 @@ void RhythmProcessor::createLayout(juce::AudioProcessorValueTreeState::Parameter
         PrHelper::addOpzx7DetuneParameters(layout, padPrefix, padPrefixName);
         PrHelper::addQualityPcmParameters(layout, padPrefix, padPrefixName);
         PrHelper::addSsgHwEnvParameters(layout, padPrefix, prefixName);
+        PrHelper::addWtModParameters(layout, padPrefix, padPrefixName);
     }
 }
 
@@ -53,6 +54,7 @@ void RhythmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
         PrHelper::setupRhythmPadBasicPtrs(apvts, padPrefix, pPadBasic[i]);
         PrHelper::setupQualityPcmPtrs(apvts, padPrefix, pQuality[i]);
         PrHelper::setupAdsrAmpEnvPtrs(apvts, padPrefix, pAmpEnv[i]);
+        PrHelper::setupWtMod(apvts, padPrefix, pWtMod[i]);
         PrHelper::setupPitchEnvPtrs(apvts, padPrefix, pPitchEnv[i]);
         PrHelper::setupSsgSwEnvPtrs(apvts, padPrefix, pSsgSwEnv[i]);
         PrHelper::setupSsgSwEnv11Ptrs(apvts, padPrefix, pSsgSwEnv11[i]);
@@ -78,6 +80,7 @@ void RhythmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValu
         PrHelper::applyRhythmPadBasic(pPadBasic[i], pad);
         PrHelper::applyQualityPcm(pQuality[i], pad.quality);
         PrHelper::applyAdsrAmpEnv(pAmpEnv[i], pad.adsr);
+        PrHelper::applyWtMod(pWtMod[i], pad.wtMod);
         PrHelper::applySsgSwEnv(pSsgSwEnv[i], pad.ssgSwEnv);
         PrHelper::applySsgSwEnv11(pSsgSwEnv11[i], pad.ssgSwEnv11);
         PrHelper::applyPitchEnv(pPitchEnv[i], pad.pitchAdsr);

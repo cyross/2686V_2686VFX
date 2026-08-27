@@ -15,6 +15,7 @@
 #include "../../Effect/Lfo/Opzx7/LfoOpzx7.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Generator/Fm/Fix/FmFix.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 
 // Class representing a single drum pad
@@ -88,6 +89,9 @@ private:
     SsgSwEnv11 m_ssgSwEnv11;
     SsgSwPEnv11 m_ssgSwPenv11;
     SsgHwEnv m_ssgHwEnv;
+
+    // パッドごとの MODULATION (FDS / WonderSwan / HuC6280)
+    WtModulator m_wtMod;
 
     float m_phase = 0.0f;
     float m_currentFrequency = 440.0f;

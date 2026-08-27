@@ -144,6 +144,7 @@ void GuiAdpcm::setup()
     fixComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, "-> 440", 440);
 
     ssgHwEnv.setupComponent(mainGroup.contentCanvas, code, tabOrder);
+    modComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder, ctx.audioProcessor.modWavePaths[code]);
 
     unisonComponent.setupComponent(mainGroup.contentCanvas, code, tabOrder);
 
@@ -260,6 +261,7 @@ void GuiAdpcm::layout(juce::Rectangle<int> content)
     ampEnvComponent.layoutComponent(mRect);
 
     ssgHwEnv.layoutComponent(mRect);
+    modComponent.layoutComponent(mRect);
 
     ssgSwEnvComponent.layoutComponent(mRect);
 
@@ -819,6 +821,13 @@ void GuiAdpcm::importChParam() {
                 lfoComponent.setImportingParams(lines, index);
                 qualityPcmComponent.setImportingParams(lines, index);
                 unisonComponent.setImportingParams(lines, index);
+
+                // MODULATION は後から足したので、旧フォーマットとの互換のため
+                // 行が無ければ既定のままにする。
+                if (index < lines.size()) {
+                    modComponent.setImportingBaseParams(lines, index);
+                    modComponent.setImportingShapeParam(lines, index);
+                }
             }
         });
 }
@@ -876,6 +885,10 @@ void GuiAdpcm::exportChParam() {
                 content += lfoComponent.getExportedParams();
                 content += qualityPcmComponent.getExportedParams();
                 content += unisonComponent.getExportedParams();
+
+                // MODULATION (旧フォーマットと互換を保つため末尾に置く)
+                content += modComponent.getExportedBaseParams();
+                content += modComponent.getExportedShapeParam();
 
                 file.replaceWithText(content);
             }

@@ -26,6 +26,7 @@
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/AlgMatrix/GuiFmAlgRouting.h"
 #include "../../Gui/Components/AmpEnv/AmpEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
 #include "../../Gui/Components/NudgeSlider/NudgeSliderFloat.h"
 
@@ -55,6 +56,8 @@ class GuiOpl3 : public GuiBase
     // SSG Hw Env
     // チップ全体へ掛かる AMP ENV
     GuiComponentAmpEnv ampEnvComponent;
+    // チップ全体へ掛かる MODULATION
+    GuiComponentWtMod modComponent;
     GuiComponentSsgHwEnv ssgHwEnv;
     // SSG Sw Env
     GuiComponentSsgSwEnv11 ssgSwEnv11g;
@@ -178,6 +181,7 @@ public:
         algFbSep(context),
         feedbackSlider(context),
         ampEnvComponent(context),
+        modComponent(context),
         ssgHwEnv(context),
         ssgSwEnv11g(context),
         ssgSwPEnv11g(context),

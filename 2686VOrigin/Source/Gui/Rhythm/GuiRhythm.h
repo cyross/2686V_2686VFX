@@ -26,6 +26,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 
 #include "../../Core/Gui/GuiCopyObj.h"
 
@@ -78,6 +79,8 @@ class RhythmPadGui: public GuiBase
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
+    // パッドごとの MODULATION
+    GuiComponentWtMod modComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -146,6 +149,7 @@ public:
         oneShotButton(context),
         fixComponent(context),
         ampEnvComponent(context),
+        modComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),

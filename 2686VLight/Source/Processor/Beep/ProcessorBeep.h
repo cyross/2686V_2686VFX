@@ -9,6 +9,7 @@
 class BeepProcessor : public PrBase {
     PrPtrsBeepBasic pBasic;
     PrPtrsAdsrAmpEnv pAmpEnv;
+    PrPtrsWtMod pWtMod;
     PrPtrsPitchEnv pPitchEnv;
     PrPtrsSsgSwEnv pSsgSwEnv;
     PrPtrsSsgSwEnv11 pSsgSwEnv11;

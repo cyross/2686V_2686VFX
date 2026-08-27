@@ -11,6 +11,7 @@
 #include "../../Effect/Envelope/Amp/SsgSw/EnvSsgSw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
 #include "../../Effect/Envelope/Pitch/SsgSw11/EnvSsgSw11.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Generator/Noise/Ssg/GenNoiseSsg.h"
 #include "../../Effect/Detune/Opzx7/DetuneOpzx7.h"
@@ -89,6 +90,9 @@ private:
     float m_baseLevel = 0.0f;
 
     float m_pitchBendRatio = 1.0f;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    WtModulator m_wtMod;
+
     float m_modWheel = 0.0f;
 
     // ユニゾン・ハーモニー用

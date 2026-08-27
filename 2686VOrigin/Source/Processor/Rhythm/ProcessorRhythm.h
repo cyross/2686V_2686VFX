@@ -15,6 +15,7 @@ class RhythmProcessor : public PrBase
     std::array<PrPtrsRhythmPadBasic, RhythmPrValue::pads> pPadBasic;
     std::array<PrPtrsQualityPcm, RhythmPrValue::pads> pQuality;
     std::array<PrPtrsAdsrAmpEnv, RhythmPrValue::pads> pAmpEnv;
+    std::array<PrPtrsWtMod, RhythmPrValue::pads> pWtMod;
     std::array<PrPtrsPitchEnv, RhythmPrValue::pads> pPitchEnv;
     std::array<PrPtrsSsgSwEnv, RhythmPrValue::pads> pSsgSwEnv;
     std::array<PrPtrsSsgSwEnv11, RhythmPrValue::pads> pSsgSwEnv11;

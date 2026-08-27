@@ -21,6 +21,7 @@
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 
 class AudioPlugin2686V;
 class AudioPlugin2686VEditor;
@@ -39,6 +40,8 @@ class GuiBeep : public GuiBase {
 
     // Amp ADSR
     GuiComponentAmpEnv ampEnvComponent;
+    // MODULATION (FDS / WonderSwan / HuC6280)
+    GuiComponentWtMod modComponent;
 
     // Pitch ADSR
     GuiComponentPitchEnv pitchEnvComponent;
@@ -101,6 +104,7 @@ public:
         ssgHwEnv(context),
         unisonComponent(context),
         ampEnvComponent(context),
+        modComponent(context),
         pitchEnvComponent(context),
         ssgSwEnvComponent(context),
         ssgSwEnv11Component(context),

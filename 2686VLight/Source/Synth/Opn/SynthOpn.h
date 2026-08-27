@@ -4,6 +4,7 @@
 #include "../../Generator/Noise/Lfsr/GenNoiseLfsr.h"
 #include "../../Effect/Lfo/N88/LfoN88.h"
 #include "../../Processor/Opn/ProcessorOpnValues.h"
+#include "../../Generator/WtMod/GenWtModulator.h"
 #include "../../Effect/Envelope/Amp/Adsr/EnvAmpAdsr.h"
 #include "../../Effect/Envelope/Amp/SsgHw/EnvSsgHw.h"
 #include "../../Effect/Envelope/Amp/SsgSw11/EnvSsgSw11.h"
@@ -92,9 +93,14 @@ private:
     SsgSwPEnv11 m_ssgSwPEnv11g;
     float m_globalPitchRatio = 1.0f;
 
+    // チップ全体へ掛かる MODULATION。変調速度は搬送波との比なので、
+    // 発音中のノートの位相増分を渡す。
+    WtModulator m_wtMod;
+    float m_noteFreq = 440.0f;
+
     // チップ全体のピッチ倍率を 1 サンプルぶん進める
-    inline void updateGlobalPitchRatio() {
-        float ratio = 1.0f;
+    inline void updateGlobalPitchRatio(float notePhaseDelta) {
+        float ratio = m_wtMod.process(notePhaseDelta);
 
         if (!m_ssgSwPEnv11g.isBypass()) {
             ratio *= m_ssgSwPEnv11g.process(1.0f);

@@ -82,6 +82,7 @@ void RhythmPad::setParameters(const RhythmPadParams& params)
     m_lfo.setParameters(params.lfo);
     m_noiseGen.setParameters({ .level = params.tn.noiseLevel, .noiseOnNote = params.tn.noiseOnNote, .baseFreq = params.tn.noiseFreq });
     m_ssgHwEnv.setParameters(params.ssgHwEnv);
+    m_wtMod.setParameters(params.wtMod);
 
     bool needRefresh = false;
     if (m_qualityMode != params.quality.mode) {
@@ -122,6 +123,8 @@ void RhythmPad::setPitchBend(float pitchBend) {
 
 void RhythmPad::setModulationWheel(float modWheel) {
     m_modWheel = modWheel;
+
+    m_wtMod.setModWheel(modWheel);
 }
 
 void RhythmPad::start(float velocity, bool isLegato, float freq, float uOffset, int uTotal)
@@ -643,7 +646,9 @@ float RhythmPad::getSample()
     // 周波数倍率の決定
     // (PitchBend × Opzx7のPM × ModWheelのPM)
     // ==========================================
-    float freqMult = m_pitchBendRatio * opzx7PitchMod;
+    // MODULATION は搬送波の周波数比として掛ける
+    float freqMult = m_pitchBendRatio * opzx7PitchMod
+        * m_wtMod.process((float)(m_currentFrequency / m_sampleRate));
 
     // Advance position
     m_position += currentIncrement * freqMult;

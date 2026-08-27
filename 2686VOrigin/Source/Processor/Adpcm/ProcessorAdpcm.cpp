@@ -30,6 +30,7 @@ void AdpcmProcessor::createLayout(juce::AudioProcessorValueTreeState::ParameterL
     PrHelper::addFixParameters(layout, prefix, prefixName);
     PrHelper::addQualityPcmParameters(layout, prefix, prefixName);
     PrHelper::addSsgHwEnvParameters(layout, prefix, prefixName);
+    PrHelper::addWtModParameters(layout, prefix, prefixName);
     PrHelper::addUnisonParameters(layout, prefix, prefixName);
 }
 
@@ -39,6 +40,7 @@ void AdpcmProcessor::init(juce::AudioProcessorValueTreeState& apvts) {
     PrHelper::setupAdpcmBasicPtrs(apvts, prefix, pBasic);
     PrHelper::setupQualityPcmPtrs(apvts, prefix, pQuality);
     PrHelper::setupAdsrAmpEnvPtrs(apvts, prefix, pAmpEnv);
+    PrHelper::setupWtMod(apvts, prefix, pWtMod);
     PrHelper::setupPitchEnvPtrs(apvts, prefix, pPitchEnv);
     PrHelper::setupSsgSwEnvPtrs(apvts, prefix, pSsgSwEnv);
     PrHelper::setupSsgSwEnv11Ptrs(apvts, prefix, pSsgSwEnv11);
@@ -58,6 +60,7 @@ void AdpcmProcessor::processBlock(SynthParams& params, juce::AudioProcessorValue
     PrHelper::applyAdpcmBasic(pBasic, params.adpcm);
     PrHelper::applyQualityPcm(pQuality, params.adpcm.quality);
     PrHelper::applyAdsrAmpEnv(pAmpEnv, params.adpcm.adsr);
+    PrHelper::applyWtMod(pWtMod, params.adpcm.wtMod);
     PrHelper::applySsgSwEnv(pSsgSwEnv, params.adpcm.ssgSwEnv);
     PrHelper::applySsgSwEnv11(pSsgSwEnv11, params.adpcm.ssgSwEnv11);
     PrHelper::applyPitchEnv(pPitchEnv, params.adpcm.pitchAdsr);
