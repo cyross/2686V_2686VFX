@@ -592,6 +592,11 @@ set(GUI_COMPONENT_SSGSWPENV11_FILES
     "Source/Gui/Components/SsgSwPEnv11/SsgSwPEnv11.cpp"
 )
 
+set(GUI_COMPONENT_PARAMBAREDITOR_FILES
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.h"
+    "Source/Gui/Components/ParamBarEditor/ParamBarEditor.cpp"
+)
+
 set(GUI_COMPONENT_WTMOD_FILES
     "Source/Gui/Components/WtMod/WtMod.h"
     "Source/Gui/Components/WtMod/WtMod.cpp"
@@ -732,6 +737,7 @@ source_group("2686VL\\Gui\\Components\\Separator" FILES ${GUI_COMPONENT_SEPARATO
 source_group("2686VL\\Gui\\Components\\Quality" FILES ${GUI_COMPONENT_QUALITY_FILES})
 source_group("2686VL\\Gui\\Components\\SsgSwPEnv11" FILES ${GUI_COMPONENT_SSGSWPENV11_FILES})
 source_group("2686VL\\Gui\\Components\\SsgSwEnv11" FILES ${GUI_COMPONENT_SSGSWENV11_FILES})
+source_group("2686VL\\Gui\\Components\\ParamBarEditor" FILES ${GUI_COMPONENT_PARAMBAREDITOR_FILES})
 source_group("2686VL\\Gui\\Components\\WtMod" FILES ${GUI_COMPONENT_WTMOD_FILES})
 source_group("2686VL\\Gui\\Components\\SsgHwEnv" FILES ${GUI_COMPONENT_SSGHWENV_FILES})
 source_group("2686VL\\Gui\\Components\\AlgMatrix" FILES ${GUI_COMPONENT_ALG_MATRIX_FILES})

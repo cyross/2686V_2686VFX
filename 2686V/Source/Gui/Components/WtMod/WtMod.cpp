@@ -42,49 +42,19 @@ static const juce::String fdsPresetNames[FdsMod::tableCount] = { "Tri", "Saw", "
 static constexpr int fdsLevelToEntry[7] = { 5, 6, 7, 0, 1, 2, 3 };  // -4,-2,-1,0,+1,+2,+4
 static constexpr int fdsEntryToLevel[8] = { 3, 4, 5, 6, -1, 0, 1, 2 };
 
-FdsTableEditor::~FdsTableEditor()
-{
-    for (const auto& id : m_paramIds) {
-        ctx.audioProcessor.apvts.removeParameterListener(id, this);
-    }
-}
-
 void FdsTableEditor::setup(juce::Component& parent, const juce::String& idPrefix)
 {
     parent.addAndMakeVisible(this);
 
-    for (int i = 0; i < 32; ++i)
-    {
-        juce::String paramId = idPrefix + juce::String(i);
-
-        m_params[i] = ctx.audioProcessor.apvts.getParameter(paramId);
-
-        if (m_params[i] != nullptr) {
-            m_paramIds.add(paramId);
-            ctx.audioProcessor.apvts.addParameterListener(paramId, this);
-        }
-    }
-}
-
-void FdsTableEditor::parameterChanged(const juce::String&, float)
-{
-    juce::MessageManager::callAsync([this] { repaint(); });
-}
-
-void FdsTableEditor::setEditorEnabled(bool shouldBeEnabled)
-{
-    isEnabledState = shouldBeEnabled;
-    repaint();
+    attachParams(idPrefix, 32);
 }
 
 std::array<int, 32> FdsTableEditor::currentTable() const
 {
     std::array<int, 32> table = { 0 };
 
-    for (int i = 0; i < 32; ++i) {
-        if (m_params[i] != nullptr) {
-            table[i] = (int)std::round(m_params[i]->convertFrom0to1(m_params[i]->getValue()));
-        }
+    for (int i = 0; i < 32 && i < (int)m_params.size(); ++i) {
+        table[i] = (int)std::round(m_params[i]->convertFrom0to1(m_params[i]->getValue()));
     }
 
     return table;
@@ -94,23 +64,19 @@ void FdsTableEditor::loadTable(const std::array<int, 32>& table)
 {
     ctx.audioProcessor.undoManager.beginNewTransaction();
 
-    for (int i = 0; i < 32; ++i) {
-        if (m_params[i] != nullptr) {
-            m_params[i]->setValueNotifyingHost(m_params[i]->convertTo0to1((float)table[i]));
-        }
+    for (int i = 0; i < 32 && i < (int)m_params.size(); ++i) {
+        m_params[i]->setValueNotifyingHost(m_params[i]->convertTo0to1((float)table[i]));
     }
 
     repaint();
 }
 
-void FdsTableEditor::applyMouse(const juce::MouseEvent& e)
+void FdsTableEditor::updateSliderValue(const juce::MouseEvent& e)
 {
-    if (!isEnabledState) return;
+    if (!isEnabledState || m_params.empty()) return;
 
     float stepWidth = (float)getWidth() / 32.0f;
-    int index = std::clamp((int)(e.position.x / stepWidth), 0, 31);
-
-    if (m_params[index] == nullptr) return;
+    int index = std::clamp((int)(e.position.x / stepWidth), 0, (int)m_params.size() - 1);
 
     int entry;
 
@@ -128,6 +94,34 @@ void FdsTableEditor::applyMouse(const juce::MouseEvent& e)
     }
 
     m_params[index]->setValueNotifyingHost(m_params[index]->convertTo0to1((float)entry));
+}
+
+void FdsTableEditor::updateHoverState(const juce::MouseEvent& e)
+{
+    int index = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
+
+    lastMousePos = e.position.toInt();
+    lastModifiers = e.mods;
+
+    if (index != hoveredIndex) {
+        hoveredIndex = index;
+    }
+
+    repaint();
+}
+
+void FdsTableEditor::mouseDown(const juce::MouseEvent& e)
+{
+    ctx.audioProcessor.undoManager.beginNewTransaction();
+
+    updateSliderValue(e);
+    updateHoverState(e);
+}
+
+void FdsTableEditor::mouseDrag(const juce::MouseEvent& e)
+{
+    updateSliderValue(e);
+    updateHoverState(e);
 }
 
 void FdsTableEditor::paint(juce::Graphics& g)
@@ -200,40 +194,24 @@ void FdsTableEditor::paint(juce::Graphics& g)
     }
 }
 
-void FdsTableEditor::mouseDown(const juce::MouseEvent& e)
+void FdsTableEditor::paintOverChildren(juce::Graphics& g)
 {
-    ctx.audioProcessor.undoManager.beginNewTransaction();
+    if (hoveredIndex < 0 || !isEnabledState || m_params.empty()) return;
 
-    applyMouse(e);
+    auto table = currentTable();
 
-    hoveredIndex = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
+    // [index] 増減量 で出す。リセットは RST。
+    juce::String text = "[" + juce::String(hoveredIndex) + "] ";
 
-    repaint();
-}
-
-void FdsTableEditor::mouseDrag(const juce::MouseEvent& e)
-{
-    applyMouse(e);
-
-    hoveredIndex = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
-
-    repaint();
-}
-
-void FdsTableEditor::mouseMove(const juce::MouseEvent& e)
-{
-    int index = std::clamp((int)(e.position.x / ((float)getWidth() / 32.0f)), 0, 31);
-
-    if (index != hoveredIndex) {
-        hoveredIndex = index;
-        repaint();
+    if (table[hoveredIndex] == 4) {
+        text += "RST";
     }
-}
+    else {
+        int inc = FdsMod::decodeIncrement(table[hoveredIndex]);
+        text += (inc >= 0 ? "+" : "") + juce::String(inc);
+    }
 
-void FdsTableEditor::mouseExit(const juce::MouseEvent&)
-{
-    hoveredIndex = -1;
-    repaint();
+    paintHoverText(g, text);
 }
 
 void GuiComponentWtMod::setupComponent(juce::Component& parent, const juce::String& code, int& tabOrder, juce::String& wavePath)
@@ -370,7 +348,7 @@ void GuiComponentWtMod::layoutComponent(juce::Rectangle<int>& rect)
     // 編集できるのは FdsUser を選んでいるときだけ
     bool isFdsUser = isMod && (shapeSelector.getSelectedItemIndex() == (int)WtModShape::FdsUser);
 
-    fdsEditor.setEditorEnabled(isFdsUser);
+    fdsEditor.setCustomEnabled(isFdsUser);
     for (auto& btn : fdsPresetBtn) btn.setEnabled(isFdsUser);
 }
 

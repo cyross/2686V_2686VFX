@@ -68,26 +68,9 @@ static std::vector<SelectItem> lfoAmShapeItems = {
 };
 
 template <size_t tableSize>
-Waveform2Container<tableSize>::Waveform2Container(const GuiContext& context) : GuiBaseComponent(context)
+Waveform2Container<tableSize>::Waveform2Container(const GuiContext& context) : ParamBarEditorBase(context)
 {
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
-}
-
-template <size_t tableSize>
-Waveform2Container<tableSize>::~Waveform2Container()
-{
-    // PluginProcessorの完全な定義を読み込んでいるので、エラーなくアクセスできる
-    for (const auto& id : m_paramIds) {
-        ctx.audioProcessor.apvts.removeParameterListener(id, this);
-    }
-}
-
-// パラメータが外部(Undoなど)から変更されたときに呼ばれる
-template <size_t tableSize>
-void Waveform2Container<tableSize>::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    // 描画を予約（メッセージスレッドで実行される）
-    juce::MessageManager::callAsync([this] { repaint(); });
 }
 
 template <size_t tableSize>
@@ -95,30 +78,7 @@ void Waveform2Container<tableSize>::setup(const Config& c)
 {
     c.parent.addAndMakeVisible(this);
 
-    m_params.clear();
-    for (size_t i = 0; i < tableSize; ++i)
-    {
-        juce::String paramId = c.idPrefix + juce::String(i);
-
-        // PluginProcessor側のAPVTSからパラメータの直接ポインタを取得
-        auto* param = ctx.audioProcessor.apvts.getParameter(paramId);
-
-        if (param != nullptr) {
-            m_params.push_back(param);
-            m_paramIds.add(paramId);
-
-            // パラメータごとにリスナーを登録
-            ctx.audioProcessor.apvts.addParameterListener(paramId, this);
-        }
-    }
-}
-
-template <size_t tableSize>
-void Waveform2Container<tableSize>::setCustomEnabled(bool shouldBeEnabled)
-{
-    isEnabledState = shouldBeEnabled;
-
-    repaint();
+    attachParams(c.idPrefix, (int)tableSize);
 }
 
 template <size_t tableSize>
@@ -249,39 +209,6 @@ void Waveform2Container<tableSize>::paint(juce::Graphics& g)
     }
 }
 
-// =======================================================
-// マウス操作の自前処理
-// =======================================================
-template <size_t tableSize>
-void Waveform2Container<tableSize>::mouseMove(const juce::MouseEvent& e) {
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void Waveform2Container<tableSize>::mouseDown(const juce::MouseEvent& e) {
-    if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
-
-    // マウスをクリックした瞬間に「新しいUndoの区切り」を作る
-    ctx.audioProcessor.undoManager.beginNewTransaction();
-
-    updateSliderValue(e);
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void Waveform2Container<tableSize>::mouseDrag(const juce::MouseEvent& e) {
-    if (!e.mods.isLeftButtonDown()) return; // 左クリック以外は無視する
-
-    updateSliderValue(e);
-    updateHoverState(e);
-}
-
-template <size_t tableSize>
-void Waveform2Container<tableSize>::mouseExit(const juce::MouseEvent& e) {
-    hoveredIndex = -1;
-    repaint();
-}
-
 template <size_t tableSize>
 void Waveform2Container<tableSize>::updateSliderValue(const juce::MouseEvent& e)
 {
@@ -352,21 +279,7 @@ void Waveform2Container<tableSize>::paintOverChildren(juce::Graphics& g)
 
         juce::String text = "[" + juce::String(hoveredIndex) + "] " + juce::String(valActual);
 
-        g.setFont(14.0f);
-
-        int textW = (int)juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), juce::StringRef(text)) + 12;
-        int textH = 22;
-        int drawX = lastMousePos.x + 12;
-        int drawY = lastMousePos.y - 24;
-
-        if (drawX + textW > getWidth()) drawX = getWidth() - textW;
-        if (drawY < 0) drawY = lastMousePos.y + 12;
-
-        g.setColour(juce::Colours::black.withAlpha(0.8f));
-        g.fillRoundedRectangle((float)drawX, (float)drawY, (float)textW, (float)textH, 4.0f);
-
-        g.setColour(juce::Colours::white);
-        g.drawText(text, drawX, drawY, textW, textH, juce::Justification::centred, false);
+        paintHoverText(g, text);
     }
 }
 

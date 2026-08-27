@@ -6,6 +6,7 @@
 #include "../../Core/Gui/GuiColor.h"
 #include "../../Core/Gui/GuiComponents.h"
 #include "../../Core/Gui/GuiBase.h"
+#include "../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../../Core/Gui/GuiContext.h"
 #include "../../Core/Gui/GuiEnvelopeGraph.h"
 #include "../../Gui/Components/Fix/Fix.h"
@@ -34,24 +35,12 @@ class AudioPlugin2686VEditor;
 // Waveform Drawing Container (Super Lightweight Custom Paint)
 // ==========================================================
 template <size_t tableSize>
-class Waveform2Container :
-    public juce::Component,
-    public GuiBaseComponent,
-    public juce::AudioProcessorValueTreeState::Listener // リスナーを継承
+class Waveform2Container : public ParamBarEditorBase
 {
-    // APVTSのパラメータへの直接ポインタを保持して高速にアクセスする
-    std::vector<juce::RangedAudioParameter*> m_params;
-    juce::StringArray m_paramIds; // リスナー削除用にIDを格納
-
-    bool isEnabledState = false;
-    int hoveredIndex = -1;
     int hoveredY = -1; // Y軸のホバー位置
-    juce::Point<int> lastMousePos;
-    juce::ModifierKeys lastModifiers;
 
 public:
     Waveform2Container(const GuiContext& context);
-    ~Waveform2Container() override;
 
     int resolution = 16;
     int resCenter = 8;
@@ -61,21 +50,14 @@ public:
         juce::String idPrefix;
     };
 
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
     void setup(const Config& c);
-    void setCustomEnabled(bool shouldBeEnabled);
     void setAllValues(int val);
     void setValues(const std::vector<int>& values);
     std::vector<int> getValues();
     void paint(juce::Graphics& g) override;
 
-    void mouseMove(const juce::MouseEvent& e) override;
-    void mouseDown(const juce::MouseEvent& e) override;
-    void mouseDrag(const juce::MouseEvent& e) override;
-    void mouseExit(const juce::MouseEvent& e) override;
-
-    void updateSliderValue(const juce::MouseEvent& e);
-    void updateHoverState(const juce::MouseEvent& e);
+    void updateSliderValue(const juce::MouseEvent& e) override;
+    void updateHoverState(const juce::MouseEvent& e) override;
     void paintOverChildren(juce::Graphics& g) override;
 };
 

@@ -5,6 +5,7 @@
 
 #include "../../../Core/Gui/GuiComponents.h"
 #include "../../../Core/Gui/GuiBase.h"
+#include "../../../Gui/Components/ParamBarEditor/ParamBarEditor.h"
 #include "../../../Core/Gui/GuiContext.h"
 #include "../../../Generator/Fds/GenFdsModTable.h"
 
@@ -31,34 +32,24 @@
 // 4 はカウンタのリセットで増減量の軸に乗らないので、右クリックで
 // 単独に立てる扱いにしてある。
 // 下段には、そのテーブルを 1 周ぶん積算した実際の階段波を出す。
-class FdsTableEditor :
-    public juce::Component,
-    public GuiBaseComponent,
-    public juce::AudioProcessorValueTreeState::Listener
+class FdsTableEditor : public ParamBarEditorBase
 {
-    std::array<juce::RangedAudioParameter*, 32> m_params = { nullptr };
-    juce::StringArray m_paramIds;
-
-    bool isEnabledState = false;
-    int hoveredIndex = -1;
-
-    void applyMouse(const juce::MouseEvent& e);
+    void updateSliderValue(const juce::MouseEvent& e) override;
+    void updateHoverState(const juce::MouseEvent& e) override;
 public:
-    FdsTableEditor(const GuiContext& context) : GuiBaseComponent(context) {}
-    ~FdsTableEditor() override;
+    FdsTableEditor(const GuiContext& context) : ParamBarEditorBase(context) {}
 
     void setup(juce::Component& parent, const juce::String& idPrefix);
-    void setEditorEnabled(bool shouldBeEnabled);
     void loadTable(const std::array<int, 32>& table);
     std::array<int, 32> currentTable() const;
 
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
     void paint(juce::Graphics& g) override;
+    void paintOverChildren(juce::Graphics& g) override;
 
+    // 右クリックでリセットエントリを立てるため、左クリック限定の
+    // 土台の受け口ではなく自前で受ける。
     void mouseDown(const juce::MouseEvent& e) override;
     void mouseDrag(const juce::MouseEvent& e) override;
-    void mouseMove(const juce::MouseEvent& e) override;
-    void mouseExit(const juce::MouseEvent& e) override;
 };
 
 class GuiComponentWtMod : public GuiBase {
