@@ -102,15 +102,30 @@ void SsgSwPEnv11::updateSampleRate(double newSampleRate) {
 }
 
 void SsgSwPEnv11::noteOn() {
-    this->state = State::S1;
-    this->m_phaseProgress = 0.0f;
-    this->loopCounter = 0;
-    this->currentLevel = this->l[0]; // Start Level から開始
+    if (this->m_curveCore == nullptr) {
+        this->state = State::S1;
+        this->loopCounter = 0;
+        this->currentLevel = this->l[0]; // Start Level から開始
+    }
+    else {
+        this->state = State::S1;
+        this->m_phaseProgress = 0.0f;
+        this->loopCounter = 0;
+        this->currentLevel = this->l[0]; // Start Level から開始
+    }
 }
 
 void SsgSwPEnv11::noteOff() {
-    this->state = State::S11;
-    this->m_phaseProgress = 0.0f;
+    if (this->m_curveCore == nullptr) {
+        this->state = State::S11;
+        float r = std::max(0.001f, this->r[11]);
+        // 現在のレベルからV11に向けて減衰・上昇する傾きを計算
+        this->rInc[11] = (this->l[11] - this->currentLevel) / (r * (float)this->sampleRate);
+    }
+    else {
+        this->state = State::S11;
+        this->m_phaseProgress = 0.0f;
+    }
 }
 
 float SsgSwPEnv11::bypassedReleasedProcess() {
@@ -127,79 +142,356 @@ float SsgSwPEnv11::process(float phaseDelta) {
     if (this->state == State::Idle) return phaseDelta;
 
     if (this->m_curveCore == nullptr) {
-        return this->currentLevel;
-    }
+        auto countUpLoopCounter = [&]() {
+            if (loopCount > 0) {
+                loopCounter++;
+            }
+            };
 
-    int s = (int)this->state; // S1=1, S2=2 ... S11=11
+        bool isLoopTo = false;
 
-    // =========================================================
-    // リリースフェーズ (S11)
-    // =========================================================
-    if (s == 11) {
-        if (this->m_phaseProgress == 0.0f) {
-            this->m_releaseStartLevel = this->currentLevel;
-        }
-
-        float targetLevel = this->l[11];
-        float rateVal = std::max(0.001f, this->r[11]);
-        float deltaX = 1.0f / (rateVal * (float)this->sampleRate);
-
-        this->m_phaseProgress += deltaX;
-
-        if (this->m_phaseProgress >= 1.0f) {
-            this->m_phaseProgress = 1.0f;
-            this->currentLevel = targetLevel;
-            this->state = State::Idle;
-        }
-        else {
-            float y = m_curveCore->process(
-                this->targetIndex,
-                (int)CurveParams::Target::SsgSwPEnv11,
-                (int)CurveParams::TargetSsgSwPEnv11::R11,
-                this->m_phaseProgress
-            );
-            this->currentLevel = this->m_releaseStartLevel + y * (targetLevel - this->m_releaseStartLevel);
+        switch (this->state) {
+        case State::Idle:
+            break;
+        case State::S1:
+            currentLevel += rInc[1];
+            if (this->r[1] <= 0.001f || isReached(rInc[1], currentLevel, this->l[1])) {
+                currentLevel = this->l[1];
+                if (this->steps > 1) {
+                    state = State::S2;
+                }
+            }
+            break;
+        case State::S2:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[2];
+                    if (this->r[2] <= 0.001f || isReached(rInc[2], currentLevel, this->l[2])) {
+                        currentLevel = this->l[2];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[2];
+                    if (this->r[2] <= 0.001f || isReached(rIncLoop[2], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[2];
+                if (this->r[2] <= 0.001f || isReached(rInc[2], currentLevel, this->l[2])) {
+                    currentLevel = this->l[2];
+                    if (this->steps > 2) {
+                        state = State::S3;
+                    }
+                }
+            }
+            break;
+        case State::S3:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[3];
+                    if (this->r[3] <= 0.001f || isReached(rInc[3], currentLevel, this->l[3])) {
+                        currentLevel = this->l[3];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[3];
+                    if (this->r[3] <= 0.001f || isReached(rIncLoop[3], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[3];
+                if (this->r[3] <= 0.001f || isReached(rInc[3], currentLevel, this->l[3])) {
+                    currentLevel = this->l[3];
+                    if (this->steps > 3) {
+                        state = State::S4;
+                    }
+                }
+            }
+            break;
+        case State::S4:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[4];
+                    if (this->r[4] <= 0.001f || isReached(rInc[4], currentLevel, this->l[4])) {
+                        currentLevel = this->l[4];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[4];
+                    if (this->r[4] <= 0.001f || isReached(rIncLoop[4], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[4];
+                if (this->r[4] <= 0.001f || isReached(rInc[4], currentLevel, this->l[4])) {
+                    currentLevel = this->l[4];
+                    if (this->steps > 4) {
+                        state = State::S5;
+                    }
+                }
+            }
+            break;
+        case State::S5:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[5];
+                    if (this->r[5] <= 0.001f || isReached(rInc[5], currentLevel, this->l[5])) {
+                        currentLevel = this->l[5];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[5];
+                    if (this->r[5] <= 0.001f || isReached(rIncLoop[5], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[5];
+                if (this->r[5] <= 0.001f || isReached(rInc[5], currentLevel, this->l[5])) {
+                    currentLevel = this->l[5];
+                    if (this->steps > 5) {
+                        state = State::S6;
+                    }
+                }
+            }
+            break;
+        case State::S6:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[6];
+                    if (this->r[6] <= 0.001f || isReached(rInc[6], currentLevel, this->l[6])) {
+                        currentLevel = this->l[6];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[6];
+                    if (this->r[6] <= 0.001f || isReached(rIncLoop[6], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[6];
+                if (this->r[6] <= 0.001f || isReached(rInc[6], currentLevel, this->l[6])) {
+                    currentLevel = this->l[6];
+                    if (this->steps > 6) {
+                        state = State::S7;
+                    }
+                }
+            }
+            break;
+        case State::S7:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[7];
+                    if (this->r[7] <= 0.001f || isReached(rInc[7], currentLevel, this->l[7])) {
+                        currentLevel = this->l[7];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[7];
+                    if (this->r[7] <= 0.001f || isReached(rIncLoop[7], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[7];
+                if (this->r[7] <= 0.001f || isReached(rInc[7], currentLevel, this->l[7])) {
+                    currentLevel = this->l[7];
+                    if (this->steps > 7) {
+                        state = State::S8;
+                    }
+                }
+            }
+            break;
+        case State::S8:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[8];
+                    if (this->r[8] <= 0.001f || isReached(rInc[8], currentLevel, this->l[8])) {
+                        currentLevel = this->l[8];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[8];
+                    if (this->r[8] <= 0.001f || isReached(rIncLoop[8], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[8];
+                if (this->r[8] <= 0.001f || isReached(rInc[8], currentLevel, this->l[8])) {
+                    currentLevel = this->l[8];
+                    if (this->steps > 8) {
+                        state = State::S9;
+                    }
+                }
+            }
+            break;
+        case State::S9:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[9];
+                    if (this->r[9] <= 0.001f || isReached(rInc[9], currentLevel, this->l[9])) {
+                        currentLevel = this->l[9];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[9];
+                    if (this->r[9] <= 0.001f || isReached(rIncLoop[9], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[9];
+                if (this->r[9] <= 0.001f || isReached(rInc[9], currentLevel, this->l[9])) {
+                    currentLevel = this->l[9];
+                    if (this->steps > 9) {
+                        state = State::S10;
+                    }
+                }
+            }
+            break;
+        case State::S10:
+            isLoopTo = this->loop && (int)this->state == this->steps;
+            if (isLoopTo) {
+                if (this->loopCount > 0 && this->loopCounter == this->loopCount) {
+                    currentLevel += rInc[10];
+                    if (this->r[10] <= 0.001f || isReached(rInc[10], currentLevel, this->l[10])) {
+                        currentLevel = this->l[10];
+                    }
+                }
+                else {
+                    currentLevel += rIncLoop[10];
+                    if (this->r[10] <= 0.001f || isReached(rIncLoop[10], currentLevel, this->l[this->loopTo])) {
+                        currentLevel = this->l[this->loopTo];
+                        state = (State)(this->loopTo + 1);
+                        countUpLoopCounter();
+                    }
+                }
+            }
+            else {
+                currentLevel += rInc[10];
+                if (this->r[10] <= 0.001f || isReached(rInc[10], currentLevel, this->l[10])) {
+                    currentLevel = this->l[10]; // S10到達後はホールド
+                }
+            }
+            break;
+        case State::S11:
+            currentLevel += rInc[11];
+            if (this->r[11] <= 0.001f || isReached(rInc[11], currentLevel, this->l[11])) {
+                currentLevel = this->l[11];
+                state = State::Idle;
+            }
+            break;
         }
     }
     else {
+        int s = (int)this->state; // S1=1, S2=2 ... S11=11
+
         // =========================================================
-        // S1 〜 S10 フェーズ
+        // リリースフェーズ (S11)
         // =========================================================
-        bool isLoopTo = this->loop && (s == this->steps);
-        bool doLoop = isLoopTo && (this->loopCount == 0 || this->loopCounter < this->loopCount);
+        if (s == 11) {
+            if (this->m_phaseProgress == 0.0f) {
+                this->m_releaseStartLevel = this->currentLevel;
+            }
 
-        float startLevel = this->l[s - 1];
-        float targetLevel = doLoop ? this->l[this->loopTo] : this->l[s];
-        float rateVal = this->r[s];
+            float targetLevel = this->l[11];
+            float rateVal = std::max(0.001f, this->r[11]);
+            float deltaX = 1.0f / (rateVal * (float)this->sampleRate);
 
-        float deltaX = rateVal <= 0.001f ? 1.0f : 1.0f / (rateVal * (float)this->sampleRate);
-        this->m_phaseProgress += deltaX;
+            this->m_phaseProgress += deltaX;
 
-        bool phaseEnded = this->m_phaseProgress >= 1.0f;
-        if (phaseEnded) {
-            this->m_phaseProgress = 1.0f;
-        }
-
-        float y = m_curveCore->process(
-            this->targetIndex,
-            (int)CurveParams::Target::SsgSwPEnv11,
-            doLoop ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1),
-            this->m_phaseProgress
-        );
-        this->currentLevel = startLevel + y * (targetLevel - startLevel);
-
-        if (phaseEnded) {
-            this->currentLevel = targetLevel;
-
-            if (doLoop) {
-                this->m_phaseProgress = 0.0f;
-                this->state = (State)(this->loopTo + 1);
-                if (this->loopCount > 0) this->loopCounter++;
+            if (this->m_phaseProgress >= 1.0f) {
+                this->m_phaseProgress = 1.0f;
+                this->currentLevel = targetLevel;
+                this->state = State::Idle;
             }
             else {
-                if (this->steps > s) {
+                float y = m_curveCore->process(
+                    this->targetIndex,
+                    (int)CurveParams::Target::SsgSwPEnv11,
+                    (int)CurveParams::TargetSsgSwPEnv11::R11,
+                    this->m_phaseProgress
+                );
+                this->currentLevel = this->m_releaseStartLevel + y * (targetLevel - this->m_releaseStartLevel);
+            }
+        }
+        else {
+            // =========================================================
+            // S1 〜 S10 フェーズ
+            // =========================================================
+            bool isLoopTo = this->loop && (s == this->steps);
+            bool doLoop = isLoopTo && (this->loopCount == 0 || this->loopCounter < this->loopCount);
+
+            float startLevel = this->l[s - 1];
+            float targetLevel = doLoop ? this->l[this->loopTo] : this->l[s];
+            float rateVal = this->r[s];
+
+            float deltaX = rateVal <= 0.001f ? 1.0f : 1.0f / (rateVal * (float)this->sampleRate);
+            this->m_phaseProgress += deltaX;
+
+            bool phaseEnded = this->m_phaseProgress >= 1.0f;
+            if (phaseEnded) {
+                this->m_phaseProgress = 1.0f;
+            }
+
+            float y = m_curveCore->process(
+                this->targetIndex,
+                (int)CurveParams::Target::SsgSwPEnv11,
+                doLoop ? (int)CurveParams::TargetSsgSwPEnv11::LoopTo : (s - 1),
+                this->m_phaseProgress
+            );
+            this->currentLevel = startLevel + y * (targetLevel - startLevel);
+
+            if (phaseEnded) {
+                this->currentLevel = targetLevel;
+
+                if (doLoop) {
                     this->m_phaseProgress = 0.0f;
-                    this->state = (State)(s + 1);
+                    this->state = (State)(this->loopTo + 1);
+                    if (this->loopCount > 0) this->loopCounter++;
+                }
+                else {
+                    if (this->steps > s) {
+                        this->m_phaseProgress = 0.0f;
+                        this->state = (State)(s + 1);
+                    }
                 }
             }
         }

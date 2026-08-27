@@ -102,7 +102,7 @@ void SsgSwPEnv11::updateSampleRate(double newSampleRate) {
 }
 
 void SsgSwPEnv11::noteOn() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::S1;
         this->loopCounter = 0;
         this->currentLevel = this->l[0]; // Start Level から開始
@@ -116,7 +116,7 @@ void SsgSwPEnv11::noteOn() {
 }
 
 void SsgSwPEnv11::noteOff() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::S11;
         float r = std::max(0.001f, this->r[11]);
         // 現在のレベルからV11に向けて減衰・上昇する傾きを計算
@@ -141,7 +141,7 @@ float SsgSwPEnv11::process(float phaseDelta) {
     if (this->bypass) return phaseDelta;
     if (this->state == State::Idle) return phaseDelta;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         auto countUpLoopCounter = [&]() {
             if (loopCount > 0) {
                 loopCounter++;

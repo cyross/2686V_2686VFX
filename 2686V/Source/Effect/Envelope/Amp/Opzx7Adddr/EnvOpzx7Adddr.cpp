@@ -75,7 +75,7 @@ void Opzx7Adddr::setParameters(const Opzx7AdddrParams& params) {
 
     this->m_bypass = params.bypass;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         if (this->m_rgEnable)
         {
             this->m_zeroDecay = this->m_rg.d1r == 0;
@@ -192,7 +192,7 @@ float Opzx7Adddr::noteOn(float velocity, int noteNumber) {
     if (this->m_rgEnable) {
         // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
-        float tlReg = (this->m_curveCore == nullptr || this->m_curveCore->index == 0)
+        float tlReg = (this->m_curveCore == nullptr)
             ? (float)this->m_rg.tl
             : this->m_totalLevel * 63.0f;
 
@@ -251,7 +251,7 @@ void Opzx7Adddr::updateIncrements(int noteNumber)
 
     int ksrValue = calcRateScaling();
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // ====================================================================
         // レジスタモード (RG-EN = ON) : 実機のアルゴリズムで増減量を計算
         // ====================================================================
@@ -435,7 +435,7 @@ float Opzx7Adddr::updateEnvelopeState(float currentLevel)
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         float limitLevel = 0.0f;
 
         switch (this->m_state) {

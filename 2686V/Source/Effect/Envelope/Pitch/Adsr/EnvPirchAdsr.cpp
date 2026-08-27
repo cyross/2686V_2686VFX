@@ -52,7 +52,7 @@ void PitchAdsrEnv::setParameters(const PitchAdsrParams& params) {
 }
 
 void PitchAdsrEnv::noteOn() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::Attack;
         this->phaseProgress = 0.0f;
         this->currentCents = this->stl;
@@ -65,7 +65,7 @@ void PitchAdsrEnv::noteOn() {
 }
 
 void PitchAdsrEnv::noteOff() {
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::Release;
         this->phaseProgress = 0.0f;
         // リリースフェーズは「現在のピッチ」からスタートするため、この瞬間の値を記録する
@@ -86,7 +86,7 @@ float PitchAdsrEnv::process(float phaseDelta) {
 
     float pitchRatio = 0.0f;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         switch (this->state) {
         case State::Idle:
             // リリースを走り終えた後も、最後に到達したピッチ(rll)を保持する。

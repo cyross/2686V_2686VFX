@@ -62,7 +62,7 @@ void FmRgAdssr::setParameters(const FmRgAdssrParams& params) {
 
     this->m_zeroDecay = this->dr == 0;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // サステインレベル (SL) の計算
         if (this->sl == 15) {
             this->m_sustain = 0.0f; // SL=15 は一気に0まで落ちる
@@ -113,7 +113,7 @@ float FmRgAdssr::noteOn(float velocity, int noteNumber) {
 
     state = State::Attack;
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // レジスタモード: TLレジスタ値から直接減衰量(dB)を計算
         // OPN/OPL共に、実機は 1ステップ = 0.75dB の減衰です。
         float attenuationDb = tl * 0.75f;
@@ -155,7 +155,7 @@ void FmRgAdssr::updateIncrementsWithKeyScale(int noteNumber)
         return;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         // ====================================================================
         // 実機のアルゴリズムで増減量を計算
         // ====================================================================
@@ -261,7 +261,7 @@ float FmRgAdssr::updateEnvelopeState(float currentLevel)
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         float limitLevel = 0.0f;
 
         switch (this->state) {

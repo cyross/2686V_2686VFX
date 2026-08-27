@@ -51,7 +51,7 @@ float AmpAdsrEnv::noteOn() {
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::Attack;
 
         return this->stl;
@@ -69,7 +69,7 @@ void AmpAdsrEnv::noteOff() {
         return;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         this->state = State::Release;
         this->m_phaseProgress = 0.0f; // kor向け
     }
@@ -94,7 +94,7 @@ float AmpAdsrEnv::process(float currentLevel) {
         return 1.0f;
     }
 
-    if (this->m_curveCore == nullptr || this->m_curveCore->index == 0) {
+    if (this->m_curveCore == nullptr) {
         float limitLevel = 0.0f;
 
         switch (this->state) {
