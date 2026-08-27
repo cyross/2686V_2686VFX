@@ -24,6 +24,7 @@
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Separator/ShortSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -100,7 +101,7 @@ class GuiWt : public GuiBase
     Quality qualityComponent;
 
     GuiCategoryLabel formCat;
-    GuiCategoryLabel modCat;
+    GuiComponentWtMod modComponent;
 
     GuiComponentFix fixComponent;
 
@@ -135,19 +136,7 @@ class GuiWt : public GuiBase
 
     NormalSeparator formSeparator;
 
-    // Moduration
-	GuiToggleButton modEnableButton;
-    GuiSlider modDepthSlider;
-    GuiSlider modSpeedSlider;
-    GuiComboBox modShapeSelector;
-    GuiTextButton modWaveWtBtn;
-    GuiTextButton modWaveWt2Btn;
-    GuiTextButton modWaveClearBtn;
-    GuiLabel modWaveFileNameLabel;
-    GuiToggleButton modWaveSmoothBtn;
 
-    // HuC6280 モードの変調波形 (32 サンプル) を書き込むためのパラメータ
-    std::array<juce::RangedAudioParameter*, 32> modWaveParams = { nullptr };
 
 	// Custom Waveform Reset
     GuiTextButton customWaveResetTo0Btn;
@@ -209,7 +198,7 @@ public:
         levelComponent(context),
         qualityComponent(context),
         formCat(context),
-        modCat(context),
+        modComponent(context),
         fixComponent(context),
         ssgHwEnv(context),
         unisonComponent(context),
@@ -242,15 +231,6 @@ public:
         stepsSelector(context),
         waveSelector(context),
         formSeparator(context),
-        modEnableButton(context),
-        modDepthSlider(context),
-        modSpeedSlider(context),
-        modShapeSelector(context),
-        modWaveWtBtn(context),
-        modWaveWt2Btn(context),
-        modWaveClearBtn(context),
-        modWaveFileNameLabel(context),
-        modWaveSmoothBtn(context),
         customWaveResetTo0Btn(context),
         customWaveResetTo1Btn(context),
         customWaveResetToM1Btn(context),
@@ -270,15 +250,10 @@ public:
     void layout(juce::Rectangle<int> content) override;
     void updatePresetName(const juce::String& name);
     void importWavetable();
-    void importModWave(bool isWt2);
-    bool applyModWaveFile(const juce::File& file, bool isWt2);
-    void clearModWave();
-    void updateModWaveFileName(const juce::String& fileName);
     void exportWavetable();
     void initParams();
     void layoutFormCat(Rectangle<int>& rect);
     void layoutQualityCat(juce::Rectangle<int>& rect);
-    void layoutModulationCat(juce::Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void setupGraph();
     void layoutGraph(juce::Rectangle<int>& rect);

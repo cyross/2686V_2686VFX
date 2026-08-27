@@ -18,8 +18,6 @@ namespace Wt2GuiText
 		static inline const juce::String visibleLfo = u8"[■]--- LFO ---";
 		static inline const juce::String invisibleLfo = u8"[□]--- LFO ---";
 		static inline const juce::String shape = u8"--- SHAPE ---";
-		static inline const juce::String visibleMod = u8"[■]--- MODULATION ---";
-		static inline const juce::String invisibileMod = u8"[□]--- MODULATION ---";
 		static inline const juce::String visibleWaveFile = u8"[■]--- WAVE FILE ---";
 		static inline const juce::String invisibleWaveFile = u8"[□]--- WAVE FILE ---";
 		static inline const juce::String visibleUtil = u8"[■]--- UTILITY ---";
@@ -84,17 +82,6 @@ namespace Wt2GuiText
 		static inline const juce::String fileImport = u8"Import (.wt2)";
 		static inline const juce::String fileExport = u8"Export (.wt2)";
 
-		namespace Mod
-		{
-			static inline const juce::String enable = u8"Enable";
-			static inline const juce::String depth = u8"DPTH";
-			static inline const juce::String speed = u8"SPED";
-			static inline const juce::String shape = u8"SHPE";
-			static inline const juce::String waveWt = u8"WT";
-			static inline const juce::String waveWt2 = u8"W2";
-			static inline const juce::String waveClear = u8"Clear";
-			static inline const juce::String waveSmooth = u8"Smooth";
-		}
 
 		namespace Custom
 		{

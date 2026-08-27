@@ -24,6 +24,7 @@
 #include "../../Gui/Components/Level/Level.h"
 #include "../../Gui/Components/Separator/NormalSeparator.h"
 #include "../../Gui/Components/Quality/Quality.h"
+#include "../../Gui/Components/WtMod/WtMod.h"
 #include "../../Gui/Components/SsgSwEnv11/SsgSwEnv11.h"
 #include "../../Gui/Components/SsgSwPEnv11/SsgSwPEnv11.h"
 #include "../../Gui/Components/SsgHwEnv/SsgHwEnv.h"
@@ -79,19 +80,8 @@ class GuiWtPlus : public GuiBase {
     std::array<GuiLabel, Global::WtPlus::slots> slotFileNameLabel;
 
     // ---------------- MODULATION ----------------
-    GuiCategoryLabel modCat;
-    GuiToggleButton modEnableButton;
-    GuiSlider modDepthSlider;
-    GuiSlider modSpeedSlider;
-    GuiComboBox modShapeSelector;
-    GuiTextButton modWaveWtBtn;
-    GuiTextButton modWaveWt2Btn;
-    GuiTextButton modWaveClearBtn;
-    GuiLabel modWaveFileNameLabel;
-    GuiToggleButton modWaveSmoothBtn;
+    GuiComponentWtMod modComponent;
 
-    // HuC6280 モードの変調波形 (32 サンプル) を書き込むためのパラメータ
-    std::array<juce::RangedAudioParameter*, 32> modWaveParams = { nullptr };
 
     // ---------------- UTILITY ----------------
     GuiCategoryLabel utilityCat;
@@ -183,16 +173,7 @@ public:
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context),
                            GuiLabel(context), GuiLabel(context), GuiLabel(context), GuiLabel(context) },
-        modCat(context),
-        modEnableButton(context),
-        modDepthSlider(context),
-        modSpeedSlider(context),
-        modShapeSelector(context),
-        modWaveWtBtn(context),
-        modWaveWt2Btn(context),
-        modWaveClearBtn(context),
-        modWaveFileNameLabel(context),
-        modWaveSmoothBtn(context),
+        modComponent(context),
         utilityCat(context),
         broadcastLevelButton(context),
         uSep001(context),
@@ -225,7 +206,6 @@ public:
     void setupGraph();
     void layoutWaveCat(Rectangle<int>& rect);
     void layoutSlotsCat(Rectangle<int>& rect);
-    void layoutModulationCat(Rectangle<int>& rect);
     void layoutUtilityCat(Rectangle<int>& rect);
     void layoutGraph(juce::Rectangle<int>& rect);
     void setLevel(float level);
@@ -240,8 +220,4 @@ public:
     void updateSlotFileName(int slot);
 
     // HuC6280 モード用の変調波形
-    void importModWave(bool isWt2);
-    bool applyModWaveFile(const juce::File& file, bool isWt2);
-    void clearModWave();
-    void updateModWaveFileName(const juce::String& fileName);
 };
